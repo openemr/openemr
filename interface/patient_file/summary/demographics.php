@@ -913,7 +913,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-8">
                     <?php
 
-                    if ($deceased > 0):
+                    if ($deceased > 0) :
                         echo $twig->getTwig()->render('patient/partials/deceased.html.twig', [
                             'deceasedDays' => deceasedDays($deceased),
                         ]);
@@ -1218,11 +1218,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <!-- start right column div -->
                     <?php
 
-                    if ($GLOBALS['erx_enable']):
+                    if ($GLOBALS['erx_enable']) :
                         echo $twig->getTwig()->render('patient/partials/erx.html.twig', []);
                     endif;
 
-                    if ($GLOBALS['portal_onsite_two_enable']):
+                    if ($GLOBALS['portal_onsite_two_enable']) :
                         echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
                             'portalAuthorized' => portalAuthorized($pid),
                             'portalLoginHref' => $portal_login_href,
@@ -1615,7 +1615,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     }  // end track_anything
 
-                    if ($thisauth):
+                    if ($thisauth) :
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
