@@ -1218,9 +1218,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <!-- start right column div -->
                     <?php
 
-                    echo $twig->getTwig()->render('patient/partials/erx.html.twig', [
-                        'erxEnable' => $GLOBALS['erx_enable'],
-                    ]);
+                    if ($GLOBALS['erx_enable']):
+                        echo $twig->getTwig()->render('patient/partials/erx.html.twig', []);
+                    endif;
 
                     if ($GLOBALS['portal_onsite_two_enable']):
                         echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
