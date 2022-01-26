@@ -262,23 +262,24 @@ function vitalsFormSubmitted()
                                 {include file="vitals_notes.tpl" title="Other Notes" unit="" input="note" vitalsValue=$vitals->get_note()}
                                     <tr>
                                         <td colspan='5' class="text-center">
-                                            {if ($patient_age <= 20 || (preg_match('/month/', $patient_age))) && $display.growth_meausrements == true}
-                                            <!-- only show growth-chart button for patients < 20 years old -->
-                                            <input type="button" class="btn btn-primary" id="pdfchart" value='{xla t="Growth-Chart"} ({xla t="PDF"})'>
-                                            <input type="button" class="btn btn-primary" id="htmlchart" value='{xla t="Growth-Chart"} ({xla t="HTML"})'>
-                                            {/if}
+
                                         </td>
                                     </tr>
                             </tbody>
                         </table>
                     </div>
-                <div class="form-group">
-                    <div class="text-left position-override">
+                <div class="form-group d-flex justify-content-between">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save editonly" name="Submit" value=''>{xlt t="Save"}</button>
                             <button type="button" class="btn btn-link btn-cancel editonly" id="cancel" value=''>{xlt t="Cancel"}</button>
                         </div>
-                    </div>
+                        <div class="btn-group" role="group">
+                            {if ($patient_age <= 20 || (preg_match('/month/', $patient_age))) && $display.growth_meausrements == true}
+                                <!-- only show growth-chart button for patients < 20 years old -->
+                                <button type="button" class="btn btn-link" id="pdfchart">{xlt t="Growth-Chart"} ({xlt t="PDF"})</button>
+                                <button type="button" class="btn btn-link" id="htmlchart">{xlt t="Growth-Chart"} ({xlt t="HTML"})</button>
+                            {/if}
+                        </div>
                 </div>
             <br /><br />
             <input type="hidden" name="id" id='id' value="{$vitals->get_id()|attr}" />
