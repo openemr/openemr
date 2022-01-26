@@ -13,17 +13,32 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Exceptions\Config\AmbiguousWriteException;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Entity\Config;
+use Twig\Environment;
 
 class ConfigService extends BaseService
 {
-    public const TABLE_NAME = 'config';
+    public const TABLE_NAME = "config";
 
     private const TABLE_PLACEHOLDER = "__table__";
 
-    public function __construct($base_table = null)
+    private const VIEW_EDIT_TEMPLATE = "config/edit_config.html.twig";
+
+    private $kernel;
+
+    /**
+     * @var TwigEnvironment
+     */
+    private $twig;
+
+    public function __construct($base_table = null, $kernel)
     {
         parent::__construct($base_table ?? self::TABLE_NAME);
+
+        $this->kernel = $kernel;
+        $tc = new TwigContainer(null, $kernel);
+        $this->twig = $tc;
     }
 
     /**
@@ -99,5 +114,24 @@ class ConfigService extends BaseService
         }
 
         return $query;
+    }
+
+    public function getKernel()
+    {
+        return $this->kernel;
+    }
+
+    public function getTwig()
+    {
+        return $this->twig;
+    }
+
+    public function renderConfigView(string $namespace)
+    {
+        $settings = $this->getByNamespace($namespace);
+        $vars = [
+            'settings' => $settings
+        ];
+        echo $this->getTwig()->render(self::VIEW_EDIT_TEMPLATE, $vars);
     }
 }
