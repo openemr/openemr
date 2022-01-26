@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -37,7 +38,6 @@ class MeasureResultsTest extends TestCase
         $this->measureOptions = MeasureService::fetchMeasureOptions();
 
         if (($handle = fopen(__DIR__ . "/measure_result_map.csv", "r")) !== false) {
-
             $head = fgetcsv($handle, 1000);
 
             while (($data = fgetcsv($handle, 1000, ",")) !== false) {
@@ -53,18 +53,15 @@ class MeasureResultsTest extends TestCase
             }
 
             fclose($handle);
-
         } else {
             throw new \Exception("Could not open measure result file measure_result_map.csv\n");
         }
-
     }
 
     public function testAllPatients()
     {
         $failures = [];
         foreach ($this->measure_result_map as $measureResult) {
-
             $measure = $measureResult['measure'];
 
             if ($measureResult['skip'] == 1) {
@@ -146,9 +143,9 @@ class MeasureResultsTest extends TestCase
                             $this->assertEquals($measureResult['DENOM'], $populationSet['DENOM'], "DENOM Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
                             $this->assertEquals($measureResult['NUMEX'], $populationSet['NUMEX'], "NUMEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
                             $this->assertEquals($measureResult['DENEX'], $populationSet['DENEX'], "DENEX Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
-                            $this->assertEquals($measureResult['DENEXCEP'], $populationSet['DENEXCEP'],"DENEXCEP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
+                            $this->assertEquals($measureResult['DENEXCEP'], $populationSet['DENEXCEP'], "DENEXCEP Failed: QRDA=`{$measureResult['qrda_file']}` PUBPID=`{$measureResult['pubpid']}` PID=`$pid` MEASURE=`$measure` - $setName");
                         } catch (ExpectationFailedException $e) {
-                            $failures[]= $e->getMessage();
+                            $failures[] = $e->getMessage();
                         }
                     }
                 }

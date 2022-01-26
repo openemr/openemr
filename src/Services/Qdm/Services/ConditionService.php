@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -19,7 +20,6 @@ class ConditionService extends AbstractQdmService implements QdmServiceInterface
 {
     public function executeQuery()
     {
-
     }
 
     /**

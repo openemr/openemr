@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -13,9 +14,9 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class QdmRequestSome implements QdmRequestInterface
 {
-   public $pids = [];
+    public $pids = [];
 
-   public $pidString = "";
+    public $pidString = "";
 
     /**
      * QdmQuery constructor.

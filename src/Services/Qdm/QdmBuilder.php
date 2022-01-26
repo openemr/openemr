@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -44,7 +45,7 @@ class QdmBuilder
         ProcedureService::class,
     ];
 
-    public function build(QdmRequestInterface $request) : array
+    public function build(QdmRequestInterface $request): array
     {
         // Create the patient service
         $patientService = new PatientService($request, new CodeTypesService());
@@ -95,5 +96,4 @@ class QdmBuilder
         $models = array_values($qdm_patients_map);
         return $models;
     }
-
 }

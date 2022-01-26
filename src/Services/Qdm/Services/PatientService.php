@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -99,5 +100,4 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
 
         return $qdmPatient;
     }
-
 }
