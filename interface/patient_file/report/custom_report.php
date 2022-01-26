@@ -34,6 +34,10 @@ use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\FacilityService;
 
+if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
+    die(xlt('Not authorized'));
+}
+
 $facilityService = new FacilityService();
 
 $staged_docs = array();
