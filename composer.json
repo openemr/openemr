@@ -75,9 +75,6 @@
     "config": {
         "platform": {
             "php": "7.4"
-        },
-        "allow-plugins": {
-            "openemr/oe-module-installer-plugin": true
         }
     },
     "require-dev": {
