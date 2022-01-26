@@ -796,7 +796,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
         }
 
         if ($this->promoText) {
-            return sprintf('<option value="">%s</option>%s', $this->promoText, $nodeHTML);
+            return sprintf('<option value="">%s</option>%s', text($this->promoText ?? ''), $nodeHTML);
         } else {
             return $nodeHTML;
         }
@@ -809,7 +809,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     */
     function _nodeToHTML($node, $prefix = '')
     {
-        $html = sprintf('<option value="%s">%s%s</option>', $node->id, $prefix, $node->text);
+        $html = sprintf('<option value="%s">%s%s</option>', attr($node->id), $prefix, text($node->text));
 
         /**
         * Loop through subnodes

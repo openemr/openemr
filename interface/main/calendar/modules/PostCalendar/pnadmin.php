@@ -229,7 +229,7 @@ EOF;
         $output->FormHidden("newactive", $newactive);
         $output->FormHidden("newsequence", $newsequence);
         $output->FormHidden("newaco", $newaco);
-        $output->Text(_PC_ADD_CAT . $newname . '.');
+        $output->Text(_PC_ADD_CAT . text($newname) . '.');
         $output->Linebreak();
     }
     $output->Text(_PC_MODIFY_CATS);
