@@ -63,7 +63,9 @@
         "symfony/dependency-injection": "4.4.34",
         "symfony/event-dispatcher": "4.4.34",
         "symfony/event-dispatcher-contracts": "1.1.9",
+        "symfony/finder": "^5.4",
         "symfony/http-foundation": "4.4.34",
+        "symfony/options-resolver": "^5.4",
         "symfony/yaml": "4.4.34",
         "twig/twig": "3.3.4",
         "vlucas/phpdotenv": "5.4.0",
@@ -73,6 +75,9 @@
     "config": {
         "platform": {
             "php": "7.4"
+        },
+        "allow-plugins": {
+            "openemr/oe-module-installer-plugin": true
         }
     },
     "require-dev": {

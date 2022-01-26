@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,7 +22,9 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Services\ListService;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 class C_FormVitals extends Controller
 {
     /**
@@ -32,9 +36,9 @@ class C_FormVitals extends Controller
     var $form_id;
 
     /**
-     * @var array $config The configuration options
+     * @var array $options The form options
      */
-    var $config;
+    var $options = [];
 
 
     const OMIT_CIRCUMFERENCES_NO = 0;
@@ -51,7 +55,14 @@ class C_FormVitals extends Controller
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
 
-        $config = Yaml::parseFile(dirname(__FILE__) . DIRECTORY_SEPARATOR . "config.yaml");
+        // The default options
+        $yaml = Yaml::parseFile(dirname(__FILE__) . DIRECTORY_SEPARATOR . "options.yaml");
+        $defaults = $yaml['form_vitals'];
+
+        // Setup the default display fields
+        $measurementsResolver = new OptionsResolver();
+        $this->configureDefaults($measurementsResolver, $defaults['measurements']);
+        $this->options['measurements'] = $measurementsResolver->resolve($this->getConfigurationOverrides("measurements"));
 
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
@@ -67,13 +78,42 @@ class C_FormVitals extends Controller
         $this->assign("MEASUREMENT_USA_ONLY", FormVitals::MEASUREMENT_USA_ONLY);
         $this->assign("MEASUREMENT_PERSIST_IN_METRIC", FormVitals::MEASUREMENT_PERSIST_IN_METRIC);
         $this->assign("MEASUREMENT_PERSIST_IN_USA", FormVitals::MEASUREMENT_PERSIST_IN_USA);
-        $this->assign("display", $config['measurements']);
+        $this->assign("display", $this->options["measurements"]);
 
-//        $this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
+        //$this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
         $this->assign("hide_circumferences", $GLOBALS['gbl_vitals_options'] > 0);
 
         // Assign the CSRF_TOKEN_FORM
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+    }
+
+    public function configureDefaults(OptionsResolver $resolver, $options)
+    {
+        $resolver->setDefaults($options);
+    }
+
+    /**
+     * Get the configuration overrides for a given $key
+     *
+     * @param string $key The configuration section to parse
+     * @return array
+     */
+    public function getConfigurationOverrides(string $key): array
+    {
+        // The overriden options, if any
+        $configDir = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "forms";
+        $finder = new Finder();
+        $finder->in($configDir)
+            ->files()
+            ->name("/form_vitals.ya?ml/")
+            ->contains("form_vitals");
+
+        $overrideOptions = [];
+        foreach ($finder as $file) {
+            $_yaml = Yaml::parseFile($file->getRealPath());
+            $overrideOptions = $_yaml['form_vitals'][$key];
+        }
+        return $overrideOptions;
     }
 
     public function setFormId($form_id)

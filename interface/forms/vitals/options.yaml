@@ -1,0 +1,18 @@
+form_vitals:
+    measurements:
+        pulse_rate: true
+        blood_pressure: true
+        respiratory_rate: true
+        temperature: true
+        oxygen_saturation: true
+        oxygen_flow_rate: true
+        inhaled_oxygen_concentration: true
+        growth_meausrements: true
+        height: true
+        weight: true
+        head_circumference: true
+        waist_circumference: true
+        body_mass_index: true
+        pediatric_weight_percentile: true
+        pediatric_bmi_percentile: true
+        pediatric_head_percentile: true
