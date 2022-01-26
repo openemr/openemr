@@ -819,7 +819,7 @@ $config = 1; /////////////
         //
         $gacl->add_acl(
             array(
-                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+                'acct' => array('bill', 'disc', 'eob'),
                 'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
                 'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
                 'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
@@ -975,7 +975,7 @@ $config = 1; /////////////
         //
         $gacl->add_acl(
             array(
-                'patients' => array('alert','pat_rep')
+                'patients' => array('alert')
             ),
             null,
             array($front),
@@ -1017,7 +1017,7 @@ $config = 1; /////////////
         // xl('Things that front office can read and partly modify')
         $gacl->add_acl(
             array(
-                'patients' => array('appt', 'demo', 'trans', 'notes'),
+                'patients' => array('appt', 'demo'),
                 'groups' => array('gcalendar')
             ),
             null,
