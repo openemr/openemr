@@ -23,11 +23,11 @@
 <link rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
 <link rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />
 
-<script src="<?php js_src('/cdr-multiselect/jquery.min.js') ?>"></script>
-<script src="<?php js_src('/cdr-multiselect/jquery-ui.min.js') ?>"></script>
-<script src="<?php js_src('/cdr-multiselect/plugins/localisation/jquery.localisation-min.js') ?>"></script>
-<script src="<?php js_src('/cdr-multiselect/plugins/scrollTo/jquery.scrollTo-min.js') ?>"></script>
-<script src="<?php js_src('/cdr-multiselect/ui.multiselect.js') ?>"></script>
+<script src="<?php js_src('cdr-multiselect/jquery.min.js') ?>"></script>
+<script src="<?php js_src('cdr-multiselect/jquery-ui.min.js') ?>"></script>
+<script src="<?php js_src('cdr-multiselect/plugins/localisation/jquery.localisation-min.js') ?>"></script>
+<script src="<?php js_src('cdr-multiselect/plugins/scrollTo/jquery.scrollTo-min.js') ?>"></script>
+<script src="<?php js_src('cdr-multiselect/ui.multiselect.js?v=' . $GLOBALS['v_js_includes']) ?>"></script>
 <script>
 // Below variables are to be used in the javascript for the cdr-multiselect(from cdr-multiselect/locale/ui-multiselect-cdr.js)
 $.extend($.ui.multiselect.locale, {
@@ -52,7 +52,7 @@ $.extend($.ui.multiselect.locale, {
             var data = $.parseJSON(resp);
 
             $.each(data, function(idx, obj) {
-                $('<option id="' + obj.plan_id + '" p_id="' + obj.plan_pid + '" value="' + obj.plan_id + '">' + obj.plan_title + '</option>')
+                $('<option id="' + jsAttr(obj.plan_id) + '" p_id="' + jsAttr(obj.plan_pid) + '" value="' + jsAttr(obj.plan_id) + '">' + jsText(obj.plan_title) + '</option>')
                     .insertAfter('#select_plan')
                     .insertBefore('#divider');
             });
@@ -178,7 +178,7 @@ $.extend($.ui.multiselect.locale, {
                 if (obj.status_code == '000') {
                     //Success
                     if (is_new_plan) {
-                        $('<option id="' + obj.plan_id + '" value="' + obj.plan_id + '">' + obj.plan_title + '</option>')
+                        $('<option id="' + jsAttr(obj.plan_id) + '" value="' + jsAttr(obj.plan_id) + '">' + jsText(obj.plan_title) + '</option>')
                             .insertAfter('#select_plan')
                             .insertBefore('#divider')
                             .attr("selected","selected");
@@ -250,7 +250,7 @@ $.extend($.ui.multiselect.locale, {
             $.post
                 (
                     '<?php echo  _base_url() .
-                            '/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + selected_plan
+                            '/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + encodeURIComponent(selected_plan)
                 )
                 .done(function(resp) {
                     var data = $.parseJSON(resp);
@@ -262,12 +262,12 @@ $.extend($.ui.multiselect.locale, {
                         if (obj.selected  == "true") {
                             $("#cdr_rules_select")
                                 .append(
-                                    $('<option value="' + obj.rule_id + '" selected="selected" init_value="selected">' + obj.rule_title + '</option>')
+                                    $('<option value="' + jsAttr(obj.rule_id) + '" selected="selected" init_value="selected">' + jsText(obj.rule_title) + '</option>')
                                 );
                         } else {
                             $("#cdr_rules_select")
                                 .append(
-                                    $('<option value="' + obj.rule_id + '" init_value="not-selected">' + obj.rule_title + '</option>')
+                                    $('<option value="' + jsAttr(obj.rule_id) + '" init_value="not-selected">' + jsText(obj.rule_title) + '</option>')
                                 );
                         }
                     });
@@ -300,14 +300,14 @@ $.extend($.ui.multiselect.locale, {
         })
         .fail(function (jqXHR, textStatus) {
             console.log(textStatus);
-            alert('<?php echo xls('Error'); ?>');
+            alert(<?php echo xlj('Error'); ?>);
         });
 
     }
 
     $newPlan = function() {
         $('#new_plan_container')
-                        .append('<?php echo '<label>' . xla('Plan Name') . ': </label>'; ?>')
+                        .append('<label>' + jsText(<?php echo xlj('Plan Name'); ?>) + ': </label>')
             .append('<input id="new_plan_name" type="text" name="new_plan_name">');
 
         $("#cdr-rules_cont").removeClass("overlay");
@@ -349,19 +349,19 @@ $.extend($.ui.multiselect.locale, {
     }
 
     $activatePlan = function() {
-        $("#plan-status-label").text('<?php echo xla('Status') . ': ' . xla('Active{{Plan}}'); ?>');
+        $("#plan-status-label").text(jsText(<?php echo xlj('Status'); ?>) + ': ' + jsText(<?php echo xlj('Active{{Plan}}'); ?>));
         window.buttonStatus = "active";
         $("#cdr-status").removeAttr("disabled");
-        $("#cdr-status").text('<?php echo xla('Deactivate'); ?>');
+        $("#cdr-status").text(jsText(<?php echo xlj('Deactivate'); ?>));
 
         $("#cdr-rules_cont").removeClass("overlay");
     }
 
     $deactivatePlan = function() {
-        $("#plan-status-label").text('<?php echo xla('Status') . ': ' . xla('Inactive'); ?>');
+        $("#plan-status-label").text(jsText(<?php echo xlj('Status'); ?>) + ': ' + jsText(<?php echo xlj('Inactive'); ?>));
         window.buttonStatus = "inactive";
         $("#cdr-status").removeAttr("disabled");
-        $("#cdr-status").text('<?php echo xla('Activate'); ?>');
+        $("#cdr-status").text(jsText(<?php echo xlj('Activate'); ?>));
 
         $("#cdr-rules_cont").addClass("overlay");
     }
