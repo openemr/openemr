@@ -101,7 +101,7 @@ class C_FormVitals extends Controller
     public function getConfigurationOverrides(string $key): array
     {
         // The overriden options, if any
-        $configDir = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "forms";
+        $configDir = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "config";
         $finder = new Finder();
         $finder->in($configDir)
             ->files()
