@@ -81,13 +81,13 @@ var page = {
                 $("html, body").animate({
                     scrollTop: 0
                 }, "slow");
-                var m = page.onsiteDocuments.get(this.id);
+                let m = page.onsiteDocuments.get(this.id);
                 page.showDetailDialog(m);
             });
             // make the headers clickable for sorting
             $('table.collection thead tr th').unbind().on('click', function (e) {
                 e.preventDefault();
-                var prop = this.id.replace('header_', '');
+                let prop = this.id.replace('header_', '');
                 // toggle the ascending/descending before we change the sort prop
                 page.fetchParams.orderDesc = (prop == page.fetchParams.orderBy && !page.fetchParams.orderDesc) ? '1' : '';
                 page.fetchParams.orderBy = prop;
@@ -454,6 +454,26 @@ var page = {
         page.formOrigin = isPortal ? 0 : isModule ? 2 : 1;
     },
 // page scoped functions
+    handleHistoryView: function () {
+        let historyHide = $('.historyHide');
+        historyHide.toggleClass('d-none');
+        if (historyHide.hasClass('d-none')) {
+            $('.modelContainer').removeClass("d-none");
+            //document.getElementById('verytop').scrollIntoView({behavior: 'smooth'})
+        } else {
+            $('.modelContainer').addClass("d-none");
+        }
+        $('.history-direction').toggleClass("fa-arrow-down").toggleClass("fa-arrow-up");
+    },
+    /**
+     * Fetch the passed in document id in editing status
+     * @param id the document id in edit mode from history
+     */
+    editHistoryDocument: function (id) {
+        event.preventDefault();
+        let m = page.onsiteDocuments.get(id);
+        page.showDetailDialog(m);
+    },
     chartHistory: function () {
         let formFrame = document.getElementById('lbfForm');
         formFrame.contentWindow.postMessage({submitForm: 'history'}, window.location.origin);
@@ -504,7 +524,7 @@ var page = {
         page.fetchParams = params;
         if (page.fetchInProgress) {
             if (console) {
-                console.log('supressing fetch because it is already in progress');
+                console.log('suppressing fetch because it is already in progress');
             }
         }
         page.fetchInProgress = true;
@@ -545,10 +565,16 @@ var page = {
 
     getDocument: function (templateName, pid, template_id) {
         $(".helpHide").removeClass("d-none");
+        $('.modelContainer').removeClass("d-none");
         $("#editorContainer").removeClass('w-auto').addClass('w-100');
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        if (currentName === 'Help') {
+            $("#dismissOnsiteDocumentButton").addClass("d-none");
+        } else {
+            $("#dismissOnsiteDocumentButton").removeClass("d-none");
+        }
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
@@ -648,15 +674,11 @@ var page = {
         }
         $('#docPanelHeader').append('&nbsp;<span class="bg-light text-dark px-2">' + jsText(currentNameStyled) + '</span>&nbsp;' +
             jsText(' Dated: ' + cdate + ' Status: ' + status));
-
-        /*$("html, body").animate({
-            scrollTop: 0
-        }, "slow");*/
     }
     ,
     /**
      * show the doc for editing
-     * @param model
+     * @param m doc id
      */
     showDetailDialog: function (m) {
         page.onsiteDocument = m ? m : new model.OnsiteDocumentModel();
@@ -711,7 +733,6 @@ var page = {
             // no point in initializing the click handlers if we don't show the button
             $('#deleteOnsiteDocumentButtonContainer').hide();
         }
-
     },
 
     /**
