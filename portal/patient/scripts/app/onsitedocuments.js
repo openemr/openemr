@@ -30,6 +30,9 @@ var page = {
     lbfFormName: "",
     formOrigin: 0, // default portal
     presentPatientSignature: false,
+    presentAdminSignature: false,
+    presentWitnessSignature: false,
+    signaturesRequired: false,
 
     init: function () {
         // ensure initialization only occurs once
@@ -487,7 +490,7 @@ var page = {
         $("#handler").val('chart');
         $("#status").val('charted');
 
-        signerAlertMsg(alertMsg1, 4000, "warning");
+        signerAlertMsg(alertMsg1, 3000, "warning");
         let posting = $.post("./../lib/doc_lib.php", {
             cpid: cpid,
             docid: docid,
@@ -764,6 +767,10 @@ var page = {
         }
         var ptsignature = $('#patientSignature').attr('src');
         if (ptsignature == signhere) {
+            if (page.signaturesRequired && page.presentPatientSignature) {
+                signerAlertMsg(signMsg, 6000, 'danger');
+                return false;
+            }
             ptsignature = "";
         }
         var wtsignature = $('#witnessSignature').attr('src');
@@ -784,7 +791,7 @@ var page = {
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
             'provider': page.onsiteDocument.get('provider'),
             'encounter': page.onsiteDocument.get('encounter'),
-            'createDate': new Date(), //page.onsiteDocument.get('createDate'),
+            'createDate': new Date(),
             'docType': page.onsiteDocument.get('docType'),
             'patientSignedStatus': ptsignature ? '1' : '0',
             'patientSignedTime': ptsignature ? new Date() : '0000-00-00',
@@ -839,7 +846,7 @@ var page = {
                     return;
                 }
                 if (reload) {
-                    setTimeout("location.reload(true);", 4000);
+                    setTimeout("location.reload(true);", 3000);
                 }
             },
             error: function (model, response, scope) {
@@ -860,7 +867,7 @@ var page = {
         page.onsiteDocument.destroy({
             wait: true,
             success: function () {
-                signerAlertMsg(msgDelete, 4000, 'success');
+                signerAlertMsg(msgDelete, 3000, 'success');
                 app.hideProgress('modelLoader');
                 pageAudit.onsitePortalActivity.set('status', 'deleted');
                 pageAudit.onsitePortalActivity.set('pendingAction', 'none');

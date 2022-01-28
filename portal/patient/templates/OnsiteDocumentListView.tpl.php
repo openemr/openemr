@@ -301,7 +301,7 @@ $templateService = new DocumentTemplateService();
                     <?php if (!empty($is_module) || !empty($is_portal)) { ?>
                         <div class="dropdown mb-1">
                             <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <?php echo xlt('New Documents') ?>
+                                <?php echo xlt('Your Documents') ?>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>

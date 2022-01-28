@@ -846,7 +846,7 @@ class DocumentTemplateService
                     if ((int)$template['pid'] === 0) {
                         $template['pid'] = $current_patient;
                     }
-                    $in_edit = sqlQuery("Select `id`, `doc_type` From `onsite_documents` Where `denial_reason` = 'Editing' And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
+                    $in_edit = sqlQuery("Select `id`, `doc_type`, `denial_reason` From `onsite_documents` Where (`denial_reason` = 'Editing' Or `denial_reason` = 'In Review') And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
                     if (empty($in_edit)) {
                         $test = $this->showTemplateFromEvent($template);
                         if (!$test) {
