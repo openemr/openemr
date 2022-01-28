@@ -1834,6 +1834,7 @@ CREATE TABLE `form_encounter` (
   `discharge_disposition` varchar(100) NULL DEFAULT NULL,
   `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'not all types are categories',
   `encounter_type_description` TEXT,
+  `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
