@@ -308,6 +308,24 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
 ?>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
+
+    <?php // mdsupport - app settings
+        $disp_mainBox = '';
+        if (isset($_SESSION['app1'])) {
+            $rs = sqlquery(
+                "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
+                array('apps', $_SESSION['app1'])
+            );
+            if ($rs['app_url'] != "/interface/main/main_screen.php") {
+                printf('
+                    <iframe name="app1" src="%s%s" class="fixed-top h-100 w-100 border-0"></iframe>',
+                    $GLOBALS['webroot'], attr($rs['app_url'])
+                );
+                $disp_mainBox = 'class="d-none"';
+            }
+        }
+    ?>
+
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
             <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
