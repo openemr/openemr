@@ -32,7 +32,7 @@
   ],
   "devDependencies": {
     "autoprefixer": "^10.4.0",
-    "colors": "^1.4.0",
+    "colors": "1.4.0",
     "del": "^6.0.0",
     "glob": "^7.2.0",
     "gulp": "^4.0.2",
@@ -78,7 +78,6 @@
     "dropzone": "5.9.3",
     "dwv": "0.27.1",
     "flot": "4.2.2",
-    "gritter": "1.7.4",
     "i18next": "21.5.4",
     "i18next-browser-languagedetector": "6.1.2",
     "i18next-xhr-backend": "3.2.2",

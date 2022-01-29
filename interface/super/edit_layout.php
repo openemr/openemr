@@ -252,6 +252,8 @@ function isColumnReserved($tablename, $field_id)
             'uuid',
             'care_team_facility',
             'name_history',
+            'care_team_status',
+            'patient_groups'
             ))
         ) {
             return true;

@@ -1258,7 +1258,7 @@ function make_insurance() {
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
                                 <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
                                     if ($GLOBALS['payment_gateway'] == 'Sphere') {
-                                        echo SpherePayment::renderSphereHtml();
+                                        echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
                                         echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
                                         if (!empty($GLOBALS['cc_stripe_terminal'])) {

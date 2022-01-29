@@ -1857,7 +1857,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        return $res_cur['codes'];
+        return $res_cur['codes'] ?? '';
     }
 }
 // Below was removed as couldn't find it used anywhere! Will keep for a minute or two...

@@ -65,7 +65,11 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             // category; other IN events are to be treated as OUT events.
             if ($input_catid) {
                 if ($prefcatid == $input_catid || !$prefcatid) {
-                    $slots[$i] |= 1;
+                    if ($slots[$i] ?? '') {
+                        $slots[$i] |= 1;
+                    } else {
+                        $slots[$i] = 1;
+                    }
                 } else {
                     $slots[$i] |= 2;
                 }
@@ -170,7 +174,7 @@ if ($_REQUEST['providerid']) {
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
     // phyaura whimmel facility filtering
-    if ($_REQUEST['facility'] > 0) {
+    if ($_REQUEST['facility'] ?? '' > 0) {
             $facility = $_REQUEST['facility'];
             $query .= " AND pc_facility = ?";
             array_push($sqlBindArray, $facility);
@@ -401,8 +405,9 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $ampmFlag = $ampm;
+                $hour_format_leading_zeros = ($GLOBALS['time_display_format'] == 0) ? 'h' : 'H';
 
-                $atitle = "Choose " . date("h:i a", $utime);
+                $atitle = "Choose " . date($hour_format_leading_zeros . ":i a", $utime);
                 $adate = getdate($utime);
                 $anchor = "<a href='' class='text-decoration-none' onclick='return setappt(" .
                 attr_js($adate['year']) . "," .
@@ -412,8 +417,9 @@ if (isset($_REQUEST['cktime'])) {
                 attr_js($adate['minutes']) . ")'" .
                 " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
                 ">";
-                echo (strlen(date('g', $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
-                $anchor . date("g:i", $utime) . "</a> ";
+                $hour_format = ($GLOBALS['time_display_format'] == 0) ? 'G' : 'g';
+                echo (strlen(date($hour_format, $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
+                $anchor . date($hour_format . ":i", $utime) . "</a> ";
 
                 // If the duration is more than 1 slot, increment $i appropriately.
                 // This is to avoid reporting available times on undesirable boundaries.

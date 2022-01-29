@@ -11,7 +11,7 @@
  * @copyright Copyright (c) 2010-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -3160,17 +3160,17 @@ $GLOBALS_METADATA = array(
         ),
 
         'sphere_clinicfront_trxcustid' => array(
-            xl('Sphere Clinicfront (MOTO) Transaction CustID'),
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID'),
             'encrypted',
             '',
-            xl('Sphere Clinicfront (MOTO) Transaction CustID')
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID')
         ),
 
         'sphere_clinicfront_trxcustid_licensekey' => array(
-            xl('Sphere Clinicfront (MOTO) Transaction CustID License Key'),
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID License Key'),
             'encrypted',
             '',
-            xl('Sphere Clinicfront (MOTO) Transaction CustID License Key')
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID License Key')
         ),
 
         'sphere_moto_tc_link_pass' => array(
@@ -3178,6 +3178,27 @@ $GLOBALS_METADATA = array(
             'encrypted',
             '',
             xl('Sphere MOTO TC Link Password')
+        ),
+
+        'sphere_clinicfront_retail_trxcustid' => array(
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID')
+        ),
+
+        'sphere_clinicfront_retail_trxcustid_licensekey' => array(
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID License Key')
+        ),
+
+        'sphere_retail_tc_link_pass' => array(
+            xl('Sphere RETAIL TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere RETAIL TC Link Password')
         ),
 
         'sphere_patientfront_trxcustid' => array(

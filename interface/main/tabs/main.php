@@ -217,6 +217,19 @@ $esignApi = new Api();
         }).catch(error => {
             console.log(error.message);
         });
+
+        /**
+         * Assign and persist documents to portal patients
+         * @var int patientId pid
+         */
+        function assignPatientDocuments(patientId) {
+            let url = top.webroot_url + '/portal/import_template_ui.php?from_demo_pid=' + encodeURIComponent(patientId);
+            dlgopen(url, 'pop-assignments', 'modal-lg', 850, '', '', {
+                allowDrag: true,
+                allowResize: true,
+                sizeHeight: 'full',
+            });
+        }
     </script>
 
     <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>

@@ -62,7 +62,9 @@ $date_init = "";
 $membership_group_number = 0;
 
 // Our base Bootstrap column class, referenced here and in some other modules.
-$BS_COL_CLASS = 'col-md';
+// Using col-lg allow us to have additional breakpoint at col-md.(992px, 768px)
+// col-md-auto will let BS decide with col-12 always for sm devices.
+$BS_COL_CLASS = 'col-12 col-md-auto col-lg';
 
 function get_pharmacies()
 {

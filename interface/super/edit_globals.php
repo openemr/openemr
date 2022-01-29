@@ -170,10 +170,10 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
                             $fldvalue = $cryptoGen->encryptStandard($tmpValue);
                         }
                     } else {
-                        $fldvalue = trim($_POST["form_$i"]);
+                        $fldvalue = trim($_POST["form_$i"] ?? '');
                     }
                     setUserSetting($label, $fldvalue, $_SESSION['authUserID'], false);
-                    if ($_POST["toggle_$i"] == "YES") {
+                    if ($_POST["toggle_$i"] ?? '' == "YES") {
                         removeUserSetting($label);
                     }
 
@@ -467,7 +467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $settingDefault = "checked='checked'";
                                             if ($userMode) {
                                                     $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authUserID'],"global:" . $fldid));
-                                                    $userSetting = $userSettingArray['setting_value'];
+                                                    $userSetting = $userSettingArray['setting_value'] ?? '';
                                                     $globalValue = $fldvalue;
                                                 if (!empty($userSettingArray)) {
                                                     $fldvalue = $userSetting;

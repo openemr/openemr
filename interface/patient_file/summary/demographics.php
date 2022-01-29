@@ -11,11 +11,13 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,7 +27,7 @@ require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/group.inc");
-require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
+require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
@@ -46,8 +48,8 @@ $twig = new TwigContainer(null, $GLOBALS['kernel']);
 if (isset($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
-    if (isset($_GET['set_encounterid']) && (intval($_GET['set_encounterid']) > 0)) {
-        $encounter = intval($_GET['set_encounterid']);
+    if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
+        $encounter = (int)$_GET['set_encounterid'];
         SessionUtil::setSession('encounter', $encounter);
     }
 }
@@ -144,6 +146,55 @@ function get_document_by_catg($pid, $doc_catg)
 
     return ($result['id'] ?? false);
 }
+
+function portalAuthorized($pid)
+{
+    if (!$GLOBALS['portal_onsite_two_enable'] && !$GLOBALS['portal_onsite_two_address']) {
+        return false;
+    }
+
+    $return = [
+        'allowed' => false,
+        'created' => false,
+    ];
+
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
+    if ($portalStatus['allow_patient_portal'] == 'YES') {
+        $return['allowed'] = true;
+        $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
+        if ($portalLogin) {
+            $return['created'] = true;
+        }
+        return $return;
+    }
+}
+
+function deceasedDays($days_deceased)
+{
+    $deceased_days = intval($days_deceased['days_deceased'] ?? '');
+    if ($deceased_days == 0) {
+        $num_of_days = xl("Today");
+    } elseif ($deceased_days == 1) {
+        $num_of_days =  $deceased_days . " " . xl("day ago");
+    } elseif ($deceased_days > 1 && $deceased_days < 90) {
+        $num_of_days =  $deceased_days . " " . xl("days ago");
+    } elseif ($deceased_days >= 90 && $deceased_days < 731) {
+        $num_of_days =  "~" . round($deceased_days / 30) . " " . xl("months ago");  // function intdiv available only in php7
+    } elseif ($deceased_days >= 731) {
+        $num_of_days =  xl("More than") . " " . round($deceased_days / 365) . " " . xl("years ago");
+    }
+
+    if (strlen($days_deceased['date_deceased'] ?? '') > 10 && $GLOBALS['date_display_format'] < 1) {
+        $deceased_date = substr($days_deceased['date_deceased'], 0, 10);
+    } else {
+        $deceased_date = oeFormatShortDate($days_deceased['date_deceased'] ?? '');
+    }
+
+    return xlt("Deceased") . " - " . text($deceased_date) . " (" . text($num_of_days) . ")";
+}
+
+$deceased = is_patient_deceased($pid);
+
 
 // Display image in 'widget style'
 function image_widget($doc_id, $doc_catg)
@@ -605,7 +656,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                dlgopen('', '', 380, 200, '', '', {
+                dlgopen('', '', 380, 400, '', '', {
                     buttons: [{
                         text: <?php echo xlj('Close'); ?>,
                         close: true,
@@ -856,11 +907,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
         }
         ?>
-        <div class="main">
+        <div class="main mb-5">
             <!-- start main content div -->
             <div class="row">
                 <div class="col-md-8">
                     <?php
+
+                    if ($deceased > 0) :
+                        echo $twig->getTwig()->render('patient/partials/deceased.html.twig', [
+                            'deceasedDays' => deceasedDays($deceased),
+                        ]);
+                    endif;
+
                     if (!$GLOBALS['hide_billing_widget']) :
                         $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
                         $patientbalance = get_patient_balance($pid, false);
@@ -1159,6 +1217,21 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
+
+                    if ($GLOBALS['erx_enable']) :
+                        echo $twig->getTwig()->render('patient/partials/erx.html.twig', []);
+                    endif;
+
+                    if ($GLOBALS['portal_onsite_two_enable']) :
+                        echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
+                            'portalAuthorized' => portalAuthorized($pid),
+                            'portalLoginHref' => $portal_login_href,
+                            'title' => xl('Patient Portal'),
+                            'id' => 'patient_portal',
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                        ]);
+                    endif;
+
                     // If there is an ID Card or any Photos show the widget
                     $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
                     if ($photos or $idcard_doc_id) {
@@ -1541,6 +1614,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => "html"
                         ]);
                     }  // end track_anything
+
+                    if ($thisauth) :
+                        echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
+                            'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
+                            'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
+                        ]);
+                    endif;
                     ?>
                 </div> <!-- end right column div -->
             </div> <!-- end main content div -->
