@@ -34,17 +34,19 @@ class ORDataObject
         // NOTE: REPLACE INTO does a DELETE and then INSERT, if you have foreign keys setup the delete call will trigger
         $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
-        $fields = QueryUtils::listTableFields($this->_table);
         $db = get_db();
-        $pkeys = $db->MetaPrimaryKeys($this->_table);
+        $fields = $db->metaColumns($this->_table);
 
-        foreach ($fields as $field) {
+        foreach ($fields as $field => $objAdoField) {
             $func = "get_" . $field;
             //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
             if (is_callable(array($this,$func))) {
                 $val = call_user_func(array($this,$func));
 
-                if (in_array($field, $pkeys)  && empty($val)) {
+                // mdsupport - Maintaining legacy behavior that makes this blunt REPLACE worse
+                // Suggest limiting use of generate_id only for keys that are not not auto_increment
+                // Use continue to skip empty auto_increment key field. 
+                if (($objAdoField['primary_key'])  && empty($val)) {
                     $last_id = generate_id();
                     call_user_func(array(&$this,"set_" . $field), $last_id);
                     $val = $last_id;
