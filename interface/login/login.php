@@ -36,6 +36,85 @@ require_once("../globals.php");
 $twig = new TwigContainer(null, $GLOBALS["kernel"]);
 $t = $twig->getTwig();
 
+// mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
+// If this script is called with app parameter, validate it without showing other apps.
+// 6.x - Expect script paths relative to root instead of interface
+
+// Requested apps need to be validated
+if (isset($_REQUEST['app'])) {
+    $appReq = trim($_REQUEST['app']);
+}
+
+// Build a list of apps
+$appOpts = [
+    // Standard app - Must be one of the options
+    '/interface/main/main_screen.php' => [
+        'display' => '*OpenEMR',
+        'selected' => 'selected',
+    ],
+];
+$sql = "SELECT trim(option_id) as display, trim(title) as url, is_default selected
+        FROM list_options
+        WHERE list_id=? and activity=1 
+        ORDER BY seq, option_id";
+$rs = sqlStatement($sql, ['apps']);
+while ($app = sqlFetchArray($rs)) {
+    $opt = $app['display'];
+    $urlPart = explode('?', $app['url']);
+    // Provide an indicator when missing file.
+    $urlValid = (file_exists('../..' . $urlPart[0]));
+    if ($urlValid && ($opt == $appReq)) {
+        // Stop further processing and set up a single choice
+        $appOpts = [
+            $urlPart[0] => $appReq
+        ];
+        break;
+    }
+    if (!$urlValid) {
+        $opt = [
+            'display' => $opt.' **'.xlt('Fix This').'**',
+            'value' => '*OpenEMR',
+        ];
+    } elseif ($app['selected']) {
+        $opt = [
+            'display' => $opt,
+            'value' => $opt,
+            'selected' => 'selected',
+        ];
+    }
+
+    $appOpts[$urlPart[0]] = $opt;
+}
+
+$div_app = '';
+if (count($appOpts) == 1) {
+    $opt = array_values($appOpts);
+    $div_app = sprintf(
+        '<input type="hidden" name="appChoice" value="%s">',
+        (is_array($opt) ? attr($opt['value']) : attr($opt))
+    );
+} else {
+    $optHtm = '';
+    foreach ($appOpts as $opt) {
+        $optHtm .= sprintf(
+            '<option value="%s" %s>%s</option>',
+            (is_array($opt) ? attr($opt['value']) : attr($opt)),
+            (is_array($opt) ? attr($opt['selected']) : ''),
+            (is_array($opt) ? text($opt['display']) : attr($opt)),
+        );
+    }
+    $div_app = sprintf(
+        '<div id="divApp" class="form-group">
+            <label for="appChoice" class="text-right">%s:</label>
+            <div>
+                <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
+            </div>
+        </div>',
+        xlt('App'),
+        $optHtm
+    );
+}
+
 // This code allows configurable positioning in the login page
 $logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-primary";
 $formarea = "py-3 px-2 p-sm-5 bg-white order-2";
@@ -196,5 +275,6 @@ $viewArgs = [
     'loginRow' => $loginrow,
     'formArea' => $formarea,
     'showLabels' => $GLOBALS['show_labels_on_login_form'],
+    'divApp' => $div_app,
 ];
 echo $t->render("login/login_core.html.twig", $viewArgs);
