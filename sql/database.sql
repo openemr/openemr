@@ -5366,6 +5366,12 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES (
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/png', 'image/png', 1);
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'text/plain', 'text/plain', 1);
 
+-- Sample Apps
+
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','/interface/main/main_screen.php',10,1,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','/interface/main/main_info.php',20,0,1);
+
 -- Sort Directions
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'Sort_Direction', 'Sort Direction', 1, 0, 1);
