@@ -49,6 +49,6 @@
 --    all blocks are terminated with and #EndIf statement.
 
 #IfRow2D list_options list_id lists option_id apps
-DELETE FROM list_options WHERE list_id="lists" AND "option_id"="apps";
-DELETE FROM list_options WHERE list_id="apps";
+UPDATE list_options SET title='/interface/main/main_screen.php' WHERE list_id='apps' AND option_id='*OpenEMR';
+UPDATE list_options SET title='/interface/main/main_info.php' WHERE list_id='apps' AND option_id='Calendar';
 #EndIf
