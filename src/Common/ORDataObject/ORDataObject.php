@@ -44,9 +44,14 @@ class ORDataObject
                 $val = call_user_func(array($this,$func));
 
                 // mdsupport - Maintaining legacy behavior that makes this blunt REPLACE worse
-                // Suggest limiting use of generate_id only for keys that are not not auto_increment
-                // Use continue to skip empty auto_increment key field. 
-                if (($objAdoField['primary_key'])  && empty($val)) {
+                if (($objAdoField->primary_key)  && empty($val)) {
+                    // Uncomment the following block to limit use of generate_id only for keys that are not auto_incremented
+                    /**
+                    if ($objAdoField->auto_increment) {
+                        // Skip the field from sql statement.
+                        continue;
+                    }
+                    **/
                     $last_id = generate_id();
                     call_user_func(array(&$this,"set_" . $field), $last_id);
                     $val = $last_id;
