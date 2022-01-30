@@ -488,10 +488,18 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
+                            <label for='referring_provider_id' class="text-right"><?php echo xlt('Referring Provider'); ?>:</label>
                         </div>
                         <div class="col-sm">
-                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
+                            <select name='referring_provider_id' id='referring_provider_id' class='form-control'>
+                            <?php
+                            if (!empty($obj["provider_id"])) {
+                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
+                            } else { // defalut to the patient's ref_prov
+                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
+                            } ?>
+                                
+                            </select>
                         </div>
                     </div>
                     <div class="form-row align-items-center mt-2">
@@ -566,15 +574,19 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 <?php } ?>
                             </select>
                         </div>
-                        <div class="col-sm-2"></div>
-                        <div class="col-sm"></div>
+                        <div class="col-sm-2">
+                            <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
+                        </div>
                     </div>
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
-                    <div class="form-row mt-2">
+                    <div class="form-row align-items-center mt-2">
                         <div class="col-sm-2">
                             <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
                         </div>
-                        <div class="col-sm-8">
+                        <div class="col-sm-6">
                             <select name="pos_code" id="pos_code" class='form-control'>
                                 <?php
                                 $pc = new POSRef();
@@ -589,7 +601,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 ?>
                             </select>
                         </div>
-                    </div>
                     <?php } ?>
                 </div>
             </fieldset>
