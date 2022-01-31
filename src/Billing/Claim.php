@@ -168,6 +168,8 @@ class Claim
     {
         if ($this->billing_options['provider_id'] ?? '') {
             $referrer_id = $this->billing_options['provider_id'];
+        } elseif ($this->encounter->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
+            $referrer_id = $this->encounter->getReferringProviderID($this->pid, $this->encounter_id);
         } else {
             $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
             ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') ?
