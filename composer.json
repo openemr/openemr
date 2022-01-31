@@ -67,8 +67,7 @@
         "twig/twig": "3.3.4",
         "vlucas/phpdotenv": "5.4.0",
         "waryway/php-traits-library": "1.0.4",
-        "yubico/u2flib-server": "1.0.2",
-        "openemr/oe-module-cqm": "dev-main"
+        "yubico/u2flib-server": "1.0.2"
     },
     "config": {
         "platform": {
