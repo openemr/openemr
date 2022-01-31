@@ -31,7 +31,6 @@ require_once("{$GLOBALS['srcdir']}/pid.inc");
 
 class ParticipantsController extends BaseController
 {
-
     public function __construct()
     {
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');

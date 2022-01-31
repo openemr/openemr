@@ -92,7 +92,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Prescription extends ORDataObject
 {
-
     /**
      *
      * @access public
@@ -143,6 +142,8 @@ class Prescription extends ORDataObject
     var $drug_id;
     var $active;
     var $ntx;
+
+    var $encounter;
 
     /**
     * Constructor sets all Prescription attributes to their default value

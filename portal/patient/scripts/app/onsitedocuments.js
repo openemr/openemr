@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,6 +18,7 @@ var page = {
     isInitialized: false,
     isInitializing: false,
     isSaved: true,
+    isNewDoc: false,
     fetchParams: {filter: '', orderBy: '', orderDesc: '', page: 1, patientId: cpid, recid: recid},
     fetchInProgress: false,
     dialogIsOpen: false,
@@ -28,6 +29,7 @@ var page = {
     isFrameForm: 0,
     lbfFormName: "",
     formOrigin: 0, // default portal
+    presentPatientSignature: false,
 
     init: function () {
         // ensure initialization only occurs once
@@ -66,16 +68,13 @@ var page = {
                 $("#topnav").hide();
             }
             // No dups - turn off buttons if doc exist
-            this.collection.each(function (model, index, list) {
-                var tplname = model.get('docType')
-                if (model.get('denialReason') != 'Locked') {
-                    let parsed = tplname.split(/.*[\/|\\]/)[1];
-                    if (typeof parsed === 'undefined') {
-                        parsed = tplname;
-                    }
-                    $('#' + parsed.slice(0, -4)).hide();
+            // Currently not needed.
+            /*this.collection.each(function (model, index, list) {
+                let tplname = model.get('filePath')
+                if (model.get('denialReason') !== '' && tplname !== '') {
+                    $('#' + tplname).hide();
                 }
-            });
+            });*/
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
                 e.preventDefault();
@@ -101,15 +100,12 @@ var page = {
                 page.fetchParams.page = this.id.substr(5);
                 page.fetchOnsiteDocuments(page.fetchParams);
             });
-            // Let's scroll to document editor on selection.
-            $('.history-btn').unbind().on('click', function (e) {
-                /*e.preventDefault();
-                var m = page.onsiteDocuments.get(this.offsetParent.parentElement.id);
-                page.showDetailDialog(m);
-                $('html,body').animate({scrollTop:0},500);*/
-            });
             $('.template-item').unbind().on('click', function (e) {
-                parent.document.getElementById('topNav').classList.add('collapse');
+                if (!isModule) {
+                    $("#topnav").hide();
+                    //$("#dropdownMenu").removeClass('d-none');
+                    parent.document.getElementById('topNav').classList.add('collapse');
+                }
             });
             page.isInitialized = true;
             page.isInitializing = false;
@@ -148,7 +144,6 @@ var page = {
                     timepicker: false
                 });
             })
-
             $("#templatecontent").on('focus', ".datetimepicker:not(.hasDatetimepicker)", function () {
                 $(".datetimepicker").datetimepicker({
                     i18n: {
@@ -173,6 +168,7 @@ var page = {
             (page.isLocked) ? $("#printTemplate").show() : $("#printTemplate").hide();
             $("#chartHistory").hide();
 
+
             page.getDocument(page.onsiteDocument.get('docType'), cpid, page.onsiteDocument.get('filePath'));
             if (page.isDashboard) { // review
                 flattenDocument();
@@ -185,11 +181,15 @@ var page = {
                 $('#patientSignature').css('cursor', 'default');
                 $('#adminSignature').off();
                 $('#adminSignature').css('cursor', 'default');
+                $('#witnessSignature').css('cursor', 'default');
+                $('#witnessSignature').off();
             } else if (!isModule) {
                 // disable signatures in appropriate views
                 if (!isPortal) {
                     $('#patientSignature').css('cursor', 'default');
                     $('#patientSignature').off();
+                    $('#witnessSignature').css('cursor', 'default');
+                    $('#witnessSignature').off();
                 } else {
                     $('#adminSignature').css('cursor', 'default');
                     $('#adminSignature').off();
@@ -353,6 +353,7 @@ var page = {
                         if (page.onsiteDocument.get('denialReason') === 'In Review') {
                             pageAudit.onsitePortalActivity.set('status', 'waiting');
                         } else {
+                            page.onsiteDocument.set('denialReason', 'Editing');
                             pageAudit.onsitePortalActivity.set('status', 'editing');
                         }
                         // save lbf iframe template
@@ -364,6 +365,7 @@ var page = {
                     if (page.onsiteDocument.get('denialReason') === 'In Review') {
                         pageAudit.onsitePortalActivity.set('status', 'waiting');
                     } else {
+                        page.onsiteDocument.set('denialReason', 'Editing');
                         pageAudit.onsitePortalActivity.set('status', 'editing');
                     }
                     page.updateModel(true);
@@ -434,9 +436,17 @@ var page = {
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                 }
             });
+
+            $('.navCollapse .dropdown-menu>a').on('click', function(){
+                $('.navbar-collapse').collapse('hide');
+            });
+
+            $('.navCollapse li.nav-item>a').on('click', function(){
+                $('.navbar-collapse').collapse('hide');
+            });
         });
 
-        if (newFilename) { // auto load new on init. once only.
+        if (newFilename) { // autoload new on init. once only.
             page.newDocument(cpid, cuser, newFilename, id);
             newFilename = '';
         }
@@ -486,8 +496,8 @@ var page = {
     },
     /**
      * Fetch the collection data from the server
-     * @param object params passed through to collection.fetch
-     * @param bool true to hide the loading animation
+     * @param params
+     * @param hideLoader
      */
     fetchOnsiteDocuments: function (params, hideLoader) {
         // persist the params so that paging/sorting/filtering will play together nicely
@@ -520,9 +530,9 @@ var page = {
 
     newDocument: function (pid, user, templateName, template_id) {
         docid = templateName;
-        cuser = user;
-        cpid = pid;
-        isNewDoc = true;
+        cuser = cuser > '' ? cuser : user;
+        cpid = cpid > '0' ? cpid : pid;
+        page.isNewDoc = true;
         m = new model.OnsiteDocumentModel();
         m.set('docType', docid);
         m.set('filePath', template_id);
@@ -535,13 +545,17 @@ var page = {
 
     getDocument: function (templateName, pid, template_id) {
         $(".helpHide").removeClass("d-none");
+        $("#editorContainer").removeClass('w-auto').addClass('w-100');
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
-        if (currentName === templateName && currentName && !isNewDoc) {
+        if (docid !== 'Help') {
+            $("#topnav").hide();
+        }
+        if (currentName === templateName && currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)
             $("#docid").val(currentName);
             // get document template
@@ -587,23 +601,27 @@ var page = {
                 success: function (templateHtml, textStatus, jqXHR) {
                     $("#docid").val(templateName);
                     $('#templatecontent').html(templateHtml);
-                    if (isNewDoc) {
-                        isNewDoc = false;
+                    if (page.isNewDoc) {
+                        page.isNewDoc = false;
                         page.isSaved = false;
                         $("#printTemplate").hide();
                         $("#submitTemplate").hide();
-                        //$("#sendTemplate").hide();
                         page.onsiteDocument.set('fullDocument', templateHtml);
                         if (isPortal) {
                             $('#adminSignature').css('cursor', 'default').off();
                         } else if (!isModule) {
                             $('#patientSignature').css('cursor', 'default').off();
+                            $('#witnessSignature').css('cursor', 'default').off();
+                        }
+                        bindFetch();
+
+                        if (page.isFrameForm) {
+                            //$("#editorContainer").removeClass('w-100').addClass('w-auto');
                         }
                         // new encounter form
                         // lbf has own signer instance. no binding here.
                         // page.lbfFormName & page.isFrameForm is set from template directive
                         $(function () {
-                            bindFetch();
                             // an iframe in <form><iframe src=???></iframe> this page.
                             if (page.isFrameForm) {
                                 // a layout form
@@ -664,7 +682,7 @@ var page = {
 
     /**
      * Render the model template in the container
-     * @param bool show the delete button
+     * @param showDeleteButton
      */
     renderModelView: function (showDeleteButton) {
         page.modelView.render();
@@ -710,18 +728,26 @@ var page = {
         }
         // if this is new then on success we need to add it to the collection
         var isNew = page.onsiteDocument.isNew();
-        var s = page.onsiteDocument.get('denialReason');
-        if (!isNew && s == 'New' && s != 'In Review') {
+        let s = page.onsiteDocument.get('denialReason');
+        if (!isNew && s === 'New' && s !== 'In Review') {
             page.onsiteDocument.set('denialReason', 'Open');
             app.showProgress('modelLoader');
         }
         let isLink = $('#patientSignature').attr('src') ? $('#patientSignature').attr('src').indexOf('signhere') : -1;
+        let isWitnessLink = $('#witnessSignature').attr('src') ? $('#witnessSignature').attr('src').indexOf('signhere') : -1;
         if (isLink !== -1) {
             $('#patientSignature').attr('src', signhere);
+        }
+        if (isWitnessLink !== -1) {
+            $('#witnessSignature').attr('src', signhere);
         }
         var ptsignature = $('#patientSignature').attr('src');
         if (ptsignature == signhere) {
             ptsignature = "";
+        }
+        var wtsignature = $('#witnessSignature').attr('src');
+        if (wtsignature == signhere) {
+            wtsignature = "";
         }
 
         page.formOrigin = isPortal ? 0 : 1;
@@ -737,7 +763,7 @@ var page = {
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
             'provider': page.onsiteDocument.get('provider'),
             'encounter': page.onsiteDocument.get('encounter'),
-            'createDate': page.onsiteDocument.get('createDate'),
+            'createDate': new Date(), //page.onsiteDocument.get('createDate'),
             'docType': page.onsiteDocument.get('docType'),
             'patientSignedStatus': ptsignature ? '1' : '0',
             'patientSignedTime': ptsignature ? new Date() : '0000-00-00',
@@ -779,7 +805,7 @@ var page = {
                         $("#submitTemplate").hide();
                         $("#sendTemplate").hide();
                     }
-                    isNewDoc = false;
+                    page.isNewDoc = false;
                     page.onsiteDocuments.add(page.onsiteDocument)
                 }
                 if (model.reloadCollectionOnModelUpdate) {

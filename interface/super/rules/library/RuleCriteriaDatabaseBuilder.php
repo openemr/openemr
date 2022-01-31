@@ -14,7 +14,6 @@
  */
 class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
 {
-
     function __construct()
     {
     }

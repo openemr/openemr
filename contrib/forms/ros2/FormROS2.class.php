@@ -20,7 +20,6 @@ define("EVENT_OTHER", 4);
  */
 class FormROS2 extends ORDataObject
 {
-
     /**
      *
      * @access public

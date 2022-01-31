@@ -46,6 +46,7 @@ require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 $cryptoGen = new CryptoGen();
 
@@ -1053,7 +1054,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         <table width="20%" border="0" cellspacing="0" cellpadding="0" id="table_display_prepayment" style="margin-bottom: 10px; display: none">
             <tr>
                 <td class='detail'><?php echo xlt('Pre Payment'); ?></td>
-                <td><input class="form-control" type='text' name='form_prepayment' style=''/></td>
+                <td><input class="form-control" type='text' id= 'form_prepayment' name='form_prepayment' style=''/></td>
             </tr>
         </table>
         <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
@@ -1283,7 +1284,11 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         <?php
         if (!isset($_SESSION['authUserID'])) {
             if (!isset($ccdata["cardHolderName"])) {
-                echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+                if ($GLOBALS['payment_gateway'] == 'Sphere') {
+                    echo SpherePayment::renderSphereHtml('patient');
+                } else {
+                    echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+                }
             } else {
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
             }
@@ -1311,7 +1316,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($GLOBALS['payment_gateway'] != 'Stripe') { ?>
+                    <?php if ($GLOBALS['payment_gateway'] != 'Stripe' && $GLOBALS['payment_gateway'] != 'Sphere') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $GLOBALS["webroot"] ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
@@ -1647,6 +1652,12 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             }
         </script>
     <?php } ?>
+
+    <?php
+    if ($GLOBALS['payment_gateway'] == 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
+        echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    }
+    ?>
 
     </body>
     <?php } // end else display ?>

@@ -13,7 +13,6 @@
 
 class eRxSOAP
 {
-
     const ACTION_ALLERGIES      = 'allergies';
     const ACTION_MEDICATIONS    = 'medications';
 

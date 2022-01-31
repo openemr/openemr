@@ -13,5 +13,4 @@ namespace OpenEMR\Common\Auth;
 
 class OAuth2KeyException extends \Exception
 {
-
 }

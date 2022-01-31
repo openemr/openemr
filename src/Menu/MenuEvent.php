@@ -16,7 +16,6 @@ use Symfony\Component\EventDispatcher\Event;
 
 class MenuEvent extends Event
 {
-
      /**
      * The UPDATE event occurs once a menu has been created and had it's update
      * menu map function called.  This allows other listeners to apply additional updates

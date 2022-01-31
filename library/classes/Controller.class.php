@@ -3,10 +3,10 @@
 // TODO: @adunsulag move these into src/
 class Controller extends Smarty
 {
-
-       public $_current_action;
-       public $_state;
-       public $_args = array();
+    public $template_mod;
+    public $_current_action;
+    public $_state;
+    public $_args = array();
 
     public function __construct()
     {

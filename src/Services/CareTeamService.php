@@ -25,7 +25,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class CareTeamService extends BaseService
 {
-
     private const PATIENT_TABLE = "patient_data";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";

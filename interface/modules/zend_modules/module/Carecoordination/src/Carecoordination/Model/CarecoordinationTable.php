@@ -26,7 +26,6 @@ use OpenEMR\Services\CodeTypesService;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
-
     public const NPI_SAMPLE = "987654321";
     public const ORGANIZATION_SAMPLE = "External Physicians Practice";
     public const ORGANIZATION2_SAMPLE = "External Health and Hospitals";
@@ -1858,7 +1857,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        return $res_cur['codes'];
+        return $res_cur['codes'] ?? '';
     }
 }
 // Below was removed as couldn't find it used anywhere! Will keep for a minute or two...

@@ -19,7 +19,6 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
  */
 class CodeTypesService
 {
-
     /**
      * @const string
      */

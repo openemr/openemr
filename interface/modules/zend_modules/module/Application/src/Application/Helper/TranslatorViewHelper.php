@@ -21,7 +21,6 @@ use Laminas\Mvc\Controller\AbstractActionController;
  */
 class TranslatorViewHelper extends \Laminas\View\Helper\AbstractHelper
 {
-
     /**
      * Translates a string.
      */

@@ -24,7 +24,6 @@
 
 class AMC_314g_1_2_20_Numerator implements AmcFilterIF
 {
-
     // Still TODO
     // AMC MU2 TODO :
     // 1. Remove the $patArr stuff.

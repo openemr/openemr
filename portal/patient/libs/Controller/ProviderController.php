@@ -28,8 +28,6 @@ class ProviderController extends AppBasePortalController
     protected function Init()
     {
         parent::Init();
-
-        // $this->RequirePermission(SecureApp::$PERMISSION_USER,'SecureApp.LoginForm');
     }
 
     /**
@@ -41,8 +39,8 @@ class ProviderController extends AppBasePortalController
         if (isset($_SESSION['authUserID'])) {
             $cuser = $_SESSION['authUserID'];
         } else {
-            header("refresh:5;url= ./provider");
-            echo 'Shared session not allowed with Portal!!!  <br />Onsite portal is using this session<br />Waiting until Onsite Portal is logged out........';
+            header("refresh:4;url= ./provider");
+            echo 'Shared session not allowed with Portal!!!  <br />Onsite portal is using this session<br />Destroying Onsite Portal session and logging it out........';
             OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
             exit;
         }

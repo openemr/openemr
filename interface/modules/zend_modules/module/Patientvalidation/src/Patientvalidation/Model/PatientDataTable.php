@@ -28,7 +28,6 @@ use Laminas\Db\Adapter\Adapter;
 
 class PatientDataTable
 {
-
     protected $tableGateway;
     protected $adapter;
 

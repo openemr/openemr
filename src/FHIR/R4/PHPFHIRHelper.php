@@ -28,7 +28,6 @@ namespace OpenEMR\FHIR\R4;
 
 class PHPFHIRHelper
 {
-
     public static function recursiveXMLImport(\SimpleXMLElement $sxe, $data)
     {
         $new = simplexml_load_string((string)$data, '\SimpleXMLElement', LIBXML_NOEMPTYTAG);

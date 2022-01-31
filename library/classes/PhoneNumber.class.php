@@ -34,6 +34,7 @@ class PhoneNumber extends ORDataObject
     var $area_code;
     var $prefix;
     var $number;
+    var $type;
     var $type_array = array("","Home", "Work", "Cell" , "Emergency" , "Fax");
 
     /**

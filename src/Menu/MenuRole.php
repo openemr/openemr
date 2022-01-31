@@ -23,6 +23,10 @@ use OpenEMR\Common\Acl\AclMain;
 
 class MenuRole
 {
+    /**
+     * @var array
+     */
+    protected $menu_update_map;
 
     /**
      * Constructor

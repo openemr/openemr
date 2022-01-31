@@ -510,7 +510,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         onClosed: false,
         allowExternal: false, // allow a dialog window to a URL that is external to the current url
         callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
-        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and closed which coincide with dialog events.
+        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and close which coincide with dialog events.
     };
 
     if (!opts) {
@@ -546,8 +546,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     winname = (winname === "_blank" || !winname) ? dialogID() : winname;
 
     // for small screens or request width is larger than viewport.
-    if (where.innerWidth <= 768) {
-        width = "modal-xl";
+    if (where.innerWidth <= 1080) {
+        width = "modal-full";
     }
     // Convert dialog size to percentages and/or css class.
     var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl', 'modal-full'];

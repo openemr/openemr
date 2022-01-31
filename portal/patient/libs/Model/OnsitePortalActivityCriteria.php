@@ -24,7 +24,6 @@ require_once("DAO/OnsitePortalActivityCriteriaDAO.php");
  */
 class OnsitePortalActivityCriteria extends OnsitePortalActivityCriteriaDAO
 {
-
     /**
      * GetFieldFromProp returns the DB column for a given class property
      *

@@ -28,7 +28,6 @@ use OpenEMR\Validators\ProcessingResult;
  */
 abstract class FhirServiceBase implements IResourceSearchableService, IResourceReadableService, IResourceCreatableService, IResourceUpdateableService
 {
-
     /**
      * Maps FHIR Resource search parameters to OpenEMR parameters
      */

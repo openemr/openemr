@@ -20,7 +20,6 @@ use ParagonIE\MultiFactor\Vendor\GoogleAuth;
  */
 class Totp
 {
-
     /** @var bool|GoogleAuth  */
     private $_googleAuth = false;
     /** @var bool|string - totp hashed secret */

@@ -183,4 +183,6 @@ if (!$GLOBALS['insurance_only_one']) {
         filter_input(INPUT_POST, 'i3policy_type')
     );
 }
- include_once("demographics.php");
+
+// if refresh tab after saving then results in csrf error
+include_once("demographics.php");

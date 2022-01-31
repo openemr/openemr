@@ -22,6 +22,7 @@ require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -157,11 +158,22 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
                         } else {
                             $fldvalue = $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
                         }
+                    } elseif ($fldtype == "encrypted_hash") {
+                        $tmpValue = trim($_POST["form_$i"]);
+                        if (empty($tmpValue)) {
+                            $fldvalue = '';
+                        } else {
+                            if (!AuthHash::hashValid($tmpValue)) {
+                                // a new value has been inputted, so create the hash that will then be stored
+                                $tmpValue = (new AuthHash())->passwordHash($tmpValue);
+                            }
+                            $fldvalue = $cryptoGen->encryptStandard($tmpValue);
+                        }
                     } else {
-                        $fldvalue = trim($_POST["form_$i"]);
+                        $fldvalue = trim($_POST["form_$i"] ?? '');
                     }
                     setUserSetting($label, $fldvalue, $_SESSION['authUserID'], false);
-                    if ($_POST["toggle_$i"] == "YES") {
+                    if ($_POST["toggle_$i"] ?? '' == "YES") {
                         removeUserSetting($label);
                     }
 
@@ -207,7 +219,9 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
   // Get all the globals from DB
     $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true);
-
+    // start transaction
+    sqlStatementNoLog('SET autocommit=0');
+    sqlStatementNoLog('START TRANSACTION');
     $i = 0;
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
@@ -239,6 +253,17 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     } else {
                         $fldvalue = $cryptoGen->encryptStandard($fldvalue);
                     }
+                } elseif ($fldtype == 'encrypted_hash') {
+                    $tmpValue = trim($fldvalue);
+                    if (empty($tmpValue)) {
+                        $fldvalue = '';
+                    } else {
+                        if (!AuthHash::hashValid($tmpValue)) {
+                            // a new value has been inputted, so create the hash that will then be stored
+                            $tmpValue = (new AuthHash())->passwordHash($tmpValue);
+                        }
+                        $fldvalue = $cryptoGen->encryptStandard($tmpValue);
+                    }
                 }
 
                 // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
@@ -267,6 +292,9 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
             ++$i;
         }
     }
+    // end of transaction
+    sqlStatementNoLog('COMMIT');
+    sqlStatementNoLog('SET autocommit=1');
 
     checkCreateCDB();
     checkBackgroundServices();
@@ -439,7 +467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $settingDefault = "checked='checked'";
                                             if ($userMode) {
                                                     $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authUserID'],"global:" . $fldid));
-                                                    $userSetting = $userSettingArray['setting_value'];
+                                                    $userSetting = $userSettingArray['setting_value'] ?? '';
                                                     $globalValue = $fldvalue;
                                                 if (!empty($userSettingArray)) {
                                                     $fldvalue = $userSetting;
@@ -511,7 +539,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                                 echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                     "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) {
+                                            } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
                                                 if (empty($fldvalue)) {
                                                     // empty value
                                                     $fldvalueDecrypted = '';
@@ -708,7 +736,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 echo " </div>\n";
                                                 echo "<div class='col-sm-2 text-danger'>" . text($globalTitle) . "</div>\n";
                                                 echo "<div class='col-sm-2 '><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . $settingDefault . "/></div>\n";
-                                                if ($fldtype == 'encrypted') {
+                                                if (($fldtype == 'encrypted') || ($fldtype == 'encrypted_hash')) {
                                                     echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalTitle) . "' />\n";
                                                 } else {
                                                     echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "' />\n";

@@ -17,7 +17,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormPriorAuth extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

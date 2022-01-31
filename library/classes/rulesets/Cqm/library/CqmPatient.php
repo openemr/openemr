@@ -9,5 +9,4 @@
 //
 class CqmPatient extends RsPatient
 {
-
 }

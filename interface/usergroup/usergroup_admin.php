@@ -10,11 +10,13 @@
  * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Robert DOwn <robertdown@live.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -582,22 +584,22 @@ function authorized_clicked() {
 
             ?>
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped table-sm">
                     <thead>
-                    <tr>
-                        <th><?php echo xlt('Username'); ?></th>
-                        <th><?php echo xlt('Real Name'); ?></th>
-                        <th><?php echo xlt('Additional Info'); ?></th>
-                        <th><?php echo xlt('Authorized'); ?></th>
-                        <th><?php echo xlt('MFA'); ?></th>
-                        <?php
-                        $checkPassExp = false;
-                        if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
-                            $checkPassExp = true;
-                            echo '<th>' . xlt('Password Expiration') . '</th>';
-                        }
-                        ?>
-                    </tr>
+                        <tr>
+                            <th><?php echo xlt('Username'); ?></th>
+                            <th><?php echo xlt('Real Name'); ?></th>
+                            <th><?php echo xlt('Additional Info'); ?></th>
+                            <th><?php echo xlt('Authorized'); ?></th>
+                            <th><?php echo xlt('MFA'); ?></th>
+                            <?php
+                            $checkPassExp = false;
+                            if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
+                                $checkPassExp = true;
+                                echo '<th>' . xlt('Password Expiration') . '</th>';
+                            }
+                            ?>
+                        </tr>
                     <tbody>
                         <?php
                         $query = "SELECT * FROM users WHERE username != '' ";
@@ -643,23 +645,26 @@ function authorized_clicked() {
                             }
 
                             print "<tr>
-                                <td><b><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
-                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a></b>" . "&nbsp;</td>
+                                <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
+                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
                                 <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
                                 <td align='left'><span>" . text($iter["authorized"]) . "</td>
                                 <td align='left'><span>" . text($isMfa) . "</td>";
                             if ($checkPassExp) {
-                                echo '<td>';
                                 if (AuthUtils::useActiveDirectory($iter["username"]) || empty($iter["active"])) {
                                     // LDAP bypasses expired password mechanism
-                                    echo '<div class="alert alert-success" role="alert">' . xlt('Not Applicable') . '</div>';
+                                    echo '<td>';
+                                    echo xlt('Not Applicable');
                                 } elseif (strtotime($current_date) > strtotime($grace_time)) {
-                                    echo '<div class="alert alert-danger" role="alert">' . xlt('Expired') . '</div>';
+                                    echo '<td class="bg-danger text-light">';
+                                    echo xlt('Expired');
                                 } elseif (strtotime($current_date) > strtotime($pwd_expires)) {
-                                    echo '<div class="alert alert-warning" role="alert">' . xlt('Grace Period') . '</div>';
+                                    echo '<td class="bg-warning text-dark">';
+                                    echo xlt('Grace Period');
                                 } else {
-                                    echo '<div class="alert alert-success" role="alert">' . text(oeFormatShortDate($pwd_expires)) . '</div>';
+                                    echo '<td>';
+                                    echo text(oeFormatShortDate($pwd_expires));
                                 }
                                 echo '</td>';
                             }

@@ -19,7 +19,6 @@
  */
 abstract class BaseController
 {
-
     public $viewBean;
     public $ruleManager;
     public $codeManager;

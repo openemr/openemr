@@ -947,11 +947,12 @@ function zip_content($source, $destination, $content = '', $create = true)
         ?>
         <?php if (!$printable) { ?>
         <script src="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script>
+            const searchBarHeight = document.querySelectorAll('.report_search_bar')[0].clientHeight;
+            document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;
+        </script>
     <?php } ?>
-    <script>
-        const searchBarHeight = document.querySelectorAll('.report_search_bar')[0].clientHeight;
-        document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;
-    </script>
+    
 </body>
 </html>
 <?php } ?>

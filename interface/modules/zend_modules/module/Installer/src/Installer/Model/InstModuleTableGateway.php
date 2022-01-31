@@ -10,7 +10,6 @@ use Laminas\Db\Sql\TableIdentifier;
 
 class InstModuleTableGateway extends TableGateway
 {
-
     /**
      * Constructor
      *

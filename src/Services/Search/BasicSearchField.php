@@ -22,6 +22,7 @@ class BasicSearchField implements ISearchField
     private $modifier;
     private $values;
     private $isAnd;
+    private $type;
 
     /**
      * BasicSearchField constructor.

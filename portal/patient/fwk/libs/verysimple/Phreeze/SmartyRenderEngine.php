@@ -20,7 +20,6 @@ require_once("verysimple/Phreeze/IRenderEngine.php");
  */
 class SmartyRenderEngine implements IRenderEngine
 {
-
     /** @var Smarty */
     public $smarty;
 

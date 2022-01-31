@@ -24,7 +24,6 @@ use OpenEMR\Validators\ProcessingResult;
 
 class ImmunizationService extends BaseService
 {
-
     private const IMMUNIZATION_TABLE = "immunizations";
     private const PATIENT_TABLE = "patient_data";
     private $immunizationValidator;
@@ -124,7 +123,7 @@ class ImmunizationService extends BaseService
                         ,id AS provider_id
                     FROM
                         users
-                ) provider ON immunizations.administered_by_id = providers.provider_id";
+                ) providers ON immunizations.administered_by_id = providers.provider_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 

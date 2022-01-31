@@ -15,7 +15,6 @@ require_once(library_src('RuleCriteriaBuilder.php'));
  */
 class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
 {
-
     /**
      * @return RuleCriteriaType
      */

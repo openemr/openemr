@@ -64,7 +64,6 @@ use OpenEMR\Common\Http\oeHttp;
 
 class RxList
 {
-
     public function getPage($query)
     {
         $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs";

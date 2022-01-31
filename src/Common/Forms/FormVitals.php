@@ -27,7 +27,6 @@ use OpenEMR\Common\Utils\MeasurementUtils;
 
 class FormVitals extends ORDataObject
 {
-
     /**
      *
      * @access public

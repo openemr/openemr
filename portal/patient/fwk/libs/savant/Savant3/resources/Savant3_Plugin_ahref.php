@@ -26,7 +26,6 @@
  */
 class Savant3_Plugin_ahref extends Savant3_Plugin
 {
-
     /**
      *
      * Generate an HTML <a href="">...</a> tag.

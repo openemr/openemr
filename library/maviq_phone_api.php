@@ -13,7 +13,6 @@ if (!extension_loaded("curl")) {
 
 class MaviqClient
 {
-
     protected $Endpoint;
     protected $SiteId;
     protected $Token;
@@ -120,7 +119,6 @@ class MaviqClient
 
 class RestResponse
 {
-
     public $ResponseText;
     public $ResponseXml;
     public $HttpStatus;

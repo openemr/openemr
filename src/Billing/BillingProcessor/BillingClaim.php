@@ -131,7 +131,7 @@ class BillingClaim implements \JsonSerializable
         if (!empty($result['processing_format'])) {
             $target = $result['processing_format'];
         }
-        $this->target = $target;
+        $this->target = $target ?? '';
     }
 
     /**

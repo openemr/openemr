@@ -24,7 +24,6 @@ require_once("DAO/PatientCriteriaDAO.php");
  */
 class PatientCriteria extends PatientCriteriaDAO
 {
-
     /**
      * GetFieldFromProp returns the DB column for a given class property
      *

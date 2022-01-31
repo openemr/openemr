@@ -16,7 +16,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormDAP extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

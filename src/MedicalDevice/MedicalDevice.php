@@ -17,7 +17,6 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class MedicalDevice
 {
-
     private $udi_data;
 
     public function __construct($udi_data)

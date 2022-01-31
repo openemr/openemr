@@ -136,6 +136,7 @@ function auto_populate_employer_address<?php echo $i ?>(){
   f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
   f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
   f.i<?php echo $i?>subscriber_street.value=f.form_street.value;
+  f.i<?php echo $i?>subscriber_street_line_2.value=f.form_street_line_2.value;
   f.i<?php echo $i?>subscriber_city.value=f.form_city.value;
   f.form_i<?php echo $i?>subscriber_state.value=f.form_state.value;
   f.i<?php echo $i?>subscriber_postal_code.value=f.form_postal_code.value;
@@ -388,7 +389,7 @@ function srchDone(pid){
 $constraints = LBF_Validation::generate_validate_constraints("DEM");
 ?>
 <script> var constraints = <?php echo $constraints; ?>; </script>
-    <div class="container-fluid">
+    <div class="container-xl">
         <div class="row">
             <div class="col-md-12">
                 <h2><?php echo xlt('Search or Add Patient');?></h2>
@@ -500,11 +501,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         </h2>
                                     </div>
                                     <div id="div_{$group_seq_attr}" class="section collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
-                                        <div class="container-fluid card-body">
+                                        <div class="container-xl card-body">
                                 HTML;
                                 $display_style = 'none';
                             } elseif (strlen($last_group) == 0) {
-                                echo " <div class='container-fluid'>\n";
+                                echo " <div class='container-xl'>\n";
                             }
                             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
                             $last_group = $this_group;
@@ -603,7 +604,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 </h2>
                             </div>
                             <div id="div_ins" class="section collapse" aria-labelledby="header_ins" >
-                                <div class="container-fluid card-body">
+                                <div class="container-xl card-body">
                         HTML;
 
                         for ($i = 1; $i <= sizeof($insurance_info); $i++) {
@@ -688,9 +689,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                               <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_employer_street' value="<?php echo attr($result3["subscriber_employer_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 1'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street' value="<?php echo attr($result3["subscriber_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
+                          </div>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 2'); ?>:</label>
+                          <div class="col-md-5 mb-2">
+                            <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street_line_2' value="<?php echo attr($result3["subscriber_street_line_2"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE City'); ?>:</label>
@@ -926,6 +931,8 @@ while ($lrow = sqlFetchArray($lres)) {
 
     $(".select-dropdown").select2({
         theme: "bootstrap4",
+        dropdownAutoWidth: true,
+        width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {

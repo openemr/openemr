@@ -21,7 +21,6 @@ use OpenEMR\Validators\BaseValidator;
 
 class PractitionerRoleService extends BaseService
 {
-
     private const PRACTITIONER_ROLE_TABLE = "facility_user_ids";
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
