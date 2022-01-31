@@ -580,7 +580,11 @@ function generate_receipt($patient_id, $encounter = 0)
             if ($GLOBALS['discount_by_money']) {
                 $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
             } else {
-                $amount  = sprintf('%01.2f', trim($_POST['form_discount']) * $form_amount / 100);
+                $form_discount = trim($_POST['form_discount']) ?? 0;
+                if ($form_discount < 100) {
+                    $total_discount = $form_discount * $form_amount / (100 - $form_discount);
+                    $amount = sprintf('%01.2f', $total_discount);
+                }
             }
             $memo = xl('Discount');
             sqlBeginTrans();
