@@ -51,7 +51,8 @@ class Claim
     {
         $this->pid = $pid;
         $this->encounter_id = $encounter_id;
-        $this->encounter = (new EncounterService())->getOneByPidEid($this->pid, $this->encounter_id);
+        $this->encounterService = new EncounterService();
+        $this->encounter = $this->encounterService->getOneByPidEid($this->pid, $this->encounter_id);
         $this->getProcsAndDiags($this->pid, $this->encounter_id);
         $this->copay = $this->getCopay($this->pid, $this->encounter_id);
         $this->facilityService = new FacilityService();
@@ -168,8 +169,8 @@ class Claim
     {
         if ($this->billing_options['provider_id'] ?? '') {
             $referrer_id = $this->billing_options['provider_id'];
-        } elseif ($this->encounter->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
-            $referrer_id = $this->encounter->getReferringProviderID($this->pid, $this->encounter_id);
+        } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
+            $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
         } else {
             $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
             ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') ?
