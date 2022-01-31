@@ -25,7 +25,13 @@ class CqmClient extends HttpClient
     protected function getCommand(): string
     {
         $port = $this->port;
-        $node = $GLOBALS['node_binary'];
+
+        // The default node binary is 'node', but if the user want's to override it in Globals, they can.
+        // We also set the node binary here to 'node' in case there is no globals option (which also defaults to 'node')
+        $node = 'node';
+        if (!empty($GLOBALS['node_binary'])) {
+            $node = $GLOBALS['node_binary'];
+        }
         $cmd = $this->servicePath;
 
         if (IS_WINDOWS) {

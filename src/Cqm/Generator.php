@@ -215,8 +215,8 @@ class Generator
             foreach ($attributes as $attribute) {
                 $property = new PropertyGenerator();
                 $property->setDocBlock(DocBlockGenerator::fromArray([
-                    'shortDescription' => null,
-                    'longDescription'  => null,
+                    'shortDescription' => '',
+                    'longDescription'  => '',
                     'tags'             => [
                         new PropertyTag(
                             $attribute['name'],
