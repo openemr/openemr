@@ -152,7 +152,9 @@ abstract class AbstractQdmService
         $codes = [];
         foreach ($multiple as $individual) {
             $code = $this->makeQdmCode($individual);
-            $codes[] = $code;
+            if ($code !== null) {
+                $codes[] = $code;
+            }
         }
         return $codes;
     }
