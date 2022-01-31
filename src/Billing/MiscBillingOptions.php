@@ -68,7 +68,7 @@ class MiscBillingOptions
     {
         $query = "SELECT id, lname, fname FROM users WHERE npi != '' ORDER BY lname, fname";
         $res = sqlStatement($query);
-        echo "<select name='" . attr($selname) . "'";
+        echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
         if ($disabled) {
             echo " disabled";
         }
