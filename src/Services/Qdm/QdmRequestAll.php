@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -7,13 +8,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
  */
 
-namespace OpenEMR\Cqm\Qdm\BaseTypes;
+namespace OpenEMR\Services\Qdm;
 
-class Code extends AbstractType
+use OpenEMR\Events\BoundFilter;
+use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
+
+class QdmRequestAll implements QdmRequestInterface
 {
-    public $code;
-    public $system;
-    public $display = null; // Not required
-    public $version = null; // Not required
-    public $_type = "QDM::Code";
+    public function getFilter()
+    {
+        return new BoundFilter();
+    }
 }
