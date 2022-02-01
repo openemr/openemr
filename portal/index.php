@@ -284,7 +284,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                         </div>
                     </div>
                 <?php } ?>
-                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
+                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
         <?php } elseif (isset($_GET['requestNew'])) { ?>
@@ -318,7 +318,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                         </div>
-                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1');" value="<?php echo xla('Cancel'); ?>" />
+                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
                         <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit"><?php echo xlt('Verify') ?></button>
                     </fieldset>
                 </div>
@@ -384,10 +384,10 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 <div class="row">
                     <div class="col-12">
                         <?php if ($GLOBALS['portal_onsite_two_register']) { ?>
-                            <button class="btn btn-secondary float-left" onclick="location.replace('./account/register.php')"><?php echo xlt('Register'); ?></button>
+                            <button class="btn btn-secondary float-left" onclick="location.replace('./account/register.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
                         <?php if ($GLOBALS['portal_two_pass_reset'] && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1')"><?php echo xlt('Reset Credentials'); ?></button>
+                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
@@ -484,7 +484,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 data: data
             }).done(function (rtn) {
                 if (action === "cleanup") {
-                    window.location.href = "./index.php" // Goto landing page.
+                    window.location.href = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
                 } else if (action === "userIsUnique") {
                     return rtn === '1';
                 } else if (action === "is_new") {

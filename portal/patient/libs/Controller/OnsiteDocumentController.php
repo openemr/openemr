@@ -147,7 +147,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $page = RequestUtil::Get('page');
 
-            if ($page != '') {
+            if (!empty($page)) {
                 // if page is specified, use this instead (at the expense of one extra count query)
                 $pagesize = $this->GetDefaultPageSize();
 
