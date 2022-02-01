@@ -4,8 +4,10 @@ namespace OpenEMR\Cqm\Qdm\Traits;
 
 trait PatientExtension
 {
-    public $_fullName;
-    public $_id;
+    /**
+     * @Identifier
+     */
+    public $id;
 
     // These are the "data criteria", or QDM datatype elements that exist on a
     // patient.

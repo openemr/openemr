@@ -10,8 +10,11 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\Id;
+use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicBirthdate;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicEthnicity;
@@ -44,9 +47,15 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
 
     public function makeQdmModel(array $record)
     {
+        $id = new Identifier([
+            'namingSystem' => 'OpenEMR pid',
+            'value' => $record['pid']
+        ]);
+
         $qdmPatient = new Patient([
             'birthDatetime' => $record['DOB'],
             '_id' => $record['pid'], // From PatientExtension trait
+            'id' => $id
         ]);
 
         $qdmPatient->extendedData = [
