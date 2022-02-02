@@ -347,7 +347,7 @@ class AppointmentService extends BaseService
     /**
      * @param $eid
      * @param $pid
-     * @return array The most recent encounter for a given encounter
+     * @return array The most recent encounter for a given appointment
      */
     public function getEncounterForAppointment($pc_eid, $pid)
     {
@@ -408,5 +408,15 @@ class AppointmentService extends BaseService
             return $result[0]['encounter'];
         }
         return null;
+    }
+
+    /**
+     * Returns the calendar category record from a supplied category id
+     * @return array
+     */
+    public function getOneCalendarCategory($cat_id)
+    {
+        $sql = "SELECT * FROM openemr_postcalendar_categories WHERE pc_catid = ?";
+        return QueryUtils::fetchRecords($sql, [$cat_id]);
     }
 }
