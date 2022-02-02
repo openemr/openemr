@@ -141,7 +141,8 @@ class FacilityService extends BaseService
     public function getById($id)
     {
         if (empty($id)) {
-            throw new \InvalidArgumentException("Cannot retrieve facility for empty id");
+            // Not okay to throw exception here. Most UI are pulldowns which init to empty.
+            return false;
         }
         $result = $this->search(['id' => new TokenSearchField('id', $id, false)]);
         if (!empty($result->getData())) {
