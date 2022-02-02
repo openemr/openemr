@@ -54,7 +54,7 @@
     "stylelint-config-standard": "24.0.0",
     "stylelint-order": "5.0.0",
     "stylelint-scss": "4.1.0",
-    "oe-cqm-parsers": "github:openemr/oe-cqm-parsers"
+    "oe-cqm-parsers": "5.5.0"
   },
   "dependencies": {
     "@eastdesire/jscolor": "2.4.6",
@@ -98,7 +98,7 @@
     "sortablejs": "1.14.0",
     "underscore": "1.13.2",
     "validate.js": "0.13.1",
-    "oe-cqm-service": "github:openemr/oe-cqm-service"
+    "oe-cqm-service": "1.0.1"
   },
   "napa": {
     "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/d10bd73477b879e78a4f71874af18747d285b6e8.zip",
