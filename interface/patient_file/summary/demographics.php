@@ -1619,6 +1619,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
+                            'pid' => $pid,
+                            'csrf' =>  CsrfUtils::collectCsrfToken(),
                         ]);
                     endif;
                     ?>
