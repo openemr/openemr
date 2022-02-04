@@ -30,7 +30,7 @@ if (!empty($_GET)) {
     }
 }
 
-$patient     = $_REQUEST['patient'];
+$patient     = $_REQUEST['patient'] ?? '';
 $encounterid = $_REQUEST['encounterid'] ?? '';
 $formid      = $_REQUEST['formid'] ?? '';
 $issue       = $_REQUEST['issue'] ?? '';

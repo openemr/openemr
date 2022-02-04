@@ -672,4 +672,20 @@ class EncounterService extends BaseService
         }
         return [];
     }
+
+    /**
+     * Returns the referring provider for the encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return string        referring provider of first row of encounter data (it's an id from the users table)
+     */
+    public function getReferringProviderID($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0]['referring_provider_id'];
+        }
+        return [];
+    }
 }

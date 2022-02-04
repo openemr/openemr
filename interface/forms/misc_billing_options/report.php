@@ -13,13 +13,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Billing\MiscBillingOptions;
 
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
-require_once("date_qualifier_options.php");
 
 function misc_billing_options_report($pid, $encounter, $cols, $id)
 {
+    $MBO = new OpenEMR\Billing\MiscBillingOptions();
     $count = 0;
     $data = formFetch("form_misc_billing_options", $id);
     if ($data) {
@@ -36,7 +37,7 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
             }
 
             if (($key === 'box_14_date_qual') || $key === 'box_15_date_qual') {
-                $value = qual_id_to_description($key, $value);
+                $value = $MBO->qual_id_to_description($key, $value);
             }
 
             if ($key === 'provider_qualifier_code') {
