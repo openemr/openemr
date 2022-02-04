@@ -341,6 +341,31 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
     return $all;
 }
 
+function fmtPnoteBody($background_user='', $assigned_to='', $newtext='', $datetime ='')
+{
+    // No empty messages
+    if ($newtext=='') return $newtext;
+
+    $datetime = (empty($datetime) ? date('Y-m-d H:i:s') : $datetime);
+    $user = ($background_user == "" ? $_SESSION['authUser'] : $background_user);
+    $usrs = array();
+    $rs = sqlStatement(
+        'select u.username, TRIM(CONCAT(u.fname," ",u.lname)) fullname
+        FROM users u
+        WHERE u.username=? OR u.username=?
+        order by IF(u.username=?, 0, 1)',
+        array($user, $assigned_to, $user)
+    );
+    while ($rec = sqlFetchArray($rs)) {
+        $usrs[$rec['username']] = $rec['fullname'];
+    }
+    $usrs = implode(' to ', $usrs);
+    $body = sprintf(
+        '%s [%s] %s',
+        date('Y-m-d H:i'), $usrs, $newtext
+    );
+    return $body;
+}
 
 
 /** Add a note to a patient's medical record.
@@ -377,12 +402,7 @@ function addPnote(
         $activity = 0;
     }
     $user = ($background_user != "" ? $background_user : $_SESSION['authUser']);
-    $body = date('Y-m-d H:i') . ' (' . $user;
-    if ($assigned_to) {
-        $body .= " to $assigned_to";
-    }
-
-    $body = $body . ') ' . $newtext;
+    $body = fmtPnoteBody($user, $assigned_to, $newtext);
 
     return sqlInsert(
         'INSERT INTO pnotes (date, body, pid, user, groupname, ' .
@@ -444,14 +464,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
         $activity = 0;
     }
 
-    $body = $row['body'] . "\n" . date('Y-m-d H:i') .
-    ' (' . $_SESSION['authUser'];
-    if ($assigned_to) {
-        $body .= " to $assigned_to";
-    }
-
-    $body = $body . ') ' . $newtext;
-
+    $body = $row['body'] . "\n" . fmtPnoteBody($_SESSION['authUser'], $assigned_to, $newtext);
 
     $sql = "UPDATE pnotes SET " .
         "body = ?, activity = ?, title= ?, " .
