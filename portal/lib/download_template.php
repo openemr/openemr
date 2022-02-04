@@ -140,19 +140,22 @@ function doSubs($s)
         $nextLocation = $keyLocation + 1;
 
         if (keySearch($s, '{PatientSignature}')) {
-            $sigfld = '<script>var presentPatientSignature=true;</script><span>';
+            $sigfld = '<script>page.presentPatientSignature=true;</script><span>';
             $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
-            $sigfld = '<script>var presentAdminSignature=true;</script><span>';
+            $sigfld = '<script>page.presentAdminSignature=true;</script><span>';
             $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
-            $sigfld = '<script>var presentWitnessSignature=true;</script><span>';
+            $sigfld = '<script>page.presentWitnessSignature=true;</script><span>';
             $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{SignaturesRequired}')) {
+            $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
             global $templateService;
