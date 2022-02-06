@@ -257,6 +257,7 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>

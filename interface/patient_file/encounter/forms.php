@@ -57,6 +57,7 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 }
 
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>

@@ -68,6 +68,7 @@ while ($row = sqlFetchArray($res)) {
 }
 $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . xlt("Loading") . "...</span></div>";
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
