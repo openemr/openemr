@@ -165,6 +165,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 }
 
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->

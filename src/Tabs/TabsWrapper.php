@@ -201,7 +201,7 @@ function twAddFrameTab(tabsid, label, url) {
       twAddTab(
         tabsid,
         label,
-        "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
+        "<iframe name='" + panelId + "' class='w-100' style='height:94.5vh;border: 0;' src='" + url + "'>Oops</iframe>"
       );
       execute = true;
       temp = panelId;
@@ -214,7 +214,7 @@ function twAddFrameTab(tabsid, label, url) {
     twAddTab(
       tabsid,
       label,
-      "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
+      "<iframe name='" + panelId + "' class='w-100' style='height:94.5vh;border: 0;' src='" + url + "'>Oops</iframe>"
     );
     return panelId;
   }
