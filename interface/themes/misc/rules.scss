@@ -102,8 +102,8 @@ root {
   &.edit {
     &.summry .left_col {
       font-weight: bold;
-      text-align: $right;
       min-width: 120px;
+      text-align: $right;
       margin-#{$right}: 10px;
     }
 
