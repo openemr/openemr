@@ -20,21 +20,16 @@ $rule = $viewBean->rule ?>
     detail.init();
 </script>
 
-<div class="table-responsive">
-<table class="table header">
-  <tr >
-        <td class="title"><?php echo xlt('Rule Detail'); ?></td>
-        <td>
-            <a href="index.php?action=browse!list" class="iframe_medium btn btn-primary" onclick="top.restoreSession()"><span><?php echo xlt('Back'); ?></span></a>
-        </td>
-  </tr>
-</table>
-</div>
+<br />
+<header class="title"><?php echo xlt('Rule Detail'); ?>
+    <a href="index.php?action=browse!list" class="btn btn-primary btn-back mx-auto" onclick="top.restoreSession();"><?php echo xlt('Back'); ?></a>
+</header>
+<hr />
 <div class="rule_detail">
     <!--         -->
     <!-- summary -->
     <!--         -->
-    <div class="section text">
+    <div class="section">
         <p class="header">
             <?php echo xlt('Summary'); ?>
             <a href="index.php?action=edit!summary&id=<?php echo attr_url($rule->id); ?>"
@@ -48,12 +43,11 @@ $rule = $viewBean->rule ?>
         <p><?php echo xlt('Release'); ?><b>:</b>&nbsp;<?php echo text($rule->release); ?></p>
         <p><?php echo xlt('Web Reference'); ?><b>:</b>&nbsp;<?php echo text($rule->web_ref); ?></p>
     </div>
-
     <!--                    -->
     <!-- reminder intervals -->
     <!--                    -->
     <?php $intervals = $rule->reminderIntervals; if ($intervals) { ?>
-    <div class="section text">
+    <div class="section">
         <p class="header">
             <?php echo xlt('Reminder intervals'); ?>
             <a href="index.php?action=edit!intervals&id=<?php echo attr_url($rule->id); ?>" class="action_link" onclick="top.restoreSession()">(<?php echo xlt('edit'); ?>)</a>
@@ -85,7 +79,7 @@ $rule = $viewBean->rule ?>
     <!-- rule filter criteria -->
     <!--                      -->
     <?php $filters = $rule->filters; if ($filters) { ?>
-    <div class="section text">
+    <div class="section">
         <p class="header"><?php echo xlt('Demographics filter criteria'); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo xlt('add'); ?>)</a></p>
         <p>
             <?php if ($filters->criteria) { ?>
@@ -125,7 +119,7 @@ $rule = $viewBean->rule ?>
     <!--                      -->
 
 
-    <div class="section text">
+    <div class="section">
     <p class="header"><?php echo xlt('Target/Action Groups'); ?></p>
     <?php $groupId = 0;
     foreach ($rule->groups as $group) {
@@ -136,7 +130,7 @@ $rule = $viewBean->rule ?>
             <!--                      -->
 
             <?php $targets = $group->ruleTargets; if ($targets) { ?>
-        <div class="section text">
+        <div class="section">
             <p class="header"><?php echo xlt('Clinical targets'); ?>
                 <a href="index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&group_id=<?php echo attr_url($group->groupId); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
                     (<?php echo xlt('add'); ?>)
@@ -152,7 +146,7 @@ $rule = $viewBean->rule ?>
                     </div>
 
                     <?php foreach ($targets->criteria as $criteria) { ?>
-                        <div class="row">
+                        <div class="form-row">
                             <span class="left_col">
                                 <a href="index.php?action=edit!target&id=<?php echo attr_url($rule->id); ?>&guid=<?php echo attr_url($criteria->guid); ?>"
                                    class="action_link" onclick="top.restoreSession()">
@@ -175,7 +169,6 @@ $rule = $viewBean->rule ?>
                 <?php } else { ?>
                     <p><?php echo xlt('None defined'); ?></p>
                 <?php } ?>
-
             </p>
         </div>
             <?php } ?>
@@ -184,7 +177,7 @@ $rule = $viewBean->rule ?>
             <!-- rule actions -->
             <!--              -->
             <?php $actions = $group->ruleActions; if ($actions) { ?>
-        <div class="section text">
+        <div class="section">
             <p class="header"><?php echo xlt('Actions'); ?>
                 <a href="index.php?action=edit!add_action&id=<?php echo attr_url($rule->id); ?>&group_id=<?php echo attr_url($group->groupId);?>" class="action_link" onclick="top.restoreSession()">
                     (<?php echo xlt('add'); ?>)
@@ -221,14 +214,14 @@ $rule = $viewBean->rule ?>
     } // iteration over groups ?>
         <div class="group">
             <?php $nextGroupId = $groupId + 1; ?>
-            <div class="section text">
+            <div class="section">
                 <p class="header"><?php echo xlt('Clinical targets'); ?>
                     <a href="index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&group_id=<?php echo attr_url($nextGroupId); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
                         (<?php echo xlt('add'); ?>)
                     </a>
                 </p>
             </div>
-            <div class="section text">
+            <div class="section">
                 <p class="header"><?php echo xlt('Actions'); ?>
                     <a href="index.php?action=edit!add_action&id=<?php echo attr_url($rule->id); ?>&group_id=<?php echo attr_url($nextGroupId); ?>" class="action_link" onclick="top.restoreSession()">
                         (<?php echo xlt('add'); ?>)

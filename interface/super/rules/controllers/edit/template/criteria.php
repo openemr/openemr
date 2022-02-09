@@ -18,10 +18,12 @@ use OpenEMR\Core\Header;
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- TODO: Why no bootstrap here????? !-->
-    <?php Header::setupHeader(['no_textformat', 'no_dialog']); ?>
-
-    <link rel="stylesheet" href="<?php css_src('rules.css') ?>">
+    <?php Header::setupHeader(['opener']); ?>
+    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } else { ?>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } ?>
 </head>
 
 <body class='body_top'>
@@ -45,7 +47,7 @@ use OpenEMR\Core\Header;
                 </tr>
             </table>
         </div>
-        <div class="rule_detail edit text">
+        <div class="rule_detail edit">
             <form action="index.php?action=edit!submit_criteria" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
                 <input type="hidden" name="id" value="<?php echo attr($rule->id); ?>" />
                 <input type="hidden" name="group_id" value="<?php echo attr($criteria->groupId); ?>" />

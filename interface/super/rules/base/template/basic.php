@@ -14,7 +14,7 @@ use OpenEMR\Core\Header;
 <html>
 <head>
     <!-- TODO: FIX No Bootstrap header !-->
-    <?php Header::setupHeader(['no_textformat', 'no_dialog']); ?>
+    <?php Header::setupHeader(['opener']); ?>
 
     <?php if ($_SESSION['language_direction'] == "rtl") { ?>
         <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />

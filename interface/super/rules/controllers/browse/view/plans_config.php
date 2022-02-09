@@ -349,8 +349,10 @@
 
 <div class="cdr-mappings col-12">
     <br />
-    <div class="title"><?php echo xlt('View Plan Rules'); ?></div>
-    <br />
+    <header class="title"><?php echo xlt('View Plan Rules'); ?>
+        <a href="index.php?action=browse!list" class="btn btn-primary btn-back mx-auto" onclick="top.restoreSession();"><?php echo xlt('Back'); ?></a>
+    </header>
+    <hr />
     <div id="cdr_mappings_form-div" class="cdr-form">
         <div class="cdr-plans input-group">
             <label><?php echo xlt('Plan') . ':'; ?></label>
