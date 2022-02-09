@@ -20,6 +20,7 @@ $rule = $viewBean->rule ?>
     detail.init();
 </script>
 
+<div class="table-responsive">
 <table class="table header">
   <tr >
         <td class="title"><?php echo xlt('Rule Detail'); ?></td>
@@ -28,7 +29,7 @@ $rule = $viewBean->rule ?>
         </td>
   </tr>
 </table>
-
+</div>
 <div class="rule_detail">
     <!--         -->
     <!-- summary -->
