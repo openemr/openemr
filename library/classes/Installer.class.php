@@ -819,7 +819,7 @@ $config = 1; /////////////
         //
         $gacl->add_acl(
             array(
-                'acct' => array('bill', 'disc', 'eob'),
+                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
                 'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
                 'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
                 'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
