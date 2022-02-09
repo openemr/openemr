@@ -1038,15 +1038,15 @@ class AclExtended
         $tmp_array = $gacl->search_acl($section_name, $object_name, false, false, $group_title, false, false, false, $return_value);
         switch (count($tmp_array)) {
             case 0:
+                echo "The '$object_title' object of the '$section_title' section is not found in the '$group_title' group '$return_value' ACL.</BR>";
+                break;
+            case 1:
                 $tmp_boolean = @$gacl->shift_acl($array_acl_id_number[0], null, null, null, null, array($section_name => array($object_name)));
                 if ($tmp_boolean) {
                     echo "Successfully removed the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
                 } else {
                     echo "<B>ERROR</B>,unable to remove the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
                 }
-                break;
-            case 1:
-                echo "The '$object_title' object of the '$section_title' section is not found in the '$group_title' group '$return_value' ACL.</BR>";
                 break;
             default:
                 echo "<B>ERROR</B>, Multiple '$group_title' group '$return_value' ACLs with the '$object_title' object of the '$section_title' section are present.</BR>";

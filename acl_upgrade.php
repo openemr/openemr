@@ -827,8 +827,6 @@ if ($acl_version < $upgrade_acl) {
     $frontoffice_view = AclExtended::getAclIdNumber('Front Office', 'view');
     $frontoffice_wsome = AclExtended::getAclIdNumber('Front Office', 'wsome');
 
-
-
     //Add new object Sections
     echo "<BR/><B>Adding new object sections</B><BR/>";
 
@@ -844,10 +842,10 @@ if ($acl_version < $upgrade_acl) {
 
     //Alter ACLs here (will return the ACL ID of newly created or already existant ACL)
     echo "<BR/><B> Altering ACLs(Access Control Lists) and groups</B><BR/>";
+    AclExtended::shiftAcl($accounting_view, 'Accounting', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
     AclExtended::shiftAcl($frontoffice_view, 'Front Office', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
     AclExtended::shiftAcl($frontoffice_wsome, 'Front Office', 'patients', 'Patients', 'trans', 'Transactions (write,wsome optional)', 'wsome');
     AclExtended::shiftAcl($frontoffice_wsome, 'Front Office', 'patients', 'Patients', 'notes', 'Patient Notes (write,wsome optional)', 'wsome');
-    AclExtended::shiftAcl($accounting_view, 'Accounting', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
 
     //Update the ACLs
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
