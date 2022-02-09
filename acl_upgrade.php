@@ -876,6 +876,9 @@ if ($acl_version < $upgrade_acl) {
     // (will also place in the appropriate group and CREATE a new group if needed)
     echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
 
+    //Alter ACLs here (will return the ACL ID of newly created or already existant ACL)
+    echo "<BR/><B> Altering ACLs(Access Control Lists) and groups</B><BR/>";
+
     //Update the ACLs
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
 
