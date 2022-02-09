@@ -17,7 +17,6 @@ use OpenEMR\Events\Core\Interfaces\SqlConfigInterface;
 
 class SqlConfig implements SqlConfigInterface
 {
-
     /**
      * {@inheritDoc}
      */
@@ -162,5 +161,4 @@ class SqlConfig implements SqlConfigInterface
     {
         return $this->disableUTF8;
     }
-
 }

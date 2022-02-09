@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Interface defining the requirements to use the SqlConfigEvent.
  *
@@ -15,7 +16,6 @@ namespace OpenEMR\Events\Core\Interfaces;
  */
 interface SqlConfigInterface
 {
-
     /**
      * Get the hostname of the database server
      *

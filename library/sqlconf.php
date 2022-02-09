@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The sqlconf.php file is the central place to load the SITE_ID SQL credentials. It allows allows modules to manage the
  * credential variables
@@ -13,7 +14,7 @@
 use OpenEMR\Events\Core\SqlConfigEvent;
 
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-$sqlConfigEvent = new SqlConfigEvent;
+$sqlConfigEvent = new SqlConfigEvent();
 
 require_once $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
 
