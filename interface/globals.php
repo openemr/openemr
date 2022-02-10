@@ -306,7 +306,6 @@ require_once(__DIR__ . "/../version.php");
 // Collecting the utf8 disable flag from the sqlconf.php file in order
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
 // then set to iso-8859-1.
-require_once(__DIR__ . "/../library/sqlconf.php");
 if (!$disable_utf8_flag) {
     ini_set('default_charset', 'utf-8');
     $HTML_CHARSET = "UTF-8";
