@@ -200,19 +200,6 @@ $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . "/" . $_SESSION['site_id']
 // Set a site-specific uri root path.
 $GLOBALS['OE_SITE_WEBROOT'] = $web_root . "/sites/" . $_SESSION['site_id'];
 
-// Collecting the utf8 disable flag from the sqlconf.php file in order
-// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
-// then set to iso-8859-1.
-require_once(__DIR__ . "/../library/sqlconf.php");
-if (!$disable_utf8_flag) {
-    ini_set('default_charset', 'utf-8');
-    $HTML_CHARSET = "UTF-8";
-    mb_internal_encoding('UTF-8');
-} else {
-    ini_set('default_charset', 'iso-8859-1');
-    $HTML_CHARSET = "ISO-8859-1";
-    mb_internal_encoding('ISO-8859-1');
-}
 
 // Root directory, relative to the webserver root:
 $GLOBALS['rootdir'] = "$web_root/interface";
@@ -295,12 +282,6 @@ if (file_exists("{$webserver_root}/.env")) {
     $dotenv->load();
 }
 
-// This will open the openemr mysql connection.
-require_once(__DIR__ . "/../library/sql.inc");
-
-// Include the version file
-require_once(__DIR__ . "/../version.php");
-
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
 //    - DEBUG/INFO are great for development
@@ -314,6 +295,25 @@ try {
 } catch (\Exception $e) {
     error_log(errorLogEscape($e->getMessage()));
     die();
+}
+
+// This will open the openemr mysql connection.
+require_once(__DIR__ . "/../library/sql.inc");
+
+// Include the version file
+require_once(__DIR__ . "/../version.php");
+
+// Collecting the utf8 disable flag from the sqlconf.php file in order
+// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
+// then set to iso-8859-1.
+if (!$disable_utf8_flag) {
+    ini_set('default_charset', 'utf-8');
+    $HTML_CHARSET = "UTF-8";
+    mb_internal_encoding('UTF-8');
+} else {
+    ini_set('default_charset', 'iso-8859-1');
+    $HTML_CHARSET = "ISO-8859-1";
+    mb_internal_encoding('ISO-8859-1');
 }
 
 // Defaults for specific applications.
