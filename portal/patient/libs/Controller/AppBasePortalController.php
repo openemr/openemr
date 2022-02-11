@@ -20,7 +20,6 @@ require_once(dirname(__FILE__) . "/../../../lib/appsql.class.php");
  */
 class AppBasePortalController extends PortalController
 {
-
     static $DEFAULT_PAGE_SIZE = 20;
 
     /**

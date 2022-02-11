@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
 	<a class="navbar-brand" href="home.php">
 		<img class="img-fluid" width="140" src="{{ images_static_relative | attr }}/logo-full-con.png"/>
 	</a>
@@ -21,7 +21,6 @@
 						{% if item.messageCount %}
 							<i class="fa fa-envelope-open-text text-danger"></i>
 						{% endif %}
-
 					</a>
 
 					{% if item.children | length > 0 %}
@@ -32,7 +31,6 @@
 										{% if child.icon %}
 											<i class="fas {{ child.icon | attr }}"></i>
 										{% endif %}
-
 
 										{{ child.label | text }}
                                         {% if child.messageCount > 0 %}

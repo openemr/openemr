@@ -91,7 +91,7 @@ if ($days_deceased) { ?>
                         <?php $display = (empty($portalLogin)) ? xl('Create Onsite Portal Credentials') : xl('Reset Onsite Portal Credentials'); ?>
                         <?php echo text($display); ?>
                     </a>
-
+                    <button type='button' class='btn btn-secondary btn-sm' onclick='top.assignPatientDocuments(<?php echo js_url($pid) ?>)'><?php echo xlt('Assign Documents') ?></button>
                     <?php
                 } else {
                     $portalUserSetting = false;

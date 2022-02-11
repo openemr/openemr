@@ -28,7 +28,6 @@ require_once("verysimple/Phreeze/Criteria.php");
  */
 class UserCriteriaDAO extends Criteria
 {
-
     public $Id_Equals;
     public $Id_NotEquals;
     public $Id_IsLike;

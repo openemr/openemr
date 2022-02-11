@@ -24,7 +24,6 @@ require_once("OnsiteDocumentCriteria.php");
  */
 class OnsiteDocument extends OnsiteDocumentDAO
 {
-
     /**
      * Override default validation
      * @see Phreezable::Validate()
