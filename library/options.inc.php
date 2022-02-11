@@ -2789,7 +2789,6 @@ function generate_display_field($frow, $currvalue)
             }
             $i++;
         }
-
     }
 
     return $s;

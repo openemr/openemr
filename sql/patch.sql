@@ -240,3 +240,8 @@ ALTER TABLE `document_template_profiles` ADD `recurring` TINYINT(1) NOT NULL DEF
 ALTER TABLE `document_template_profiles` CHANGE `profile` `profile` VARCHAR(64) NOT NULL, CHANGE `category` `category` VARCHAR(64) NOT NULL, CHANGE `template_name` `template_name` VARCHAR(255) NOT NULL;
 ALTER TABLE `document_template_profiles` DROP INDEX `location`, ADD UNIQUE `location` (`profile`, `template_id`, `member_of`);
 #EndIf
+
+-- drop if view was converted to a table
+#IfTable onsite_activity_view
+DROP TABLE IF EXISTS `onsite_activity_view`;
+#EndIf
