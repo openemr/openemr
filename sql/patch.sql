@@ -245,3 +245,8 @@ ALTER TABLE `document_template_profiles` DROP INDEX `location`, ADD UNIQUE `loca
 #IfTable onsite_activity_view
 DROP TABLE IF EXISTS `onsite_activity_view`;
 #EndIf
+
+#IfNotRow3D layout_options form_id HIS field_id usertext11 datacols 3
+UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'HIS' AND `field_id` = 'usertext11';
+UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'HIS' AND `field_id` = 'exams';
+#EndIf
