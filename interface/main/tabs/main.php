@@ -23,6 +23,7 @@ use Esign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Main\Tabs\RenderEvent;
 
 // Ensure token_main matches so this script can not be run by itself
 //  If do not match, then destroy the session and go back to login screen
@@ -291,6 +292,16 @@ $esignApi = new Api();
 </style>
 </head>
 <body class="min-vw-100">
+    <?php
+    // fire off an event here
+    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
+        /**
+         * @var \Symfony\Component\EventDispatcher\EventDispatcher
+         */
+        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
+    }
+    ?>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
@@ -356,5 +367,15 @@ $esignApi = new Api();
             goRepeaterServices();
         });
     </script>
+    <?php
+    // fire off an event here
+    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
+        /**
+         * @var \Symfony\Component\EventDispatcher\EventDispatcher
+         */
+        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
+    }
+    ?>
 </body>
 </html>
