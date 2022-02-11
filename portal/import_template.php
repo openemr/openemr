@@ -293,7 +293,13 @@ function renderProfileHtml()
     <!DOCTYPE html>
     <html>
     <head>
-        <?php Header::setupHeader(['opener', 'sortablejs']); ?>
+        <?php
+        if (empty($GLOBALS['openemr_version'] ?? null)) {
+            Header::setupHeader(['opener', 'sortablejs']);
+        } else {
+            Header::setupHeader(['opener']); ?>
+            <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+        <?php } ?>
     </head>
     <style>
       body {

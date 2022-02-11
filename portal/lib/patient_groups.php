@@ -94,7 +94,13 @@ if (!isset($_GET['render_group_assignments'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['opener','datetime-picker', 'sortablejs']); ?>
+    <?php
+    if (empty($GLOBALS['openemr_version'] ?? null)) {
+        Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
+    } else {
+        Header::setupHeader(['opener','datetime-picker']); ?>
+        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+    <?php } ?>
 </head>
 <style>
   body {
@@ -338,7 +344,13 @@ if (!isset($_GET['render_group_assignments'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['opener','datetime-picker', 'sortablejs']); ?>
+    <?php
+    if (empty($GLOBALS['openemr_version'] ?? null)) {
+        Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
+    } else {
+        Header::setupHeader(['opener','datetime-picker']); ?>
+        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+    <?php } ?>
 </head>
 <style>
   body {

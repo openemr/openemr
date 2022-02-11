@@ -1479,3 +1479,8 @@ INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity)
 #IfMissingColumn form_encounter referring_provider_id
 ALTER TABLE `form_encounter` ADD `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit';
 #EndIf
+
+-- drop if view was converted to a table
+#IfTable onsite_activity_view
+DROP TABLE IF EXISTS `onsite_activity_view`;
+#EndIf
