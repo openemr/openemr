@@ -91,7 +91,7 @@ $sqlBindArray = array();
 $query = "SELECT " .
   "fe.encounter, fe.date, fe.reason, " .
   "f.formdir, f.form_name, " .
-  "p.fname, p.mname, p.lname, p.pid, p.pubpid, " .
+  "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.dob, " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
   "$esign_fields" .
   "FROM ( form_encounter AS fe, forms AS f ) " .
@@ -193,6 +193,17 @@ $res = sqlStatement($query, $sqlBindArray);
         function refreshme() {
             document.forms[0].submit();
         }
+
+        // Called to switch to the specified encounter having the specified DOS.
+        // This also closes the popup window.
+        function toEncounter(pid, pubpid, pname, enc, datestr, dobstr) {
+            encurl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) +
+                '&pid=' + encodeURIComponent(pid);
+            parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+            parent.left_nav.setEncounter(datestr, enc, 'enc');
+            parent.left_nav.loadFrame('enc2', 'enc', encurl);
+        }
+
     </script>
 </head>
 <body class="body_top">
@@ -477,7 +488,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 <?php echo text($row['reason']); ?>&nbsp;
   </td>
    <td>
-                <?php echo text($row['encounter']); ?>&nbsp;
+                <?php echo "<input type='button' class='btn btn-sm' value='" . text($row['encounter']) . "-" . text($row['pid']) .
+                          "' onClick='toEncounter(" . attr_js($row['pid']) . ", " . attr_js($row['pubpid']) . ", " . attr_js($row['fname'] . " " . $row['lname']) . ", " . attr_js($row['encounter']) . ", " . attr_js(oeFormatShortDate(substr($row['date'], 0, 10))) . ", " . attr_js($row['dob']) . ")' />" ?> &nbsp;
   </td>
   <td>
                 <?php echo $encnames; //since this variable contains html, have already html escaped it above ?>&nbsp;
