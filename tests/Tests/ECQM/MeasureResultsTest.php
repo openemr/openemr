@@ -8,7 +8,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
  */
 
-namespace OpenEMR\Tests\Qdm;
+namespace OpenEMR\Tests\ECQM;
 
 use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;

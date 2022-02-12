@@ -8,7 +8,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
  */
 
-namespace OpenEMR\Tests\Qdm;
+namespace OpenEMR\Tests\ECQM;
 
 use OpenEMR\Services\Qdm\QdmBuilder;
 use OpenEMR\Services\Qdm\QdmRequestAll;
