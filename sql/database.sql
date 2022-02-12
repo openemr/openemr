@@ -3328,7 +3328,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'prot_indi_effdate'  , '3', 'Protection Indicator Effective Date'  ,20, 4, 1,10,10, '', 1, 1, '', '', 'Protection Indicator Effective Date', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 21, 45, 1, 0, 0, '', 1, 1, '', '', '', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 22, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','patient_groups','3','Patient Categories',24,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`) VALUES ('DEM','patient_groups','3','Patient Categories',24,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','');
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'industry', '4', 'Industry', 1, 26, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_name', '4', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0);
@@ -10613,20 +10613,19 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','Document_Template_Categories','Document Template Categories',0,1,0,'',NULL,'',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',10,1,0,'','','',0,0,1);
 -- --------------------------------------------------------
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''lists'',''Document_Template_Profiles'',''Document Template Profiles'',0,1,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Document_Template_Profiles'',''profile_1'',''Defaults'',10,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Document_Template_Profiles'',''profile_2'',''Registration'',20,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Document_Template_Profiles'',''profile_3'',''Mental Health'',30,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Document_Template_Profiles'',''profile_4'',''Questionnaires'',40,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Document_Template_Profiles'',''profile_5'',''Legal'',50,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Document_Template_Profiles'',''profile_6'',''Acknowledgement Documents'',60,0,0);
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''lists'',''Patient_Groupings'',''Patient Groupings'',0,1,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Patient_Groupings'',''group_1'',''Group I'',10,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Patient_Groupings'',''group_2'',''Group II'',20,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Patient_Groupings'',''group_3'',''Group III'',30,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Patient_Groupings'',''group_4'',''Group IV'',40,0,0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES (''Patient_Groupings'',''group_5'',''Group V'',50,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','Document_Template_Profiles','Document Template Profiles',0,1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_1','Defaults',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_2','Registration',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_3','Mental Health',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_4','Questionnaires',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_5','Legal',50,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_6','Acknowledgement Documents',60,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','Patient_Groupings','Patient Groupings',0,1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_1','Group I',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_2','Group II',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_3','Group III',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_4','Group IV',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_5','Group V',50,0,0);
 -- --------------------------------------------------------
 
 --
