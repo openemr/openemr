@@ -3475,6 +3475,43 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title")
     }
 }
 
+// mdsupport - No easy way to get just display data for a layout.
+// This function attempts to use data-fld to get text data for each field
+// Unlike base function, this function is designed for a single form.
+//
+function extract_layout_data($layoutid, $result1, $result2 = '')
+{
+    ob_start();
+    display_layout_rows($layoutid, $result1, $result2);
+    $htmFull = ob_get_flush();
+    $objDoc = new DOMDocument();
+    $objDoc->loadHTML(mb_convert_encoding($htmFull, 'HTML-ENTITIES', 'UTF-8'));
+
+    $layout_data = [];
+    foreach ($objDoc->getElementsByTagName('td') as $objTD) {
+        foreach (['lbl', 'data'] as $chk) {
+            $extract = $objTD->getAttribute("data-fld$chk");
+            if (empty($extract)) continue;
+            if (!isset($layout_data[$extract])) $layout_data[$extract] = [];
+            // Group messes up label-data pairs. So second label is treated as data.
+            // stm, Never overwrite data
+            if (isset($layout_data[$extract][$chk]) && ($chk == 'lbl')) {
+                $chk = 'data'; 
+            }
+            if (isset($layout_data[$extract][$chk])) {
+                // Should happen only for data
+                if (!is_array($layout_data[$extract][$chk])) {
+                    $layout_data[$extract][$chk] = [$layout_data[$extract][$chk]];
+                }
+                $layout_data[$extract][$chk][] = $objTD->nodeValue;
+            } else {
+                $layout_data[$extract][$chk] = $objTD->nodeValue;
+            }
+        }
+    }
+    return $layout_data;
+}
+
 function display_layout_rows($formtype, $result1, $result2 = '')
 {
     global $item_count, $cell_count, $last_group, $CPR;
@@ -3566,7 +3603,8 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                     }
                     echo "<tr>";
                     if ($group_name) {
-                        echo "<td class='groupname'>";
+                        // mdsupport - Include current field
+                        echo "<td class='groupname' data-fldlbl='$field_id'>";
                         echo text(xl_layout_label($group_name));
                         $group_name = '';
                     } else {
@@ -3586,6 +3624,8 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                     //echo "<td class='label_custom align-top' colspan='$titlecols'";
                     $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
                     echo "<td class='label_custom' colspan='$titlecols_esc' ";
+                    // mdsupport - Include current field
+                    echo "data-fldlbl='$field_id' ";
                     //if ($cell_count == 2) echo " style='padding-left:10pt'";
                     echo ">";
                     $cell_count += $titlecols;
@@ -3611,6 +3651,8 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                     //echo "<td class='text data align-top' colspan='$datacols'";
                     $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
                     echo "<td class='text data' colspan='$datacols_esc'";
+                    // mdsupport - Include current field
+                    echo "data-flddata='$field_id' ";
                     //if ($cell_count > 0) echo " style='padding-left:5pt'";
                     echo ">";
                     $cell_count += $datacols;
