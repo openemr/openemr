@@ -196,6 +196,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
         // Called to switch to the specified encounter having the specified DOS.
         function toEncounter(newpid, enc) {
+            top.restoreSession();
             top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
         }
 
@@ -484,7 +485,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
   </td>
    <td>
                 <?php echo "<input type='button' class='btn btn-sm btn-secondary' value='" .
-                          text($row['encounter']) . "-" . text($row['pid']) .
+                          attr($row['encounter']) . "-" . attr($row['pid']) .
                           "' onClick='toEncounter(" . attr_js($row['pid']) . ", " . attr_js($row['encounter']) .
                           "); ' />" ?> &nbsp;
   </td>
