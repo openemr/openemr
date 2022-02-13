@@ -3483,7 +3483,7 @@ function extract_layout_data($layoutid, $result1, $result2 = '')
 {
     ob_start();
     display_layout_rows($layoutid, $result1, $result2);
-    $htmFull = ob_get_flush();
+    $htmFull = ob_get_clean();
     $objDoc = new DOMDocument();
     $objDoc->loadHTML(mb_convert_encoding($htmFull, 'HTML-ENTITIES', 'UTF-8'));
 
