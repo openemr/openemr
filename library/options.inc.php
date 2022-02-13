@@ -3491,12 +3491,16 @@ function extract_layout_data($layoutid, $result1, $result2 = '')
     foreach ($objDoc->getElementsByTagName('td') as $objTD) {
         foreach (['lbl', 'data'] as $chk) {
             $extract = $objTD->getAttribute("data-fld$chk");
-            if (empty($extract)) continue;
-            if (!isset($layout_data[$extract])) $layout_data[$extract] = [];
+            if (empty($extract)) {
+                continue;
+            }
+            if (!isset($layout_data[$extract])) {
+                $layout_data[$extract] = [];
+            }
             // Group messes up label-data pairs. So second label is treated as data.
             // stm, Never overwrite data
             if (isset($layout_data[$extract][$chk]) && ($chk == 'lbl')) {
-                $chk = 'data'; 
+                $chk = 'data';
             }
             if (isset($layout_data[$extract][$chk])) {
                 // Should happen only for data
