@@ -844,8 +844,8 @@ if ($acl_version < $upgrade_acl) {
     echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
     AclExtended::shiftAcl($accounting_view, 'Accounting', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
     AclExtended::shiftAcl($frontoffice_view, 'Front Office', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
-    AclExtended::shiftAcl($frontoffice_wsome, 'Front Office', 'patients', 'Patients', 'trans', 'Transactions (write,wsome optional)', 'write');
-    AclExtended::shiftAcl($frontoffice_wsome, 'Front Office', 'patients', 'Patients', 'notes', 'Patient Notes (write,wsome optional)', 'write');
+    AclExtended::shiftAcl($frontoffice_write, 'Front Office', 'patients', 'Patients', 'trans', 'Transactions (write,wsome optional)', 'write');
+    AclExtended::shiftAcl($frontoffice_write, 'Front Office', 'patients', 'Patients', 'notes', 'Patient Notes (write,wsome optional)', 'write');
 
 
     //DONE with upgrading to this version
