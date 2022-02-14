@@ -410,7 +410,7 @@ $none_message = xlt("Nothing to show for current actions.");
                 </form>
             </nav>
             <!-- Upload -->
-            <nav class="collapse my-2 <?php echo attr($_REQUEST['upload-nav-value']) ?>" id="upload-nav">
+            <nav class="collapse my-2 <?php echo attr($_REQUEST['upload-nav-value'] ?? '') ?>" id="upload-nav">
                 <div class='col col-12'>
                     <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
                         <hr />
@@ -580,7 +580,7 @@ $none_message = xlt("Nothing to show for current actions.");
                 <div class='col col-12' data-toggle='collapse' data-target='#template-collapse'>
                     <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xlt('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('Default Patient Templates') . '' ?></h5>
                 </div>
-                <div class='col col-12 table-responsive <?php echo attr($_REQUEST['all_state'] ?: 'collapse') ?>' id='template-collapse'>
+                <div class='col col-12 table-responsive <?php echo attr(($_REQUEST['all_state'] ?? '') ?: 'collapse') ?>' id='template-collapse'>
                     <?php
                     $templates = [];
                     $show_cat_flag = false;
@@ -635,7 +635,7 @@ $none_message = xlt("Nothing to show for current actions.");
                     </div>
                 </div>
                 <!-- Assigned table -->
-                <div class='col col-12 table-responsive <?php echo attr($_REQUEST['assigned_state'] ?: 'collapse') ?>' id="assigned_collapse">
+                <div class='col col-12 table-responsive <?php echo attr(($_REQUEST['assigned_state'] ?? '') ?: 'collapse') ?>' id="assigned_collapse">
                     <?php
                     // by categories and patient pid.
                     $templates = [];
@@ -691,7 +691,7 @@ $none_message = xlt("Nothing to show for current actions.");
                                     'authorize_signed_time' => '',
                                     'patient_signed_status' => '',
                                     'review_date' => '',
-                                    'denial_reason' => $file['status'] ?: '',
+                                    'denial_reason' => $file['status'] ?? '',
                                     'file_name' => '',
                                     'file_path' => '',
                                 );
