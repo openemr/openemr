@@ -165,7 +165,6 @@ class PatientService extends BaseService
                 'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
             ));
-
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }

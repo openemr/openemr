@@ -1068,8 +1068,10 @@ function updatePatientData($pid, $new, $create = false)
 {
     // Create instance of patient service
     $patientService = new PatientService();
-    if ($create === true ||
-        $pid === null) {
+    if (
+        $create === true ||
+        $pid === null
+    ) {
         $result = $patientService->databaseInsert($new);
     } else {
         $new['pid'] = $pid;
