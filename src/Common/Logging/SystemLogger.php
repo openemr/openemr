@@ -33,11 +33,18 @@ class SystemLogger implements LoggerInterface
          */
         $this->logger = new Logger('OpenEMR');
 
-        // Set log level per global setting (if set)
-        if (!empty($GLOBALS['system_error_logging']) && ($GLOBALS['system_error_logging'] == "DEBUG")) {
-            $logLevel = Logger::DEBUG;
-        } else {
-            $logLevel = Logger::WARNING;
+        // Override switch (this allows hard-coded setting of log level since there are several
+        //  cases that are outside of the globals context if the developer needs to turn on
+        //  DEBUG for them)
+        // $logLevel = Logger::DEBUG;
+
+        // Set log level per global setting (if set) if not hardcoded above
+        if (empty($logLevel)) {
+            if (!empty($GLOBALS['system_error_logging']) && ($GLOBALS['system_error_logging'] == "DEBUG")) {
+                $logLevel = Logger::DEBUG;
+            } else {
+                $logLevel = Logger::WARNING;
+            }
         }
 
 //        $facility = LOG_SYSLOG; // @see syslog constants https://www.php.net/manual/en/network.constants.php
@@ -102,6 +109,29 @@ class SystemLogger implements LoggerInterface
     {
         $context = $this->escapeVariables($context);
         $this->logger->error($message, $context);
+    }
+
+    /**
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.  This function automatically logs the class and function method that invoked the
+     * error log.
+     * @param $message
+     * @param array $context
+     */
+    public function errorLogCaller($message, array $context = array())
+    {
+        // we skip over arguments and go 2 stack traces to get the current call and the caller function into this one.
+        $dbt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $callerContext = $dbt[1] ?? [];
+        $callerClass = $callerContext['class'] ?? "";
+        $callerType = $callerContext['type'] ?? "";
+        $callerFunction = $callerContext['function'] ?? "";
+        $caller = $callerClass . $callerType . $callerFunction;
+        if ($caller != "") {
+            // make it look like a method signature
+            $caller .= "() ";
+        }
+        $this->error($caller . $message, $context);
     }
 
     /**

@@ -346,7 +346,7 @@ class EncounterService extends BaseService
             }
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
-            $sql .= "ORDER BY fe.id DESC";
+            $sql .= " ORDER BY fe.id DESC";
         }
 
         $statementResults = sqlStatement($sql, $sqlBindArray);

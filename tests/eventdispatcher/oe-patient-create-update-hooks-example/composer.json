@@ -1,0 +1,16 @@
+{
+    "name": "mi-squared/oe-patient-create-update-hooks-example",
+    "description": "Module that listen for patient insert and update events and perform further actions",
+    "type": "openemr-module",
+    "authors": [
+        {
+            "name": "Ken Chapple",
+            "email": "ken@mi-squared.com"
+        }
+    ],
+    "require": {
+        "openemr/oe-module-installer-plugin": "^0.1.0"
+    },
+    "autoload": {},
+    "minimum-stability": "dev"
+}

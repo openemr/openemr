@@ -26,6 +26,7 @@ use Installer\Model\InstModuleTable;
 use Laminas\Db\Adapter\Adapter;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use Laminas\Console\Request as ConsoleRequest;
+use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstallerController extends AbstractActionController
 {
@@ -80,7 +81,7 @@ class InstallerController extends AbstractActionController
     /**
      * @return Installer\Model\InstModuleTable
      */
-    public function getInstallerTable()
+    public function getInstallerTable(): InstModuleTable
     {
         return $this->InstallerTable;
     }
@@ -387,10 +388,9 @@ class InstallerController extends AbstractActionController
         return false;
     }
 
-    public function getFilesForUpgrade($modDirectory)
+    public function getFilesForUpgrade($modDirectory, $sqldir)
     {
         $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $modDirectory;
-        $sqldir = $ModulePath . "/sql";
         $versions = [];
         $dh = opendir($sqldir);
         if (!$dh) {
@@ -421,6 +421,9 @@ class InstallerController extends AbstractActionController
         $dirModule = $this->getInstallerTable()->getRegistryEntry($mod->modId, "mod_directory");
         $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
         $sqldir = $ModulePath . "/sql";
+        if (!is_dir($sqldir)) {
+            $sqldir = $ModulePath;
+        }
         $mod->sql_action = "";
 
         if (file_exists($sqldir . "/install.sql") && file_exists($ModulePath . "/version.php") && empty($mod->sql_version)) {
@@ -428,7 +431,7 @@ class InstallerController extends AbstractActionController
         }
 
         if (!empty($mod->sql_version) && $mod->sqlRun == 1) {
-            $versions = $this->getFilesForUpgrade($mod->modDirectory);
+            $versions = $this->getFilesForUpgrade($mod->modDirectory, $sqldir);
 
             if (count($versions) > 0) {
                 foreach ($versions as $version => $sfname) {
@@ -491,11 +494,13 @@ class InstallerController extends AbstractActionController
      */
     public function InstallModuleSQL($modId = '')
     {
-        $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
-            $values = array($dirModule->mod_nick_name,$dirModule->mod_enc_menu);
+        $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+        $dirModule = $registryEntry->modDirectory;
+        $modType = $registryEntry->type;
+        if ($this->getInstallerTable()->installSQL($modId, $modType, $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule)) {
+            $values = array($registryEntry->mod_nick_name,$registryEntry->mod_enc_menu);
             $values[2] = $this->getModuleVersionFromFile($modId);
-            $values[3] = $dirModule->acl_version;
+            $values[3] = $registryEntry->acl_version;
             $this->getInstallerTable()->updateRegistered($modId, '', $values);
             return true;
         } else {
@@ -511,7 +516,14 @@ class InstallerController extends AbstractActionController
     {
         $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
-        $versions = $this->getFilesForUpgrade($Module->modDirectory);
+        $sqlInstallLocation = $modDir . '/sql';
+        // if this is a custom module that for some reason doesn't have the SQL in a sql folder...
+        if (!file_exists($sqlInstallLocation)) {
+            $sqlInstallLocation = $modDir;
+        }
+
+        $versions = $this->getFilesForUpgrade($Module->modDirectory, $sqlInstallLocation);
+
         $values = array($Module->mod_nick_name,$Module->mod_enc_menu);
         $div = [];
         $outputToBrowser = '';
@@ -519,9 +531,10 @@ class InstallerController extends AbstractActionController
             if (version_compare($version, $Module->sql_version) < 0) {
                 continue;
             }
-
             ob_start();
-            upgradeFromSqlFile($filename, $modDir);
+            $sqlUpgradeService = new SQLUpgradeService();
+            $sqlUpgradeService->setRenderOutputToScreen(true);
+            $sqlUpgradeService->upgradeFromSqlFile($filename, $sqlInstallLocation);
             $outputToBrowser .= ob_get_contents();
             ob_end_clean();
         }
@@ -634,20 +647,32 @@ class InstallerController extends AbstractActionController
      */
     public function InstallModule($modId = '', $mod_enc_menu = '', $mod_nick_name = '')
     {
-        $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-
-        if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $GLOBALS['customModDir'] . "/" . $dirModule->modDirectory)) {
-            $values = array($mod_nick_name, $mod_enc_menu);
-            //Run custom sql's in folder sql of module
-            if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
-                $values[2] = $this->getModuleVersionFromFile($modId);
-                $this->getInstallerTable()->updateRegistered($modId, '', $values);
-                $status = $this->listenerObject->z_xlt("Success");
+        $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+        $modType = $registryEntry->type;
+        $dirModule = $registryEntry->modDirectory;
+        $sqlInstalled = false;
+        if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+            $fullDirectory = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $GLOBALS['customModDir'] . "/" . $dirModule;
+            if ($this->getInstallerTable()->installSQL($modId, $modType, $fullDirectory)) {
+                $sqlInstalled = true;
+            } else {
+                // TODO: This is a wierd error... why is it written like this?
+                $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
+            }
+        } else if ($modType == InstModuleTable::MODULE_TYPE_ZEND) {
+            $fullDirectory = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule;
+            if ($this->getInstallerTable()->installSQL($modId, $modType, $fullDirectory)) {
+                $sqlInstalled = true;
             } else {
                 $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not run sql query");
             }
-        } else {
-            $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
+        }
+
+        if ($sqlInstalled) {
+            $values = array($mod_nick_name, $mod_enc_menu);
+            $values[2] = $this->getModuleVersionFromFile($modId);
+            $this->getInstallerTable()->updateRegistered($modId, '', $values);
+            $status = $this->listenerObject->z_xlt("Success");
         }
 
         return $status;

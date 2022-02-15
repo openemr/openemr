@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 use OpenEMR\Events\User\UserUpdatedEvent;
@@ -255,6 +256,8 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             (isset($_POST['lname']) ? $_POST['lname'] : '')
         );
 
+        // TODO: why are we sending $user_data here when its overwritten with just the 'username' of the user updated
+        // instead of the entire user data?  This makes the pre event data not very useful w/o doing a database hit...
         $userUpdatedEvent = new UserUpdatedEvent($user_data, $_POST);
         $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserUpdatedEvent::EVENT_HANDLE, $userUpdatedEvent, 10);
     }
@@ -321,10 +324,13 @@ if (isset($_POST["mode"])) {
                 $alertmsg .= $authUtilsNewPassword->getErrorMessage();
             }
             if ($success) {
+                // generate our uuid
+                $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
                 //set the facility name from the selected facility_id
                 sqlStatement(
-                    "UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.username = ?",
+                    "UPDATE users, facility SET users.facility = facility.name, users.uuid =? WHERE facility.id = ? AND users.username = ?",
                     array(
+                        $uuid,
                         trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : '')),
                         trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
                     )
@@ -362,8 +368,16 @@ if (isset($_POST["mode"])) {
             }
         }
 
-        $userCreatedEvent = new UserCreatedEvent($_POST);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserCreatedEvent::EVENT_HANDLE, $userCreatedEvent, 10);
+        // this event should only fire if we actually succeeded in creating the user...
+        if ($success) {
+            // let's make sure we send on our uuid alongside the id of the user
+            $submittedData = $_POST;
+            $submittedData['uuid'] = $uuid ?? null;
+            $submittedData['username'] = $submittedData['rumple'] ?? null;
+            $userCreatedEvent = new UserCreatedEvent($submittedData);
+            unset($submittedData); // clear things out in case we have any sensitive data here
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserCreatedEvent::EVENT_HANDLE, $userCreatedEvent, 10);
+        }
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {

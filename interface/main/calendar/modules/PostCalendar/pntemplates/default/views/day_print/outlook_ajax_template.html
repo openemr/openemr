@@ -459,6 +459,8 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
+            // eventViewClass allows the event class to override the template (such as from a dispatched system event).
+            $evtClass = $event['eventViewClass'] ?? $evtClass;
 
             // if this is an IN or OUT event then we have some extra special
             // processing to be done
@@ -584,7 +586,7 @@ foreach ($providers as $provider) {
             // event DIV and include the time
             if ($event['catid'] == 2) {
                 $inTop = ($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
-                echo "<div class='" . attr($evtClass) . " event' style='top:".$inTop.
+                echo "<div data-eid='" . attr($eventid) . "'class='" . attr($evtClass) . " event' style='top:".$inTop.
                     "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                     "; $divWidth".
                     "; $divLeft".
@@ -598,7 +600,7 @@ foreach ($providers as $provider) {
             }
 
             // output the DIV and content
-            echo "<div class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
+            echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
                     "; background-color:".$event["catcolor"].
                     "; $divWidth".
                     "; $divLeft".

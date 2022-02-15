@@ -29,12 +29,25 @@ $database = NewADOConnection("mysqli_log"); // Use the subclassed driver which l
 // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
 // which is needed to import data in the Administration->Other->External Data Loads feature.
 // (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
-$database->optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0), array(MYSQLI_OPT_LOCAL_INFILE,1));
+$database->setConnectionParameter(MYSQLI_READ_DEFAULT_GROUP, 0);
+$database->setConnectionParameter(MYSQLI_OPT_LOCAL_INFILE, 1);
 // Set mysql to use ssl, if applicable.
 // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
 // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
 if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     if (defined('MYSQLI_CLIENT_SSL')) {
+        if (
+            file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+            file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+        ) {
+            // with client side certificate/key
+            $database->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+            $database->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+            $database->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+        } else {
+            // without client side certificate/key
+            $database->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+        }
         $database->clientFlags = MYSQLI_CLIENT_SSL;
     }
 }
@@ -122,6 +135,49 @@ function sqlStatement($statement, $binds = false)
 }
 
 /**
+ * Standard sql query in OpenEMR.
+ *
+ * Function that will allow use of the adodb binding
+ * feature to prevent sql-injection. Will continue to
+ * be compatible with previous function calls that do
+ * not use binding.
+ * It will return a recordset object.
+ * The sqlFetchArray() function should be used to
+ * utilize the return object.
+ *
+ * @param  string  $statement  query
+ * @param  array   $binds      binded variables array (optional)
+ * @return recordset
+ */
+function sqlStatementThrowException($statement, $binds = false)
+{
+    // Below line is to avoid a nasty bug in windows.
+    if (empty($binds)) {
+        $binds = false;
+    }
+
+    //Run a adodb execute
+    // Note the auditSQLEvent function is embedded in the
+    //   Execute function.
+    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds, true);
+    if ($recordset === false) {
+        throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+    }
+    return $recordset;
+}
+
+/**
+ * Return the last inserted sql id for a query.
+ * @return int
+ */
+function sqlGetLastInsertId()
+{
+    // Return the correct last id generated using function
+    //   that is safe with the audit engine.
+    return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+}
+
+/**
 * Specialized sql query in OpenEMR that skips auditing.
 *
 * Function that will allow use of the adodb binding
@@ -139,7 +195,7 @@ function sqlStatement($statement, $binds = false)
 * @param  array   $binds      binded variables array (optional)
 * @return recordset
 */
-function sqlStatementNoLog($statement, $binds = false)
+function sqlStatementNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) {
@@ -149,7 +205,11 @@ function sqlStatementNoLog($statement, $binds = false)
     // Use adodb ExecuteNoLog with binding and return a recordset.
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
     if ($recordset === false) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        if ($throw_exception_on_error) {
+            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+        } else {
+            HelpfulDie("query failed: $statement", getSqlLastError());
+        }
     }
 
     return $recordset;
@@ -196,7 +256,7 @@ function sqlFetchArray($r)
         return false;
     }
 
-    if ($r->EOF) {
+    if ($r->EOF ?? '') {
         return false;
     }
 
@@ -308,11 +368,13 @@ function sqlQuery($statement, $binds = false)
 * audit engine. This function should only be used
 * in very special situations.
 *
+* Note: If you do an INSERT or UPDATE statement you will get an empty string ("") as a response
+*
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return array
+* @return array|false|""
 */
-function sqlQueryNoLog($statement, $binds = false)
+function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
     // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) {
@@ -322,7 +384,11 @@ function sqlQueryNoLog($statement, $binds = false)
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
     if ($recordset === false) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+        if ($throw_exception_on_error) {
+            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+        } else {
+            HelpfulDie("query failed: $statement", getSqlLastError());
+        }
     }
 
     if ($recordset->EOF) {
@@ -520,7 +586,11 @@ function HelpfulDie($statement, $sqlerr = '')
 }
 
 /**
-* @todo document use of the generate_id function
+* Function provides generation of sequence numbers with built-in ADOdb function.
+* Increments the number in the sequences table.
+* One example of use is the counter for form_id in the forms table.
+*
+* @return integer
 */
 function generate_id()
 {
@@ -683,12 +753,25 @@ function getPrivDB()
             // Below optionFlags flag is telling the mysql connection to ensure local_infile setting,
             // which is needed to import data in the Administration->Other->External Data Loads feature.
             // (Note the MYSQLI_READ_DEFAULT_GROUP is just to keep the current setting hard-coded in adodb)
-            $GLOBALS['PRIV_DB']->optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0), array(MYSQLI_OPT_LOCAL_INFILE,1));
+            $GLOBALS['PRIV_DB']->setConnectionParameter(MYSQLI_READ_DEFAULT_GROUP, 0);
+            $GLOBALS['PRIV_DB']->setConnectionParameter(MYSQLI_OPT_LOCAL_INFILE, 1);
             // Set mysql to use ssl, if applicable.
             // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
             // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
                 if (defined('MYSQLI_CLIENT_SSL')) {
+                    if (
+                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+                    ) {
+                        // with client side certificate/key
+                        $GLOBALS['PRIV_DB']->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+                        $GLOBALS['PRIV_DB']->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+                        $GLOBALS['PRIV_DB']->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                    } else {
+                        // without client side certificate/key
+                        $GLOBALS['PRIV_DB']->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                    }
                     $GLOBALS['PRIV_DB']->clientFlags = MYSQLI_CLIENT_SSL;
                 }
             }

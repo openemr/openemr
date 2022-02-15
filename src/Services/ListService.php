@@ -14,11 +14,9 @@
 
 namespace OpenEMR\Services;
 
-use Particle\Validator\Validator;
-
+// TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService
 {
-
   /**
    * Default constructor.
    */
@@ -26,19 +24,6 @@ class ListService
     {
     }
 
-    public function validate($list)
-    {
-        $validator = new Validator();
-
-        $validator->required('title')->lengthBetween(2, 255);
-        $validator->required('type')->lengthBetween(2, 255);
-        $validator->required('pid')->numeric();
-        $validator->optional('diagnosis')->lengthBetween(2, 255);
-        $validator->required('begdate')->datetime('Y-m-d');
-        $validator->optional('enddate')->datetime('Y-m-d');
-
-        return $validator->validate($list);
-    }
 
     public function getAll($pid, $list_type)
     {
@@ -54,11 +39,24 @@ class ListService
         return $results;
     }
 
-    public function getOptionsByListName($list_name)
+    public function getOptionsByListName($list_name, $search = array())
     {
-        $sql = "SELECT * FROM list_options WHERE list_id = ?";
+        $sql = "SELECT * FROM list_options WHERE list_id = ? ";
+        $binding = [$list_name];
 
-        $statementResults = sqlStatement($sql, array($list_name));
+
+        $whitelisted_columns = [
+            "option_id", "seq", "is_default", "option_value", "mapping", "notes", "codes", "activity", "edit_options", "toggle_setting_1", "toggle_setting_2", "subtype"
+        ];
+        foreach ($whitelisted_columns as $column) {
+            if (!empty($search[$column])) {
+                $sql .= " AND $column = ? ";
+                $binding[] = $search[$column];
+            }
+        }
+        $sql .= " ORDER BY `seq` ";
+
+        $statementResults = sqlStatementThrowException($sql, $binding);
 
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
@@ -66,6 +64,22 @@ class ListService
         }
 
         return $results;
+    }
+
+    /**
+     * Returns the list option record that was found
+     * @param $list_id
+     * @param $option_id
+     * @param array $search
+     * @return array Record
+     */
+    public function getListOption($list_id, $option_id)
+    {
+        $records = $this->getOptionsByListName($list_id, ['option_id' => $option_id]);
+        if (!empty($records)) { // should only be one record
+            return $records[0];
+        }
+        return null;
     }
 
     public function getOne($pid, $list_type, $list_id)

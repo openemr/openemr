@@ -1356,7 +1356,7 @@ function find_available(extra) {
     }
 </style>
 </head>
-<body>
+<body class="add-edit-event">
 <div class="container-fluid">
 <nav class='mb-3'>
     <?php
