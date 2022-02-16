@@ -1,4 +1,5 @@
 <?php
+
 /**
  * IsAcceptedFileFilterEvent is used to filter the mime type sanitization functions in sanitize.inc.php  Event consumers
  * should consider the tradeoffs of using this event versus updating the files_white_list List in list_options. If the

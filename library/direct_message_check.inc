@@ -431,8 +431,7 @@ function phimail_close($fp)
 
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
 {
-    if (!$success)
-    {
+    if (!$success) {
         (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
     }
     EventAuditLogger::instance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
@@ -566,15 +565,11 @@ function phimail_store($name, $mime_type, $fn)
         if (is_array($return)) {
             $return['filesize'] = $filesize;
         }
-    }
-    catch (\Exception $exception)
-    {
+    } catch (\Exception $exception) {
         (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
         phimail_logit(0, "problem storing attachment in OpenEMR");
         $return = false;
-    }
-    finally
-    {
+    } finally {
         $phimail_direct_message_check_allowed_mimetype = null;
         // There shouldn't be another request in the system to add a document, but for security sake we will prevent code
         // after this from bypassing the whitelist filter
