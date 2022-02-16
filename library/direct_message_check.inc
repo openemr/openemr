@@ -30,8 +30,9 @@ require_once(dirname(__FILE__) . "/gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use PHPMailer\PHPMailer\PHPMailer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
+use PHPMailer\PHPMailer\PHPMailer;
 
 /**
  * Connect to a phiMail Direct Messaging server
@@ -432,7 +433,7 @@ function phimail_close($fp)
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
 {
     if (!$success) {
-        (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
+        (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
     }
     EventAuditLogger::instance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
@@ -566,7 +567,7 @@ function phimail_store($name, $mime_type, $fn)
             $return['filesize'] = $filesize;
         }
     } catch (\Exception $exception) {
-        (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
+        (new SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
         phimail_logit(0, "problem storing attachment in OpenEMR");
         $return = false;
     } finally {
