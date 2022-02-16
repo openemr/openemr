@@ -231,7 +231,10 @@ $('#by-name').on('change', function () {
 $('#add-to-list').on('click', function (e) {
     e.preventDefault();
 
-    if($('#by-name').val() == '')return;
+    if($('#by-name').val() == '') {
+        alert("<?php echo xls("You must provide a patient name or id to add to the list"); ?>");
+        return;
+    }
 
     if(patientsList.length === 0){
         $('#results-table').show();
@@ -242,7 +245,10 @@ $('#add-to-list').on('click', function (e) {
     $.each(patientsList, function (key, patient) {
         if (patient.pid == currentResult.pid) exist = true;
     })
-    if(exist)return;
+    if(exist){
+        alert("<?php echo xls("This patient has already been added to the list"); ?>");
+        return;
+    }
 
 
     // add to array
@@ -273,10 +279,15 @@ function removePatient(pid) {
 
 //send array of patients to function 'setMultiPatients' of the opener
 function selPatients() {
-    if (opener.closed || ! opener.setMultiPatients)
+    if (!(patientsList && patientsList.length)) {
+        alert("<?php echo xls("You must add a patient to the list before hitting ok"); ?>");
+        return false;
+    }
+    if (opener.closed || ! opener.setMultiPatients) {
         alert("<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>");
-    else
+    } else {
         opener.setMultiPatients(patientsList);
+    }
     dlgclose();
     return false;
 }

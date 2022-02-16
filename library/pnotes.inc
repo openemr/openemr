@@ -495,7 +495,9 @@ function updatePnotePatient($id, $patient_id)
     $activity = $assigned_to ? '1' : '0';
 
     $pid = $row['pid'];
+
     if ($pid != 0 || (int)$patient_id < 1) {
+        (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("invalid operation", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $pid]);
         die("updatePnotePatient invalid operation");
     }
 
