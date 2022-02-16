@@ -123,7 +123,7 @@ function isWhiteFile($file)
         $categoryType = $splitMimeType[0];
         if (in_array($categoryType . '/*', $white_list)) {
             $isAllowedFile = true;
-        }
+        } 
         // we can fire off an event
         else if (isset($GLOBALS['kernel'])) {
             // allow module writers to modify the isWhiteFile on the fly.
