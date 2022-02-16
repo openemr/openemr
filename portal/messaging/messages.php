@@ -586,15 +586,15 @@ function getAuthPortalUsers()
                                     </li>
                                     <li class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><?php echo xlt('Compose new'); ?></a>
+                                        <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i><?php echo xlt('Compose new'); ?></a>
                                     </li>
                                     <li ng-show='!isTrash'>
-                                        <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
+                                        <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i><?php echo xlt('Send Selected to Archive'); ?></a></li>
                                     <li>
-                                        <a href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root'] ?>/portal/home.php")' ng-show="isPortal" class="dropdown-item text-muted"><?php echo xlt('Return Home'); ?></a>
+                                        <a href="javascript:;" onclick='window.location.replace("./messages.php")' ng-show="isPortal" class="dropdown-item"><i class="fa fa-sync"></i><?php echo xlt('Refresh'); ?></a>
                                     </li>
                                     <li>
-                                        <a href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item text-muted"><?php echo xlt('Return Home'); ?></a>
+                                        <a href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item"><i class="fa fa-home"></i><?php echo xlt('Return Home'); ?></a>
                                     </li>
                                 </ul>
                             </div>
