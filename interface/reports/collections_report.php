@@ -401,6 +401,11 @@ if (!empty($_POST['form_csvexport'])) {
             });
         }
 
+        function toEncounter(newpid, enc) {
+            top.restoreSession();
+            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+        }
+
         $(function () {
             let Y = parseFloat($("#form_page_y").val()) - parseFloat($("#form_offset_y").val()) - parseFloat($("#form_y").val());
             $("html, body").animate({scrollTop: Y}, 800);
@@ -834,6 +839,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $row = array();
 
         $row['id']        = $erow['id'];
+        $row['pid']       = $patient_id;
+        $row['encounter'] = $encounter_id;
         $row['invnumber'] = "$patient_id.$encounter_id";
         $row['custid']    = $patient_id;
         $row['name']      = $erow['fname'] . ' ' . $erow['lname'];
@@ -1204,7 +1211,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             <?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">
-   &nbsp;<?php echo text(oeFormatShortDate($row['dos'])); ?>
+   &nbsp;<?php echo "<input type='button' class='btn btn-sm btn-secondary' value='" .
+                   attr(oeFormatShortDate($row['dos'])) . "' onClick='toEncounter(" . 
+                   attr_js($row['pid']) . ", " . attr_js($row['encounter']) .
+                   "); ' />"; ?>
   </td>
             <?php if ($form_cb_adate) { ?>
   <td class='detail'>
