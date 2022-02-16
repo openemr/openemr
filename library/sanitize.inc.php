@@ -123,9 +123,8 @@ function isWhiteFile($file)
         $categoryType = $splitMimeType[0];
         if (in_array($categoryType . '/*', $white_list)) {
             $isAllowedFile = true;
-        } 
-        // we can fire off an event
-        else if (isset($GLOBALS['kernel'])) {
+        } else if (isset($GLOBALS['kernel'])) {
+            // we can fire off an event
             // allow module writers to modify the isWhiteFile on the fly.
             $event = new IsAcceptedFileFilterEvent($file, $white_list);
             $event->setAllowedFile(false);
