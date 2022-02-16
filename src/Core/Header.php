@@ -192,7 +192,7 @@ class Header
                 if (($k == "bootstrap") && ((!in_array("no_main-theme", $selectedAssets)) || (in_array("patientportal-style", $selectedAssets)))) {
                     // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
                     //  since bootstrap theme is already including in main themes and portal theme via SASS.
-                } else if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !$GLOBALS['enable_compact_mode'])) {
+                } else if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
                   // Do not display compact theme if it is turned off
                 } else {
                     foreach ($tmp['links'] as $l) {

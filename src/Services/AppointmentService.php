@@ -14,23 +14,79 @@
 
 namespace OpenEMR\Services;
 
+use MongoDB\Driver\Query;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
+use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
-class AppointmentService
+class AppointmentService extends BaseService
 {
+    const TABLE_NAME = "openemr_postcalendar_events";
+
+    /**
+     * The default encounter class code to use when creating an encounter for an appointment.  This only exists
+     * in the 6_0_0 release as newer versions have this in the EncounterService
+     */
+    const DEFAULT_ENCOUNTER_CLASS_CODE = 'AMB';
+
+    /**
+     * @var EncounterService
+     */
+    private $encounterService;
+
+    /**
+     * @var PatientService
+     */
+    private $patientService;
 
   /**
    * Default constructor.
    */
     public function __construct()
     {
+        parent::__construct(self::TABLE_NAME);
+    }
+
+    public function setEncounterService(EncounterService $service)
+    {
+        $this->encounterService = $service;
+    }
+
+    public function getEncounterService()
+    {
+        if (empty($this->encounterService)) {
+            $this->encounterService = new EncounterService();
+        }
+        return $this->encounterService;
+    }
+
+    public function setPatientService(PatientService $patientService)
+    {
+        $this->patientService = $patientService;
+    }
+
+    public function getPatientService()
+    {
+        if (empty($this->patientService)) {
+            $this->patientService = new PatientService();
+        }
+        return $this->patientService;
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['puuid', 'pce_aid_uuid'];
     }
 
     public function validate($appointment)
     {
         $validator = new Validator();
 
-        $validator->required('pc_eid')->numeric();
         $validator->required('pc_catid')->numeric();
         $validator->required('pc_title')->lengthBetween(2, 150);
         $validator->required('pc_duration')->numeric();
@@ -40,6 +96,21 @@ class AppointmentService
         $validator->required('pc_startTime')->length(5); // HH:MM is 5 chars
         $validator->required('pc_facility')->numeric();
         $validator->required('pc_billing_location')->numeric();
+        $validator->optional('pc_aid')->numeric()
+            ->callback(function ($value, $data) {
+                $id = QueryUtils::fetchSingleValue('Select id FROM users WHERE id = ? ', 'id', [$value]);
+                if (empty($id)) {
+                    throw new InvalidValueException('pc_aid must be for a valid user', 'pc_aid');
+                }
+                return true;
+            });
+        $validator->optional('pid')->callback(function ($value, $data) {
+            $id = QueryUtils::fetchSingleValue('Select id FROM patient_data WHERE pid = ? ', 'id', [$value]);
+            if (empty($id)) {
+                throw new InvalidValueException('pid must be for a valid patient', 'pid');
+            }
+            return true;
+        });
 
         return $validator->validate($appointment);
     }
@@ -52,32 +123,39 @@ class AppointmentService
                        pd.fname,
                        pd.lname,
                        pd.DOB,
+                       pd.pid,
+                       pd.uuid AS puuid,
+                       providers.uuid AS pce_aid_uuid,
+                       providers.npi AS pce_aid_npi,
+                       pce.pc_aid,
                        pce.pc_apptstatus,
                        pce.pc_eventDate,
                        pce.pc_startTime,
                        pce.pc_endTime,
               	       pce.pc_facility,
                        pce.pc_billing_location,
+                       pce.pc_catid,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
                        LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
                        LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
-                       LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid";
+                       LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid
+                       LEFT JOIN users as providers ON pce.pc_aid = providers.id";
 
         if ($pid) {
             $sql .= " WHERE pd.pid = ?";
             array_push($sqlBindArray, $pid);
         }
 
-        $statementResults = sqlStatement($sql, $sqlBindArray);
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
+        $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
+        $finalRecords = [];
+        if (!empty($records)) {
+            foreach ($records as $record) {
+                $finalRecords[] = $this->createResultRecordFromDatabaseResult($record);
+            }
         }
-
-        return $results;
+        return $finalRecords;
     }
 
     public function getAppointment($eid)
@@ -86,27 +164,44 @@ class AppointmentService
                        pd.fname,
                        pd.lname,
                        pd.DOB,
+                       pd.pid,
+                       pd.uuid AS puuid,
+                       providers.uuid AS pce_aid_uuid,
+                       providers.npi AS pce_aid_npi,
+                       pce.pc_aid,
                        pce.pc_apptstatus,
                        pce.pc_eventDate,
                        pce.pc_startTime,
                        pce.pc_endTime,
+                       pce.pc_duration,
               	       pce.pc_facility,
                        pce.pc_billing_location,
+                       pce.pc_catid,
+                       pce.pc_room,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
                        LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
                        LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
                        LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid
+                       LEFT JOIN users as providers ON pce.pc_aid = providers.id
                        WHERE pce.pc_eid = ?";
 
-        return sqlQuery($sql, array($eid));
+        $records = QueryUtils::fetchRecords($sql, [$eid]);
+        $finalRecords = [];
+        if (!empty($records)) {
+            foreach ($records as $record) {
+                $finalRecords[] = $this->createResultRecordFromDatabaseResult($record);
+            }
+        }
+        return $finalRecords;
     }
 
     public function insert($pid, $data)
     {
         $startTime = date("H:i:s", strtotime($data['pc_startTime']));
-        $endTime = $startTime + $data['pc_duration'];
+        // TODO: Why are we adding strings with numbers?  How is this even working
+        $endTime = $startTime . $data['pc_duration'];
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
         $sql .= "     pc_pid=?,";
@@ -122,7 +217,8 @@ class AppointmentService
         $sql .= "     pc_billing_location=?,";
         $sql .= "     pc_informant=1,";
         $sql .= "     pc_eventstatus=1,";
-        $sql .= "     pc_sharing=1";
+        $sql .= "     pc_sharing=1,";
+        $sql .= "     pc_aid=?";
 
         $results = sqlInsert(
             $sql,
@@ -137,7 +233,8 @@ class AppointmentService
                 $startTime,
                 $endTime,
                 $data["pc_facility"],
-                $data["pc_billing_location"]
+                $data["pc_billing_location"],
+                $data["pc_aid"] ?? null
             )
         );
 
@@ -146,6 +243,181 @@ class AppointmentService
 
     public function delete($eid)
     {
-        return sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+        QueryUtils::sqlStatementThrowException("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+        return ['message' => 'record deleted'];
+    }
+
+    protected function createResultRecordFromDatabaseResult($row)
+    {
+        return $row;
+    }
+
+    /**
+     * Returns a list of categories
+     * @return array
+     */
+    public function getCalendarCategories()
+    {
+        $sql = "SELECT pc_catid, pc_constant_id, pc_catname, pc_cattype,aco_spec FROM openemr_postcalendar_categories "
+        . " WHERE pc_active = 1 ORDER BY pc_seq";
+        return QueryUtils::fetchRecords($sql);
+    }
+
+    /**
+     * check to see if a status code exist as a check in
+     * @param $option
+     * @return bool
+     */
+    public function isCheckInStatus($option)
+    {
+        $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
+            "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
+        if (empty($row['toggle_setting_1'])) {
+            return(false);
+        }
+
+        return(true);
+    }
+
+    /**
+     * check to see if a status code exist as a check out
+     * @param $option
+     * @return bool
+     */
+    public function isCheckOutStatus($option)
+    {
+        $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
+            "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
+        if (empty($row['toggle_setting_2'])) {
+            return(false);
+        }
+
+        return(true);
+    }
+
+    /**
+     * Returns a list of appointment statuses (also used with encounters).
+     * @return array
+     */
+    public function getAppointmentStatuses()
+    {
+        $listService = new ListService();
+        $options = $listService->getOptionsByListName('apptstat', ['activity' => 1]);
+        return $options;
+    }
+
+    /**
+     * Checks to see if the passed in status is a valid appointment status for calendar appointments.
+     * @param $status_option_id The status to check if its a valid appointment status
+     * @return bool True if its valid, false otherwise
+     */
+    public function isValidAppointmentStatus($status_option_id)
+    {
+        $listService = new ListService();
+        $option = $listService->getListOption('apptstat', $status_option_id);
+        if (!empty($option)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the status for an appointment.  TODO: should be refactored at some point to update the entire record
+     * @param $eid number The id of the appointment event
+     * @param $status string The status the appointment event should be set to.
+     * @param $user number The user performing the update
+     * @param $encounter number The encounter of the appointment
+     */
+    public function updateAppointmentStatus($eid, $status, $user, $encounter = '')
+    {
+        $appt = $this->getAppointment($eid);
+        if (empty($appt)) {
+            throw new \InvalidArgumentException("Appointment does not exist for eid " . $eid);
+        } else {
+            // TODO: Not sure why getAppointment returns an array of records instead of a single record
+            $appt = $appt[0];
+        }
+
+        $sql = "UPDATE " . self::TABLE_NAME . " SET pc_apptstatus = ? WHERE pc_eid = ? ";
+        $binds = [$status, $eid];
+
+        if (!empty($appt['pid'])) {
+            $trackerService = new PatientTrackerService();
+            $trackerService->manage_tracker_status($appt['pc_eventDate'], $appt['pc_startTime'], $eid, $appt['pid'], $user, $status, $appt['pc_room'], $encounter);
+        } else {
+            (new SystemLogger())->error("AppointmentService->updateAppointmentStatus() failed to update manage_tracker_status"
+            . " as patient pid was empty", ['pc_eid' => $eid, 'status' => $status, 'user' => $user, 'encounter' => $encounter]);
+        }
+        return QueryUtils::sqlStatementThrowException($sql, $binds);
+    }
+
+    /**
+     * @param $eid
+     * @param $pid
+     * @return array The most recent encounter for a given encounter
+     */
+    public function getEncounterForAppointment($pc_eid, $pid)
+    {
+        $appointment = $this->getAppointment($pc_eid)[0];
+        $date = $appointment['pc_eventDate'];
+
+        // for backwards compatability with the getEncountersBySearch the pid parameter is a UUID (completely nonsensical)
+        // but we will grab our uuid for our patient here
+        $patientService = $this->getPatientService();
+        $patientUuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
+
+        // we grab the most recent encounter for today's date for the given patient
+        $encounterService = $this->getEncounterService();
+        // returns the most recent encounter for the given appointment..
+        // TODO: @adunsulag we should look at in the future of making an actual join table between encounters and appointments...
+        // this fuzzy match by date seems like it will have major problems for both inpatient settings as well as any kind
+        // of emergency care (patient sees doctor, patient does telehealth visit during the night due to crisis situation).
+        $encounterResult = $encounterService->getEncountersBySearch(['date' => 'eq' . $date, 'pid' => $patientUuid], true);
+        if ($encounterResult->hasData()) {
+            $result = $encounterResult->getData();
+            return array_pop($result);
+        }
+        return null;
+    }
+
+    public function createEncounterForAppointment($eid)
+    {
+        $appointment = $this->getAppointment($eid)[0];
+        $patientService = $this->getPatientService();
+        $patientUuid = UuidRegistry::uuidToString($patientService->getUuid($appointment['pid']));
+
+        $userService = new UserService();
+        $user = $userService->getUser($appointment['pc_aid']);
+        $authGroup = UserService::getAuthGroupForUser($user['username']);
+
+        $pos_code = QueryUtils::fetchSingleValue(
+            "SELECT pos_code FROM facility WHERE id = ?",
+            'pos_code',
+            $appointment['pc_facility']
+        );
+
+        $data = [
+            'pc_catid' => $appointment['pc_catid']
+            // TODO: where would we get this information if it wasn't defaulted to ambulatory?  Should this be a globals setting?
+            // this is imitating the work from encounter_events.inc.php::todaysEncounterCheck
+            ,'class_code' => self::DEFAULT_ENCOUNTER_CLASS_CODE
+            ,'puuid' => $patientUuid
+            ,'pid' => $appointment['pid']
+            ,'provider_id' => $user['id']
+            ,'reason' => $appointment['pc_hometext'] ?? xl('Please indicate visit reason')
+            ,'facility_id' => $appointment['pc_facility']
+            ,'billing_facility' => $appointment['pc_billing_location']
+            ,'pos_code' => $pos_code
+            ,'user' => $user['username']
+            ,'group' => $authGroup
+        ];
+
+        $encounterService = $this->getEncounterService();
+        $result = $encounterService->insertEncounter($patientUuid, $data);
+        if ($result->hasData()) {
+            $result = $result->getData();
+            return $result[0]['encounter'];
+        }
+        return null;
     }
 }

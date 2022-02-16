@@ -56,7 +56,7 @@ function isNew($dob = '', $lname = '', $fname = '', $email = '')
         $tier1 = sqlQuery($sql, $data);
         if (!empty($tier1['pid'])) {
             // email with this dob already on file so, skedaddle ...
-            return $tier1['pid'];
+            return (int)$tier1['pid'];
         }
     }
     // fully matched for our purposes
@@ -70,7 +70,7 @@ function isNew($dob = '', $lname = '', $fname = '', $email = '')
     );
     $tier2 = sqlQuery($sql, $data);
     if (!empty($tier2['pid'])) {
-        return $tier2['pid'];
+        return (int)$tier2['pid'];
     }
     // name and dob match. Most likely trying to change email!
     // too much of a coincidence...
@@ -82,7 +82,7 @@ function isNew($dob = '', $lname = '', $fname = '', $email = '')
     );
     $tier3 = sqlQuery($sql, $data);
 
-    return $tier3['pid'] ? $tier3['pid'] : 0;
+    return (int)$tier3['pid'] ?: 0;
 }
 
 function saveInsurance($pid)
@@ -132,7 +132,7 @@ function getNewPid()
     if ($newpid == null) {
         $newpid = 0;
     }
-    return $newpid;
+    return (int)$newpid;
 }
 
 function validEmail($email)
@@ -160,12 +160,12 @@ function messageCreate($uname, $pass, $encoded_link = '')
 
 function doCredentials($pid)
 {
-    global $srcdir;
-
-    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid`=?", array($pid));
+    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", array($pid));
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($newpd['providerID']));
-
-
+    if (empty($newpd)) {
+        error_log('OpenEMR Error : Portal credential retrieve error. Record not found.');
+        return xl("ERROR Portal credentials retrieve error. Record not found.");
+    }
     $crypto = new CryptoGen();
     $uname = $newpd['fname'] . $newpd['id'];
     // Token expiry 1 hour
@@ -181,12 +181,20 @@ function doCredentials($pid)
     if (empty($token)) {
         // Serious issue if this is case, so die.
         error_log('OpenEMR Error : Portal token encryption broken - exiting');
-        die();
+        die('Error : Token encryption failed - exiting');
     }
-    $encoded_link = sprintf("%s?%s", attr($GLOBALS['portal_onsite_two_address']), http_build_query([
-        'forward' => $token,
-        'site' => $_SESSION['site_id']
-    ]));
+    $site_addr = $GLOBALS['portal_onsite_two_address'];
+    $site_id = $_SESSION['site_id'];
+    if (stripos($site_addr, $site_id) === false) {
+        $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
+            'forward' => $token,
+            'site' => $_SESSION['site_id']
+        ]));
+    } else {
+        $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
+            'forward' => $token
+        ]));
+    }
 
     // Will store unencrypted token in database with the pin and expiration date
     $one_time = $token_new . $pin . bin2hex($expiry->format('U'));
@@ -198,8 +206,8 @@ function doCredentials($pid)
         error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
         die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
     }
-    array_push($query_parameters, $newHash);
-    array_push($query_parameters, $pid);
+    $query_parameters[] = $newHash;
+    $query_parameters[] = $pid;
     if (sqlNumRows($res)) {
         sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0 WHERE pid=?", $query_parameters);
     } else {
@@ -233,7 +241,7 @@ function doCredentials($pid)
         $email_status = $mail->ErrorInfo;
         $errorMsg = "EMAIL ERROR: " . errorLogEscape($email_status) . '<br />';
         if ($newpd['id']) {
-            $errorMsg .= xlt("Your account has been successfully created however, we were unable to send the account information.");
+            $errorMsg .= xlt("Your account has been successfully created, however; we were unable to send your new account information.");
             $errorMsg .= "<br />" . xlt("Please contact your providers office with the following account information") . ":<br />";
             $errorMsg1 = xlt("Account Id") . ": " . $uname . " " . xlt("MRN Reference") . ": " . $pid;
             $errorMsg .= $errorMsg1;

@@ -108,12 +108,19 @@ function includeScript(srcUrl, type) {
 *
 */
 document.addEventListener('DOMContentLoaded', function () {
-    let isNeeded = document.querySelectorAll('.drag-action').length;
-    let isNeededResize = document.querySelectorAll('.resize-action').length;
-    if (isNeeded || isNeededResize) {
-        initDragResize();
+    let isNeeded = document.querySelectorAll('.drag-action').length
+        + document.querySelectorAll('.resize-action').length
+        + document.querySelectorAll('.draggable').length
+        + document.querySelectorAll('.droppable').length;
+    if (isNeeded > 0) {
+        let isLoaded = typeof window.interact;
+        if (isLoaded !== 'function') {
+            (async (utilfn) => {
+                await includeScript(utilfn, 'script');
+            })(top.webroot_url + '/public/assets/interactjs/dist/interact.js').then(() => {
+            });
+        }
     }
-
 }, false);
 
 /*
@@ -129,8 +136,7 @@ function initDragResize(dragContext, resizeContext = document) {
     if (isLoaded !== 'function') {
         (async (utilfn) => {
             await includeScript(utilfn, 'script');
-        })(top.webroot_url + '/public/assets/interactjs/dist/interact.js')
-        .then(() => {
+        })(top.webroot_url + '/public/assets/interactjs/dist/interact.js').then(() => {
             initInteractors(dragContext, resizeContext);
         });
     } else {
@@ -138,9 +144,27 @@ function initDragResize(dragContext, resizeContext = document) {
     }
 }
 
-/* function to init all page drag/resize elements.*/
+/* function to init all page drag/resize elements. */
 function initInteractors(dragContext = document, resizeContext = '') {
     resizeContext = resizeContext ? resizeContext : dragContext;
+
+    function dragMoveListener(event) {
+        let target = event.target;
+        let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+        let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+        if ('webkitTransform' in target.style || 'transform' in target.style) {
+            target.style.webkitTransform =
+                target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)';
+        } else {
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+        }
+
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+    }
 
     /* Draggable */
     // reset
@@ -212,22 +236,84 @@ function initInteractors(dragContext = document, resizeContext = '') {
         target.setAttribute('data-y', y);
     });
 
-    function dragMoveListener(event) {
-        let target = event.target;
-        let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-        let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+}
 
-        if ('webkitTransform' in target.style || 'transform' in target.style) {
-            target.style.webkitTransform =
-                target.style.transform =
-                    'translate(' + x + 'px, ' + y + 'px)';
-        } else {
-            target.style.left = x + 'px';
-            target.style.top = y + 'px';
+/*
+* @function oeDragDrop(context)
+* @summary call this function from scripts you may need to use drag&drop
+*
+* @param context drag context
+*/
+function oeDragDrop(dragcontext = document, dropcontext = document) {
+
+    loadDragDrop(dragcontext, dropcontext);
+
+    function dragdropMoveListener(event) {
+        var target = event.target
+        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+        target.style.webkitTransform =
+            target.style.transform =
+                'translate(' + x + 'px, ' + y + 'px)'
+        target.setAttribute('data-x', x)
+        target.setAttribute('data-y', y)
+        var interaction = event.interaction
+        if (interaction.pointerIsDown && !interaction.interacting()) {
+            var original = event.currentTarget,
+                clone = event.currentTarget.cloneNode(true)
+
+            target.appendChild(clone)
+            interaction.start({name: 'drag'}, event.interactable, clone)
         }
+    }
 
-        target.setAttribute('data-x', x);
-        target.setAttribute('data-y', y);
+    function loadDragDrop(dragcontext, dropcontext) {
+        interact.dynamicDrop(true);
+        interact('.droppable', {context: dropContext}).dropzone({
+            accept: '.droppable',
+            overlap: 0.75,
+            ondropactivate: function (event) {
+                event.target.classList.add('drop-active')
+            },
+            ondragenter: function (event) {
+                var draggableElement = event.relatedTarget
+                var dropzoneElement = event.target
+
+                // feedback the possibility of a drop
+                dropzoneElement.classList.add('drop-target')
+                draggableElement.classList.add('can-drop')
+                draggableElement.textContent = 'Dragged in'
+            },
+            ondragleave: function (event) {
+                // remove the drop feedback style
+                event.target.classList.remove('drop-target')
+                event.relatedTarget.classList.remove('can-drop')
+                event.relatedTarget.textContent = 'Dragged out'
+            },
+            ondrop: function (event) {
+                event.relatedTarget.textContent = 'Dropped'
+            },
+            ondropdeactivate: function (event) {
+                // remove active dropzone feedback
+                event.target.classList.remove('drop-active')
+                event.target.classList.remove('drop-target')
+            }
+        });
+        /* Draggable */
+        interact(".draggable", {context: dragcontext}).unset();
+
+        interact('.draggable', {context: dragcontext}).draggable({
+            manualStart: false,
+            inertia: true,
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: null,
+                    endOnly: true
+                })
+            ],
+            autoScroll: false,
+            listeners: {move: dragdropMoveListener}
+        });
     }
 }
 
@@ -247,32 +333,35 @@ function oeSortable(callBackFn) {
     } else {
         load();
     }
-    function clearTranslate(elem){
+
+    function clearTranslate(elem) {
         elem.style.webkitTransform =
             elem.style.transform =
-            'translate(' + 0 + 'px, ' + 0 + 'px)'
+                'translate(' + 0 + 'px, ' + 0 + 'px)'
         elem.setAttribute('data-x', 0)
         elem.setAttribute('data-y', 0)
     }
-    function switchElem(elem1, elem2, clear = false){
+
+    function switchElem(elem1, elem2, clear = false) {
         $(elem2).append($(elem1).children()[0]);
         $(elem1).append($(elem2).children()[0]);
-        if(clear){
-             clearTranslate($(elem2).children()[0]);
-             clearTranslate($(elem1).children()[0]);
+        if (clear) {
+            clearTranslate($(elem2).children()[0]);
+            clearTranslate($(elem1).children()[0]);
         }
     }
-    function moveUp(elem){
-        if(elem){
+
+    function moveUp(elem) {
+        if (elem) {
             let prevElem = $(elem).prev(".droppable");
-            if(prevElem.length > 0){
+            if (prevElem.length > 0) {
                 let childIsDragging = prevElem.children("li.is-dragging")[0];
-                if(childIsDragging){
+                if (childIsDragging) {
                     switchElem(elem, prevElem[0], true);
                     return true;
-                }else{
-                    if(prevElem[0]){
-                        if(moveUp(prevElem[0])){
+                } else {
+                    if (prevElem[0]) {
+                        if (moveUp(prevElem[0])) {
                             switchElem(elem, prevElem[0]);
                         }
                     }
@@ -281,17 +370,18 @@ function oeSortable(callBackFn) {
         }
         return false;
     }
-    function moveDown(elem){
-        if(elem){
+
+    function moveDown(elem) {
+        if (elem) {
             let nxtElem = $(elem).next(".droppable");
-            if(nxtElem.length > 0){
+            if (nxtElem.length > 0) {
                 let childIsDragging = nxtElem.children("li.is-dragging")[0];
-                if(childIsDragging){
+                if (childIsDragging) {
                     switchElem(elem, nxtElem[0], true);
                     return true;
-                }else{
-                    if(nxtElem[0]){
-                        if(moveDown(nxtElem[0])){
+                } else {
+                    if (nxtElem[0]) {
+                        if (moveDown(nxtElem[0])) {
                             switchElem(elem, nxtElem[0]);
                         }
                     }
@@ -300,17 +390,19 @@ function oeSortable(callBackFn) {
         }
         return false;
     }
-    function dragMoveListener (event) {
+
+    function dragMoveListener(event) {
         var target = event.target
         var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
         var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
         target.style.webkitTransform =
             target.style.transform =
-            'translate(' + x + 'px, ' + y + 'px)'
+                'translate(' + x + 'px, ' + y + 'px)'
         target.setAttribute('data-x', x)
         target.setAttribute('data-y', y)
     }
-    function load(){
+
+    function load() {
         interact('.droppable').dropzone({
             accept: null,
             overlap: 0.9,
@@ -319,12 +411,12 @@ function oeSortable(callBackFn) {
             },
             ondragenter: function (event) {
                 let isUpper = moveUp(event.target);
-                if(!isUpper){
+                if (!isUpper) {
                     moveDown(event.target);
                 }
             },
             ondropdeactivate: function (event) {
-                if(event.target.firstChild.classList.contains('is-dragging')){
+                if (event.target.firstChild.classList.contains('is-dragging')) {
                     let items = event.target.parentNode.children;
                     event.relatedTarget.classList.remove('is-dragging');
                     clearTranslate(event.relatedTarget);
@@ -333,20 +425,18 @@ function oeSortable(callBackFn) {
             }
         })
 
-        interact('.draggable')
-            .draggable({
-                inertia: true,
-                modifiers: [
+        interact('.draggable').draggable({
+            inertia: true,
+            modifiers: [
                 interact.modifiers.restrictRect({
                     restriction: null,
                     endOnly: true
                 })
-                ],
-                autoScroll: true,
-                listeners: { move: dragMoveListener }
+            ],
+            autoScroll: true,
+            listeners: {move: dragMoveListener}
         })
     }
-
 }
 
 

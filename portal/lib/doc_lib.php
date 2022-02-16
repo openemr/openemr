@@ -70,6 +70,31 @@ try {
         'autoScriptToLang' => true,
         'keep_table_proportions' => true
     );
+    $len = stripos($htmlin, 'data:application/pdf;base64,');
+    if ($len !== false) {
+        if ($dispose == "download") {
+            //'<object data=data:application/pdf;base64,'
+            $len = strpos($htmlin, ',');
+            $content = substr($htmlin, $len + 1);
+            $content = str_replace("type='application/pdf' width='100%' height='450'></object>", '', $content);
+
+            $pdf = base64_decode($content);
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename=' . $form_filename);
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . strlen($pdf));
+            ob_clean();
+            flush();
+            echo $pdf;
+            flush();
+            exit();
+        }
+    }
+
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');

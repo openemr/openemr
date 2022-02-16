@@ -26,18 +26,22 @@
 
 // This module downloads a specified document template to the browser after
 // substituting relevant patient data into its variables.
-$is_module = isset($_POST['isModule']) ? $_POST['isModule'] : 0;
+$is_module = $_POST['isModule'] ?? 0;
 if ($is_module) {
     require_once(dirname(__file__) . '/../../interface/globals.php');
 } else {
     require_once(dirname(__file__) . "/../verify_session.php");
 }
 
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+
+$templateService = new DocumentTemplateService();
+
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
-$form_filename = $_POST['docid'];
-$pid = $_POST['pid'];
+$form_id = $_POST['template_id'] ?? null;
+$pid = $_POST['pid'] ?? 0;
 $user = $_SESSION['authUserID'] ?? $_SESSION['sessionUser'];
 
 $nextLocation = 0; // offset to resume scanning
@@ -136,23 +140,47 @@ function doSubs($s)
         $nextLocation = $keyLocation + 1;
 
         if (keySearch($s, '{PatientSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld = '<script>page.presentPatientSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld = '<script>page.presentAdminSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld = '<script>page.presentWitnessSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{SignaturesRequired}')) {
+            $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";
+            $s = keyReplace($s, $sigfld);
+        } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
+            global $templateService;
+            $keyLength = strlen($matches[0]);
+            $formname = $matches[2];
+            $form_id = null;
+            if (is_numeric($formname)) {
+                $form_id = $formname;
+                $formname = '';
+            }
+            $formtitle = text($formname . ' ' . $matches[3]);
+            $content = $templateService->fetchTemplate($form_id, $formname)['template_content'];
+            $content = 'data:application/pdf;base64,' . base64_encode($content);
+            $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
+            $sigfld .= "<div class='d-none' id='showPdf'>\n";
+            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='675em'></object>\n";
+            $sigfld .= '</div>';
+            $sigfld .= "<a class='btn btn-link' id='pdfView' onclick='" . 'document.getElementById("showPdf").classList.toggle("d-none")' . "'>" . $formtitle . "</a>";
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{ParseAsHTML}')) {
             $html_flag = true;
             $s = keyReplace($s, "");
+        } elseif (keySearch($s, '{ParseAsText}')) {
+            $html_flag = false;
+            $s = keyReplace($s, '');
         } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[2];
             $keyLength = strlen($matches[0]);
@@ -212,18 +240,16 @@ function doSubs($s)
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{ynRadioGroup}')) {
             $grcnt++;
-            $sigfld = '<span class="ynuGroup" data-value="N/A" data-id="' . $grcnt . '" id="rgrp' . $grcnt . '">';
-            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
-            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
-            $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="Unk">Unk</label>';
+            $sigfld = '<span class="ynuGroup" data-value="false" data-id="' . $grcnt . '" id="rgrp' . $grcnt . '">';
+            $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
+            $sigfld .= '<label><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{TrueFalseRadioGroup}')) {
             $grcnt++;
-            $sigfld = '<span class="tfuGroup" data-value="N/A" data-id="' . $grcnt . '" id="tfrgrp' . $grcnt . '">';
-            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="True">' . xlt("True") . '</label>';
-            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="False">' . xlt("False") . '</label>';
-            $sigfld .= '<label><input onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" checked="checked" data-id="' . $grcnt . '" value="Unk">Unk</label>';
+            $sigfld = '<span class="tfuGroup" data-value="False" data-id="' . $grcnt . '" id="tfrgrp' . $grcnt . '">';
+            $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="True">' . xlt("True") . '</label>';
+            $sigfld .= '<label><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="False">' . xlt("False") . '</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{PatientName}')) {
@@ -379,7 +405,7 @@ function doSubs($s)
                 }
             }
             $s = keyReplace($s, dataFixup($data, $title));
-        } elseif (preg_match('/^{CurrentDate:?.*}/', substr($s, $keyLocation), $matches)) {
+        } elseif (preg_match('/^{(CurrentDate):(.*?)}/', substr($s, $keyLocation), $matches)) {
             /* defaults to ISO standard date format yyyy-mm-dd
              * modified by string following ':' as follows
              * 'global' will use the global date format setting
@@ -437,41 +463,9 @@ if ($encounter) {
         $encounter
     ));
 }
+$template = $templateService->fetchTemplate($form_id);
 
-$templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
-
-// whitelist against template categories
-// correct form path is category/templateName
-// or just templateName
-$wl = explode('/', $form_filename);
-if (count($wl) === 2) {
-    $okay = false;
-    // test if this is folder for a specific patient
-    if (check_file_dir_name($pid . "_tpls") == $wl[0]) {
-        $okay = true;
-    } else {
-        // get cats
-        $rtn = sqlStatement("SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`", array('Document_Template_Categories'));
-        while ($row = sqlFetchArray($rtn)) {
-            if ($row['option_id'] == $wl[0]) {
-                // okay, a good path
-                $okay = true;
-            }
-        }
-    }
-    if ($okay === true) {
-        $form_filename = $wl[0] . "/" . $wl[1];
-    } else {
-        die(xlt("Invalid Path"));
-    }
-} else {
-    check_file_dir_name($form_filename);
-}
-
-$templatepath = "$templatedir/$form_filename";
-
-
-$edata = file_get_contents($templatepath);
+$edata = $template['template_content'];
 $edata = doSubs($edata);
 
 if ($html_flag) { // return raw minified html template
