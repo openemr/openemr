@@ -39,24 +39,15 @@ class UuidRegistry
     const UUID_MAX_BATCH_COUNT = 1000;
     const UUID_TABLE_DEFINITIONS = [
         'ccda' => ['table_name' => 'ccda'],
-        'documents' => ['table_name' => 'documents'],
         'drugs' => ['table_name' => 'drugs', 'table_id' => 'drug_id'],
         'facility' => ['table_name' => 'facility'],
         'facility_user_ids' => ['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']],
-        'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],
         'form_encounter' => ['table_name' => 'form_encounter'],
-        'form_vitals' => ['table_name' => 'form_vitals'],
-        'history_data' => ['table_name' => 'history_data'],
         'immunizations' => ['table_name' => 'immunizations'],
-        'insurance_companies' => ['table_name' => 'insurance_companies'],
-        'insurance_data' => ['table_name' => 'insurance_data'],
         'lists' => ['table_name' => 'lists'],
         'patient_data' => ['table_name' => 'patient_data'],
-        'patient_history' => ['table_name' => 'patient_history'],
         'prescriptions' => ['table_name' => 'prescriptions'],
         'procedure_order' => ['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id'],
-        'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
-        'procedure_report' => ['table_name' => 'procedure_report', 'table_id' => 'procedure_report_id'],
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
         'users' => ['table_name' => 'users']
     ];
