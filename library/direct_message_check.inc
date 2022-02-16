@@ -31,6 +31,7 @@ require_once(dirname(__FILE__) . "/gprelations.inc.php");
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPMailer\PHPMailer\PHPMailer;
+use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 
 /**
  * Connect to a phiMail Direct Messaging server
@@ -343,7 +344,7 @@ function phimail_check()
                 $url = $att_doc_id['url'];
                 $url = substr($url, strrpos($url, "/") + 1);
                 $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
-                filesize($attdata) . " bytes) " . trim($attinfo[$attnum]['desc']);
+                    $att_doc_id['filesize'] . " bytes) " . trim($attinfo[$attnum]['desc']);
             }
 
             if ($att_detail != "") {
@@ -430,6 +431,10 @@ function phimail_close($fp)
 
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
 {
+    if (!$success)
+    {
+        (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
+    }
     EventAuditLogger::instance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
 
@@ -517,6 +522,25 @@ function phimail_service_userID($name = 'phimail-service')
     return ($user);
 }
 
+/**
+ * Given an IsAcceptedFileFilterEvent from our isWhitelist function we check to make sure that we allow
+ * the mime type of the Direct message attachment that was sent by the server.  We check to make sure that the mime
+ * type is only the mime type of the specific document sent via EMRDirect
+ * @param IsAcceptedFileFilterEvent $event The event with the mimetype to check if we allow it or not
+ * @return IsAcceptedFileFilterEvent
+ */
+function phimail_allow_document_mimetype(IsAcceptedFileFilterEvent $event)
+{
+    global $phimail_direct_message_check_allowed_mimetype;
+    $isAllowedFile = $event->isAllowedFile();
+    if (!$isAllowedFile) {
+        if ($phimail_direct_message_check_allowed_mimetype == $event->getMimeType()) {
+            $event->setAllowedFile(true);
+        }
+    }
+    return $event;
+}
+
 
 /**
  * Registers an attachment or non-text message file using the existing Document structure
@@ -524,15 +548,43 @@ function phimail_service_userID($name = 'phimail-service')
  */
 function phimail_store($name, $mime_type, $fn)
 {
+    global $phimail_direct_message_check_allowed_mimetype;
 
+    $allowMimeTypeFunction = 'phimail_allow_document_mimetype';
+    // we bypass the whitelisting JUST for phimail documents
+    if (isset($GLOBALS['kernel'])) {
+        $GLOBALS['kernel']->getEventDispatcher()
+            ->addListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
+    }
     // Collect phimail user id
     $user = phimail_service_userID();
-
-    // Import the document
-    $return = addNewDocument($name, $mime_type, $fn, 0, filesize($fn), $user, 'direct');
-
-    // Remove the temporary file
-    @unlink($fn);
+    try {
+        // Import the document
+        $phimail_direct_message_check_allowed_mimetype = $mime_type;
+        $filesize = filesize($fn);
+        $return = addNewDocument($name, $mime_type, $fn, 0, $filesize, $user, 'direct');
+        if (is_array($return)) {
+            $return['filesize'] = $filesize;
+        }
+    }
+    catch (\Exception $exception)
+    {
+        (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
+        phimail_logit(0, "problem storing attachment in OpenEMR");
+        $return = false;
+    }
+    finally
+    {
+        $phimail_direct_message_check_allowed_mimetype = null;
+        // There shouldn't be another request in the system to add a document, but for security sake we will prevent code
+        // after this from bypassing the whitelist filter
+        if (isset($GLOBALS['kernel'])) {
+            $GLOBALS['kernel']->getEventDispatcher()
+                ->removeListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
+        }
+        // Remove the temporary file
+        @unlink($fn);
+    }
 
     // Return the result
     return $return;
