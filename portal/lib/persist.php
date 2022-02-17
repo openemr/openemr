@@ -38,8 +38,5 @@ if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'])) {
 }
 
 if (!empty($data['where'] ?? null)) {
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', $data['where']);
-}
-if (isset($data['portal_init']) && $data['portal_init'] !== '') {
-    OpenEMR\Common\Session\SessionUtil::setSession('portal_init', $data['portal_init']);
+    $_SESSION['whereto'] = $data['where'];
 }
