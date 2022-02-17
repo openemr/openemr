@@ -127,11 +127,9 @@ function phimail_connect(&$phimail_error)
         $fp = @fsockopen($server, $phimail_server['port']);
     }
 
-    if (!empty($phimail_error))
-    {
+    if (!empty($phimail_error)) {
         (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
-    } else if ($fp !== false)
-    {
+    } else if ($fp !== false) {
         (new SystemLogger())->debug("phimail_connect was successful");
     } else {
         (new SystemLogger())->error("phimail_connect failed to connect with unknown error", ['error' => $phimail_error, 'server' => $server, 'port' => $phimail_server['port']]);
