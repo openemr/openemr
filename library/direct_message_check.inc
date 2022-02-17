@@ -50,8 +50,14 @@ function phimail_connect(&$phimail_error)
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = new CryptoGen();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
-    $phimail_cafile = dirname(__FILE__) . '/../sites/' . $_SESSION['site_id']
-      . '/documents/phimail_server_pem/phimail_server.pem';
+
+    // if test mode is disabled we use the production cert, otherwise we use the test certificate.
+    if (isset($GLOBALS['phimail_testmode_disabled']) && $GLOBALS['phimail_testmode_disabled'] == '1') {
+        $phimail_cafile = $GLOBALS['fileroot'] . '/public/certs/phimail/phimail_server.pem';
+    } else {
+        $phimail_cafile = $GLOBALS['fileroot'] . '/public/certs/phimail/EMRDirectTestCA.pem';
+        (new SystemLogger())->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => $GLOBALS['phimail_testmode_disabled']]);
+    }
     if (!file_exists($phimail_cafile)) {
         $phimail_cafile = '';
     }
@@ -74,6 +80,7 @@ function phimail_connect(&$phimail_error)
             break;
         default:
             $phimail_error = 'C2';
+            (new SystemLogger())->error("phimail_connect failed to connect due to invalid scheme", ['error' => $phimail_error]);
             return false;
     }
 
@@ -85,6 +92,7 @@ function phimail_connect(&$phimail_error)
              !stream_context_set_option($context, 'ssl', 'cafile', $phimail_cafile))
         ) {
             $phimail_error = 'C3';
+            (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
             return false;
         }
 
@@ -112,9 +120,21 @@ function phimail_connect(&$phimail_error)
             }
 
             $phimail_error = "C4 $err1 ($err2)";
+        } else {
+            (new SystemLogger())->debug("phimail_connect was successful");
         }
     } else {
         $fp = @fsockopen($server, $phimail_server['port']);
+    }
+
+    if (!empty($phimail_error))
+    {
+        (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
+    } else if ($fp !== false)
+    {
+        (new SystemLogger())->debug("phimail_connect was successful");
+    } else {
+        (new SystemLogger())->error("phimail_connect failed to connect with unknown error", ['error' => $phimail_error, 'server' => $server, 'port' => $phimail_server['port']]);
     }
 
     return $fp;

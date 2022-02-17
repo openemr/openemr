@@ -3405,6 +3405,12 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable phiMail Direct Messaging Service')
         ),
+        'phimail_testmode_disabled' => array(
+            xl('Disable phiMail Test Mode'),
+            'bool',                           // data type
+            '0',
+            xl('When you are ready to run phiMail in production mode. Turn on this flag.')
+        ),
 
         'phimail_server_address' => array(
             xl('phiMail Server Address'),
