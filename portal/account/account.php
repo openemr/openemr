@@ -68,9 +68,6 @@ if ($action == 'verify_email') {
 }
 
 if ($action == 'userIsUnique') {
-    //
-    // TODO - see when this is called and silo it (like plan to do on all other calls in this script)
-    //
     if (
         ((int)$_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
         ((int)$_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
