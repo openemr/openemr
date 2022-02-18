@@ -250,3 +250,21 @@ DROP TABLE IF EXISTS `onsite_activity_view`;
 UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'HIS' AND `field_id` = 'usertext11';
 UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'HIS' AND `field_id` = 'exams';
 #EndIf
+
+#IfNotTable verify_email
+CREATE TABLE `verify_email` (
+`id` bigint NOT NULL auto_increment,
+`pid_holder` bigint DEFAULT NULL,
+`email` varchar(255) DEFAULT NULL,
+`language` varchar(100) DEFAULT NULL,
+`fname` varchar(255) DEFAULT NULL,
+`mname` varchar(255) DEFAULT NULL,
+`lname` varchar(255) DEFAULT NULL,
+`dob` date DEFAULT NULL,
+`token_onetime`  VARCHAR(255) DEFAULT NULL,
+`active` tinyint NOT NULL default 1,
+PRIMARY KEY (`id`),
+UNIQUE KEY (`email`)
+) ENGINE=InnoDB;
+#EndIf
+

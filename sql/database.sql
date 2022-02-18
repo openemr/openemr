@@ -8489,6 +8489,28 @@ CREATE TABLE `uuid_registry` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `validate_email`
+--
+
+DROP TABLE IF EXISTS `verify_email`;
+CREATE TABLE `verify_email` (
+  `id` bigint NOT NULL auto_increment,
+  `pid_holder` bigint DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `language` varchar(100) DEFAULT NULL,
+  `fname` varchar(255) DEFAULT NULL,
+  `mname` varchar(255) DEFAULT NULL,
+  `lname` varchar(255) DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `token_onetime`  VARCHAR(255) DEFAULT NULL,
+  `active` tinyint NOT NULL default 1,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`email`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `voids`
 --
 
