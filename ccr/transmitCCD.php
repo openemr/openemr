@@ -73,13 +73,11 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
-        phimail_close($fp);
         return("$config_err 4");
     }
 
     $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
     if ($ret !== true) {
-        phimail_close($fp);
         return( xl("Delivery is not allowed to the specified Direct Address.") );
     }
 
@@ -103,7 +101,6 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
 
     $ret = phimail_write_expect_OK($fp, $text_out);
     if ($ret !== true) {
-        phimail_close($fp);
         return("$config_err 6");
     }
 
@@ -119,7 +116,6 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
 
     $ret = phimail_write_expect_OK($fp, $ccd_out);
     if ($ret !== true) {
-        phimail_close($fp);
         return("$config_err 8");
     }
 
