@@ -3,7 +3,7 @@
 /**
  * Functions to transmit a CCD as a Direct Protocol Message
  *
- * Copyright (C) 2013 EMR Direct <http://www.emrdirect.com/>
+ * Copyright (C) 2013, 2021 EMR Direct <https://www.emrdirect.com/>
  *
  * Use of these functions requires an active phiMail Direct messaging
  * account with EMR Direct.  For information regarding this service,
@@ -21,7 +21,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  EMR Direct <http://www.emrdirect.com/>
+ * @author  EMR Direct <https://www.emrdirect.com/>
  * @link    http://www.open-emr.org
  */
 
@@ -73,11 +73,13 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
+        phimail_close($fp);
         return("$config_err 4");
     }
 
     $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
     if ($ret !== true) {
+        phimail_close($fp);
         return( xl("Delivery is not allowed to the specified Direct Address.") );
     }
 
@@ -101,6 +103,7 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
 
     $ret = phimail_write_expect_OK($fp, $text_out);
     if ($ret !== true) {
+        phimail_close($fp);
         return("$config_err 6");
     }
 
@@ -116,11 +119,13 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
 
     $ret = phimail_write_expect_OK($fp, $ccd_out);
     if ($ret !== true) {
+        phimail_close($fp);
         return("$config_err 8");
     }
 
     phimail_write($fp, "SEND\n");
-    $ret = fgets($fp, 256);
+    $ret = fgets($fp);
+    phimail_write($fp, "OK\n");
     phimail_close($fp);
 
     if ($requested_by == "patient") {
