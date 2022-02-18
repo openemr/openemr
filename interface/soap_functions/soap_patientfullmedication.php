@@ -37,7 +37,8 @@ require_once($GLOBALS['fileroot'] . '/interface/eRx_xml.php');
 set_time_limit(0);
 
 $eRxSOAP = new eRxSOAP();
-$eRxSOAP->setGlobals(new eRxGlobals($GLOBALS))
+$GLOBALS_REF = $GLOBALS;
+$eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
     ->setStore(new eRxStore())
     ->setAuthUserId($_SESSION['authUserID']);
 
