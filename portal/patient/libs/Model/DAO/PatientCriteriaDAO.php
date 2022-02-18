@@ -29,7 +29,6 @@ require_once("verysimple/Phreeze/Criteria.php");
  */
 class PatientCriteriaDAO extends Criteria
 {
-
     public $Id_Equals;
     public $Id_NotEquals;
     public $Id_IsLike;

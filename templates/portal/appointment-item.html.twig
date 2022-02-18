@@ -1,0 +1,15 @@
+<div class="card m-0 col-12 col-md-6 col-lg-4">
+    <div class="card-header">
+        <a href="#" onclick="editAppointment({{ appt.mode | attr_js }},{{ appt.pc_eid | attr_js }})" title="{{ appt.etitle | attr }}">
+            <i class='float-right fa fa-edit fa-lg {% if appt.pc_recurrtype > 0 %} text-danger {% else %} text-success {% endif %} bg-light font-weight-light'></i>
+        </a>
+    </div>
+    <div class="card-body font-weight-bold">
+        <p>
+            {{ appt.appointmentDate | text }}<br>
+            {{ appt.appointmentType | text }}<br>
+            {{ appt.provider | text }}<br>
+            {{ appt.status | text }}
+        </p>
+    </div>
+</div>

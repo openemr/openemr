@@ -11,13 +11,13 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (C) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 require_once("./../library/pnotes.inc");
@@ -476,8 +476,8 @@ if ($_POST['form_action'] == "save") {
     }
 }
 
-if ($_POST['form_action'] != "") {
-// Leave
+if (!empty($_POST['form_action'])) {
+    // Leave
     $type = $insert ? xl("A New Appointment") : xl("An Updated Appointment");
     $note = $type . " " . xl("request was received from portal patient") . " ";
     $note .= $_SESSION['ptName'] . " " . xl("regarding appointment dated") . " " . $event_date . " " . $starttime . ". ";
@@ -487,8 +487,8 @@ if ($_POST['form_action'] != "") {
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
     $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
-    $_SESSION['whereto'] = 'appointmentcard';
-    header('Location:./home.php#appointmentpanel');
+    $_SESSION['whereto'] = '#appointmentcard';
+    header('Location:./home.php');
     exit();
 }
 
@@ -559,8 +559,8 @@ if ($patientid) {
 }
 
 // Get the providers list.
-$ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
-    "authorized != 0 AND active = 1 ORDER BY lname, fname");
+$ures = sqlStatement("SELECT `id`, `username`, `fname`, `lname`, `mname` FROM `users` WHERE " .
+    "`authorized` != 0 AND `active` = 1 AND `username` > '' ORDER BY `lname`, `fname`");
 
 //Set default facility for a new event based on the given 'userid'
 if ($userid) {
@@ -642,93 +642,88 @@ if ($userid) {
     ?>
 </script>
 <body class="skin-blue">
-    <div class="card">
+    <div class="container-fluid">
         <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
-            <input type="hidden" name="form_action" id="form_action" value="" />
-            <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
-            <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
-
-            <div class="form-row my-1">
-              <label for="form_category" class="col-2 col-form-label"><?php echo xlt('Visit'); ?>:</label>
-              <div class="col">
-                <select class="form-control" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
-                  <?php echo $catoptions ?>
-                </select>
-              </div>
-              <label for="form_date" class="col-1 col-form-label"><?php echo xlt('Date'); ?>:</label>
-              <div class="col">
-                <input class="form-control" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label class="col-2 col-form-label"><?php echo xlt('Time'); ?>:</label>
-              <div class="col form-inline">
-                <input class="form-control" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
-                <span>:</span>
-                <input class="form-control" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
-                <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
-                    <option value='1'><?php echo xlt('AM'); ?></option>
-                    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-                </select>
-              </div>
-              <label for="form_patient" class="col-1 col-form-label"><?php echo xlt('Patient'); ?>:</label>
-              <div class="col">
-                <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
-                <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label for="form_duration" class="col-2 col-form-label"><?php echo xlt('Duration'); ?></label>
-              <div class="col">
-                <div class="input-group">
-                  <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
-                  <div class="input-group-append">
-                    <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
-                  </div>
+            <div class="col-12">
+                <input type="hidden" name="form_action" id="form_action" value="" />
+                <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
+                <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
+                <div class="row form-group">
+                    <div class="input-group col-12 col-md-6">
+                        <label class="mr-2" for="form_category"><?php echo xlt('Visit'); ?>:</label>
+                        <select class="form-control mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
+                            <?php echo $catoptions ?>
+                        </select>
+                    </div>
+                    <div class="input-group col-12 col-md-6">
+                        <label class="mr-2" for="form_date"><?php echo xlt('Date'); ?>:</label>
+                        <input class="form-control mb-1" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label for="form_provider_ae" class="col-2 col-form-label"><?php echo xlt('Provider'); ?>:</label>
-              <div class="col-8">
-                <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
-                    <?php
-                    // present a list of providers to choose from
-                    // default to the currently logged-in user
-                    while ($urow = sqlFetchArray($ures)) {
-                        echo "    <option value='" . attr($urow['id']) . "'";
-                        if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
-                            echo " selected";
-                        }
-
-                        echo ">" . text($urow['lname']);
-                        if ($urow['fname']) {
-                            echo ", " . text($urow['fname']);
-                        }
-
-                        echo "</option>\n";
-                    }
-                    ?>
-                </select>
-              </div>
-              <div class="col text-right">
-                <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label class="col-2 col-form-label"><?php echo xlt('Reason'); ?>:</label>
-              <div class="col">
-                <input class="form-control" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
-              </div>
-            </div>
-
-            <div class="form-group">
-                <br />
-                <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
-                    <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
-                <?php } ?>
-                <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
-
+                <div class="row">
+                    <div class="form-group form-inline col-12">
+                        <div class="input-group mb-1">
+                            <label class="mr-2"><?php echo xlt('Time'); ?>:</label>
+                            <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <select class="form-control col-3 col-md-4" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
+                                <option value='1'><?php echo xlt('AM'); ?></option>
+                                <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="mr-2" for="form_duration"><?php echo xlt('Duration'); ?></label>
+                            <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
+                            <span class="input-group-append">
+                            <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group col-12 mb-1">
+                        <label class="mr-2" for="form_patient"><?php echo xlt('Patient'); ?>:</label>
+                        <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
+                        <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group col-12 mb-1">
+                        <label class="mr-2" for="form_provider_ae"><?php echo xlt('Provider'); ?>:</label>
+                        <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
+                            <?php
+                            // present a list of providers to choose from
+                            // default to the currently logged-in user
+                            while ($urow = sqlFetchArray($ures)) {
+                                echo "<option value='" . attr($urow['id']) . "'";
+                                if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
+                                    echo " selected";
+                                }
+                                echo ">" . text($urow['lname']);
+                                if ($urow['fname']) {
+                                    echo ", " . text($urow['fname']);
+                                }
+                                echo "</option>\n";
+                            }
+                            ?>
+                        </select>
+                        <div class="text-right">
+                            <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group col-12">
+                        <label class="mr-2"><?php echo xlt('Reason'); ?>:</label>
+                        <input class="form-control" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+                    </div>
+                </div>
+                <div class="row input-group my-1">
+                    <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
+                        <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
+                    <?php } ?>
+                    <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
+                </div>
             </div>
         </form>
         <script>
@@ -789,16 +784,27 @@ if ($userid) {
                     ('' + (mday + 100)).substring(1);
                 f.form_ampm.selectedIndex = (hours > 12) ? 1 : 0;
                 if (hours == 0) {
-                  f.form_hour.value = 12;
+                    f.form_hour.value = 12;
                 } else {
-                  f.form_hour.value = (hours >= 13) ? hours - 12 : hours;
+                    f.form_hour.value = (hours >= 13) ? hours - 12 : hours;
                 }
                 f.form_minute.value = minutes;
+            }
+
+            function get_form_category_value() {
+                var catid = 0;
+                var f = document.forms.namedItem("theaddform");
+                var s = f.form_category;
+                if (s.selectedIndex >= 0) {
+                    catid = s.options[s.selectedIndex].value;
+                }
+                return catid;
             }
 
             // Invoke the find-available popup.
             function find_available() {
                 // when making an appointment for a specific provider
+                var catId = get_form_category_value() || 5;
                 var se = document.getElementById('form_provider_ae');
                 <?php if ($userid != 0) { ?>
                 s = se.value;
@@ -806,7 +812,8 @@ if ($userid) {
                 s = se.options[se.selectedIndex].value;
                 <?php }?>
                 var formDate = document.getElementById('form_date');
-                var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=5' + '&startdate=' + encodeURIComponent(formDate.value);
+                var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=' + encodeURIComponent(catId)
+                    + '&startdate=' + encodeURIComponent(formDate.value);
                 var params = {
                     buttons: [
                         {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}

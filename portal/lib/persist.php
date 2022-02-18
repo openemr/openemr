@@ -40,6 +40,3 @@ if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'])) {
 if (!empty($data['where'] ?? null)) {
     $_SESSION['whereto'] = $data['where'];
 }
-if (isset($data['portal_init']) && $data['portal_init'] !== '') {
-    $_SESSION['portal_init'] = $data['portal_init'];
-}

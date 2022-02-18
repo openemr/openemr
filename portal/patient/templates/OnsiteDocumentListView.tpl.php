@@ -13,10 +13,12 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 $pid = $this->cpid;
 $recid = $this->recid;
 $docid = $this->docid;
+$help_id = $this->help_id;
 $is_module = $this->is_module;
 $is_portal = $this->is_portal;
 $is_dashboard = (empty($is_module) && empty($is_portal));
@@ -43,12 +45,14 @@ if ($category) {
 $catname = $catname ?: xlt("Onsite Portal Reviewed");
 
 if (!$docid) {
-    $docid = 'Privacy_Document';
+    $docid = 'Privacy Document';
 }
 
 $isnew = false;
 $ptName = $_SESSION['ptName'] ?? $pid;
 $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
+
+$templateService = new DocumentTemplateService();
 ?>
 <!DOCTYPE html>
 <html>
@@ -68,14 +72,14 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
-    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";</script>";
+    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
+    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
 
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
@@ -97,7 +101,6 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
           width: 1220px;
         }
       }
-
       .nav-pills-ovr > li > a {
         border: 1px solid !important;
         border-radius: .25rem !important;
@@ -120,6 +123,10 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 });
                 $("#Help").click();
                 $(".helpHide").addClass("d-none");
+
+                $('#showNav').on('click', () => {
+                    parent.document.getElementById('topNav').classList.toggle('collapse');
+                });
             }
             console.log('init done template');
 
@@ -270,16 +277,18 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
             restoreTextInputs();
         }
     </script>
-    <div class="container-fluid">
-        <nav id="verytop" class="nav navbar-light bg-light navbar-expand p-1 m-1 sticky-top">
-            <a class="navbar-brand ml-auto"><h3><?php echo xlt("Document Center") ?></h3></a>
-            <div id="topmenu" class="mr-auto">
-                <ul class="navbar-nav mr-auto">
+    <div class="container-xl px-1">
+        <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
+            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("My Documents") ?></h3></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="topmenu" class="collapse navbar-collapse">
+                <ul class="navbar-nav navCollapse mr-auto">
                     <!-- Sticky actions toolbar -->
-                    <div class='nav helpHide d-none'>
-                        <!--<a id='docTitle' class='navbar-brand' href='#'><?php /*echo xlt('Form Actions') */ ?></a>-->
+                    <div class='helpHide d-none'>
                         <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
@@ -287,89 +296,72 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
-                            <?php if (empty($is_module)) { ?>
-                                <!-- future popout -->
-                                <!--<li class="nav-item">
-                                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='history.go(0);'><?php /*echo xlt('Dismiss'); */ ?></a>
-                                </li>-->
-                            <?php } else { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                                </li>
-                            <?php } ?>
                         </ul>
                     </div>
+                    <?php if (!empty($is_module) || !empty($is_portal)) { ?>
+                        <div class="dropdown mb-1">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <?php echo xlt('Your Documents') ?>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>
+                            </div>
+                        </div>
+                    <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"><i class='fa fa-toggle-on mr-1' aria-hidden='true'></i><?php echo xlt('History') ?>
+                        <a class='nav-link text-success btn btn-outline-success' onclick="page.handleHistoryView()">
+                            <?php echo xlt('History') ?>
+                            <i class="history-direction ml-1 fa fa-arrow-down"></i>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
                         <li class="nav-item mb-1">
-                            <a id="Help" class="nav-link text-primary btn btn-outline-primary" onclick='page.newDocument(cpid, cuser, "Help.tpl");'><?php echo xlt('Help'); ?></a>
+                            <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
                         </li>
-                        <!-- future popout-->
-                        <!--<li class="nav-item mb-1">
-                        <a class="nav-link text-danger btn btn-outline-danger" onclick='window.location.replace("./../home.php")'><?php /*echo xlt('Home'); */ ?></a>
-                    </li>-->
                     <?php } else { ?>
                         <li class="nav-item mb-1">
                             <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
-                    <li class='nav-item nav-item mb-1'>
-                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span>
-                        </a>
+                    <li class='nav-item mb-1'>
+                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
+                    </li>
+                    <li class='nav-item mb-1'>
+                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Menu'); ?></a>
                     </li>
                 </ul>
             </div>
         </nav>
-        <div class="d-flex flex-row justify-content-start">
-            <!-- Pending documents menu left -->
-            <div class="align-self-start sticky-top" id="topnav">
-                <ul class="nav flex-column nav-pills nav-pills-ovr">
-                    <div class="navbar-header mt-3">
-                        <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xla('Pending') ?></h4></a>
-                    </div>
-                    <?php require_once __DIR__ . '/../../lib/template_menu.php'; ?>
-                    <?php if (empty($is_module)) { ?>
-                        <!-- will use later for pop out -->
-                        <!--<strong><hr class="mb-2 mt-1" /></strong>
-                    <li class="nav-item mb-1">
-                        <a class="nav-link text-danger btn btn-outline-danger" onclick='window.location.replace("./../home.php")'><?php /*echo xlt('Home'); */ ?></a>
-                    </li>-->
-                    <?php } else { ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                        </li>
-                    <?php } ?>
-                </ul>
+        <div class="d-flex flex-row justify-content-center">
+            <!-- Pending documents left menu Deprecated and removed 01/13/22 -->
+            <div class="clearfix" id="topnav">
                 <div id="collectionAlert"></div>
-            </div><!-- close left pending -->
+            </div>
             <!-- Right editor container -->
-            <div class="flex-column col-md-9 col-lg-10">
+            <div id="editorContainer" class="d-flex flex-column w-100 h-auto">
                 <!-- document editor and action toolbar template -->
                 <script type="text/template" id="onsiteDocumentModelTemplate">
-                    <div class="card p-2 m-1" id="docpanel">
-
+                    <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
                         <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
                         <!-- editor form -->
-                        <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
-                            <div id="templatediv" class="card-body border p-2 m-1 bg-white h-100 overflow-auto">
-                                <div id="templatecontent" class="template-body bg-white">
-                                    <div class="text-center"><i class="fa fa-circle-notch fa-spin fa-3x ml-auto"></i></div>
+                        <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
+                            <div id="templatediv" class="card-body border overflow-auto">
+                                <div id="templatecontent" class="template-body">
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
                             <input type="hidden" name="content" id="content" value="" />
                             <input type="hidden" name="cpid" id="cpid" value="" />
                             <input type="hidden" name="docid" id="docid" value="" />
+                            <input type='hidden' name='template_id' id='template_id' value='' />
                             <input type="hidden" name="handler" id="handler" value="download" />
                             <input type="hidden" name="status" id="status" value="Open" />
                         </form>
                         <div class="clearfix">
-            <span>
-                <button id="dismissOnsiteDocumentButton" class="btn btn-sm btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
-            </span>
+                            <span>
+                                <button id="dismissOnsiteDocumentButton" class="btn btn-secondary float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                            </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>
@@ -378,9 +370,9 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                                         <div class="controls">
                                             <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
                                             <span id="confirmDeleteOnsiteDocumentContainer">
-                                <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
-                                <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
-                          </span>
+                                                <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
+                                                <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
+                                          </span>
                                         </div>
                                     </div>
                                 </fieldset>
@@ -410,13 +402,11 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                     </tr>
                     </thead>
                     <tbody>
-                    <% items.each(function(item) {
-                    // if ((!isPortal && item.get('denialReason') == 'Locked')) return;
-                    %>
+                    <% items.each(function(item) {  %>
                     <tr id="<%= _.escape(item.get('id')) %>">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>
-                            <button class='btn btn-outline-success history-btn'><%= _.escape(item.get('docType').slice(0, -4).replace(/_/g, ' ') || '') %></button>
+                            <button class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
                         </td>
                         <td><%if (item.get('createDate')) { %><%= item.get('createDate') %><% } else { %>NULL<% } %></td>
                         <td><%if (item.get('reviewDate') > '1969-12-31 24') { %><%= item.get('reviewDate') %><% } else { %>Pending<% } %></td>
@@ -437,5 +427,5 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
     </div>
     <?php
     // footer close body html
-    $this->display('_Footer.tpl.php');
+    //$this->display('_Footer.tpl.php');
     ?>
