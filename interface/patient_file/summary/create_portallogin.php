@@ -151,7 +151,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     }
 
     // Create the message
-    $message = messageCreate($_POST['login_uname'], $clear_pass);
+    $message = messageCreate($_POST['uname'], $_POST['login_uname'], $clear_pass);
     // Email and display/print the message
     if (emailLogin($pid, $message)) {
         // email was sent
