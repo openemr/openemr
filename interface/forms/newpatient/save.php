@@ -18,6 +18,7 @@ require_once("$srcdir/encounter.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -39,6 +40,7 @@ $class_code = $_POST['class_code'] ?? null;
 $pos_code = $_POST['pos_code'] ?? null;
 $parent_enc_id = $_POST['parent_enc_id'] ?? null;
 $encounter_provider = $_POST['provider_id'] ?? null;
+$referring_provider_id = $_POST['referring_provider_id'] ?? null;
 //save therapy group if exist in external_id column
 $external_id = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
 
@@ -78,7 +80,8 @@ if ($mode == 'new') {
                 external_id = ?,
                 parent_encounter_id = ?,
                 provider_id = ?,
-                discharge_disposition = ?",
+                discharge_disposition = ?,
+                referring_provider_id = ?",
             [
                 $date,
                 $onset_date,
@@ -97,6 +100,7 @@ if ($mode == 'new') {
                 $parent_enc_id,
                 $provider_id,
                 $discharge_disposition,
+                $referring_provider_id
             ]
         ),
         "newpatient",
@@ -133,6 +137,7 @@ if ($mode == 'new') {
         $class_code,
         $pos_code,
         $discharge_disposition,
+        $referring_provider_id,
         $id
     );
     sqlStatement(
@@ -149,7 +154,8 @@ if ($mode == 'new') {
             referral_source = ?,
             class_code = ?,
             pos_code = ?,
-            discharge_disposition = ? WHERE id = ?",
+            discharge_disposition = ?,
+            referring_provider_id = ? WHERE id = ?",
         $sqlBindArray
     );
 } else {

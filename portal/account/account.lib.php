@@ -56,7 +56,7 @@ function isNew($dob = '', $lname = '', $fname = '', $email = '')
         $tier1 = sqlQuery($sql, $data);
         if (!empty($tier1['pid'])) {
             // email with this dob already on file so, skedaddle ...
-            return $tier1['pid'];
+            return (int)$tier1['pid'];
         }
     }
     // fully matched for our purposes
@@ -70,7 +70,7 @@ function isNew($dob = '', $lname = '', $fname = '', $email = '')
     );
     $tier2 = sqlQuery($sql, $data);
     if (!empty($tier2['pid'])) {
-        return $tier2['pid'];
+        return (int)$tier2['pid'];
     }
     // name and dob match. Most likely trying to change email!
     // too much of a coincidence...
@@ -82,7 +82,7 @@ function isNew($dob = '', $lname = '', $fname = '', $email = '')
     );
     $tier3 = sqlQuery($sql, $data);
 
-    return $tier3['pid'] ?: 0;
+    return (int)$tier3['pid'] ?: 0;
 }
 
 function saveInsurance($pid)
@@ -183,10 +183,18 @@ function doCredentials($pid)
         error_log('OpenEMR Error : Portal token encryption broken - exiting');
         die('Error : Token encryption failed - exiting');
     }
-    $encoded_link = sprintf("%s?%s", attr($GLOBALS['portal_onsite_two_address']), http_build_query([
-        'forward' => $token,
-        'site' => $_SESSION['site_id']
-    ]));
+    $site_addr = $GLOBALS['portal_onsite_two_address'];
+    $site_id = $_SESSION['site_id'];
+    if (stripos($site_addr, $site_id) === false) {
+        $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
+            'forward' => $token,
+            'site' => $_SESSION['site_id']
+        ]));
+    } else {
+        $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
+            'forward' => $token
+        ]));
+    }
 
     // Will store unencrypted token in database with the pin and expiration date
     $one_time = $token_new . $pin . bin2hex($expiry->format('U'));

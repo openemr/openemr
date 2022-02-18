@@ -91,7 +91,7 @@ $sqlBindArray = array();
 $query = "SELECT " .
   "fe.encounter, fe.date, fe.reason, " .
   "f.formdir, f.form_name, " .
-  "p.fname, p.mname, p.lname, p.pid, p.pubpid, " .
+  "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.dob, " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
   "$esign_fields" .
   "FROM ( form_encounter AS fe, forms AS f ) " .
@@ -193,6 +193,13 @@ $res = sqlStatement($query, $sqlBindArray);
         function refreshme() {
             document.forms[0].submit();
         }
+
+        // Called to switch to the specified encounter having the specified DOS.
+        function toEncounter(newpid, enc) {
+            top.restoreSession();
+            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+        }
+
     </script>
 </head>
 <body class="body_top">
@@ -477,7 +484,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 <?php echo text($row['reason']); ?>&nbsp;
   </td>
    <td>
-                <?php echo text($row['encounter']); ?>&nbsp;
+                <?php echo "<input type='button' class='btn btn-sm btn-secondary' value='" .
+                          attr($row['encounter']) . "-" . attr($row['pid']) .
+                          "' onClick='toEncounter(" . attr_js($row['pid']) . ", " . attr_js($row['encounter']) .
+                          "); ' />" ?> &nbsp;
   </td>
   <td>
                 <?php echo $encnames; //since this variable contains html, have already html escaped it above ?>&nbsp;

@@ -37,9 +37,6 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
-use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
-use OpenEMR\Events\Patient\Summary\Card\RenderInterface;
-use OpenEMR\Events\Patient\Summary\Card\RenderModel;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -260,6 +257,7 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -916,7 +914,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-8">
                     <?php
 
-                    if ($deceased > 0):
+                    if ($deceased > 0) :
                         echo $twig->getTwig()->render('patient/partials/deceased.html.twig', [
                             'deceasedDays' => deceasedDays($deceased),
                         ]);
@@ -1221,34 +1219,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <!-- start right column div -->
                     <?php
 
-                    if ($GLOBALS['erx_enable']):
+                    if ($GLOBALS['erx_enable']) :
                         echo $twig->getTwig()->render('patient/partials/erx.html.twig', []);
                     endif;
 
-                    if ($GLOBALS['portal_onsite_two_enable']):
-                        /** @var EventDispatcher */
-                        $d = $GLOBALS['kernel']->getEventDispatcher();
-                        $e = new CardRenderEvent('portal');
-
-                        $d->addListener(CardRenderEvent::EVENT_HANDLE, function($event) {
-                            if ($event->getCard() == 'portal') {
-                                $test2 = new RenderModel('patient/partials/testing.html.twig', ['var1' => 'hello']);
-                                $event->addPrependedData($test2);
-                                $test = new RenderModel('patient/partials/testing.html.twig', ['var1' => 'goodbye']);
-                                $event->addAppendedData($test);
-                            }
-                        });
-
-                        $result = $d->dispatch(CardRenderEvent::EVENT_HANDLE, $e);
-
+                    if ($GLOBALS['portal_onsite_two_enable']) :
                         echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
                             'portalAuthorized' => portalAuthorized($pid),
                             'portalLoginHref' => $portal_login_href,
                             'title' => xl('Patient Portal'),
                             'id' => 'patient_portal',
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-                            'prependedInjection' => $result->getPrependedInjection(),
-                            'appendedInjection' => $result->getAppendedInjection(),
                         ]);
                     endif;
 
@@ -1635,10 +1616,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     }  // end track_anything
 
-                    if ($thisauth):
+                    if ($thisauth) :
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
+                            'csrf' => CsrfUtils::collectCsrfToken(),
+                            'pid' => $pid
                         ]);
                     endif;
                     ?>

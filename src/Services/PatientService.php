@@ -227,7 +227,7 @@ class PatientService extends BaseService
 
         if (
             $dataBeforeUpdate['care_team_provider'] != ($data['care_team_provider'] ?? '')
-            || $dataBeforeUpdate['care_team_facility'] != $data['care_team_facility']
+            || ($dataBeforeUpdate['care_team_facility'] ?? '') != ($data['care_team_facility'] ?? '')
         ) {
             // need to save off our care team
             $this->saveCareTeamHistory($data, $dataBeforeUpdate['care_team_provider'], $dataBeforeUpdate['care_team_facility']);

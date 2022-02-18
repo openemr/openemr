@@ -21,35 +21,38 @@
     var list = new list_rules();
     list.init();
 </script>
-
-<table class="table header">
-    <tr>
-        <td class="title"><?php echo xlt('Plans Configuration'); ?></td>
-        <td>
+<hr />
+<div class="header">
+    <div>
+        <header class="title"><?php echo xlt('Plans Configuration'); ?>
+            <span>
             <a href="index.php?action=browse!plans_config" class="iframe_medium btn btn-primary">
                 <span><?php echo xlt('Go'); ?></span>
             </a>
-        </td>
-    </tr>
-    <tr>
-        <td class="title"><?php echo xlt('Rules Configuration'); ?></td>
-        <td>
+            </span>
+        </header>
+    </div>
+    <hr/>
+    <div class="">
+        <header class="title"><?php echo xlt('Rules Configuration'); ?>
+            <span>
             <a href="index.php?action=edit!summary" class="iframe_medium btn btn-primary" onclick="top.restoreSession()">
                 <span><?php echo xlt('Add new{{Rule}}'); ?></span>
             </a>
-        </td>
-    </tr>
-</table>
+            </span>
+        </header>
+    </div>
+</div>
 
-<div class="rule_container text">
+<div class="rule_container">
     <div class="rule_row header">
-        <div class="rule_type header_type"><?php echo xlt('Type'); ?></div>
+        <div class="rule_type header_type w-25"><?php echo xlt('Type'); ?></div>
         <div class="rule_title header_title"><?php echo xlt('Name'); ?></div>
     </div>
 </div>
 
 <!-- template -->
 <div class="rule_row data template">
-    <div class="rule_type"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></div>
+    <div class="rule_type w-25"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></div>
     <div class="rule_title"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></div>
 </div>
