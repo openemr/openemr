@@ -12,19 +12,27 @@
 
 namespace OpenEMR\Events\Patient\Summary\Card;
 
+use OpenEMR\Events\Patient\Summary\Card\RenderInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 class RenderEvent extends Event
 {
     /**
-     * The checkViewAuth event occurs when a user attempts to view a
-     * patient record from the demographics screen
+     * The patiemtSummaryCard.render event occurs when card on the Patient
+     * Demographics screen is rendered.
      */
     const EVENT_HANDLE = 'patientSummaryCard.render';
 
+    /**
+     * ID of the card being rendered
+     *
+     * @var string
+     */
     private $card;
 
-    private $content = [];
+    private $prependedData = [];
+
+    private $appendedData = [];
 
     /**
      * UpdateEvent constructor.
@@ -33,7 +41,7 @@ class RenderEvent extends Event
      */
     public function __construct(string $cardID)
     {
-        $this->card = $cardID;
+        $this->setCard($cardID);
     }
 
     public function getCard()
@@ -46,24 +54,48 @@ class RenderEvent extends Event
         $this->card = $card;
     }
 
-    public function getContent()
+    /**
+     * Add content to the end of a card
+     *
+     * @param RenderInterface $object
+     * @param int|null $position Specific position in array, optional. Defaults to end.
+     * @return void
+     */
+    public function addAppendedData(RenderInterface $object, $position = null)
     {
-        return $this->content;
+        if (count($this->appendedData) === 0) {
+            $this->appendedData[] = $object;
+        } else {
+            $position = $position ?? -1;
+            array_splice($this->appendedData, $position, 0, $object);
+        }
     }
 
-    public function setContent(array $content)
+    /**
+     * Add content to the beginning of a card
+     *
+     * @param RenderInterface $object
+     * @param int|null $position Specific position in array, optional. Defaults to end.
+     * @return void
+     */
+    public function addPrependedData(RenderInterface $object, $position = null)
     {
-        $this->content = $content;
+        if (count($this->prependedData) === 0) {
+            $this->prependedData[] = $object;
+        } else {
+            $position = $position ?? -1;
+            array_splice($this->prependedData, $position, 0, $object);
+        }
     }
 
-    public function appendContent(array $content)
+    public function getAppendedInjection()
     {
-        array_push($this->content, $content);
+        return $this->appendedData;
     }
 
-    public function prependContent(array $content)
+    public function getPrependedInjection()
     {
-        array_unshift($this->content, $content);
+        return $this->prependedData;
     }
 
 }

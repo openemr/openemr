@@ -1,0 +1,11 @@
+{% macro prependedInjection(prependedInjectionArray) %}
+    {% for row in prependedInjectionArray %}
+        {{ include(attribute(row, 'getTemplateFile'), attribute(row, 'getVariables')) }}
+    {% endfor %}
+{% endmacro %}
+
+{% macro appendedInjection(appendedInjectionArray) %}
+    {% for row in appendedInjectionArray %}
+        {{ include(attribute(row, 'getTemplateFile'), attribute(row, 'getVariables')) }}
+    {% endfor %}
+{% endmacro %}
