@@ -343,7 +343,9 @@ if (!empty($_REQUEST['go'])) { ?>
                                         $title = $result['title'];
                                     }
                                     $body = $result['body'];
-                                    if ($reply_to == "") {
+                                    // if our reply-to is 0 it breaks multi patient select and other functionality
+                                    // this most likely didn't break before due to php implicit type conversion of 0 to ""
+                                    if ($reply_to == "" && $result['pid'] != 0) {
                                         $reply_to = $result['pid'];
                                     }
                                     $form_message_status = $result['message_status'];
