@@ -335,7 +335,7 @@ function phimail_check()
             for ($attnum = 0; $attnum < $att; $attnum++) {
                 $ret2 = phimail_write_expect_OK($fp, "SHOW " . ($attnum + 1) . "\n");
                 if ($ret2 !== true) {
-                    phimail_logit(0, "M8 SHOW ". ($attnum + 1) . " failed: " . $ret2);
+                    phimail_logit(0, "M8 SHOW " . ($attnum + 1) . " failed: " . $ret2);
                     phimail_close($fp);
                     return;
                 }
@@ -478,7 +478,7 @@ function phimail_read_blob($fp, $len)
 
     $fpath = $GLOBALS['temporary_files_dir'];
     if (!@file_exists($fpath)) {
-	    phimail_logit(0, "M13 temp dir does not exist: " . $fpath);
+        phimail_logit(0, "M13 temp dir does not exist: " . $fpath);
         return false;
     }
 
@@ -506,8 +506,8 @@ function phimail_read_blob($fp, $len)
         if ($chunk === false || @fwrite($ff, $chunk) === false) {
             @fclose($ff);
             @unlink($fn);
-            phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing") 
-                    . " blob chunk after " . ($len - $bytes_left). " bytes");
+            phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing")
+                    . " blob chunk after " . ($len - $bytes_left) . " bytes");
             return false;
         }
 
