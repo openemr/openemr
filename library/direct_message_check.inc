@@ -455,8 +455,6 @@ function phimail_write_expect_OK($fp, $text)
 
 function phimail_close($fp)
 {
-    fwrite($fp, "BYE\n");
-    fflush($fp);
     fclose($fp);
 }
 
