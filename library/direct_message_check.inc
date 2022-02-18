@@ -6,7 +6,7 @@
  * This script is called by the background service manager
  * at /library/ajax/execute_background_services.php
  *
- * Copyright (C) 2013 EMR Direct <http://www.emrdirect.com/>
+ * Copyright (C) 2013, 2021 EMR Direct <https://www.emrdirect.com/>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  EMR Direct <http://www.emrdirect.com/>
+ * @author  EMR Direct <https://www.emrdirect.com/>
  * @link    http://www.open-emr.org
  */
 
@@ -189,6 +189,7 @@ function phimail_check()
                 phimail_logit(0, "NO MATCH: " . $ret);
                 $ret = phimail_write_expect_OK($fp, "OK\n");
                 if ($ret !== true) {
+                    phimail_logit(0, "M1 status acknowledgment failed: " . $ret);
                     return;
                 } else {
                     continue;
@@ -248,7 +249,8 @@ function phimail_check()
          //done with this status message
             $ret = phimail_write_expect_OK($fp, "OK\n");
             if ($ret !== true) {
-                   phimail_close($fp);
+                phimail_logit(0, "M2 status acknowledgment failed: " . $ret);
+                phimail_close($fp);
                 return;
             }
         } elseif (substr($ret, 0, 4) == "MAIL") {
@@ -261,6 +263,7 @@ function phimail_check()
             //request main message
             $ret2 = phimail_write_expect_OK($fp, "SHOW 0\n");
             if ($ret2 !== true) {
+                phimail_logit(0, "M3 SHOW 0 failed: " . $ret2);
                 phimail_close($fp);
                 return;
             }
@@ -279,14 +282,16 @@ function phimail_check()
             $body_len = fgets($fp, 256);
             $body = phimail_read_blob($fp, $body_len);
             if ($body === false) {
-                   phimail_close($fp);
-                   return;
+                phimail_logit(0, "M4 read body failed");
+                phimail_close($fp);
+                return;
             }
 
             $att2 = fgets($fp, 256);
             if ($att2 != $att) { //safety for mismatch on attachments
-                   phimail_close($fp);
-                   return;
+                phimail_logit(0, "M5 attachment mismatch");
+                phimail_close($fp);
+                return;
             }
 
         //get attachment info
@@ -297,6 +302,7 @@ function phimail_check()
                         || ($attinfo[$attnum]['mime'] = fgets($fp, 1024)) === false
                         || ($attinfo[$attnum]['desc'] = fgets($fp, 1024)) === false
                     ) {
+                             phimail_logit(0, "M6 read attachment " . ($attnum + 1) . " metadata failed");
                              phimail_close($fp);
                              return;
                     }
@@ -312,6 +318,7 @@ function phimail_check()
                    $name = uniqid("dm-message-") . phimail_extension($mime_type_main);
                    $doc_id = phimail_store($name, $mime_type_main, $body);
                 if (!$doc_id) {
+                    phimail_logit(0, "M7 store non-text body failed");
                     phimail_close($fp);
                     return;
                 }
@@ -328,12 +335,14 @@ function phimail_check()
             for ($attnum = 0; $attnum < $att; $attnum++) {
                 $ret2 = phimail_write_expect_OK($fp, "SHOW " . ($attnum + 1) . "\n");
                 if ($ret2 !== true) {
+                    phimail_logit(0, "M8 SHOW ". ($attnum + 1) . " failed: " . $ret2);
                     phimail_close($fp);
                     return;
                 }
 
                //we can ignore next two lines (repeat of name and mime-type)
                 if (($a1 = fgets($fp, 512)) === false || ($a2 = fgets($fp, 512)) === false) {
+                    phimail_logit(0, "M9 skip attachment " . ($attnum + 1) . " duplicate header lines failed");
                     phimail_close($fp);
                     return;
                 }
@@ -341,6 +350,7 @@ function phimail_check()
                 $att_len = fgets($fp, 256); //length of file
                 $attdata = phimail_read_blob($fp, $att_len);
                 if ($attdata === false) {
+                    phimail_logit(0, "M10 read attachment " . ($attnum + 1) . " failed");
                     phimail_close($fp);
                     return;
                 }
@@ -353,6 +363,7 @@ function phimail_check()
                 $attmime = strtolower($attinfo[$attnum]['mime'][0]);
                 $att_doc_id = phimail_store($req_name, $attmime, $attdata);
                 if (!$att_doc_id) {
+                    phimail_logit(0, "M11 store attachment " . ($attnum + 1) . " failed");
                     phimail_close($fp);
                     return;
                 }
@@ -409,11 +420,12 @@ function phimail_check()
             }
 
             if ($ret2 !== true) {
-                   phimail_close();
-                   return;
+                phimail_logit(0, "M12 DONE failed: " . $ret2);
+                phimail_close();
+                return;
             }
         } else { //unrecognized or FAIL response
-            phimail_logit(0, "problem checking messages " . $ret);
+            phimail_logit(0, "M16 unexpected problem checking messages " . $ret);
             phimail_close($fp);
             return;
         }
@@ -466,6 +478,7 @@ function phimail_read_blob($fp, $len)
 
     $fpath = $GLOBALS['temporary_files_dir'];
     if (!@file_exists($fpath)) {
+	    phimail_logit(0, "M13 temp dir does not exist: " . $fpath);
         return false;
     }
 
@@ -478,6 +491,7 @@ function phimail_read_blob($fp, $len)
 
     $ff = @fopen($fn, "w");
     if (!$ff) {
+        phimail_logit(0, "M14 failed opening temp file: " . $fn);
         return false;
     }
 
@@ -492,6 +506,8 @@ function phimail_read_blob($fp, $len)
         if ($chunk === false || @fwrite($ff, $chunk) === false) {
             @fclose($ff);
             @unlink($fn);
+            phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing") 
+                    . " blob chunk after " . ($len - $bytes_left). " bytes");
             return false;
         }
 
