@@ -1,10 +1,10 @@
 <?php
 
 /**
- *
+ * A POPO of the Config Model
  */
 
-namespace OpenEMR\Core\Entity;
+namespace OpenEMR\Core\Model;
 
 class Config
 {

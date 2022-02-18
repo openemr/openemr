@@ -14,7 +14,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Exceptions\Config\AmbiguousWriteException;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Entity\Config;
+use OpenEMR\Core\Model\Config;
 use Twig\Environment;
 
 class ConfigService extends BaseService
