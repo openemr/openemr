@@ -36,9 +36,9 @@ require_once($GLOBALS['fileroot'] . '/interface/eRx_xml.php');
 use OpenEMR\Core\Header;
 
 set_time_limit(0);
-
+$GLOBALS_REF = $GLOBALS;
 $eRxSOAP = new eRxSOAP();
-$eRxSOAP->setGlobals(new eRxGlobals($GLOBALS))
+$eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
     ->setStore(new eRxStore())
     ->setAuthUserId($_SESSION['authUserID']);
 
