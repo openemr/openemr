@@ -3,7 +3,7 @@
 /**
  * Functions to transmit a CCD as a Direct Protocol Message
  *
- * Copyright (C) 2013 EMR Direct <http://www.emrdirect.com/>
+ * Copyright (C) 2013, 2021 EMR Direct <https://www.emrdirect.com/>
  *
  * Use of these functions requires an active phiMail Direct messaging
  * account with EMR Direct.  For information regarding this service,
@@ -21,7 +21,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  EMR Direct <http://www.emrdirect.com/>
+ * @author  EMR Direct <https://www.emrdirect.com/>
  * @link    http://www.open-emr.org
  */
 
@@ -120,7 +120,8 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     }
 
     phimail_write($fp, "SEND\n");
-    $ret = fgets($fp, 256);
+    $ret = fgets($fp);
+    phimail_write($fp, "OK\n");
     phimail_close($fp);
 
     if ($requested_by == "patient") {
