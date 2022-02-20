@@ -1626,6 +1626,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
                     ?>
                 </div> <!-- end right column div -->
+                </div> <!-- end div.main > row:first  -->
             </div> <!-- end main content div -->
         </div><!-- end container div -->
         <?php $oemr_ui->oeBelowContainerDiv(); ?>
