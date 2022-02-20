@@ -236,7 +236,7 @@ function buildNav($newcnt, $pid, $result)
                 ],
                 [
                     'url' => '#downloadcard',
-                    'label' => xl('Download Lab Documents'),
+                    'label' => xl('Download Charted Documents'),
                     'icon' => 'fa-download',
                     'dataToggle' => 'collapse'
                 ]
