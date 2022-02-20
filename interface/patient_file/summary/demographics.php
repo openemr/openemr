@@ -35,12 +35,15 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
+use OpenEMR\Events\Patient\Summary\Card\RenderModel;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Reminder\BirthdayReminder;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
@@ -59,6 +62,11 @@ if (isset($_GET['set_pid'])) {
 // want smart support in their system.
 $smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
 $smartLaunchController->registerContextEvents();
+
+/**
+ * @var EventDispatcher
+ */
+$ed = $GLOBALS['kernel']->getEventDispatcher();
 
 $active_reminders = false;
 $all_allergy_alerts = false;
@@ -1224,12 +1232,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
 
                     if ($GLOBALS['portal_onsite_two_enable']) :
+                        // Proof of concept just to validate the PR
+                        $ed->addListener(CardRenderEvent::EVENT_HANDLE, function($event) {
+                            if ($event->getCard() == 'portal') {
+                                $test2 = new RenderModel('patient/partials/testing.html.twig', ['var1' => 'hello']);
+                                $event->addPrependedData($test2);
+                                $test = new RenderModel('patient/partials/testing.html.twig', ['var1' => 'goodbye']);
+                                $event->addAppendedData($test);
+                            }
+                        });
+                        // END Proof of concept for PR
+
+                        $result = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('portal'));
+
                         echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
                             'portalAuthorized' => portalAuthorized($pid),
                             'portalLoginHref' => $portal_login_href,
                             'title' => xl('Patient Portal'),
                             'id' => 'patient_portal',
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                            'prependedInjection' => $result->getPrependedInjection(),
+                            'appendedInjection' => $result->getAppendedInjection(),
                         ]);
                     endif;
 
