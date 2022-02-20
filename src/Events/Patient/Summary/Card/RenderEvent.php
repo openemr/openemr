@@ -30,8 +30,18 @@ class RenderEvent extends Event
      */
     private $card;
 
+    /**
+     * Array holding the prepended data
+     *
+     * @var array
+     */
     private $prependedData = [];
 
+    /**
+     * Array holding the appended data
+     *
+     * @var array
+     */
     private $appendedData = [];
 
     /**
@@ -44,12 +54,23 @@ class RenderEvent extends Event
         $this->setCard($cardID);
     }
 
-    public function getCard()
+    /**
+     * Get the name of the card
+     *
+     * @return string Name of the card
+     */
+    public function getCard(): string
     {
         return $this->card;
     }
 
-    public function setCard(string $card)
+    /**
+     * Set the card ID
+     *
+     * @param string $card Name of the card
+     * @return void
+     */
+    public function setCard(string $card): void
     {
         $this->card = $card;
     }
@@ -61,14 +82,9 @@ class RenderEvent extends Event
      * @param int|null $position Specific position in array, optional. Defaults to end.
      * @return void
      */
-    public function addAppendedData(RenderInterface $object, $position = null)
+    public function addAppendedData(RenderInterface $object, $position = null): void
     {
-        if (count($this->appendedData) === 0) {
-            $this->appendedData[] = $object;
-        } else {
-            $position = $position ?? -1;
-            array_splice($this->appendedData, $position, 0, $object);
-        }
+        $this->modifyArray('appendedData', $object, $position);
     }
 
     /**
@@ -78,22 +94,47 @@ class RenderEvent extends Event
      * @param int|null $position Specific position in array, optional. Defaults to end.
      * @return void
      */
-    public function addPrependedData(RenderInterface $object, $position = null)
+    public function addPrependedData(RenderInterface $object, $position = null): void
     {
-        if (count($this->prependedData) === 0) {
-            $this->prependedData[] = $object;
-        } else {
-            $position = $position ?? -1;
-            array_splice($this->prependedData, $position, 0, $object);
+        $this->modifyArray('prependedData', $object, $position);
+    }
+
+    /**
+     * Modify the appended and prepended data array
+     *
+     * @param string $property Name of the property to modify
+     * @param RenderInterface $object The object to add
+     * @param int|null $position Specific position in array, optional. Defaults to end
+     * @return void
+     */
+    private function modifyArray(string $property, RenderInterface $object, $position = null): void
+    {
+        if (property_exists($this, $property)) {
+            if (count($this->$property) === 0) {
+                $this->$property[] = $object;
+            } else {
+                $position = $position ?? -1;
+                array_splice($this->$property, $position, 0, $object);
+            }
         }
     }
 
-    public function getAppendedInjection()
+    /**
+     * Get the data to be appended data
+     *
+     * @return array
+     */
+    public function getAppendedInjection(): array
     {
         return $this->appendedData;
     }
 
-    public function getPrependedInjection()
+    /**
+     * Get the data to be prepended data
+     *
+     * @return array
+     */
+    public function getPrependedInjection(): array
     {
         return $this->prependedData;
     }

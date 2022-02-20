@@ -1,11 +1,20 @@
-{% macro prependedInjection(prependedInjectionArray) %}
-    {% for row in prependedInjectionArray %}
-        {{ include(attribute(row, 'getTemplateFile'), attribute(row, 'getVariables')) }}
-    {% endfor %}
-{% endmacro %}
+{#
+Macros for rendering a patient card
 
-{% macro appendedInjection(appendedInjectionArray) %}
-    {% for row in appendedInjectionArray %}
-        {{ include(attribute(row, 'getTemplateFile'), attribute(row, 'getVariables')) }}
-    {% endfor %}
+@author       Robert Down <robertdown@live.com>
+@copyright    Copyright (c) 2022 Robert Down <robertdown@live.com>
+@package      OpenEMR
+#}
+
+{#
+Render the prepended or appended content of a card.
+
+@var array Array of RenderInterface objects
+#}
+{% macro injectedContent(content) %}
+    {% if content is iterable %}
+        {% for row in content %}
+            {{ include(attribute(row, 'getTemplateFile'), attribute(row, 'getVariables')) }}
+        {% endfor %}
+    {% endif %}
 {% endmacro %}

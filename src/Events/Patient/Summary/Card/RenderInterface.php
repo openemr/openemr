@@ -16,11 +16,16 @@ namespace OpenEMR\Events\Patient\Summary\Card;
 interface RenderInterface
 {
     /**
-     * Undocumented function
+     * Return the name of the template to be rendered
      *
-     * @return void
+     * @return string
      */
     public function getTemplateFile(): string;
 
+    /**
+     * Return the array of variables to be rendered by the template
+     *
+     * @return array
+     */
     public function getVariables(): array;
 }
