@@ -97,5 +97,4 @@ class RenderEvent extends Event
     {
         return $this->prependedData;
     }
-
 }

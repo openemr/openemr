@@ -14,7 +14,6 @@ namespace OpenEMR\Events\Patient\Summary\Card;
 
 class RenderModel implements RenderInterface
 {
-
     private $templateFileName;
 
     private $variables;

@@ -15,7 +15,6 @@ namespace OpenEMR\Events\Patient\Summary\Card;
 
 interface RenderInterface
 {
-
     /**
      * Undocumented function
      *
@@ -23,6 +22,5 @@ interface RenderInterface
      */
     public function getTemplateFile(): string;
 
-    public function getVariables(): Array;
-
+    public function getVariables(): array;
 }
