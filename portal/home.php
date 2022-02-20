@@ -155,9 +155,15 @@ function buildNav($newcnt, $pid, $result)
             'dropdownID' => 'reports',
             'children' => [
                 [
-                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=startandrun&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
+                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
                     'label' => xl('View CCD'),
-                    'icon' => 'fa-envelope',
+                    'icon' => 'fa-eye',
+                    'target_blank' => 'true',
+                ],
+                [
+                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
+                    'label' => xl('Download CCD'),
+                    'icon' => 'fa-download',
                 ]
             ]
         ]

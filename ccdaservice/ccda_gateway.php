@@ -7,7 +7,7 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -44,7 +44,13 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-if ($GLOBALS['ccda_alt_service_enable'] > 1) {
+if (empty($GLOBALS['ccda_alt_service_enable'])) {
+    die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
+}
+if (IS_PORTAL && $GLOBALS['ccda_alt_service_enable'] < 2) {
+    die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
+}
+if (IS_DASHBOARD && ($GLOBALS['ccda_alt_service_enable'] != 1 && $GLOBALS['ccda_alt_service_enable'] != 3)) {
     die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
 }
 
@@ -82,6 +88,17 @@ if ($_REQUEST['action'] === 'report_ccd_view') {
     }
     echo $ccda_xml;
 
+    exit;
+}
+if ($_REQUEST['action'] === 'report_ccd_download') {
+    $ccda_xml = $cdaService->generateCCDZip($pid);
+    // download zip containing CCDA.xml, CCDA.html and cda.xsl files
+    header("Cache-Control: public");
+    header("Content-Description: File Transfer");
+    header("Content-Disposition: attachment; filename=SummaryofCare.zip");
+    header("Content-Type: application/zip");
+    header("Content-Transfer-Encoding: binary");
+    echo $ccda_xml;
     exit;
 }
 die(xlt("Error. Nothing to do."));
