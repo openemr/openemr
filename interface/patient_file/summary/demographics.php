@@ -1266,17 +1266,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
 
                     if ($GLOBALS['portal_onsite_two_enable']) :
-                        // Proof of concept just to validate the PR
-                        $ed->addListener(CardRenderEvent::EVENT_HANDLE, function ($event) {
-                            if ($event->getCard() == 'portal') {
-                                $test2 = new RenderModel('patient/partials/testing.html.twig', ['var1' => 'hello']);
-                                $event->addPrependedData($test2);
-                                $test = new RenderModel('patient/partials/testing.html.twig', ['var1' => 'goodbye']);
-                                $event->addAppendedData($test);
-                            }
-                        });
-                        // END Proof of concept for PR
-
                         $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('portal'));
 
                         echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
