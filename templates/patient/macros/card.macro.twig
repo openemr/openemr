@@ -14,7 +14,7 @@ Render the prepended or appended content of a card.
 {% macro injectedContent(content) %}
     {% if content is iterable %}
         {% for row in content %}
-            {{ include(attribute(row, 'getTemplateFile'), attribute(row, 'getVariables')) }}
+            {{ include(row.getTemplateFile, row.getVariables)}}
         {% endfor %}
     {% endif %}
 {% endmacro %}
