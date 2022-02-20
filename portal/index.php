@@ -31,6 +31,9 @@ require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 
 //For redirect if the site on session does not match
@@ -46,7 +49,99 @@ if (isset($_GET['woops'])) {
     unset($_GET['woops']);
     unset($_SESSION['password_update']);
 }
-if (isset($_GET['forward'])) {
+
+if (!empty($_GET['forward_email_verify'])) {
+    if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
+        (new SystemLogger())->debug("registration not supported, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+
+    $crypto = new CryptoGen();
+    if (!$crypto->cryptCheckStandard($_GET['forward_email_verify'])) {
+        (new SystemLogger())->debug("illegal token, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+
+    $token_one_time = $crypto->decryptStandard($_GET['forward_email_verify'], null, 'drive', 6);
+    if (empty($token_one_time)) {
+        (new SystemLogger())->debug("unable to decrypt token, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+
+    $sqlResource = sqlStatementNoLog("SELECT `id`, `token_onetime`, `fname`, `mname`, `lname`, `dob`, `email`, `language` FROM `verify_email` WHERE `active` = 1 AND `token_onetime` LIKE BINARY ?", [$token_one_time . '%']);
+    if (sqlNumRows($sqlResource) > 1) {
+        (new SystemLogger())->debug("active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    if (!sqlNumRows($sqlResource)) {
+        (new SystemLogger())->debug("active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    $sqlVerify = sqlFetchArray($sqlResource);
+    if (empty($sqlVerify['id']) || empty($sqlVerify['token_onetime'])) {
+        (new SystemLogger())->debug("active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    // have "used" token, so now make it inactive
+    sqlStatementNoLog("UPDATE `verify_email` SET `active` = 0 WHERE `id` = ?", [$sqlVerify['id']]);
+
+    $validateTime = hex2bin(str_replace($token_one_time, '', $sqlVerify['token_onetime']));
+    if ($validateTime <= time()) {
+        (new SystemLogger())->debug("active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        die(xlt("Your email verification link has expired. Reset and try again."));
+    }
+
+    if (!empty($sqlVerify['fname']) && !empty($sqlVerify['lname']) && !empty($sqlVerify['dob']) && !empty($sqlVerify['email']) && !empty($sqlVerify['language'])) {
+        // token has passed and have all needed data
+        $fnameRegistration = $sqlVerify['fname'];
+        $_SESSION['fnameRegistration'] = $fnameRegistration;
+        $mnameRegistration = $sqlVerify['mname'] ?? '';
+        $_SESSION['mnameRegistration'] = $mnameRegistration;
+        $lnameRegistration = $sqlVerify['lname'];
+        $_SESSION['lnameRegistration'] = $lnameRegistration;
+        $dobRegistration = $sqlVerify['dob'];
+        $_SESSION['dobRegistration'] = $dobRegistration;
+        $emailRegistration = $sqlVerify['email'];
+        $_SESSION['emailRegistration'] = $emailRegistration;
+        $languageRegistration = $sqlVerify['language'];
+        $_SESSION['language_choice'] = (int)($languageRegistration ?? 1);
+        $portalRegistrationAuthorization = true;
+        $_SESSION['token_id_holder'] = $sqlVerify['id'];
+        (new SystemLogger())->debug("token worked for forward_email_verify token, now on to registration");
+        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 1, "token (" . $token_one_time . ") was successful for forward_email_verify token");
+        require_once(__DIR__ . "/account/register.php");
+        exit();
+    } else {
+        (new SystemLogger())->debug("active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+} else if (isset($_GET['forward'])) {
+    if ((empty($GLOBALS['portal_two_pass_reset']) && empty($GLOBALS['portal_onsite_two_register'])) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
+        (new SystemLogger())->debug("reset password and registration not supported, so stopped attempt to use forward token");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
     $auth = false;
     if (strlen($_GET['forward']) >= 64) {
         $crypto = new CryptoGen();
@@ -87,8 +182,8 @@ $_SESSION['itsme'] = 1;
 //
 // Deal with language selection
 //
-// collect default language id (skip this if this is a password update)
-if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
+// collect default language id (skip this if this is a password update or reset)
+if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])))) {
     $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
     for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
         $result2[$iter] = $row;
@@ -226,6 +321,19 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             return pass;
         }
     </script>
+
+    <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <script>
+            function enableVerifyBtn(){
+                document.getElementById("submitRequest").disabled = false;
+            }
+        </script>
+        <?php // add csrf mechanism for the password reset ui
+        CsrfUtils::setupCsrfKey();
+        ?>
+    <?php } ?>
+
 </head>
 <body class="login container mt-2">
     <div id="wrapper" class="container-fluid text-center">
@@ -287,8 +395,9 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
-        <?php } elseif (isset($_GET['requestNew'])) { ?>
+        <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
+                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
                 <div class="text-center">
                     <fieldset>
                         <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
@@ -318,8 +427,13 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <div class="d-flex justify-content-center">
+                                <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
+                            </div>
+                        </div>
                         <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
-                        <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit"><?php echo xlt('Verify') ?></button>
+                        <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
                     </fieldset>
                 </div>
             </form>
@@ -383,10 +497,10 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <?php if ($GLOBALS['portal_onsite_two_register']) { ?>
-                            <button class="btn btn-secondary float-left" onclick="location.replace('./account/register.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
+                        <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
+                            <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
-                        <?php if ($GLOBALS['portal_two_pass_reset'] && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
+                        <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
                             <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
@@ -421,7 +535,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 
         $(function () {
             <?php // if something went wrong
-            if (isset($_GET['requestNew'])) {
+            if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) {
                 $_SESSION['register'] = true;
                 $_SESSION['authUser'] = 'portal-user';
                 $_SESSION['pid'] = true;
@@ -437,7 +551,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             });
             $("#resetPass").on('submit', function (e) {
                 e.preventDefault();
-                callServer('is_new', '');
+                callServer('reset_password');
                 return false;
             });
             <?php } ?>
@@ -453,27 +567,20 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             return false;
         });
 
-        function callServer(action, value = '', value2 = '') {
-            var data = {
-                'action': action,
-                'value': value,
-                'dob': $("#dob").val(),
-                'last': $("#lname").val(),
-                'first': $("#fname").val(),
-                'email': $("#emailInput").val()
-            };
-            if (action === 'do_signup') {
+        function callServer(action) {
+            var data = {};
+            if (action === 'reset_password') {
                 data = {
                     'action': action,
-                    'pid': value
-                };
-            } else if (action === 'notify_admin') {
-                data = {
-                    'action': action,
-                    'pid': value,
-                    'provider': value2
-                };
-            } else if (action === 'cleanup') {
+                    'dob': $("#dob").val(),
+                    'last': $("#lname").val(),
+                    'first': $("#fname").val(),
+                    'email': $("#emailInput").val(),
+                    'g-recaptcha-response': grecaptcha.getResponse(),
+                    'csrf_token_form': $("#csrf_token_form").val()
+                }
+            }
+            if (action === 'cleanup') {
                 data = {
                     'action': action
                 }
@@ -485,36 +592,14 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             }).done(function (rtn) {
                 if (action === "cleanup") {
                     window.location.href = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
-                } else if (action === "userIsUnique") {
-                    return rtn === '1';
-                } else if (action === "is_new") {
-                    if (parseInt(rtn) !== 0) {
-                        let yes = confirm(<?php echo xlj("Account is validated. Send new credentials?") ?>);
-                        if (!yes) {
-                            callServer('cleanup');
-                        } else {
-                            callServer('do_signup', parseInt(rtn));
-                        }
+                } else if (action === "reset_password") {
+                    if (JSON.parse(rtn) === 1) {
+                        dialog.alert(<?php echo xlj("Check your email inbox (and possibly your spam folder) for further instructions to reset your password. If you have not received an email, then recommend contacting the clinic.") ?>);
+                        return false;
                     } else {
-                        // After error alert app exit to landing page.
-                        var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record.') ?>;
-                        message += "<br />" + <?php echo xlj('All search inputs are case sensitive and must match entries in your profile.'); ?>;
-                        dialog.alert(message, <?php echo xlj("Alert") ?>).then(function (result) {
-                            console.error('Reset failed to vaidate');
-                        });
+                        dialog.alert(<?php echo xlj("Something went wrong. Recommend contacting the clinic.") ?>);
                         return false;
                     }
-                } else if (action === 'do_signup') {
-                    if (rtn.indexOf('ERROR') !== -1) {
-                        let message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                        message += "<br /><br />" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br />";
-                        dialog.alert(message);
-                        return false;
-                    }
-                    //alert(rtn); // sync alert.. rtn holds username and password for testing.
-                    let message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
-                    dialog.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
-                    return false;
                 }
             }).fail(function (err) {
                 var message = <?php echo xlj('Something went wrong.') ?>;

@@ -52,8 +52,7 @@ foreach ($msgs as $i) {
     }
 }
 if ($newcnt > 0 && $_SESSION['portal_init']) {
-    $whereto = '#secure-msgs-card';
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#secure-msgs-card');
+    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }
 $messagesURL = $GLOBALS['web_root'] . '' . '/portal/messaging/messages.php';
 

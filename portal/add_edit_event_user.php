@@ -487,8 +487,7 @@ if (!empty($_POST['form_action'])) {
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
     $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
-
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#appointmentcard');
+    $_SESSION['whereto'] = '#appointmentcard';
     header('Location:./home.php');
     exit();
 }

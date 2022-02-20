@@ -3013,6 +3013,20 @@ $GLOBALS_METADATA = array(
             xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
         ),
 
+        'google_recaptcha_site_key' => array(
+            xl('Google reCAPTCHA V2 site key'),
+            'text',
+            '',
+            xl('Google reCAPTCHA V2 site key')
+        ),
+
+        'google_recaptcha_secret_key' => array(
+            xl('Google reCAPTCHA V2 secret key'),
+            'encrypted',
+            '',
+            xl('Google reCAPTCHA V2 secret key')
+        ),
+
         'portal_onsite_two_register' => array(
             xl('Allow New Patient Registration Widget'),
             'bool',                           // data type
@@ -3404,6 +3418,12 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',
             xl('Enable phiMail Direct Messaging Service')
+        ),
+        'phimail_testmode_disabled' => array(
+            xl('Disable phiMail Test Mode'),
+            'bool',                           // data type
+            '0',
+            xl('When you are ready to run phiMail in production mode. Turn on this flag.')
         ),
 
         'phimail_server_address' => array(
