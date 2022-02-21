@@ -260,7 +260,7 @@ $navMenu = buildNav($newcnt, $pid, $result);
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 echo $twig->render('portal/home.html.twig', [
     'user' => $user,
-    'whereto' => $_SESSION['whereto'] ?: ($whereto ?? '#documentscard'),
+    'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#documentscard'),
     'result' => $result,
     'msgs' => $msgs,
     'msgcnt' => $msgcnt,
@@ -279,7 +279,7 @@ echo $twig->render('portal/home.html.twig', [
     'pagetitle' => xl('Home') . ' | ' . xl('OpenEMR Portal'),
     'messagesURL' => $messagesURL,
     'patientID' => $pid,
-    'patientName' => $_SESSION['ptName'],
+    'patientName' => $_SESSION['ptName'] ?? null,
     'csrfUtils' => CsrfUtils::collectCsrfToken(),
     'isEasyPro' => $isEasyPro,
     'appointments' => $appointments,
@@ -287,6 +287,7 @@ echo $twig->render('portal/home.html.twig', [
     'appointmentLimit' => $apptLimit,
     'appointmentCount' => $count,
     'displayLimitLabel' => xl('Display limit reached'),
+    'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'),
     'eventNames' => [
         'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
         'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE

@@ -26,12 +26,18 @@
             webRoot = {{ web_root | js_escape }},
             ptName = {{ patientName | js_escape }},
             whereto = {{ whereto | js_escape }},
+            siteId = {{ site_id | js_escape }},
             webroot_url = webRoot,
             tab_mode = true,
-            isPortal = 1;
+            isPortal = 1,
+            inactivityTimeOut = 10; //minutes
 
         function restoreSession() {
             return true;
+        }
+
+        function xl(string) {
+            return string;
         }
 
         function persist(where, portalInit = false) {
@@ -54,12 +60,49 @@
             });
         }
 
+        const activityMonitor = function () {
+            let timeOut, warnTimeOut, time;
+            time = inactivityTimeOut * 60000;
+
+            window.onload = resetLogOutTimer;
+            window.onmousemove = resetLogOutTimer;
+            window.onmousedown = resetLogOutTimer;
+            window.ontouchstart = resetLogOutTimer;
+            window.ontouchmove = resetLogOutTimer;
+            window.onclick = resetLogOutTimer;
+            window.onkeydown = resetLogOutTimer;
+            window.addEventListener('scroll', resetLogOutTimer, true);
+
+            function logoutWarn() {
+                const warnMsg = xl('Your current log on session will expire in 30 seconds.') +
+                    '<br />' + xl('Please take action to prevent being logged out!');
+                syncAlertMsg(warnMsg, 28000, 'warning'); // from utility.js
+            }
+
+            function logout() {
+                let logoutUrl = "./index.php?site=" + encodeURIComponent(siteId);
+                location.replace(logoutUrl);
+            }
+
+            function resetWarnTimer() {
+                clearTimeout(warnTimeOut);
+                warnTimeOut = setTimeout(logoutWarn, time - 30000);
+            }
+
+            function resetLogOutTimer() {
+                $('#alert_box').remove(); // reset alert if set
+                resetWarnTimer();
+                clearTimeout(timeOut);
+                timeOut = setTimeout(logout, time);
+            }
+        };
+
         $(function () {
             $('#topNav [data-parent="#cardgroup"]').on('click', (e) => {
                 persist($(e.target).attr('href'), false);
             });
 
-            if ($('body').css('direction') == "rtl") {
+            if ($('body').css('direction') === "rtl") {
                 $('.float-left').each(function () {
                     $(this).addClass('float-right').removeClass('float-left');
                 });
@@ -153,8 +196,7 @@
                 page.updateModel();
             }
 
-            var gowhere = {{ whereto | js_escape }};
-
+            let gowhere = {{ whereto | js_escape }};
             $(gowhere).collapse('show');
 
             $('#cardgroup').on('hide.bs.collapse', '.show', function (e) {
@@ -170,6 +212,9 @@
             $('#callccda').click(function () {
                 $('#popwait').removeClass('d-none');
             });
+
+            // start watch for inactivity
+            activityMonitor();
         });
 
         function editAppointment(mode, deid) {
