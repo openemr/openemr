@@ -217,7 +217,7 @@ class CDADocumentService extends BaseService
             'ccda_pid' => [0 => $pid],
             'view' => 0,
             'recipient' => 'self',
-            'site' => $_SESSION ['site_id'],
+            'site' => $_SESSION['site_id'],
         );
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch"; // add for debug ?XDEBUG_SESSION=PHPSTORM
         $httpClient = HttpClient::create([

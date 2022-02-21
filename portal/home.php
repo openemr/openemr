@@ -287,7 +287,8 @@ echo $twig->render('portal/home.html.twig', [
     'appointmentLimit' => $apptLimit,
     'appointmentCount' => $count,
     'displayLimitLabel' => xl('Display limit reached'),
-    'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'),
+    'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
+    'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
     'eventNames' => [
         'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
         'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE

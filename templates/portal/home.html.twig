@@ -27,10 +27,10 @@
             ptName = {{ patientName | js_escape }},
             whereto = {{ whereto | js_escape }},
             siteId = {{ site_id | js_escape }},
+            inactivityTimeOut = {{ portal_timeout | js_escape }},
             webroot_url = webRoot,
             tab_mode = true,
-            isPortal = 1,
-            inactivityTimeOut = 10; //minutes
+            isPortal = 1;
 
         function restoreSession() {
             return true;
@@ -62,7 +62,10 @@
 
         const activityMonitor = function () {
             let timeOut, warnTimeOut, time;
-            time = inactivityTimeOut * 60000;
+            if (Number(inactivityTimeOut) < 300) {
+                inactivityTimeOut = 900; // 15 minutes. < 5 minutes is too short.
+            }
+            time = inactivityTimeOut * 1000;
 
             window.onload = resetLogOutTimer;
             window.onmousemove = resetLogOutTimer;
