@@ -6,21 +6,32 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    MD Support<mdsupport@users.sourceforge.net>
  * @author    Eyal Wolanowski <eyal.wolanowski@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Eyal Wolanowski <eyal.wolanowski@gmail.com>
+ * @copyright Copyright (c) 2022 MD Support<mdsupport@users.sourceforge.net>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Menu\PatientMenuEvent;
 
 class PatientMenuRole extends MenuRole
 {
+    /**
+     * mdsupport - Add option to include patient record values in menu.
+     * Use ptdata key to specify list of values to be included in html.
+     * Add other data in future as neeeded.
+     * @var array - Patient Record as associative array
+     */
+    private $recPt = [];
+
     /*
      * The event dispatcher we create in the constructor so we can let listeners know
      * when we're rendering the menu.
@@ -39,6 +50,52 @@ class PatientMenuRole extends MenuRole
         parent::__construct();
         $this->menu_update_map["Modules"] = "updateModulesDemographicsMenu";
         $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+ 
+        $this->recPt = sqlQuery(
+            'SELECT *,
+                 IF(lname <> "", CONCAT_WS(", ", lname, fname), fname) lfname,
+                 IF(fname <> "", CONCAT_WS(" ", fname, lname), lname) flname
+            FROM patient_data
+            WHERE pid=?',
+            $_SESSION['pid']
+        );
+        // Deceased => Inactive
+        if (!empty($this->recPt['deceased_date'])) {
+            $this->recPt['inactive_days'] = $this->inactiveDays($this->recPt['deceased_date']);
+        }
+    }
+
+    /**
+     * Legacy code - Using inactive in place of deceased
+     * 
+     * @param  $inactive_ymd
+     * @return string
+     */
+    private function inactiveDays($inactive_ymd)
+    {
+        $dtFrom = new \DateTime($inactive_ymd);
+        $dtNow = new \DateTime();
+        $dtDiff = $dtFrom->diff($dtNow);
+        $inactive_days = $dtDiff->days;
+        if ($inactive_days == 0) {
+            $num_of_days = xl("Today");
+        } elseif ($inactive_days == 1) {
+            $num_of_days =  $inactive_days . " " . xl("day ago");
+        } elseif ($inactive_days > 1 && $inactive_days < 90) {
+            $num_of_days =  $inactive_days . " " . xl("days ago");
+        } elseif ($inactive_days >= 90 && $inactive_days < 731) {
+            $num_of_days =  "~" . round($inactive_days / 30) . " " . xl("months ago");  // function intdiv available only in php7
+        } elseif ($inactive_days >= 731) {
+            $num_of_days =  xl("More than") . " " . round($inactive_days / 365) . " " . xl("years ago");
+        }
+        
+        if (strlen($inactive_ymd ?? '') > 10 && $GLOBALS['date_display_format'] < 1) {
+            $inactive_ymd = substr($inactive_ymd, 0, 10);
+        } else {
+            $inactive_ymd = oeFormatShortDate($inactive_ymd ?? '');
+        }
+        
+        return xlt("Inactive since") . " " . text($inactive_ymd) . " (" . text($num_of_days) . ")";
     }
 
     /**
@@ -147,9 +204,9 @@ class PatientMenuRole extends MenuRole
     protected function updateModulesDemographicsMenu(&$menu_list)
     {
         $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
-					                LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
-					                LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-					                WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
+                                    LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+                                    LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
 
         if (sqlNumRows($module_query)) {
             while ($hookrow = sqlFetchArray($module_query)) {
@@ -181,54 +238,110 @@ class PatientMenuRole extends MenuRole
             }
         }
     }
-    /**
-     * displays a bootstrap4 horizontal nav bar
-     */
 
+    /**
+     * Builds nav-link for linkable object.
+     * 
+     * @param object $menuNode
+     * @return string - li tag
+     */
+    private function navLink($menuNode)
+    {
+        // Build patient field data json encoded string
+        if (isset($menuNode->ptdata)) {
+            $aPtData = explode(',', $menuNode->ptdata);
+            $ptdata = [];
+            foreach ($aPtData as $ptfld) {
+                $ptfld = trim($ptfld);
+                $ptdata[$ptfld] = $this->recPt[$ptfld];
+            }
+            $ptdata = sprintf("data-ptdata='%s'", json_encode($ptdata));
+        } else {
+            $ptdata = '';
+        }
+        // csrf
+        if (isset($menuNode->csrf)) {
+            $csrf = sprintf(
+                '%s=%s',
+                $menuNode->csrf,
+                CsrfUtils::collectCsrfToken()
+            );
+        } else {
+            $csrf = '';
+        }
+        // TBD - Implment DevObj routing
+        $htm = sprintf(
+            '<li id="%s" class="nav-item %s" %s>
+                <a class="nav-link" href="%s%s%s" onclick="%s">%s</a>
+             </li>',
+            attr($menuNode->menu_id),
+            (isset($menuNode->class) ? attr($menuNode->class) : ''),
+            $ptdata,
+            attr($menuNode->url),
+            ($menuNode->pid == "true" ? attr($this->recPt['pid']) : ''),
+            $csrf,
+            (isset($menuNode->on_click) ? $menuNode->on_click : 'top.restoreSession()'),
+            text($menuNode->label)
+        );
+        return $htm;
+    }
+    /**
+     * Displays a bootstrap4 horizontal nav bar
+     */
     public function displayHorizNavBarMenu()
     {
-        $pid = $_SESSION['pid'];
         $menu_restrictions = $this->getMenu();
-        $li_id = 1;
-        $str_top = <<<EOT
-        <!--navbar-light is needed for color override in other themes-->
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar" aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="myNavbar">
-                    <ul class="navbar-nav">
-        EOT;
-        echo $str_top . "\r\n";
+
+        // mdsupport - Do not echo in a class. Always return html back to caller for max flexibility.
+        $htm = '';
+
+        // Build Nav items
         foreach ($menu_restrictions as $key => $value) {
             if (!empty($value->children)) {
-                // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
-                $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
-                $list .= '<ul class="dropdown-menu">';
-                foreach ($value->children as $children_key => $children_value) {
-                    $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
-                    $class = isset($children_value->class) ? $children_value->class : '';
-                    $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a class="nav-link text-dark"  href="' . attr($link) . '" onclick="' . $children_value->on_click . '"> ' . text($children_value->label) . ' </a>';
-                    $list .= '</li>';
+                $children = '';
+                foreach ($value->children as $child) {
+                    $children .= $this->navLink($child);
                 }
-                $list .= '</ul>';
+                $htm .= sprintf(
+                    '<li class="dropdown">
+                        <a href="#" id="%s" class="nav-link dropdown-toggle text-body %s" 
+                                data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> 
+                            %s  
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            %s
+                        </ul>
+                     </li>
+                    ',
+                    attr($value->menu_id),
+                    (isset($value->class) ? attr($value->class) : ''),
+                    text($value->label),
+                    $children,
+                );
             } else {
-                $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
-                $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a class="nav-link text-dark" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
-                $list .= '</li>';
+                $htm .= $this->navLink($value);
             }
-            echo $list . "\r\n";
-            $li_id++;
         }
-        $str_bot = <<<EOB
-                </ul>
-            </div>
-        </nav>
-        EOB;
-        echo $str_bot . "\r\n";
-        return;
+
+        // Put nav shell around nav items
+        $htm = sprintf(
+            '<!--navbar-light is needed for color override in other themes-->
+            <nav class="navbar navbar-expand-md navbar-light bg-light">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ptMenuNavbar"
+                        aria-controls="ptMenuNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="ptMenuNavbar">
+                    <ul class="navbar-nav">
+                        %s
+                    </ul>
+                </div>
+            </nav>
+            ',
+            $htm,
+        );
+        return $htm;
     }
 
     /**
