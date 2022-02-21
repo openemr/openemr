@@ -21,13 +21,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
+$osProjRoot = dirname(__FILE__, 4);
+require_once("$osProjRoot/interface/globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/group.inc");
-require_once(__DIR__ . "/../../../library/appointments.inc.php");
+require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
@@ -270,7 +271,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <head>
     <?php
-    Header::setupHeader(['common']);
+    Header::setupHeader(['common', 'fontawesome']);
     require_once("$srcdir/options.js.php");
     ?>
     <script>
@@ -874,7 +875,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             border-bottom: none;
         }
     </style>
-    <title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
+    <title><?php echo xlt("Patient{{patient file}}"); ?></title>
 </head>
 
 <body class="mt-3 patient-demographic bg-light">
@@ -889,9 +890,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         echo $twig->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Medical Dashboard")]);
         exit();
     }
+
+    // Collect the patient menu then build it
+    $menuPatient = new PatientMenuRole($twig);
+    // Display patient menu at top of patient tab
+    echo $menuPatient->displayHorizNavBarMenu();
     ?>
 
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer(); ?> mb-2">
+    <div id='demo-tab1'>    <div id="container_div" class="<?php echo $oemr_ui->oeContainer(); ?> mb-2">
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
@@ -907,9 +913,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         endif;
 
         $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
-        // Collect the patient menu then build it
-        $menuPatient = new PatientMenuRole($twig);
-        $menuPatient->displayHorizNavBarMenu();
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
         if ($GLOBALS['patient_id_category_name']) {
@@ -1695,6 +1698,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </div> <!-- end main content div -->
         </div><!-- end container div -->
         <?php $oemr_ui->oeBelowContainerDiv(); ?>
+        </div><!-- end menu div -->
         <script>
             // Array of skip conditions for the checkSkipConditions() function.
             var skipArray = [
@@ -1712,6 +1716,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
             });
         </script>
+        <?php
+        // Providing js that can be cached by browsers
+        $thisFile = new SplFileObject(__FILE__);
+        printf(
+            '<script src="%s.js?v=%s"></script>',
+            $thisFile->getBasename('.php'),
+            $v_js_includes
+        );
+        ?>
 </body>
 
 </html>
