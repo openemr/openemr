@@ -1,11 +1,32 @@
-[	{
+[   {
         "label": "Dashboard{{patient file}}",
         "menu_id": "dashboard",
+        "ptdata": "lfname, deceased_date, inactive_days",
         "target": "main",
         "on_click":"top.restoreSession()",
         "url": "interface/patient_file/summary/demographics.php",
         "pid":"false",
         "children": [],
+        "requirement": 0
+    },
+    {
+        "label": "Actions",
+        "menu_id": "act",
+        "target": "main",
+        "pid":"false",
+        "children": [
+            {
+                "label": "Delete",
+                "menu_id": "act_delete",
+                "target": "main",
+                "on_click":"top.restoreSession()",
+                "pid":"true",
+                "url": "interface/patient_file/deleter.php?patient=",
+                "csrf": "&csrf_token_form",
+                "acl_req": ["admin"],
+                "requirement": 0
+            }
+        ],
         "requirement": 0
     },
 	{
