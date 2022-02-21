@@ -146,6 +146,15 @@ class GenericRouter implements IRouter
                     }
                 }
 
+                if (!empty($GLOBALS['bootstrap_register'])) {
+                    // p_reg check
+                    if ($this->routeMap[$unalteredKey]["p_reg"] !== true) {
+                        // failed p_reg check
+                        $error = 'Unauthorized';
+                        throw new Exception($error);
+                    }
+                }
+
                 $this->matchedRoute = array (
                         "key" => $unalteredKey,
                         "route" => $value ["route"],

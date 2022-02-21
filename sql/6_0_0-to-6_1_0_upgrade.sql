@@ -1479,3 +1479,26 @@ INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity)
 #IfMissingColumn form_encounter referring_provider_id
 ALTER TABLE `form_encounter` ADD `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit';
 #EndIf
+
+-- drop if view was converted to a table
+#IfTable onsite_activity_view
+DROP TABLE IF EXISTS `onsite_activity_view`;
+#EndIf
+
+#IfNotTable verify_email
+CREATE TABLE `verify_email` (
+`id` bigint NOT NULL auto_increment,
+`pid_holder` bigint DEFAULT NULL,
+`email` varchar(255) DEFAULT NULL,
+`language` varchar(100) DEFAULT NULL,
+`fname` varchar(255) DEFAULT NULL,
+`mname` varchar(255) DEFAULT NULL,
+`lname` varchar(255) DEFAULT NULL,
+`dob` date DEFAULT NULL,
+`token_onetime`  VARCHAR(255) DEFAULT NULL,
+`active` tinyint NOT NULL default 1,
+PRIMARY KEY (`id`),
+UNIQUE KEY (`email`)
+) ENGINE=InnoDB;
+#EndIf
+

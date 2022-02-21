@@ -21,7 +21,7 @@ $patient = json_decode($_POST['upload_pid'] ?? '');
 
 $template_content = null;
 
-if ($_POST['mode'] === 'save_profiles') {
+if (($_POST['mode'] ?? null) === 'save_profiles') {
     $profiles = json_decode($_POST['profiles'], true);
     $rtn = $templateService->saveAllProfileTemplates($profiles);
     if ($rtn) {
@@ -32,12 +32,12 @@ if ($_POST['mode'] === 'save_profiles') {
     exit;
 }
 
-if ($_REQUEST['mode'] === 'render_profile') {
+if (($_REQUEST['mode'] ?? null) === 'render_profile') {
     echo renderProfileHtml();
     exit;
 }
 
-if ($_REQUEST['mode'] === 'getPdf') {
+if (($_REQUEST['mode'] ?? null) === 'getPdf') {
     if ($_REQUEST['docid']) {
         $template = $templateService->fetchTemplate($_REQUEST['docid']);
         echo "data:application/pdf;base64," . base64_encode($template['template_content']);
@@ -55,7 +55,7 @@ if ($_POST['mode'] === 'get') {
     die(xlt('Invalid File'));
 }
 
-if ($_POST['mode'] === 'send_profiles') {
+if (($_POST['mode'] ?? null) === 'send_profiles') {
     if (!empty($_POST['checked'])) {
         $profiles = json_decode($_POST['checked']) ?: [];
         $last_id = $templateService->setProfileActiveStatus($profiles);
@@ -69,7 +69,7 @@ if ($_POST['mode'] === 'send_profiles') {
     die(xlt('Invalid Request'));
 }
 
-if ($_POST['mode'] === 'send') {
+if (($_POST['mode'] ?? null) === 'send') {
     if (!empty($_POST['docid'])) {
         $pids_array = json_decode($_POST['docid']) ?: ['0'];
         // profiles are in an array with flag to indicate a group of template id's
@@ -101,7 +101,7 @@ if ($_POST['mode'] === 'send') {
     die(xlt('Invalid Request'));
 }
 
-if ($_POST['mode'] === 'save') {
+if (($_POST['mode'] ?? null) === 'save') {
     if ($_POST['docid']) {
         if (stripos($_POST['content'], "<?php") === false) {
             $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
@@ -114,13 +114,13 @@ if ($_POST['mode'] === 'save') {
     } else {
         die(xlt('Invalid File'));
     }
-} elseif ($_POST['mode'] === 'delete') {
+} elseif (($_POST['mode'] ?? null) === 'delete') {
     if ($_POST['docid']) {
         $template = $templateService->deleteTemplate($_POST['docid'], ($_POST['template'] ?? null));
         exit($template);
     }
     die(xlt('Invalid File'));
-} elseif ($_POST['mode'] === 'update_category') {
+} elseif (($_POST['mode'] ?? null) === 'update_category') {
     if ($_POST['docid']) {
         $template = $templateService->updateTemplateCategory($_POST['docid'], $_POST['category']);
         echo xlt('Template Category successfully changed to new Category') . ' ' . text($_POST['category']);
@@ -293,7 +293,13 @@ function renderProfileHtml()
     <!DOCTYPE html>
     <html>
     <head>
-        <?php Header::setupHeader(['opener', 'sortablejs']); ?>
+        <?php
+        if (empty($GLOBALS['openemr_version'] ?? null)) {
+            Header::setupHeader(['opener', 'sortablejs']);
+        } else {
+            Header::setupHeader(['opener']); ?>
+            <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+        <?php } ?>
     </head>
     <style>
       body {

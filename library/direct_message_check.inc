@@ -6,7 +6,7 @@
  * This script is called by the background service manager
  * at /library/ajax/execute_background_services.php
  *
- * Copyright (C) 2013 EMR Direct <http://www.emrdirect.com/>
+ * Copyright (C) 2013, 2021 EMR Direct <https://www.emrdirect.com/>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  EMR Direct <http://www.emrdirect.com/>
+ * @author  EMR Direct <https://www.emrdirect.com/>
  * @link    http://www.open-emr.org
  */
 
@@ -30,6 +30,8 @@ require_once(dirname(__FILE__) . "/gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 use PHPMailer\PHPMailer\PHPMailer;
 
 /**
@@ -48,8 +50,14 @@ function phimail_connect(&$phimail_error)
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = new CryptoGen();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
-    $phimail_cafile = dirname(__FILE__) . '/../sites/' . $_SESSION['site_id']
-      . '/documents/phimail_server_pem/phimail_server.pem';
+
+    // if test mode is disabled we use the production cert, otherwise we use the test certificate.
+    if (isset($GLOBALS['phimail_testmode_disabled']) && $GLOBALS['phimail_testmode_disabled'] == '1') {
+        $phimail_cafile = $GLOBALS['fileroot'] . '/public/certs/phimail/phimail_server.pem';
+    } else {
+        $phimail_cafile = $GLOBALS['fileroot'] . '/public/certs/phimail/EMRDirectTestCA.pem';
+        (new SystemLogger())->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => $GLOBALS['phimail_testmode_disabled']]);
+    }
     if (!file_exists($phimail_cafile)) {
         $phimail_cafile = '';
     }
@@ -72,6 +80,7 @@ function phimail_connect(&$phimail_error)
             break;
         default:
             $phimail_error = 'C2';
+            (new SystemLogger())->error("phimail_connect failed to connect due to invalid scheme", ['error' => $phimail_error]);
             return false;
     }
 
@@ -83,6 +92,7 @@ function phimail_connect(&$phimail_error)
              !stream_context_set_option($context, 'ssl', 'cafile', $phimail_cafile))
         ) {
             $phimail_error = 'C3';
+            (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
             return false;
         }
 
@@ -110,9 +120,19 @@ function phimail_connect(&$phimail_error)
             }
 
             $phimail_error = "C4 $err1 ($err2)";
+        } else {
+            (new SystemLogger())->debug("phimail_connect was successful");
         }
     } else {
         $fp = @fsockopen($server, $phimail_server['port']);
+    }
+
+    if (!empty($phimail_error)) {
+        (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
+    } else if ($fp !== false) {
+        (new SystemLogger())->debug("phimail_connect was successful");
+    } else {
+        (new SystemLogger())->error("phimail_connect failed to connect with unknown error", ['error' => $phimail_error, 'server' => $server, 'port' => $phimail_server['port']]);
     }
 
     return $fp;
@@ -169,6 +189,7 @@ function phimail_check()
                 phimail_logit(0, "NO MATCH: " . $ret);
                 $ret = phimail_write_expect_OK($fp, "OK\n");
                 if ($ret !== true) {
+                    phimail_logit(0, "M1 status acknowledgment failed: " . $ret);
                     return;
                 } else {
                     continue;
@@ -228,7 +249,8 @@ function phimail_check()
          //done with this status message
             $ret = phimail_write_expect_OK($fp, "OK\n");
             if ($ret !== true) {
-                   phimail_close($fp);
+                phimail_logit(0, "M2 status acknowledgment failed: " . $ret);
+                phimail_close($fp);
                 return;
             }
         } elseif (substr($ret, 0, 4) == "MAIL") {
@@ -241,6 +263,7 @@ function phimail_check()
             //request main message
             $ret2 = phimail_write_expect_OK($fp, "SHOW 0\n");
             if ($ret2 !== true) {
+                phimail_logit(0, "M3 SHOW 0 failed: " . $ret2);
                 phimail_close($fp);
                 return;
             }
@@ -259,14 +282,16 @@ function phimail_check()
             $body_len = fgets($fp, 256);
             $body = phimail_read_blob($fp, $body_len);
             if ($body === false) {
-                   phimail_close($fp);
-                   return;
+                phimail_logit(0, "M4 read body failed");
+                phimail_close($fp);
+                return;
             }
 
             $att2 = fgets($fp, 256);
             if ($att2 != $att) { //safety for mismatch on attachments
-                   phimail_close($fp);
-                   return;
+                phimail_logit(0, "M5 attachment mismatch");
+                phimail_close($fp);
+                return;
             }
 
         //get attachment info
@@ -277,6 +302,7 @@ function phimail_check()
                         || ($attinfo[$attnum]['mime'] = fgets($fp, 1024)) === false
                         || ($attinfo[$attnum]['desc'] = fgets($fp, 1024)) === false
                     ) {
+                             phimail_logit(0, "M6 read attachment " . ($attnum + 1) . " metadata failed");
                              phimail_close($fp);
                              return;
                     }
@@ -292,6 +318,7 @@ function phimail_check()
                    $name = uniqid("dm-message-") . phimail_extension($mime_type_main);
                    $doc_id = phimail_store($name, $mime_type_main, $body);
                 if (!$doc_id) {
+                    phimail_logit(0, "M7 store non-text body failed");
                     phimail_close($fp);
                     return;
                 }
@@ -308,12 +335,14 @@ function phimail_check()
             for ($attnum = 0; $attnum < $att; $attnum++) {
                 $ret2 = phimail_write_expect_OK($fp, "SHOW " . ($attnum + 1) . "\n");
                 if ($ret2 !== true) {
+                    phimail_logit(0, "M8 SHOW " . ($attnum + 1) . " failed: " . $ret2);
                     phimail_close($fp);
                     return;
                 }
 
                //we can ignore next two lines (repeat of name and mime-type)
                 if (($a1 = fgets($fp, 512)) === false || ($a2 = fgets($fp, 512)) === false) {
+                    phimail_logit(0, "M9 skip attachment " . ($attnum + 1) . " duplicate header lines failed");
                     phimail_close($fp);
                     return;
                 }
@@ -321,6 +350,7 @@ function phimail_check()
                 $att_len = fgets($fp, 256); //length of file
                 $attdata = phimail_read_blob($fp, $att_len);
                 if ($attdata === false) {
+                    phimail_logit(0, "M10 read attachment " . ($attnum + 1) . " failed");
                     phimail_close($fp);
                     return;
                 }
@@ -333,6 +363,7 @@ function phimail_check()
                 $attmime = strtolower($attinfo[$attnum]['mime'][0]);
                 $att_doc_id = phimail_store($req_name, $attmime, $attdata);
                 if (!$att_doc_id) {
+                    phimail_logit(0, "M11 store attachment " . ($attnum + 1) . " failed");
                     phimail_close($fp);
                     return;
                 }
@@ -343,7 +374,7 @@ function phimail_check()
                 $url = $att_doc_id['url'];
                 $url = substr($url, strrpos($url, "/") + 1);
                 $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
-                filesize($attdata) . " bytes) " . trim($attinfo[$attnum]['desc']);
+                    $att_doc_id['filesize'] . " bytes) " . trim($attinfo[$attnum]['desc']);
             }
 
             if ($att_detail != "") {
@@ -389,11 +420,12 @@ function phimail_check()
             }
 
             if ($ret2 !== true) {
-                   phimail_close();
-                   return;
+                phimail_logit(0, "M12 DONE failed: " . $ret2);
+                phimail_close();
+                return;
             }
         } else { //unrecognized or FAIL response
-            phimail_logit(0, "problem checking messages " . $ret);
+            phimail_logit(0, "M16 unexpected problem checking messages " . $ret);
             phimail_close($fp);
             return;
         }
@@ -423,13 +455,14 @@ function phimail_write_expect_OK($fp, $text)
 
 function phimail_close($fp)
 {
-    fwrite($fp, "BYE\n");
-    fflush($fp);
     fclose($fp);
 }
 
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
 {
+    if (!$success) {
+        (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
+    }
     EventAuditLogger::instance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
 
@@ -443,6 +476,7 @@ function phimail_read_blob($fp, $len)
 
     $fpath = $GLOBALS['temporary_files_dir'];
     if (!@file_exists($fpath)) {
+        phimail_logit(0, "M13 temp dir does not exist: " . $fpath);
         return false;
     }
 
@@ -455,6 +489,7 @@ function phimail_read_blob($fp, $len)
 
     $ff = @fopen($fn, "w");
     if (!$ff) {
+        phimail_logit(0, "M14 failed opening temp file: " . $fn);
         return false;
     }
 
@@ -469,6 +504,8 @@ function phimail_read_blob($fp, $len)
         if ($chunk === false || @fwrite($ff, $chunk) === false) {
             @fclose($ff);
             @unlink($fn);
+            phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing")
+                    . " blob chunk after " . ($len - $bytes_left) . " bytes");
             return false;
         }
 
@@ -517,6 +554,25 @@ function phimail_service_userID($name = 'phimail-service')
     return ($user);
 }
 
+/**
+ * Given an IsAcceptedFileFilterEvent from our isWhitelist function we check to make sure that we allow
+ * the mime type of the Direct message attachment that was sent by the server.  We check to make sure that the mime
+ * type is only the mime type of the specific document sent via EMRDirect
+ * @param IsAcceptedFileFilterEvent $event The event with the mimetype to check if we allow it or not
+ * @return IsAcceptedFileFilterEvent
+ */
+function phimail_allow_document_mimetype(IsAcceptedFileFilterEvent $event)
+{
+    global $phimail_direct_message_check_allowed_mimetype;
+    $isAllowedFile = $event->isAllowedFile();
+    if (!$isAllowedFile) {
+        if ($phimail_direct_message_check_allowed_mimetype == $event->getMimeType()) {
+            $event->setAllowedFile(true);
+        }
+    }
+    return $event;
+}
+
 
 /**
  * Registers an attachment or non-text message file using the existing Document structure
@@ -524,15 +580,39 @@ function phimail_service_userID($name = 'phimail-service')
  */
 function phimail_store($name, $mime_type, $fn)
 {
+    global $phimail_direct_message_check_allowed_mimetype;
 
+    $allowMimeTypeFunction = 'phimail_allow_document_mimetype';
+    // we bypass the whitelisting JUST for phimail documents
+    if (isset($GLOBALS['kernel'])) {
+        $GLOBALS['kernel']->getEventDispatcher()
+            ->addListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
+    }
     // Collect phimail user id
     $user = phimail_service_userID();
-
-    // Import the document
-    $return = addNewDocument($name, $mime_type, $fn, 0, filesize($fn), $user, 'direct');
-
-    // Remove the temporary file
-    @unlink($fn);
+    try {
+        // Import the document
+        $phimail_direct_message_check_allowed_mimetype = $mime_type;
+        $filesize = filesize($fn);
+        $return = addNewDocument($name, $mime_type, $fn, 0, $filesize, $user, 'direct');
+        if (is_array($return)) {
+            $return['filesize'] = $filesize;
+        }
+    } catch (\Exception $exception) {
+        (new SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
+        phimail_logit(0, "problem storing attachment in OpenEMR");
+        $return = false;
+    } finally {
+        $phimail_direct_message_check_allowed_mimetype = null;
+        // There shouldn't be another request in the system to add a document, but for security sake we will prevent code
+        // after this from bypassing the whitelist filter
+        if (isset($GLOBALS['kernel'])) {
+            $GLOBALS['kernel']->getEventDispatcher()
+                ->removeListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $allowMimeTypeFunction);
+        }
+        // Remove the temporary file
+        @unlink($fn);
+    }
 
     // Return the result
     return $return;

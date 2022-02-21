@@ -152,6 +152,9 @@ class DocumentTemplateService
     public function getTemplateCategoriesByPids($pids, $category = null): array
     {
         $results = array();
+        if (empty($pids)) {
+            return $results;
+        }
         foreach ($pids as $pid) {
             if ($pid <= 0) {
                 continue;
@@ -585,9 +588,12 @@ class DocumentTemplateService
      * @param $profile
      * @return int
      */
-    public function getProfileActiveStatus($profile): int
+    public function getProfileActiveStatus($profile)
     {
         $rtn = sqlQuery("Select `active` From `document_template_profiles` WHERE `profile` = ? And `template_id` = 0", array($profile));
+        if ($rtn === false) {
+            return '0';
+        }
         return $rtn['active'] ?: '0';
     }
 
@@ -752,6 +758,16 @@ class DocumentTemplateService
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
         $category_list = array();
+        $category_list[''] = array (
+            'option_id' => '',
+            'title' => '',
+            'seq' => '',
+        );
+        $category_list['General'] = array (
+            'option_id' => '',
+            'title' => '',
+            'seq' => '',
+        );
         while ($row = sqlFetchArray($rtn)) {
             $category_list[$row['option_id']] = $row;
         }
