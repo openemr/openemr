@@ -8,11 +8,19 @@ The Patient Portal card for the Medical Record Dashboard
 
 {% extends "patient/card/card_base.html.twig" %}
 
+{% if (prependedInjection is defined) or (appendedInjection is defined) %}
+    {% import "patient/macros/card.macro.twig" as cardMacros %}
+    {% set prepend = cardMacros.injectedContent(prependedInjection) %}
+    {% set append = cardMacros.injectedContent(appendedInjection) %}
+{% endif %}
+
+
 {% block content %}
 <div class="text d-flex pl-1">
     {% if portalAuthorized == false %}
         {{ "Patient Portal Not Authorized"|xlt }}
     {% else %}
+        {{ prepend }}
         {% if portalAuthorized.created == true %}
             {% set class = "fa-key" %}
             {% set text = "Reset Credentials"|xlt %}
@@ -22,6 +30,7 @@ The Patient Portal card for the Medical Record Dashboard
         {% endif %}
         <a href="{{ portalLoginHref|attr }}?patient={{ pid|attr_url }}" class="btn btn-link btn-sm w-50 small_modal"><i class="fa {{ class|attr }}"></i>&nbsp;{{ text|text }}</a>
         <button type="button" class="btn btn-link btn-sm w-50" onclick='top.assignPatientDocuments({{pid|attr_js}})'><i class="fa fa-file-signature"></i>&nbsp;{{ "Assign Documents"|xlt }}</button>
+        {{ append }}
     {% endif %}
 </div>
 {% endblock %}
