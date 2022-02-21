@@ -130,10 +130,12 @@ class SessionUtil
 
     public static function coreSessionDestroy(): void
     {
-        (new SystemLogger())->debug(
-            "Destroying core session cookie",
-            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
-        );
+        if (class_exists('SystemLogger')) {
+            (new SystemLogger())->debug(
+                "Destroying core session cookie",
+                ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+                );
+        }
         self::standardSessionCookieDestroy();
     }
 
@@ -185,13 +187,10 @@ class SessionUtil
 
     public static function apiSessionCookieDestroy(): void
     {
-        // mdsupport - No current session > No db connection > No log entry
-        if (class_exists('SystemLogger')) {
-            (new SystemLogger())->debug(
-                "Destroying api session cookie",
-                ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
-            );
-        }
+        (new SystemLogger())->debug(
+            "Destroying api session cookie",
+            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
+        );
         self::standardSessionCookieDestroy();
     }
 
