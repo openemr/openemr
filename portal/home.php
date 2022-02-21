@@ -9,7 +9,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Ben Marte <benmarte@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
@@ -36,6 +36,17 @@ if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
 
 if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
+}
+
+// Get language definitions for js
+$language = $_SESSION['language_choice'] ?? '1'; // defaults english
+$sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
+        JOIN lang_constants AS c ON d.cons_id = c.cons_id
+        WHERE d.lang_id = ?";
+$tarns = sqlStatement($sql, $language);
+$language_defs = array();
+while ($row = SqlFetchArray($tarns)) {
+    $language_defs[$row['constant_name']] = $row['definition'];
 }
 
 $whereto = $_SESSION['whereto'] ?? null;
@@ -289,6 +300,7 @@ echo $twig->render('portal/home.html.twig', [
     'displayLimitLabel' => xl('Display limit reached'),
     'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
     'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
+    'language_defs' => $language_defs,
     'eventNames' => [
         'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
         'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE

@@ -28,17 +28,28 @@
             whereto = {{ whereto | js_escape }},
             siteId = {{ site_id | js_escape }},
             inactivityTimeOut = {{ portal_timeout | js_escape }},
+            languageDefinitions = {{ language_defs | js_escape }},
             webroot_url = webRoot,
             tab_mode = true,
             isPortal = 1;
-
+        
         function restoreSession() {
             return true;
         }
 
-        function xl(string) {
-            return string;
-        }
+        i18next.init({
+            lng: 'selected',
+            debug: false,
+            nsSeparator: false,
+            keySeparator: false,
+            resources: {
+                selected: {
+                    translation: languageDefinitions
+                }
+            }
+        }).catch(error => {
+            console.log(error.message);
+        });
 
         function persist(where, portalInit = false) {
             if (where[0] !== '#') {
@@ -79,7 +90,7 @@
             function logoutWarn() {
                 const warnMsg = xl('Your current log on session will expire in 30 seconds.') +
                     '<br />' + xl('Please take action to prevent being logged out!');
-                syncAlertMsg(warnMsg, 28000, 'warning'); // from utility.js
+                syncAlertMsg(warnMsg, 28000); // from utility.js
             }
 
             function logout() {
