@@ -16,8 +16,12 @@ composer_github_auth() {
     githubTokenRateLimit=`echo $githubTokenRateLimitRequest | jq '.rate.remaining'`
     echo "Number of github api requests remaining is $githubTokenRateLimit"
     if [ "$githubTokenRateLimit" -gt 500 ]; then
-        echo "Using composer github api token"
-        composer config --global --auth github-oauth.github.com 310659f0a8658693af9ccb9da8969584b598910a
+        echo "Trying to use composer github api token"
+        if `composer config --global --auth github-oauth.github.com "$githubToken"`; then
+            echo "github composer token worked"
+        else
+            echo "github composer token did not work"
+        fi
     else
         echo "Not using composer github api token"
     fi
