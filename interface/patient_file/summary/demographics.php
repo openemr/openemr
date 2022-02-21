@@ -897,7 +897,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     echo $menuPatient->displayHorizNavBarMenu();
     ?>
 
-    <div id='demo-tab1'>    <div id="container_div" class="<?php echo $oemr_ui->oeContainer(); ?> mb-2">
+    <div id='demo-tab1'>
+        <div id="container_div" class="<?php echo $oemr_ui->oeContainer(); ?> mb-2">
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
