@@ -49,5 +49,4 @@ class ErrorConstants
 
     // We sent the file to Direct and we got back an unexpected response other than ERROR or QUEUED
     const ERROR_MESSAGE_UNEXPECTED_RESPONSE = "There was a problem sending the message.";
-
 }

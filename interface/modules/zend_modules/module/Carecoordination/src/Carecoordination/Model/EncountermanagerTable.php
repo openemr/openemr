@@ -232,9 +232,7 @@ class EncountermanagerTable extends AbstractTableGateway
         }
 
         try {
-
             foreach ($rec_arr as $recipient) {
-
                 $elec_sent = array();
                 $arr = explode('|', $ccda_combination);
                 foreach ($arr as $value) {
@@ -277,9 +275,7 @@ class EncountermanagerTable extends AbstractTableGateway
                     }
                 }
             }
-        }
-        catch (\Exception $exception)
-        {
+        } catch (\Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
             return ("Delivery failed to send");
         }
