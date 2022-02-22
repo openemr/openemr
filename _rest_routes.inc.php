@@ -139,6 +139,8 @@
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
  *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
  *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
+ *              "user/transaction.read": " (api:oemr)",
+ *              "user/transaction.write": " (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
  *              "patient/encounter.read": "Read encounters the patient has access to (api:port)",
  *              "patient/patient.read": "Write encounters the patient has access to (api:port)"
@@ -290,6 +292,7 @@ use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
+use OpenEMR\RestControllers\TransactionRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -6234,7 +6237,259 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+    /**
+     * Schema for the message request
+     *
+     *  @OA\Schema(
+     *      schema="api_transaction_request",
+     *      @OA\Property(
+     *          property="message",
+     *          description="The message of the transaction.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="type",
+     *          description="The type of transaction. Use an option from resource=/api/transaction_type",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="groupname",
+     *          description="The group name (usually is 'Default').",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referByFirstName",
+     *          description="First Name of the referrer.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referByLastName",
+     *          description="Last Name of the referrer.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referToFirstName",
+     *          description="First Name of the referred.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referToLastName",
+     *          description="Last Name of the referred.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referDiagnosis",
+     *          description="The referral diagnosis.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="riskLevel",
+     *          description="The risk level. (Low, Medium, High)",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="includeVitals",
+     *          description="Are vitals included (0,1)",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referralDate",
+     *          description="The date of the referral",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="authorization",
+     *          description="The authorization for the referral",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="visits",
+     *          description="The number of vists for the referral",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="validFrom",
+     *          description="The date the referral is valid from",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="validThrough",
+     *          description="The date the referral is valid through",
+     *          type="string"
+     *      ),
+     *      required={"message", "groupname", "title"},
+     *      example={
+     *          "message": "Message",
+     *          "type": "LBTref",
+     *          "groupname": "Default",
+     *          "referByFirstName":"Refer By First Name",
+     *          "referByLastName":"Refer By Last Name",
+     *          "referToFirstName":"Refer To First Name",
+     *          "referToLastName":"Refer To Last Name",
+     *          "referDiagnosis":"Diag 1",
+     *          "riskLevel":"Low",
+     *          "includeVitals":"1",
+     *          "referralDate":"2022-01-01",
+     *          "authorization":"Auth_123",
+     *          "visits": "1",
+     *          "validFrom": "2022-01-02",
+     *          "validThrough": "2022-01-03"
+     *      }
+     *  )
+     */
 
+    /**
+     *  @OA\Get(
+     *      path="/api/patient/{pid}/transaction",
+     *      description="Get Transactions for a patient",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The patient",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+
+    "GET /api/patient/:pid/transaction" => function ($pid) {
+        RestConfig::authorization_check("patients", "trans");
+        $cont = new TransactionRestController();
+        $return = (new TransactionRestController())->getPatientTransactions($pid);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
+
+    /**
+     *  @OA\Post(
+     *      path="/api/patient/{pid}/transaction",
+     *      description="Submits a transaction",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The id for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_transaction_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /api/patient/:pid/transaction" => function ($pid) {
+        RestConfig::authorization_check("patients", "trans");
+         $data = (array) (json_decode(file_get_contents("php://input")));
+         $return = (new TransactionRestController())->CreateTransaction($pid, $data);
+         RestConfig::apiLog($return, $data);
+         return $return;
+    },
+
+    /**
+     *  @OA\PUT(
+     *      path="/api/patient/transaction/{tid}",
+     *      description="Updates a transaction",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="tid",
+     *          in="path",
+     *          description="The id for the transaction.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_transaction_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /api/patient/transaction/:tid" => function ($tid) {
+        RestConfig::authorization_check("patients", "trans");
+         $data = (array) (json_decode(file_get_contents("php://input")));
+         $return = (new TransactionRestController())->UpdateTransaction($tid, $data);
+         RestConfig::apiLog($return, $data);
+         return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/user/transaction_type",
+     *      description="Get a list of transaction types",
+     *      tags={"standard"},
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+
+    "GET /patient/transaction_type" => function () {
+        $return = (new TransactionRestController())->getTransactionTypes();
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
 
     /**
      *  @OA\Put(

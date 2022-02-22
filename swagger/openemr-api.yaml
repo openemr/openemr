@@ -2498,6 +2498,9 @@ paths:
                 pc_billing_location:
                   description: 'The billinag location id of the appointment.'
                   type: string
+                pc_aid:
+                  description: 'The provider id for the appointment.'
+                  type: string
               type: object
               example:
                 pc_catid: '5'
@@ -2509,6 +2512,7 @@ paths:
                 pc_startTime: '09:00'
                 pc_facility: '9'
                 pc_billing_location: '10'
+                pc_aid: '1'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -3012,6 +3016,101 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/api_message_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{pid}/transaction':
+    get:
+      tags:
+        - standard
+      description: 'Get Transactions for a patient'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The patient'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      description: 'Submits a transaction'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The id for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_transaction_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/transaction/{tid}':
+    put:
+      tags:
+        - standard
+      description: 'Updates a transaction'
+      parameters:
+        -
+          name: tid
+          in: path
+          description: 'The id for the transaction.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_transaction_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  /api/user/transaction_type:
+    get:
+      tags:
+        - standard
+      description: 'Get a list of transaction types'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -6690,6 +6789,75 @@ components:
         to: admin
         title: Other
         message_status: New
+    api_transaction_request:
+      description: 'Schema for the message request'
+      required:
+        - message
+        - groupname
+        - title
+      properties:
+        message:
+          description: 'The message of the transaction.'
+          type: string
+        type:
+          description: 'The type of transaction. Use an option from resource=/api/transaction_type'
+          type: string
+        groupname:
+          description: 'The group name (usually is ''Default'').'
+          type: string
+        referByFirstName:
+          description: 'First Name of the referrer.'
+          type: string
+        referByLastName:
+          description: 'Last Name of the referrer.'
+          type: string
+        referToFirstName:
+          description: 'First Name of the referred.'
+          type: string
+        referToLastName:
+          description: 'Last Name of the referred.'
+          type: string
+        referDiagnosis:
+          description: 'The referral diagnosis.'
+          type: string
+        riskLevel:
+          description: 'The risk level. (Low, Medium, High)'
+          type: string
+        includeVitals:
+          description: 'Are vitals included (0,1)'
+          type: string
+        referralDate:
+          description: 'The date of the referral'
+          type: string
+        authorization:
+          description: 'The authorization for the referral'
+          type: string
+        visits:
+          description: 'The number of vists for the referral'
+          type: string
+        validFrom:
+          description: 'The date the referral is valid from'
+          type: string
+        validThrough:
+          description: 'The date the referral is valid through'
+          type: string
+      type: object
+      example:
+        message: Message
+        type: LBTref
+        groupname: Default
+        referByFirstName: 'Refer By First Name'
+        referByLastName: 'Refer By Last Name'
+        referToFirstName: 'Refer To First Name'
+        referToLastName: 'Refer To Last Name'
+        referDiagnosis: 'Diag 1'
+        riskLevel: Low
+        includeVitals: '1'
+        referralDate: '2022-01-01'
+        authorization: Auth_123
+        visits: '1'
+        validFrom: '2022-01-02'
+        validThrough: '2022-01-03'
   responses:
     standard:
       description: 'Standard Response'
@@ -6884,6 +7052,8 @@ components:
             user/surgery.write: 'Write surgeries the user has access to (api:oemr)'
             user/vital.read: 'Read vitals the user has access to (api:oemr)'
             user/vital.write: 'Write vitals the user has access to (api:oemr)'
+            user/transaction.read: ' (api:oemr)'
+            user/transaction.write: ' (api:oemr)'
             'api:port': 'Standard Patient Portal OpenEMR API'
             patient/encounter.read: 'Read encounters the patient has access to (api:port)'
             patient/patient.read: 'Write encounters the patient has access to (api:port)'

@@ -1,0 +1,294 @@
+<?php
+
+/**
+ * PatientTransaction Service
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jonathan Moore <Jdcmoore@aol.com>
+ * @copyright Copyright (c) 2022 Jonathan Moore <Jdcmoore@aol.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Services;
+
+//require_once("$srcdir/transactions.inc");
+
+use MongoDB\Driver\Query;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
+use Particle\Validator\Exception\InvalidValueException;
+use Particle\Validator\Validator;
+use OpenEMR\Validators\BaseValidator;
+
+class PatientTransactionService extends BaseService
+{
+    const TABLE_NAME = "transactions";
+
+    public function __construct()
+    {
+        parent::__construct(self::TABLE_NAME);
+    }
+
+    public function getSelectStatement($predicateColumnName){
+        return 
+        "
+        SELECT
+            d.form_id,
+            t.title,
+            t.groupname,
+            t.authorized,
+            MAX(
+                CASE WHEN d.field_id = 'body' THEN d.field_value ELSE ''
+            END
+            ) AS body,
+            MAX(
+                CASE WHEN d.field_id = 'refer_date' THEN d.field_value ELSE ''
+            END
+            ) AS refer_date,
+            MAX(
+                CASE WHEN d.field_id = 'refer_diag' THEN d.field_value ELSE ''
+            END
+            ) AS refer_diag,
+            MAX(
+                CASE WHEN d.field_id = 'refer_from' THEN d.field_value ELSE ''
+            END
+            ) AS refer_from,
+            MAX(
+                CASE WHEN d.field_id = 'refer_to' THEN d.field_value ELSE ''
+            END
+            ) AS refer_to,
+            MAX(
+                CASE WHEN d.field_id = 'refer_risk_level' THEN d.field_value ELSE ''
+            END
+            ) AS refer_risk_level,
+            MAX(
+                CASE WHEN d.field_id = 'refer_vitals' THEN d.field_value ELSE ''
+            END
+            ) AS refer_vitals,
+
+            MAX(
+                CASE WHEN d.field_id = 'refer_authorization' THEN d.field_value ELSE ''
+            END
+            ) AS refer_authorization,
+            MAX(
+                CASE WHEN d.field_id = 'refer_visits' THEN d.field_value ELSE ''
+            END
+            ) AS refer_visits,
+            MAX(
+                CASE WHEN d.field_id = 'refer_validFrom' THEN d.field_value ELSE ''
+            END
+            ) AS refer_validFrom,
+            MAX(
+                CASE WHEN d.field_id = 'refer_validThrough' THEN d.field_value ELSE ''
+            END
+            ) AS refer_validThrough
+        FROM
+            transactions t
+        LEFT JOIN lbt_data d ON
+            d.form_id = t.id
+        WHERE " . $predicateColumnName . " = ?
+        GROUP BY
+            d.form_id,
+            t.groupname,
+            t.title;
+        ";
+    }
+
+    private function getOneFromDb($tid){
+
+        $sqlBindArray = array();
+
+        $sql = $this->getSelectStatement('d.form_id');
+        array_push($sqlBindArray, $tid);
+        
+        $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
+
+        return $records;
+    }
+
+    public function getAll($pid)
+    {    
+        $processingResult = new ProcessingResult();
+        $sqlBindArray = array();
+
+        $sql = $this->getSelectStatement("t.pid");
+        array_push($sqlBindArray, $pid);
+
+        $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
+
+        if(count($records) > 0)
+            $processingResult->addData($records);
+
+        return $processingResult;
+    }
+
+    public function insert($pid, $data)
+    {
+        $transactionId = $this->insertTransaction($pid, $data);
+        if($transactionId == false)
+            return false;
+
+        $lbtDataId = $this->insertTransactionForm($transactionId, $data);
+        if($lbtDataId == false)
+            return false;
+        return ["id" => $transactionId, "form_id" => $lbtDataId];
+    }
+
+    public function insertTransaction($pid, $data)
+    {
+        $sql = 
+        "
+            INSERT INTO transactions SET
+                date=NOW(),
+                title=?,
+                pid=?,
+                groupname=?,
+                authorized=1,
+                user='admin'
+        ";
+
+        $results = sqlInsert(
+            $sql,
+            array(
+                $data["type"],
+                $pid,
+                $data['groupname']
+            )
+        );
+
+        if (!$results) {
+            return false;
+        }
+
+        return $results;
+    }
+
+    public function insertTransactionForm($transactionId, $data)
+    {
+        $referById = $this->getUserId($data["referByFirstName"], $data["referByLastName"]);
+        $referToId = $this->getUserId($data["referToFirstName"], $data["referToLastName"]);
+
+        $sql = 
+        "
+            INSERT INTO lbt_data (form_id, field_id, field_value) VALUES
+            (?,  'body', ?),
+            (?,  'refer_date', ?),
+            (?,  'refer_diag', ?),
+            (?,  'refer_from', ?),
+            (?,  'refer_to', ?),
+            (?,  'refer_risk_level', ?),
+            (?,  'refer_vitals', ?),
+            (?,  'refer_authorization', ?),
+            (?,  'refer_visits', ?),
+            (?,  'refer_validFrom', ?),
+            (?,  'refer_validThrough', ?)
+        ";
+
+        $params = array
+        (
+            $transactionId, $data["message"],
+            $transactionId, $data["referralDate"],
+            $transactionId, $data["referDiagnosis"],
+            $transactionId, $referById,
+            $transactionId, $referToId,
+            $transactionId, strtolower($data["riskLevel"]),
+            $transactionId, $data["includeVitals"],
+            $transactionId, $data["authorization"],
+            $transactionId, $data["visits"],
+            $transactionId, $data["validFrom"],
+            $transactionId, $data["validThrough"],
+        );
+
+        $results = sqlInsert(
+            $sql,
+            $params
+        );
+
+        if (!$results) {
+            return false;
+        }
+
+        return $results;
+    }
+
+
+    public function update($tid, $data){
+        
+        $referById = $this->getUserId($data["referByFirstName"], $data["referByLastName"]);
+        $referToId = $this->getUserId($data["referToFirstName"], $data["referToLastName"]);
+        $message = $data["message"];
+        $referralDate = $data["referralDate"];
+        $referralDiagnosis = $data["referDiagnosis"];
+        $riskLevel = strtolower($data["riskLevel"]);
+        $includeVitals = $data["includeVitals"];
+        $authorization = $data["authorization"];
+        $visits = $data["visits"];
+        $validFrom = $data["validFrom"];
+        $validThrough = $data["validThrough"];
+
+        $this->UpdateTransactionForm($tid, 'refer_from', $referById);
+        $this->UpdateTransactionForm($tid, 'refer_to', $referToId);
+        $this->UpdateTransactionForm($tid, 'body', $message);
+        $this->UpdateTransactionForm($tid, 'refer_date', $referralDate);
+        $this->UpdateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
+        $this->UpdateTransactionForm($tid, 'refer_risk_level', $riskLevel);
+        $this->UpdateTransactionForm($tid, 'refer_vitals', $includeVitals);
+        $this->UpdateTransactionForm($tid, 'refer_authorization', $authorization);
+        $this->UpdateTransactionForm($tid, 'refer_visits', $visits);
+        $this->UpdateTransactionForm($tid, 'refer_validFrom', $validFrom);
+        $this->UpdateTransactionForm($tid, 'refer_validThrough', $validThrough);
+        
+        return $this->getOneFromDb($tid);
+    }
+
+    public function UpdateTransactionForm($formId, $fieldId, $value){
+        if(empty($value) == false)
+        {
+            $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";
+            $params = array($value, $fieldId, $formId);
+            $res = sqlStatement($sql, $params);
+            //return $sql;
+        }
+    }
+
+    public function validate($transaction)
+    {
+        $transactionType = $transaction["type"];
+
+        if(empty($transactionType)){
+            $this->throwException('type is not valid', 'type');
+        }
+
+        $validator = new Validator();
+        switch($transactionType)
+        {
+            case "LBTref":
+                $validator->required('referralDate')->datetime('Y-m-d');
+                $validator->required('message')->lengthBetween(2, 150);
+                $validator->required('groupname')->string();
+                $validator->required('referToFirstName')->string();
+                $validator->required('referToLastName')->string();
+                break;
+        }
+
+        return $validator->validate($transaction);
+    }
+
+    public function getUserId($firstName, $lastName)
+    {
+        try{
+            return QueryUtils::fetchSingleValue('Select id FROM users WHERE fname = ? and lname = ? ', 'id', [$firstName, $lastName]);
+        }
+        catch(exception $ex)
+        {
+            return $ex;
+        }
+        
+    }
+}
+?>
