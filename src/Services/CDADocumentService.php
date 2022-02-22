@@ -37,6 +37,10 @@ class CDADocumentService extends BaseService
         $this->serverUrl = $GLOBALS['qualified_site_addr'];
     }
 
+    /**
+     * @param $pid
+     * @return array|false|null
+     */
     public function getLastCdaMeta($pid)
     {
         $query = "SELECT cc.uuid, cc.date, pd.fname, pd.lname, pd.pid FROM ccda AS cc
@@ -47,6 +51,10 @@ class CDADocumentService extends BaseService
         return sqlQuery($query, array($pid));
     }
 
+    /**
+     * @param $id
+     * @return false|string
+     */
     public function getFile($id)
     {
         $query = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where uuid=?";
@@ -77,6 +85,10 @@ class CDADocumentService extends BaseService
         return $content;
     }
 
+    /**
+     * @param $pid
+     * @return string
+     */
     public function generateCCDHtml($pid): string
     {
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
@@ -100,6 +112,10 @@ class CDADocumentService extends BaseService
         return $response->getContent();
     }
 
+    /**
+     * @param $pid
+     * @return string
+     */
     public function generateCCDXml($pid): string
     {
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
@@ -123,6 +139,10 @@ class CDADocumentService extends BaseService
         return $response->getContent();
     }
 
+    /**
+     * @param $pid
+     * @return string
+     */
     public function portalGenerateCCD($pid): string
     {
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
@@ -145,6 +165,10 @@ class CDADocumentService extends BaseService
         return $response->getContent();
     }
 
+    /**
+     * @param $pid
+     * @return string
+     */
     public function portalGenerateCCDZip($pid): string
     {
         $parameterArray = array(
@@ -166,6 +190,42 @@ class CDADocumentService extends BaseService
         ]);
         $response = $httpClient->request('POST', $url, [
             'query' => ['me' => session_id()], // to authenticate in CCM. Portal only.
+            'body' => $parameterArray
+        ]);
+
+        $status = $response->getStatusCode(); // @todo validate
+
+        return $response->getContent();
+    }
+
+    /**
+     * Complete zip of xml, html version
+     * when called within an openemr authorized session.
+     *
+     * @param $pid
+     * @return string
+     */
+    public function generateCCDZip($pid): string
+    {
+        $parameterArray = array(
+            'combination' => $pid,
+            'components' => 'allergies|medications|problems|immunizations|procedures|results|plan_of_care|vitals|social_history|encounters|functional_status|referral|instructions|medical_devices|goals',
+            'downloadccda' => 'download_ccda',
+            'latestccda' => '0',
+            'send_to' => 'download_all',
+            'sent_by_app' => 'core_api',
+            'ccda_pid' => [0 => $pid],
+            'view' => 0,
+            'recipient' => 'self',
+            'site' => $_SESSION['site_id'],
+        );
+        $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch"; // add for debug ?XDEBUG_SESSION=PHPSTORM
+        $httpClient = HttpClient::create([
+            "verify_peer" => false,
+            "verify_host" => false
+        ]);
+        $response = $httpClient->request('POST', $url, [
+            'query' => ['me' => session_id()],
             'body' => $parameterArray
         ]);
 

@@ -2012,6 +2012,12 @@ $GLOBALS_METADATA = array(
             '7200',                           // default
             xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
         ),
+        'portal_timeout' => array(
+            xl('Portal Idle Session Timeout Seconds'),
+            'num',                            // data type
+            '1800',                           // default
+            xl('Maximum idle time in seconds before logout. Default is 1800 (30 minutes).')
+        ),
         'secure_upload' => array(
             xl('Secure Upload Files with White List'),
             'bool',                           // data type
