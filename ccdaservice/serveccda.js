@@ -3,7 +3,7 @@
  * @link      http://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -229,7 +229,6 @@ function populateDemographic(pd, g) {
         },
         //"guardians": g.display_name ? guardian : '' //not required
     }
-
 }
 
 function populateProvider(provider) {
@@ -274,7 +273,8 @@ function populateProvider(provider) {
                     "number": all.encounter_provider.facility_phone || "",
 
                 }
-            }]
+            }
+        ]
     }
 }
 
@@ -294,24 +294,24 @@ function populateProviders() {
     }
     return {
         "providers":
-            {
-                "code": {
-                    "name": "",
-                    "code": "",
-                    "code_system_name": "SNOMED CT"
+        {
+            "code": {
+                "name": "",
+                "code": "",
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "low": {
+                    "date": fDate(""),
+                    "precision": "day"
                 },
-                "date_time": {
-                    "low": {
-                        "date": fDate(""),
-                        "precision": "day"
-                    },
-                    "high": {
-                        "date": fDate(""),
-                        "precision": "day"
-                    }
-                },
-                "provider": providerArray,
-            }
+                "high": {
+                    "date": fDate(""),
+                    "precision": "day"
+                }
+            },
+            "provider": providerArray,
+        }
     }
 }
 
@@ -2419,12 +2419,17 @@ function getMeta(pd) {
     return meta;
 }
 
+/**
+ / * function genCcda
+ /* The main document builder
+ /* pd array the xml parsed array of data sent from CCM.
+ */
 function genCcda(pd) {
-    var doc = {};
-    var data = {};
-    var count = 0;
-    var many = [];
-    var theone = {};
+    let doc = {};
+    let data = {};
+    let count = 0;
+    let many = [];
+    let theone = {};
 
     all = pd;
     npiProvider = all.primary_care_provider.provider.npi;
@@ -2838,21 +2843,21 @@ function genCcda(pd) {
     // build to cda
     let xml = bbg.generateCCD(doc);
 
-/* Debug
-    fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
-        if (err) {
-            return console.log(err);
-        }
-        console.log("Json saved!");
-    });
+    /* Debug
+        fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
+            if (err) {
+                return console.log(err);
+            }
+            console.log("Json saved!");
+        });
 
-    fs.writeFile("ccda.xml", xml, function (err) {
-        if (err) {
-            return console.log(err);
-        }
-        console.log("Xml saved!");
-    });
-*/
+        fs.writeFile("ccda.xml", xml, function (err) {
+            if (err) {
+                return console.log(err);
+            }
+            console.log("Xml saved!");
+        });
+    */
 
     return xml;
 }
@@ -2860,10 +2865,9 @@ function genCcda(pd) {
 function processConnection(connection) {
     conn = connection; // make it global
     let remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
-//console.log(remoteAddress);
     conn.setEncoding('utf8');
 
-    var xml_complete = "";
+    let xml_complete = "";
 
     function eventData(xml) {
         xml = xml.replace(/(\u000b|\u001c)/gm, "").trim();
@@ -2919,9 +2923,10 @@ function processConnection(connection) {
 
 function setUp(server) {
     server.on('connection', processConnection);
-    server.listen(6661, 'localhost', function () {
+    server.listen(6661, 'localhost', function () { // never change port!
         //console.log('server listening to %j', server.address());
     });
 }
 
+// start up listener for requests from CCM or others.
 setUp(server);
