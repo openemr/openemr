@@ -437,7 +437,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 
     <script>
         $(function() {
-            $('div.dataTables_filter input').focus();
+            $('table.dataTable').find("input:first.search_init").focus();
         });
     </script>
 </body>
