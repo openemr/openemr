@@ -90,7 +90,9 @@ class EncounterccdadispatchController extends AbstractActionController
             $combination      = $this->params('pids');
             $view             = $this->params('view');
         }
-        if (($_POST['sent_by_app'] ?? '') === 'portal') {
+        // Since if called outside of a route(cdaDocumentService) we haven't any route parameters
+        // we need to get necessary parameters from post request.
+        if (!empty($_POST['sent_by_app'] ?? '')) {
             $downloadccda = $this->getRequest()->getPost('downloadccda');
             if ($downloadccda === 'download_ccda') {
                 $combination      = $this->getRequest()->getPost('combination');
@@ -200,7 +202,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
         try {
             ob_clean();
-            if ($_POST['sent_by_app'] === 'portal') {
+            if (!empty($_POST['sent_by_app'] ?? '')) {
                 echo $content;
                 exit;
             }

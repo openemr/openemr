@@ -121,24 +121,40 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         WHERE fe.pid = ? AND fe.encounter = ?";
         $appTable = new ApplicationTable();
         $row = $appTable->zQuery($query, array($pid, $encounter));
-
         foreach ($row as $result) {
             $provider_details = "<encounter_provider>
-                    <facility_id>" . xmlEscape($result['id']) . "</facility_id>
-                    <facility_npi>" . xmlEscape($result['facility_npi']) . "</facility_npi>
-                    <facility_oid>" . xmlEscape($result['oid']) . "</facility_oid>
-                    <facility_name>" . xmlEscape($result['name']) . "</facility_name>
-                    <facility_phone>" . xmlEscape(($result['phone'] ? $result['phone'] : 0)) . "</facility_phone>
-                    <facility_fax>" . xmlEscape($result['fax']) . "</facility_fax>
-                    <facility_street>" . xmlEscape($result['street']) . "</facility_street>
-                    <facility_city>" . xmlEscape($result['city']) . "</facility_city>
-                    <facility_state>" . xmlEscape($result['state']) . "</facility_state>
-                    <facility_postal_code>" . xmlEscape($result['postal_code']) . "</facility_postal_code>
-                    <facility_country_code>" . xmlEscape($result['country_code']) . "</facility_country_code>
-                </encounter_provider>
+                <facility_id>" . xmlEscape($result['id']) . "</facility_id>
+                <facility_npi>" . xmlEscape($result['facility_npi']) . "</facility_npi>
+                <facility_oid>" . xmlEscape($result['oid']) . "</facility_oid>
+                <facility_name>" . xmlEscape($result['name']) . "</facility_name>
+                <facility_phone>" . xmlEscape(($result['phone'] ? $result['phone'] : 0)) . "</facility_phone>
+                <facility_fax>" . xmlEscape($result['fax']) . "</facility_fax>
+                <facility_street>" . xmlEscape($result['street']) . "</facility_street>
+                <facility_city>" . xmlEscape($result['city']) . "</facility_city>
+                <facility_state>" . xmlEscape($result['state']) . "</facility_state>
+                <facility_postal_code>" . xmlEscape($result['postal_code']) . "</facility_postal_code>
+                <facility_country_code>" . xmlEscape($result['country_code']) . "</facility_country_code>
+            </encounter_provider>
             ";
         }
 
+        if (empty($provider_details)) {
+            // so generator doesn't spit up with undefines.
+            $provider_details = "<encounter_provider>
+                <facility_id></facility_id>
+                <facility_npi></facility_npi>
+                <facility_oid></facility_oid>
+                <facility_name></facility_name>
+                <facility_phone></facility_phone>
+                <facility_fax></facility_fax>
+                <facility_street></facility_street>
+                <facility_city></facility_city>
+                <facility_state></facility_state>
+                <facility_postal_code></facility_postal_code>
+                <facility_country_code></facility_country_code>
+            </encounter_provider>
+            ";
+        }
         return $provider_details;
     }
 
@@ -930,9 +946,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $physician_code_type = str_replace('-', ' ', $tmp[0]);
             $row['physician_type_code'] = $tmp[1] ?? '';
             $encounter_reason = '';
-            if ($row['reason'] !== '') {
-                $encounter_reason = "<encounter_reason>" . xmlEscape($this->date_format(substr($row['date'], 0, 10)) . " - " . $row['reason']) . "</encounter_reason>";
+            if (empty($row['reason'])) {
+                $row['reason'] = xlt('Reason not given');
             }
+            $encounter_reason = "<encounter_reason>" . xmlEscape($this->date_format(substr($row['date'], 0, 10)) . " - " . $row['reason']) . "</encounter_reason>";
 
             $codes = "";
             $query_procedures = "SELECT c.code, c.code_text FROM billing AS b
@@ -969,6 +986,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <status>" . xmlEscape($encounter_activity) . "</status>
                 </encounter_diagnosis>";
                 $codes .= $encounter_diagnosis;
+            } else {
+                $encounter_diagnosis = "
+                <encounter_diagnosis>
+                <code></code>
+                <code_type></code_type>
+                <text></text>
+                <status></status>
+                </encounter_diagnosis>";
             }
             $location_details = ($row['name'] !== '') ? (',' . $row['fstreet'] . ',' . $row['fcity'] . ',' . $row['fstate'] . ' ' . $row['fzip']) : '';
             $results .= "

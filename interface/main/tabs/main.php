@@ -200,7 +200,13 @@ $esignApi = new Api();
             return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
-            }).then(response => response.json())
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('I18n setup failed. Status Code: ' + response.status);
+                    return [];
+                }
+                return response.json();
+            })
         }
         setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
             i18next.init({
