@@ -246,7 +246,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
             echo text($tmp['title']);
         } else {
             //There isn't documents for therapy group yet
-            echo $attendant_type == 'pid' ? xlt('Past Encounters and Documents') : xlt('Past Therapy Group Encounters');
+            echo $attendant_type == 'pid' ? xlt('Visit History') : xlt('Past Therapy Group Encounters');
         }
         ?>
     </span>
@@ -281,9 +281,9 @@ function efmouseover(elem, ptid, encid, formname, formid) {
     ?>
 
     <?php if ($billing_view) { ?>
-        <a href='encounters.php?billing=0&issue=<?php echo $issue . $getStringForPage; ?>' onclick='top.restoreSession()' style='font-size: 11px'>(<?php echo xlt('To Clinical View'); ?>)</a>
+        <a href='encounters.php?billing=0&issue=<?php echo $issue . $getStringForPage; ?>' class="btn btn-small btn-info" onclick='top.restoreSession()' style='font-size: 11px'><?php echo xlt('To Clinical View'); ?></a>
     <?php } else { ?>
-        <a href='encounters.php?billing=1&issue=<?php echo $issue . $getStringForPage; ?>' onclick='top.restoreSession()' style='font-size: 11px'>(<?php echo xlt('To Billing View'); ?>)</a>
+        <a href='encounters.php?billing=1&issue=<?php echo $issue . $getStringForPage; ?>' class="btn btn-small btn-info" onclick='top.restoreSession()' style='font-size: 11px'><?php echo xlt('To Billing View'); ?></a>
     <?php } ?>
 
     <span class="float-right">

@@ -264,10 +264,6 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 alert(<?php echo xlj('Field(s) are missing!'); ?>);
                 return false;
             }
-            if (!checkUserName()) {
-                alert(<?php echo xlj('Entered User Name is unavalable!'); ?>);
-                return false;
-            }
             return true;
         }
 
