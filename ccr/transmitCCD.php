@@ -81,7 +81,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
 
     $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
     if ($ret !== true) {
-        return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . $ret );
+        return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
     }
 
     $ret = fgets($fp, 1024); //ignore extra server data

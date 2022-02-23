@@ -13,7 +13,13 @@ namespace OpenEMR\Common\DirectMessaging;
 
 class ErrorConstants
 {
+    /**
+     * Note for translation purposes we duplicate the constant inside an xl() command
+     * otherwise our translation engine won't pick it up.
+     */
+
     // Message that is sent back to the user (translated) if messaging is unavailable
+    // xl("Direct messaging is currently unavailable.")
     const MESSAGING_DISABLED = "Direct messaging is currently unavailable.";
 
     // used in the message sent back to the user when something fails
@@ -21,7 +27,8 @@ class ErrorConstants
 
     // translated message sent back to the user when a Direct Address is invalid or message delivery not allowed
     // Details of the reason is attached to this message (which is not translated).
-    const RECIPIENT_NOT_ALLOWED = "Delivery is not allowed to the specified Direct Address: ";
+    // xl("Delivery is not allowed to the specified Direct Address:")
+    const RECIPIENT_NOT_ALLOWED = "Delivery is not allowed to the specified Direct Address:";
 
     // Direct Messaging is disabled in the globals
     const ERROR_CODE_MESSAGING_DISABLED = 1;
@@ -45,8 +52,10 @@ class ErrorConstants
     const ERROR_CODE_INVALID_FORMAT_TYPE = 9;
 
     // we sent the file to Direct but they failed it on their end.  Details are in the event audit log
+    // xl("The message could not be sent at this time.")
     const ERROR_MESSAGE_FILE_SEND_FAILED = "The message could not be sent at this time.";
 
     // We sent the file to Direct and we got back an unexpected response other than ERROR or QUEUED
+    // xl("There was a problem sending the message.")
     const ERROR_MESSAGE_UNEXPECTED_RESPONSE = "There was a problem sending the message.";
 }
