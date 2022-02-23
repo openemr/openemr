@@ -16,6 +16,18 @@
     ]
   },
   {
+    "label": "Patient Finder",
+    "menu_id": "fin0",
+    "target": "fin",
+    "url": "/interface/main/finder/dynamic_finder.php",
+    "children": [],
+    "requirement": 0,
+    "acl_req": [
+      "patients",
+      "demo"
+    ]
+  },
+  {
     "label": "Flow Board",
     "menu_id": "pfb0",
     "target": "flb",
@@ -64,18 +76,6 @@
     "label": "Patient/Client",
     "menu_id": "patimg",
     "children": [
-      {
-        "label": "Patients",
-        "menu_id": "fin0",
-        "target": "fin",
-        "url": "/interface/main/finder/dynamic_finder.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "patients",
-          "demo"
-        ]
-      },
       {
         "label": "New/Search",
         "menu_id": "new0",
