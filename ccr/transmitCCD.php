@@ -30,17 +30,20 @@ require_once(dirname(__FILE__) . "/../library/direct_message_check.inc");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\DirectMessaging\ErrorConstants;
 
 /*
  * Connect to a phiMail Direct Messaging server and transmit
  * a CCD document to the specified recipient. If the message is accepted by the
  * server, the script will return "SUCCESS", otherwise it will return an error msg.
- * @param DOMDocument ccd the xml data to transmit, a CCDA document is assumed
+ * @param number The patient pid that we are sending a CCDA doc for
+ * @param string ccd the data to transmit, a CCDA document is assumed
  * @param string recipient the Direct Address of the recipient
  * @param string requested_by user | patient
+ * @param string The format that the document is in (pdf, xml, html)
  * @return string result of operation
  */
-function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
+function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml')
 {
     global $pid;
 
@@ -52,15 +55,15 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
         $patientName2 = "";
     } else {
         //spaces are the argument delimiter for the phiMail API calls and must be removed
-        $att_filename = " " .
-         str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']
-         . "_" . $patientData[0]['fname']) . ".xml";
+        // CCDA format requires patient name in last, first format
+        $att_filename = str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']
+         . "_" . $patientData[0]['fname']);
         $patientName2 = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
     }
 
-    $config_err = xl("Direct messaging is currently unavailable.") . " EC:";
+    $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
     if ($GLOBALS['phimail_enable'] == false) {
-        return("$config_err 1");
+        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
     $fp = phimail_connect($err);
@@ -73,12 +76,12 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
-        return("$config_err 4");
+        return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
     }
 
     $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
     if ($ret !== true) {
-        return( xl("Delivery is not allowed to the specified Direct Address.") );
+        return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
     }
 
     $ret = fgets($fp, 1024); //ignore extra server data
@@ -96,27 +99,39 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     $ret = @fgets($fp, 256);
     if ($ret != "BEGIN\n") {
         phimail_close($fp);
-        return("$config_err 5");
+        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
     }
 
     $ret = phimail_write_expect_OK($fp, $text_out);
     if ($ret !== true) {
-        return("$config_err 6");
+        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
     }
 
-    $ccd_out = $ccd->saveXml();
-    $ccd_len = strlen($ccd_out);
+    // MU2 CareCoordination added the need to send CCDAs formatted as html,pdf, or xml
+    if ($format_type == 'html') {
+        $add_type = "TEXT";
+    } else if ($format_type == 'pdf') {
+        $add_type = "RAW";
+    } else if ($format_type == 'xml') {
+        $add_type = $xml_type == "CCR" ? "CCR" : "CDA";
+    } else {
+        // unsupported format
+        return ("$config_err " . ErrorConstants::ERROR_CODE_INVALID_FORMAT_TYPE);
+    }
 
-    phimail_write($fp, "ADD " . ($xml_type == "CCR" ? "CCR " : "CDA ") . $ccd_len . $att_filename . "\n");
+    $ccd_len = strlen($ccd_out);
+    $extension = "." . $format_type;
+
+    phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
     $ret = fgets($fp, 256);
     if ($ret != "BEGIN\n") {
         phimail_close($fp);
-        return("$config_err 7");
+        return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_FAILED);
     }
 
     $ret = phimail_write_expect_OK($fp, $ccd_out);
     if ($ret !== true) {
-        return("$config_err 8");
+        return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_CONFIRM_FAILED);
     }
 
     phimail_write($fp, "SEND\n");
@@ -144,7 +159,7 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
         //log the failure
 
         EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
-        return( xl("The message could not be sent at this time."));
+        return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
     }
 
    /**
@@ -156,7 +171,7 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
         EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
-        return( xl("There was a problem sending the message."));
+        return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
 
     EventAuditLogger::instance()->newEvent("transmit-" . $xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);

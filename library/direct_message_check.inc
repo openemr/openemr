@@ -32,6 +32,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
+use OpenEMR\Services\VersionService;
 use PHPMailer\PHPMailer\PHPMailer;
 
 /**
@@ -125,6 +126,15 @@ function phimail_connect(&$phimail_error)
         }
     } else {
         $fp = @fsockopen($server, $phimail_server['port']);
+    }
+
+    if ($fp !== false) {
+        $ret = phimail_write_expect_OK($fp, "INFO VER OEMR " . (new VersionService())->asString() . " 1.3.2 "
+            . \PHP_VERSION . "\n");
+        if ($ret !== true) {
+            $fp = false;
+            $phimail_error = 'C5';
+        }
     }
 
     if (!empty($phimail_error)) {
