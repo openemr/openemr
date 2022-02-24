@@ -59,11 +59,12 @@ switch ($search_any_type) {
             </div>
             <div class="form-group">
                 <!-- ko if: patient -->
-                <a class="ptName btn btn-small btn-info" data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
-                    <span data-bind="text: pname()"></span>
-                    (<span data-bind="text: pubpid"></span>)
-                </a>&ensp;
-                <a href="#" class="btn btn-sm btn-warning" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
+                <h4 class="d-inline">
+                    <a class="ptName" data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
+                        <span data-bind="text: pname()"></span>&nbsp;<small class="text-muted">(<span data-bind="text: pubpid"></span>)</small>
+                    </a>
+                </h4>
+                <a href="#" class="pl-3" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
                     <i class="fa fa-times"></i>
                 </a>
                 <div>
@@ -75,11 +76,11 @@ switch ($search_any_type) {
         <div class="flex-fill ml-2">
             <!-- ko if: patient -->
             <!-- ko with: patient -->
-            <a class="btn btn-sm btn-info" data-bind="click: clickEncounterList" href="#"
+            <a class="btn btn-sm btn-secondary" data-bind="click: clickEncounterList" href="#"
                 title="<?php echo xla("Visit History"); ?>">
                 <i class="fas fa-history"></i>
             </a>
-            <a class="btn btn-sm btn-primary" data-bind="click: clickNewEncounter" href="#"
+            <a class="btn btn-sm btn-secondary" data-bind="click: clickNewEncounter" href="#"
                 title="<?php echo xla("New Encounter"); ?>">
                 <i class="fa fa-plus"></i>
             </a>
