@@ -566,8 +566,7 @@ function phimail_service_userID($name = 'phimail-service')
 
 /**
  * Given an IsAcceptedFileFilterEvent from our isWhitelist function we check to make sure that we allow
- * the mime type of the Direct message attachment that was sent by the server.  We check to make sure that the mime
- * type is only the mime type of the specific document sent via EMRDirect
+ * the mime type of the Direct message attachment that was sent by the server.
  * @param IsAcceptedFileFilterEvent $event The event with the mimetype to check if we allow it or not
  * @return IsAcceptedFileFilterEvent
  */
@@ -576,9 +575,10 @@ function phimail_allow_document_mimetype(IsAcceptedFileFilterEvent $event)
     global $phimail_direct_message_check_allowed_mimetype;
     $isAllowedFile = $event->isAllowedFile();
     if (!$isAllowedFile) {
-        if ($phimail_direct_message_check_allowed_mimetype == $event->getMimeType()) {
-            $event->setAllowedFile(true);
-        }
+        // we used to only bypass if the Direct mime type matched with what comes through in the event.
+        // This fails though if there are multiple possible mime types such as application/xml vs text/xml and the Direct
+        // mime type differs from the local OS detection. We will just bypass the mime check alltogether.
+        $event->setAllowedFile(true);
     }
     return $event;
 }
