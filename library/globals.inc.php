@@ -4030,6 +4030,19 @@ $GLOBALS_METADATA = array(
         ),
 
     ),
+
+    'Patient Banner Bar' => [
+        'patient_name_display' => [
+            xl('Patient Name Display'),
+            [
+                'btn' => xl('As Button'),
+                'text' => xl('As Text Link'),
+                'text-large' => xl('As Large Text Link'),
+            ],
+            'text-large',
+            xl('How to display the patient name'),
+        ],
+    ],
 );
 
 if (!empty($GLOBALS['ippf_specific'])) {
