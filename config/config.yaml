@@ -243,3 +243,7 @@ assets:
     sortablejs:
       basePath: '%assets_static_relative%/sortablejs/'
       script: Sortable.min.js
+    hotkeys:
+        basePath: '%assets_static_relative%/hotkeys-js/'
+        script:
+            - dist/hotkeys.min.js
