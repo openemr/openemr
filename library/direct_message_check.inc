@@ -592,8 +592,6 @@ function phimail_store($name, $mime_type, $fn)
 {
     global $phimail_direct_message_check_allowed_mimetype;
 
-    (new SystemLogger())->debug("Attempting to store phimail attachment in OpenEMR", ['name' => $name, 'mime_type' => $mime_type]);
-
     $allowMimeTypeFunction = 'phimail_allow_document_mimetype';
     // we bypass the whitelisting JUST for phimail documents
     if (isset($GLOBALS['kernel'])) {
@@ -610,7 +608,6 @@ function phimail_store($name, $mime_type, $fn)
         if (is_array($return)) {
             $return['filesize'] = $filesize;
         }
-        (new SystemLogger())->debug("addNewDocument finished", ['return' => $return]);
     } catch (\Exception $exception) {
         (new SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
         phimail_logit(0, "problem storing attachment in OpenEMR");
