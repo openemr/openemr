@@ -62,7 +62,7 @@ switch ($search_any_type) {
             <div class="form-group">
                 <!-- ko if: patient -->
                 <?php
-                switch ($GLOBALS['patient_name_display']):
+                switch ($GLOBALS['patient_name_display']) :
                     case 'btn':
                         $classes = "btn btn-sm btn-secondary";
                         $wrapperElement = 'div';
@@ -95,7 +95,7 @@ switch ($search_any_type) {
                 ?>
 
                     <?php echo ($closeElement !== '') ? "<$closeElement class=\"$closeElementClass\">" : ''; ?>
-                    <a href="#" class="pt-1<?php echo ($classes !== "") ? " " . $classes : ""; echo ($closeAnchorClasses !== "") ? " " . $closeAnchorClasses : ""; ?>" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
+                    <a href="#" class="pt-1<?php echo ($classes !== "") ? " " . $classes : "";?> <?php echo ($closeAnchorClasses !== "") ? " " . $closeAnchorClasses : ""; ?>" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times<?php echo ($closeIconClass !== "") ? " " . $closeIconClass : ""; ?>"></i>
                     </a>
                     <?php echo ($closeElement !== '') ? "</$closeElement>" : ''; ?>
