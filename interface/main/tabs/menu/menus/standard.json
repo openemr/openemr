@@ -16,7 +16,7 @@
     ]
   },
   {
-    "label": "Patient Finder",
+    "label": "Finder",
     "menu_id": "fin0",
     "target": "fin",
     "url": "/interface/main/finder/dynamic_finder.php",
@@ -28,7 +28,7 @@
     ]
   },
   {
-    "label": "Flow Board",
+    "label": "Flow",
     "menu_id": "pfb0",
     "target": "flb",
     "url": "/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1",
@@ -44,7 +44,7 @@
     ]
   },
   {
-        "label": "Recall Board",
+        "label": "Recalls",
         "menu_id": "pfb0",
         "target": "rcb",
         "url": "/interface/main/messages/messages.php?go=Recalls",
@@ -73,7 +73,7 @@
     ]
   },
   {
-    "label": "Patient/Client",
+    "label": "Patient",
     "menu_id": "patimg",
     "children": [
       {
@@ -753,7 +753,7 @@
     ]
   },
   {
-    "label": "Administration",
+    "label": "Admin",
     "menu_id": "admimg",
     "children": [
       {
