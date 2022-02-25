@@ -18,6 +18,7 @@ namespace OpenEMR\RestControllers;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\PatientTransactionService;
 use OpenEMR\Services\TransactionService;
+use OpenEMR\Validators\ProcessingResult;
 
 class TransactionRestController
 {
@@ -43,28 +44,31 @@ class TransactionRestController
      */
     public function CreateTransaction($pid, $data)
     {
-        $validationResult = $this->patientTransactionService->validate($data);
-        $validationResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationResult)) {
-            return $validationResult;
-        }
+        $processingResult = new ProcessingResult();
 
-        $processingResult = $this->patientTransactionService->insert($pid, $data);
+        $serviceValidation = $this->patientTransactionService->validate($data);
+        $controllerValidationResult = RestControllerHelper::validationHandler($serviceValidation);
+        if (is_array($controllerValidationResult)) {
+            //return $validationResult;
+            $processingResult->setValidationMessages($controllerValidationResult);
+        }
+        
+        
+        $serviceResult = $this->patientTransactionService->insert($pid, $data);
+        $processingResult->addData($serviceResult);
+        
         //return RestControllerHelper::handleProcessingResult($processingResult, 201);
-        return RestControllerHelper::responseHandler($processingResult, $processingResult, 201);
+        return RestControllerHelper::handleProcessingResult($processingResult, 201, true);
     }
 
     public function UpdateTransaction($tid, $data)
     {
-        // $validationResult = $this->patientTransactionService->validate($data);
-        // $validationResult = RestControllerHelper::validationHandler($validationResult);
-        // if (is_array($validationResult)) {
-        //     return $validationResult;
-        // }
+        $processingResult = new ProcessingResult();
 
-        $processingResult = $this->patientTransactionService->update($tid, $data);
+        $data = $this->patientTransactionService->update($tid, $data);
+        $processingResult->addData($data);
         //return RestControllerHelper::handleProcessingResult($processingResult, 201);
-        return RestControllerHelper::responseHandler($processingResult, $processingResult, 201);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200, false);
     }
 
     /**
@@ -78,10 +82,5 @@ class TransactionRestController
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
 
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
-    }
-
-    public function getTransactionTypes()
-    {
-
     }
 }

@@ -6258,23 +6258,13 @@ RestConfig::$ROUTE_MAP = array(
      *          type="string"
      *      ),
      *      @OA\Property(
-     *          property="referByFirstName",
-     *          description="First Name of the referrer.",
+     *          property="referByNpi",
+     *          description="NPI of the person creating the referral.",
      *          type="string"
      *      ),
      *      @OA\Property(
-     *          property="referByLastName",
-     *          description="Last Name of the referrer.",
-     *          type="string"
-     *      ),
-     *      @OA\Property(
-     *          property="referToFirstName",
-     *          description="First Name of the referred.",
-     *          type="string"
-     *      ),
-     *      @OA\Property(
-     *          property="referToLastName",
-     *          description="Last Name of the referred.",
+     *          property="referToNpi",
+     *          description="NPI of the person getting the referral.",
      *          type="string"
      *      ),
      *      @OA\Property(
@@ -6322,10 +6312,8 @@ RestConfig::$ROUTE_MAP = array(
      *          "message": "Message",
      *          "type": "LBTref",
      *          "groupname": "Default",
-     *          "referByFirstName":"Refer By First Name",
-     *          "referByLastName":"Refer By Last Name",
-     *          "referToFirstName":"Refer To First Name",
-     *          "referToLastName":"Refer To Last Name",
+     *          "referByNpi":"9999999999",
+     *          "referToNpi":"9999999999",
      *          "referDiagnosis":"Diag 1",
      *          "riskLevel":"Low",
      *          "includeVitals":"1",

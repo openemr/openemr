@@ -170,8 +170,8 @@ class PatientTransactionService extends BaseService
 
     public function insertTransactionForm($transactionId, $data)
     {
-        $referById = $this->getUserId($data["referByFirstName"], $data["referByLastName"]);
-        $referToId = $this->getUserId($data["referToFirstName"], $data["referToLastName"]);
+        $referById = $this->getUserIdByNpi($data["referByNpi"]);
+        $referToId = $this->getUserIdByNpi($data["referToNpi"]);
 
         $sql = 
         "
@@ -191,7 +191,7 @@ class PatientTransactionService extends BaseService
 
         $params = array
         (
-            $transactionId, $data["message"],
+            $transactionId, $data["body"],
             $transactionId, $data["referralDate"],
             $transactionId, $data["referDiagnosis"],
             $transactionId, $referById,
@@ -216,12 +216,11 @@ class PatientTransactionService extends BaseService
         return $results;
     }
 
-
     public function update($tid, $data){
         
-        $referById = $this->getUserId($data["referByFirstName"], $data["referByLastName"]);
-        $referToId = $this->getUserId($data["referToFirstName"], $data["referToLastName"]);
-        $message = $data["message"];
+        $referById = $this->getUserIdByNpi($data["referByNpi"]);
+        $referToId = $this->getUserIdByNpi($data["referToNpi"]);
+        $body = $data["body"];
         $referralDate = $data["referralDate"];
         $referralDiagnosis = $data["referDiagnosis"];
         $riskLevel = strtolower($data["riskLevel"]);
@@ -233,7 +232,7 @@ class PatientTransactionService extends BaseService
 
         $this->UpdateTransactionForm($tid, 'refer_from', $referById);
         $this->UpdateTransactionForm($tid, 'refer_to', $referToId);
-        $this->UpdateTransactionForm($tid, 'body', $message);
+        $this->UpdateTransactionForm($tid, 'body', $body);
         $this->UpdateTransactionForm($tid, 'refer_date', $referralDate);
         $this->UpdateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
         $this->UpdateTransactionForm($tid, 'refer_risk_level', $riskLevel);
@@ -269,20 +268,19 @@ class PatientTransactionService extends BaseService
         {
             case "LBTref":
                 $validator->required('referralDate')->datetime('Y-m-d');
-                $validator->required('message')->lengthBetween(2, 150);
+                $validator->required('body')->lengthBetween(2, 150);
                 $validator->required('groupname')->string();
-                $validator->required('referToFirstName')->string();
-                $validator->required('referToLastName')->string();
+                $validator->required('referByNpi')->string();
                 break;
         }
 
         return $validator->validate($transaction);
     }
 
-    public function getUserId($firstName, $lastName)
+    public function getUserIdByNpi($npi)
     {
         try{
-            return QueryUtils::fetchSingleValue('Select id FROM users WHERE fname = ? and lname = ? ', 'id', [$firstName, $lastName]);
+            return QueryUtils::fetchSingleValue('Select id FROM users WHERE npi = ? ', 'id', [$npi]);
         }
         catch(exception $ex)
         {
