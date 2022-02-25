@@ -1,0 +1,24 @@
+<participant typeCode="LOC">
+  <!-- Facility Location template -->
+  <templateId extension="2017-08-01" root="2.16.840.1.113883.10.20.24.3.100"/>
+  <!-- QDM Attribute: Location Period -->
+  <time>
+    {{{facility_period}}}
+  </time>
+  <participantRole classCode="SDLOC">
+    {{#code}}
+    <code {{> _code}}/>
+    {{/code}}
+    <addr>
+      <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+      <city>Bedford</city>
+      <state>MA</state>
+      <postalCode>01730</postalCode>
+      <country>US</country>
+    </addr>
+    <telecom use="WP" value="tel:(781)271-3000"/>
+    <playingEntity classCode="PLC">
+      <name>Cypress Test Deck</name>
+    </playingEntity>
+  </participantRole>
+</participant>

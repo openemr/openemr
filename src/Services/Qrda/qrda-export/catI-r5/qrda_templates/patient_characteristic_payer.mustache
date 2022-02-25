@@ -1,0 +1,14 @@
+<entry>
+  <!-- Patient Characteristic Payer -->
+  <observation classCode="OBS" moodCode="EVN">
+    <templateId root="2.16.840.1.113883.10.20.24.3.55"/>
+    <id root="{{random_id}}"/> 
+    <code code="48768-6" codeSystemName="LOINC" codeSystem="2.16.840.1.113883.6.1" displayName="Payment source"/> 
+    <statusCode code="completed"/>
+    {{#relevantPeriod}}
+      <!-- QDM Attribute: Relevant Period -->
+      {{{relevant_period}}}
+    {{/relevantPeriod}}
+    {{> qrda_templates/template_partials/_data_element_codes_as_values}}
+  </observation>            
+</entry>

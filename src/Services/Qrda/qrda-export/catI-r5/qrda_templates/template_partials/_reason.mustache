@@ -1,0 +1,10 @@
+<entryRelationship typeCode="RSON">
+  <observation classCode="OBS" moodCode="EVN">
+    <templateId root="2.16.840.1.113883.10.20.24.3.88" extension="2017-08-01"/>
+    <code code="77301-0" codeSystem="2.16.840.1.113883.6.1" displayName="reason" codeSystemName="LOINC"/>
+    {{#relevantPeriod}}
+    {{{relevant_period}}}
+    {{/relevantPeriod}}
+    <value {{> _code}} xsi:type="CD"/>
+  </observation>
+</entryRelationship>

@@ -1,0 +1,43 @@
+{{#provider}}
+<custodian>
+  <assignedCustodian>
+    <representedCustodianOrganization>
+      {{#provider_ccn}}
+        <id extension="{{value}}" root="2.16.840.1.113883.4.336"/>
+      {{/provider_ccn}}
+      {{^provider_ccn}}
+        <id extension="800890" root="2.16.840.1.113883.4.336"/>
+      {{/provider_ccn}}
+      <name>Cypress Test Deck</name>
+      <telecom use="WP" value="tel:(781)271-3000"/>
+      {{#addresses}}
+      <addr use="HP">
+        <streetAddressLine>{{{provider_street}}}</streetAddressLine>
+        <city>{{city}}</city>
+        <state>{{state}}</state>
+        <postalCode>{{zip}}</postalCode>
+        <country>{{country}}</country>
+      </addr>
+      {{/addresses}}
+    </representedCustodianOrganization>
+  </assignedCustodian>
+</custodian>
+{{/provider}}
+{{^provider}}
+<custodian>
+  <assignedCustodian>
+    <representedCustodianOrganization>
+      <id extension="800890" root="2.16.840.1.113883.4.336"/>
+      <name>Cypress Test Deck</name>
+      <telecom use="WP" value="tel:(781)271-3000"/>
+      <addr>
+        <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+        <city>Bedford</city>
+        <state>MA</state>
+        <postalCode>01730</postalCode>
+        <country>US</country>
+      </addr>
+    </representedCustodianOrganization>
+  </assignedCustodian>
+</custodian>
+{{/provider}}

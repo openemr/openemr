@@ -1,0 +1,40 @@
+{{#negated}}
+<!--  QDM Attribute: Frequency -->
+<effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+  <period nullFlavor="NA"/>
+</effectiveTime>
+{{/negated}}
+{{^negated}}
+{{#frequency}}
+<!--  QDM Attribute: Frequency -->
+{{{medication_frequency}}}
+{{/frequency}}
+{{/negated}}
+{{#negated}}
+<!--  QDM Attribute: Refills -->
+<repeatNumber nullFlavor="NA"/>
+{{/negated}}
+{{^negated}}
+{{#refills}}
+<!--  QDM Attribute: Refills -->
+<repeatNumber value="{{.}}"/>
+{{/refills}}
+{{/negated}}
+{{#route}}
+<!--  QDM Attribute: Route -->
+<routeCode {{> _code}}/>
+{{/route}}
+{{#negated}}
+<!--  QDM Attribute: Dosage -->
+<doseQuantity nullFlavor="NA"/>
+{{/negated}}
+{{^negated}}
+{{#dosage}}
+  <!--  QDM Attribute: Dosage -->
+  {{{dose_quantity_value}}}
+{{/dosage}}
+{{^dosage}}
+<!--  QDM Attribute: Dosage -->
+<doseQuantity nullFlavor="UNK"/>
+{{/dosage}}
+{{/negated}}

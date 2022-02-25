@@ -1,0 +1,59 @@
+<recordTarget>
+  <patientRole>
+    <id extension="{{mrn}}" root="1.3.6.1.4.1.115" />
+    {{#patient_addresses}}
+      <addr use="{{use}}">
+        {{#street}}
+          <streetAddressLine>{{.}}</streetAddressLine>
+        {{/street}}
+        <city>{{city}}</city>
+        <state>{{state}}</state>
+        <postalCode>{{zip}}</postalCode>
+        <country>{{country}}</country>
+      </addr>
+    {{/patient_addresses}}
+    {{#patient_telecoms}}
+      <telecom use="{{use}}" value="tel:{{value}}"/>
+    {{/patient_telecoms}}
+    <patient>
+      {{#patient}}
+        <name>
+          <given>{{given_name}}</given>
+          <family>{{familyName}}</family>
+        </name>
+      {{/patient}}
+      {{#patient_characteristic_sex}}
+        {{#dataElementCodes}}
+          <administrativeGenderCode {{> _code}}/>
+        {{/dataElementCodes}}
+      {{/patient_characteristic_sex}}
+      {{^patient_characteristic_sex}}
+          <administrativeGenderCode nullFlavor="UNK"/>
+      {{/patient_characteristic_sex}}
+      {{#patient_characteristic_birthdate}}
+        {{{birth_date_time}}}
+      {{/patient_characteristic_birthdate}}
+      {{#patient_characteristic_race}}
+        {{#dataElementCodes}}
+          <raceCode {{> _code}}/>
+        {{/dataElementCodes}}
+      {{/patient_characteristic_race}}
+      {{^patient_characteristic_race}}
+          <raceCode nullFlavor="UNK"/>
+      {{/patient_characteristic_race}}
+      {{#patient_characteristic_ethnicity}}
+        {{#dataElementCodes}}
+          <ethnicGroupCode {{> _code}}/>
+        {{/dataElementCodes}}
+      {{/patient_characteristic_ethnicity}}
+      {{^patient_characteristic_ethnicity}}
+          <ethnicGroupCode nullFlavor="UNK"/>
+      {{/patient_characteristic_ethnicity}}
+      <languageCommunication>
+        <templateId root="2.16.840.1.113883.3.88.11.83.2" assigningAuthorityName="HITSP/C83"/>
+        <templateId root="1.3.6.1.4.1.19376.1.5.3.1.2.1" assigningAuthorityName="IHE/PCC"/>
+        <languageCode code="eng"/>
+      </languageCommunication>
+    </patient>
+  </patientRole>
+</recordTarget>
