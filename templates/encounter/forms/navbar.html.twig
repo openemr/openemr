@@ -18,13 +18,14 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="category_{{ category|attr }}">
                             {% for item in details.children %}
+                                {% set display = (item.menu_name is defined) ? item.menu_name : item.displayText %}
                                 {% if item.onclick is defined %}
                                     {% set onclick = item.onclick %}
                                 {% else %}
-                                    {% set formURL = rootdir ~ "/patient_file/encounter/load_form.php?formname=" ~ item.directory|url_encode %}
-                                    {% set onclick = "openNewForm(" ~ formURL|attr_js ~ "," ~ item.displayText|xlFormTitle|attr_js ~ ")" %}
+                                    {% set formURL = (item.href is defined) ? item.href : rootdir ~ "/patient_file/encounter/load_form.php?formname=" ~ item.directory|url_encode %}
+                                    {% set onclick = "openNewForm(" ~ formURL|attr_js ~ "," ~ display|xlFormTitle|attr_js ~ ")" %}
                                 {% endif %}
-                                <a href="#" class="dropdown-item" onclick="{{ onclick }}">{{ item.displayText|xlFormTitle|text }}</a>
+                                <a href="#" class="dropdown-item" onclick="{{ onclick }}">{{ display|xlFormTitle|text }}</a>
                             {% endfor %}
                         </div>
                     </li>

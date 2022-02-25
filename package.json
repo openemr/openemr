@@ -47,14 +47,14 @@
     "gulp-watch": "5.0.1",
     "minimist": "1.2.5",
     "napa": "3.0.0",
+    "oe-cqm-parsers": "5.5.0",
     "postcss": "8.4.5",
     "replace-in-file": "6.3.2",
     "stylelint": "14.3.0",
     "stylelint-config-sass-guidelines": "9.0.1",
     "stylelint-config-standard": "24.0.0",
     "stylelint-order": "5.0.0",
-    "stylelint-scss": "4.1.0",
-    "oe-cqm-parsers": "5.5.0"
+    "stylelint-scss": "4.1.0"
   },
   "dependencies": {
     "@eastdesire/jscolor": "2.4.6",
@@ -79,6 +79,7 @@
     "dropzone": "5.9.3",
     "dwv": "0.27.1",
     "flot": "4.2.2",
+    "hotkeys-js": "^3.8.7",
     "i18next": "21.5.4",
     "i18next-browser-languagedetector": "6.1.2",
     "i18next-xhr-backend": "3.2.2",
@@ -93,12 +94,12 @@
     "magic-wand-js": "1.0.0",
     "moment": "2.29.1",
     "numeral": "2.0.6",
+    "oe-cqm-service": "1.0.1",
     "purecss": "2.0.6",
     "select2": "4.0.13",
     "sortablejs": "1.14.0",
     "underscore": "1.13.2",
-    "validate.js": "0.13.1",
-    "oe-cqm-service": "1.0.1"
+    "validate.js": "0.13.1"
   },
   "napa": {
     "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/d10bd73477b879e78a4f71874af18747d285b6e8.zip",

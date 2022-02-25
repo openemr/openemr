@@ -14,6 +14,7 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Model\EncountermanagerTable;
 use DOMDocument;
 use Laminas\Filter\Compress\Zip;
 use Laminas\Hydrator\Exception\RuntimeException;
@@ -24,6 +25,9 @@ use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
 {
+    /**
+     * @var \Carecoordination\Model\EncountermanagerTable
+     */
     protected $encountermanagerTable;
     protected $listenerObject;
 
@@ -140,17 +144,7 @@ class EncountermanagerController extends AbstractActionController
 
     public function buildCCDAHtml($content)
     {
-        $xml = simplexml_load_string($content);
-        $xsl = new DOMDocument();
-        // cda.xsl is self contained with bootstrap and jquery.
-        // cda-web.xsl is used when referencing styles from internet.
-        $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
-        $proc = new XSLTProcessor();
-        $proc->importStyleSheet($xsl); // attach the xsl rules
-        $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
-        $proc->transformToURI($xml, $outputFile);
-
-        return file_get_contents($outputFile);
+        return $this->getEncountermanagerTable()->getCcdaAsHTML($content);
     }
     public function downloadAction()
     {
@@ -260,20 +254,22 @@ class EncountermanagerController extends AbstractActionController
             return $view;
         }
     }
+    // note this gets called from the frontend javascript (see public/js/application/sendTo.js::send()
     public function transmitCCDAction()
     {
         $combination  = $this->getRequest()->getQuery('combination');
         $recipients   = $this->getRequest()->getQuery('recipients');
         $xml_type     = $this->getRequest()->getQuery('xml_type');
-        $result       = $this->getEncountermanagerTable()->transmitCCD(array("ccda_combination" => $combination,"recipients" => $recipients,"xml_type" => $xml_type));
-        echo $result;
+        $result       = $this->getEncountermanagerTable()->transmitCcdToRecipients(array("ccda_combination" => $combination,"recipients" => $recipients,"xml_type" => $xml_type));
+        // need to make sure we escape this since we are escaping this into html
+        echo text($result);
         return $this->response;
     }
 
     /**
     * Table Gateway
     *
-    * @return type
+    * @return EncountermanagerTable
     */
     public function getEncountermanagerTable()
     {
