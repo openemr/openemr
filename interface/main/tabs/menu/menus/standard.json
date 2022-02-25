@@ -1294,14 +1294,6 @@
           "admin",
           "super"
         ]
-      },
-      {
-        "label": "About",
-        "menu_id": "abo0",
-        "target": "msc",
-        "url": "/interface/main/about_page.php",
-        "children": [],
-        "requirement": 0
       }
     ],
     "requirement": 0,
