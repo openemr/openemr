@@ -16,7 +16,7 @@
     ]
   },
   {
-    "label": "Flow Board",
+    "label": "Flow",
     "menu_id": "pfb0",
     "target": "flb",
     "url": "/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1",
@@ -32,7 +32,7 @@
     ]
   },
   {
-        "label": "Recall Board",
+        "label": "Recall",
         "menu_id": "pfb0",
         "target": "rcb",
         "url": "/interface/main/messages/messages.php?go=Recalls",
@@ -61,21 +61,9 @@
     ]
   },
   {
-    "label": "Patient/Client",
+    "label": "Patient",
     "menu_id": "patimg",
     "children": [
-      {
-        "label": "Patients",
-        "menu_id": "fin0",
-        "target": "fin",
-        "url": "/interface/main/finder/dynamic_finder.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "patients",
-          "demo"
-        ]
-      },
       {
         "label": "New/Search",
         "menu_id": "new0",
@@ -753,7 +741,7 @@
     ]
   },
   {
-    "label": "Administration",
+    "label": "Admin",
     "menu_id": "admimg",
     "children": [
       {
