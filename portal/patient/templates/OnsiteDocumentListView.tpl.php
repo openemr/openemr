@@ -126,9 +126,6 @@ $templateService = new DocumentTemplateService();
 
                 $('#showNav').on('click', () => {
                     parent.document.getElementById('topNav').classList.toggle('collapse');
-                    var rect = parent.document.getElementById('patdocuments').getBoundingClientRect();
-                    var offsetTop = rect.top + parent.document.body.scrollTop;
-                    parent.window.scrollTo(0, offsetTop);
                 });
             }
             console.log('init done template');
@@ -304,7 +301,7 @@ $templateService = new DocumentTemplateService();
                     <?php if (!empty($is_module) || !empty($is_portal)) { ?>
                         <div class="dropdown mb-1">
                             <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <?php echo xlt('New Documents') ?>
+                                <?php echo xlt('Select Documents') ?>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>
@@ -312,7 +309,9 @@ $templateService = new DocumentTemplateService();
                         </div>
                     <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"><?php echo xlt('History') ?>
+                        <a class='nav-link text-success btn btn-outline-success' onclick="page.handleHistoryView()">
+                            <?php echo xlt('History') ?>
+                            <i class="history-direction ml-1 fa fa-arrow-down"></i>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>

@@ -17,6 +17,7 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 $templateService = new DocumentTemplateService();
 $group_list =  $templateService->fetchDefaultGroups();
 $profile_list = $templateService->fetchDefaultProfiles();
+$_POST['mode'] = $_POST['mode'] ?? null;
 
 if ($_POST['mode'] === 'save_profile_groups') {
     $groups = json_decode(($_POST['patient_groups'] ?? ''), true, 512, JSON_THROW_ON_ERROR);
@@ -94,7 +95,13 @@ if (!isset($_GET['render_group_assignments'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['opener','datetime-picker', 'sortablejs']); ?>
+    <?php
+    if (empty($GLOBALS['openemr_version'] ?? null)) {
+        Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
+    } else {
+        Header::setupHeader(['opener','datetime-picker']); ?>
+        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+    <?php } ?>
 </head>
 <style>
   body {
@@ -280,7 +287,7 @@ if (!isset($_GET['render_group_assignments'])) {
                                 $name = $pt['lname'] . ', ' . $pt['fname'] . ' ' . $pt['mname'];
                                 $this_name = attr($name);
                                 $pt_pid = attr($pt['pid']);
-                                $groups_esc = attr($pt['patient_groups']);
+                                $groups_esc = attr($pt['patient_groups'] ?? '');
                                 echo "<li class='list-group-item px-1 py-1 mb-1' data-pid='$pt_pid' data-groups='$groups_esc'>" .
                                     '<strong>' . text($name) . '</strong>' . ' ' . xlt('Dob') . ': ' .
                                     '<strong>' . text(oeFormatShortDate($pt['DOB'])) . '</strong>' . ' ' . xlt('ID') . ': ' .
@@ -311,15 +318,17 @@ if (!isset($_GET['render_group_assignments'])) {
                         $groups_esc = attr($groups['option_id']);
                         echo "<h5 class='bg-dark text-light text-center' data-toggle='collapse' data-target='#$group_esc' role='button'><i class='fa fa-eye mr-1'></i>" . text($groups['title']) . "</h5>\n";
                         echo "<ul id='$group_esc' class='list-group mx-1 px-1 show' data-group='$group_esc'>\n";
-                        foreach ($result[$groups['option_id']] as $pt) {
-                            $name = $pt['lname'] . ', ' . $pt['fname'] . ' ' . $pt['mname'];
-                            $this_name = attr($name);
-                            $pt_pid = attr($pt['pid']);
-                            $groups_esc = attr($pt['patient_groups']);
-                            echo "<li class='list-group-item px-1 py-1 mb-1' data-pid='$pt_pid' data-groups='$groups_esc'>" .
-                                '<strong>' . text($name) . '</strong>' . ' ' . xlt('Dob') . ': ' .
-                                '<strong>' . text(oeFormatShortDate($pt['DOB'])) . '</strong>' . ' ' . xlt('ID') . ': ' .
-                                '<strong>' . text($pt['pubpid']) . '</strong>' . '</li>' . "\n";
+                        if (!empty($result[$groups['option_id']] ?? '')) {
+                            foreach ($result[$groups['option_id']] as $pt) {
+                                $name = $pt['lname'] . ', ' . $pt['fname'] . ' ' . $pt['mname'];
+                                $this_name = attr($name);
+                                $pt_pid = attr($pt['pid']);
+                                $groups_esc = attr($pt['patient_groups']);
+                                echo "<li class='list-group-item px-1 py-1 mb-1' data-pid='$pt_pid' data-groups='$groups_esc'>" .
+                                    '<strong>' . text($name) . '</strong>' . ' ' . xlt('Dob') . ': ' .
+                                    '<strong>' . text(oeFormatShortDate($pt['DOB'])) . '</strong>' . ' ' . xlt('ID') . ': ' .
+                                    '<strong>' . text($pt['pubpid']) . '</strong>' . '</li>' . "\n";
+                            }
                         }
                         echo "</ul>\n";
                     }
@@ -338,7 +347,13 @@ if (!isset($_GET['render_group_assignments'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['opener','datetime-picker', 'sortablejs']); ?>
+    <?php
+    if (empty($GLOBALS['openemr_version'] ?? null)) {
+        Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
+    } else {
+        Header::setupHeader(['opener','datetime-picker']); ?>
+        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+    <?php } ?>
 </head>
 <style>
   body {
@@ -489,15 +504,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     $groups_esc = attr($groups['option_id']);
                     echo "<li class='list-group-item move-handle text-center bg-light text-dark font-weight-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($groups['title']) . "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$group_esc' role='button'></i></li>\n";
                     echo "<ul id='$group_esc' class='list-group-flush m-1 p-1 collapse'>\n";
-                    foreach ($result[$groups['option_id']] as $pt) {
-                        $name = $pt['lname'] . ', ' . $pt['fname'] . ' ' . $pt['mname'];
-                        $this_name = attr($name);
-                        $pt_pid = attr($pt['pid']);
-                        $groups_esc = attr($pt['patient_groups']);
-                        echo "<li class='list-group-item nested-item m-1 p-0' data-pid='$pt_pid' data-groups='$groups_esc'>" .
-                            '<strong>' . text($name) . '</strong>' . ' ' . xlt('Dob') . ': ' .
-                            '<strong>' . text(oeFormatShortDate($pt['DOB'])) . '</strong>' . ' ' . xlt('ID') . ': ' .
-                            '<strong>' . text($pt['pubpid']) . '</strong>' . '</li>' . "\n";
+                    if (!empty($result[$groups['option_id']] ?? '')) {
+                        foreach ($result[$groups['option_id']] as $pt) {
+                            $name = $pt['lname'] . ', ' . $pt['fname'] . ' ' . $pt['mname'];
+                            $this_name = attr($name);
+                            $pt_pid = attr($pt['pid']);
+                            $groups_esc = attr($pt['patient_groups']);
+                            echo "<li class='list-group-item nested-item m-1 p-0' data-pid='$pt_pid' data-groups='$groups_esc'>" .
+                                '<strong>' . text($name) . '</strong>' . ' ' . xlt('Dob') . ': ' .
+                                '<strong>' . text(oeFormatShortDate($pt['DOB'])) . '</strong>' . ' ' . xlt('ID') . ': ' .
+                                '<strong>' . text($pt['pubpid']) . '</strong>' . '</li>' . "\n";
+                        }
                     }
                     echo "</ul>\n";
                 }

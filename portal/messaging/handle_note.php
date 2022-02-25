@@ -38,16 +38,16 @@ if (! $task) {
     return 'no task';
 }
 
-$noteid = $_POST['noteid'] ? $_POST['noteid'] : 0;
-$notejson = $_POST['notejson'] ? json_decode($_POST['notejson'], true) : 0;
-$reply_noteid = $_POST['replyid'] ? $_POST['replyid'] : 0;
-$owner = isset($_POST['owner']) ? $_POST['owner'] : $_SESSION['pid'];
-$note = $_POST['inputBody'];
-$title = $_POST['title'];
-$sid = $_POST['sender_id'];
-$sn = $_POST['sender_name'];
-$rid = $_POST['recipient_id'];
-$rn = $_POST['recipient_name'];
+$noteid = ($_POST['noteid'] ?? null) ?: 0;
+$notejson = ($_POST['notejson'] ?? null) ? json_decode($_POST['notejson'], true) : 0;
+$reply_noteid = $_POST['replyid'] ?? null ?: 0;
+$owner = $_POST['owner'] ?? $_SESSION['pid'];
+$note = $_POST['inputBody'] ?? null;
+$title = $_POST['title'] ?? null;
+$sid = $_POST['sender_id'] ?? null;
+$sn = $_POST['sender_name'] ?? null;
+$rid = $_POST['recipient_id'] ?? null;
+$rn = $_POST['recipient_name'] ?? null;
 $header = '';
 
 switch ($task) {

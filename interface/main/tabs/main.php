@@ -192,7 +192,7 @@ $esignApi = new Api();
         }
     </script>
 
-    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next']); ?>
+    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys']); ?>
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {
@@ -200,7 +200,13 @@ $esignApi = new Api();
             return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
-            }).then(response => response.json())
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('I18n setup failed. Status Code: ' + response.status);
+                    return [];
+                }
+                return response.json();
+            })
         }
         setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
             i18next.init({
@@ -240,6 +246,7 @@ $esignApi = new Api();
     <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/shortcuts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu

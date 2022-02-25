@@ -816,10 +816,45 @@ if ($acl_version < $upgrade_acl) {
     $acl_version = $upgrade_acl;
 }
 
-
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 12
 $upgrade_acl = 12;
+if ($acl_version < $upgrade_acl) {
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
+
+    //Collect the ACL ID numbers.
+    echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+    $accounting_view = AclExtended::getAclIdNumber('Accounting', 'view');
+    $frontoffice_view = AclExtended::getAclIdNumber('Front Office', 'view');
+    $frontoffice_write = AclExtended::getAclIdNumber('Front Office', 'write');
+
+    //Add new object Sections
+    echo "<BR/><B>Adding new object sections</B><BR/>";
+
+    //Add new Objects
+    echo "<BR/><B>Adding new objects</B><BR/>";
+
+    //Update already existing Objects
+    echo "<BR/><B>Upgrading objects</B><BR/>";
+
+    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    // (will also place in the appropriate group and CREATE a new group if needed)
+    echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+    //Update the ACLs
+    echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+    AclExtended::shiftAcl($accounting_view, 'Accounting', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
+    AclExtended::shiftAcl($frontoffice_view, 'Front Office', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
+    AclExtended::shiftAcl($frontoffice_write, 'Front Office', 'patients', 'Patients', 'trans', 'Transactions (write,wsome optional)', 'write');
+    AclExtended::shiftAcl($frontoffice_write, 'Front Office', 'patients', 'Patients', 'notes', 'Patient Notes (write,wsome optional)', 'write');
+
+
+    //DONE with upgrading to this version
+    $acl_version = $upgrade_acl;
+}
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 13
+$upgrade_acl = 13;
 if ($acl_version < $upgrade_acl) {
     echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 

@@ -2012,6 +2012,12 @@ $GLOBALS_METADATA = array(
             '7200',                           // default
             xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
         ),
+        'portal_timeout' => array(
+            xl('Portal Idle Session Timeout Seconds'),
+            'num',                            // data type
+            '1800',                           // default
+            xl('Maximum idle time in seconds before logout. Default is 1800 (30 minutes).')
+        ),
         'secure_upload' => array(
             xl('Secure Upload Files with White List'),
             'bool',                           // data type
@@ -2860,6 +2866,13 @@ $GLOBALS_METADATA = array(
             xl('Full path to directory containing Perl executables.')
         ),
 
+        'node_binary' => array(
+            xl('Absolute path to node binary'),
+            'text',                           // data type
+            'node',                           // default
+            xl('Full path to your node executable for starting external node.js processes.')
+        ),
+
         'temporary_files_dir' => array(
             xl('Path to Temporary Files'),
             'text',                           // data type
@@ -3004,6 +3017,20 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',
             xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
+        ),
+
+        'google_recaptcha_site_key' => array(
+            xl('Google reCAPTCHA V2 site key'),
+            'text',
+            '',
+            xl('Google reCAPTCHA V2 site key')
+        ),
+
+        'google_recaptcha_secret_key' => array(
+            xl('Google reCAPTCHA V2 secret key'),
+            'encrypted',
+            '',
+            xl('Google reCAPTCHA V2 secret key')
         ),
 
         'portal_onsite_two_register' => array(
@@ -3397,6 +3424,12 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',
             xl('Enable phiMail Direct Messaging Service')
+        ),
+        'phimail_testmode_disabled' => array(
+            xl('Disable phiMail Test Mode'),
+            'bool',                           // data type
+            '0',
+            xl('When you are ready to run phiMail in production mode. Turn on this flag.')
         ),
 
         'phimail_server_address' => array(

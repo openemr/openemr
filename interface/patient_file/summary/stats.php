@@ -132,6 +132,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         if ($GLOBALS['erx_enable']) {
             $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
             $list = [];
+            $rxArr = [];
             while ($row = sqlFetchArray($res)) {
                 $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
                 $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);

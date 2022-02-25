@@ -37,7 +37,7 @@ use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
 
 if ($_SESSION['portal_init'] !== true) {
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#paymentcard');
+    $_SESSION['whereto'] = '#paymentcard';
 }
 
 $_SESSION['portal_init'] = false;
@@ -58,7 +58,7 @@ if ($_POST['mode'] == 'Sphere') {
     $cc['cc_type'] = $dataTrans['post']['ccBrand'];
     $cc['zip'] = '';
     $ccaudit = json_encode($cc);
-    $invoice = isset($_POST['invValues']) ? $_POST['invValues'] : '';
+    $invoice = $_POST['invValues'] ?? '';
 
     $_SESSION['whereto'] = '#paymentcard';
 
@@ -95,7 +95,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         return $ex->getMessage();
     }
 
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#paymentcard');
+    $_SESSION['whereto'] = '#paymentcard';
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -127,12 +127,12 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['cc_type'] = $r['brand'];
         $cc['zip'] = $r->address_zip;
         $ccaudit = json_encode($cc);
-        $invoice = isset($_POST['invValues']) ? $_POST['invValues'] : '';
+        $invoice = $_POST['invValues'] ?? '';
     } catch (\Exception $ex) {
         echo $ex->getMessage();
     }
 
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#paymentcard');
+    $_SESSION['whereto'] = '#paymentcard';
     if (!$response->isSuccessful()) {
         echo $response;
         exit();

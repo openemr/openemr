@@ -152,6 +152,9 @@ class DocumentTemplateService
     public function getTemplateCategoriesByPids($pids, $category = null): array
     {
         $results = array();
+        if (empty($pids)) {
+            return $results;
+        }
         foreach ($pids as $pid) {
             if ($pid <= 0) {
                 continue;
@@ -585,9 +588,12 @@ class DocumentTemplateService
      * @param $profile
      * @return int
      */
-    public function getProfileActiveStatus($profile): int
+    public function getProfileActiveStatus($profile)
     {
         $rtn = sqlQuery("Select `active` From `document_template_profiles` WHERE `profile` = ? And `template_id` = 0", array($profile));
+        if ($rtn === false) {
+            return '0';
+        }
         return $rtn['active'] ?: '0';
     }
 
@@ -752,6 +758,16 @@ class DocumentTemplateService
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
         $category_list = array();
+        $category_list[''] = array (
+            'option_id' => '',
+            'title' => '',
+            'seq' => '',
+        );
+        $category_list['General'] = array (
+            'option_id' => '',
+            'title' => '',
+            'seq' => '',
+        );
         while ($row = sqlFetchArray($rtn)) {
             $category_list[$row['option_id']] = $row;
         }
@@ -846,9 +862,12 @@ class DocumentTemplateService
                     if ((int)$template['pid'] === 0) {
                         $template['pid'] = $current_patient;
                     }
-                    $test = $this->showTemplateFromEvent($template);
-                    if (!$test) {
-                        continue;
+                    $in_edit = sqlQuery("Select `id`, `doc_type`, `denial_reason` From `onsite_documents` Where (`denial_reason` = 'Editing' Or `denial_reason` = 'In Review') And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
+                    if (empty($in_edit)) {
+                        $test = $this->showTemplateFromEvent($template);
+                        if (!$test) {
+                            continue;
+                        }
                     }
                     if ($template['template_name'] === 'Help') {
                         continue;
@@ -858,26 +877,18 @@ class DocumentTemplateService
                     }
                     if (!$flag) {
                         $flag = true;
-                        if (!$dropdown) {
-                            $menu .= "<li class='text-center'><h6 class='mb-0'>$cat_name</h6></li>\n";
-                        } else {
-                            $menu .= "<div class='h6 text-center'>$cat_name</div>\n";
-                        }
+                        $menu .= "<div class='h6 text-center'>$cat_name</div>\n";
                     }
                     $id = $template['id'];
                     $btnname = $template['template_name'];
-                    if (!$dropdown) {
-                        $menu .= '<li class="nav-item mb-1 template-item"><a class="nav-link text-success btn btn-sm btn-outline-success" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a></li>\n";
+                    if (!empty($in_edit)) {
+                        $menu .= '<a class="dropdown-item template-item text-danger btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
                     } else {
                         $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";
                     }
                 }
                 if (!$flag) {
-                    if (!$dropdown) {
-                        $menu .= '<strong><hr class="mb-2 mt-1" /></strong>';
-                    } else {
-                        $menu .= "<div class='dropdown-divider'></div>\n";
-                    }
+                    $menu .= "<div class='dropdown-divider'></div>\n";
                 }
             }
         }

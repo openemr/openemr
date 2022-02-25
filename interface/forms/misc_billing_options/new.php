@@ -22,11 +22,11 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
-require_once("date_qualifier_options.php");
 require_once("$srcdir/user.inc");
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/encounter.inc");
 
+use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
@@ -49,6 +49,8 @@ if (isset($_REQUEST['isBilling'])) {
 } elseif (isset($_SESSION['billencounter'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
+
+$MBO = new OpenEMR\Billing\MiscBillingOptions();
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -153,7 +155,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                             <div class="col-md">
-                                <?php echo generateDateQualifierSelect("box_14_date_qual", $box_14_qualifier_options, $obj); ?>
+                                <?php echo $MBO->generateDateQualifierSelect("box_14_date_qual", $MBO->box_14_qualifier_options, $obj); ?>
                             </div>
                         </div>
                         <div class="form-row mt-3">
@@ -167,7 +169,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                             <div class="col-md">
-                                <?php generateDateQualifierSelect("box_15_date_qual", $box_15_qualifier_options, $obj); ?>
+                                <?php $MBO->generateDateQualifierSelect("box_15_date_qual", $MBO->box_15_qualifier_options, $obj); ?>
                             </div>
                         </div>
                         <div class="form-row mt-3">
@@ -197,9 +199,9 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
                             if (!empty($obj["provider_id"])) {
-                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
+                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
                             } else { // defalut to the patient's ref_prov
-                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
+                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
                             } ?>
                         </div>
                         <div class="form-group">

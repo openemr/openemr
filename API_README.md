@@ -320,7 +320,7 @@ More specific development api topics are discussed and described on the above fo
 
 ## Standard API Documentation
 
-The Standard API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Standard API is documented there in the `standard` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).
+The Standard API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Standard API is documented there in the `standard` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).  Make sure to set your client api registration's redirect_uris to be `<OpenEMR base URI>/swagger/oauth2-redirect.html`.
 
 OpenEMR standard endpoints Use `https://localhost:9300/apis/default/api as base URI.`
 
@@ -339,7 +339,7 @@ curl -X GET 'https://localhost:9300/apis/default/api/patient/1/medical_problem' 
 
 ## Patient Portal API Documentation
 
-The Patient Portal API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Patient Portal API is documented there in the `standard-patient` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).
+The Patient Portal API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Patient Portal API is documented there in the `standard-patient` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there). Make sure to set your client api registration's redirect_uris to be `<OpenEMR base URI>/swagger/oauth2-redirect.html`.
 
 This is under development and is considered EXPERIMENTAL.
 

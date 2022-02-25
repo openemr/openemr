@@ -147,9 +147,9 @@ class PatientMenuRole extends MenuRole
     protected function updateModulesDemographicsMenu(&$menu_list)
     {
         $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
-					                LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
-					                LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-					                WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
+                                    LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+                                    LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
 
         if (sqlNumRows($module_query)) {
             while ($hookrow = sqlFetchArray($module_query)) {
@@ -165,7 +165,7 @@ class PatientMenuRole extends MenuRole
                     continue;
                 }
 
-                $relative_link = "../../modules/" . $modulePath . "/" . $hookrow['path'];
+                $relative_link = "../../modules/" . $modulePath . "/public/" . $hookrow['path'];
                 $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
 
                 $subEntry = new \stdClass();
