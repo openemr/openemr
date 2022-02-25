@@ -1284,9 +1284,11 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
 
             if ($balance > 0 && $_POST['form_clear_ins_debt']) {
-                $ar_session_id = SLEOB::arGetSession($ins_id, 'Adj from collt report', date('YmdHis'), '', $balance);
-                SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $balance, '', $insposition, 'Adj from collt report', 0, date('YmdHis'), '');
-                sqlStatement("UPDATE form_encounter SET last_level_closed = ? WHERE pid = ? AND encounter = ?", array($insposition, $pid, $encounter));
+                foreach ($invlines as $key => $value) {
+                    $ar_session_id = SLEOB::arGetSession($ins_id, 'Adj from collt report', date('YmdHis'), '', $balance);
+                    SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $value['bal'], $key, $insposition, 'Adj from collt report', 0, date('YmdHis'), $value['code_type']);
+                    sqlStatement("UPDATE form_encounter SET last_level_closed = ? WHERE pid = ? AND encounter = ?", array($insposition, $pid, $encounter));
+                }
                 break;
             }
 
@@ -1410,20 +1412,20 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 if (empty($_POST['form_csvexport'])) {
     if (empty($_POST['form_export'])) {
         if (empty($_POST['form_clear_ins_debt'])) {
-        ?>
+            ?>
 
   <div style='margin-top:5px'>
     <div class="btn-group float-left" role="group">
     <a href='javascript:;' class='btn btn-secondary btn-save'  onclick='checkAll(true)'><?php echo xlt('Select All'); ?></a>
     <a href='javascript:;' class='btn btn-secondary btn-cancel'  onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></a>
     <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
-        <?php echo xlt('Export Selected as CSV'); ?>
+            <?php echo xlt('Export Selected as CSV'); ?>
     </a>
     <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_export").attr("value","true"); $("#form_csvexport").val(""); $("#form_clear_ins_debt").val("");$("#theform").submit();'>
-        <?php echo xlt('Export Selected to Collections'); ?>
+            <?php echo xlt('Export Selected to Collections'); ?>
     </a>
     <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_clear_ins_debt").attr("value","true"); $("#form_export").val(""); $("#form_csvexport").val(""); $("#theform").submit();'>
-        <?php echo xlt('Clear Insurance Debt'); ?>
+            <?php echo xlt('Clear Insurance Debt'); ?>
     </a>
   </div>
 
@@ -1440,7 +1442,7 @@ if (empty($_POST['form_csvexport'])) {
   </div>
 </div>
 
-        <?php
+            <?php
         } // end not clear_ins_debt
     } // end not export
     ?>
