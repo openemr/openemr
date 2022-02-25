@@ -15,6 +15,7 @@
 
 namespace OpenEMR\Common\Twig;
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Services\Globals\GlobalsService;
@@ -113,7 +114,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     $this->kernel->getEventDispatcher()->dispatch(new GenericEvent($eventName, $eventData), $eventName);
                     return ob_get_clean();
                 }
-            )
+            ),
+            new TwigFunction(
+                'csrfToken',
+                function ($subject = 'default') {
+                    return sprintf('<input type="hidden" name="_token" value="%s">', CsrfUtils::collectCsrfToken($subject));
+                }
+            ),
         ];
     }
 
