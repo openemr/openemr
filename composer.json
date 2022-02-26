@@ -65,7 +65,7 @@
         "symfony/event-dispatcher-contracts": "1.1.11",
         "symfony/http-foundation": "4.4.37",
         "symfony/yaml": "4.4.37",
-        "twig/twig": "3.3.7",
+        "twig/twig": "3.3.8",
         "vlucas/phpdotenv": "5.4.1",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2"
