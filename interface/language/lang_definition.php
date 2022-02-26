@@ -11,7 +11,7 @@
  * @author  Wakie87 <scott@npclinics.com.au>
  * @author  Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2010-2018 bradymiller <bradymiller>
- * @copyright Copyright (c) 2008-2009 sunsetsystems <sunsetsystems>
+ * @copyright Copyright (c) 2008-2009, 2022 sunsetsystems <sunsetsystems>
  * @copyright Copyright (c) 2005 andres_paglayan <andres_paglayan>
  * @copyright Copyright (c) 2016 Wakie87 <scott@npclinics.com.au>
  * @copyright Copyright (c) 2017-2022 Robert Down <robertdown@live.com>
@@ -210,7 +210,9 @@ if (!empty($_POST['edit'])) {
         $lang_name = $row['lang_description'];
     }
 
-    $sql .= ") ORDER BY lc.constant_name " . $case_insensitive_collation;
+    // Sort same case together and English/null before other languages.
+    $sql .= ") ORDER BY lc.constant_name, BINARY lc.constant_name, ld.lang_id " . $case_insensitive_collation;
+
     $res = SqlStatement($sql, $bind_sql_array);
 
         $isResults = false; //flag to record whether there are any results
