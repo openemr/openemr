@@ -180,7 +180,7 @@ switch ($search_any_type) {
             <!-- /ko --><!-- messages -->
             <!-- ko if: portal() -->
             <span class="btn-group dropdown mr-auto">
-                <button class="btn btn-secondary dropdown-toggle"
+                <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="portalMsgAlerts"
                     data-toggle="dropdown"
                     aria-haspopup="true"
