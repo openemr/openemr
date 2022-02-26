@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Nikolai Vitsyn
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Daniel Pflieger <daniel@growlingflea.com>
  * @copyright Copyright (c) 2004-2005 Nikolai Vitsyn
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Daniel Pflieger <danie@growlingflea.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -44,17 +46,39 @@ if ($obj['date_of_signature'] != "") {
 <body class="body_top">
 
 <form method=post action="">
-<span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
+
+    <span class="title"><?php
+        $title = 'Work/School Note';
+    if ($obj['note_type'] == "PROVIDER COMMUNICATION") {
+        $title = "Provider Communication";
+    } elseif ($obj['note_type'] == "REFERRAL") {
+        $title = "Referral";
+    }
+        xl($title, 'e'); ?>
+    </span><br></br>
+
 <?php echo xlt('Printed'); ?> <?php echo text(dateformat()); ?>
 <br /><br />
-<select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type'] == "WORK NOTE") {
-    echo " SELECTED";
-                          } ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type'] == "SCHOOL NOTE") {
-    echo " SELECTED";
-                            } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
-</select>
+
+    <select name="note_type">
+        <option value="WORK NOTE" <?php if ($obj['note_type']  == "WORK NOTE") {
+            echo " SELECTED";
+                                  } ?>><?php xl('WORK NOTE', 'e'); ?></option>
+        <option value="SCHOOL NOTE" <?php if ($obj['note_type']  == "SCHOOL NOTE") {
+            echo " SELECTED";
+                                    } ?>><?php xl('SCHOOL NOTE', 'e'); ?></option>
+        <option value="COVID-19 SCHOOL NOTE" <?php if ($obj['note_type']  == "COVID-19 SCHOOL NOTE") {
+            echo " SELECTED";
+                                             } ?>><?php xl('COVID-19 SCHOOL NOTE', 'e'); ?></option>
+        <option value="PROVIDER COMMUNICATION" <?php if ($obj['note_type']  == "PROVIDER COMMUNICATION") {
+            echo " SELECTED";
+                                               } ?>><?php xl('PROVIDER COMMUNICATION', 'e'); ?></option>
+        <option value="REFERRAL" <?php if ($obj['note_type']  == "REFERRAL") {
+            echo " SELECTED";
+                                 } ?>><?php xl('REFERRAL', 'e'); ?></option>
+    </select>
+    <br>
+
 <br />
 <b><?php echo xlt('MESSAGE:'); ?></b>
 <br />
@@ -63,7 +87,8 @@ if ($obj['date_of_signature'] != "") {
 
 <table>
 <tr><td>
-<span class=text><?php echo xlt('Doctor:'); ?> </span><input type=text name="doctor" value="<?php echo attr($obj["doctor"]);?>">
+<span class=text><?php echo xlt('Doctor:'); ?> </span>
+        <input type=text name="doctor" value="<?php echo attr($obj["doctor"]);?>">
 </td><td>
 <span class="text"><?php echo xlt('Date'); ?></span>
    <input type='text' size='10' name='date_of_signature' id='date_of_signature'
@@ -72,6 +97,13 @@ if ($obj['date_of_signature'] != "") {
 </td></tr>
 </table>
 
+    <div id = "covid">
+        <input type="checkbox" id="statement1" name="statement1" >
+        <label for="statement1"> Statement1</label><br>
+        <input type="checkbox" id="vehicle2" name="vehicle2" >
+        <label for="statement2">Statement2</label><br>
+    </div>
+
 </form>
 
 </body>
@@ -79,7 +111,7 @@ if ($obj['date_of_signature'] != "") {
 <script>
 // jQuery stuff to make the page a little easier to use
 
-$(function () {
+$(document).ready(function(){
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
 });
