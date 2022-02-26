@@ -77,10 +77,8 @@ function listChecksum($list_id)
 
 $alertmsg = '';
 
-$current_checksum = listChecksum($list_id);
-
 if (isset($_POST['form_checksum']) && $_POST['formaction'] == 'save') {
-    if ($_POST['form_checksum'] != $current_checksum) {
+    if ($_POST['form_checksum'] != listChecksum($list_id)) {
         $alertmsg = xl('Save rejected because someone else has changed this list. Please try again.');
     }
 }
@@ -108,7 +106,6 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
                     ") VALUES ( ?,?,? )", array($category, $option, $codes));
             }
         }
-        $current_checksum = listChecksum($list_id);
     } elseif ($list_id == 'code_types') {
         // special case for code types
         sqlStatement("DELETE FROM code_types");
@@ -1117,7 +1114,6 @@ function writeITLine($it_array)
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from);?>"/>
     <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to);?>"/>
-    <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
     <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top">
         <div class="container-fluid">
               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list" aria-controls="navbar-list" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -1460,6 +1456,8 @@ function writeITLine($it_array)
 <p>
     <button type="submit" name='form_save' id='form_save' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
 </p>
+
+<input type='hidden' name='form_checksum' value='<?php echo listChecksum($list_id); ?>' />
 
 </form>
 
