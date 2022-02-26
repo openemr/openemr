@@ -8,11 +8,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
@@ -722,10 +721,6 @@ function voidwrap(form_reason, form_notes) {
 }
 
 function validate(f) {
- if (!f.ProviderID.value) {
-  alert(<?php echo xlj("Please select a default provider."); ?>);
-  return false;
- }
  if (f.bn_reopen) {
   var reopening = f.bn_reopen.clicked;
   var voiding = reopening && f.bn_reopen.clicked == 2;
@@ -742,6 +737,10 @@ function validate(f) {
    top.restoreSession();
    return true;
   }
+ }
+ if (!f.ProviderID.value) {
+  alert(<?php echo xlj("Please select a default provider."); ?>);
+  return false;
  }
  var refreshing = false;
  if (f.bn_refresh) {
@@ -823,6 +822,7 @@ function setSaveAndClose() {
   f.form_has_charges.value = '0';
   f.bn_save_close.value = <?php echo xlj('Save and Close'); ?>;
  }
+ f.bn_save_close.innerHTML = f.bn_save_close.value; // Required for Bootstrap 4
 }
 
 // Open the add-event dialog.
