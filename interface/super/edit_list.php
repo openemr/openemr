@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2007-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2007-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -1150,14 +1150,16 @@ function writeITLine($it_array)
                                 "list_id = 'lists' ORDER BY title, seq");
                         } else {
                             // Use and sort by the translated list name.
-                            $res = sqlStatement("SELECT lo.option_id, " .
-                                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+                            $res = sqlStatement(
+                                "SELECT lo.option_id, " .
+                                "COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld " .
+                                "WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? " .
+                                "AND ld.definition IS NOT NULL AND ld.definition != '' LIMIT 1), lo.title) AS title " .
                                 "FROM list_options AS lo " .
-                                "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
-                                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-                                "ld.lang_id = ? " .
                                 "WHERE lo.list_id = 'lists' AND lo.edit_options = 1 " .
-                                "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq", array($lang_id));
+                                "ORDER BY title, lo.seq",
+                                array($lang_id)
+                            );
                         }
 
                         while ($row = sqlFetchArray($res)) {
