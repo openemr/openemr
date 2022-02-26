@@ -18,11 +18,12 @@ class ExportService
     public function export()
     {
         $patientModels = $this->builder->build($this->request);
-
+        $string = "";
         foreach ($patientModels as $patient) {
             $cat1 = new Cat1($patient);
-            echo $cat1->render();
+            $string .= $cat1->render();
         }
 
+        return $string;
     }
 }
