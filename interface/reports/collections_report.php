@@ -64,7 +64,7 @@ $form_page_y    = $_POST['form_page_y'] ?? '';
 $form_offset_y  = $_POST['form_offset_y'] ?? '';
 $form_y         = $_POST['form_y'] ?? '';
 
-if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport']) || !empty($_POST['form_clear_ins_debt'])) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport'])) {
     if ($is_ins_summary) {
         $form_cb_ssn      = false;
         $form_cb_dob      = false;
@@ -220,9 +220,6 @@ function endPatient($ptrow)
         $export_patient_count += 1;
         $export_dollars += $pt_balance;
     } elseif ($_POST['form_csvexport']) {
-        $export_patient_count += 1;
-        $export_dollars += $pt_balance;
-    } elseif ($_POST['form_clear_ins_debt']) {
         $export_patient_count += 1;
         $export_dollars += $pt_balance;
     } else {
@@ -392,6 +389,7 @@ if (!empty($_POST['form_csvexport'])) {
     <script>
         function reSubmit() {
             $("#form_refresh").attr("value","true");
+            $("#form_export").val("");
             $("#form_csvexport").val("");
             $("#form_clear_ins_debt").val("");
             $("#theform").submit();
@@ -665,7 +663,7 @@ if (!empty($_POST['form_csvexport'])) {
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").val(""); $("#form_clear_ins_debt").val(""); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").val(""); $("#form_export").val(""); $("#form_clear_ins_debt").val(""); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if (!empty($_POST['form_refresh'])) { ?>
@@ -687,11 +685,11 @@ if (!empty($_POST['form_csvexport'])) {
     <?php
 } // end not form_csvexport
 
-if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport']) || !empty($_POST['form_clear_ins_debt'])) {
+if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_POST['form_csvexport'])) {
     $rows = array();
     $where = "";
     $sqlArray = array();
-    if ($_POST['form_export'] || $_POST['form_csvexport'] || $_POST['form_clear_ins_debt']) {
+    if ($_POST['form_export'] || $_POST['form_csvexport']) {
         $where = "( 1 = 2";
         foreach ($_POST['form_cb'] as $key => $value) {
              list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key);
@@ -1161,7 +1159,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             $ptrow['agedbal'][$agecolno] += $balance;
         }
 
-        if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport'] && !$_POST['form_clear_ins_debt']) {
+        if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport']) {
             $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
             ?>
        <tr bgcolor='<?php echo attr($bgcolor) ?>'>
@@ -1278,7 +1276,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             ?>
  </tr>
             <?php
-        } elseif ($_POST['form_csvexport'] || $_POST['form_clear_ins_debt']) { // end not insurance summary, not export, not csvexport, not clear_ins_debt
+        } elseif ($_POST['form_csvexport']) { // end not insurance summary, not export, not csvexport, not clear_ins_debt
           // The CSV detail line is written here added conditions for checked items (TLH).
           // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
@@ -1289,11 +1287,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                     SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $value['bal'], $key, $insposition, 'Adj from collt report', 0, date('YmdHis'), $value['code_type']);
                     sqlStatement("UPDATE form_encounter SET last_level_closed = ? WHERE pid = ? AND encounter = ?", array($insposition, $pid, $encounter));
                 }
-                break;
             }
 
             if (
-                ($balance > 0 || ($_POST['form_zero_balances'] ?? '') && !$_POST['form_clear_ins_debt'])
+                (
+                    $balance > 0 || ($_POST['form_zero_balances'] ?? '')
+                )
             ) {
                 echo csvEscape($row['ins1'])                         . ','; // insname
                 echo csvEscape($ptname)                              . ',';
@@ -1359,9 +1358,6 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         // echo "</textarea>\n";
         // $alertmsg .= "$export_patient_count patients representing $" .
         //    sprintf("%.2f", $export_dollars) . " have been exported.";
-    } elseif ($_POST['form_clear_ins_debt']) {
-        $alertmsg .= "$export_patient_count patients with a total of " .
-        oeFormatMoney($export_dollars) . " have been cleared of insurance debt.";
     } else {
         echo " <tr class='bg-white'>\n";
         if ($is_ins_summary) {
@@ -1411,8 +1407,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
 if (empty($_POST['form_csvexport'])) {
     if (empty($_POST['form_export'])) {
-        if (empty($_POST['form_clear_ins_debt'])) {
-            ?>
+        ?>
 
   <div style='margin-top:5px'>
     <div class="btn-group float-left" role="group">
@@ -1424,7 +1419,7 @@ if (empty($_POST['form_csvexport'])) {
     <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_export").attr("value","true"); $("#form_csvexport").val(""); $("#form_clear_ins_debt").val("");$("#theform").submit();'>
             <?php echo xlt('Export Selected to Collections'); ?>
     </a>
-    <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_clear_ins_debt").attr("value","true"); $("#form_export").val(""); $("#form_csvexport").val(""); $("#theform").submit();'>
+    <a href='javascript:;' class='btn btn-secondary btn-transmit' onclick='$("#form_clear_ins_debt").attr("value", "true"); $("#form_export").val(""); $("#form_csvexport").attr("value", "true"); $("#theform").submit();'>
             <?php echo xlt('Clear Insurance Debt'); ?>
     </a>
   </div>
@@ -1443,7 +1438,6 @@ if (empty($_POST['form_csvexport'])) {
 </div>
 
             <?php
-        } // end not clear_ins_debt
     } // end not export
     ?>
 </form>
