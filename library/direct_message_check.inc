@@ -286,7 +286,7 @@ function phimail_check()
 
             $mime_type = fgets($fp, 512);
             $mime_info = explode(";", $mime_type);
-            $mime_type_main = strtolower($mime_info[0]);
+            $mime_type_main = trim(strtolower($mime_info[0]));
 
         //get main message body
             $body_len = fgets($fp, 256);
@@ -324,7 +324,7 @@ function phimail_check()
             $all_doc_ids = array();
             $doc_id = 0;
             $att_detail = "";
-            if ($mime_type_main != "text/plain") {
+            if (($mime_type_main != "text/plain" && $mime_type_main != "text/html")) {
                    $name = uniqid("dm-message-") . phimail_extension($mime_type_main);
                    $doc_id = phimail_store($name, $mime_type_main, $body);
                 if (!$doc_id) {
@@ -405,7 +405,30 @@ function phimail_check()
                 case "text/plain":
                     $body_text = @file_get_contents($body); //this was not uploaded as a document
                     unlink($body);
+                    if (empty($body_text ?? '')) {
+                        $body_text = xl("Please note, this message was received empty and is not an error.");
+                    }
                     $pnote_id = addPnote(
+                        0,
+                        xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
+                        0,
+                        1,
+                        "Unassigned",
+                        $notifyUsername,
+                        "",
+                        "New",
+                        "phimail-service"
+                    );
+                    break;
+                case "text/html":
+                    $body_text = @file_get_contents($body);
+                    unlink($body);
+                    if (empty($body_text ?? '')) {
+                        $body_text = xl("Please note, this message was received empty and is not an error.");
+                    } else {
+                        // meager attempt to covert to text. @TODO convert our Messages message body from textarea to div so can display html.
+                        $body_text = trim(html_entity_decode(strip_tags(str_ireplace(["<br />", "<br>", "<br/>"], PHP_EOL, $body_text))));
+                    }$pnote_id = addPnote(
                         0,
                         xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
                         0,
