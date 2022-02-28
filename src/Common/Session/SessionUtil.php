@@ -3,6 +3,9 @@
 /**
  * start/destroy session/cookie for OpenEMR or OpenEMR patient-portal or OpenEMR oauth2
  *
+ * Note that keeping this class self-sufficient since it is used before the class autoloader
+ *  in scripts that need to support both the core OpenEMR and patient portal.
+ *
  * OpenEMR session/cookie strategy:
  *  1. The vital difference between the OpenEMR and OpenEMR patient-portal/oauth2 session/cookie is the
  *     cookie_httponly setting.
@@ -55,8 +58,6 @@
  */
 
 namespace OpenEMR\Common\Session;
-
-use OpenEMR\Common\Logging\SystemLogger;
 
 class SessionUtil
 {
@@ -130,10 +131,6 @@ class SessionUtil
 
     public static function coreSessionDestroy(): void
     {
-        (new SystemLogger())->debug(
-            "Destroying core session cookie",
-            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
-        );
         self::standardSessionCookieDestroy();
     }
 
@@ -164,10 +161,6 @@ class SessionUtil
 
     public static function apiSessionStart($web_root): void
     {
-        (new SystemLogger())->debug(
-            "Creating apiSessionStart cookie",
-            ['cookie.name' => 'apiOpenEMR']
-        );
         session_start([
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => true,
@@ -185,19 +178,11 @@ class SessionUtil
 
     public static function apiSessionCookieDestroy(): void
     {
-        (new SystemLogger())->debug(
-            "Destroying api session cookie",
-            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
-        );
         self::standardSessionCookieDestroy();
     }
 
     public static function oauthSessionStart($web_root): void
     {
-        (new SystemLogger())->debug(
-            "Creating oauthSessionStart cookie",
-            ['cookie.name' => 'authserverOpenEMR']
-        );
         session_start([
             'cookie_samesite' => "None",
             'cookie_secure' => true,
@@ -215,10 +200,6 @@ class SessionUtil
 
     public static function oauthSessionCookieDestroy(): void
     {
-        (new SystemLogger())->debug(
-            "Destroying oauth session cookie",
-            ['name' => session_name(), 'cookieParams' => session_get_cookie_params()]
-        );
         self::standardSessionCookieDestroy();
     }
 
