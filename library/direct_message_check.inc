@@ -68,11 +68,11 @@ function phimail_connect(&$phimail_error)
         case "tcp":
         case "http":
             $server = "tcp://" . $phimail_server['host'];
-              $phimail_secure = false;
+            $phimail_secure = false;
             break;
         case "https":
             $server = "ssl://" . $phimail_server['host']
-               . ':' . $phimail_server['port'];
+                . ':' . $phimail_server['port'];
             break;
         case "ssl":
         case "sslv3":
@@ -90,7 +90,7 @@ function phimail_connect(&$phimail_error)
         if (
             $phimail_cafile != '' &&
             (!stream_context_set_option($context, 'ssl', 'verify_peer', true) ||
-             !stream_context_set_option($context, 'ssl', 'cafile', $phimail_cafile))
+                !stream_context_set_option($context, 'ssl', 'cafile', $phimail_cafile))
         ) {
             $phimail_error = 'C3';
             (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
@@ -139,7 +139,7 @@ function phimail_connect(&$phimail_error)
 
     if (!empty($phimail_error)) {
         (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
-    } else if ($fp !== false) {
+    } elseif ($fp !== false) {
         (new SystemLogger())->debug("phimail_connect was successful");
     } else {
         (new SystemLogger())->error("phimail_connect failed to connect with unknown error", ['error' => $phimail_error, 'server' => $server, 'port' => $phimail_server['port']]);
@@ -184,7 +184,7 @@ function phimail_check()
             phimail_logit(1, "message check completed");
             return;
         } elseif (substr($ret, 0, 6) == "STATUS") {
-         //Format STATUS message-id status-code [additional-information]
+            //Format STATUS message-id status-code [additional-information]
             $val = explode(" ", trim($ret), 4);
             $sql = 'SELECT * from direct_message_log WHERE msg_id = ?';
             $res = sqlStatementNoLog($sql, array($val[1]));
@@ -214,7 +214,7 @@ function phimail_check()
                 $success = 1;
                 $status = 'D';
             } else {
-            //unrecognized status, log it and move on (should never happen)
+                //unrecognized status, log it and move on (should never happen)
                 $ret = "UNKNOWN STATUS: " . $ret;
                 $success = 0;
                 $status = 'U';
@@ -227,7 +227,7 @@ function phimail_check()
             }
 
             $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
-            $res = sqlStatementNoLog($sql, array($status,$val[3],$val[1]));
+            $res = sqlStatementNoLog($sql, array($status, $val[3], $val[1]));
             if ($res === false) { //database problem
                 phimail_close($fp);
                 phimail_logit(0, "database problem updating: " . $val[1]);
@@ -235,28 +235,28 @@ function phimail_check()
             }
 
             if (!$success) {
-                   //notify local user of failure
-                   $sql = "SELECT username FROM users WHERE id = ?";
-                   $res2 = sqlStatementNoLog($sql, array($msg['user_id']));
-                   $fail_user = ($res2 === false || ($user_row = sqlFetchArray($res2)) === false) ?
-                xl('unknown (see log)') : $user_row['username'];
-                   $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
-                . "\n" . xl('Sent to:') . ' ' . $msg['recipient'] . "\n" . xl('Server message:') . ' ' . $ret;
+                //notify local user of failure
+                $sql = "SELECT username FROM users WHERE id = ?";
+                $res2 = sqlStatementNoLog($sql, array($msg['user_id']));
+                $fail_user = ($res2 === false || ($user_row = sqlFetchArray($res2)) === false) ?
+                    xl('unknown (see log)') : $user_row['username'];
+                $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
+                    . "\n" . xl('Sent to:') . ' ' . $msg['recipient'] . "\n" . xl('Server message:') . ' ' . $ret;
                 phimail_notify(xl('Direct Messaging Send Failure.'), $fail_notice);
-                   $pnote_id = addPnote(
-                       $msg['patient_id'],
-                       xl("FAILURE NOTICE: Direct Message Send Failed.") . "\n\n$fail_notice\n",
-                       0,
-                       1,
-                       "Unassigned",
-                       $notifyUsername,
-                       "",
-                       "New",
-                       "phimail-service"
-                   );
+                $pnote_id = addPnote(
+                    $msg['patient_id'],
+                    xl("FAILURE NOTICE: Direct Message Send Failed.") . "\n\n$fail_notice\n",
+                    0,
+                    1,
+                    "Unassigned",
+                    $notifyUsername,
+                    "",
+                    "New",
+                    "phimail-service"
+                );
             }
 
-         //done with this status message
+            //done with this status message
             $ret = phimail_write_expect_OK($fp, "OK\n");
             if ($ret !== true) {
                 phimail_logit(0, "M2 status acknowledgment failed: " . $ret);
@@ -278,7 +278,7 @@ function phimail_check()
                 return;
             }
 
-        //get message headers
+            //get message headers
             $hdrs = "";
             while (($next_hdr = fgets($fp, 1024)) != "\n") {
                 $hdrs .= $next_hdr;
@@ -286,9 +286,9 @@ function phimail_check()
 
             $mime_type = fgets($fp, 512);
             $mime_info = explode(";", $mime_type);
-            $mime_type_main = strtolower($mime_info[0]);
+            $mime_type_main = trim(strtolower($mime_info[0]));
 
-        //get main message body
+            //get main message body
             $body_len = fgets($fp, 256);
             $body = phimail_read_blob($fp, $body_len);
             if ($body === false) {
@@ -304,7 +304,7 @@ function phimail_check()
                 return;
             }
 
-        //get attachment info
+            //get attachment info
             if ($att > 0) {
                 for ($attnum = 0; $attnum < $att; $attnum++) {
                     if (
@@ -312,36 +312,42 @@ function phimail_check()
                         || ($attinfo[$attnum]['mime'] = fgets($fp, 1024)) === false
                         || ($attinfo[$attnum]['desc'] = fgets($fp, 1024)) === false
                     ) {
-                             phimail_logit(0, "M6 read attachment " . ($attnum + 1) . " metadata failed");
-                             phimail_close($fp);
-                             return;
+                        phimail_logit(0, "M6 read attachment " . ($attnum + 1) . " metadata failed");
+                        phimail_close($fp);
+                        return;
                     }
                 }
             }
 
-        //main part gets stored as document if not plain text content
-        //(if plain text it will be the body of the final pnote)
+            //main part gets stored as document if not plain text content
+            //(if plain text it will be the body of the final pnote)
             $all_doc_ids = array();
             $doc_id = 0;
             $att_detail = "";
-            if ($mime_type_main != "text/plain") {
-                   $name = uniqid("dm-message-") . phimail_extension($mime_type_main);
-                   $doc_id = phimail_store($name, $mime_type_main, $body);
-                if (!$doc_id) {
-                    phimail_logit(0, "M7 store non-text body failed");
-                    phimail_close($fp);
-                    return;
-                }
+            if ($mime_type_main != "text/plain" && $mime_type_main != "text/html") {
+                if ($body_len == 0) {
+                    $att_detail = $att_detail . "\n" . xl("Zero length attachment") . " ($mime_type_main; " .
+                        "0 bytes - " . xl("empty file received") . ") Main message body";
+                    unlink($body);
+                } else {
+                    $name = uniqid("dm-message-") . phimail_extension($mime_type_main);
+                    $doc_id = phimail_store($name, $mime_type_main, $body);
+                    if (!$doc_id) {
+                        phimail_logit(0, "M7 store non-text body failed");
+                        phimail_close($fp);
+                        return;
+                    }
 
-                   $idnum = $doc_id['doc_id'];
-                   $all_doc_ids[] = $idnum;
-                   $url = $doc_id['url'];
-                   $url = substr($url, strrpos($url, "/") + 1);
-                   $att_detail = "\n" . xl("Document") . " $idnum (\"$url\"; $mime_type_main; " .
-                  filesize($body) . " bytes) Main message body";
+                    $idnum = $doc_id['doc_id'];
+                    $all_doc_ids[] = $idnum;
+                    $url = $doc_id['url'];
+                    $url = substr($url, strrpos($url, "/") + 1);
+                    $att_detail = "\n" . xl("Document") . " $idnum (\"$url\"; $mime_type_main; " .
+                        filesize($body) . " bytes) Main message body";
+                }
             }
 
-        //download and store attachments
+            //download and store attachments
             for ($attnum = 0; $attnum < $att; $attnum++) {
                 $ret2 = phimail_write_expect_OK($fp, "SHOW " . ($attnum + 1) . "\n");
                 if ($ret2 !== true) {
@@ -350,7 +356,7 @@ function phimail_check()
                     return;
                 }
 
-               //we can ignore next two lines (repeat of name and mime-type)
+                //we can ignore next two lines (repeat of name and mime-type)
                 if (($a1 = fgets($fp, 512)) === false || ($a2 = fgets($fp, 512)) === false) {
                     phimail_logit(0, "M9 skip attachment " . ($attnum + 1) . " duplicate header lines failed");
                     phimail_close($fp);
@@ -371,20 +377,27 @@ function phimail_check()
                 $req_name = (empty($req_name) ? $attdata : "dm-") . $req_name;
                 $attinfo[$attnum]['mime'] = explode(";", trim($attinfo[$attnum]['mime']));
                 $attmime = strtolower($attinfo[$attnum]['mime'][0]);
-                $att_doc_id = phimail_store($req_name, $attmime, $attdata);
-                if (!$att_doc_id) {
-                    phimail_logit(0, "M11 store attachment " . ($attnum + 1) . " failed");
-                    phimail_close($fp);
-                    return;
-                }
 
-                $attinfo[$attnum]['doc_id'] = $att_doc_id;
-                $idnum = $att_doc_id['doc_id'];
-                $all_doc_ids[] = $idnum;
-                $url = $att_doc_id['url'];
-                $url = substr($url, strrpos($url, "/") + 1);
-                $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
-                    $att_doc_id['filesize'] . " bytes) " . trim($attinfo[$attnum]['desc']);
+                if ($att_len == 0) {
+                    $att_detail = $att_detail . "\n" . xl("Zero length attachment") . " ($attmime; " .
+                        "0 bytes - " . xl("empty file received") . " " . trim($attinfo[$attnum]['desc']);
+                    unlink($attdata);
+                } else {
+                    $att_doc_id = phimail_store($req_name, $attmime, $attdata);
+                    if (!$att_doc_id) {
+                        phimail_logit(0, "M11 store attachment " . ($attnum + 1) . " failed");
+                        phimail_close($fp);
+                        return;
+                    }
+
+                    $attinfo[$attnum]['doc_id'] = $att_doc_id;
+                    $idnum = $att_doc_id['doc_id'];
+                    $all_doc_ids[] = $idnum;
+                    $url = $att_doc_id['url'];
+                    $url = substr($url, strrpos($url, "/") + 1);
+                    $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
+                        $att_doc_id['filesize'] . " bytes) " . trim($attinfo[$attnum]['desc']);
+                }
             }
 
             if ($att_detail != "") {
@@ -393,18 +406,42 @@ function phimail_check()
 
             $ret2 = phimail_write_expect_OK($fp, "DONE\n"); //we'll check for failure after logging.
 
-        //logging only after succesful download, storage, and acknowledgement of message
+            //logging only after succesful download, storage, and acknowledgement of message
             $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
-            "VALUES ('R', ?, ?, ?, 'R', NOW(), ?)";
-            $res = sqlStatementNoLog($sql, array($msg_id,$sender,$recipient,phimail_service_userID()));
+                "VALUES ('R', ?, ?, ?, 'R', NOW(), ?)";
+            $res = sqlStatementNoLog($sql, array($msg_id, $sender, $recipient, phimail_service_userID()));
 
             phimail_logit(1, $ret);
 
-        //alert appointed user about new message
+            //alert appointed user about new message
             switch ($mime_type_main) {
                 case "text/plain":
                     $body_text = @file_get_contents($body); //this was not uploaded as a document
                     unlink($body);
+                    if (empty($body_text ?? '')) {
+                        $body_text = xl("Please note, this message was received empty and is not an error.");
+                    }
+                    $pnote_id = addPnote(
+                        0,
+                        xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
+                        0,
+                        1,
+                        "Unassigned",
+                        $notifyUsername,
+                        "",
+                        "New",
+                        "phimail-service"
+                    );
+                    break;
+                case "text/html":
+                    $body_text = @file_get_contents($body);
+                    unlink($body);
+                    if (empty($body_text ?? '')) {
+                        $body_text = xl("Please note, this message was received empty and is not an error.");
+                    } else {
+                        // meager attempt to covert to text. @TODO convert our Messages message body from textarea to div so can display html.
+                        $body_text = trim(html_entity_decode(strip_tags(str_ireplace(["<br />", "<br>", "<br/>"], PHP_EOL, $body_text))));
+                    }
                     $pnote_id = addPnote(
                         0,
                         xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
@@ -420,7 +457,7 @@ function phimail_check()
 
                 default:
                     $note = xl("Direct Message Received.") . "\n$hdrs\n"
-                    . xl("Message content is not plain text so it has been stored as a document.") . $att_detail;
+                        . xl("Message content is not plain text so it has been stored as a document.") . $att_detail;
                     $pnote_id = addPnote(0, $note, 0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
                     break;
             }
@@ -478,6 +515,7 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
 
 /**
  * Read a blob of data into a local temporary file
+ *
  * @param $len number of bytes to read
  * @return the temp filename, or FALSE if failure
  */
@@ -515,7 +553,7 @@ function phimail_read_blob($fp, $len)
             @fclose($ff);
             @unlink($fn);
             phimail_logit(0, "M15 failure " . ($chunk === false ? "reading" : "writing")
-                    . " blob chunk after " . ($len - $bytes_left) . " bytes");
+                . " blob chunk after " . ($len - $bytes_left) . " bytes");
             return false;
         }
 
@@ -523,7 +561,7 @@ function phimail_read_blob($fp, $len)
     }
 
     @fclose($ff);
-    return($fn);
+    return ($fn);
 }
 
 /**
@@ -567,6 +605,7 @@ function phimail_service_userID($name = 'phimail-service')
 /**
  * Given an IsAcceptedFileFilterEvent from our isWhitelist function we check to make sure that we allow
  * the mime type of the Direct message attachment that was sent by the server.
+ *
  * @param IsAcceptedFileFilterEvent $event The event with the mimetype to check if we allow it or not
  * @return IsAcceptedFileFilterEvent
  */
@@ -586,6 +625,7 @@ function phimail_allow_document_mimetype(IsAcceptedFileFilterEvent $event)
 
 /**
  * Registers an attachment or non-text message file using the existing Document structure
+ *
  * @return Array(doc_id,URL) of the file as stored in documents table, false = failure
  */
 function phimail_store($name, $mime_type, $fn)
@@ -631,6 +671,7 @@ function phimail_store($name, $mime_type, $fn)
 /**
  * Send an error notification or other alert to the notification address specified in globals.
  * (notification email function modified from interface/drugs/dispense_drug.php)
+ *
  * @return true if notification successfully sent, false otherwise
  */
 function phimail_notify($subj, $body)
