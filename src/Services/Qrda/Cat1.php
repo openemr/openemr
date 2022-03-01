@@ -1,15 +1,22 @@
 <?php
-
+/**
+ * @package OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ */
 
 namespace OpenEMR\Services\Qrda;
 
 
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Services\Qrda\Helpers\Date;
+use OpenEMR\Services\Qrda\Helpers\DateHelper;
 
-class Cat1
+class Cat1 extends \Mustache_Engine
 {
-    use Date;
+    //use Date;
 
     protected $templatePath =
         __DIR__ . DIRECTORY_SEPARATOR .
@@ -24,26 +31,34 @@ class Cat1
     public $random_id = '4444';
     public $mrn = '545644';
 
+    protected $helpers = [];
+
     public function __construct(Patient $patient)
     {
-        //$helpers = [];
-        //$helpers = array_merge($helpers, $this->DateHelper());
+//        $helpers = [];
+//        $helpers = array_merge($helpers, $this->DateHelper());
+        $this->helpers = [
+            'value_or_null_flavor' => function ($text) {
+                if (!empty($text)) {
+                    $v = "value='{$text}'";
+                } else {
+                    $v = "nullFlavor='UNK'";
+                }
+                return $v;
+            },
+            'birth_date_time' => function () {
+                $birth_date_time = $this->birthDatetime;
+                $birth_date_time = date('Ymd', strtotime($birth_date_time));
+                return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
+            }
+        ];
 
         $this->patient = $patient;
-        $this->mustache = new \Mustache_Engine(array(
+        parent::__construct(array(
             'entity_flags' => ENT_QUOTES,
             'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            //'helpers' => $helpers
+            'helpers' => $this->helpers
         ));
-
-        $this->mustache->addHelper('value_or_null_flavor', function ($text, $mustache) {
-            return date('Y-m-d H:i', strtotime($text));
-        });
-
-        $this->mustache->addHelper('birth_date_time', function () {
-            $birth_date_time = strtotime($this->patient->birthDatetime);
-            return "<birthTime value='$birth_date_time'/>";
-        });
 
         /*
          *
@@ -67,9 +82,9 @@ class Cat1
     }
 
 
-    public function render()
+    public function renderCat1Xml()
     {
-        $xml = $this->mustache->render(
+        $xml = $this->render(
             $this->template,
             $this
         );
@@ -79,8 +94,14 @@ class Cat1
 
     public function patient_characteristic_birthdate()
     {
-        $birthDatetime = $this->patient->get_data_elements('patient_characteristic', 'birthdate');
-        return $birthDatetime;
+        $birthDate = $this->patient->get_data_elements('patient_characteristic', 'birthdate');
+        return function ($text, $context) use ($birthDate) {
+            $mustache = new \Mustache_Engine([
+                'entity_flags' => ENT_QUOTES,
+                'helpers' => $this->helpers
+            ]);
+            return $mustache->render($text, $birthDate);
+        };
     }
 
     public function patient_characteristic_sex()

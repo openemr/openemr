@@ -21,7 +21,7 @@ class ExportService
         $string = "";
         foreach ($patientModels as $patient) {
             $cat1 = new Cat1($patient);
-            $string .= $cat1->render();
+            $string .= $cat1->renderCat1Xml();
         }
 
         return $string;

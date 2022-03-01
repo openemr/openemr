@@ -9,13 +9,17 @@
 
 namespace OpenEMR\Services\Qrda\Helpers;
 
-
 trait Date
 {
     public function DateHelper() {
         return [
             'value_or_null_flavor' => function ($time) {
-                return date('Y-m-d H:i', strtotime($time));
+                if (!empty($time)) {
+                    $v = "value='{$time}'";
+                } else {
+                    $v = "nullFlavor='UNK'";
+                }
+                return $v;
             },
             'performance_period_start' => function () {
                 return "Hello Period Start";
@@ -26,10 +30,10 @@ trait Date
             'current_time' => function () {
                 return date('Y-m-d H:i');
             },
-            //
-            'birth_date_time' => function ($text, $mustache) {
-                return "<birthTime" . $mustache->render("#{value_or_null_flavor({$this->patient->birthDatetime})}") . "/>";
-            },
+            'birth_date_time' => function () {
+                $birth_date_time = date('Ymd', strtotime($this->patient->birthDatetime));
+                return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
+            }
         ];
     }
 /*
