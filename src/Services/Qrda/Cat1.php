@@ -31,33 +31,30 @@ class Cat1 extends \Mustache_Engine
     public $random_id = '4444';
     public $mrn = '545644';
 
-    protected $helpers = [];
-
     public function __construct(Patient $patient)
     {
 //        $helpers = [];
 //        $helpers = array_merge($helpers, $this->DateHelper());
-        $this->helpers = [
-            'value_or_null_flavor' => function ($text) {
-                if (!empty($text)) {
-                    $v = "value='{$text}'";
-                } else {
-                    $v = "nullFlavor='UNK'";
-                }
-                return $v;
-            },
-            'birth_date_time' => function () {
-                $birth_date_time = $this->birthDatetime;
-                $birth_date_time = date('Ymd', strtotime($birth_date_time));
-                return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
-            }
-        ];
 
         $this->patient = $patient;
         parent::__construct(array(
             'entity_flags' => ENT_QUOTES,
             'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            'helpers' => $this->helpers
+            'helpers' => [
+                'value_or_null_flavor' => function ($text) {
+                    if (!empty($text)) {
+                        $v = "value='{$text}'";
+                    } else {
+                        $v = "nullFlavor='UNK'";
+                    }
+                    return $v;
+                },
+                'birth_date_time' => function () {
+                    $birth_date_time = $this->birthDatetime;
+                    $birth_date_time = date('Ymd', strtotime($birth_date_time));
+                    return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
+                }
+            ]
         ));
 
         /*
@@ -94,11 +91,30 @@ class Cat1 extends \Mustache_Engine
 
     public function patient_characteristic_birthdate()
     {
-        $birthDate = $this->patient->get_data_elements('patient_characteristic', 'birthdate');
+        $elements = $this->patient->get_data_elements('patient_characteristic', 'birthdate');
+        if (count($elements) === 1) {
+            $birthDate = $elements[0];
+        } else {
+            throw new \Exception("ERROR: There can only be one birthdate element");
+        }
         return function ($text, $context) use ($birthDate) {
             $mustache = new \Mustache_Engine([
                 'entity_flags' => ENT_QUOTES,
-                'helpers' => $this->helpers
+                'helpers' => [
+                    'value_or_null_flavor' => function ($text) {
+                        if (!empty($text)) {
+                            $v = "value='{$text}'";
+                        } else {
+                            $v = "nullFlavor='UNK'";
+                        }
+                        return $v;
+                    },
+                    'birth_date_time' => function () use ($birthDate) {
+                        $birth_date_time = $birthDate->birthDatetime->date;
+                        $birth_date_time = date('Ymd', strtotime($birth_date_time));
+                        return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
+                    }
+                ]
             ]);
             return $mustache->render($text, $birthDate);
         };
