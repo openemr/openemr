@@ -20,6 +20,7 @@ require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
 
 /**
  * Return listing of CDR reminders in log.
@@ -534,7 +535,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     if (
         ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
         ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
-        ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      )
+        ( (CertificationReportTypes::isAMCReportType($type)) && ($GLOBALS['report_itemizing_amc'])      )
     ) {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
     } else {
@@ -724,6 +725,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
   //  So for cases such as patient reminders on a clinic scale, the calling function
   //  will actually need rather than pass in a explicit patient_id for each patient in
   //  a separate call to this function.
+    // TODO: @adunsulag why do we have the exact same method call based on the mode?  seems like we should just drop
+    // the condition.
     if ($mode != "report") {
         // Use per patient custom rules (if exist)
         // Note as discussed above, this only works for single patient instances.

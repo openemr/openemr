@@ -122,3 +122,13 @@ ALTER TABLE `clinical_rules` ADD COLUMN `bibliographic_citation` VARCHAR(255) NO
 ALTER TABLE `clinical_rules` ADD COLUMN `linked_referential_cds` VARCHAR(50) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn clinical_rules amc_2015_flag
+ALTER TABLE `clinical_rules` ADD `amc_2015_flag` TINYINT(1) NULL DEFAULT NULL
+    COMMENT '2015 Automated Measure Calculation flag for (unable to customize per patient)'
+    AFTER `amc_2014_stage2_flag`;
+#EndIf
+
+#IfMissingColumn clinical_rules amc_code_2015
+ALTER TABLE `clinical_rules` ADD `amc_code_2015` VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
+    NOT NULL DEFAULT '' COMMENT 'Automated Measure Calculation 2014 identifier (MU rule)' AFTER `amc_code_2014`;
+#EndIf
