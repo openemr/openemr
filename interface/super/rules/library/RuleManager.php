@@ -77,15 +77,17 @@ class RuleManager
             cqm_flag = ?,
             amc_flag = ?,
             patient_reminder_flag = ?,
-			developer = ?, 
-			funding_source = ?, 
+			developer = ?,
+			funding_source = ?,
 			release_version = ?,
-                        web_reference = ?
+            web_reference = ?,
+            bibliographic_citation = ?,
+            linked_referential_cds = ?
       WHERE id = ? AND pid = 0";
 
     const SQL_UPDATE_TITLE =
     "UPDATE list_options
-        SET title = ?       
+        SET title = ?
       WHERE list_id = 'clinical_rules' AND option_id = ?";
 
     const SQL_REMOVE_INTERVALS =
@@ -145,10 +147,12 @@ class RuleManager
 
         $rule = new Rule($id, $ruleResult['title']);
 
+        $rule->setBibliographicCitation($ruleResult['bibliographic_citation']);
         $rule->setDeveloper($ruleResult['developer']);
         $rule->setFunding($ruleResult['funding_source']);
         $rule->setRelease($ruleResult['release_version']);
         $rule->setWeb_ref($ruleResult['web_reference']);
+        $rule->setLinkedReferentialCds($ruleResult['linked_referential_cds']);
 
         $this->fillRuleTypes($rule, $ruleResult);
         $this->fillRuleReminderIntervals($rule);
@@ -490,7 +494,7 @@ class RuleManager
         sqlStatement("DELETE FROM rule_filter WHERE SHA1(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?", [$guid]);
     }
 
-    function updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref)
+    function updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref, $bibliographic_citation, $linked_referential_cds)
     {
         $rule = $this->getRule($ruleId);
 
@@ -499,8 +503,8 @@ class RuleManager
             $result = sqlQuery("select count(*)+1 AS id from clinical_rules");
             $ruleId = "rule_" . $result['id'];
             sqlStatement(
-                "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference ) " .
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?) ",
+                "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference, bibliographic_citation, linked_referential_cds ) " .
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ",
                 array(
                         $ruleId,
                         0,
@@ -512,7 +516,9 @@ class RuleManager
                         $developer,
                         $funding,
                         $release,
-                                                $web_ref
+                        $web_ref,
+                        $bibliographic_citation,
+                        $linked_referential_cds
                     )
             );
 
@@ -532,6 +538,8 @@ class RuleManager
                 $funding,
                 $release,
                 $web_ref,
+                $bibliographic_citation,
+                $linked_referential_cds,
                 $rule->id ));
 
             // update title

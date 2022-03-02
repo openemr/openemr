@@ -113,3 +113,12 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','prevent_portal_apps',@group_id,'Prevent API Access',@seq_add_to+5,21,1,0,0,'',1,1,'','','Check to not allow third party API access.',0);
 ALTER TABLE `patient_data` ADD `prevent_portal_apps` TEXT;
 #Endif
+
+#IfMissingColumn clinical_rules bibliographic_citation
+ALTER TABLE `clinical_rules` ADD COLUMN `bibliographic_citation` VARCHAR(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn clinical_rules linked_referential_cds
+ALTER TABLE `clinical_rules` ADD COLUMN `linked_referential_cds` VARCHAR(50) NOT NULL DEFAULT '';
+#EndIf
+

@@ -38,10 +38,12 @@ $rule = $viewBean->rule ?>
         <p><b><?php echo xlt($rule->title); ?></b>
         (<?php echo implode_funcs(", ", $rule->getRuleTypeLabels(), array('xlt')); ?>)
         </p>
+        <p><?php echo xlt('Bibliographic Citation'); ?><b>:</b>&nbsp;<?php echo text($rule->bibliographic_citation); ?></p>
         <p><?php echo xlt('Developer'); ?><b>:</b>&nbsp;<?php echo text($rule->developer); ?></p>
         <p><?php echo xlt('Funding Source'); ?><b>:</b>&nbsp;<?php echo text($rule->funding_source); ?></p>
         <p><?php echo xlt('Release'); ?><b>:</b>&nbsp;<?php echo text($rule->release); ?></p>
         <p><?php echo xlt('Web Reference'); ?><b>:</b>&nbsp;<?php echo text($rule->web_ref); ?></p>
+        <p><?php echo xlt('Referential CDS (codetype:code)'); ?><b>:</b>&nbsp;<?php echo text($rule->linked_referential_cds); ?></p>
     </div>
     <!--                    -->
     <!-- reminder intervals -->

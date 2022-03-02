@@ -274,6 +274,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     require_once("$srcdir/options.js.php");
     ?>
     <script>
+        // Process click on diagnosis for referential cds popup.
+        function referentialCdsClick(codetype, codevalue) {
+            top.restoreSession();
+            // Force a new window instead of iframe to address cross site scripting potential
+            dlgopen('../education.php?type=' + encodeURIComponent(codetype) + '&code=' + encodeURIComponent(codevalue), '_blank', 1024, 750,true);
+        }
+
         function oldEvt(apptdate, eventid) {
             let title = <?php echo xlj('Appointments'); ?>;
             dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 800, 500, '', title);

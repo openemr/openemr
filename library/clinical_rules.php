@@ -81,19 +81,26 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
         echo "<div class=\"list-group-item p-1 d-flex w-100 justify-content-between\">";
 
-        // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
+        // Collect the Rule Title, Bibliographical citation, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
+        //  Show the link for Linked referential CDS (this is set via codetype:code)
         $tooltip = '';
         if (!empty($action['rule_id'])) {
             $rule_title = getListItemTitle("clinical_rules", $action['rule_id']);
-            $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version`, `web_reference` " .
+            $ruleData = sqlQuery("SELECT `bibliographic_citation`, `developer`, `funding_source`, `release_version`, `web_reference`, `linked_referential_cds` " .
                            "FROM `clinical_rules` " .
                            "WHERE  `id`=? AND `pid`=0", array($action['rule_id']));
+            $bibliographic_citation = $ruleData['bibliographic_citation'];
             $developer = $ruleData['developer'];
             $funding_source = $ruleData['funding_source'];
             $release = $ruleData['release_version'];
             $web_reference = $ruleData['web_reference'];
+            $linked_referential_cds = $ruleData['linked_referential_cds'];
             if (!empty($rule_title)) {
                   $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
+            }
+
+            if (!empty($bibliographic_citation)) {
+                $tooltip .= xla('Rule Bibliographic Citation') . ": " . attr($bibliographic_citation) . "&#013;";
             }
 
             if (!empty($developer)) {
@@ -110,9 +117,18 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
             if ((!empty($tooltip)) || (!empty($web_reference))) {
                 if (!empty($web_reference)) {
-                    $tooltip = "<a href='" . attr($web_reference) . "' rel='noopener' target='_blank' style='white-space: pre-line;' title='" . $tooltip . "'>?</a>";
+                    $tooltip = "<a href='" . attr($web_reference) . "' rel='noopener' target='_blank' style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></a>";
                 } else {
-                    $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'>?</span>";
+                    $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></span>";
+                }
+            }
+
+            if (!empty($linked_referential_cds)) {
+                $codeParse = explode(":", $linked_referential_cds);
+                $codetype = $codeParse[0] ?? null;
+                $code = $codeParse[1] ?? null;
+                if (!empty($codetype) && !empty($code)) {
+                    $tooltip .= "<a href='' title='" . xla('Link to Referential CDS') . "' onclick='referentialCdsClick(" . attr_js($codetype) . ", " . attr_js($code) . ")'><i class='fas fa-external-link-square-alt'></i></a>";
                 }
             }
         }
