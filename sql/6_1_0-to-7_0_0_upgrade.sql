@@ -105,3 +105,11 @@
 --    desc: Change Layout edit options.
 --    arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
 
+#IfNotRow2D layout_options form_id DEM field_id prevent_portal_apps
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='allow_patient_portal' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='allow_patient_portal' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','prevent_portal_apps',@group_id,'Prevent API Access',@seq_add_to+5,21,1,0,0,'',1,1,'','','Check to not allow third party API access.',0);
+ALTER TABLE `patient_data` ADD `prevent_portal_apps` TEXT;
+#Endif
