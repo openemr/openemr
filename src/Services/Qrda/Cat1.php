@@ -11,12 +11,15 @@ namespace OpenEMR\Services\Qrda;
 
 
 use OpenEMR\Cqm\Qdm\Patient;
+use OpenEMR\Services\Qrda\Helpers\Cat1View;
 use OpenEMR\Services\Qrda\Helpers\Date;
-use OpenEMR\Services\Qrda\Helpers\DateHelper;
+use OpenEMR\Services\Qrda\Helpers\View;
 
 class Cat1 extends \Mustache_Engine
 {
-    //use Date;
+    use Date;
+    use View;
+    use Cat1View;
 
     protected $templatePath =
         __DIR__ . DIRECTORY_SEPARATOR .
@@ -31,51 +34,26 @@ class Cat1 extends \Mustache_Engine
     public $random_id = '4444';
     public $mrn = '545644';
 
-    public function __construct(Patient $patient)
-    {
-//        $helpers = [];
-//        $helpers = array_merge($helpers, $this->DateHelper());
+    /**
+     * @var array
+     */
+    protected $_measures;
 
+
+    public function __construct(Patient $patient, $measures = array(), $options = array())
+    {
         $this->patient = $patient;
+        $this->_performance_period_end = $options['performance_period_start'] ?? null;
+        $this->_performance_period_end = $options['performance_period_end'] ?? null;
+        $this->_measures = $measures;
+        $this->_submission_program = $options['submission_program'] ?? null;
+
+        error_log(var_export($patient, true));
+
         parent::__construct(array(
             'entity_flags' => ENT_QUOTES,
             'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            'helpers' => [
-                'value_or_null_flavor' => function ($text) {
-                    if (!empty($text)) {
-                        $v = "value='{$text}'";
-                    } else {
-                        $v = "nullFlavor='UNK'";
-                    }
-                    return $v;
-                },
-                'birth_date_time' => function () {
-                    $birth_date_time = $this->birthDatetime;
-                    $birth_date_time = date('Ymd', strtotime($birth_date_time));
-                    return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
-                }
-            ]
         ));
-
-        /*
-         *
-         *             'value_or_null_flavor' => function ($time) {
-                return date('Y-m-d H:i', strtotime($time));
-            },
-            'performance_period_start' => function () {
-                return "Hello Period Start";
-            },
-            'performance_period_end' => function () {
-                return "Hello Period End";
-            },
-            'current_time' => function () {
-                return date('Y-m-d H:i');
-            },
-            //
-            'birth_date_time' => function ($text, $mustache) {
-                return "<birthTime" . $mustache->render("#{value_or_null_flavor({$this->patient->birthDatetime})}") . "/>";
-            },
-         */
     }
 
 
@@ -83,7 +61,7 @@ class Cat1 extends \Mustache_Engine
     {
         $xml = $this->render(
             $this->template,
-            $this
+            $this // we pass in ourselves as the context so mustache can see all of our methods, and helper methods
         );
 
         return $xml;
@@ -91,248 +69,235 @@ class Cat1 extends \Mustache_Engine
 
     public function patient_characteristic_birthdate()
     {
-        $elements = $this->patient->get_data_elements('patient_characteristic', 'birthdate');
+        $elements = json_decode(json_encode($this->patient->get_data_elements('patient_characteristic', 'birthdate')));
         return $elements;
-        if (count($elements) === 1) {
-            $birthDate = $elements[0];
-        } else {
-            throw new \Exception("ERROR: There can only be one birthdate element");
-        }
-        return function ($text, $context) use ($birthDate) {
-            $mustache = new \Mustache_Engine([
-                'entity_flags' => ENT_QUOTES,
-                'helpers' => [
-                    'value_or_null_flavor' => function ($text) {
-                        if (!empty($text)) {
-                            $v = "value='{$text}'";
-                        } else {
-                            $v = "nullFlavor='UNK'";
-                        }
-                        return $v;
-                    },
-                    'birth_date_time' => function () use ($birthDate) {
-                        $birth_date_time = $birthDate->birthDatetime->date;
-                        $birth_date_time = date('Ymd', strtotime($birth_date_time));
-                        return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
-                    }
-                ]
-            ]);
-            return $mustache->render($text, $birthDate);
-        };
     }
 
     public function patient_characteristic_sex()
     {
-        $value = $this->patient->get_data_elements('patient_characteristic', 'gender');
+        $value = json_decode(json_encode($this->patient->get_data_elements('patient_characteristic', 'gender')));
         return $value;
     }
 
     public function patient_characteristic_race()
     {
-        return $this->patient->get_data_elements('patient_characteristic', 'race');
+        return json_decode(json_encode($this->patient->get_data_elements('patient_characteristic', 'race')));
     }
 
     public function patient_characteristic_ethnicity()
     {
-        return $this->patient->get_data_elements('patient_characteristic', 'ethnicity');
+        return json_decode(json_encode($this->patient->get_data_elements('patient_characteristic', 'ethnicity')));
     }
 
     public function adverse_event()
     {
-        return $this->patient->get_data_elements('adverse_event');
+        return json_decode(json_encode($this->patient->get_data_elements('adverse_event')));
     }
 
     public function allergy_intolerance()
     {
-        return $this->patient->get_data_elements('allergy', 'intolerance');
+        return json_decode(json_encode($this->patient->get_data_elements('allergy', 'intolerance')));
     }
 
     public function assessment_order()
     {
-        return $this->patient->get_data_elements('assessment', 'order');
+        return json_decode(json_encode($this->patient->get_data_elements('assessment', 'order')));
     }
 
     public function assessment_performed()
     {
-        return $this->patient->get_data_elements('assessment', 'performed');
+        return json_decode(json_encode($this->patient->get_data_elements('assessment', 'performed')));
     }
 
     public function assessment_recommended()
     {
-        return $this->patient->get_data_elements('assessment', 'recommended');
+        return json_decode(json_encode($this->patient->get_data_elements('assessment', 'recommended')));
     }
 
     public function communication_performed()
     {
-        return $this->patient->get_data_elements('communication', 'performed');
+        return json_decode(json_encode($this->patient->get_data_elements('communication', 'performed')));
     }
 
     public function diagnosis()
     {
-        return $this->patient->get_data_elements('condition');
+        return json_decode(json_encode($this->patient->get_data_elements('condition')));
     }
 
-    /*
+    public function device_applied() {
+        return json_decode(json_encode($this->patient->get_data_elements('device', 'applied')));
+    }
 
+    public function device_order() {
+        return json_decode(json_encode($this->patient->get_data_elements('device', 'order')));
+    }
 
-  def diagnosis
-    JSON.parse(@qdmPatient.get_data_elements('condition', nil).to_json)
-  end
+    public function device_recommended() {
+        return json_decode(json_encode($this->patient->get_data_elements('device', 'recommended')));
+    }
 
-  def device_applied
-    JSON.parse(@qdmPatient.get_data_elements('device', 'applied').to_json)
-  end
+    public function diagnostic_study_order() {
+        return json_decode(json_encode($this->patient->get_data_elements('diagnostic_study', 'order')));
+    }
 
-  def device_order
-    JSON.parse(@qdmPatient.get_data_elements('device', 'order').to_json)
-  end
+    public function diagnostic_study_performed() {
+        return json_decode(json_encode($this->patient->get_data_elements('diagnostic_study', 'performed')));
+    }
 
-  def device_recommended
-    JSON.parse(@qdmPatient.get_data_elements('device', 'recommended').to_json)
-  end
+    public function diagnostic_study_recommended() {
+        return json_decode(json_encode($this->patient->get_data_elements('diagnostic_study', 'recommended')));
+    }
 
-  def diagnostic_study_order
-    JSON.parse(@qdmPatient.get_data_elements('diagnostic_study', 'order').to_json)
-  end
+    public function encounter_order() {
+        return json_decode(json_encode($this->patient->get_data_elements('encounter', 'order')));
+    }
 
-  def diagnostic_study_performed
-    JSON.parse(@qdmPatient.get_data_elements('diagnostic_study', 'performed').to_json)
-  end
+    public function encounter_performed() {
+        return json_decode(json_encode($this->patient->get_data_elements('encounter', 'performed')));
+    }
 
-  def diagnostic_study_recommended
-    JSON.parse(@qdmPatient.get_data_elements('diagnostic_study', 'recommended').to_json)
-  end
+    public function encounter_recommended() {
+        return json_decode(json_encode($this->patient->get_data_elements('encounter', 'recommended')));
+    }
 
-  def encounter_order
-    JSON.parse(@qdmPatient.get_data_elements('encounter', 'order').to_json)
-  end
+    public function family_history() {
+        return json_decode(json_encode($this->patient->get_data_elements('family_history')));
+    }
 
-  def encounter_performed
-    JSON.parse(@qdmPatient.get_data_elements('encounter', 'performed').to_json)
-  end
+    public function immunization_administered() {
+        return json_decode(json_encode($this->patient->get_data_elements('immunization', 'administered')));
+    }
 
-  def encounter_recommended
-    JSON.parse(@qdmPatient.get_data_elements('encounter', 'recommended').to_json)
-  end
+    public function immunization_order() {
+        return json_decode(json_encode($this->patient->get_data_elements('immunization', 'order')));
+    }
 
-  def family_history
-    JSON.parse(@qdmPatient.get_data_elements('family_history', nil).to_json)
-  end
+    public function intervention_order() {
+        return json_decode(json_encode($this->patient->get_data_elements('intervention', 'order')));
+    }
 
-  def immunization_administered
-    JSON.parse(@qdmPatient.get_data_elements('immunization', 'administered').to_json)
-  end
+    public function intervention_performed() {
+        return json_decode(json_encode($this->patient->get_data_elements('intervention', 'performed')));
+    }
 
-  def immunization_order
-    JSON.parse(@qdmPatient.get_data_elements('immunization', 'order').to_json)
-  end
+    public function intervention_recommended() {
+        return json_decode(json_encode($this->patient->get_data_elements('intervention', 'recommended')));
+    }
 
-  def intervention_order
-    JSON.parse(@qdmPatient.get_data_elements('intervention', 'order').to_json)
-  end
+    public function laboratory_test_order() {
+        return json_decode(json_encode($this->patient->get_data_elements('laboratory_test', 'order')));
+    }
 
-  def intervention_performed
-    JSON.parse(@qdmPatient.get_data_elements('intervention', 'performed').to_json)
-  end
+    public function laboratory_test_performed() {
+        return json_decode(json_encode($this->patient->get_data_elements('laboratory_test', 'performed')));
+    }
 
-  def intervention_recommended
-    JSON.parse(@qdmPatient.get_data_elements('intervention', 'recommended').to_json)
-  end
+    public function laboratory_test_recommended() {
+        return json_decode(json_encode($this->patient->get_data_elements('laboratory_test', 'recommended')));
+    }
 
-  def laboratory_test_order
-    JSON.parse(@qdmPatient.get_data_elements('laboratory_test', 'order').to_json)
-  end
+    public function medication_active() {
+        return json_decode(json_encode($this->patient->get_data_elements('medication', 'active')));
+    }
 
-  def laboratory_test_performed
-    JSON.parse(@qdmPatient.get_data_elements('laboratory_test', 'performed').to_json)
-  end
+    public function medication_administered() {
+        $medsAdministered = json_decode(json_encode($this->patient->get_data_elements('medication', 'administered')));
+        $subsAdministered = json_decode(json_encode($this->patient->get_data_elements('substance', 'administered')));
+        return array_merge($medsAdministered, $subsAdministered);
+    }
 
-  def laboratory_test_recommended
-    JSON.parse(@qdmPatient.get_data_elements('laboratory_test', 'recommended').to_json)
-  end
+    public function medication_discharge() {
+        return json_decode(json_encode($this->patient->get_data_elements('medication', 'discharge')));
+    }
 
-  def medication_active
-    JSON.parse(@qdmPatient.get_data_elements('medication', 'active').to_json)
-  end
+    public function medication_dispensed() {
+        return json_decode(json_encode($this->patient->get_data_elements('medication', 'dispensed')));
+    }
 
-  def medication_administered
-    JSON.parse(@qdmPatient.get_data_elements('medication', 'administered').to_json) + JSON.parse(@qdmPatient.get_data_elements('substance', 'administered').to_json)
-  end
+    public function medication_order() {
+        return json_decode(json_encode($this->patient->get_data_elements('medication', 'order')));
+    }
+    public function patient_care_experience()
+    {
+        // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
+        return [];
+        //JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('patient_care_experience', '') }).to_json)
+    }
 
-  def medication_discharge
-    JSON.parse(@qdmPatient.get_data_elements('medication', 'discharge').to_json)
-  end
+    public function patient_characteristic_clinical_trial_participant()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('patient_characteristic', 'clinical_trial_participant')));
+    }
 
-  def medication_dispensed
-    JSON.parse(@qdmPatient.get_data_elements('medication', 'dispensed').to_json)
-  end
+    public function patient_characteristic_expired()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('patient_characteristic', 'expired')));
+    }
 
-  def medication_order
-    JSON.parse(@qdmPatient.get_data_elements('medication', 'order').to_json)
-  end
+    public function physical_exam_order()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('physical_exam', 'order')));
+    }
 
-  def patient_care_experience
-    JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('patient_care_experience', '') }).to_json)
-  end
+    public function physical_exam_performed()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('physical_exam', 'performed')));
+    }
 
-  def patient_characteristic_clinical_trial_participant
-    JSON.parse(@qdmPatient.get_data_elements('patient_characteristic', 'clinical_trial_participant').to_json)
-  end
+    public function physical_exam_recommended()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('physical_exam', 'recommended')));
+    }
 
-  def patient_characteristic_expired
-    JSON.parse(@qdmPatient.get_data_elements('patient_characteristic', 'expired').to_json)
-  end
+    public function procedure_order()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('procedure', 'order')));
+    }
 
-  def physical_exam_order
-    JSON.parse(@qdmPatient.get_data_elements('physical_exam', 'order').to_json)
-  end
+    public function procedure_performed()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('procedure', 'performed')));
+    }
 
-  def physical_exam_performed
-    JSON.parse(@qdmPatient.get_data_elements('physical_exam', 'performed').to_json)
-  end
+    public function procedure_recommended()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('procedure', 'recommended')));
+    }
 
-  def physical_exam_recommended
-    JSON.parse(@qdmPatient.get_data_elements('physical_exam', 'recommended').to_json)
-  end
+    public function program_participation()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('participation')));
+    }
 
-  def procedure_order
-    JSON.parse(@qdmPatient.get_data_elements('procedure', 'order').to_json)
-  end
+    public function provider_care_experience()
+    {
+        // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
+        return [];
+        //JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('provider_care_experience', '') }).to_json)
+    }
 
-  def procedure_performed
-    JSON.parse(@qdmPatient.get_data_elements('procedure', 'performed').to_json)
-  end
+    public function related_person()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('related_person')));
+    }
 
-  def procedure_recommended
-    JSON.parse(@qdmPatient.get_data_elements('procedure', 'recommended').to_json)
-  end
+    public function substance_administered()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('substance', 'administered')));
+    }
 
-  def program_participation
-    JSON.parse(@qdmPatient.get_data_elements('participation', nil).to_json)
-  end
+    public function substance_order()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('substance', 'order')));
+    }
 
-  def provider_care_experience
-    JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('provider_care_experience', '') }).to_json)
-  end
+    public function substance_recommended()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('substance', 'recommended')));
+    }
 
-  def related_person
-    JSON.parse(@qdmPatient.get_data_elements('related_person', nil).to_json)
-  end
-
-  def substance_administered
-    JSON.parse(@qdmPatient.get_data_elements('substance', 'administered').to_json)
-  end
-
-  def substance_order
-    JSON.parse(@qdmPatient.get_data_elements('substance', 'order').to_json)
-  end
-
-  def substance_recommended
-    JSON.parse(@qdmPatient.get_data_elements('substance', 'recommended').to_json)
-  end
-
-  def symptom
-    JSON.parse(@qdmPatient.get_data_elements('symptom', nil).to_json)
-  end
-     */
+    public function symptom()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('symptom')));
+    }
 }

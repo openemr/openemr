@@ -9,156 +9,180 @@
 
 namespace OpenEMR\Services\Qrda\Helpers;
 
+use Mustache_Context;
+use ReflectionClass;
+use ReflectionMethod;
+
 trait Date
 {
-    public function DateHelper() {
-        return [
-            'value_or_null_flavor' => function ($time) {
-                if (!empty($time)) {
-                    $v = "value='{$time}'";
-                } else {
-                    $v = "nullFlavor='UNK'";
-                }
-                return $v;
-            },
-            'performance_period_start' => function () {
-                return "Hello Period Start";
-            },
-            'performance_period_end' => function () {
-                return "Hello Period End";
-            },
-            'current_time' => function () {
-                return date('Y-m-d H:i');
-            },
-            'birth_date_time' => function () {
-                $birth_date_time = date('Ymd', strtotime($this->patient->birthDatetime));
-                return "<birthTime {{#value_or_null_flavor}}" . $birth_date_time . "{{/value_or_null_flavor}}/>";
-            }
-        ];
+    protected $_performance_period_start;
+    protected $_performance_period_end;
+//    public function getHelpers()
+//    {
+//        $reflection = new ReflectionClass(Date::class);
+//        $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+//        $helpers = [];
+//        foreach ($methods as $method) {
+//            $name = $method['name'];
+//            // we need to make sure we skip over this function
+//            if ($name === 'getHelpers') {
+//                continue;
+//            }
+//            $helpers[$name] = [$this, $name];
+//        }
+//        return $helpers;
+//    }
+    public function value_or_null_flavor(string $text)
+    {
+        if (!empty($text)) {
+            $v = "value='{$text}'";
+        } else {
+            $v = "nullFlavor='UNK'";
+        }
+        return $v;
     }
-/*
-def value_or_null_flavor(time)
-    # this is a bit of a hack for a defineded undefined date
-if time && DateTime.parse(time).year < 3000
-"value='#{DateTime.parse(time).utc.to_formatted_s(:number)}'"
-else
-"nullFlavor='UNK'"
-end
-end
+    public function performance_period_start(Mustache_Context $context) {
+        return $this->to_formatted_s_number($this->_performance_period_start);
+    }
 
-def performance_period_start
-@performance_period_start.to_formatted_s(:number)
-end
+    public function performance_period_end(Mustache_Context $context) {
+        return $this->to_formatted_s_number($this->_performance_period_end);
+    }
 
-def performance_period_end
-@performance_period_end.to_formatted_s(:number)
-end
+    public function current_time(Mustache_Context $context)
+    {
+        return date('Y-m-d H:i');
+    }
 
-def current_time
-Time.now.utc.to_formatted_s(:number)
-end
+    public function sent_date_time(Mustache_Context $context)
+    {
+        return "<low " . $this->value_or_null_flavor($context->find('sendDateTime')) . "/>";
+    }
 
-def sent_date_time
-"<low #{value_or_null_flavor(self['sentDatetime'])}/>"
-end
+    public function received_date_time(Mustache_Context $context) {
+        return "<high " . $this->value_or_null_flavor($context->find('receivedDatetime')) . "/>";
+    }
 
-def received_date_time
-"<high #{value_or_null_flavor(self['receivedDatetime'])}/>"
-end
+    public function active_date_time(Mustache_Context $context) {
+        return "<effectiveTime " . $this->value_or_null_flavor($context->find('activeDatetime')) . "/>";
+    }
 
-def active_date_time
-"<effectiveTime #{value_or_null_flavor(self['activeDatetime'])}/>"
-end
+    public function author_time(Mustache_Context $context) {
+        return "<time " . $this->value_or_null_flavor($context->find('authorDatetime')) . "/>";
+    }
 
-def author_time
-"<time #{value_or_null_flavor(self['authorDatetime'])}/>"
-end
+    public function author_effective_time(Mustache_Context $context) {
+        return "<effectiveTime " . $this->value_or_null_flavor($context->find('authorDatetime')) . "/>";
+    }
 
-def author_effective_time
-"<effectiveTime #{value_or_null_flavor(self['authorDatetime'])}/>"
-end
+    public function birth_date_time(Mustache_Context $context) {
+        return "<birthTime " . $this->value_or_null_flavor($context->find('birthDatetime')) . "/>";
+    }
 
-def birth_date_time
-"<birthTime #{value_or_null_flavor(self['birthDatetime'])}/>"
-end
+    public function result_date_time(Mustache_Context $context) : bool {
+        return !empty($context->find('resultDatetime'));
+    }
 
-def result_date_time?
-!self['resultDatetime'].nil?
-end
+    public function expired_date_time(Mustache_Context $context) {
+	 return "<effectiveTime>"
+         . "<low " . $this->value_or_null_flavor($context->find('expiredDatetime')) . "/>"
+        . "</effectiveTime>";
+}
 
-def result_date_time
-"<effectiveTime #{value_or_null_flavor(self['resultDatetime'])}/>"
-end
+    public function medication_supply_request_period(Mustache_Context $context) {
+        $relevantPeriod = $context->find('relevantPeriod') ?? ['low' => null, 'high' => null];
+        return "<effectiveTime xsi:type='IVL_TS'>"
+            . "<low " . $this->value_or_null_flavor($relevantPeriod['low']) . "/>"
+            . "<high " . $this->value_or_null_flavor($relevantPeriod['high']) . "/>"
+            . "</effectiveTime>";
+}
 
-def expired_date_time
-"<effectiveTime>"\
-"<low #{value_or_null_flavor(self['expiredDatetime'])}/>"\
-"</effectiveTime>"
-end
+    public function medication_duration_author_effective_time(Mustache_Context $context) {
+	 return "<effectiveTime xsi:type='IVL_TS'>"
+        . "<low " . $this->value_or_null_flavor($context->find('authorDatetime')) . "/>"
+        . "<high nullFlavor='UNK'/>"
+        . "</effectiveTime>";
+}
 
-def medication_supply_request_period
-"<effectiveTime xsi:type='IVL_TS'>"\
-"<low #{value_or_null_flavor(self['relevantPeriod']['low'])}/>"\
-"<high #{value_or_null_flavor(self['relevantPeriod']['high'])}/>"\
-"</effectiveTime>"
-end
+    public function prevalence_period(Mustache_Context $context) {
+        $prevalencePeriod = $context->find('prevalencePeriod') ?? ['low' => null, 'high' => null];
+	 return "<effectiveTime>"
+         . "<low " . $this->value_or_null_flavor($prevalencePeriod['low']) . "/>"
+         . "<high " . $this->value_or_null_flavor($prevalencePeriod['high']) . "/>"
+        . "</effectiveTime>";
+    }
 
-def medication_duration_author_effective_time
-"<effectiveTime xsi:type='IVL_TS'>"\
-"<low #{value_or_null_flavor(self['authorDatetime'])}/>"\
-"<high nullFlavor='UNK'/>"\
-"</effectiveTime>"
-end
+    public function relevant_period(Mustache_Context $context) {
+        $relevantPeriod = $context->find('relevantPeriod') ?? ['low' => null, 'high' => null];
+	 return "<effectiveTime>"
+         . "<low " . $this->value_or_null_flavor($relevantPeriod['low']) . "/>"
+         . "<high " . $this->value_or_null_flavor($relevantPeriod['high']) . "/>"
+        . "</effectiveTime>";
+    }
 
-def prevalence_period
-"<effectiveTime>"\
-"<low #{value_or_null_flavor(self['prevalencePeriod']['low'])}/>"\
-"<high #{value_or_null_flavor(self['prevalencePeriod']['high'])}/>"\
-"</effectiveTime>"
-end
+    public function participation_period(Mustache_Context $context) {
+        $participationPeriod = $context->find('participationPeriod') ?? ['low' => null, 'high' => null];
+	 return "<effectiveTime>"
+         . "<low " . $this->value_or_null_flavor($participationPeriod['low']) . "/>"
+         . "<high " . $this->value_or_null_flavor($participationPeriod['high']) . "/>"
+        . "</effectiveTime>";
+    }
 
-def relevant_period
-"<effectiveTime>"\
-"<low #{value_or_null_flavor(self['relevantPeriod']['low'])}/>"\
-"<high #{value_or_null_flavor(self['relevantPeriod']['high'])}/>"\
-"</effectiveTime>"
-end
+    public function relevant_date_time_value(Mustache_Context $context) {
+        return "<effectiveTime " . $this->value_or_null_flavor($context->find('relevantDatetime')) . "/>";
+    }
 
-def participation_period
-"<effectiveTime>"\
-"<low #{value_or_null_flavor(self['participationPeriod']['low'])}/>"\
-"<high #{value_or_null_flavor(self['participationPeriod']['high'])}/>"\
-"</effectiveTime>"
-end
+    /**
+     * Returns the helper function to call for the relevent date period or returns null flavor if there is no date period
+     * If the current context has a period we return the period helpfunction, otherwise if we have a dateTime we return
+     * the date time helper function
+     * @param Mustache_Context $context The current stack context
+     * @return string Helper function name or null flavor xml
+     */
+    public function relevant_date_period_or_null_flavor(Mustache_Context $context) {
+        $relevantPeriod = $context->find('relevantPeriod');
+        if (!empty($relevantPeriod) && (isset($relevantPeriod['low']) || isset($relevantPeriod['high'])))
+        {
+            // we return the function name to call here
+            return 'relevant_period';
+        } else if (!empty($context->find('relevantDatetime')))
+        {
+            return 'relevant_date_time_value';
+        } else {
+            "<effectiveTime nullFlavor='UNK'/>";
+        }
+    }
 
-def relevant_date_time_value
-"<effectiveTime #{value_or_null_flavor(self['relevantDatetime'])}/>"
-end
+    public function medication_duration_effective_time(Mustache_Context $context) {
+        $relevantPeriod = $context->find('relevantPeriod') ?? ['low' => null, 'high' => null];
+        return "<effectiveTime xsi:type=\"IVL_TS\">"
+            . "<low " . $this->value_or_null_flavor($relevantPeriod['low']) . "/>"
+            . "<high " . $this->value_or_null_flavor($relevantPeriod['high']) . "/>"
+            . "</effectiveTime>";
+    }
 
-def relevant_date_period_or_null_flavor
-return relevant_period if self['relevantPeriod'] && (self['relevantPeriod']['low'] || self['relevantPeriod']['high'])
-return relevant_date_time_value if self['relevantDatetime']
-"<effectiveTime nullFlavor='UNK'/>"
-end
+    public function facility_period(Mustache_Context $context) {
+        $locationPeriod = $context->find('locationPeriod') ?? ['low' => null, 'high' => null];
+	    return "<low " . $this->value_or_null_flavor($locationPeriod['low']) . "/>"
+        . "<high " . $this->value_or_null_flavor($locationPeriod['high']) . "/>";
+    }
 
-def medication_duration_effective_time
-"<effectiveTime xsi:type=\"IVL_TS\">"\
-"<low #{value_or_null_flavor(self['relevantPeriod']['low'])}/>"\
-"<high #{value_or_null_flavor(self['relevantPeriod']['high'])}/>"\
-"</effectiveTime>"
-end
+    public function incision_datetime(Mustache_Context $context) {
+        return "<effectiveTime " . $this->value_or_null_flavor($context->find('incisionDatetime')) . "/>";
+    }
 
-def facility_period
-"<low #{value_or_null_flavor(self['locationPeriod']['low'])}/>"\
-"<high #{value_or_null_flavor(self['locationPeriod']['high'])}/>"
-end
+    public function completed_prevalence_period(Mustache_Context $context) : bool {
+        $period = $context->find('prevalencePeriod');
+        return !empty($period['high']);
+    }
 
-def incision_datetime
-"<effectiveTime #{value_or_null_flavor(self['incisionDatetime'])}/>"
-end
-
-def completed_prevalence_period
-self['prevalencePeriod']['high'] ? true : false
-end
-*/
+    private function to_formatted_s_number($dateTime)
+    {
+        if (empty($dateTime) ||
+            !($dateTime instanceof \DateTime)) {
+            return 0;
+        } else {
+            return $dateTime->format("YmdHMS");
+        }
+    }
 }
