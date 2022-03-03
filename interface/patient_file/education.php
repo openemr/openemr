@@ -34,8 +34,8 @@ if (!empty($_POST['bn_submit'])) {
 
     if ($source == 'MLP') {
         // MedlinePlus Connect Web Application.  See:
-        // http://www.nlm.nih.gov/medlineplus/connect/application.html
-        $url = 'http://apps.nlm.nih.gov/medlineplus/services/mpconnect.cfm';
+        // https://www.nlm.nih.gov/medlineplus/connect/application.html
+        $url = 'https://connect.medlineplus.gov/application';
         // Set code type in URL.
         $url .= '?mainSearchCriteria.v.cs=';
         if ('ICD9'   == $codetype) {

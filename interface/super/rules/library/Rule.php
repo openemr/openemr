@@ -24,10 +24,13 @@ class Rule
     var $ruleTypes;
     var $id;
     var $title;
+    var $bibliographic_citation;
     var $developer;
     var $funding_source;
     var $release;
     var $web_ref;
+    var $linked_referential_cds;
+
     /**
      * @var ReminderIntervals
      */
@@ -55,6 +58,11 @@ class Rule
         return $this->title;
     }
 
+    function setBibliographicCitation($s)
+    {
+        $this->bibliographic_citation = $s;
+    }
+
     function setDeveloper($s)
     {
         $this->developer = $s;
@@ -73,6 +81,11 @@ class Rule
     function setWeb_ref($s)
     {
         $this->web_ref = $s;
+    }
+
+    function setLinkedReferentialCds($s)
+    {
+        $this->linked_referential_cds = $s;
     }
 
     /**
