@@ -40,9 +40,11 @@ class Controller_edit extends BaseController
         $funding = _post('fld_funding_source');
         $release = _post('fld_release');
         $web_ref = _post('fld_web_reference');
+        $bibliographic_citation = _post('fld_bibliographic_citation');
+        $linked_referential_cds = _post('fld_linked_referential_cds');
         if (is_null($rule_id)) {
             // its a new rule submit
-            $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref);
+            $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref, $bibliographic_citation, $linked_referential_cds);
             // redirect to the intervals page
             $this->redirect("index.php?action=edit!intervals&id=" . urlencode($ruleId));
         } else {
