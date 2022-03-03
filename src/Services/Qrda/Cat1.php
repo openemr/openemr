@@ -92,6 +92,7 @@ class Cat1 extends \Mustache_Engine
     public function patient_characteristic_birthdate()
     {
         $elements = $this->patient->get_data_elements('patient_characteristic', 'birthdate');
+        return $elements;
         if (count($elements) === 1) {
             $birthDate = $elements[0];
         } else {
