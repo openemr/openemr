@@ -13,6 +13,8 @@ namespace OpenEMR\Services\Qrda;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Services\Qrda\Helpers\Cat1View;
 use OpenEMR\Services\Qrda\Helpers\Date;
+use OpenEMR\Services\Qrda\Helpers\Frequency;
+use OpenEMR\Services\Qrda\Helpers\PatientView;
 use OpenEMR\Services\Qrda\Helpers\View;
 
 class Cat1 extends \Mustache_Engine
@@ -20,6 +22,8 @@ class Cat1 extends \Mustache_Engine
     use Date;
     use View;
     use Cat1View;
+    use PatientView;
+    use Frequency;
 
     protected $templatePath =
         __DIR__ . DIRECTORY_SEPARATOR .
@@ -43,12 +47,12 @@ class Cat1 extends \Mustache_Engine
     public function __construct(Patient $patient, $measures = array(), $options = array())
     {
         $this->patient = $patient;
-        $this->_performance_period_end = $options['performance_period_start'] ?? null;
-        $this->_performance_period_end = $options['performance_period_end'] ?? null;
+        // comes from PatientView trait
+        $this->provider = $options['provider'] ?? null;
+        $this->performance_period_end = $options['performance_period_start'] ?? null;
+        $this->performance_period_end = $options['performance_period_end'] ?? null;
         $this->_measures = $measures;
-        $this->_submission_program = $options['submission_program'] ?? null;
-
-        error_log(var_export($patient, true));
+        $this->submission_program = $options['submission_program'] ?? null;
 
         parent::__construct(array(
             'entity_flags' => ENT_QUOTES,
@@ -65,6 +69,11 @@ class Cat1 extends \Mustache_Engine
         );
 
         return $xml;
+    }
+
+    public function patient_characteristic_payer()
+    {
+        return json_decode(json_encode($this->patient->get_data_elements('patient_characteristic', 'payer')));
     }
 
     public function patient_characteristic_birthdate()

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * View is a mustache helper trait with various helper methods for dealing with medication frequencies.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace OpenEMR\Services\Qrda\Helpers;
 
@@ -9,7 +18,7 @@ use Ramsey\Uuid\Rfc4122\UuidV4;
 
 trait View
 {
-    protected $_submission_program;
+    protected $submission_program;
 
     public function measures()
     {
@@ -37,6 +46,6 @@ trait View
 
     public function submission_program()
     {
-        return $this->_submission_program;
+        return $this->submission_program;
     }
 }
