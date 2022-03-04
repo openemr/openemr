@@ -531,3 +531,13 @@ function deletePnote($id)
     sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
     return true;
 }
+
+function patientNoteConvertLinks($note) {
+    $noteActiveLink = preg_replace('!((https://)[-a-zA-Z()0-9@:%_+.~#?&;//=]+)!i', '<a href="$1" target="_blank" rel="noopener">$1</a>', $note);
+    if (empty($noteActiveLink)) {
+        // something bad happened (preg_replace returned null) or the $note was empty
+        return $note;
+    } else {
+        return $noteActiveLink;
+    }
+}
