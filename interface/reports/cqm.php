@@ -36,6 +36,14 @@ $amc_report_types = [
                 , 'title' => xl('Automated Measure Calculations (AMC)')
                 , 'ruleset_title' => xl('Automated Measure Calculations (AMC) - 2015')
                 , 'code_col' => 'amc_code_2015'
+        ],
+        // we have to support the original report settings
+        CertificationReportTypes::ORIGINAL_REPORT=> [
+            // 2015 AMC measures is our default ones
+            'abbr' => xl('AMC')
+            , 'title' => xl('Automated Measure Calculations (AMC)')
+            , 'ruleset_title' => xl('Automated Measure Calculations (AMC)')
+            , 'code_col' => 'amc_code'
         ]
         ,CertificationReportTypes::MU1_2011 => [
                 'abbr' => xl('AMC-2011')
