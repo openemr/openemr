@@ -39,6 +39,33 @@ class CodeTypesService
         '2.16.840.1.113883.6.101' => self::CODE_TYPE_NUCC,
         '2.16.840.1.113883.6.88' => self::CODE_TYPE_RXNORM,
         '2.16.840.1.113883.6.90' => self::CODE_TYPE_ICD10,
+        '2.16.840.1.113883.6.103' =>  'ICD-9-CM',
+        '2.16.840.1.113883.6.104' =>  'ICD-9-PCS',
+        '2.16.840.1.113883.6.4' =>   'ICD-10-PCS',
+        '2.16.840.1.113883.6.14' =>   'HCP',
+        '2.16.840.1.113883.6.285' =>   'HCPCS',
+        '2.16.840.1.113883.5.2' => "HL7 Marital Status",
+        '2.16.840.1.113883.12.292' => 'CVX',
+        '2.16.840.1.113883.5.83' => 'HITSP C80 Observation Status',
+        '2.16.840.1.113883.3.26.1.1' => 'NCI Thesaurus',
+        '2.16.840.1.113883.3.88.12.80.20' => 'FDA',
+        "2.16.840.1.113883.4.9" => "UNII",
+        "2.16.840.1.113883.6.69" => "NDC",
+        '2.16.840.1.113883.5.14' => 'HL7 ActStatus',
+        '2.16.840.1.113883.6.259' => 'HL7 Healthcare Service Location',
+        '2.16.840.1.113883.12.112' => 'DischargeDisposition',
+        '2.16.840.1.113883.5.4' => 'HL7 Act Code',
+        '2.16.840.1.113883.1.11.18877' => 'HL7 Relationship Code',
+        '2.16.840.1.113883.6.238' => 'CDC Race',
+        '2.16.840.1.113883.6.177' => 'NLM MeSH',
+        '2.16.840.1.113883.5.1076' => "Religious Affiliation",
+        '2.16.840.1.113883.1.11.19717' => "HL7 ActNoImmunicationReason",
+        '2.16.840.1.113883.3.88.12.80.33' => "NUBC",
+        '2.16.840.1.113883.1.11.78' => "HL7 Observation Interpretation",
+        '2.16.840.1.113883.3.221.5' => "Source of Payment Typology",
+        '2.16.840.1.113883.6.13' => 'CDT',
+        '2.16.840.1.113883.18.2' => 'AdministrativeSex',
+        '2.16.840.1.113883.5.1' => 'AdministrativeGender'
     );
     /**
      * @var array
@@ -255,13 +282,13 @@ class CodeTypesService
                 break;
             default:
                 if (strpos($type, '2.16.840.1.113883.') !== false) {
-                    $type = $this->getCodeTypeFromSystem($type);
+                    $type = $this->getCodeSystemNameFromSystem($type);
                 }
         }
         return $type ?? "";
     }
 
-    public function getCodeTypeFromSystem($oid): string
+    public function getCodeSystemNameFromSystem($oid): string
     {
         return self::CODE_TYPE_OID[$oid] ?? '';
     }

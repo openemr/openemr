@@ -1,4 +1,5 @@
 <?php
+
 namespace OpenEMR\Services\Qrda;
 
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
@@ -8,7 +9,6 @@ class ExportService
 {
     protected $builder;
     protected $request;
-
     public function __construct(QdmBuilder $builder, QdmRequestInterface $request)
     {
         $this->builder = $builder;

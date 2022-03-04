@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfdb57dc937659f28fe8c16be6692671",
+    "content-hash": "038c060cbaace20a563de053ed7e0633",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -4263,6 +4263,50 @@
             "time": "2021-07-01T19:01:15+00:00"
         },
         {
+            "name": "mi-squared/mi-framework",
+            "version": "0.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mi-squared/mi-framework.git",
+                "reference": "6795fb0b7e94303748cc070e9c98c020417ccaa6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mi-squared/mi-framework/zipball/6795fb0b7e94303748cc070e9c98c020417ccaa6",
+                "reference": "6795fb0b7e94303748cc070e9c98c020417ccaa6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Mi2\\Utils": "src/",
+                    "Mi2\\DataTable": "src/",
+                    "Mi2\\Framework": "src/"
+                },
+                "classmap": []
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Ken Chapple",
+                    "email": "ken@mi-squared.com"
+                }
+            ],
+            "description": "A simple mvc framework",
+            "homepage": "https://mi-squared.com",
+            "keywords": [
+                "openemr"
+            ],
+            "support": {
+                "issues": "https://github.com/mi-squared/mi-framework/issues",
+                "source": "https://github.com/mi-squared/mi-framework/tree/0.1.5"
+            },
+            "time": "2021-10-29T16:13:38+00:00"
+        },
+        {
             "name": "mobiledetect/mobiledetectlib",
             "version": "2.8.37",
             "source": {
@@ -5052,6 +5096,133 @@
                 "source": "https://github.com/thephpleague/omnipay-stripe/tree/v3.1.0"
             },
             "time": "2019-08-31T10:55:06+00:00"
+        },
+        {
+            "name": "openemr/mustache",
+            "version": "v2.15.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/openemr/mustache.php",
+                "reference": "936596936d306725f34bb13f11e9a16bdbe99887"
+            },
+            "require": {
+                "php": ">=5.2.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~1.11",
+                "phpunit/phpunit": "~3.7|~4.0|~5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Mustache": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Justin Hileman",
+                    "email": "justin@justinhileman.info",
+                    "homepage": "http://justinhileman.com"
+                },
+                {
+                    "name": "OpenEMR",
+                    "email": "hello@open-emr.org",
+                    "homepage": "https://open-emr.org"
+                }
+            ],
+            "description": "A Mustache implementation in PHP.",
+            "homepage": "https://github.com/openemr/mustache.php",
+            "keywords": [
+                "mustache",
+                "templating"
+            ],
+            "time": "2022-03-03T14:53:09+00:00"
+        },
+        {
+            "name": "openemr/oe-module-cqm",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/openemr/oe-module-cqm",
+                "reference": "85d0b99ae7f4cb834216682cf34d2410b22c3b0c"
+            },
+            "require": {
+                "mi-squared/mi-framework": "^0.1.0",
+                "openemr/oe-module-installer-plugin": "^0.1.0"
+            },
+            "default-branch": true,
+            "type": "openemr-module",
+            "autoload": {
+                "psr-4": {
+                    "Mi2\\Cqm\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Ken Chapple",
+                    "email": "ken@mi-squared.com"
+                },
+                {
+                    "name": "Jerry Padgett",
+                    "email": "sjpadgett@gmail.com"
+                }
+            ],
+            "description": "Test CQM Services.",
+            "time": "2021-12-13T17:56:09+00:00"
+        },
+        {
+            "name": "openemr/oe-module-installer-plugin",
+            "version": "0.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/openemr/oe-module-installer-plugin.git",
+                "reference": "4803eb0e6ad07328bd0eac485d0b2ff9e075f9f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/openemr/oe-module-installer-plugin/zipball/4803eb0e6ad07328bd0eac485d0b2ff9e075f9f6",
+                "reference": "4803eb0e6ad07328bd0eac485d0b2ff9e075f9f6",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^2.0"
+            },
+            "require-dev": {
+                "composer/composer": "^2.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "OpenEMR\\Composer\\ModuleInstallerPlugin\\Plugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "OpenEMR\\Composer\\ModuleInstallerPlugin\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Stephen Nielson",
+                    "email": "stephen@nielson.org",
+                    "role": "Developer"
+                }
+            ],
+            "description": "OpenEMR Module Installer plugin for installing custom modules into the OpenEMR codebase.",
+            "keywords": [
+                "openemr",
+                "openemr-module"
+            ],
+            "support": {
+                "issues": "https://github.com/openemr/oe-module-installer-plugin/issues",
+                "source": "https://github.com/openemr/oe-module-installer-plugin/tree/0.1.5"
+            },
+            "time": "2021-05-03T14:22:43+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -9018,16 +9189,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.3.8",
+            "version": "v3.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "972d8604a92b7054828b539f2febb0211dd5945c"
+                "reference": "8f168c6ffa3ce76d1786b3cd52275424a3fc675b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/972d8604a92b7054828b539f2febb0211dd5945c",
-                "reference": "972d8604a92b7054828b539f2febb0211dd5945c",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/8f168c6ffa3ce76d1786b3cd52275424a3fc675b",
+                "reference": "8f168c6ffa3ce76d1786b3cd52275424a3fc675b",
                 "shasum": ""
             },
             "require": {
@@ -9078,7 +9249,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.3.8"
+                "source": "https://github.com/twigphp/Twig/tree/v3.3.7"
             },
             "funding": [
                 {
@@ -9090,7 +9261,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-04T06:59:48+00:00"
+            "time": "2022-01-03T21:15:37+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -12376,7 +12547,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "openemr/oe-module-cqm": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -12386,5 +12559,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.0.0"
 }

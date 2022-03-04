@@ -21,15 +21,17 @@ trait Date
 {
     protected $performance_period_start;
     protected $performance_period_end;
-    public function value_or_null_flavor(string $text)
+
+    public function value_or_null_flavor($time)
     {
-        if (!empty($text)) {
-            $v = "value='{$text}'";
+        if (!empty($time)) {
+            $v = "value='{$time}'";
         } else {
             $v = "nullFlavor='UNK'";
         }
         return $v;
     }
+
     public function performance_period_start(Mustache_Context $context)
     {
         return $this->to_formatted_s_number($this->performance_period_start);
@@ -106,10 +108,10 @@ trait Date
 
     public function prevalence_period(Mustache_Context $context)
     {
-        $prevalencePeriod = $context->find('prevalencePeriod') ?? ['low' => null, 'high' => null];
+        $prevalencePeriod = json_decode(json_encode($context->find('prevalencePeriod')), true) ?? ['low' => null, 'high' => null];
         return "<effectiveTime>"
-         . "<low " . $this->value_or_null_flavor($prevalencePeriod['low']) . "/>"
-         . "<high " . $this->value_or_null_flavor($prevalencePeriod['high']) . "/>"
+         . "<low " . $this->value_or_null_flavor($prevalencePeriod['low'] ?? '') . "/>"
+         . "<high " . $this->value_or_null_flavor($prevalencePeriod['high'] ?? '') . "/>"
         . "</effectiveTime>";
     }
 
@@ -150,7 +152,7 @@ trait Date
             // we return the function name to call here
             return 'relevant_period';
         } else if (!empty($context->find('relevantDatetime'))) {
-            return 'relevant_date_time_value';
+            return $this->relevant_date_time_value($context);
         } else {
             "<effectiveTime nullFlavor='UNK'/>";
         }
@@ -179,7 +181,7 @@ trait Date
 
     public function completed_prevalence_period(Mustache_Context $context): bool
     {
-        $period = $context->find('prevalencePeriod');
+        $period = json_decode(json_encode($context->find('prevalencePeriod')), true) ?? ['low' => null, 'high' => null];
         return !empty($period['high']);
     }
 

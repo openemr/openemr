@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Services\Qrda\Helpers;
 
-
 use Mustache_Context;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
@@ -41,7 +40,7 @@ trait View
 
     public function object_id()
     {
-        return spl_object_hash();
+        return spl_object_hash($this); // @TODO unknown what to use here!
     }
 
     public function submission_program()

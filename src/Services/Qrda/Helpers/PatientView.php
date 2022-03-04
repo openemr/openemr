@@ -15,7 +15,6 @@ namespace OpenEMR\Services\Qrda\Helpers;
 use Mustache_Context;
 use OpenEMR\Cqm\Qdm\Patient;
 
-
 trait PatientView
 {
     protected $provider;
@@ -100,8 +99,7 @@ trait PatientView
         });
         if (empty($gender_elements)) {
             return false;
-        }
-        else if (empty($gender_elements[0]->dataElementCodes)) {
+        } else if (empty($gender_elements[0]->dataElementCodes)) {
             return false;
         } else {
             return $gender_elements[0]->dataElementCodes[0]['code'];
@@ -195,5 +193,4 @@ trait PatientView
         }
         return null;
     }
-
 }
