@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfdb57dc937659f28fe8c16be6692671",
+    "content-hash": "b0a9897f0cdd50fb30aac062877e462a",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -5052,6 +5052,61 @@
                 "source": "https://github.com/thephpleague/omnipay-stripe/tree/v3.1.0"
             },
             "time": "2019-08-31T10:55:06+00:00"
+        },
+        {
+            "name": "openemr/mustache",
+            "version": "v2.15.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/openemr/mustache.php.git",
+                "reference": "936596936d306725f34bb13f11e9a16bdbe99887"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/openemr/mustache.php/zipball/936596936d306725f34bb13f11e9a16bdbe99887",
+                "reference": "936596936d306725f34bb13f11e9a16bdbe99887",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~1.11",
+                "phpunit/phpunit": "~3.7|~4.0|~5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Mustache": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Justin Hileman",
+                    "email": "justin@justinhileman.info",
+                    "homepage": "http://justinhileman.com"
+                },
+                {
+                    "name": "OpenEMR",
+                    "email": "hello@open-emr.org",
+                    "homepage": "https://open-emr.org"
+                }
+            ],
+            "description": "A Mustache implementation in PHP.",
+            "homepage": "https://github.com/openemr/mustache.php",
+            "keywords": [
+                "mustache",
+                "templating"
+            ],
+            "support": {
+                "issues": "https://github.com/openemr/mustache.php/issues",
+                "source": "https://github.com/openemr/mustache.php/tree/v2.15.2"
+            },
+            "time": "2022-03-03T14:53:09+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
