@@ -102,6 +102,9 @@ class FeeSheet
 
         $this->pid = $pid;
         $this->encounter = $encounter;
+        // get provider field for pid's primary insurance from insurance_data to be added to billing row table as payer_id
+        $primary_insurance = getInsuranceData($this->pid);
+        $this->payer_id = $primary_insurance['provider'];
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
         $this->ALLOW_COPAYS = empty($GLOBALS['ippf_specific']);
@@ -1143,7 +1146,8 @@ class FeeSheet
                         0,
                         $notecodes,
                         $pricelevel,
-                        $revenue_code
+                        $revenue_code,
+                        $this->payer_id
                     );
                 }
             } // end for
