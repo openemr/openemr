@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -34,7 +34,7 @@ class Cat1 extends \Mustache_Engine
     protected $mustache;
     public $random_id = '4444';
     public $mrn = '545644';
-/**
+    /**
      * @var array
      */
     protected $_measures;
@@ -42,16 +42,18 @@ class Cat1 extends \Mustache_Engine
     public function __construct(Patient $patient, $measures = array(), $options = array())
     {
         $this->patient = $patient;
-// comes from PatientView trait
+        // comes from PatientView trait
         $this->provider = $options['provider'] ?? null;
         $this->performance_period_end = $options['performance_period_start'] ?? null;
         $this->performance_period_end = $options['performance_period_end'] ?? null;
         $this->_measures = $measures;
         $this->submission_program = $options['submission_program'] ?? null;
-        parent::__construct(array(
+        parent::__construct(
+            array(
             'entity_flags' => ENT_QUOTES,
             'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-        ));
+            )
+        );
     }
 
 
@@ -244,7 +246,7 @@ class Cat1 extends \Mustache_Engine
     {
         // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
         return [];
-//JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('patient_care_experience', '') }).to_json)
+        //JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('patient_care_experience', '') }).to_json)
     }
 
     public function patient_characteristic_clinical_trial_participant()
@@ -296,7 +298,7 @@ class Cat1 extends \Mustache_Engine
     {
         // TODO: @sjpadgett, @adunsulag, @ken.matrix need to implement this method with helper util
         return [];
-//JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('provider_care_experience', '') }).to_json)
+        //JSON.parse(@qdmPatient.dataElements.where(hqmfOid: { '$in' => HQMF::Util::HQMFTemplateHelper.get_all_hqmf_oids('provider_care_experience', '') }).to_json)
     }
 
     public function related_person()
