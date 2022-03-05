@@ -132,3 +132,8 @@ ALTER TABLE `clinical_rules` ADD `amc_2015_flag` TINYINT(1) NULL DEFAULT NULL
 ALTER TABLE `clinical_rules` ADD `amc_code_2015` VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
     NOT NULL DEFAULT '' COMMENT 'Automated Measure Calculation 2014 identifier (MU rule)' AFTER `amc_code_2014`;
 #EndIf
+
+#IfMissingColumn patient_access_onsite date_created
+-- We add the date time so we know exactly when the credentials were generated without having to lookup in the audit log
+ALTER TABLE patient_access_onsite ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+#EndIf
