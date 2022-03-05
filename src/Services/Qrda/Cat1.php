@@ -23,7 +23,8 @@ class Cat1 extends \Mustache_Engine
     use View;
     use Cat1View;
     use PatientView;
-    use Frequency;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          use View;
+    use Frequency;
+    use View;
 
     protected $templatePath =
         __DIR__ . DIRECTORY_SEPARATOR .

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 // TODO Port to php for QRDA Cat 3 export
-
 /*
 require 'mustache'
 class Qrda3 < Mustache
