@@ -684,7 +684,7 @@ class EncounterService extends BaseService
     {
         $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
         if ($encounterResult->hasData()) {
-            return $encounterResult->getData()[0]['referring_provider_id'];
+            return $encounterResult->getData()[0]['referring_provider_id'] ?? '';
         }
         return [];
     }

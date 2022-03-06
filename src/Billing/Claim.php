@@ -238,7 +238,7 @@ class Claim
             }
 
             $ins = count($this->payers);
-            if ($drow['provider'] == $billrow['payer_id'] && empty($this->payers[0]['data'])) {
+            if (($drow['provider'] == $billrow['payer_id']  || $billrow['payer_id'] == null) && empty($this->payers[0]['data'])) {
                 $ins = 0;
             }
 
@@ -328,7 +328,7 @@ class Claim
             // Compute this procedure's patient responsibility amount as of this
             // prior payer, which is the original charge minus all insurance
             // payments and "hard" adjustments up to this payer.
-            $ptresp = $this->invoice[$code]['chg'] + $this->invoice[$code]['adj'];
+            $ptresp = $this->invoice[$code]['chg'] + $this->invoice[$code]['adj'] ?? '';
             foreach ($this->invoice[$code]['dtl'] as $key => $value) {
                 // plv (from ar_activity.payer_type) exists to
                 // indicate the payer level.
