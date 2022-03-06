@@ -285,7 +285,7 @@ function submitform(attr) {
                     if ($noteid) {
                         $body = $prow['body'];
                         $body = preg_replace(array('/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'), '${1}' . $patientname . '${2}', $body);
-                        $body = nl2br(text(oeFormatPatientNote($body)));
+                        $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         echo "<div class='text'>" . $body . "</div>";
                     }
                     ?>

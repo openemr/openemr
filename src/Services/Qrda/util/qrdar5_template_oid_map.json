@@ -1,0 +1,406 @@
+
+{
+  "2.16.840.1.113883.10.20.28.4.123": {
+    "quality_datatype_name":"Admission Source",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Admission Source",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.151",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.120": {
+    "quality_datatype_name":"Adverse Event",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Adverse Event",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.146",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.119": {
+    "quality_datatype_name":"Allergy / Intolerance",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Allergy Intolerance",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.147",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.117": {
+    "quality_datatype_name":"Assessment, Performed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Assessment Performed (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.144",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.118": {
+    "quality_datatype_name":"Assessment, Recommended",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Assessment Recommended (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.145",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.7": {
+    "quality_datatype_name":"Care Goal",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Care Goal (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.1",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.8": {
+    "quality_datatype_name":"Communication: From Patient to Provider",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Communication from Patient to Provider (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.2",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.9": {
+    "quality_datatype_name":"Communication: From Provider to Patient",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Communication from Provider to Patient (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.3",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.10": {
+    "quality_datatype_name":"Communication: From Provider to Provider",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Communication from Provider to Provider (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.4",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.121": {
+    "quality_datatype_name":"Component",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Component",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.149",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.126": {
+    "quality_datatype_name":"Laboratory Test Component",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Component",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.149",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.13": {
+    "quality_datatype_name":"Device, Applied",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Device Applied (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.7",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.15": {
+    "quality_datatype_name":"Device, Order",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Device Order Act (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.130",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.16": {
+    "quality_datatype_name":"Device, Recommended",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Device Recommended Act (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.131",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.110": {
+    "quality_datatype_name":"Diagnosis",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Diagnosis Concern Act (V3)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.137",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.22": {
+    "quality_datatype_name":"Diagnostic Study, Order",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Diagnostic Study, Order (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.17",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.23": {
+    "quality_datatype_name":"Diagnostic Study, Performed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Diagnostic Study Performed (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.18",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.24": {
+    "quality_datatype_name":"Diagnostic Study, Recommended",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Diagnostic Study Recommended (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.19",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.27": {
+    "quality_datatype_name":"Encounter, Order",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Encounter Order Act (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.132",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.5": {
+    "quality_datatype_name":"Encounter, Performed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Encounter Performed Act (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.133",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.28": {
+    "quality_datatype_name":"Encounter, Recommended",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Encounter Recommended Act (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.134",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.92": {
+    "quality_datatype_name":"Facility Location (attribute)",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Facility Location (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.100",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883. 0.20.28.4.111": {
+    "quality_datatype_name":"Family History",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Family History Organizer QDM (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.12",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.112": {
+    "quality_datatype_name":"Immunization, Administered",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Immunization Administered (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.140",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.113": {
+    "quality_datatype_name":"Immunization, Order",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Immunization, Order (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.143",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.89": {
+    "quality_datatype_name":"Incision dateTime (attribute)",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Incision Datetime",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.89"
+  },
+  "2.16.840.1.113883.10.20.28.4.35": {
+    "quality_datatype_name":"Intervention, Order",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Intervention Order (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.31",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.36": {
+    "quality_datatype_name":"Intervention, Performed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Intervention Performed (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.32",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.37": {
+    "quality_datatype_name":"Intervention, Recommended",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Intervention Recommended (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.33",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.41": {
+    "quality_datatype_name":"Laboratory Test, Order",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Laboratory Test Order (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.37",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.42": {
+    "quality_datatype_name":"Laboratory Test, Performed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Laboratory Test Performed (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.38",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.43": {
+    "quality_datatype_name":"Laboratory Test, Recommended",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Laboratory Test Recommended (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.39",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.44": {
+    "quality_datatype_name":"Medication, Active",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Medication Active (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.41",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.45": {
+    "quality_datatype_name":"Medication, Administered",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Medication Administered (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.42",
+    "cda_template_extension":"2017-08-01"
+   },
+  "2.16.840.1.113883.10.20.28.4.49": {
+    "quality_datatype_name":"Medication, Dispensed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Medication Dispensed (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.45",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.51": {
+    "quality_datatype_name":"Medication, Order",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Medication Order (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.47",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.130": {
+    "quality_datatype_name":"Participation",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Program Participation",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.154",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.52": {
+    "quality_datatype_name":"Patient Care Experience",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Patient Care Experience (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.48",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.6": {
+    "quality_datatype_name":"Patient Characteristic Clinical Trial Participant",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Patient Characteristic Clinical Trial Participant (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.51",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.58": {
+    "quality_datatype_name":"Patient Characteristic Payer",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Patient Characteristic Payer",
+    "cda_template_id":"2.16.840.1.113883. 10.20.24.3.55"
+  },
+  "2.16.840.1.113883.10.20.28.4.61": {
+    "quality_datatype_name":"Physical Exam, Order",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Physical Exam Order (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.58",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.62": {
+    "quality_datatype_name":"Physical Exam, Performed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Physical Exam Performed (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.59",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.63": {
+    "quality_datatype_name":"Physical Exam, Recommended",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Physical Exam Recommended (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.60",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.122": {
+    "quality_datatype_name":"Principal Diagnosis (attribute)",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Principal Diagnosis",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.152",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.66": {
+    "quality_datatype_name":"Procedure, Order",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Procedure Order (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.63",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.67": {
+    "quality_datatype_name":"Procedure, Performed",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Procedure, Performed (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.64",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.68": {
+    "quality_datatype_name":"Procedure, Recommended",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Procedure Recommended (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.65",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.70": {
+    "quality_datatype_name":"Provider Care Experience",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Provider Care Experience (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.67",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.71": {
+    "quality_datatype_name":"Provider Characteristic",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Provider Characteristic Observation Assertion (V3)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.114",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.88": {
+    "quality_datatype_name":"Reason (attribute)",
+    "quality_datatype_extension":"2017-05-01",
+    "cda_template_name":"Reason (V3)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.88",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.127": {
+    "quality_datatype_name":"Related To (attribute)",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Related To",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.150",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.93": {
+    "quality_datatype_name":"Severity (attribute)",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Severity Observation (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.22.4.8",
+    "cda_template_extension":"2014-06-09"
+  },
+  "2.16.840.1.113883.10.20.28.4.94": {
+    "quality_datatype_name":"Status (attribute)",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Status",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.93"
+  },
+  "2.16.840.1.113883.10.20.28.4.73": {
+    "quality_datatype_name":"Substance, Administered",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Medication Administered (V4)",
+    "cda_template_id":"2.16.840.1.113883.10 .20.24.3.42",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.77": {
+    "quality_datatype_name":"Substance, Order",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Medication Order (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.47",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.78": {
+    "quality_datatype_name":"Substance, Recommended",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Substance Recommended (V4)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.75",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.116": {
+    "quality_datatype_name":"Symptom",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Symptom Concern Act (V3)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.138",
+    "cda_template_extension":"2017-08-01"
+  },
+  "2.16.840.1.113883.10.20.28.4.128": {
+    "quality_datatype_name":"Target Outcome (attribute)",
+    "quality_datatype_extension":"2017-08-01",
+    "cda_template_name":"Target Outcome (V2)",
+    "cda_template_id":"2.16.840.1.113883.10.20.24.3.119",
+    "cda_template_extension":"2017-08-01"
+  }
+}

@@ -94,12 +94,12 @@ switch ($search_any_type) {
                 echo "<$wrapperElement class=\"$wrapperElementClass\">";
                 ?>
 
-                    <a class="ptName <?php echo $classes; ?> " data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
+                    <a class="ptName <?php echo $classes ?? ''; ?> " data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
                         <span data-bind="text: pname()"></span>
                         <<?php echo $pubpidElement;?> class="text-muted">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
                     </a>
                     <?php echo ($closeElement !== '') ? "<$closeElement class=\"$closeElementClass\">" : ''; ?>
-                    <a href="#" class="pt-1<?php echo ($classes !== "") ? " " . $classes : "";?> <?php echo ($closeAnchorClasses !== "") ? " " . $closeAnchorClasses : ""; ?>" data-bind="click:clearPatient" title="<?php echo xla("Close Patient Chart") ?>">
+                    <a href="#" class="pt-1<?php echo (($classes ?? '') !== "") ? " " . $classes : "";?> <?php echo ($closeAnchorClasses !== "") ? " " . $closeAnchorClasses : ""; ?>" data-bind="click:clearPatient" title="<?php echo xla("Close Patient Chart") ?>">
                         <i class="fa fa-times<?php echo ($closeIconClass !== "") ? " " . $closeIconClass : ""; ?>"></i>
                     </a>
                     <?php echo ($closeElement !== '') ? "</$closeElement>" : ''; ?>

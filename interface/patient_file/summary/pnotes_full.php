@@ -460,10 +460,10 @@ function restoreSession() {
                                 $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                 if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-                                    $body = nl2br(text(oeFormatPatientNote($body)));
+                                    $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 } else {
                                     $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
-                                    ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
+                                    ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 }
 
                                 if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
@@ -624,10 +624,10 @@ function restoreSession() {
 
                         $body = $iter['body'];
                         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-                            $body = nl2br(text(oeFormatPatientNote($body)));
+                            $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         } else {
                             $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
-                            ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
+                            ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         }
 
                         $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
