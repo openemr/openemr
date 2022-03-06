@@ -493,9 +493,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         function criteriaSelectHasValue(select) {
             obj = document.getElementById(select);
             if (obj.options.length == 0) {
-                if (!confirm("Do you really want to submit with no criteria selected?")) {
-                    return false;
-                }
+                var checkstr = confirm(<?php echo xlj("Do you really want to submit with no criteria selected?"); ?>);
+                return checkstr;
             }
             return true;
         }
