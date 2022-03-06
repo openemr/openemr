@@ -1211,11 +1211,11 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             } // end not $ptrow['count'] == 1
             ?>
   <td class="detail">
-     &nbsp;<a href="#" onclick="editInvoice(event,<?php echo attr_js($row['id']) ?>)">
+     &nbsp;<a href="#" title="Open invoice (will refresh page)" onclick="editInvoice(event,<?php echo attr_js($row['id']) ?>)">
             <?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">
-   &nbsp;<?php echo "<input type='button' class='btn btn-sm btn-secondary' value='" .
+   &nbsp;<?php echo "<input title='To encounter' type='button' class='btn btn-sm btn-secondary' value='" .
                    attr(oeFormatShortDate($row['dos'])) . "' onClick='toEncounter(" .
                    attr_js($row['pid']) . ", " . attr_js($row['encounter']) .
                    "); ' />"; ?>
