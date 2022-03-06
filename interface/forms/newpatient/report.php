@@ -30,7 +30,7 @@ function newpatient_report($pid, $encounter, $cols, $id)
             print "<span class=bold>" . xlt('Category') . ": </span><span class=text>" . text($calendar_category[0]['pc_catname']) . "</span><br />\n";
             print "<span class=bold>" . xlt('Reason') . ": </span><span class=text>" . nl2br(text($result["reason"])) . "</span><br />\n";
             print "<span>" . xlt('Provider') . ": </span><span class=text>" . text($provider['lname'] . ", " . $provider['fname']) . "</span><br />\n";
-            print "<span>" . xlt('Referring Provider') . ": </span><span class=text>" . text($referringProvider['lname'] . ", " . $referringProvider['fname']) . "</span><br />\n";
+            print "<span>" . xlt('Referring Provider') . ": </span><span class=text>" . text(($referringProvider['lname'] ?? '') . ", " . ($referringProvider['fname'] ?? '')) . "</span><br />\n";
             print "<span>" . xlt('POS Code') . ": </span><span class=text>" . text(sprintf('%02d', trim($result['pos_code']))) . "</span><br />\n";
         }
     }

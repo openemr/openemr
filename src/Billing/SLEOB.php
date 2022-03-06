@@ -289,6 +289,6 @@ class SLEOB
             }
         }
 
-        return xl("Encounter ") . $encounter . xl(" is ready for re-billing.");
+        return xl("Encounter ") . $encounter_id . xl(" is ready for re-billing.");
     }
 }
