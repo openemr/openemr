@@ -1394,7 +1394,7 @@ class BillingUtilities
         $notecodes = '',
         $pricelevel = '',
         $revenue_code = "",
-        $payer_id = "",
+        $payer_id = ""
     ) {
         if (!$authorized) {
             $authorized = "0";
