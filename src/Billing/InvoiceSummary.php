@@ -144,7 +144,7 @@ class InvoiceSummary
                 if ($row['account_code'] == "PCP") {
                     $code = "Copay";
                 } else {
-                    $code = "Unknown";
+                    $code = "Claim level";
                 }
             }
 
