@@ -20,7 +20,7 @@ trait Cat1View
     public function negation_ind(Mustache_Context $context): string
     {
         $negationRationale = $context->find('negationRationale');
-        return empty($negationRationale) ? "" : "negationInd=\"true\"";
+        return empty($negationRationale) ? "" : " negationInd=\"true\"";
     }
 
     public function negated(Mustache_Context $context): bool
@@ -63,17 +63,19 @@ trait Cat1View
             return "<id root=\"" . $namingSystem . "\" extension=\"" . $value . "\"/>";
         }
     }
+
     public function code_and_codesystem(Mustache_Context $context)
     {
-        $oid = $context->find('oid');
-        if ($oid == '1.2.3.4.5.6.7.8.9.10') {
-            return "nullFlavor=\"NA\" sdtc:valueSet=\"#{self['code']}\"";
+        $oid = $context->find('system');
+        $code = $context->find('code');
+        if (empty($oid)) {
+            return "nullFlavor=\"NA\" sdtc:valueSet=\"$code\"";
         } else {
-            $code = $context->find('code');
             $codeSystem = $this->get_code_system_for_oid($oid);
             return "code=\"" . $code . "\" codeSystem=\"" . $oid . "\" codeSystemName=\"" . $codeSystem . "\"";
         }
     }
+
     public function primary_code_and_codesystem(Mustache_Context $context)
     {
         $codes = $context->find('dataElementCodes');
@@ -82,6 +84,7 @@ trait Cat1View
         $system = $this->get_code_system_for_oid($oid);
         return "code=\"" . $code . "\" codeSystem=\"" . $oid . "\" codeSystemName=\"" . $system . "\"";
     }
+
     public function translation_codes_and_codesystem_list(Mustache_Context $context)
     {
         $translation_list = "";
@@ -133,7 +136,7 @@ trait Cat1View
                 $result_string = $this->result_value_as_string($result);
             }
             // string
-        } else if (is_string($result)) {
+        } elseif (is_string($result)) {
             $result_string = "<value xsi:type=\"ST\">" . $result . "</value>";
             // non-null value
         } else {
@@ -147,15 +150,17 @@ trait Cat1View
         if (empty($result)) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
+
         $oid = $result['system'] ?? $result['codeSystem'];
         $system = $this->get_code_system_for_oid($oid);
         if (!empty($result['code'])) {
             return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
                 . "\" codeSystemName=\"" . $system . "\"/>";
-        } else if ($result['unit']) {
-            return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "' unit='" . $result['unit'] . "'/>";
+        } elseif (!empty($result['value'])) {
+            return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
         } else {
             // TODO: @sjpadgett, @adunsulag, @ken.matrix the ruby code didn't handle this case... what happens here?
+            // no result so template shouldn't show.
             return "";
         }
     }

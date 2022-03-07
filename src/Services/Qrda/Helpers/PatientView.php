@@ -86,10 +86,16 @@ trait PatientView
 
     public function given_name(Mustache_Context $context)
     {
-        $names = $context->find('givenNames');
+        $names = $context->find('patientName');
         if (!empty($names)) {
-            return implode(' ', $names);
+            return trim($names->given . ' ' . $names->middle);
         }
+    }
+
+    public function familyName(Mustache_Context $context)
+    {
+        $family = $context->find('patientName');
+        return trim($family->family);
     }
 
     public function gender()
