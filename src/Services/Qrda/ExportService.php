@@ -15,12 +15,12 @@ class ExportService
         $this->request = $request;
     }
 
-    public function export()
+    public function export($measures = [])
     {
         $patientModels = $this->builder->build($this->request);
         $string = "";
         foreach ($patientModels as $patient) {
-            $cat1 = new Cat1($patient);
+            $cat1 = new Cat1($patient, $measures);
             $string .= $cat1->renderCat1Xml();
         }
 

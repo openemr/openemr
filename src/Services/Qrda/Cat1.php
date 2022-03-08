@@ -47,7 +47,7 @@ class Cat1 extends \Mustache_Engine
         $this->provider = $options['provider'] ?? null;
         $this->performance_period_end = $options['performance_period_start'] ?? null;
         $this->performance_period_end = $options['performance_period_end'] ?? null;
-        $this->_measures = $measures;
+        $this->_measures = $measures; // Lambda for measures is in View "helper"
         $this->submission_program = $options['submission_program'] ?? null;
         parent::__construct(
             array(
@@ -56,7 +56,6 @@ class Cat1 extends \Mustache_Engine
             )
         );
     }
-
 
     public function renderCat1Xml()
     {
