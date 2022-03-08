@@ -25,11 +25,12 @@ trait View
         return array_map(
             function ($measure) {
                 return [
-                'hqmf_id' => $measure['hqmf_id'] ?? null,
-                'hqmf_set_id' => $measure['hqmf_set_id'] ?? null,
-                'description' => $measure['description'] ?? null
+                    'hqmf_id' => $measure['hqmf_id'] ?? null,
+                    'hqmf_set_id' => $measure['hqmf_set_id'] ?? null,
+                    'description' => $measure['description'] ?? null
                 ];
-            }, $this->_measures
+            },
+            $this->_measures
         );
     }
 

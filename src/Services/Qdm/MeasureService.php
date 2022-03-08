@@ -49,7 +49,7 @@ class MeasureService
     {
         $measureObjects = [];
         foreach ($measures as $measure) {
-            $measureObjects[]= self::fetchMeasureJson($measure);
+            $measureObjects[] = self::fetchMeasureJson($measure);
         }
         return $measureObjects;
     }
