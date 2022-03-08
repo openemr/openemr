@@ -69,7 +69,7 @@
         "vlucas/phpdotenv": "5.4.1",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "openemr/mustache": "^2.15"
+        "openemr/mustache": "2.15.2"
     },
     "config": {
         "platform": {
