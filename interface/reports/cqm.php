@@ -38,7 +38,7 @@ $amc_report_types = [
                 , 'code_col' => 'amc_code_2015'
         ],
         // we have to support the original report settings
-        CertificationReportTypes::ORIGINAL_REPORT=> [
+        CertificationReportTypes::ORIGINAL_REPORT => [
             // 2015 AMC measures is our default ones
             'abbr' => xl('AMC')
             , 'title' => xl('Automated Measure Calculations (AMC)')
@@ -357,7 +357,7 @@ if (!empty($report_id)) {
 <?php } ?>
 
     <?php if (isset($amc_report_types[$type_report])) : ?>
-    <?php echo text($amc_report_types[$type_report]['title']); ?>
+        <?php echo text($amc_report_types[$type_report]['title']); ?>
     <?php endif; ?>
 
 <?php $dis_text = ''; ?>

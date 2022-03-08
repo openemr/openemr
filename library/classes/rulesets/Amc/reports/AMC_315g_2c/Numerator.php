@@ -28,7 +28,6 @@
 
 use OpenEMR\Common\Database\QueryUtils;
 
-
 class AMC_315g_2c_Numerator implements AmcFilterIF
 {
     public function getTitle()
@@ -59,7 +58,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF
         $numeratorData = QueryUtils::fetchRecords($sql, [$patient->id]);
 
         if (!empty($numeratorData['date_created'])) {
-           return true;
+            return true;
         }
         // we don't worry about casing here
         if (strtolower($numeratorData['prevent_portal_apps']) != "yes") {

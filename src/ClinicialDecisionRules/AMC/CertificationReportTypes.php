@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CertificationReportTypes holds the constants we use for the Automated Measure Calculation reports.  As there have been
  * various reporting years and methods for AMC this class holds the types of reporting methods and calculations we use
@@ -12,7 +13,6 @@
  */
 
 namespace OpenEMR\ClinicialDecisionRules\AMC;
-
 
 class CertificationReportTypes
 {
