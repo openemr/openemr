@@ -22,42 +22,44 @@ trait View
 
     public function measures()
     {
-//        // TODO: we don't know if this is the correct implementation or not, depends on how the measures are sent.
-//        $hqmf_id = $this->_measures['hqmf_id'] ?? null;
-//        $hqmf_set_id = $this->_measures['hqmf_set_id'] ?? null;
-//        $description = $this->_measures['description'] ?? null;
-//        return [
-//            'hqmf_id' => $hqmf_id,
-//            'hqmf_set_id' => $hqmf_set_id,
-//            'description' => $description
-//        ];
+        //        // TODO: we don't know if this is the correct implementation or not, depends on how the measures are sent.
+        //        $hqmf_id = $this->_measures['hqmf_id'] ?? null;
+        //        $hqmf_set_id = $this->_measures['hqmf_set_id'] ?? null;
+        //        $description = $this->_measures['description'] ?? null;
+        //        return [
+        //            'hqmf_id' => $hqmf_id,
+        //            'hqmf_set_id' => $hqmf_set_id,
+        //            'description' => $description
+        //        ];
 
-        return array_map(function ($measure) {
-            return [
+        return array_map(
+            function ($measure) {
+                return [
                 'hqmf_id' => $measure['hqmf_id'] ?? null,
                 'hqmf_set_id' => $measure['hqmf_set_id'] ?? null,
                 'description' => $measure['description'] ?? null
-            ];
-        }, $this->_measures);
+                ];
+            }, $this->_measures
+        );
 
         //return $this->_measures;
     }
 
-//    public function hqmf_id(Mustache_Context $context)
-//    {
-//        $hqmf_id = $context->find('hqmf_id');
-//        return $hqmf_id;
-//    }
+    //    public function hqmf_id(Mustache_Context $context)
+    //    {
+    //        $hqmf_id = $context->find('hqmf_id');
+    //        return $hqmf_id;
+    //    }
 
-//    public function hqmf_set_id(Mustache_Context $context)
-//    {
-//        return $context->find('hqmf_set_id');
-//    }
-//
-//    public function description(Mustache_Context $context)
-//    {
-//        return $context->find('description');
-//    }
+    //    public function hqmf_set_id(Mustache_Context $context)
+    //    {
+    //        return $context->find('hqmf_set_id');
+    //    }
+    //
+    //    public function description(Mustache_Context $context)
+    //    {
+    //        return $context->find('description');
+    //    }
 
     public function random_id()
     {

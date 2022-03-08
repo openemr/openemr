@@ -34,7 +34,7 @@ class MeasureService
      * Given full path to the measure directory, get the paths to the
      * measure file, and the value sets file.
      *
-     * @param $measurePath
+     * @param  $measurePath
      * @return string[]
      */
     public static function fetchMeasureFiles($measurePath)
