@@ -22,6 +22,9 @@ use OpenEMR\Validators\ProcessingResult;
 
 class TransactionRestController
 {
+    /**
+     * @var PatientTransactionService
+    */
     private $patientTransactionService;
 
     /**
@@ -34,7 +37,6 @@ class TransactionRestController
     public function __construct()
     {
         $this->patientTransactionService = new PatientTransactionService();
-        //$this->TransactionService = new TransactionService();
     }
 
     /**
@@ -49,7 +51,6 @@ class TransactionRestController
         $serviceValidation = $this->patientTransactionService->validate($data);
         $controllerValidationResult = RestControllerHelper::validationHandler($serviceValidation);
         if (is_array($controllerValidationResult)) {
-            //return $validationResult;
             $processingResult->setValidationMessages($controllerValidationResult);
         }
         
@@ -57,7 +58,6 @@ class TransactionRestController
         $serviceResult = $this->patientTransactionService->insert($pid, $data);
         $processingResult->addData($serviceResult);
         
-        //return RestControllerHelper::handleProcessingResult($processingResult, 201);
         return RestControllerHelper::handleProcessingResult($processingResult, 201, true);
     }
 
@@ -67,16 +67,15 @@ class TransactionRestController
 
         $data = $this->patientTransactionService->update($tid, $data);
         $processingResult->addData($data);
-        //return RestControllerHelper::handleProcessingResult($processingResult, 201);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, false);
     }
 
     /**
      * Returns patient resources which match an optional search criteria.
      */
-    public function getPatientTransactions($puuidString)
+    public function GetPatientTransactions($pid)
     {
-        $processingResult = $this->patientTransactionService->getAll($puuidString);
+        $processingResult = $this->patientTransactionService->getAll($pid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) 
             return RestControllerHelper::handleProcessingResult($processingResult, 404);

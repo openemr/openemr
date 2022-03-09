@@ -139,8 +139,8 @@
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
  *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
  *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
- *              "user/transaction.read": " (api:oemr)",
- *              "user/transaction.write": " (api:oemr)",
+ *              "user/transaction.read": "Read transactions the user has access to (api:oemr) (api:oemr)",
+ *              "user/transaction.write": "Write transactions the user has access to (api:oemr) (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
  *              "patient/encounter.read": "Read encounters the patient has access to (api:port)",
  *              "patient/patient.read": "Write encounters the patient has access to (api:port)"
@@ -6238,7 +6238,7 @@ RestConfig::$ROUTE_MAP = array(
         return $return;
     },
     /**
-     * Schema for the message request
+     * Schema for the transaction request
      *
      *  @OA\Schema(
      *      schema="api_transaction_request",
@@ -6334,7 +6334,7 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Parameter(
      *          name="pid",
      *          in="path",
-     *          description="The patient",
+     *          description="The pid for the patient",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -6359,8 +6359,8 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/patient/:pid/transaction" => function ($pid) {
         RestConfig::authorization_check("patients", "trans");
         $cont = new TransactionRestController();
-        $return = (new TransactionRestController())->getPatientTransactions($pid);
-        RestConfig::apiLog($return, $data);
+        $return = (new TransactionRestController())->GetPatientTransactions($pid);
+        RestConfig::apiLog($return);
         return $return;
     },
 
@@ -6372,7 +6372,7 @@ RestConfig::$ROUTE_MAP = array(
      *      @OA\Parameter(
      *          name="pid",
      *          in="path",
-     *          description="The id for the patient.",
+     *          description="The pid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -6475,7 +6475,7 @@ RestConfig::$ROUTE_MAP = array(
 
     "GET /patient/transaction_type" => function () {
         $return = (new TransactionRestController())->getTransactionTypes();
-        RestConfig::apiLog($return, $data);
+        RestConfig::apiLog($return);
         return $return;
     },
 

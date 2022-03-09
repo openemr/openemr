@@ -12,8 +12,6 @@
 
 namespace OpenEMR\Services;
 
-//require_once("$srcdir/transactions.inc");
-
 use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -129,6 +127,7 @@ class PatientTransactionService extends BaseService
 
     public function insert($pid, $data)
     {
+        sqlBeginTrans();
         $transactionId = $this->insertTransaction($pid, $data);
         if($transactionId == false)
             return false;
@@ -136,11 +135,13 @@ class PatientTransactionService extends BaseService
         $lbtDataId = $this->insertTransactionForm($transactionId, $data);
         if($lbtDataId == false)
             return false;
+        sqlCommitTrans();
         return ["id" => $transactionId, "form_id" => $lbtDataId];
     }
 
     public function insertTransaction($pid, $data)
     {
+        $user = $_SESSION['authUser'];
         $sql = 
         "
             INSERT INTO transactions SET
@@ -149,7 +150,7 @@ class PatientTransactionService extends BaseService
                 pid=?,
                 groupname=?,
                 authorized=1,
-                user='admin'
+                user=?
         ";
 
         $results = sqlInsert(
@@ -157,7 +158,8 @@ class PatientTransactionService extends BaseService
             array(
                 $data["type"],
                 $pid,
-                $data['groupname']
+                $data['groupname'],
+                $user
             )
         );
 
@@ -230,6 +232,7 @@ class PatientTransactionService extends BaseService
         $validFrom = $data["validFrom"];
         $validThrough = $data["validThrough"];
 
+        sqlBeginTrans();
         $this->UpdateTransactionForm($tid, 'refer_from', $referById);
         $this->UpdateTransactionForm($tid, 'refer_to', $referToId);
         $this->UpdateTransactionForm($tid, 'body', $body);
@@ -241,7 +244,8 @@ class PatientTransactionService extends BaseService
         $this->UpdateTransactionForm($tid, 'refer_visits', $visits);
         $this->UpdateTransactionForm($tid, 'refer_validFrom', $validFrom);
         $this->UpdateTransactionForm($tid, 'refer_validThrough', $validThrough);
-        
+        sqlCommitTrans();
+
         return $this->getOneFromDb($tid);
     }
 
@@ -251,7 +255,6 @@ class PatientTransactionService extends BaseService
             $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";
             $params = array($value, $fieldId, $formId);
             $res = sqlStatement($sql, $params);
-            //return $sql;
         }
     }
 
