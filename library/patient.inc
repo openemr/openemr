@@ -1155,9 +1155,9 @@ function newEmployerData(
 function updateEmployerData($pid, $new, $create = false)
 {
     // used to hard code colnames array('name','street','city','state','postal_code','country');
-    // but now adapted for layout based 
+    // but now adapted for layout based
     $colnames = array();
-    foreach($new as $key => $value) {
+    foreach ($new as $key => $value) {
         $colnames[] = $key;
     }
 
