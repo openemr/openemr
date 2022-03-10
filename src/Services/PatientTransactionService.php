@@ -137,12 +137,15 @@ class PatientTransactionService extends BaseService
     {
         sqlBeginTrans();
         $transactionId = $this->insertTransaction($pid, $data);
-        if($transactionId == false)
+        if($transactionId == false){
             return false;
+        }
+            
 
         $lbtDataId = $this->insertTransactionForm($transactionId, $data);
-        if($lbtDataId == false)
+        if($lbtDataId == false){
             return false;
+        }
         sqlCommitTrans();
         return ["id" => $transactionId, "form_id" => $lbtDataId];
     }
