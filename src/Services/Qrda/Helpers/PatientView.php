@@ -95,7 +95,10 @@ trait PatientView
     public function familyName(Mustache_Context $context)
     {
         $family = $context->find('patientName');
-        return trim($family->family);
+        if (is_object($family)) {
+            return trim($family->family);
+        }
+        return "";
     }
 
     public function gender()

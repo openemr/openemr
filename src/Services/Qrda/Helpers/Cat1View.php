@@ -152,15 +152,19 @@ trait Cat1View
         }
 
         $oid = $result['system'] ?? $result['codeSystem'];
-        $system = $this->get_code_system_for_oid($oid);
-        if (!empty($result['code'])) {
-            return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
-                . "\" codeSystemName=\"" . $system . "\"/>";
-        } elseif (!empty($result['value'])) {
-            return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
+        if (!empty($oid)) {
+            $system = $this->get_code_system_for_oid($oid);
+            if (!empty($result['code'])) {
+                return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
+                    . "\" codeSystemName=\"" . $system . "\"/>";
+            } elseif (!empty($result['value'])) {
+                return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
+            } else {
+                // TODO: @sjpadgett, @adunsulag, @ken.matrix the ruby code didn't handle this case... what happens here?
+                // no result so template shouldn't show.
+                return "";
+            }
         } else {
-            // TODO: @sjpadgett, @adunsulag, @ken.matrix the ruby code didn't handle this case... what happens here?
-            // no result so template shouldn't show.
             return "";
         }
     }

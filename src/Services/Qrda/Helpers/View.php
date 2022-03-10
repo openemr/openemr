@@ -21,11 +21,17 @@ trait View
 
     public function measures()
     {
-        // TODO: we don't know if this is the correct implementation or not, depends on how the measures are sent.
-        $hqmf_id = $this->_measures['hqmf_id'] ?? null;
-        $hqmf_set_id = $this->_measures['hqmf_set_id'] ?? null;
-        $description = $this->_measures['description'] ?? null;
-        return json_encode(['hqmf_id' => $hqmf_id, 'hqmf_set_id' => $hqmf_set_id, 'description' => $description]);
+        // Limit the pollution of the context by only passing the values we need
+        return array_map(
+            function ($measure) {
+                return [
+                    'hqmf_id' => $measure['hqmf_id'] ?? null,
+                    'hqmf_set_id' => $measure['hqmf_set_id'] ?? null,
+                    'description' => $measure['description'] ?? null
+                ];
+            },
+            $this->_measures
+        );
     }
 
     public function random_id()
