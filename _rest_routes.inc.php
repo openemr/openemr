@@ -6237,6 +6237,45 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::apiLog($return, $data);
         return $return;
     },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/patient/{pid}/transaction",
+     *      description="Get Transactions for a patient",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The pid for the patient",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+
+    "GET /api/patient/:pid/transaction" => function ($pid) {
+        RestConfig::authorization_check("patients", "trans");
+        $cont = new TransactionRestController();
+        $return = (new TransactionRestController())->GetPatientTransactions($pid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
     /**
      * Schema for the transaction request
      *
@@ -6325,45 +6364,6 @@ RestConfig::$ROUTE_MAP = array(
      *      }
      *  )
      */
-
-    /**
-     *  @OA\Get(
-     *      path="/api/patient/{pid}/transaction",
-     *      description="Get Transactions for a patient",
-     *      tags={"standard"},
-     *      @OA\Parameter(
-     *          name="pid",
-     *          in="path",
-     *          description="The pid for the patient",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/badrequest"
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/unauthorized"
-     *      ),
-     *      security={{"openemr_auth":{}}}
-     *  )
-     */
-
-    "GET /api/patient/:pid/transaction" => function ($pid) {
-        RestConfig::authorization_check("patients", "trans");
-        $cont = new TransactionRestController();
-        $return = (new TransactionRestController())->GetPatientTransactions($pid);
-        RestConfig::apiLog($return);
-        return $return;
-    },
-
     /**
      *  @OA\Post(
      *      path="/api/patient/{pid}/transaction",
