@@ -2,7 +2,7 @@
 
 /**
  * PatientTransaction Service
- *
+ * DAL to be used for Transactions
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jonathan Moore <Jdcmoore@aol.com>
@@ -26,6 +26,8 @@ use OpenEMR\Validators\BaseValidator;
 class PatientTransactionService extends BaseService
 {
     const TABLE_NAME = "transactions";
+    const _formPredicate = 'd.form_id';
+    const _transactionPredicate = 't.pid';
 
     public function __construct()
     {
@@ -33,6 +35,12 @@ class PatientTransactionService extends BaseService
     }
 
     public function getSelectStatement($predicateColumnName){
+
+        $criteriaItemsWhitelist = [
+            self::_formPredicate,
+            self::_transactionPredicate
+        ];
+
         return 
         "
         SELECT
@@ -89,7 +97,7 @@ class PatientTransactionService extends BaseService
             transactions t
         LEFT JOIN lbt_data d ON
             d.form_id = t.id
-        WHERE " . $predicateColumnName . " = ?
+        WHERE " . escape_identifier($predicateColumnName, $criteriaItemsWhitelist, true) . " = ?
         GROUP BY
             d.form_id,
             t.groupname,
@@ -101,7 +109,7 @@ class PatientTransactionService extends BaseService
 
         $sqlBindArray = array();
 
-        $sql = $this->getSelectStatement('d.form_id');
+        $sql = $this->getSelectStatement(self::_formPredicate);
         array_push($sqlBindArray, $tid);
         
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
@@ -114,7 +122,7 @@ class PatientTransactionService extends BaseService
         $processingResult = new ProcessingResult();
         $sqlBindArray = array();
 
-        $sql = $this->getSelectStatement("t.pid");
+        $sql = $this->getSelectStatement(self::_transactionPredicate);
         array_push($sqlBindArray, $pid);
 
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
@@ -233,23 +241,23 @@ class PatientTransactionService extends BaseService
         $validThrough = $data["validThrough"];
 
         sqlBeginTrans();
-        $this->UpdateTransactionForm($tid, 'refer_from', $referById);
-        $this->UpdateTransactionForm($tid, 'refer_to', $referToId);
-        $this->UpdateTransactionForm($tid, 'body', $body);
-        $this->UpdateTransactionForm($tid, 'refer_date', $referralDate);
-        $this->UpdateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
-        $this->UpdateTransactionForm($tid, 'refer_risk_level', $riskLevel);
-        $this->UpdateTransactionForm($tid, 'refer_vitals', $includeVitals);
-        $this->UpdateTransactionForm($tid, 'refer_authorization', $authorization);
-        $this->UpdateTransactionForm($tid, 'refer_visits', $visits);
-        $this->UpdateTransactionForm($tid, 'refer_validFrom', $validFrom);
-        $this->UpdateTransactionForm($tid, 'refer_validThrough', $validThrough);
+        $this->updateTransactionForm($tid, 'refer_from', $referById);
+        $this->updateTransactionForm($tid, 'refer_to', $referToId);
+        $this->updateTransactionForm($tid, 'body', $body);
+        $this->updateTransactionForm($tid, 'refer_date', $referralDate);
+        $this->updateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
+        $this->updateTransactionForm($tid, 'refer_risk_level', $riskLevel);
+        $this->updateTransactionForm($tid, 'refer_vitals', $includeVitals);
+        $this->updateTransactionForm($tid, 'refer_authorization', $authorization);
+        $this->updateTransactionForm($tid, 'refer_visits', $visits);
+        $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
+        $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
         sqlCommitTrans();
 
         return $this->getOneFromDb($tid);
     }
 
-    public function UpdateTransactionForm($formId, $fieldId, $value){
+    public function updateTransactionForm($formId, $fieldId, $value){
         if(empty($value) == false)
         {
             $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";

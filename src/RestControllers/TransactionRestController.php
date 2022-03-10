@@ -2,7 +2,7 @@
 
 /**
  * PatientRestController
- *
+ * This controller creates, updates, and retrieves transactions 
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jonathan Moore <Jdcmoore@aol.com>
@@ -11,9 +11,6 @@
  */
 
 namespace OpenEMR\RestControllers;
-
-// require_once("../../globals.php");
-// require_once("$srcdir/transactions.inc");
 
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\PatientTransactionService;
