@@ -97,7 +97,7 @@ class QrdaReportService
      * @return \Psr\Http\Message\StreamInterface|array
      * @throws \Exception
      */
-    public function executeMeasure($pid, $measure, $effectiveDate, $effectiveEndDate): \Psr\Http\Message\StreamInterface|array
+    public function executeMeasure($pid, $measure, $effectiveDate, $effectiveEndDate)
     {
         if ($pid) {
             $request = new QdmRequestOne($pid);
