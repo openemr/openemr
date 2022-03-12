@@ -20,7 +20,7 @@ The Patient Portal card for the Medical Record Dashboard
     {% if portalAuthorized.isAllowed == false %}
         <div>
         {% if portalAuthorized.authorized.api == false %}
-            <p>{{ "API Access Not Authorized"|xl}}</p>
+            <p>{{ "API Access Not Authorized"|xlt }}</p>
         {% endif %}
         {% if portalAuthorized.authorized.api == false %}
             <p>{{ "Patient Portal Not Authorized"|xlt }}</p>

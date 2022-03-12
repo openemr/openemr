@@ -48,7 +48,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF
             }
         }
         // we don't worry about casing here
-        if (is_string($prevent_portal_access) && strtolower($prevent_portal_access) != "yes") {
+        if (is_string($prevent_portal_access) && strtolower($prevent_portal_access) == "yes") {
             // patient opted out of 3rd party portal access which makes them then eligible for 2c criteria
             // NOTE if we certify (e)(1) then this will no longer be valid and View, Download, Transmit (VDT) will need
             // to be checked alongside this condition.

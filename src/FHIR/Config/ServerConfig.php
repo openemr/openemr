@@ -44,12 +44,12 @@ class ServerConfig
      */
     public function getFhirUrl()
     {
-        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
+        return $this->oauthAddress . $this->webRoot . '/apis/' . $this->siteId . "/fhir";
     }
 
     public function getFhir3rdPartyAppRequirementsDocument()
     {
-        return $this->oauthAddress . "/FHIR_README.md#3rd-party-smart-apps";
+        return $this->oauthAddress . $this->webRoot . "/FHIR_README.md#3rd-party-smart-apps";
     }
 
     /**
