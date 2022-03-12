@@ -412,7 +412,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                                 <?php echo xlt('All Automated Measure Calculations (AMC)'); ?></option>
                             <?php } ?>
                             <?php foreach ($amc_report_types as $key => $report_type) : ?>
-                                <option value="<?php echo attr($key); ?>" <?php echo ($rule_filter == $key) ? "selected" : ""; ?>><?php echo $report_type['ruleset_title']; ?></option>
+                                <option value="<?php echo attr($key); ?>" <?php echo ($rule_filter == $key) ? "selected" : ""; ?>><?php echo text($report_type['ruleset_title']); ?></option>
                             <?php endforeach; ?>
                             </select>
                         </td>
