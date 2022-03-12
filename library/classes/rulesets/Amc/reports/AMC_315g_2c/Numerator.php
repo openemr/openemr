@@ -35,6 +35,36 @@ class AMC_315g_2c_Numerator implements AmcFilterIF
         return "AMC_315g_2c Numerator";
     }
 
+    public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate)
+    {
+        // TODO: @adunsulag we will come back and visit this when we do grouping
+        if (!empty($date_created)) {
+            $creationDate = strtotime($date_created);
+            $beginDate = strtotime($beginDate);
+            $endDate = strtotime($endDate);
+            // creation date for the credentials was within the valid date boundary that we wanted
+            if ($creationDate >= $beginDate && $creationDate <= $endDate) {
+                return true;
+            }
+        }
+        // we don't worry about casing here
+        if (is_string($prevent_portal_access) && strtolower($prevent_portal_access) != "yes") {
+            // patient opted out of 3rd party portal access which makes them then eligible for 2c criteria
+            // NOTE if we certify (e)(1) then this will no longer be valid and View, Download, Transmit (VDT) will need
+            // to be checked alongside this condition.
+            return true;
+        }
+        // no credentials generated, and they are enrolled in api access.
+        return false;
+    }
+
+    /**
+     * Checks if the patient in the given report date had access during the beginDate, endDate
+     * @param AmcPatient $patient The patient we are checking for patient access
+     * @param $beginDate The report start date (if none is provided this is the patient's DOB).
+     * @param $endDate The report end date
+     * @return bool True if the test passes, false, if it does not
+     */
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         $fhir_api = $GLOBALS['rest_fhir_api'] ?? '0';
@@ -56,18 +86,9 @@ class AMC_315g_2c_Numerator implements AmcFilterIF
         . " LEFT JOIN patient_access_onsite poa ON pd.pid = poa.pid WHERE pd.pid = ?";
 
         $numeratorData = QueryUtils::fetchRecords($sql, [$patient->id]);
-
-        if (!empty($numeratorData['date_created'])) {
-            return true;
+        if (empty($numeratorData)) {
+            return false;
         }
-        // we don't worry about casing here
-        if (strtolower($numeratorData['prevent_portal_apps']) != "yes") {
-            // patient opted out of 3rd party portal access which makes them then eligible for 2c criteria
-            // NOTE if we certify (e)(1) then this will no longer be valid and View, Download, Transmit (VDT) will need
-            // to be checked alongside this condition.
-            return true;
-        }
-        // no credentials generated, and they are enrolled in api access.
-        return false;
+        return $this->isValidPatient($numeratorData[0]['date_created'], $numeratorData[0]['prevent_portal_apps'], $beginDate, $endDate);
     }
 }

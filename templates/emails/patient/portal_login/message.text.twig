@@ -8,9 +8,6 @@
 {{ "You may be required to change your password during first login."|xlt }}
 {{ "This is required for your security as well as ours."|xlt }}
 {{ "Afterwards however, you may change your portal credentials anytime from portal menu."|xlt }}
-{{ "Thank you for allowing us to serve you."|xlt }}
 
-{{ "3rd Party API Access"|xlt }}
-{{ "API Access Address"|xlt }}: {{ fhir_address }}
-{{ "You can use the above API Address with any app of your choice to access your patient data as long as it meets the technical requirements for our service." }}
-{{ "Technical Requirements Documentation"|xlt }}: {{ fhir_requirements_address }}
+{% include 'emails/partials/patient/email-message-fhir-access.text.twig' with {fhir_address: fhir_address, fhir_requirements_address: fhir_requirements_address} %}
+{{ "Thank you for allowing us to serve you."|xlt }}

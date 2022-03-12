@@ -23,11 +23,8 @@
             {{ "This is required for your security as well as ours."|xlt }}<br />
             {{ "Afterwards however, you may change your portal credentials anytime from portal menu."|xlt }}<br /><br />
 
-            <strong>{{ "3rd Party API Access"|xlt }}</strong><br />
-            <strong>{{ "API Access Address"|xlt }}: </strong>{{ fhir_address }}<br />
-            <strong>{{ "Technical Requirements Documentation"|xlt }}: </strong><a href='{{ fhir_requirements_address|attr }}' target='_blank'>{{ fhir_requirements_address|text }}</a><br />
-            {{ "You can use the above API Address with any app of your choice to access your patient data as long as it meets the technical requirements for our service." }}<br /><br />
-            {{ "Thank you for allowing us to serve you."|xlt }}<br />
+            {% include 'emails/partials/patient/email-message-fhir-access.html.twig' with {fhir_address: fhir_address, fhir_requirements_address: fhir_requirements_address} %}
+            {{ "Thank you for allowing us to serve you."|xlt }}
         </div>
     </body>
 </html>

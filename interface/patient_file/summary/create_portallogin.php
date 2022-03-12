@@ -142,8 +142,8 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
         ,'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
     ];
 
-    $htmlMessage = $twig->render('patient/portallogin/email-message.html.twig', $data);
-    $plainMessage = $twig->render('patient/portallogin/email-message.text.twig', $data);
+    $htmlMessage = $twig->render('emails/patient/portal_login/message.html.twig', $data);
+    $plainMessage = $twig->render('emails/patient/portal_login/message.text.twig', $data);
 
     // Email and display/print the message
     if (emailLogin($pid, $htmlMessage, $plainMessage, $twig)) {
@@ -158,7 +158,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     $credMessage = '';
 }
 
-echo $twig->render('patient/portallogin/print.html.twig', [
+echo $twig->render('patient/portal_login/print.html.twig', [
         'credMessage' => $credMessage
         , 'csrfToken' => CsrfUtils::collectCsrfToken()
         , 'fname' => $row['fname']

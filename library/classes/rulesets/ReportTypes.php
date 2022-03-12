@@ -86,5 +86,6 @@ class ReportTypes
         "e_prescribe_stage1_amc" => array( ReportTypes::AMC, "AMC_304b_STG1" ),//Stage 1 eRx
         "e_prescribe_1_stage2_amc" => array( ReportTypes::AMC, "AMC_304b_1_STG2" ),//Stage 2 eRx(Controlled Substances)
         "e_prescribe_2_stage2_amc" => array( ReportTypes::AMC, "AMC_304b_2_STG2" ),//Stage 2 eRx(UnControlled Substances)
+        "patient_access_amc" => array(ReportTypes::AMC, AMC_315g_2c::class)
     );
 }

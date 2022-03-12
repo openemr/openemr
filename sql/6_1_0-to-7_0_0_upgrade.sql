@@ -137,3 +137,21 @@ ALTER TABLE `clinical_rules` ADD `amc_code_2015` VARCHAR(30) CHARACTER SET utf8m
 -- We add the date time so we know exactly when the credentials were generated without having to lookup in the audit log
 ALTER TABLE patient_access_onsite ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
 #EndIf
+
+#IfNotRow clinical_rules id patient_access_amc
+INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`,
+                              `cqm_2014_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`,
+                              `amc_2014_flag`, `amc_code`, `amc_code_2014`, `amc_code_2015`, `amc_2014_stage1_flag`,
+                              `amc_2014_stage2_flag`, `amc_2015_flag`, `patient_reminder_flag`, `developer`,
+                              `funding_source`, `release_version`, `web_reference`, `access_control`,
+                              `bibliographic_citation`, `linked_referential_cds`)
+    VALUES ('patient_access_amc', '0', '0', '0', '0', '0', '0', '', '', '1', '0', '0', '', ''
+    , '170.315(g)(1)/(2)–2c', '0', '0', '1', '0', '', '', '', '', 'patients:med', '', '');
+#EndIf
+
+#IfNotRow2D list_options list_id clinical_rules option_id patient_access_amc
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`
+                            , `codes`, `toggle_setting_1`, `toggle_setting_2`)
+    VALUES ('clinical_rules', 'patient_access_amc', 'Provide Patients Electronic Access to Their Health Information - API Access (ACM)'
+    , 240, 0, 0, '', '', '', 0, 0);
+#EndIf

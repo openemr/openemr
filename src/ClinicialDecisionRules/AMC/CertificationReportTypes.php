@@ -35,4 +35,55 @@ class CertificationReportTypes
     {
         return array_search(strtolower($method), self::AMC_METHODS) !== false;
     }
+
+    /**
+     * Returns an array of all of the report types for the Automated Measure Calculations (AMC)
+     *
+     * ruleset_title is the report title that displays in the report results
+     * title is what is displayed in the dropdown list in the AMC report generation screen
+     * code_col is the column used in the database table for the AMC rule description
+     * the array key is the amc_<system_type>_flag in the database
+     *
+     * @return array
+     */
+    public static function getReportTypeRecords()
+    {
+
+        $amc_report_types = [
+            CertificationReportTypes::DEFAULT => [
+                // 2015 AMC measures is our default ones
+                'abbr' => xl('AMC-2015')
+                , 'title' => xl('Automated Measure Calculations (AMC)')
+                , 'ruleset_title' => xl('Automated Measure Calculations (AMC) - 2015')
+                , 'code_col' => 'amc_code_2015'
+            ],
+            // we have to support the original report settings
+            CertificationReportTypes::ORIGINAL_REPORT => [
+                // 2015 AMC measures is our default ones
+                'abbr' => xl('AMC')
+                , 'title' => xl('Automated Measure Calculations (AMC)')
+                , 'ruleset_title' => xl('Automated Measure Calculations (AMC)')
+                , 'code_col' => 'amc_code'
+            ]
+            ,CertificationReportTypes::MU1_2011 => [
+                'abbr' => xl('AMC-2011')
+                , 'title' => xl('Automated Measure Calculations (AMC) - 2011')
+                , 'ruleset_title' => xl('Automated Measure Calculations (AMC) - 2011')
+                , 'code_col' => 'amc_code'
+            ]
+            ,CertificationReportTypes::MU2_2014_STAGE1 => [
+                'abbr' => xl('AMC-2014')
+                , 'title' => xl('Automated Measure Calculations (AMC) - 2014 Stage I')
+                , 'ruleset_title' => xl('Automated Measure Calculations (AMC) - 2014 Stage I')
+                , 'code_col' => 'amc_code_2014'
+            ]
+            ,CertificationReportTypes::MU2_2014_STAGE2 => [
+                'abbr' => xl('AMC-2014')
+                , 'title' => xl('Automated Measure Calculations (AMC) - 2014 Stage II')
+                , 'ruleset_title' => xl('Automated Measure Calculations (AMC) - 2014 Stage II')
+                , 'code_col' => 'amc_code_2014'
+            ]
+        ];
+        return $amc_report_types;
+    }
 }

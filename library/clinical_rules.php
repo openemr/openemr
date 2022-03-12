@@ -1490,7 +1490,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
         // Decide if use default vs custom rule (preference given to custom rule)
         if (!empty($customRule)) {
-            if ($type == "cqm" || $type == "amc") {
+            if ($type == "cqm" || CertificationReportTypes::isAMCReportType($type)) {
                 // For CQM and AMC, do not use custom rules (these are to create standard clinic wide reports)
                 $goRule = $rule;
             } else {
