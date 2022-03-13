@@ -360,6 +360,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                            <th nowrap><?php echo $this->listenerObject->z_xlt('Type'); ?></th>
                             <th>&nbsp;</th>
                         </tr>
                         <?php
@@ -386,6 +387,12 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                 </td>
                                 <td>
                                     <?php echo $this->escapeHtml($row['matched_patient']); ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $type = !empty($row['is_qrda_document']) ? 'QRDA' : 'CCDA';
+                                    echo $this->listenerObject->z_xlt($type);
+                                    ?>
                                 </td>
                                 <td nowrap>
                                     <?php
