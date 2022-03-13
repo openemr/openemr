@@ -94,6 +94,7 @@ class CcdController extends AbstractActionController
           'patient_id'    => '00',
           'listenerObject' => $this->listenerObject
         ));
+        sleep(1);
         return $view;
     }
 
