@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 
     <html>
     <head>
-        <?php Header::setupHeader('common','datetime-picker'); ?>
+        <?php Header::setupHeader('common', 'datetime-picker'); ?>
         <title><?php echo xlt("Treatment Plan"); ?></title>
         <script>
             $(function () {
@@ -75,9 +75,9 @@ use OpenEMR\Core\Header;
                 <label class="forms-data"> <?php if (is_numeric($pid)) {
                         $result = getPatientData($pid, "fname,lname,squad");
                         echo text($result['fname']) . " " . text($result['lname']);
-                    }
+                                           }
 
-                    $patient_name = ($result['fname']) . " " . ($result['lname']);
+                                           $patient_name = ($result['fname']) . " " . ($result['lname']);
                     ?>
                 </label>
                 <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
@@ -87,10 +87,10 @@ use OpenEMR\Core\Header;
                 <label class="forms-data"> <?php if (is_numeric($pid)) {
                         $result = getPatientData($pid, "*");
                         echo text($result['DOB']);
-                    }
+                                       }
 
                     $dob = ($result['DOB']);
-                    ?>
+                                            ?>
                 </label>
                 <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
             </td>
@@ -101,10 +101,10 @@ use OpenEMR\Core\Header;
                 <label class="forms-data" > <?php if (is_numeric($pid)) {
                         $result = getPatientData($pid, "*");
                         echo text($result['pid']);
-                    }
+                                            }
 
-                    $patient_id = $result['pid'];
-                    ?>
+                                            $patient_id = $result['pid'];
+                                            ?>
                 </label>
                 <input type="hidden" name="client_number" value="<?php echo attr($patient_id);?>">
             </td>
