@@ -4108,7 +4108,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Visits by Item Report'),
             'bool',                           // data type
             '0',                              // default
-            xl('Visits by Item Report.')
+            xl('Visits by Item Report')
         ),
 
         'gbl_menu_acct_trans' => array(
@@ -4157,7 +4157,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Service and Client Volume Report'),
             'bool', // data type
             '1', // default
-            xl('Service and client volume report')
+            xl('Service and Client Volume Report')
         ),
     );
 
