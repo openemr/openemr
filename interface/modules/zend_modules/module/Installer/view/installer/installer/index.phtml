@@ -17,6 +17,7 @@ if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
     echo xlt('Not Authorized');
     exit;
 }
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 echo $this->headScript()->appendFile(
     $this->basePath() . '/js/installer/action.js?v=' . $GLOBALS['v_js_includes'],
