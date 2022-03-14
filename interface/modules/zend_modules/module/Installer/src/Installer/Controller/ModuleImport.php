@@ -10,7 +10,6 @@
 
 namespace Installer\Controller;
 
-
 /**
  * the purpose for this class is to allow users to import modules to the system with no technical knowledge
  * All they need is a zip file location from the module author
@@ -47,14 +46,14 @@ class ModuleImport
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER,true);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_FILE, $zipResource);
         $page = curl_exec($ch);
         if(!$page) {
-            return "Error :- ".curl_error($ch);
+            return "Error :- " . curl_error($ch);
         } else {
             $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         }

@@ -64,17 +64,17 @@ if (!CsrfUtils::verifyCsrfToken($_POST['token'])) {
                 echo  "<strong>" . xlt('Result of import') . "</strong><br>";
                 //Check to see if the zip file is empty
                 $za = new ZipArchive();
-                $za->open($import_dir.$parts[$zip]);
+                $za->open($import_dir . $parts[$zip]);
                 $stats = '';
-                for ( $i = 0; $i < $za->numFiles; $i++) {
-                    $stats = $za->statIndex( $i );
+                for ($i = 0; $i < $za->numFiles; $i++) {
+                    $stats = $za->statIndex($i);
                 }
 
                 if (!empty($stats)) {
                     echo xlt("File successfully imported ") . "<br>";
                     $destination = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . "custom_modules";
                     $foldername = explode(".", $parts[$zip]);
-                    $custom_module = ModuleImport::createDestinationFolder($destination . DIRECTORY_SEPARATOR . $foldername[0] );
+                    $custom_module = ModuleImport::createDestinationFolder($destination . DIRECTORY_SEPARATOR . $foldername[0]);
                     echo xlt("Moving file to destination ") . $destination . DIRECTORY_SEPARATOR . $foldername[0] . "<br>";
                     if ($custom_module === 'created') {
                         $za->extractTo($destination . DIRECTORY_SEPARATOR . $foldername[0]);
