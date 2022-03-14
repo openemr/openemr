@@ -130,7 +130,7 @@ function process_tasks($task)
         $send['DOC_link'] = "<a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                 href=\"JavaScript:void(0);\"
                                 title='" . xlt('Report was faxed to') . " " . attr($task['to_name']) . " @ " . attr($task['to_fax']) . " on " .
-                                text($task['COMPLETED_DATE']) . ". " . xla(' Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
+                                text($task['COMPLETED_DATE']) . ". " . xla('Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
                             //if we want a "resend" icon, add it here.
     }
 

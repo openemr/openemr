@@ -341,7 +341,7 @@ class PatientService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     patient_data.*
                     ,patient_history_type_key
                     ,previous_name_first
@@ -353,7 +353,7 @@ class PatientService extends BaseService
                     ,previous_name_enddate
                 FROM patient_data
                 LEFT JOIN (
-                    SELECT 
+                    SELECT
                     pid AS patient_history_pid
                     ,history_type_key AS patient_history_type_key
                     ,previous_name_prefix
@@ -776,7 +776,7 @@ class PatientService extends BaseService
     private function getPatientSuffixKeys()
     {
         if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = array(xl('Jr.'), xl(' Jr'), xl('Sr.'), xl(' Sr'), xl('II'), xl('III'), xl('IV'));
+            $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
         }
         return $this->patientSuffixKeys;
     }

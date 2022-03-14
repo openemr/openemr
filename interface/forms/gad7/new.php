@@ -124,7 +124,7 @@ function create_q8(question, menue){
 <table>
   <tr>
 <td>
-<span class="text"><?php echo xlt('Being so restless that it\'s hard to sit still'); ?></span>
+<span class="text"><?php echo xlt("Being so restless that it's hard to sit still"); ?></span>
 <select name="restless_score" onchange="update_score(4, my_form.restless_score.value);">
  <option selected value="undef" ><?php echo text($str_default); ?></option>
     <option value="0"><?php echo text($str_not); ?></option>
