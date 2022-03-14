@@ -52,7 +52,7 @@ class ModuleImport
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_FILE, $zipResource);
         $page = curl_exec($ch);
-        if(!$page) {
+        if (!$page) {
             return "Error :- " . curl_error($ch);
         } else {
             $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
