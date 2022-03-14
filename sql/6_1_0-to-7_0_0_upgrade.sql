@@ -153,3 +153,54 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
     VALUES ('clinical_rules', 'patient_access_amc', 'Provide Patients Electronic Access to Their Health Information - API Access (ACM)'
     , 240, 0, 0, '', '', '', 0, 0);
 #EndIf
+
+#IfNotRow2D list_options list_id lists option_id ecqm_2021_reporting
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','ecqm_2021_reporting','eCQM 2021 Performance Period',0,1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS117v9','Childhood Immunization Status',10,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS122v9','Diabetes: Hemoglobin A1c (HbA1c) Poor Control (>9%)',20,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS124v9','Cervical Cancer Screening',30,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS125v9','Breast Cancer Screening',40,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS127v9','Pneumococcal Vaccination Status for Older Adults',50,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS128v9','Anti-Depressant Medication Management',60,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS129v10','Prostate Cancer: Avoidance of Overuse of Bone Scan for Staging Low Risk Prostate Cancer Patients',70,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS130v9','Colorectal Cancer Screening',80,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS131v9','Diabetes: Eye Exam',90,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS133v9','Cataracts: 20/40 or Better Visual Acuity within 90 Days Following Cataract Surgery',95,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS134v9','Diabetes: Medical Attention for Nephropathy',100,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS135v9','Heart Failure (HF): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) or Angiotensin Receptor-Neprilysin Inhibitor (ARNI) Therapy for Left Ventricular Systolic Dysfunction (LVSD)',110,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS136v10','Follow-Up Care for Children Prescribed ADHD Medication (ADD)',120,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS137v9','Initiation and Engagement of Alcohol and Other Drug Dependence Treatment',130,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS138v9','Preventive Care and Screening: Tobacco Use: Screening and Cessation Intervention',140,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS139v9','Falls: Screening for Future Fall Risk',150,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS142v9','Diabetic Retinopathy: Communication with the Physician Managing Ongoing Diabetes Care',160,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS143v9','Primary Open-Angle Glaucoma (POAG): Optic Nerve Evaluation',170,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS144v9','Heart Failure (HF): Beta-Blocker Therapy for Left Ventricular Systolic Dysfunction (LVSD)',180,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS145v9','Coronary Artery Disease (CAD): Beta-Blocker Therapy – Prior Myocardial Infarction (MI) or Left Ventricular Systolic Dysfunction (LVEF < 40%)',190,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS146v9','Appropriate Testing for Pharyngitis',200,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS147v10','Preventive Care and Screening: Influenza Immunization',210,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS149v9','Dementia: Cognitive Assessment',220,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS153v9','Chlamydia Screening for Women',230,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS154v9','Appropriate Treatment for Upper Respiratory Infection (URI)',240,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS155v9','Weight Assessment and Counseling for Nutrition and Physical `activity` for Children and Adolescents',250,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS156v9','Use of High-Risk Medications in Older Adults',260,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS157v9','Oncology: Medical and Radiation – Pain Intensity Quantified',280,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS159v9','Depression Remission at Twelve Months',290,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS161v9','Adult Major Depressive Disorder (MDD): Suicide Risk Assessment',300,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS165v9','Controlling High Blood Pressure',310,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS177v9','Child and Adolescent Major Depressive Disorder (MDD): Suicide Risk Assessment',320,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS22v9','Preventive Care and Screening: Screening for High Blood Pressure and Follow-Up Documented',330,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS249v3','Appropriate Use of DXA Scans in Women Under 65 Years Who Do Not Meet the Risk Factor Profile for Osteoporotic Fracture',340,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS2v10','Preventive Care and Screening: Screening for Depression and Follow-Up Plan',350,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS347v4','Statin Therapy for the Prevention and Treatment of Cardiovascular Disease',360,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS349v3','HIV Screening',370,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS50v9','Closing the Referral Loop: Receipt of Specialist Report',380,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS56v9','Functional Status Assessment for Total Hip Replacement',390,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS645v4','Bone Density Evaluation for Patients with Prostate Cancer and Receiving Androgen Deprivation Therapy',400,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS66v9','Functional Status Assessment for Total Knee Replacement',410,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS68v10','Documentation of Current Medications in the Medical Record',420,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS69v9','Preventive Care and Screening: Body Mass Index (BMI) Screening and Follow-Up Plan',430,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS74v10','Primary Caries Prevention Intervention as Offered by Primary Care Providers, including Dentists',440,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS75v9','Children Who Have Dental Decay or Cavities',450,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS771v2','Urinary Symptom Score Change 6-12 Months After Diagnosis of Benign Prostatic Hyperplasia',460,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2021_reporting','CMS90v10','Functional Status Assessments for Congestive Heart Failure',470,0);
+#EndIf

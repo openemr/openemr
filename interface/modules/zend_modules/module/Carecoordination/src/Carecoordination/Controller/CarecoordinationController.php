@@ -108,6 +108,8 @@ class CarecoordinationController extends AbstractActionController
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
         ));
+        // I haven't a clue why this delay is needed to allow batch to work from fetch.
+        sleep(1);
         return $view;
     }
 
