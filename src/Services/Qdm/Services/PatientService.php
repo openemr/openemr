@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -52,11 +52,16 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
             'value' => $record['pid']
         ]);
 
-        $qdmPatient = new Patient([
-            'birthDatetime' => $record['DOB'],
-            '_id' => $record['pid'], // From PatientExtension trait
-            'id' => $id
-        ]);
+        $qdmPatient = new Patient(
+            ['patientName' => [
+                'given' => $record['fname'],
+                'middle' => $record['mname'] ?? '',
+                'family' => $record['lname']
+            ],
+                'birthDatetime' => $record['DOB'],
+                '_id' => $record['pid'], // From PatientExtension trait
+                'id' => $id
+            ]);
 
         $qdmPatient->extendedData = [
             'pid' => $record['pid']
