@@ -161,7 +161,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
             'hcfa'
         );
 
-        $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() . xl(" as billed"));
+        $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() .  " " . xl("as billed"));
     }
 
     /**

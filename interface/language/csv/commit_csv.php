@@ -24,7 +24,7 @@ if (!$errmsg && !isset($_REQUEST['translations'])) {
 }
 
 if (!$errmsg && !isset($_REQUEST['lang_id'])) {
-    $errmsg = xlt("No Language ID specified!");
+    $errmsg = xlt("No Language ID specified");
 }
 
 if (!isset($_REQUEST['preview'])) {

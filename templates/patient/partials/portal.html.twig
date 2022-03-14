@@ -17,11 +17,18 @@ The Patient Portal card for the Medical Record Dashboard
 
 {% block content %}
 <div class="text d-flex pl-1">
-    {% if portalAuthorized == false %}
-        {{ "Patient Portal Not Authorized"|xlt }}
+    {% if portalAuthorized.isAllowed == false %}
+        <div>
+        {% if portalAuthorized.authorized.api == false %}
+            <p>{{ "API Access Not Authorized"|xlt }}</p>
+        {% endif %}
+        {% if portalAuthorized.authorized.api == false %}
+            <p>{{ "Patient Portal Not Authorized"|xlt }}</p>
+        {% endif %}
+        </div>
     {% else %}
         {{ prepend }}
-        {% if portalAuthorized.created == true %}
+        {% if portalAuthorized.credentials.created == true %}
             {% set class = "fa-key" %}
             {% set text = "Reset Credentials"|xlt %}
         {% else %}

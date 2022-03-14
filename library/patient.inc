@@ -1154,7 +1154,12 @@ function newEmployerData(
 //
 function updateEmployerData($pid, $new, $create = false)
 {
-    $colnames = array('name','street','city','state','postal_code','country');
+    // used to hard code colnames array('name','street','city','state','postal_code','country');
+    // but now adapted for layout based
+    $colnames = array();
+    foreach ($new as $key => $value) {
+        $colnames[] = $key;
+    }
 
     if ($create) {
         $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";

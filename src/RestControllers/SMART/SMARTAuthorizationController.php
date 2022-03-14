@@ -151,7 +151,7 @@ class SMARTAuthorizationController
         if (!isset($user_uuid)) {
             $this->logger->error("SMARTAuthorizationController->patientSelect() Unauthorized call, user has not authenticated");
             http_response_code(401);
-            die(xlt('Invalid request'));
+            die(xlt('Invalid Request'));
         }
 
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"], 'oauth2')) {
@@ -199,7 +199,7 @@ class SMARTAuthorizationController
         if (empty($user_uuid)) {
             $this->logger->error("SMARTAuthorizationController->patientSelect() Unauthorized call, user has not authenticated");
             http_response_code(401);
-            die(xlt('Invalid request'));
+            die(xlt('Invalid Request'));
         }
 
         $hasMore = false;

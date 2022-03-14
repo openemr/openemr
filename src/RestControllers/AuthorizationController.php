@@ -19,6 +19,7 @@ require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
+use Google\Service\CloudHealthcare\FhirConfig;
 use GuzzleHttp\Client;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -59,6 +60,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\TrustedUserService;
@@ -611,8 +613,9 @@ class AuthorizationController
                 "logging global params",
                 ['site_addr_oath' => $GLOBALS['site_addr_oath'], 'web_root' => $GLOBALS['web_root'], 'site_id' => $_SESSION['site_id']]
             );
+            $fhirServiceConfig = new ServerConfig();
             $expectedAudience = [
-                $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir",
+                $fhirServiceConfig->getFhirUrl(),
                 $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/api",
                 $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/portal",
             ];

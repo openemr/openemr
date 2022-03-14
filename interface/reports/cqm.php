@@ -19,6 +19,7 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc";
 
+use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -27,6 +28,8 @@ if (!empty($_POST)) {
         CsrfUtils::csrfNotVerified();
     }
 }
+
+$amc_report_types = CertificationReportTypes::getReportTypeRecords();
 
 // See if showing an old report or creating a new report
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
@@ -40,11 +43,12 @@ if (!empty($report_id)) {
     $date_report = $report_view['date_report'];
     $type_report = $report_view['type'];
 
-    $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014")  || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2") ||
-                  ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) ? $type_report : "standard";
+    $is_amc_report = CertificationReportTypes::isAMCReportType($type_report);
+    $is_cqm_report = ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014");
+    $type_report = ($is_amc_report || $is_cqm_report) ? $type_report : "standard";
     $rule_filter = $report_view['type'];
 
-    if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014")  || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) {
+    if ($is_amc_report) {
         $begin_date = $report_view['date_begin'];
         $labs_manual = $report_view['labs_manual'];
     }
@@ -61,22 +65,21 @@ if (!empty($report_id)) {
   // to simplify for when submitting for a new report.
     $type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
 
+    $is_amc_report = CertificationReportTypes::isAMCReportType($type_report);
+    $is_cqm_report = ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014");
+
     if (($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
         $type_report = "cqm";
     }
 
-    if (($type_report == "amc_2011") || ($type_report == "amc_2014")  || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) {
-        $type_report = "amc";
-    }
-
   // Collect form parameters (set defaults if empty)
-    if ($type_report == "amc") {
+    if ($is_amc_report) {
         $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
         $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
     }
 
     $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_target_date'])) : date('Y-m-d H:i:s');
-    $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
+    $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : CertificationReportTypes::DEFAULT;
     $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
     $provider  = trim($_POST['form_provider'] ?? '');
@@ -102,18 +105,9 @@ if (!empty($report_id)) {
   <title><?php echo xlt('Clinical Quality Measures (CQM) - 2014'); ?></title>
 <?php } ?>
 
-<?php if ($type_report == "amc") { ?>
-  <title><?php echo xlt('Automated Measure Calculations (AMC)'); ?></title>
-<?php } ?>
-<?php if ($type_report == "amc_2011") { ?>
-  <title><?php echo xlt('Automated Measure Calculations (AMC) - 2011'); ?></title>
-<?php } ?>
-<?php if ($type_report == "amc_2014_stage1") { ?>
-  <title><?php echo xlt('Automated Measure Calculations (AMC) - 2014 Stage I'); ?></title>
-<?php } ?>
-<?php if ($type_report == "amc_2014_stage2") { ?>
-  <title><?php echo xlt('Automated Measure Calculations (AMC) - 2014 Stage II'); ?></title>
-<?php } ?>
+    <?php if ($is_amc_report) : ?>
+    <title><?php echo text($amc_report_types[$type_report]['title']); ?></title>
+    <?php endif; ?>
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
@@ -253,7 +247,7 @@ if (!empty($report_id)) {
  }
 
  function Form_Validate() {
-        <?php if ((empty($report_id)) && (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2"))) { ?>
+        <?php if ((empty($report_id)) && $is_amc_report) { ?>
          var d = document.forms[0];
          FromDate = DateToYYYYMMDDHHMMSS_js(d.form_begin_date.value);
          ToDate = DateToYYYYMMDDHHMMSS_js(d.form_target_date.value);
@@ -328,18 +322,9 @@ if (!empty($report_id)) {
     <?php echo xlt('Clinical Quality Measures (CQM) - 2014'); ?>
 <?php } ?>
 
-<?php if ($type_report == "amc") { ?>
-    <?php echo xlt('Automated Measure Calculations (AMC)'); ?>
-<?php } ?>
-<?php if ($type_report == "amc_2011") { ?>
-    <?php echo xlt('Automated Measure Calculations (AMC) - 2011'); ?>
-<?php } ?>
-<?php if ($type_report == "amc_2014_stage1") { ?>
-    <?php echo xlt('Automated Measure Calculations (AMC) - 2014 Stage I'); ?>
-<?php } ?>
-<?php if ($type_report == "amc_2014_stage2") { ?>
-    <?php echo xlt('Automated Measure Calculations (AMC) - 2014 Stage II'); ?>
-<?php } ?>
+    <?php if (isset($amc_report_types[$type_report])) : ?>
+        <?php echo text($amc_report_types[$type_report]['title']); ?>
+    <?php endif; ?>
 
 <?php $dis_text = ''; ?>
 <?php if (!empty($report_id)) { ?>
@@ -355,7 +340,7 @@ if (!empty($report_id)) {
 
 <div id="report_parameters">
 <?php
-    $widthDyn = "470px";
+    $widthDyn = "610px";
 if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
     $widthDyn = "410px";
 }
@@ -367,7 +352,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
     <table class='text'>
 
-        <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
+        <?php if ($is_amc_report) { ?>
                    <tr>
                       <td class='col-form-label'>
                             <?php echo xlt('Begin Date'); ?>:
@@ -382,7 +367,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                 <tr>
                         <td class='col-form-label'>
-                            <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
+                            <?php if ($is_amc_report) { ?>
                                 <?php echo xlt('End Date'); ?>:
                             <?php } else { ?>
                                 <?php echo xlt('Target Date'); ?>:
@@ -414,7 +399,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                     </tr>
                 <?php } ?>
 
-                <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
+                <?php if ($is_amc_report) { ?>
                     <tr>
                         <td class='col-form-label'>
                             <?php echo xlt('Rule Set'); ?>:
@@ -426,13 +411,9 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                               <option value='amc' selected>
                                 <?php echo xlt('All Automated Measure Calculations (AMC)'); ?></option>
                             <?php } ?>
-
-                            <option value='amc_2011' <?php echo ($rule_filter == "amc_2011") ? "selected" : ""; ?>>
-                            <?php  echo xlt('2011 Automated Measure Calculations (AMC)'); ?></option>
-                            <option value='amc_2014_stage1' <?php echo ($rule_filter == "amc_2014_stage1") ? "selected" : ""; ?>>
-                            <?php echo xlt('2014 Automated Measure Calculations (AMC) - Stage I'); ?></option>
-                            <option value='amc_2014_stage2' <?php echo ($rule_filter == "amc_2014_stage2") ? "selected" : ""; ?>>
-                            <?php echo xlt('2014 Automated Measure Calculations (AMC) - Stage II'); ?></option>
+                            <?php foreach ($amc_report_types as $key => $report_type) : ?>
+                                <option value="<?php echo attr($key); ?>" <?php echo ($rule_filter == $key) ? "selected" : ""; ?>><?php echo text($report_type['ruleset_title']); ?></option>
+                            <?php endforeach; ?>
                             </select>
                         </td>
                     </tr>
@@ -456,7 +437,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                     </tr>
                 <?php } ?>
 
-                <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
+                <?php if ($is_amc_report) { ?>
                     <input type='hidden' id='form_plan_filter' name='form_plan_filter' value=''>
                 <?php } else { ?>
                     <tr>
@@ -557,7 +538,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                         </td>
                 </tr>
 
-                <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
+                <?php if ($is_amc_report) { ?>
                   <tr>
                         <td>
                                 <?php echo xlt('Number labs'); ?>:<br />
@@ -638,14 +619,14 @@ if (!empty($report_id)) {
   </th>
 
   <th>
-    <?php if ($type_report == "amc") { ?>
+    <?php if ($is_amc_report) { ?>
         <?php echo xlt('Denominator'); ?></a>
     <?php } else { ?>
         <?php echo xlt('Applicable Patients') . ' (' . xlt('Denominator') . ')'; ?></a>
     <?php } ?>
   </th>
 
-    <?php if ($type_report != "amc") { ?>
+    <?php if (!$is_amc_report) { ?>
    <th>
         <?php echo xlt('Denominator Exclusion'); ?></a>
    </th>
@@ -657,7 +638,7 @@ if (!empty($report_id)) {
     <?php } ?>
 
   <th>
-    <?php if ($type_report == "amc") { ?>
+    <?php if ($is_amc_report) { ?>
         <?php echo xlt('Numerator'); ?></a>
     <?php } else { ?>
         <?php echo xlt('Passed Patients') . ' (' . xlt('Numerator') . ')'; ?></a>
@@ -665,7 +646,7 @@ if (!empty($report_id)) {
   </th>
 
   <th>
-    <?php if ($type_report == "amc") { ?>
+    <?php if ($is_amc_report) { ?>
         <?php echo xlt('Failed'); ?></a>
     <?php } else { ?>
         <?php echo xlt('Failed Patients'); ?></a>
@@ -715,25 +696,14 @@ if (!empty($report_id)) {
                     }
                 }
 
-                if ($type_report == "amc") {
-                    if (!empty($row['amc_code'])) {
-                        $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
-                    }
 
-                    if (!empty($row['amc_code_2014'])) {
-                        $tempCqmAmcString .= " " . xlt('AMC-2014') . ":" . text($row['amc_code_2014']) . " ";
-                    }
-                }
-
-                if ($type_report == "amc_2011") {
-                    if (!empty($row['amc_code'])) {
-                        $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
-                    }
-                }
-
-                if (($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) {
-                    if (!empty($row['amc_code_2014'])) {
-                        $tempCqmAmcString .= " " . xlt('AMC-2014') . ":" . text($row['amc_code_2014']) . " ";
+                // if we are an AMC report type we are going to add in the abbreviation for that amc type and
+                // it's corresponding amc code column
+                if ($is_amc_report) {
+                    if (!empty($amc_report_types[$type_report]['code_col'])) {
+                        $code_col = $amc_report_types[$type_report]['code_col'];
+                        $tempCqmAmcString .= " " . text($amc_report_types[$type_report]['abbr']) . ":"
+                            . text($row[$code_col]) . " ";
                     }
                 }
 
@@ -763,7 +733,7 @@ if (!empty($report_id)) {
                 echo "<td align='center'>" . text($row['pass_filter']) . "</td>";
             }
 
-            if ($type_report != "amc") {
+            if (!$is_amc_report) {
                 // Note that amc will likely support in excluded items in the future for MU2
                 if (($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0)) {
                     // Note standard reporting exluded is different than cqm/amc and will not support itemization
