@@ -78,17 +78,25 @@ class QrdaReportController
             chmod($zip_directory, 0777);
         }
         $pids = is_array($pids) ? $pids : [$pids];
-        foreach ($pids as $pid) {
-            $meta = sqlQuery("Select `fname`, `lname` From `patient_data` Where `pid` = ?", [$pid]);
-            $file = $zip_directory . "/QRDAI_{$meta['lname']}_{$meta['fname']}." . $type;
-            $content = $this->getCategoryIReport($pid, $measures, $type);
-            $f_handle = fopen($file, "w");
-            fwrite($f_handle, $content);
-            fclose($f_handle);
-        }
-        if ($type === 'xml') {
-            // @TODO testing doesn't require. check if errors if included as needed in production!
-            copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $zip_directory . "/qrda.xsl");
+        foreach ($measures as $measure) {
+            $measure_directory = $zip_directory . "/" . $measure . "_" . time();
+            if (!is_dir($measure_directory)) {
+                if (!mkdir($measure_directory, true) && !is_dir($measure_directory)) {
+                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $measure_directory));
+                }
+                chmod($measure_directory, 0777);
+            }
+            foreach ($pids as $pid) {
+                $meta = sqlQuery("Select `fname`, `lname` From `patient_data` Where `pid` = ?", [$pid]);
+                $file = $measure_directory . "/QRDAI_{$meta['lname']}_{$meta['fname']}." . $type;
+                $content = $this->getCategoryIReport($pid, $measure, $type);
+                $f_handle = fopen($file, "w");
+                fwrite($f_handle, $content);
+                fclose($f_handle);
+                if ($type === 'xml') {
+                    copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
+                }
+            }
         }
         $zip_name = "QRDAI_Export_" . time() . ".zip";
         $save_path = sys_get_temp_dir() . "/" . $zip_name;
