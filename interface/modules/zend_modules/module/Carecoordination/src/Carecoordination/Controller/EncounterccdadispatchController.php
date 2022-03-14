@@ -98,11 +98,15 @@ class EncounterccdadispatchController extends AbstractActionController
         }
         // QRDA I batch selected pids download as zip.
         if ($downloadqrda === 'download_qrda') {
+            $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
             $view = $this->params('view');
             $pids = explode('|', $combination);
-            $xmlController = new QrdaReportController();
-            $xmlController->downloadQrdaIAsZip($pids, '', 'xml');
+            $measures = $_REQUEST['report_measures'] ?? "";
+            if (is_array($measures) && empty($measures[0])) {
+                $measures = ''; // defaults to all current.
+            }
+            $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
             exit;
         }
 

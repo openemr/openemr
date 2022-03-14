@@ -39,14 +39,30 @@ class QrdaReportService
         $this->patientJson = "";
     }
 
+    function fetchCurrentMeasures($scope = 'active')
+    {
+        $measures = [];
+        $year = trim($GLOBALS['cqm_performance_period'] ?? '2021');
+        $list = 'ecqm_' . $year . '_reporting';
+        $active = $scope == 'active' ? 1 : 0;
+        $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", array($list, $active));
+        while ($row = sqlFetchArray($results)) {
+            $measures[] = $row;
+        }
+        return $measures;
+    }
+
     /**
      * @param $measures
      * @return array
      */
-    function resolveMeasuresArray($measures): array
+    function resolveMeasuresPath($measures): array
     {
         $resolved = [];
         $result = [];
+        if (empty($measures)) {
+            $measures = $this->fetchCurrentMeasures('active');
+        }
         if (is_array($measures)) {
             $resolved = $measures;
         } elseif (is_string($measures)) {
@@ -56,6 +72,10 @@ class QrdaReportService
             if (empty($measure)) {
                 continue;
             }
+            if (is_array($measure)) {
+                $measure = $measure['measure_id'];
+            }
+
             $result[] = $this->measuresPath . DIRECTORY_SEPARATOR . $measure;
         }
 

@@ -24,8 +24,8 @@ class QrdaReportController
 
     public function __construct()
     {
-        $this->reportMeasures = $GLOBALS['cqm_reporting_measures'] ?? "CMS22v9;CMS69v9;CMS122v9;CMS124v9;CMS125v9;CMS127v9;CMS130v9;CMS138v9;CMS147v10;CMS165v9";
         $this->reportService = new QrdaReportService();
+        $this->reportMeasures = $this->reportService->fetchCurrentMeasures('active');
     }
 
     /**
@@ -39,8 +39,11 @@ class QrdaReportController
         if (empty($measures)) {
             $measures = $this->reportMeasures;
         }
-        // can be an array of measure names or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
-        $measures_resolved = $this->reportService->resolveMeasuresArray($measures);
+        if (is_array($measures) && empty($measures[0])) {
+            $measures = $this->reportMeasures;
+        }
+        // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
+        $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
         $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
         if ($type === 'html') {
@@ -84,6 +87,7 @@ class QrdaReportController
             fclose($f_handle);
         }
         if ($type === 'xml') {
+            // @TODO testing doesn't require. check if errors if included as needed in production!
             copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $zip_directory . "/qrda.xsl");
         }
         $zip_name = "QRDAI_Export_" . time() . ".zip";

@@ -168,8 +168,26 @@ $(function () {
         return false;
     });
 
+    $(".export-document").click(function (event) {
+        let qrda = $("input[name='downloadformat']:checked").val();
+        if (qrda == 'qrda') {
+            $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA").show('slow');
+        } else {
+            $("#componentsForQRDA").hide('slow');
+            $("#componentsForCCDA").show('slow');
+        }
+    });
+
     $(".showcomponentsForCCDA-div").click(function () {
-        $("#componentsForCCDA").slideToggle('slow');
+        let qrda = $("input[name='downloadformat']:checked").val();
+        if (qrda == 'qrda') {
+            $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA").toggle('slow');
+        } else {
+            $("#componentsForQRDA").hide('slow');
+            $("#componentsForCCDA").toggle('slow');
+        }
     });
 
     //check all for component

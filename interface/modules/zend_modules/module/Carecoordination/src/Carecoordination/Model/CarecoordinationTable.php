@@ -109,6 +109,7 @@ class CarecoordinationTable extends AbstractTableGateway
                         d.couch_revid,
                         d.url AS file_url,
                         d.id AS document_id,
+                        am.is_qrda_document,
                         ad.field_value,
                         ad1.field_value,
                         ad2.field_value,
