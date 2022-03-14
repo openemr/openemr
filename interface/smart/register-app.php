@@ -23,8 +23,8 @@
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\AuthorizationController;
-use OpenEMR\Services\FacilityService;
 
 // not sure if we need the site id or not...
 $ignoreAuth = true;
@@ -58,7 +58,7 @@ $scopeRepo = new ScopeRepository(RestConfig::GetInstance());
 $scopes = $scopeRepo->getCurrentSmartScopes();
 // TODO: adunsulag there's gotta be a better way for this url...
 $fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getRegistrationPath();
-$audienceUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir";
+$audienceUrl = (new ServerConfig())->getFhirUrl();
 ?>
 <html>
 <head>

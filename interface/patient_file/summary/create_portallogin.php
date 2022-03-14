@@ -17,11 +17,17 @@
  */
 
 require_once("../../globals.php");
+require_once('../../../library/amc.php');
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
-use OpenEMR\Core\Header;
+use OpenEMR\FHIR\Config\ServerConfig;
+use Twig\Environment;
+
+$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = $twigContainer->getTwig();
 
 $trustedEmail = sqlQueryNoLog("SELECT email_direct, email FROM `patient_data` WHERE `pid`=?", array($pid));
 $row = sqlQuery("SELECT pd.*,pao.portal_username, pao.portal_login_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_onsite AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
@@ -49,30 +55,7 @@ function validEmail($email)
     return false;
 }
 
-function messageCreate($uname, $luname, $pass)
-{
-    global $trustedEmail;
-
-    $message = xlt("Patient Portal Web Address") . ":<br />";
-    if ($GLOBALS['portal_onsite_two_enable']) {
-        $message .= "<a href='" . attr($GLOBALS['portal_onsite_two_address']) . "' target='_blank'>" .
-            text($GLOBALS['portal_onsite_two_address']) . "</a><br />";
-    }
-    $message .= "<br />";
-    $sub = '';
-    if ($GLOBALS['enforce_signin_email']) {
-        $sub = xlt("Login Trusted Email") . ":" .
-            (!empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : xlt("Is Required. Contact Provider."));
-        $sub .= "<br /><br />";
-    }
-    $message .= xlt("Portal Account Name") . ": " . text($uname) . "<br /><br /><strong>" .
-        xlt("Login User Name") . ":</strong> " . text($luname) . "<br /><strong>" .
-        xlt("Password") . ":</strong> " .
-        text($pass) . "<br /><br />" . $sub;
-    return $message;
-}
-
-function emailLogin($patient_id, $message)
+function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email'])) {
@@ -86,23 +69,18 @@ function emailLogin($patient_id, $message)
     if (!(validEmail($GLOBALS['patient_reminder_sender_email']))) {
         return false;
     }
-    $message .= "<strong>" . xlt("You may be required to change your password during first login.") . "</strong><br />";
-    $message .= xlt("This is required for your security as well as ours.") . "<br />";
-    $message .= xlt("Afterwards however, you may change your portal credentials anytime from portal menu.") . ":<br /><br />";
-    $message .= xlt("Thank you for allowing us to serve you.") . ":<br />";
-
     $mail = new MyMailer();
     $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
     $pt_email = $patientData['email'];
-    $email_subject = xl('Access Your Patient Portal');
+    $email_subject = xl('Access Your Patient Portal') . ' / ' . xl('3rd Party API Access');
     $email_sender = $GLOBALS['patient_reminder_sender_email'];
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
     $mail->Subject = $email_subject;
-    $mail->MsgHTML("<html><body><div class='wrapper'>" . $message . "</div></body></html>");
+    $mail->MsgHTML($htmlMsg);
+    $mail->AltBody = $plainMsg;
     $mail->IsHTML(true);
-    $mail->AltBody = $message;
 
     if ($mail->Send()) {
         return true;
@@ -115,11 +93,10 @@ function emailLogin($patient_id, $message)
 
 function displayLogin($patient_id, $message, $emailFlag)
 {
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($emailFlag) {
-        $message = "<br /><br />" .
-            xlt("Email was sent to following address") . ": " .
-            text($patientData['email']) . "<br /><br />" .
+        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
+        $message = xlt("Email was sent to following address") . ": " .
+            text($patientData['email']) . "\n\n" .
             $message;
     }
 
@@ -145,96 +122,51 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
 
     array_push($query_parameters, $pid);
     if (sqlNumRows($res)) {
+        // TODO: @adunsulag is there a reason why we don't audit the fact that the patient credentials were created and updated?
+        // That seems like a pretty important security event we want to be aware of.
         sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 WHERE pid=?", $query_parameters);
     } else {
         sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0,pid=?", $query_parameters);
     }
 
     // Create the message
-    $message = messageCreate($_POST['uname'], $_POST['login_uname'], $clear_pass);
+    $fhirServerConfig = new ServerConfig();
+    $data = [
+        'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
+        ,'enforce_signin_email' => $GLOBALS['enforce_signin_email']
+        ,'uname' => $_POST['uname']
+        ,'login_uname' => $_POST['login_uname']
+        ,'pwd' => $clear_pass
+        ,'email_direct' => trim($trustedEmail['email_direct'])
+        ,'fhir_address' => $fhirServerConfig->getFhirUrl()
+        ,'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
+    ];
+
+    $htmlMessage = $twig->render('emails/patient/portal_login/message.html.twig', $data);
+    $plainMessage = $twig->render('emails/patient/portal_login/message.text.twig', $data);
+
     // Email and display/print the message
-    if (emailLogin($pid, $message)) {
+    if (emailLogin($pid, $htmlMessage, $plainMessage, $twig)) {
         // email was sent
-        $credMessage = displayLogin($pid, $message, true);
+        $credMessage = nl2br(displayLogin($pid, $plainMessage, true));
     } else {
         // email wasn't sent
-        $credMessage = displayLogin($pid, $message, false);
+        $credMessage = nl2br(displayLogin($pid, $plainMessage, false));
     }
-} ?>
-<html>
-<head>
-
-<?php Header::setupHeader('opener'); ?>
-<style>
-    @media print {
-        body {
-            font-size: 24pt !important;
-        }
-        .alert {
-            border: 0 !important;
-        }
-        .alert-success {
-            color: #000 !important;
-            background-color: #fff !important;
-        }
-    }
-</style>
-<script>
-function transmit(){
-    // get a public key to encrypt the password info and send
-    document.getElementById('form_save').value='submit';
-    document.forms[0].submit();
+    // need to track that credentials were created
+} else {
+    $credMessage = '';
 }
-<?php if (!empty($credMessage)) { ?>
-    $(function () {
-        top.printLogPrint(window);
-    });
-<?php } ?>
-</script>
-</head>
-<body class="body_top">
-    <div class="container-fluid">
 
-        <?php if (!empty($credMessage)) { ?>
-        <div class="alert alert-success" role="alert">
-            <p class="font-weight-bold"><?php echo xlt("Portal Credential Information"); ?></p>
-            <?php echo $credMessage; ?>
-        </div>
-        <?php } else { ?>
-        <form name="portallogin" action="" method="post">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-            <p class="text-center font-weight-bold"><?php echo text(xl("Generate Username And Password For") . " " . $row['fname']);?></p>
-
-            <div class="form-group">
-                <label class="font-weight-bold" for="uname"><?php echo text(xl('Account Name') . ':');?></label>
-                <input type="text" class="form-control" name="uname" id="uname" value="<?php echo ($row['portal_username']) ? attr($row['portal_username']) : attr($row['fname'] . $row['id']); ?>" size="10" readonly />
-            </div>
-            <div class="form-group">
-                <label class="font-weight-bold" for="login_uname"><?php echo text(xl('Login User Name') . ':');?></label>
-                <input type="text" class="form-control" name="login_uname" id="login_uname" value="<?php echo (!empty($trustedUserName) ? text($trustedUserName) : attr($row['portal_username'])); ?>" readonly />
-            </div>
-            <label class="font-weight-bold" for="pwd"><?php echo text(xl('Password') . ':');?></label>
-            <div class="input-group">
-                <?php $pwd = RandomGenUtils::generatePortalPassword(); ?>
-                <input type="text" class="form-control" name="pwd" id="pwd" value="<?php echo attr($pwd); ?>" size="14" />
-                <div class="input-group-append">
-                    <a href="#" class="btn btn-primary" onclick="top.restoreSession(); javascript:document.location.reload()"><?php echo xlt('Change'); ?></a>
-                </div>
-            </div>
-            <?php if ($GLOBALS['enforce_signin_email']) { ?>
-            <div class="form-group">
-                <label class="font-weight-bold" for="email_direct"><?php echo xlt("Login Trusted Email") . ":" ?></label>
-                <?php echo (!empty(trim($trustedEmail['email_direct'])) ? text($trustedEmail['email_direct']) : xlt("Is Required. Please Add in Contacts.")) ?>
-            </div>
-            <?php } ?>
-            <hr />
-            <input type="hidden" name="form_save" id="form_save" />
-            <a href="#" class="btn btn-primary" onclick="return transmit()"><?php echo xlt('Save');?></a>
-            <input type="hidden" name="form_cancel" id="form_cancel" />
-            <a href="#" class="btn btn-secondary" onclick="top.restoreSession(); dlgclose();"><?php echo xlt('Cancel');?></a>
-        </form>
-        <?php } ?>
-    </div>
-</body>
-</html>
+echo $twig->render('patient/portal_login/print.html.twig', [
+        'credMessage' => $credMessage
+        , 'csrfToken' => CsrfUtils::collectCsrfToken()
+        , 'fname' => $row['fname']
+        , 'portal_username' => $row['portal_username']
+        , 'id' => $row['id']
+        , 'uname' => $row['portal_username'] ? $row['portal_username'] : $row['fname'] . $row['id']
+        , 'login_uname' => !empty($trustedUserName) ? $trustedUserName : $row['portal_username']
+        , 'pwd' => RandomGenUtils::generatePortalPassword()
+        , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
+        , 'email_direct' => trim($trustedEmail['email_direct'])
+]);

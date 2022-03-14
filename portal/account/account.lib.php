@@ -19,7 +19,9 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\FHIR\Config\ServerConfig;
 
 function notifyAdmin($pid, $provider): void
 {
@@ -99,7 +101,10 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         (new SystemLogger())->debug("verifyEmail function is using a email that failed validEmail test, so can not use");
         return true;
     }
-
+    $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = $twigContainer->getTwig();
+    $templateData = [];
+    $template = 'verify-failed';
     $emailPrepSend = false;
 
     // check to ensure email not used
@@ -112,12 +117,8 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
     );
 
     if (!empty($sql['pid'])) {
+        $templateData = ['email' => $email];
         (new SystemLogger())->debug("verifyEmail function: the email is already in use, so can not use");
-        $message = '<p>' . xlt("We received a patient registration email verification request from this email address at") . ' ' . text($email) . '</p>';
-        $message .= '<p>' . xlt("However, you can not use this email for patient registration since it is already being used.") . '</p>';
-        $message .= '<p>' . xlt("Recommend contacting the clinic if need guidance.") . "</p>";
-        $message .= '<p>' . xlt("Please ignore this email if you did not make this request.") . '</p>';
-        $message .= "<p>" . xlt("Thank You.") . "</p>";
         $emailPrepSend = true;
     } else {
         (new SystemLogger())->debug("verifyEmail function: the email will be used to register the patient");
@@ -192,11 +193,13 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
                 'forward_email_verify' => $token_encrypt
             ]));
         }
-
-        // create message with messageCreateVerifyEmail (no pin code)
-        $message = messageCreateVerifyEmail($encoded_link);
+        $template = 'verify-success';
+        $templateData['encoded_link'] = $encoded_link;
         $emailPrepSend = true;
     }
+
+    $htmlMessage = $twig->render('emails/patient/verify_email/message-' . $template . '.html.twig', $templateData);
+    $plainMessage = $twig->render('emails/patient/verify_email/message-' . $template . '.text.twig', $templateData);
 
     if ($emailPrepSend) {
         // send email
@@ -206,9 +209,9 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         $mail->SetFrom($email_sender, $email_sender);
         $mail->AddAddress($email, ($fname . ' ' . $lname));
         $mail->Subject = xlt('Verify your email for patient portal registration');
-        $mail->MsgHTML("<html><body><div class='wrapper'>" . $message . "</div></body></html>");
+        $mail->MsgHTML($htmlMessage);
         $mail->IsHTML(true);
-        $mail->AltBody = $message;
+        $mail->AltBody = $plainMessage;
 
         if ($mail->Send()) {
             EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 1, "The patient registration verification email was successfully sent to " . $email);
@@ -224,17 +227,6 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
 
     // should never get to below
     return true;
-}
-
-function messageCreateVerifyEmail($encoded_link = '')
-{
-    $message = '<p>' . xlt("We received a patient registration email verification request. The link to verify your email is below.") . '</p>';
-    $message .= '<p>' . xlt("Please ignore this email if you did not make this request") . '</p>';
-    $message .= '<p><strong>' . xlt("Below link is only valid for one hour.") . ": </strong></p>";
-    $message .= sprintf('<a href="%s">%s</a>', attr($encoded_link), text($encoded_link));
-    $message .= "<p>" . xlt("Thank You.") . "</p>";
-
-    return $message;
 }
 
 // note function only returns 0 when there is an error in something and does not flag if a patient exists or not
@@ -347,20 +339,6 @@ function validEmail($email)
     return false;
 }
 
-function messageCreate($pass, $encoded_link = '')
-{
-    $message = '<p>' . xlt("We received a credentials reset request. The link to reset your credentials is below.") . '</p>';
-    $message .= '<p>' . xlt("Please ignore this email if you did not make this request") . '</p>';
-    $message .= '<p><strong>' . xlt("Credentials Reset. Below link is only valid for one hour.") . ": </strong></p>";
-    $message .= sprintf('<a href="%s">%s</a>', attr($encoded_link), text($encoded_link));
-    $message .= "<p><strong>" . xlt("One Time verification PIN") . ": </strong>" . text($pass) . "</p>";
-    $message .= "<p><strong>" . xlt("Your Portal Login Web Address. Bookmark for future logins.") . ": </strong></p>";
-    $message .= '<a href=' . attr($GLOBALS['portal_onsite_two_address']) . '>' . text($GLOBALS['portal_onsite_two_address']) . "</a><br />";
-    $message .= "<p>" . xlt("Thank You.") . "</p>";
-
-    return $message;
-}
-
 // $resetPass mode return false when something breaks (although returns true if related to a patient existing or not to prevent fishing for patients)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
@@ -469,20 +447,32 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         }
     }
 
-    $message = messageCreate($pin, $encoded_link);
+    $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = $twigContainer->getTwig();
+    $fhirServerConfig = new ServerConfig();
+
+    $data = [
+        'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
+        ,'pin' => $pin
+        ,'encoded_link' => $encoded_link
+        ,'fhir_address' => $fhirServerConfig->getFhirUrl()
+        ,'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
+    ];
+    $htmlMessage = $twig->render('emails/patient/reset_credentials/message.html.twig', $data);
+    $plainMessage = $twig->render('emails/patient/reset_credentials/message.text.twig', $data);
 
     $mail = new MyMailer();
     $pt_name = text($newpd['fname'] . ' ' . $newpd['lname']);
     $pt_email = text($newpd['email']);
-    $email_subject = xlt('Access Your Patient Portal');
+    $email_subject = xlt('Access Your Patient Portal') . ' / ' . xlt('3rd Party API Access');
     $email_sender = $GLOBALS['patient_reminder_sender_email'];
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
     $mail->Subject = $email_subject;
-    $mail->MsgHTML("<html><body><div class='wrapper'>" . $message . "</div></body></html>");
+    $mail->MsgHTML($htmlMessage);
     $mail->IsHTML(true);
-    $mail->AltBody = $message;
+    $mail->AltBody = $plainMessage;
 
     if ($mail->Send()) {
         if ($resetPass) {

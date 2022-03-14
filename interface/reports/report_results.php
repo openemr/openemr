@@ -17,6 +17,7 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc";
 
+use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -165,6 +166,8 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
  <tbody>  <!-- added for better print-ability -->
 <?php
 
+$amc_report_types = CertificationReportTypes::getReportTypeRecords();
+
 $res = listingReportDatabase($form_begin_date, $form_end_date);
 while ($row = sqlFetchArray($res)) {
   // Figure out the title and link
@@ -189,40 +192,12 @@ while ($row = sqlFetchArray($res)) {
 
         $type_title = xl('2014 Clinical Quality Measures (CQM)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } elseif ($row['type'] == "amc") {
+    } elseif (CertificationReportTypes::isAMCReportType($row['type'])) {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
-
-        $type_title = xl('Automated Measure Calculations (AMC)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } elseif ($row['type'] == "amc_2011") {
-        if (!$GLOBALS['enable_amc']) {
-            continue;
-        }
-
-        $type_title = xl('2011 Automated Measure Calculations (AMC)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } elseif ($row['type'] == "amc_2014") {
-        if (!$GLOBALS['enable_amc']) {
-            continue;
-        }
-
-        $type_title = xl('2014 Automated Measure Calculations (AMC)');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } elseif ($row['type'] == "amc_2014_stage1") {
-        if (!$GLOBALS['enable_amc']) {
-            continue;
-        }
-
-        $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
-        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
-    } elseif ($row['type'] == "amc_2014_stage2") {
-        if (!$GLOBALS['enable_amc']) {
-            continue;
-        }
-
-        $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
+        $record = $amc_report_types[$row['type']];
+        $type_title = $record['ruleset_title'];
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "process_reminders") {
         if (!$GLOBALS['enable_cdr']) {

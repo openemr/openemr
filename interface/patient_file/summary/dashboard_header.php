@@ -21,7 +21,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 
 $url_webroot = $GLOBALS['webroot'];
-$portal_login_href = $url_webroot . "/interface/patient_file/summary/create_portallogin.php";
+$portal_login_href = $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php";
 
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();
