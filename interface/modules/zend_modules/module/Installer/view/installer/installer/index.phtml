@@ -330,6 +330,19 @@ $coreModules = $this->coreModules ?? [];
         </table>
     </div>
 </div>
+<div class="mt-15">
+    <form  method="post" action="module_importer.php" name="module_import">
+        <input type="hidden" name="token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+        <div class="form-group">
+            <label for="module_uploader"><?php echo xlt("Module Uploader") ?></label>
+            <input class="ml-5 form-control" type="text"  name="module_import" size="82" value="" placeholder="Enter URL of module here to upload server">
+        </div>
+        <div class="form-group">
+            <input class="btn btn-primary" type="submit" value="<?php echo xlt("Import") ?>">
+        </div>
+
+    </form>
+</div>
 <?php
 if ($slno > 0) {
     ?>
