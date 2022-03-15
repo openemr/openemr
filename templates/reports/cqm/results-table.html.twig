@@ -33,7 +33,7 @@
         <tbody>
         {% for row in datasheet %}
             {% if row.is_main or row.is_sub %}
-                {% include '_results-table-main-sub.html.twig' with {row: row, report_id: report_id, display_excluded: true, display_exception: false} %}
+                {% include 'reports/cqm/_results-table-main-sub.html.twig' with {row: row, report_id: report_id, display_excluded: true, display_exception: true} %}
             {% endif %}
 
             {% if row.is_provider %}
@@ -42,7 +42,7 @@
                         <td colspan="7">&nbsp;</td>
                     </tr>
                 {% endif %}
-                {% include '_results-table-provider.html.twig' with {row: row} %}
+                {% include 'reports/cqm/_results-table-provider.html.twig' with {row: row} %}
             {% endif %}
 
             {% if row.is_plan %}
@@ -51,7 +51,7 @@
                         <td colspan="7">&nbsp;</td>
                     </tr>
                 {% endif %}
-                {% include '_results-table-plans.html.twig' with {row: row, isFirst: loop.first} %}
+                {% include 'reports/cqm/_results-table-plans.html.twig' with {row: row, isFirst: loop.first} %}
             {% endif %}
         {% endfor %}
         </tbody>

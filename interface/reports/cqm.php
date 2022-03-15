@@ -30,7 +30,7 @@ if (!empty($_POST)) {
 }
 
 
-function formatReportData(&$data, $is_amc, $is_cqm, $type_report)
+function formatReportData(&$data, $is_amc, $is_cqm, $type_report, $amc_report_data=array())
 {
     $dataSheet = json_decode($data, true) ?? [];
     $formatted = [];
@@ -38,36 +38,51 @@ function formatReportData(&$data, $is_amc, $is_cqm, $type_report)
     foreach ($dataSheet as $row)
     {
         $row['type'] = $type_report;
+        $row['total_patients'] = $row['total_patients'] ?? 0;
         $failed_items = null;
+        $displayFieldSubHeader = "";
+
         if ($is_cqm)
         {
-            $record['type'] = 'cqm';
+            $row['type'] = 'cqm';
+            $row['total_patients'] = $row['initial_population'] ?? 0;
+            if (isset($row['cqm_pqri_code'])) {
+                $displayFieldSubHeader .= " " . xl('PQRI') .":" . $row['cqm_pqri_code'] . " ";
+            }
+            if (isset($row['cqm_nqf_code'])) {
+                $displayFieldSubHeader .= " " . xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
+            }
         } else if ($is_amc) {
-            $record['type'] = 'amc';
+            $row['type'] = 'amc';
+            if (!empty($amc_report_types[$type_report]['code_col'])) {
+                $code_col = $amc_report_types[$type_report]['code_col'];
+                $displayFieldSubHeader .= " " . text($amc_report_types[$type_report]['abbr']) . ":"
+                    . text($row[$code_col]) . " ";
+            }
         }
 
         if (isset($row['is_main']))
         {
             // note that the is_main record must always come before is_sub in the report or the data will not work.
             $main_pass_filter = $row['pass_filter'] ?? 0;
-            $record['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
+            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
             if ($type_report == "standard") {
                 // Excluded is not part of denominator in standard rules so do not use in calculation
                 $failed_items = $row['pass_filter'] - $row['pass_target'];
             } else {
                 $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
             }
-
+            $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
         }
         else if (isset($row['is_sub']))
         {
-            $record['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category'])
+            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category'])
                 . ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
             // Excluded is not part of denominator in standard rules so do not use in calculation
             $failed_items = $main_pass_filter - $row['pass_target'];
         } else if (isset($row['is_plan']))
         {
-            $record['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
+            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
         }
 
         if (isset($row['itemized_test_id']))
@@ -90,8 +105,8 @@ function formatReportData(&$data, $is_amc, $is_cqm, $type_report)
             if (isset($failed_items) && $failed_items > 0)
             {
                 $row['display_failed_link'] = true;
-                $row['failed_items'] = $failed_items;
             }
+            $row['failed_items'] = $failed_items;
             $row['csrf_token'] = CsrfUtils::collectCsrfToken();
         }
 
@@ -131,7 +146,7 @@ if (!empty($report_id)) {
     $pat_prov_rel = $report_view['pat_prov_rel'];
 
 
-    $dataSheet = formatReportData($report_view['data'], $is_amc_report, $is_cqm_report, $type_report);
+    $dataSheet = formatReportData($report_view['data'], $is_amc_report, $is_cqm_report, $type_report, $amc_report_types[$type_report]);
 } else {
   // Collect report type parameter (standard, amc, cqm)
   // Note that need to convert amc_2011 and amc_2014 to amc and cqm_2011 and cqm_2014 to cqm
