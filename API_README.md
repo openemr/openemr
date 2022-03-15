@@ -225,10 +225,25 @@ See this github issue for an example of a Smart App installation: https://github
 
 ### Authorization Code Grant
 
-This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.
+This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.  Standard OAUTH2 clients will retrieve the authorize URL from the FHIR /metadata endpoint, but if you are building your own client you can access the metadata or go directly to the https://localhost:9300/oauth2/default/authorize endpoint.
 
 Note that a refresh token is only supplied if the `offline_access` scope is provided when requesting authorization grant.
 
+You will need to pass the scopes you are requesting, the redirect_uri (must be one that was registered at the time of your client registration), and a state parameter which can be any value.  Once authorization has finished the browser will be redirected to the URL specified in redirect_uri with an encrypted code value and the state value sent in the initial authorize request.
+    
+Example GET (this must be done in a browser):
+```
+GET /oauth2/default/authorize?client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4&response_type=code&scope=launch%2Fpatient%20openid%20fhirUser%20offline_access%20patient%2FMedication.read%20patient%2FAllergyIntolerance.read%20patient%2FCarePlan.read%20patient%2FCareTeam.read%20patient%2FCondition.read%20patient%2FDevice.read%20patient%2FDiagnosticReport.read%20patient%2FDocumentReference.read%20patient%2FEncounter.read%20patient%2FGoal.read%20patient%2FImmunization.read%20patient%2FLocation.read%20patient%2FMedicationRequest.read%20patient%2FObservation.read%20patient%2FOrganization.read%20patient%2FPatient.read%20patient%2FPractitioner.read%20patient%2FProcedure.read%20patient%2FProvenance.read&redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&state=9512151b-e5ca-cb4b-1ddc-aaf4cd8c6ecc
+```
+
+The client application must then make a request for an access token by hitting the /token endpoint.  Note the redirect_uri MUST match what what was sent in /authorize endpoint.
+    
+Example POST
+```
+curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
+'https://localhost:9300/oauth2/default/token'
+--data 'grant_type=authorization_code&redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&code=def50...'
+```
 ### Refresh Token Grant
 
 Note that a refresh token is only supplied if the `offline_access` scope is provided when requesting authorization or password grant.
