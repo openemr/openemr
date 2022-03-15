@@ -2,13 +2,14 @@
     <td class="detail" align="center">
         <b>
             <span>{{ "Provider"|xlt }}: {{ row.prov_lname }},{{ row.prov_fname }}</span>
-            {% if row.npi OR row.federaltaxid %}
+            {% if row.npi or row.federaltaxid %}
             <span>(
-                {% if row.npi %}<span>{{ "NPI|xlt" }}: {{ row.npi }}</span>{% endif %}
-                {% if row.federaltaxid %}<span>{{ "TID|xlt" }}: {{ row.federaltaxid }}</span>{% endif %}
+                {% if row.npi %}<span>{{ "NPI"|xlt }}: {{ row.npi }}</span>{% endif %}
+                {% if row.federaltaxid %}<span>{{ "TID"|xlt }}: {{ row.federaltaxid }}</span>{% endif %}
                 )
             </span>
             {% endif %}
         </b>
     </td>
+    <td colspan="{{ columns-1|attr }}">&nbsp;</td>
 </tr>

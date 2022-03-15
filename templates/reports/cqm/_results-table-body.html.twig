@@ -10,16 +10,16 @@
                 <td colspan="6">&nbsp;</td>
             </tr>
         {% endif %}
-        {% include 'reports/cqm/_results-table-provider.html.twig' with {row: row} %}
+        {% include 'reports/cqm/_results-table-provider.html.twig' with {row: row, columns: columns} %}
     {% endif %}
 
     {% if row.is_plan %}
-        {% if loop.first %}
+        {% if not loop.first %}
             <tr>
                 <td colspan="{{ columns|attr }}">&nbsp;</td>
             </tr>
         {% endif %}
-        {% include 'reports/cqm/_results-table-plans.html.twig' with {row: row, isFirst: loop.first} %}
+        {% include 'reports/cqm/_results-table-plans.html.twig' with {row: row, columns: columns} %}
     {% endif %}
 {% endfor %}
 </tbody>

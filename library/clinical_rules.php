@@ -605,6 +605,7 @@ function test_rules_clinic_group_calculation()
 
 function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
+    $results = [];
     // If set the $provider to collate_outer (or collate_inner without plans organize mode),
     // then run through this function recursively and return results.
     if (($provider === "collate_outer") || ($provider === "collate_inner" && $organize_mode !== 'plans')) {
@@ -635,6 +636,7 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
         // First, collect active plans
         $plans_resolve = resolve_plans_sql($plan, $patient_id);
         // Second, run through function recursively
+        error_log(var_export($plans_resolve, true));
         foreach ($plans_resolve as $plan_item) {
             //  (if collate_inner, then nest a collation of providers within each plan)
             if ($provider === "collate_inner") {

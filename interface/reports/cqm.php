@@ -146,7 +146,8 @@ if (!empty($report_id)) {
     $pat_prov_rel = $report_view['pat_prov_rel'];
 
 
-    $dataSheet = formatReportData($report_view['data'], $is_amc_report, $is_cqm_report, $type_report, $amc_report_types[$type_report]);
+    $amc_report_data = $amc_report_types[$type_report] ?? array();
+    $dataSheet = formatReportData($report_view['data'], $is_amc_report, $is_cqm_report, $type_report, $amc_report_data);
 } else {
   // Collect report type parameter (standard, amc, cqm)
   // Note that need to convert amc_2011 and amc_2014 to amc and cqm_2011 and cqm_2014 to cqm
