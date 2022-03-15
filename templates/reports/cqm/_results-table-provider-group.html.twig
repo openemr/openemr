@@ -1,7 +1,7 @@
 <tr>
-    <td class="detail text-center">
+    <td class="detail text-left">
         <b>
-            <span>{{ "Provider"|xlt }}: {{ row.prov_lname }},{{ row.prov_fname }}</span>
+            <span>{{ "Provider Group"|xlt }}: {{ row.name }}</span>
             {% if row.npi or row.federaltaxid %}
             <span>(
                 {% if row.npi %}<span>{{ "NPI"|xlt }}: {{ row.npi }}</span>{% endif %}

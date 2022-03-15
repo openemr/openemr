@@ -589,7 +589,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     }
 }
 
-function test_rules_clinic_group_calculation()
+function test_rules_clinic_group_calculation($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
     // we need to grab all of our billing facilities
     // we need to grab all providers connected to the billing facility
@@ -599,8 +599,36 @@ function test_rules_clinic_group_calculation()
     // $pat_prov_rel = encounter
 
     // sql = patient_data -> form_encounter -> billing_facility, grab provider, grab pid
+    // encounter -> encounter_billing_facility
+    // patient -> patient_billing_facility
+    $pat_prov_rel .= "_billing_facility";
 
+    $results = [];
+    $facilityService = new \OpenEMR\Services\FacilityService();
+    $billingLocations = $facilityService->getAllBillingLocations();
+    if (!empty($billingLocations))
+    {
+        // TODO: @adunsulag I'd prefer to use a service here, but in order to be consistent with everything else in this file we will use sqlStatementCdrEngine
+        $sql =  "SELECT id, name, federal_ein, facility_npi, tax_id_type FROM facility WHERE facility.billing_location = 1 "
+        . " AND id IN (SELECT DISTINCT billing_facility FROM form_encounter) "
+        . " ORDER BY facility.id ASC";
+        $ures = sqlStatementCdrEngine($sql);
+        while ($frow = sqlFetchArray($ures)) {
+            $results[] = [
+                'is_provider_group' => true
+                ,'group_name' => $frow['name']
+                ,'npi' => $frow['facility_npi']
+                ,'federaltaxid' => $frow['federal_ein']
+            ];
+            // we run with the encounter_billing_facility
 
+            $newResults = test_rules_clinic($frow['id'], $type, $dateTarget, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
+            $results = array_merge($results, $newResults);
+        }
+    } else {
+        // TODO: @adunsulag how to handle empty billing provider relationships
+    }
+    return $results;
 }
 
 function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
@@ -742,6 +770,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
   if ($provider === "collate_outer" || $organize_mode === 'plans')
   {
       return test_rules_clinic_collate($provider, $type, $dateTarget, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
+  }
+
+  if ($provider === "group_calculation")
+  {
+      return test_rules_clinic_group_calculation($provider, $type, $dateTarget, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
   }
 
   // Collect applicable patient pids
@@ -1072,9 +1105,10 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  * @param  integer       $start         applicable patient to start at (when batching process)
  * @param  integer       $batchSize     number of patients to batch (when batching process)
  * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
+ * @param  integer       $billing_facility id of the billing facility to constrain patient relationships to
  * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
  */
-function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false)
+function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false, $billing_facility = null)
 {
 
     if (!empty($patient_id)) {
@@ -1098,18 +1132,52 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
             }
         } else {
             // Look at an individual physician
-            if ($pat_prov_rel == 'encounter') {
-                // Choose patients that are related to specific physician by an encounter
+            if ($pat_prov_rel == 'encounter_billing_facility') {
                 if ($start == null || $batchSize == null || $onlyCount) {
                     $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                              " WHERE `provider_id`=? OR `supervisor_id`=? ORDER BY `pid`", array($provider,$provider));
+                        " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ? ORDER BY `pid`", array($provider,$provider, $billing_facility));
                     if ($onlyCount) {
-                              $patientNumber = sqlNumRows($rez);
+                        $patientNumber = sqlNumRows($rez);
                     }
                 } else {
                     //batching
                     $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                              " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider,$provider,($start - 1),$batchSize));
+                        " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ?  ORDER BY `pid` LIMIT ?,?"
+                        , array($provider,$provider,$billing_facility, ($start - 1),$batchSize));
+                }
+            }
+            else if ($pat_prov_rel == 'encounter') {
+                // Choose patients that are related to specific physician by an encounter
+                if ($start == null || $batchSize == null || $onlyCount) {
+                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
+                        " WHERE `provider_id`=? OR `supervisor_id`=? ORDER BY `pid`", array($provider, $provider));
+                    if ($onlyCount) {
+                        $patientNumber = sqlNumRows($rez);
+                    }
+                } else {
+                    //batching
+                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
+                        " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider, $provider, ($start - 1), $batchSize));
+                }
+            } else if ($pat_prov_rel == 'primary_billing_facility') {
+                if ($start == null || $batchSize == null || $onlyCount) {
+                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `patient_data` "
+                    . " JOIN users providers ON `patient_data`.`provider_id`=providers.id "
+                    . " JOIN users supervisors ON `patient_data`.`supervisor_id` = supervisors.id "
+                    . " WHERE (`provider_id`=? AND `providers`.`billing_facility_id`=?) "
+                        . " OR (`supervisor_id`=? AND `supervisors`.`billing_facility_id`=?) ORDER BY `pid`"
+                        , array($provider,$billing_facility, $provider, $billing_facility));
+                    if ($onlyCount) {
+                        $patientNumber = sqlNumRows($rez);
+                    }
+                } else {
+                    //batching
+                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `patient_data` "
+                        . " JOIN users providers ON `patient_data`.`provider_id`=providers.id "
+                        . " JOIN users supervisors ON `patient_data`.`supervisor_id` = supervisors.id "
+                        . " WHERE (`provider_id`=? AND `providers`.`billing_facility_id`=?) "
+                        . " OR (`supervisor_id`=? AND `supervisors`.`billing_facility_id`=?) ORDER BY `pid` LIMIT ?,?"
+                        , array($provider,$billing_facility, $provider, $billing_facility), ($start - 1),$batchSize);
                 }
             } else {  //$pat_prov_rel == 'primary'
                 // Choose patients that are assigned to the specific physician (primary physician in patient demographics)

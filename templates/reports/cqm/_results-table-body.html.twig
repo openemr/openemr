@@ -21,5 +21,14 @@
         {% endif %}
         {% include 'reports/cqm/_results-table-plans.html.twig' with {row: row, columns: columns} %}
     {% endif %}
+
+    {% if row.is_provider_group %}
+        {% if not loop.first %}
+            <tr>
+                <td colspan="{{ columns|attr }}">&nbsp;</td>
+            </tr>
+        {% endif %}
+        {% include 'reports/cqm/_results-table-provider-group.html.twig' with {row: row, columns: columns} %}
+    {% endif %}
 {% endfor %}
 </tbody>

@@ -558,6 +558,14 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                 <?php echo xlt('Provider'); ?>:
             </td>
             <td>
+                <select <?php echo $dis_text; ?> id='form_provider' name='form_provider' class='form-control'>
+                    <option value=''>-- <?php echo xlt('All (Cumulative)') ?>--</option>
+                    <option value='collate_outer' <?php echo ($provider == 'collate_outer') ? 'selected' : '';
+                    ?>>-- <?php echo xlt('All (Collated Format A)') ?>--</option>
+                    <option value='collate_inner' <?php echo ($provider == 'collate_inner') ? 'selected' : '';
+                    ?>>-- <?php echo xlt('All (Collated Format B)') ?>--</option>
+                    <option value='group_calculation' <?php echo ($provider == 'group_calculation') ? 'selected' : '';
+                    ?>>-- <?php echo xlt('All EP/EC Group Calculation') ?>--</option>
                 <?php
 
                  // Build a drop-down list of providers.
@@ -568,23 +576,6 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                  $ures = sqlStatement($query);
 
-                 echo "   <select " . $dis_text . " id='form_provider' name='form_provider' class='form-control'>\n";
-                 echo "    <option value=''>-- " . xlt('All (Cumulative)') . " --\n";
-
-                                 echo "    <option value='collate_outer'";
-                if ($provider == 'collate_outer') {
-                    echo " selected";
-                }
-
-                                 echo ">-- " . xlt('All (Collated Format A)') . " --\n";
-
-                                 echo "    <option value='collate_inner'";
-                if ($provider == 'collate_inner') {
-                    echo " selected";
-                }
-
-                                 echo ">-- " . xlt('All (Collated Format B)') . " --\n";
-
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
@@ -594,10 +585,8 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                     echo ">" . text($urow['lname'] . ", " . $urow['fname']) . "\n";
                 }
-
-                 echo "   </select>\n";
-
                 ?>
+                </select>
                         </td>
         </tr>
 
