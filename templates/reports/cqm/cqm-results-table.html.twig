@@ -1,5 +1,5 @@
 <div id="report_results">
-    <table class="table">
+    <table class="table text-center">
         <thead class='thead-light'>
             <tr>
                 <th>
@@ -39,7 +39,7 @@
             {% if row.is_provider %}
                 {% if collate_outer and not loop.first %}
                     <tr>
-                        <td colspan="7">&nbsp;</td>
+                        <td colspan="8">&nbsp;</td>
                     </tr>
                 {% endif %}
                 {% include 'reports/cqm/_results-table-provider.html.twig' with {row: row} %}
@@ -48,7 +48,7 @@
             {% if row.is_plan %}
                 {% if loop.first %}
                     <tr>
-                        <td colspan="7">&nbsp;</td>
+                        <td colspan="8">&nbsp;</td>
                     </tr>
                 {% endif %}
                 {% include 'reports/cqm/_results-table-plans.html.twig' with {row: row, isFirst: loop.first} %}
