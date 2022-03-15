@@ -29,6 +29,77 @@ if (!empty($_POST)) {
     }
 }
 
+
+function formatReportData(&$data, $is_amc, $is_cqm, $type_report)
+{
+    $dataSheet = json_decode($data, true) ?? [];
+    $formatted = [];
+    $main_pass_filter = 0;
+    foreach ($dataSheet as $row)
+    {
+        $row['type'] = $type_report;
+        $failed_items = null;
+        if ($is_cqm)
+        {
+            $record['type'] = 'cqm';
+        } else if ($is_amc) {
+            $record['type'] = 'amc';
+        }
+
+        if (isset($row['is_main']))
+        {
+            // note that the is_main record must always come before is_sub in the report or the data will not work.
+            $main_pass_filter = $row['pass_filter'] ?? 0;
+            $record['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
+            if ($type_report == "standard") {
+                // Excluded is not part of denominator in standard rules so do not use in calculation
+                $failed_items = $row['pass_filter'] - $row['pass_target'];
+            } else {
+                $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
+            }
+
+        }
+        else if (isset($row['is_sub']))
+        {
+            $record['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category'])
+                . ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
+            // Excluded is not part of denominator in standard rules so do not use in calculation
+            $failed_items = $main_pass_filter - $row['pass_target'];
+        } else if (isset($row['is_plan']))
+        {
+            $record['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
+        }
+
+        if (isset($row['itemized_test_id']))
+        {
+            if (isset($row['pass_filter']) && $row['pass_filter'] > 0)
+            {
+                $row['numerator_label'] = $row['numerator_label'] ?? '';
+                $row['display_pass_link'] = true;
+            }
+
+            if (isset($row['excluded']) && ($row['excluded'] > 0))
+            {
+                $row['display_excluded_link'] = true;
+            }
+
+            if (isset($row['pass_target']) && ($row['pass_target'] > 0))
+            {
+                $row['display_target_link'] = true;
+            }
+            if (isset($failed_items) && $failed_items > 0)
+            {
+                $row['display_failed_link'] = true;
+                $row['failed_items'] = $failed_items;
+            }
+            $row['csrf_token'] = CsrfUtils::collectCsrfToken();
+        }
+
+        $formatted[] = $row;
+    }
+    return $formatted;
+}
+
 $amc_report_types = CertificationReportTypes::getReportTypeRecords();
 
 // See if showing an old report or creating a new report
@@ -58,7 +129,9 @@ if (!empty($report_id)) {
     $organize_method = $report_view['organize_mode'];
     $provider  = $report_view['provider'];
     $pat_prov_rel = $report_view['pat_prov_rel'];
-    $dataSheet = json_decode($report_view['data'], true);
+
+
+    $dataSheet = formatReportData($report_view['data'], $is_amc_report, $is_cqm_report, $type_report);
 } else {
   // Collect report type parameter (standard, amc, cqm)
   // Note that need to convert amc_2011 and amc_2014 to amc and cqm_2011 and cqm_2014 to cqm
@@ -84,6 +157,7 @@ if (!empty($report_id)) {
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
     $provider  = trim($_POST['form_provider'] ?? '');
     $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['form_pat_prov_rel']);
+    $dataSheet = [];
 }
 ?>
 
@@ -597,6 +671,25 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
 <?php
 if (!empty($report_id)) {
+    $twigContainer = new \OpenEMR\Common\Twig\TwigContainer(null, $GLOBALS['kernel']);
+    $twig = $twigContainer->getTwig();
+    $form_provider = $_POST['form_provider'] ?? '';
+
+    $data = [
+        'report_id' => $report_id
+        , 'collate_outer' => $form_provider == 'collate_outer'
+        , 'datasheet' => $dataSheet
+    ];
+
+    if ($is_cqm_report) {
+        echo $twig->render('reports/cqm/cqm-results-table.html.twig', $data);
+    } else if ($is_amc_report) {
+        echo $twig->render('reports/cqm/amc-results-table.html.twig', $data);
+    } else {
+        echo $twig->render('reports/cqm/results-table.html.twig', $data);
+    }
+
+/*
     ?>
 
 
@@ -822,12 +915,15 @@ if (!empty($report_id)) {
  </tr>
 
         <?php
+
     }
     ?>
 </tbody>
 </table>
 </div>  <!-- end of search results -->
-<?php } else { ?>
+<?php
+*/
+} else { ?>
 <div id="instructions_text" class='text'>
     <?php echo xlt('Please input search criteria above, and click Submit to start report.'); ?>
 </div>

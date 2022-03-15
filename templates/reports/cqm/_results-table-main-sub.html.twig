@@ -1,0 +1,55 @@
+<tr>
+    <td class="detail">
+        {% if row.is_main %}
+        <b>{{ row.display_field|text }}</b>
+        {% else %}
+        {{ row.display_field|text }}
+        {% endif %}
+    </td>
+    <td>
+        {# total patients go here #}
+    </td>
+    <td class="center">
+        {# pass_filter goes here #}
+        {% if row.display_pass_link %}
+        <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id="{{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+           onclick='top.restoreSession()'>{{ row.pass_filter|text }}</a>
+        {% else %}
+            {{ row.pass_filter|text }}
+        {% endif %}
+    </td>
+    {% if display_excluded %}
+    <td class="center">
+        {% if row.display_excluded_link %}
+            <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id="{{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+               onclick='top.restoreSession()'>{{ row.excluded|text }}</a>
+        {% else %}
+            {{ row.excluded|text }}
+        {% endif %}
+    </td>
+    {% endif %}
+
+    {% if display_exception %}
+        {% if row.display_exception_link %}
+            <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id="{{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+               onclick='top.restoreSession()'>{{ row.exception|text }}</a>
+        {% else %}
+            {{ row.exception|text }}
+        {% endif %}
+    {% endif %}
+
+    {% if row.display_target_link %}
+        <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id="{{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+           onclick='top.restoreSession()'>{{ row.pass_target|text }}</a>
+    {% else %}
+        {{ row.pass_target|text }}
+    {% endif %}
+
+    {% if row.display_failed_link %}
+        <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id="{{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+           onclick='top.restoreSession()'>{{ row.failed_items|text }}</a>
+    {% else %}
+        {{ row.failed_items|text }}
+    {% endif %}
+    <td align='center'>{{ percentage|text }}</td>
+</tr>

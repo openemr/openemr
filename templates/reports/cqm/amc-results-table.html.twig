@@ -1,0 +1,52 @@
+<div id="report_results">
+    <table class="table">
+        <thead class='thead-light'>
+        <tr>
+            <th>
+                {{ 'Title'|xlt }}
+            </th>
+            <th>
+                {{ 'Total Patients'|xlt }}
+            </th>
+            <th>
+                {{ 'Denominator'|xlt }}
+            </th>
+            <th>
+                {{ 'Numerator'|xlt }}
+            </th>
+            <th>
+                {{ 'Failed'|xlt }}
+            </th>
+            <th>
+                {{ 'Performance Percentage'|xlt }}
+            </th>
+        </tr>
+        </thead>
+        {# results go here #}
+        <tbody>
+        {% for row in datasheet %}
+            {% if row.is_main or row.is_sub %}
+                {% include '_results-table-main-sub.html.twig' with {row: row, report_id: report_id, display_excluded: false, display_exception: false} %}
+            {% endif %}
+
+            {% if row.is_provider %}
+                {% if collate_outer and not loop.first %}
+                    <tr>
+                        <td colspan="6">&nbsp;</td>
+                    </tr>
+                {% endif %}
+                {% include '_results-table-provider.html.twig' with {row: row} %}
+            {% endif %}
+
+            {% if row.is_plan %}
+                {% if loop.first %}
+                    <tr>
+                        <td colspan="6">&nbsp;</td>
+                    </tr>
+                {% endif %}
+                {% include '_results-table-plans.html.twig' with {row: row, isFirst: loop.first} %}
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
