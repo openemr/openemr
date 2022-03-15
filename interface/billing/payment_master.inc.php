@@ -101,7 +101,7 @@ if ($payment_id > 0) {
         $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
             where insurance_companies.id =?", array($InsuranceCompanyId));
         $row = sqlFetchArray($res);
-        $div_after_save = $row['name'];
+        $div_after_save = $row['name'] ?? '';
         $TypeCode = $InsuranceCompanyId;
         if ($PaymentType == '') {
             $PaymentType = 'insurance';
