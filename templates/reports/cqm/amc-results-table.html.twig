@@ -22,31 +22,6 @@
             </th>
         </tr>
         </thead>
-        {# results go here #}
-        <tbody>
-        {% for row in datasheet %}
-            {% if row.is_main or row.is_sub %}
-                {% include 'reports/cqm/_results-table-main-sub.html.twig' with {row: row, report_id: report_id, display_excluded: false, display_exception: false} %}
-            {% endif %}
-
-            {% if row.is_provider %}
-                {% if collate_outer and not loop.first %}
-                    <tr>
-                        <td colspan="6">&nbsp;</td>
-                    </tr>
-                {% endif %}
-                {% include 'reports/cqm/_results-table-provider.html.twig' with {row: row} %}
-            {% endif %}
-
-            {% if row.is_plan %}
-                {% if loop.first %}
-                    <tr>
-                        <td colspan="6">&nbsp;</td>
-                    </tr>
-                {% endif %}
-                {% include 'reports/cqm/_results-table-plans.html.twig' with {row: row, isFirst: loop.first} %}
-            {% endif %}
-        {% endfor %}
-        </tbody>
+        {% include 'reports/cqm/_results-table-body.html.twig' with {row: row, columns:6,report_id:report_id,display_excluded:false, display_exception:false} %}
     </table>
 </div>
