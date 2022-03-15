@@ -473,7 +473,7 @@ foreach ($list_acl_groups as $value) {
   </tr>
     <tr>
         <td><span class=text><?php echo xlt('Default Billing Facility'); ?>: </span></td>
-        <td><select name=billing_facility_id style="width:150px;" class="form-control">
+        <td><select name="billing_facility_id" style="width:150px;" class="form-control">
                 <?php
                 $fres = $facilityService->getAllBillingLocations();
                 if ($fres) {
@@ -484,9 +484,7 @@ foreach ($list_acl_groups as $value) {
 
                     foreach ($billResults as $iter2) {
                         ?>
-                        <option value="<?php echo attr($iter2['id']); ?>" <?php if ($iter['billing_facility_id'] == $iter2['id']) {
-                            echo "selected";
-                                       } ?>><?php echo text($iter2['name']); ?></option>
+                        <option value="<?php echo attr($iter2['id']); ?>"><?php echo text($iter2['name']); ?></option>
                         <?php
                     }
                 }

@@ -577,7 +577,7 @@ foreach ($list_acl_groups as $value) {
 
   </tr>
     <tr>
-        <td><span class=text><?php echo xlt('Default Billing Facility'); ?>: </span></td><td><select name=billing_facility_id style="width:150px;" class="form-control">
+        <td><span class=text><?php echo xlt('Default Billing Facility'); ?>: </span></td><td><select name="billing_facility_id" style="width:150px;" class="form-control">
             <?php
             $fres = $facilityService->getAllBillingLocations();
             if ($fres) {
