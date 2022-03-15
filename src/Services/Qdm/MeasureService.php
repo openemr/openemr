@@ -30,6 +30,12 @@ class MeasureService
         return $options;
     }
 
+    public static function fetchMeasuresPath()
+    {
+        $measureSourcePath = self::$measure_sources['openemr/oe-cqm-parsers'];
+        return $GLOBALS['fileroot'] . $measureSourcePath;
+    }
+
     /**
      * Given full path to the measure directory, get the paths to the
      * measure file, and the value sets file.
