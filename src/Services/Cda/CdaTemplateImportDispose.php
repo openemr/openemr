@@ -1689,11 +1689,11 @@ class CdaTemplateImportDispose
                     $value['reason_code_text']
                 )
             );
-        }
-
-        if (count($observation_preformed_array) > 0) {
-            $query = 'INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)';
-            $appTable->zQuery($query, array($date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation'));
+            // insert form for observation
+            if (count($observation_preformed_array) > 0) {
+                $query = 'INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)';
+                $appTable->zQuery($query, array($date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation'));
+            }
         }
     }
 }
