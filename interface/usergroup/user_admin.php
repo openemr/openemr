@@ -576,6 +576,30 @@ foreach ($list_acl_groups as $value) {
   <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25 class="form-control"><?php echo text($iter["info"]); ?></textarea></td>
 
   </tr>
+    <tr>
+        <td><span class=text><?php echo xlt('Default Billing Facility'); ?>: </span></td><td><select name="billing_facility_id" style="width:150px;" class="form-control">
+            <?php
+            $fres = $facilityService->getAllBillingLocations();
+            if ($fres) {
+                $billResults = [];
+                for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
+                    $billResults[$iter2] = $fres[$iter2];
+                }
+
+                foreach ($billResults as $iter2) {
+                    ?>
+                    <option value="<?php echo attr($iter2['id']); ?>" <?php if ($iter['billing_facility_id'] == $iter2['id']) {
+                        echo "selected";
+                                   } ?>><?php echo text($iter2['name']); ?></option>
+                    <?php
+                }
+            }
+            ?>
+        </select></td>
+        <td>
+
+        </td>
+    </tr>
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
       <p>*<?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?></p>
