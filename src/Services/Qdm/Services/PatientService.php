@@ -59,8 +59,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                 'family' => $record['lname']
             ],
                 'birthDatetime' => $record['DOB'],
-                '_id' => $record['pid'], // From PatientExtension trait
-                'id' => $id
+                'id' => $id // From PatientExtension trait
             ]
         );
 

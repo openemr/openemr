@@ -1,12 +1,17 @@
 <?php
+/**
+ * @package OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ */
 
 namespace OpenEMR\Cqm\Qdm\Traits;
 
 trait PatientExtension
 {
-    /**
-     * @Identifier
-     */
+    public $patientName;
     public $id;
 
     // These are the "data criteria", or QDM datatype elements that exist on a
@@ -33,15 +38,7 @@ trait PatientExtension
         $categoryElements = [];
         foreach ($this->dataElements as $dataElement) {
             if ($dataElement->qdmCategory === $category) {
-                if (
-                    (
-                        $status !== null &&
-                        $status == $dataElement->qdmStatus
-                    ) ||
-                    $status === null
-                ) {
-                    $categoryElements[] = $dataElement;
-                }
+                $categoryElements[] = $dataElement;
             }
         }
 
