@@ -57,13 +57,14 @@ if ($id && $id != 0) {
 $code_desc = array_filter($code_desc);
 if (!empty($code_desc)) {
     foreach ($code_desc as $key => $codeval) :
+        $ob_unit_value = $ob_unit[$key];
         if ($code[$key] == 'SS003') {
             $ob_value[$key] = $ob_value_phin[$key];
             $ob_unit_value = "";
         } elseif ($code[$key] == '8661-1') {
             $ob_unit_value = "";
         } elseif ($code[$key] == '21612-7') {
-            if (! empty($ob_unit)) {
+            if (!empty($ob_unit)) {
                 foreach ($ob_unit as $key1 => $val) :
                     if ($key1 == 0) {
                         $ob_unit_value = $ob_unit[$key1];

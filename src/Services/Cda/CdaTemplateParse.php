@@ -114,6 +114,8 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.24.3.59' => 'fetchPhysicalExamPerformedData', // Physical Exam, Performed observation Vitals
             '2.16.840.1.113883.10.20.24.3.18' => 'fetchObservationPerformedData', //
             '2.16.840.1.113883.10.20.24.3.144' => 'fetchObservationPerformedData', // Assessment Performed
+            '2.16.840.1.113883.10.20.24.3.54' => 'fetchDeceasedObservationData', // Deceased Observation (V3)
+            '2.16.840.1.113883.10.20.24.3.55' => 'fetchPaymentSourceData', // Patient Characteristic Payer
         );
         foreach ($entryComponents['section']['entry'] as $entry) {
             $key = array_keys($entry)[0]; // need the entry template type i.e. observation, activity, substance etc.
@@ -148,6 +150,46 @@ class CdaTemplateParse
         return $this->templateData;
     }
 
+    public function fetchDeceasedObservationData($entry)
+    {
+        // @TODO
+        error_log('Todo for Missing QDM: Deceased Observation (V3) template');
+        /*<entry>
+              <observation classCode="OBS" moodCode="EVN">
+                <!-- C-CDA R2.1 Deceased Observation (V3) templateId -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.79" extension="2015-08-01" />
+                <!-- Patient Characteristic Expired (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.54" extension="2016-02-01" />
+                <id root="1.3.6.1.4.1.115" extension="622e7e0adfe4bd03cd567f7a"/>
+                <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4" codeSystemName="HL7ActCode" />
+                <statusCode code="completed" />
+                  <!-- QDM Attributes: expiredDatetime  -->
+                  <effectiveTime><low value='20190521084500'/></effectiveTime>
+                <value xsi:type="CD" code="419099009" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT" displayName="Dead" />
+              </observation>
+            </entry>*/
+    }
+
+    public function fetchPaymentSourceData($entry)
+    {
+        // @TODO I have no clue where to put this. Begin and end of insurance coverage.
+        error_log('Todo for Missing QDM: Patient Characteristic Payer template');
+        /*
+           <entry>
+              <!-- Patient Characteristic Payer -->
+              <observation classCode="OBS" moodCode="EVN">
+                <templateId root="2.16.840.1.113883.10.20.24.3.55"/>
+                <id root="aaf72040-92ef-0138-3932-2cde48001122"/>
+                <code code="48768-6" codeSystemName="LOINC" codeSystem="2.16.840.1.113883.6.1" displayName="Payment source"/>
+                <statusCode code="completed"/>
+                  <!-- QDM Attribute: Relevant Period -->
+                  <effectiveTime><low value='20020221150000'/><high nullFlavor='UNK'/></effectiveTime>
+                  <value xsi:type="CD" code="1" codeSystem="2.16.840.1.113883.3.221.5" codeSystemName="Source of Payment Typology"/>
+              </observation>
+            </entry>
+        */
+    }
+
     /**
      * @param $entry
      */
@@ -155,6 +197,7 @@ class CdaTemplateParse
     {
         if (
             !empty($entry['observation']['value']['code'] ?? null)
+            || !empty($entry['observation']['code']['code'] ?? null)
             || (!empty($entry['observation']['value']['nullFlavor'] ?? null) && empty($entry['observation']['value']['code'] ?? null))
             || (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null) && $entry['observation']['entryRelationship']['typeCode'] ?? null === 'RSON')
         ) {
@@ -186,11 +229,16 @@ class CdaTemplateParse
                 $result_code['formatted_code'] = 'nullFlavor:' . $entry['observation']['value']['nullFlavor'];
                 $result_code['code_text'] = $entry['observation']['value']['nullFlavor'];
                 $result_status = $entry['observation']['statusCode']['code'] ?? '';
-            } elseif (!empty($entry['observation']['value']['code'])) {
+            } elseif (($entry['observation']['value']['type'] ?? '') === 'CD') {
                 $ob_code = $entry['observation']['value']['code'];
                 $ob_system = $entry['observation']['value']['codeSystemName'] ?: $entry['observation']['value']['codeSystem'] ?? '';
                 $ob_code_text = $entry['observation']['value']['displayName'] ?? '';
                 $result_code = $this->codeService->resolveCode($ob_code, $ob_system, $ob_code_text);
+                $result_status = $entry['observation']['statusCode']['code'] ?? '';
+            } elseif (($entry['observation']['value']['type'] ?? '') === 'PQ') {
+                $result_code['formatted_code'] = 'PQ';
+                $result_code['code_text'] = $entry['observation']['value']['value'] ?? '';
+                $result_unit = $entry['observation']['value']['unit'] ?? '';
                 $result_status = $entry['observation']['statusCode']['code'] ?? '';
             }
             if (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null)) {
@@ -203,20 +251,21 @@ class CdaTemplateParse
             }
 
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation_type'] = $ob_type;
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['extension'] = $entry['observation']['id']['extension'];
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['root'] = $entry['observation']['id']['root'];
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['date'] = $entry['observation']['effectiveTime']['value'];
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['extension'] = $entry['observation']['id']['extension'] ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['root'] = $entry['observation']['id']['root'] ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['date'] = $entry['observation']['effectiveTime']['value'] ?? '';
 
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation_status'] = $result_status;
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation_status'] = $result_status ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation'] = $entry['observation']['text'] ?: $code['code_text'] ?? null;
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['code'] = $code['formatted_code'];
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['code_text'] = $code['code_text'];
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['code'] = $code['formatted_code'] ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['code_text'] = $code['code_text'] ?? '';
 
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_status'] = $result_status;
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_code'] = $result_code['formatted_code'];
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_code_text'] = $result_code['code_text'];
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_status'] = $result_status ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_code'] = $result_code['formatted_code'] ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_code_text'] = $result_code['code_text'] ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_code_unit'] = $result_unit ?? '';
 
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_status'] = $reason_status;
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_status'] = $reason_status ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_code'] = $reason_code['formatted_code'] ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_code_text'] = $reason_code['code_text'] ?? '';
 

@@ -1679,7 +1679,7 @@ class CdaTemplateImportDispose
                     $value['code'],
                     $value['observation'],
                     $value['result_code_text'],
-                    "",
+                    $value['result_code_unit'] ?? '',
                     $value['code_text'],
                     $value['observation_status'],
                     $value['result_code'],
