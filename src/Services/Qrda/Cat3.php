@@ -8,6 +8,69 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
  */
 
+namespace OpenEMR\Services\Qrda;
+
+use OpenEMR\Services\Qrda\Helpers\Date;
+use OpenEMR\Services\Qrda\Helpers\PatientView;
+use OpenEMR\Services\Qrda\Helpers\View;
+
+class Cat3 extends \Mustache_Engine
+{
+    use Date;
+    use View;
+    use PatientView;
+
+    const PAYER_MAP = ['1' => 'A', '2' => 'B', '3' => 'D', '4' => 'D', '5' => 'C', '6' => 'C', '7' => 'D', '8' => 'D', '9' => 'D'];
+
+    protected $templatePath =
+        __DIR__ . DIRECTORY_SEPARATOR .
+        'qrda-export' . DIRECTORY_SEPARATOR .
+        'catIII';
+
+    protected $template = 'qrda1_r5.mustache';
+    protected $measures = [];
+    protected $aggregate_results = [];
+    protected $measure_result_hash = [];
+    protected $provider;
+    protected $performance_period_start;
+    protected $performance_period_end;
+    protected $submission_program;
+    protected $ry2022_submission;
+
+    public function __construct($aggregate_results = array(), $measures = array(), $options = array())
+    {
+        $this->aggregate_results = $aggregate_results;
+        $this->measures = $measures;
+
+        foreach ($this->measures as $measure) {
+            $this->measure_result_hash[$measure['hqmf_id']] = [
+                'population_sets' => $measure['population_sets'],
+                'hqmf_id' => $measure['hqmf_id'],
+                'hqmf_set_id' => $measure['hqmf_set_id'],
+                'description' => $measure['description'],
+                'measure_data' => [],
+                'aggregate_count' => []
+            ];
+        }
+
+        $this->provider = $options['provider'];
+        $this->performance_period_start = $options['start_time'];
+        $this->performance_period_end = $options['end_time'];
+        $this->submission_program = $options['submission_program'];
+        $this->ry2022_submission = $options['ry2022_submission'];
+    }
+
+    protected function agg_results($measure_id, $cache_entries, $population_sets)
+    {
+        $aggregate_count = Qrda::Export::Helper::AggregateCount . new(measure_id)
+        cache_entries . each do |cache_entry |
+            aggregate_count . add_entry(cache_entry, population_sets)
+        end
+        aggregate_count
+        end
+    }
+}
+
 // TODO Port to php for QRDA Cat 3 export
 /*
 require 'mustache'

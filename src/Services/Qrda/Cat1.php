@@ -30,11 +30,11 @@ class Cat1 extends \Mustache_Engine
         __DIR__ . DIRECTORY_SEPARATOR .
         'qrda-export' . DIRECTORY_SEPARATOR .
         'catI-r5';
+
     protected $template = 'qrda1_r5.mustache';
+
     protected $patient;
-    protected $mustache;
-    public $random_id = '4444';
-    public $mrn = '545644';
+
     /**
      * @var array
      */
