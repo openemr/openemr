@@ -14,6 +14,7 @@
 namespace OpenEMR\Services\Qrda\Helpers;
 
 use Mustache_Context;
+use OpenEMR\Services\Qrda\Util\DateHelper;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -45,7 +46,7 @@ trait Date
 
     public function current_time(Mustache_Context $context)
     {
-        return date('YmdHi');
+        return DateHelper::format_datetime_gmdate(date('Y-m-d H:i'));
     }
 
     public function sent_date_time(Mustache_Context $context)
