@@ -230,7 +230,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = ($xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code']) ?? null;
 
         //Author details
         $this->documentData['field_name_value_array']['author'][1]['extension'] = $xml['author']['assignedAuthor']['id']['extension'] ?? null;
@@ -389,7 +389,7 @@ class CarecoordinationTable extends AbstractTableGateway
                             $race_option_id = $this->getOptionId('race', $rowfield['field_value'], '');
                             $newdata['patient_data'][$rowfield['field_name']] = $race_option_id;
                         } elseif ($rowfield['field_name'] == 'ethnicity') {
-                            $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], '');
+                            $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], $rowfield['field_value']);
                             $newdata['patient_data'][$rowfield['field_name']] = $ethnicity_option_id;
                         } else {
                             $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
@@ -759,11 +759,11 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        if ($codes !== null) {
+        if (!empty($codes)) {
             $query = "SELECT option_id
                   FROM list_options
-                  WHERE list_id=? AND codes=?";
-            $result = $appTable->zQuery($query, array($list_id, $codes));
+                  WHERE list_id=? AND (codes=? || notes=?)";
+            $result = $appTable->zQuery($query, array($list_id, $codes, $codes));
             $res_cur = $result->current();
         }
 
