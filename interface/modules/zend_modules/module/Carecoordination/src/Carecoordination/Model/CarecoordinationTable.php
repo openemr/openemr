@@ -691,6 +691,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_observation_preformed['observation_preformed'][$h]['result_status'] = $newdata['observation_preformed']['result_status'];
                 $arr_observation_preformed['observation_preformed'][$h]['result_code'] = $newdata['observation_preformed']['result_code'];
                 $arr_observation_preformed['observation_preformed'][$h]['result_code_text'] = $newdata['observation_preformed']['result_code_text'];
+                $arr_observation_preformed['observation_preformed'][$h]['result_code_unit'] = $newdata['observation_preformed']['result_code_unit'];
                 $arr_observation_preformed['observation_preformed'][$h]['reason_status'] = $newdata['observation_preformed']['reason_status'];
                 $arr_observation_preformed['observation_preformed'][$h]['reason_code'] = $newdata['observation_preformed']['reason_code'];
                 $arr_observation_preformed['observation_preformed'][$h]['reason_code_text'] = $newdata['observation_preformed']['reason_code_text'];

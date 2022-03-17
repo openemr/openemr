@@ -25,6 +25,7 @@ trait Date
     public function value_or_null_flavor($time)
     {
         if (!empty($time)) {
+            $time = date('Ymdhi', strtotime($time));
             $v = "value='{$time}'";
         } else {
             $v = "nullFlavor='UNK'";
@@ -44,7 +45,7 @@ trait Date
 
     public function current_time(Mustache_Context $context)
     {
-        return date('Y-m-d H:i');
+        return date('YmdHi');
     }
 
     public function sent_date_time(Mustache_Context $context)

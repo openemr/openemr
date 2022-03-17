@@ -2580,8 +2580,8 @@ $GLOBALS_METADATA = array(
         'cqm_performance_period' => array(
             xl('Eligible Clinician eCQM Performance Period'),
             'text',                           // data type
-            '2021', // default set
-            xl('Enter the eCQM Performance Period year. For example 2021')
+            '2022', // default set
+            xl('Enter the eCQM Performance Period year. For example 2022')
         ),
 
         'enable_amc' => array(
