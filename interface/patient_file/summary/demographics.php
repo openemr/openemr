@@ -36,12 +36,15 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
+use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
 use OpenEMR\Events\Patient\Summary\Card\RenderModel;
+use OpenEMR\Events\Patient\Summary\Card\CardInterface;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -935,6 +938,38 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     endif;
 
+                    $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('primary'));
+                    $sectionCards = $sectionRenderEvents->getCards();
+
+                    $t = $twig->getTwig();
+
+                    foreach ($sectionCards as $card) {
+                        $_auth = $card->getAcl();
+                        if (!AclMain::aclCheckCore($_auth[0], $_auth[1])) {
+                            continue;
+                        }
+
+                        $btnLabel = false;
+                        if ($card->canAdd()) {
+                            $btnLabel = 'Add';
+                        } elseif ($card->canEdit()) {
+                            $btnLabel = 'Edit';
+                        }
+
+                        $viewArgs = [
+                            'title' => $card->getTitle(),
+                            'id' => $card->getIdentifier(),
+                            'initiallyCollapsed' => !$card->isInitiallyCollapsed(),
+                            'card_bg_color' => $card->getBackgroundColorClass(),
+                            'card_text_color' => $card->getTextColorClass(),
+                            'forceAlwaysOpen' => !$card->canCollapse(),
+                            'btnLabel' => $btnLabel,
+                            'btnLink' => 'test',
+                        ];
+
+                        echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
+                    }
+
                     if (!$GLOBALS['hide_billing_widget']) :
                         $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
                         $patientbalance = get_patient_balance($pid, false);
@@ -1263,6 +1298,44 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
+                    if ($GLOBALS['portal_onsite_two_enable']) :
+                        $portalCard = new PortalCard($GLOBALS);
+                    endif;
+
+                    $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('secondary'));
+                    $sectionCards = $sectionRenderEvents->getCards();
+
+                    $t = $twig->getTwig();
+
+                    foreach ($sectionCards as $card) {
+                        $_auth = $card->getAcl();
+                        $auth = AclMain::aclCheckCore($_auth[0], $_auth[1]);
+                        if (!$auth) {
+                            continue;
+                        }
+
+                        $btnLabel = false;
+                        if ($card->canAdd()) {
+                            $btnLabel = 'Add';
+                        } elseif ($card->canEdit()) {
+                            $btnLabel = 'Edit';
+                        }
+
+                        $viewArgs = [
+                            'title' => $card->getTitle(),
+                            'id' => $card->getIdentifier(),
+                            'auth' => $auth,
+                            'linkMethod' => 'html',
+                            'initiallyCollapsed' => !$card->isInitiallyCollapsed(),
+                            'card_bg_color' => $card->getBackgroundColorClass(),
+                            'card_text_color' => $card->getTextColorClass(),
+                            'forceAlwaysOpen' => !$card->canCollapse(),
+                            'btnLabel' => $btnLabel,
+                            'btnLink' => 'test',
+                        ];
+
+                        echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
+                    }
 
                     if ($GLOBALS['erx_enable']) :
                         $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('demographics'));
@@ -1272,19 +1345,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     endif;
 
-                    if ($GLOBALS['portal_onsite_two_enable']) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('portal'));
 
-                        echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
-                            'portalAuthorized' => portalAuthorized($pid),
-                            'portalLoginHref' => $portal_login_href,
-                            'title' => xl('Patient Portal'),
-                            'id' => 'patient_portal',
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                        ]);
-                    endif;
 
                     // If there is an ID Card or any Photos show the widget
                     $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
