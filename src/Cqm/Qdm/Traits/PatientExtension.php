@@ -38,7 +38,15 @@ trait PatientExtension
         $categoryElements = [];
         foreach ($this->dataElements as $dataElement) {
             if ($dataElement->qdmCategory === $category) {
-                $categoryElements[] = $dataElement;
+                if (
+                    (
+                        $status !== null &&
+                        $status == $dataElement->qdmStatus
+                    ) ||
+                    $status === null
+                ) {
+                    $categoryElements[] = $dataElement;
+                }
             }
         }
 

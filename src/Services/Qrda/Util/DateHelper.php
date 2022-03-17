@@ -7,18 +7,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
  */
 
-namespace OpenEMR\Cqm\Qdm\BaseTypes;
+namespace OpenEMR\Services\Qrda\Util;
 
-
-use OpenEMR\Services\Qrda\Util\DateHelper;
-
-class DateTime extends AbstractType implements \JsonSerializable
+class DateHelper
 {
-    public $date;
-
-    public function jsonSerialize()
+    public static function format_datetime_gmdate($datetime)
     {
-        $formatted = DateHelper::format_datetime_gmdate($this->date);
-        return $formatted;
+        return gmdate('Ymd\THis\Z', date('U', strtotime($datetime)));
     }
 }
