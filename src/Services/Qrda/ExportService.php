@@ -26,4 +26,9 @@ class ExportService
 
         return $string;
     }
+
+    public function exportResults($measures = [])
+    {
+
+    }
 }
