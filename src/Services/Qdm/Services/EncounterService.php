@@ -49,6 +49,9 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         $days = $end->diff($start)->format("%a");
 
         $qdmRecord = new EncounterPerformed([
+            'authorDatetime' => new DateTime([
+                'date' => $record['date']
+            ]),
             'relevantPeriod' => new Interval([
                 'low' =>  new DateTime([
                     'date' => $start->format('Y-m-d H:i:s')

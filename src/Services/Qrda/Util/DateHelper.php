@@ -15,4 +15,14 @@ class DateHelper
     {
         return gmdate('Ymd\THis\Z', date('U', strtotime($datetime)));
     }
+
+    public static function format_datetime($datetime)
+    {
+        return gmdate('YmdHis', date('U', strtotime($datetime)));
+    }
+
+    public static function format_date($date)
+    {
+        return date('Ymd', strtotime($date));
+    }
 }

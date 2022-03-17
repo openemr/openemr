@@ -95,7 +95,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
             'dataElementCodes' => [
                 new Code([
                     'code' => $record['ethnicity_code'],
-                    'system' => '2.16.840.1.113883.10.20.28.3.56'
+                    'system' => '2.16.840.1.113883.6.238'
                 ])
             ]
         ]);

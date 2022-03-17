@@ -11,6 +11,7 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\AllergyIntolerance;
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
@@ -28,6 +29,9 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
     public function makeQdmModel(array $record)
     {
         $qdmModel = new AllergyIntolerance([
+            'authorDatetime' => new DateTime([
+                'date' => $record['begdate']
+            ]),
             'prevalencePeriod' => new Interval([
                 'low' => $record['begdate'],
                 'high' => $record['enddate'],
