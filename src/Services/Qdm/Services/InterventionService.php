@@ -40,6 +40,9 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
     public function makeQdmModel(array $record)
     {
         $qdmModel = new InterventionPerformed([
+            'authorDatetime' => new DateTime([
+                'date' => $record['begdate']
+            ]),
             'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
             ]),

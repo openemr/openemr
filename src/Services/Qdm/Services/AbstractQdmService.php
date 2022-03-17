@@ -34,6 +34,14 @@ abstract class AbstractQdmService
         $this->codeTypesService = $codeTypesService;
     }
 
+    public function validDateOrNull($date)
+    {
+        if ($date == '0000-00-00') {
+            return null;
+        }
+        return $date;
+    }
+
     public function getPatientIdColumn()
     {
         return 'pid';
