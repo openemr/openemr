@@ -35,10 +35,20 @@ class ExportCat3Service
 
     public function export($measure, $effectiveDate, $effectiveDateEnd)
     {
-        $patientModels = $this->builder->build($this->request);
-        $string = "";
         $results = $this->calculator->calculateMeasure($this->request, $measure, $effectiveDate, $effectiveDateEnd);
-        $cat3 = new Cat3();
+        $options = [
+            'start_time' => $effectiveDate,
+            'end_time' => $effectiveDateEnd
+            /*
+             * These are options: TODO what is required?
+            $options['provider'];
+            $options['start_time'];
+            $options['end_time'];
+            $options['submission_program'];
+            $options['ry2022_submission'];
+            */
+        ];
+        $cat3 = new Cat3($results, $measure, $options);
         $string = $cat3->renderXml();
 
         return $string;
