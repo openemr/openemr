@@ -2,13 +2,15 @@
 
 namespace OpenEMR\Services\Qrda;
 
+use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\QdmBuilder;
 
-class ExportService
+class ExportCat1Service
 {
     protected $builder;
     protected $request;
+
     public function __construct(QdmBuilder $builder, QdmRequestInterface $request)
     {
         $this->builder = $builder;
@@ -27,8 +29,4 @@ class ExportService
         return $string;
     }
 
-    public function exportResults($measures = [])
-    {
-
-    }
 }

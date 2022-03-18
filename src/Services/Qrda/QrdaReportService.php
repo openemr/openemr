@@ -21,6 +21,7 @@ use OpenEMR\Common\System\System;
 use OpenEMR\Cqm\CqmClient;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Generator;
+use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
 use OpenEMR\Services\Qdm\QdmRequestAll;
@@ -28,13 +29,13 @@ use OpenEMR\Services\Qdm\QdmRequestOne;
 
 class QrdaReportService
 {
-    protected $client;
+    protected $calculator;
     protected $patientJson;
     public $measuresPath;
 
     public function __construct()
     {
-        $this->client = CqmServiceManager::makeCqmClient();
+        $this->calculator = new CqmCalculator();
         $this->measuresPath = MeasureService::fetchMeasuresPath();
         $this->patientJson = "";
     }
@@ -124,23 +125,7 @@ class QrdaReportService
         } else {
             $request = new QdmRequestAll();
         }
-        $builder = new QdmBuilder();
-        $models = $builder->build($request);
-        $json_models = json_encode($models);
-        $patientStream = Psr7\Utils::streamFor($json_models);
-        $measureFiles = MeasureService::fetchMeasureFiles($measure);
-        $measureFileStream = new LazyOpenStream($measureFiles['measure'], 'r');
-        $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
-        $options = [
-            'doPretty' => true,
-            'includeClauseResults' => true,
-            'requestDocument' => true,
-            'effectiveDate' => $effectiveDate,
-            'effectiveDateEnd' => $effectiveEndDate
-        ];
-        $optionsStream = Psr7\Utils::streamFor(json_encode($options));
-
-        return $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+        return $this->calculator->calculateMeasure($request, $measure, $effectiveDate, $effectiveEndDate);
     }
 
     /**
@@ -150,7 +135,7 @@ class QrdaReportService
      */
     public function generateCategoryIXml($pid, $measures = []): string
     {
-        $exportService = new ExportService(new QdmBuilder(), new QdmRequestOne($pid));
+        $exportService = new ExportCat1Service(new QdmBuilder(), new QdmRequestOne($pid));
         $xml = $exportService->export(MeasureService::fetchAllMeasuresArray($measures));
 
         return $xml;
