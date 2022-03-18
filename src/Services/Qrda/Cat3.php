@@ -60,6 +60,11 @@ class Cat3 extends \Mustache_Engine
         $this->ry2022_submission = $options['ry2022_submission'];
     }
 
+    public function renderXml()
+    {
+
+    }
+
     protected function agg_results($measure_id, $cache_entries, $population_sets)
     {
         $aggregate_count = Qrda::Export::Helper::AggregateCount . new(measure_id)
