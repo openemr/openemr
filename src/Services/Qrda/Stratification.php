@@ -12,5 +12,22 @@ namespace OpenEMR\Services\Qrda;
 
 class Stratification
 {
+    public $id;
+    public $value;
+    public $observation;
+
+    /**
+     * Stratification constructor.
+     * @param $id
+     * @param $value
+     * @param $observation
+     */
+    public function __construct($id, $value, $observation)
+    {
+        $this->id = $id;
+        $this->value = $value;
+        $this->observation = $observation;
+    }
+
 
 }
