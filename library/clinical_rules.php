@@ -21,6 +21,8 @@ require_once(dirname(__FILE__) . "/report_database.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Reports\AMC\Trackers\AMCGroupItemTracker;
+use OpenEMR\Common\Logging\SystemLogger;
 
 /**
  * Return listing of CDR reminders in log.
@@ -500,6 +502,9 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         $totalNumberBatches = floor($totalNumPatients / $batchSize);
     }
 
+    (new SystemLogger())->debug("test_rules_clinic_batch_method()",
+        ['totalNumPatients' => $totalNumPatients, 'totalNumberBatches' => $totalNumberBatches]);
+
   // Fix things in the $options array(). This now stores the number of labs to be used in the denominator in the AMC report.
   // The problem with this variable is that is is added in every batch. So need to fix it by dividing this number by the number
   // of planned batches(note the fixed array will go into the test_rules_clinic function, however the original will be used
@@ -623,8 +628,11 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
     return $results;
 }
 
-function test_rules_clinic_group_calculation($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+function test_rules_clinic_group_calculation($provider = '', $type = '', array $dateArray = array(), $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
+    (new SystemLogger())->debug("test_rules_clinic_group_calculation()",
+        array_combine(['provider', 'type', 'dateArray', 'mode', 'patient_id', 'plan', 'organize_mode'
+            , 'options', 'pat_prov_rel', 'start', 'batchSize', 'user'], func_get_args()));
     // we need to grab all of our billing facilities
     // we need to grab all providers connected to the billing facility
 
@@ -635,12 +643,21 @@ function test_rules_clinic_group_calculation($provider = '', $type = '', $dateTa
     // sql = patient_data -> form_encounter -> billing_facility, grab provider, grab pid
     // encounter -> encounter_billing_facility
     // patient -> patient_billing_facility
-    $group_pat_prov_rel = $pat_prov_rel . "_billing_facility";
+//    $group_pat_prov_rel = $pat_prov_rel . "_billing_facility";
     $results = [];
     $facilityService = new \OpenEMR\Services\FacilityService();
     $billingLocations = $facilityService->getAllBillingLocations();
     if (!empty($billingLocations))
     {
+        //Collect applicable rules
+        // Note that due to a limitation in the this function, the patient_id is explicitly
+        //  for grouping items when not being done in real-time or for official reporting.
+        //  So for cases such as patient reminders on a clinic scale, the calling function
+        //  will actually need rather than pass in a explicit patient_id for each patient in
+        //  a separate call to this function.
+        $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
+        $filteredRules = array_filter($rules, function($rule) { return $rule['amc_flag'] || $rule['cqm_flag'];});
+
         // TODO: @adunsulag I'd prefer to use a service here, but in order to be consistent with everything else in this file we will use sqlStatementCdrEngine
         $sql =  "SELECT id, name, federal_ein, facility_npi, tax_id_type FROM facility WHERE facility.billing_location = 1 "
         . " AND id IN (SELECT DISTINCT billing_facility FROM form_encounter) "
@@ -649,14 +666,28 @@ function test_rules_clinic_group_calculation($provider = '', $type = '', $dateTa
         while ($frow = sqlFetchArray($frez)) {
             // we run with the encounter_billing_facility
 
-            // now we need to grab each of the providers
-            $providers = rules_clinic_get_providers($frow['id'], $pat_prov_rel);
-            $pre_batch = $GLOBALS['report_itemized_test_id_iterator'];
+            $options['billing_facility_id'] = $frow['id'];
+            $patientData = buildPatientArray($patient_id, $provider, $pat_prov_rel, $start, $batchSize, false, $frow['id']);
 
-            foreach ($providers as $provider)
-            {
-                $newResults = test_rules_clinic($provider['provider_id'], $type, $dateTarget, $mode, $patient_id, $plan, $organize_mode, $options, $group_pat_prov_rel, $start, $batchSize, $user);
-                $results = array_merge($results, $newResults);
+            (new SystemLogger())->debug("test_rules_clinic_group_calculation() patientIds retrieved for facility"
+                , ['facilityId' => $frow['id'], 'patientData' => $patientData]);
+
+            if (!empty($patientData)) {
+                $group_item = [];
+                $group_item['is_provider_group'] = true;
+                $group_item['name'] = $frow['name'];
+                $group_item['npi'] = $frow['facility_npi'];
+                $group_item['federaltaxid'] = $frow['federal_ein'];
+                $results[] = $group_item;
+
+                foreach ($filteredRules as $rowRule) {
+                    $tempResults = test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateArray, $options);
+                    if (!empty($tempResults)) {
+                        $results = array_merge($results, $tempResults);
+                    }
+                    (new SystemLogger())->debug("test_rules_clinic_group_calculation() results returned for facility"
+                        , ['facilityId' => $frow['id'], 'results' => $tempResults]);
+                }
             }
         }
     } else {
@@ -792,6 +823,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
     if (is_array($dateTarget)) {
         $dateArray = $dateTarget;
         $dateTarget = $dateTarget['dateTarget'];
+    } else {
+        $dateArray = [];
     }
 
   // Set date to current if not set
@@ -808,7 +841,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
   if ($provider === "group_calculation")
   {
-      return test_rules_clinic_group_calculation($provider, $type, $dateTarget, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
+      return test_rules_clinic_group_calculation($provider, $type, $dateArray, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
   }
 
   // Collect applicable patient pids
@@ -1144,7 +1177,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  */
 function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false, $billing_facility = null)
 {
+    (new SystemLogger())->debug("buildPatientArray()",
+        ['patient_id' => $patient_id, 'provider' => $provider, 'pat_prov_rel' => $pat_prov_rel, 'start' => $start
+            , 'batchSize' => $batchSize, 'onlyCount' => $onlyCount, 'billing_facility' => $billing_facility]);
 
+    $patientData = [];
     if (!empty($patient_id)) {
         // only look at the selected patient
         if ($onlyCount) {
@@ -1166,19 +1203,8 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
             }
         } else {
             // Look at an individual physician
-            if ($pat_prov_rel == 'encounter_billing_facility') {
-                if ($start == null || $batchSize == null || $onlyCount) {
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                        " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ? ORDER BY `pid`", array($provider,$provider, $billing_facility));
-                    if ($onlyCount) {
-                        $patientNumber = sqlNumRows($rez);
-                    }
-                } else {
-                    //batching
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                        " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ?  ORDER BY `pid` LIMIT ?,?"
-                        , array($provider,$provider,$billing_facility, ($start - 1),$batchSize));
-                }
+            if ($provider == 'group_calculation' && $pat_prov_rel == 'encounter') {
+                return buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility);
             }
             else if ($pat_prov_rel == 'encounter') {
                 // Choose patients that are related to specific physician by an encounter
@@ -1193,24 +1219,8 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
                         " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider, $provider, ($start - 1), $batchSize));
                 }
-            } else if ($pat_prov_rel == 'primary_billing_facility') {
-                if ($start == null || $batchSize == null || $onlyCount) {
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `patient_data` "
-                        . " JOIN users providers ON `patient_data`.`providerID`=providers.id "
-                        . " WHERE (`providerID`=? AND `providers`.`billing_facility_id`=?) "
-                        . " ORDER BY `pid` "
-                        , array($provider,$billing_facility));
-                    if ($onlyCount) {
-                        $patientNumber = sqlNumRows($rez);
-                    }
-                } else {
-                    //batching
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `patient_data` "
-                        . " JOIN users providers ON `patient_data`.`providerID`=providers.id "
-                        . " WHERE (`providerID`=? AND `providers`.`billing_facility_id`=?) "
-                        . " ORDER BY `pid` LIMIT ?,?"
-                        , array($provider,$billing_facility, ($start - 1),$batchSize));
-                }
+            } else if ($provider=='group_calculation' && $pat_prov_rel == 'primary') {
+                return buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility);
             } else {  //$pat_prov_rel == 'primary'
                 // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
                 if ($start == null || $batchSize == null || $onlyCount) {
@@ -1241,6 +1251,93 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
         // return array of patient pids
         return $patientData;
     }
+}
+
+/**
+ * Process patient array that is to be tested. This uses the patient relationship context of encounters linked to billing facilities
+ *
+ * @param  integer       $start         applicable patient to start at (when batching process)
+ * @param  integer       $batchSize     number of patients to batch (when batching process)
+ * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
+ * @param  integer       $billing_facility id of the billing facility to constrain patient relationships to, if NULL it uses ALL billing facilities
+ * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ */
+function buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility)
+{
+    $sql = "SELECT DISTINCT `pid` FROM `form_encounter` ";
+    $binds = [];
+
+    $billing_facility = intval($billing_facility); // make sure its an integer
+    if (empty($billing_facility))
+    {
+        $sql .= "WHERE `billing_facility` IS NOT NULL ";
+    } else {
+        //            " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ? ORDER BY `pid`", array($provider,$provider, $billing_facility));
+        $sql .= " WHERE `billing_facility` = ? ";
+        $binds[] = $billing_facility;
+    }
+    $sql .= "ORDER BY `pid`";
+    if (!($start == null || $batchSize == null || $onlyCount)) {
+        $sql .= "LIMIT ?,?";
+        $binds[] = intval($start) -1;
+        $binds[] = intval($batchSize);
+    }
+    $rez = sqlStatementCdrEngine($sql, $binds);
+
+    if ($onlyCount) {
+        $patientNumber = sqlNumRows($rez);
+        return $patientNumber;
+    }
+
+    $patientData = [];
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        $patientData[$iter] = $row;
+    }
+    return $patientData;
+}
+
+/**
+ * Process patient array that is to be tested. This uses the patient relationship context of the primary provider who is
+ * linked to a billing facility
+ *
+ * @param  integer       $start         applicable patient to start at (when batching process)
+ * @param  integer       $batchSize     number of patients to batch (when batching process)
+ * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
+ * @param  integer       $billing_facility id of the billing facility to constrain patient relationships to, if NULL it uses ALL billing facilities
+ * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ */
+function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility)
+{
+    $sql = "SELECT DISTINCT `pid` FROM `patient_data` JOIN users providers ON `patient_data`.`providerID`=providers.id ";
+    $binds = [];
+
+    $billing_facility = intval($billing_facility); // make sure its an integer
+    if (empty($billing_facility))
+    {
+        $sql .= "WHERE (`providers`.`billing_facility_id` IS NOT NULL)";
+    } else {
+        //            " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ? ORDER BY `pid`", array($provider,$provider, $billing_facility));
+        $sql .= " WHERE (`providers`.`billing_facility_id`=?)";
+        $binds[] = $billing_facility;
+    }
+    $sql .= "ORDER BY `pid`";
+    if (!($start == null || $batchSize == null || $onlyCount)) {
+        $sql .= "LIMIT ?,?";
+        $binds[] = intval($start) -1;
+        $binds[] = intval($batchSize);
+    }
+    $rez = sqlStatementCdrEngine($sql, $binds);
+
+    if ($onlyCount) {
+        $patientNumber = sqlNumRows($rez);
+        return $patientNumber;
+    }
+
+    $patientData = [];
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        $patientData[$iter] = $row;
+    }
+    return $patientData;
 }
 
 /**
