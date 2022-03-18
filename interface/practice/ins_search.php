@@ -130,7 +130,7 @@ td {
 <?php
  // If we are saving, then save and close the window.
  //
-if ($_POST['form_save']) {
+if ($_POST['form_save'] ?? '') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -150,22 +150,16 @@ if ($_POST['form_save']) {
                 'ins_type_code' => $_POST['form_ins_type_code'],
                 'x12_receiver_id' => $_POST['form_partner'],
                 'x12_default_parter_id' => $_POST['form_partner'],
-                'alt_cms_id' => null
+                'alt_cms_id' => null,
+                'line1' => $_POST['form_addr1'],
+                'line2' => $_POST['form_addr2'],
+                'city' => $_POST['form_city'],
+                'state' => $_POST['form_state'],
+                'zip' => $_POST['form_zip'],
+                'country' => $_POST['form_country'],
+                'foreign_id' => $ins_id
             )
         );
-
-        sqlStatement("INSERT INTO addresses ( " .
-        "id, line1, line2, city, state, zip, country, foreign_id " .
-        ") VALUES ( " .
-        "'" . add_escape_custom(generate_id())          . "', " .
-        "'" . add_escape_custom($_POST['form_addr1'])   . "', " .
-        "'" . add_escape_custom($_POST['form_addr2'])   . "', " .
-        "'" . add_escape_custom($_POST['form_city'])    . "', " .
-        "'" . add_escape_custom($_POST['form_state'])   . "', " .
-        "'" . add_escape_custom($_POST['form_zip'])     . "', " .
-        "'" . add_escape_custom($_POST['form_country']) . "', " .
-        "'" . add_escape_custom($ins_id)                . "' " .
-        ")");
 
         $phone_parts = array();
         preg_match(
@@ -174,17 +168,19 @@ if ($_POST['form_save']) {
             $phone_parts
         );
 
-        sqlStatement("INSERT INTO phone_numbers ( " .
-        "id, country_code, area_code, prefix, number, type, foreign_id " .
-        ") VALUES ( " .
-        "'" . add_escape_custom(generate_id())   . "', " .
-        "'+1'"                . ", "  .
-        "'" . add_escape_custom($phone_parts[1]) . "', " .
-        "'" . add_escape_custom($phone_parts[2]) . "', " .
-        "'" . add_escape_custom($phone_parts[3]) . "', " .
-        "'2'"                 . ", "  .
-        "'" . add_escape_custom($ins_id)         . "' "  .
-        ")");
+        if (!empty($phone_parts)) {
+            sqlStatement("INSERT INTO phone_numbers ( " .
+            "id, country_code, area_code, prefix, number, type, foreign_id " .
+            ") VALUES ( " .
+            "'" . add_escape_custom(generate_id())   . "', " .
+            "'+1'"                . ", "  .
+            "'" . add_escape_custom($phone_parts[1] ?? '') . "', " .
+            "'" . add_escape_custom($phone_parts[2] ?? '') . "', " .
+            "'" . add_escape_custom($phone_parts[3] ?? '') . "', " .
+            "'2'"                 . ", "  .
+            "'" . add_escape_custom($ins_id)         . "' "  .
+            ")");
+        }
     }
 
   // Close this window and tell our opener to select the new company.

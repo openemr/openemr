@@ -29,8 +29,8 @@ class InsuranceCompanyService extends BaseService
     private const INSURANCE_TABLE = "insurance_companies";
     private $insuranceValidator;
     private $addressService = null;
-    const TYPE_FAX = 5;
-    const TYPE_WORK = 2;
+    public const TYPE_FAX = 5;
+    public const TYPE_WORK = 2;
 
 
     /**
@@ -235,7 +235,7 @@ class InsuranceCompanyService extends BaseService
                 $data["cms_id"],
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
-                $data["x12_default_partner_id"],
+                $data["x12_default_partner_id"] ?? '',
                 $data["alt_cms_id"]
             )
         );
