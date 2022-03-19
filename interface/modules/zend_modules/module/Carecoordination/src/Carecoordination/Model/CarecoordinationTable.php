@@ -230,7 +230,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = ($xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code']) ?? null;
 
         //Author details
         $this->documentData['field_name_value_array']['author'][1]['extension'] = $xml['author']['assignedAuthor']['id']['extension'] ?? null;
@@ -389,7 +389,7 @@ class CarecoordinationTable extends AbstractTableGateway
                             $race_option_id = $this->getOptionId('race', $rowfield['field_value'], '');
                             $newdata['patient_data'][$rowfield['field_name']] = $race_option_id;
                         } elseif ($rowfield['field_name'] == 'ethnicity') {
-                            $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], '');
+                            $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], $rowfield['field_value']);
                             $newdata['patient_data'][$rowfield['field_name']] = $ethnicity_option_id;
                         } else {
                             $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
@@ -759,11 +759,11 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        if ($codes !== null) {
+        if (!empty($codes)) {
             $query = "SELECT option_id
                   FROM list_options
-                  WHERE list_id=? AND codes=?";
-            $result = $appTable->zQuery($query, array($list_id, $codes));
+                  WHERE list_id=? AND (codes=? || notes=?)";
+            $result = $appTable->zQuery($query, array($list_id, $codes, $codes));
             $res_cur = $result->current();
         }
 
@@ -1714,6 +1714,11 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertReferrals($arr_referral['referral'], $data['pid'], 1);
     }
 
+    /**
+     * Method for review discard. Soft delete.
+     * @param $data
+     * @return void
+     */
     public function discardCCDAData($data)
     {
         $appTable = new ApplicationTable();
@@ -1724,6 +1729,27 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents
                       SET audit_master_approval_status='3'
                       WHERE audit_master_id=?", array($data['audit_master_id']));
+    }
+    /**
+     * Method hard delete audit data.
+     * @param $data
+     * @return void
+     */
+    public function deleteImportAuditData($data)
+    {
+        $appTable = new ApplicationTable();
+        $appTable->zQuery("DELETE FROM audit_details WHERE audit_master_id=?", array($data['audit_master_id']));
+        $appTable->zQuery("DELETE FROM audit_master WHERE id=?", array($data['audit_master_id']));
+        $result = $appTable->zQuery("SELECT url FROM documents WHERE audit_master_id=?", array($data['audit_master_id']));
+        $res_cur = $result->current();
+        if (is_file($res_cur['url'])) {
+            unlink($res_cur['url']);
+        }
+        $file_c = pathinfo($res_cur['url']);
+        if (is_dir($file_c['dirname'])) {
+            rmdir($file_c['dirname']);
+        }
+        $appTable->zQuery("DELETE FROM documents WHERE audit_master_id=?", array($data['audit_master_id']));
     }
 
     public function getCodes($option_id, $list_id)

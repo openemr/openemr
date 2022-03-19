@@ -33,7 +33,6 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         if (height_value < 600) {
             height_value = 600
         }
-        ;
         if (parent.document.getElementById('ccda_iframe')) {
             parent.iframeLoaded(height_value, 'ccda_iframe');
         }
@@ -338,6 +337,13 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     <input type="file" id="file_uploader" multiple>
                 </div>
                 <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
+                <?php if (!empty($records)) { ?>
+                <span style="margin-left:10px;">
+                    <button type="submit" id="chart_all_imports" class="btn btn-secondary" name="chart_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Chart all pending imports"); ?>'>
+                        <img style="margin-right: 5px;height:20px;width:auto;" src="<?php echo $this->basePath(); ?>/css/icons/import.png"><span><?php echo $this->listenerObject->z_xlt("Chart Pending"); ?></span>
+                    </button>
+                </span>
+                <?php } ?>
             </div>
             <div class="clear"></div>
 
@@ -361,7 +367,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Type'); ?></th>
-                            <th>&nbsp;</th>
+                            <th>
+                                <button type="submit" id="delete_all_imports" class="btn btn-secondary" name="delete_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Undo all pending imports"); ?>'>
+                                    <img src="<?php echo $this->basePath(); ?>/css/icons/undo.png"><span style="margin-left: 5px;"><?php echo $this->listenerObject->z_xlt("Undo Imports"); ?></span>
+                                </button>
+                            </th>
                         </tr>
                         <?php
                         $slno = 0;
