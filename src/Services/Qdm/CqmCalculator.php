@@ -9,8 +9,8 @@
 
 namespace OpenEMR\Services\Qdm;
 
-
 use GuzzleHttp\Psr7\LazyOpenStream;
+use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
@@ -23,10 +23,10 @@ class CqmCalculator
      * CqmCalculator constructor.
      * @param $client
      */
-    public function __construct()
+    public function __construct(QdmBuilder $builder)
     {
         $this->client = CqmServiceManager::makeCqmClient();
-        $this->builder = new QdmBuilder();
+        $this->builder = $builder;
     }
 
     /**
