@@ -25,26 +25,26 @@ class AggregateCount
     {
         $population_set = null;
         foreach ($population_sets as $ps) {
-            if ($ps['population_set_id'] == $cache_entry->pop_set_hash['population_set_id']) {
+            if ($ps['population_set_id'] == $cache_entry['pop_set_hash']['population_set_id']) {
                 $population_set = $ps;
                 break;
             }
         }
         $entry_populations = [];
         foreach(['IPP', 'DENOM', 'NUMER', 'NUMEX', 'DENEX', 'DENEXCEP', 'MSRPOPL', 'MSRPOPLEX'] as $pop_code) {
-            if (!isset($population_set->populations[$pop_code])) {
+            if (!isset($population_set['populations'][$pop_code])) {
                 continue;
             }
 
             $population = $this->create_population_from_population_set($pop_code, $population_set, $cache_entry);
-            if ($cache_entry->pop_set_hash['stratification_id']) {
+            if ($cache_entry['pop_set_hash']['stratification_id']) {
                  // strat_id = population_set.stratifications.where(stratification_id: cache_entry.pop_set_hash[:stratification_id]).first&.hqmf_id
                  // observation = cache_entry['observations'][pop_code] if cache_entry['observations'] && cache_entry['observations'][pop_code]
                  // population.add_stratification(strat_id,cache_entry[pop_code], observation)
                 $strat_id = null;
-                foreach ($population_set->stratifications as $stratification) {
-                    if ($cache_entry->pop_set_hash['stratification_id']) {
-                        $strat_id = $stratification->hqmf_id;
+                foreach ($population_set['stratifications'] as $stratification) {
+                    if ($cache_entry['pop_set_hash']['stratification_id']) {
+                        $strat_id = $stratification['hqmf_id'];
                     }
                 }
                 $observation = null;
@@ -57,11 +57,11 @@ class AggregateCount
                 // population.value = cache_entry[pop_code]
                 // population.observation = cache_entry['observations'][pop_code] if cache_entry['observations'] && cache_entry['observations'][pop_code]
                 // population.supplemental_data = cache_entry.supplemental_data[pop_code]
-                $population->value = $cache_entry[$pop_code];
+                $population['value'] = $cache_entry[$pop_code];
                 if ($cache_entry['observations'] && $cache_entry['observations'][$pop_code]) {
-                    $population->observation = $cache_entry['observations'][$pop_code];
+                    $population['observation'] = $cache_entry['observations'][$pop_code];
                 }
-                $population->supplemental_data = $cache_entry->supplemental_data[$pop_code];
+                $population['supplemental_data'] = $cache_entry->supplemental_data[$pop_code];
             }
 
             $entry_populations[] = $population;
@@ -72,7 +72,7 @@ class AggregateCount
         // return if population_groups.find {|pg| pg.populations.collect(&:id).compact.sort == entry_populations.collect(&:id).compact.sort }
         $population_group = null;
         foreach ($this->population_groups as $pg) {
-            $diff = array_diff($pg->populations, $entry_populations);
+            $diff = array_diff($pg['populations'], $entry_populations);
             if (count($diff) === 0) {
                 $population_group = $pg;
                 break;
@@ -96,7 +96,7 @@ class AggregateCount
         foreach ($this->populations as $pop) {
             if (
                 $pop_code != 'STRAT' &&
-                $pop->id == $population_set->populations[$pop_code]->hqmf_id
+                $pop->id == $population_set->populations[$pop_code]['hqmf_id']
             ) {
                 $population = $pop;
                 break;
@@ -105,14 +105,14 @@ class AggregateCount
 
         if (
             $population !== null ||
-            !empty($cache_entry->pop_set_hash['stratification_id'])
+            !empty($cache_entry['pop_set_hash']['stratification_id'])
         ) {
             return $population;
         }
 
         $population = new Population();
         $population->type = $pop_code;
-        $population->id = $population_set->populations[$pop_code]->hqmf_id;
+        $population->id = $population_set->populations[$pop_code]['hqmf_id'];
         $this->populations[] = $population;
         return $population;
     }

@@ -27,18 +27,3 @@ class Population
         }
     }
 }
-
-/*
- *       class Population
-        attr_accessor :type, :value, :id, :stratifications, :supplemental_data, :observation
-
-        def initialize
-          @stratifications = []
-        end
-
-        def add_stratification(id,value,observation)
-          stratifications << Stratification.new(id,value,observation) unless stratifications.find {|st| st.id == id}
-        end
-
-      end
- */
