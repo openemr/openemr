@@ -12,24 +12,20 @@ namespace OpenEMR\Services\Qrda;
 
 use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
-use OpenEMR\Services\Qdm\QdmBuilder;
 
 class ExportCat3Service
 {
     protected $calculator;
-    protected $builder;
     protected $request;
 
     /**
      * ExportCat3Service constructor.
      * @param CqmCalculator $calculator
-     * @param QdmBuilder $builder
      * @param QdmRequestInterface $request
      */
-    public function __construct(CqmCalculator $calculator, QdmBuilder $builder, QdmRequestInterface $request)
+    public function __construct(CqmCalculator $calculator, QdmRequestInterface $request)
     {
         $this->calculator = $calculator;
-        $this->builder = $builder;
         $this->request = $request;
     }
 

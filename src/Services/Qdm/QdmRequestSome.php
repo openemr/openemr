@@ -10,13 +10,16 @@
 
 namespace OpenEMR\Services\Qdm;
 
+use OpenEMR\Events\BoundFilter;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class QdmRequestSome implements QdmRequestInterface
 {
-    public $pids = [];
+    protected $pids = [];
 
-    public $pidString = "";
+    protected $pidString = "";
+
+    protected $filter = null;
 
     /**
      * QdmQuery constructor.
@@ -29,6 +32,10 @@ class QdmRequestSome implements QdmRequestInterface
         if (is_array($pids)) {
             $this->pidString = implode(",", $pids);
         }
+
+        $this->filter = new BoundFilter();
+        $this->filter->setFilterClause("pid IN (?)");
+        $this->filter->setBoundValues([$this->pidString]);
     }
 
     public function getPidString()
@@ -55,6 +62,6 @@ class QdmRequestSome implements QdmRequestInterface
 
     public function getFilter()
     {
-        // TODO: Implement getFilter() method.
+        return $this->filter;
     }
 }

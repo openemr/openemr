@@ -27,7 +27,7 @@ class Cat3 extends \Mustache_Engine
         'qrda-export' . DIRECTORY_SEPARATOR .
         'catIII';
 
-    protected $template = 'qrda1_r5.mustache';
+    protected $template = 'qrda3.mustache';
     protected $measures = [];
     protected $aggregate_results = [];
     protected $measure_result_hash = [];
@@ -39,6 +39,13 @@ class Cat3 extends \Mustache_Engine
 
     public function __construct($aggregate_results = array(), $measures = array(), $options = array())
     {
+        parent::__construct(
+            array(
+                'entity_flags' => ENT_QUOTES,
+                'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
+            )
+        );
+
         $this->aggregate_results = $aggregate_results;
         $this->measures = $measures;
 

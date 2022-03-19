@@ -42,6 +42,13 @@ class Cat1 extends \Mustache_Engine
 
     public function __construct(Patient $patient, $measures = array(), $options = array())
     {
+        parent::__construct(
+            array(
+                'entity_flags' => ENT_QUOTES,
+                'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
+            )
+        );
+
         $this->patient = $patient;
         // comes from PatientView trait
         $this->provider = $options['provider'] ?? null;
@@ -49,12 +56,6 @@ class Cat1 extends \Mustache_Engine
         $this->performance_period_end = $options['performance_period_end'] ?? null;
         $this->_measures = $measures; // Lambda for measures is in View "helper"
         $this->submission_program = $options['submission_program'] ?? null;
-        parent::__construct(
-            array(
-            'entity_flags' => ENT_QUOTES,
-            'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
-            )
-        );
     }
 
     public function renderCat1Xml()

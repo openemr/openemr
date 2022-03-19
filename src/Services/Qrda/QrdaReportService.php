@@ -29,13 +29,15 @@ use OpenEMR\Services\Qdm\QdmRequestOne;
 
 class QrdaReportService
 {
+    protected $builder;
     protected $calculator;
     protected $patientJson;
     public $measuresPath;
 
     public function __construct()
     {
-        $this->calculator = new CqmCalculator();
+        $this->builder = new QdmBuilder();
+        $this->calculator = new CqmCalculator($this->builder);
         $this->measuresPath = MeasureService::fetchMeasuresPath();
         $this->patientJson = "";
     }
@@ -104,8 +106,7 @@ class QrdaReportService
         } else {
             $request = new QdmRequestAll();
         }
-        $builder = new QdmBuilder();
-        $models = $builder->build($request) ?? [];
+        $models = $this->builder->build($request) ?? [];
 
         return $models;
     }
@@ -135,8 +136,26 @@ class QrdaReportService
      */
     public function generateCategoryIXml($pid, $measures = []): string
     {
-        $exportService = new ExportCat1Service(new QdmBuilder(), new QdmRequestOne($pid));
+        if ($pid) {
+            $request = new QdmRequestOne($pid);
+        } else {
+            $request = new QdmRequestAll();
+        }
+        $exportService = new ExportCat1Service($this->builder, $request);
         $xml = $exportService->export(MeasureService::fetchAllMeasuresArray($measures));
+
+        return $xml;
+    }
+
+    public function generateCategoryIIIXml($pid, $measure, $effectiveDate, $efffectiveDateEnd): string
+    {
+        if ($pid) {
+            $request = new QdmRequestOne($pid);
+        } else {
+            $request = new QdmRequestAll();
+        }
+        $exportService = new ExportCat3Service($this->calculator, $request);
+        $xml = $exportService->export($measure, $effectiveDate, $efffectiveDateEnd);
 
         return $xml;
     }
