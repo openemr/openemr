@@ -49,6 +49,7 @@ class Cat3 extends \Mustache_Engine
         $this->aggregate_results = $aggregate_results;
         $this->measures = $measures;
 
+        // Initialize our measure results data structure
         foreach ($this->measures as $measure) {
             $this->measure_result_hash[$measure['hqmf_id']] = [
                 'population_sets' => $measure['population_sets'],
@@ -58,6 +59,18 @@ class Cat3 extends \Mustache_Engine
                 'measure_data' => [],
                 'aggregate_count' => []
             ];
+        }
+
+        foreach ($this->aggregate_results as $hqmf_id => $measure_aggregate_result) {
+            foreach ($measure_aggregate_result as $aggregate_result) {
+                $this->measure_result_hash[$hqmf_id]['measure_data'][] = $aggregate_result;
+            }
+        }
+
+        foreach ($this->measure_result_hash as $key => $hash) {
+            // TODO $measure_result_hash measure_data entries don't have required indexes for agg_results()
+            // There should be an index 'pop_set_hash' but I'm not sure what it needs
+            $this->measure_result_hash[$key]['aggregate_count'] = $this->agg_results($key, $hash['measure_data'], $hash['population_sets']);
         }
 
         $this->provider = $options['provider'];
@@ -84,7 +97,8 @@ class Cat3 extends \Mustache_Engine
 
     public function measure_results()
     {
-        return json_encode(array_values($this->measure_result_hash));
+        $measure_results = array_values($this->measure_result_hash);
+        return $measure_results;
     }
 
     public function cpcplus()

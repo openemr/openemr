@@ -12,11 +12,13 @@ namespace OpenEMR\Services\Qrda;
 
 use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
+use OpenEMR\Services\Qdm\MeasureService;
 
 class ExportCat3Service
 {
     protected $calculator;
     protected $request;
+    protected $measures;
 
     /**
      * ExportCat3Service constructor.
@@ -29,9 +31,16 @@ class ExportCat3Service
         $this->request = $request;
     }
 
-    public function export($measure, $effectiveDate, $effectiveDateEnd)
+    public function export($measures, $effectiveDate, $effectiveDateEnd)
     {
-        $results = $this->calculator->calculateMeasure($this->request, $measure, $effectiveDate, $effectiveDateEnd);
+        $this->measures = MeasureService::fetchAllMeasuresArray($measures);
+        $results = [];
+        foreach ($measures as $measure) {
+            $measure_arr = MeasureService::fetchMeasureJson($measure);
+            $result = $this->calculator->calculateMeasure($this->request, $measure, $effectiveDate, $effectiveDateEnd);
+            $results[$measure_arr['hqmf_id']] = $result;
+        }
+
         $options = [
             'start_time' => $effectiveDate,
             'end_time' => $effectiveDateEnd
@@ -44,7 +53,7 @@ class ExportCat3Service
             $options['ry2022_submission'];
             */
         ];
-        $cat3 = new Cat3($results, $measure, $options);
+        $cat3 = new Cat3($results, $this->measures, $options);
         $string = $cat3->renderXml();
 
         return $string;
