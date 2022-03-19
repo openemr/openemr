@@ -1714,6 +1714,11 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertReferrals($arr_referral['referral'], $data['pid'], 1);
     }
 
+    /**
+     * Method for review discard. Soft delete.
+     * @param $data
+     * @return void
+     */
     public function discardCCDAData($data)
     {
         $appTable = new ApplicationTable();
@@ -1724,6 +1729,27 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents
                       SET audit_master_approval_status='3'
                       WHERE audit_master_id=?", array($data['audit_master_id']));
+    }
+    /**
+     * Method hard delete audit data.
+     * @param $data
+     * @return void
+     */
+    public function deleteImportAuditData($data)
+    {
+        $appTable = new ApplicationTable();
+        $appTable->zQuery("DELETE FROM audit_details WHERE audit_master_id=?", array($data['audit_master_id']));
+        $appTable->zQuery("DELETE FROM audit_master WHERE id=?", array($data['audit_master_id']));
+        $result = $appTable->zQuery("SELECT url FROM documents WHERE audit_master_id=?", array($data['audit_master_id']));
+        $res_cur = $result->current();
+        if (is_file($res_cur['url'])) {
+            unlink($res_cur['url']);
+        }
+        $file_c = pathinfo($res_cur['url']);
+        if (is_dir($file_c['dirname'])) {
+            rmdir($file_c['dirname']);
+        }
+        $appTable->zQuery("DELETE FROM documents WHERE audit_master_id=?", array($data['audit_master_id']));
     }
 
     public function getCodes($option_id, $list_id)
