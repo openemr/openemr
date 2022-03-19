@@ -5,7 +5,7 @@
             {% if row.npi or row.federaltaxid %}
             <span>(
                 {% if row.npi %}<span>{{ "NPI"|xlt }}: {{ row.npi }}</span>{% endif %}
-                {% if row.federaltaxid %}<span>{{ "TID"|xlt }}: {{ row.federaltaxid }}</span>{% endif %}
+                {% if row.federaltaxid %}<span>{{ "TIN"|xlt }}: {{ row.federaltaxid }}</span>{% endif %}
                 )
             </span>
             {% endif %}
