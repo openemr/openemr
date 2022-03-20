@@ -85,7 +85,7 @@ if ($exclude_policy != "") {
     foreach ($arrayExplode as $processExclude) {
         // grab the string between the _ character and the ending ' character (and then drop these characters)
         $processExclude = strstr($processExclude, '_');
-        $processExclude= substr($processExclude, 1, strlen($processExclude) - 2);
+        $processExclude = substr($processExclude, 1, strlen($processExclude) - 2);
         array_push($sqlBindArray, $processExclude);
         if ($firstFlag) {
             $excludePlacemakers = "?";
