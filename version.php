@@ -17,7 +17,7 @@
 $v_major = '6';
 $v_minor = '1';
 $v_patch = '0';
-$v_tag   = '-dev'; // minor revision number, should be empty for production releases
+$v_tag   = ''; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
 // production release. Note the above $v_patch variable is a misnomer and actually
@@ -47,7 +47,7 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 71;
+    $v_js_includes = 72;
 }
 
 // Do not modify below
