@@ -102,7 +102,7 @@ if ($action === 'print_labels') {
             $pdf->SetFont('', 'B', 8);
             $pdf->writeCell(0, 3, $patient, 0, 1, 'C');
             $code_info = $client . '-' . $ord;
-            $barcode .= '<barcode size=".8" pr=".4" code="' . $code_info . '" type="C39" /></div>';
+            $barcode .= '<barcode size=".8" pr=".4" code="' . attr($code_info) . '" type="C39" /></div>';
             $pdf->writeHTML($barcode);
         }
         $count--;
