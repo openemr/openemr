@@ -765,15 +765,6 @@ class EDI270
         return $returnval;
     }
 
-// return formated array
-
-    public static function arrFormated(&$item, $key)
-    {
-        $item = strstr($item, '_');
-        $item = substr($item, 1, strlen($item) - 1);
-        $item = "'" . $item;
-    }
-
     public static function requestEligibility($partner = '', $x12_270 = '')
     {
         global $X12info;
