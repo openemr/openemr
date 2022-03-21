@@ -188,7 +188,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
             // screen. The delete flag tells get_claim_file.php endpoint to delete the file after
             // download. The location string tells get_claim_file.php that the file is in
             // the globally-configured tmp directory.
-            $this->printDownloadClaimFileJS($this->batch->getBatFilename(), 'tmp', true);
+            $this->printDownloadClaimFileJS($this->batch->getBatFilename(), true);
         });
     }
 
