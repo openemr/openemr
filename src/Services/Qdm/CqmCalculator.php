@@ -17,17 +17,15 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 class CqmCalculator
 {
     protected $client;
-    protected $builder;
     protected $measure;
 
     /**
      * CqmCalculator constructor.
      * @param $client
      */
-    public function __construct(QdmBuilder $builder)
+    public function __construct()
     {
         $this->client = CqmServiceManager::makeCqmClient();
-        $this->builder = $builder;
     }
 
     /**
@@ -38,10 +36,9 @@ class CqmCalculator
      * @return \Psr\Http\Message\StreamInterface|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function calculateMeasure(QdmRequestInterface $request, $measure, $effectiveDate, $effectiveEndDate)
+    public function calculateMeasure($patients, $measure, $effectiveDate, $effectiveEndDate)
     {
-        $models = $this->builder->build($request);
-        $json_models = json_encode($models);
+        $json_models = json_encode($patients);
         $patientStream = Psr7\Utils::streamFor($json_models);
         $measureFiles = MeasureService::fetchMeasureFiles($measure);
         $this->measure = $measureFiles['measure'];

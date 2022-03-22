@@ -15,9 +15,12 @@ use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qdm\Measure;
 use OpenEMR\Services\Qdm\MeasureService;
+use OpenEMR\Services\Qdm\QdmBuilder;
+use OpenEMR\Services\Qdm\ResultsCalculator;
 
 class ExportCat3Service
 {
+    protected $builder;
     protected $calculator;
     protected $request;
     protected $measures = [];
@@ -28,24 +31,29 @@ class ExportCat3Service
      * @param CqmCalculator $calculator
      * @param QdmRequestInterface $request
      */
-    public function __construct(CqmCalculator $calculator, QdmRequestInterface $request)
+    public function __construct(QdmBuilder $builder, CqmCalculator $calculator, QdmRequestInterface $request)
     {
+        $this->builder = $builder;
         $this->calculator = $calculator;
         $this->request = $request;
     }
 
     public function export($measures, $effectiveDate, $effectiveDateEnd)
     {
-        $results = [];
+        $patients = $this->builder->build($this->request);
         foreach ($measures as $measure) {
             $measure_arr = MeasureService::fetchMeasureJson($measure);
-            $result = $this->calculator->calculateMeasure($this->request, $measure, $effectiveDate, $effectiveDateEnd);
+            $result = $this->calculator->calculateMeasure($patients, $measure, $effectiveDate, $effectiveDateEnd);
             // Wrap the measures and results in objects that provide functionality that report needs
             $measureObj = new Measure($this->calculator->getMeasure());
             $this->measures[] = $measureObj;
             $indivResultObj = new IndividualResult($result);
             $this->results[$measure_arr['hqmf_id']] = $indivResultObj;
         }
+
+        // TODO need to get correlation ID from calculator? Maybe bundleId
+        $resultCalculator = new ResultsCalculator($patients, $correlation_id, $effectiveDate);
+        $results = $resultCalculator->aggregate_results_for_measures($this->measures, $this->results);
 
         $options = [
             'start_time' => $effectiveDate,

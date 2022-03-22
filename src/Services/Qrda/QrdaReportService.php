@@ -154,7 +154,7 @@ class QrdaReportService
         } else {
             $request = new QdmRequestAll();
         }
-        $exportService = new ExportCat3Service($this->calculator, $request);
+        $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
         $xml = $exportService->export($measure, $effectiveDate, $efffectiveDateEnd);
 
         return $xml;
