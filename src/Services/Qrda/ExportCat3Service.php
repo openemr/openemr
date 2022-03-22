@@ -11,14 +11,17 @@ namespace OpenEMR\Services\Qrda;
 
 
 use OpenEMR\Services\Qdm\CqmCalculator;
+use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
+use OpenEMR\Services\Qdm\Measure;
 use OpenEMR\Services\Qdm\MeasureService;
 
 class ExportCat3Service
 {
     protected $calculator;
     protected $request;
-    protected $measures;
+    protected $measures = [];
+    protected $results = [];
 
     /**
      * ExportCat3Service constructor.
@@ -33,12 +36,15 @@ class ExportCat3Service
 
     public function export($measures, $effectiveDate, $effectiveDateEnd)
     {
-        $this->measures = MeasureService::fetchAllMeasuresArray($measures);
         $results = [];
         foreach ($measures as $measure) {
             $measure_arr = MeasureService::fetchMeasureJson($measure);
             $result = $this->calculator->calculateMeasure($this->request, $measure, $effectiveDate, $effectiveDateEnd);
-            $results[$measure_arr['hqmf_id']] = $result;
+            // Wrap the measures and results in objects that provide functionality that report needs
+            $measureObj = new Measure($this->calculator->getMeasure());
+            $this->measures[] = $measureObj;
+            $indivResultObj = new IndividualResult($result);
+            $this->results[$measure_arr['hqmf_id']] = $indivResultObj;
         }
 
         $options = [
@@ -53,7 +59,7 @@ class ExportCat3Service
             $options['ry2022_submission'];
             */
         ];
-        $cat3 = new Cat3($results, $this->measures, $options);
+        $cat3 = new Cat3($this->results, $this->measures, $options);
         $string = $cat3->renderXml();
 
         return $string;
