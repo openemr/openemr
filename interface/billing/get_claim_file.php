@@ -24,22 +24,23 @@ $content_type = "text/plain";
 // The key contains the filename
 $fname = $_GET['key'];
 
-/* Because of the way the billing tables are constructed (as of 2021)
- We may not know exactly where the file is, so we need to look at 3
- different places. This is mainly because the full path is not stored
- in the database. The file could have been generated with the
- 'gen_x12_based_on_ins_co' global set to 'on' but if it was turned off,
- we still want to be able to download the file. So, we have to do a bit
- of searching in the sftp directories. If these are not successfule
- the edi directory is the default location.
-*/
+// Because of the way the billing tables are constructed (as of 2021)
+// We may not know exactly where the file is, so we need to try a couple
+// different places. This is mainly because the full path is not stored
+// in the database. Also, the file could have been generated with the
+// 'gen_x12_based_on_ins_co' global set to 'on' but if it was turned off,
+// we still want to be able to download the file. So, we have to do a bit
+// of searching.
+// The edi directory is the default location.
 
+// the loc, if set, may tell us where the file is
+$location = $_GET['location'];
 $claim_file_found = false;
-
-// first look in tmp directory for validate only option from billing manager
-$claim_file_dir = rtrim($GLOBALS['temporary_files_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-if (file_exists($claim_file_dir . $fname)) {
-    $claim_file_found = true;
+if ($location === 'tmp') {
+    $claim_file_dir = rtrim($GLOBALS['temporary_files_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    if (file_exists($claim_file_dir . $fname)) {
+        $claim_file_found = true;
+    }
 }
 
 // See if the file exists in the x-12 partner's SFTP directory
