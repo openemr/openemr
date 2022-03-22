@@ -18,6 +18,7 @@ class CqmCalculator
 {
     protected $client;
     protected $builder;
+    protected $measure;
 
     /**
      * CqmCalculator constructor.
@@ -43,6 +44,7 @@ class CqmCalculator
         $json_models = json_encode($models);
         $patientStream = Psr7\Utils::streamFor($json_models);
         $measureFiles = MeasureService::fetchMeasureFiles($measure);
+        $this->measure = $measureFiles['measure'];
         $measureFileStream = new LazyOpenStream($measureFiles['measure'], 'r');
         $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
         $options = [
@@ -55,5 +57,10 @@ class CqmCalculator
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));
 
         return $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+    }
+
+    public function getMeasure()
+    {
+        return $this->measure;
     }
 }
