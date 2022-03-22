@@ -96,7 +96,7 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->logger->debug(get_class($this) . "->__construct() finished", ['patients' => $patientIdArray]);
     }
 
-    public function getPatientPopulation() : AmcPopulation
+    public function getPatientPopulation(): AmcPopulation
     {
         return $this->_amcPopulation;
     }
@@ -105,7 +105,8 @@ abstract class AbstractAmcReport implements RsReportIF
     abstract public function createDenominator();
     abstract public function getObjectToCount();
 
-    public function getAggregator() {
+    public function getAggregator()
+    {
         return $this->_aggregator;
     }
 
@@ -193,8 +194,16 @@ abstract class AbstractAmcReport implements RsReportIF
                     $pass = 1;
                 }
                 // If itemization is turned on, then record the "passed" item
-                $this->_aggregator->addItem($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator']
-                    , $this->_ruleId, $tempBeginMeasurement, $this->_endMeasurement, $pass, $patient->id, $object_to_count);
+                $this->_aggregator->addItem(
+                    $GLOBALS['report_itemizing_temp_flag_and_id'],
+                    $GLOBALS['report_itemized_test_id_iterator'],
+                    $this->_ruleId,
+                    $tempBeginMeasurement,
+                    $this->_endMeasurement,
+                    $pass,
+                    $patient->id,
+                    $object_to_count
+                );
             } else {
                 // Counting objects other than patients
                 //   test each object that passed the above denominator testing
@@ -205,20 +214,32 @@ abstract class AbstractAmcReport implements RsReportIF
                         $numeratorObjects++;
                         $pass = 1;
                     }
-                    $this->_aggregator->addItem($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator']
-                        , $this->_ruleId, $tempBeginMeasurement, $this->_endMeasurement, $pass, $patient->id, $object_to_count);
+                    $this->_aggregator->addItem(
+                        $GLOBALS['report_itemizing_temp_flag_and_id'],
+                        $GLOBALS['report_itemized_test_id_iterator'],
+                        $this->_ruleId,
+                        $tempBeginMeasurement,
+                        $this->_endMeasurement,
+                        $pass,
+                        $patient->id,
+                        $object_to_count
+                    );
                 }
             }
-            $this->logger->debug(get_class($this) . "->execute() patient processed",
-                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]);
+            $this->logger->debug(
+                get_class($this) . "->execute() patient processed",
+                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
+            );
         }
 
         // Deal with the manually added labs for the electronic labs AMC measure
         if ($object_to_count == "labs") {
             // not sure how we account for individual reporting here.
             $denominatorObjects = $denominatorObjects + $this->_manualLabNumber;
-            $this->logger->debug(get_class($this) . "->execute() manual labs processed",
-                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]);
+            $this->logger->debug(
+                get_class($this) . "->execute() manual labs processed",
+                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
+            );
         }
 
         $percentage = calculate_percentage($denominatorObjects, 0, $numeratorObjects);

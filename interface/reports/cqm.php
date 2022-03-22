@@ -1,12 +1,14 @@
 <?php
 
 /**
- * CDR reports.
+ * CDR reports.  Handles the generation and display of CQM/AMC/patient_alerts/standard reports
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -30,24 +32,32 @@ if (!empty($_POST)) {
 }
 
 
-function formatReportData(&$data, $is_amc, $is_cqm, $type_report, $amc_report_data=array())
+/**
+ * Formats the report data into a format that can be consumed by the twig rendering output.
+ * @param $report_id The report that we are formatting
+ * @param $data string json encoded report data retrieved from the database
+ * @param $is_amc boolean True if this is an AMC report
+ * @param $is_cqm boolean True if this is an CQM report
+ * @param $type_report The specific report type (could be a subset of AMC or CQM)
+ * @param $amc_report_types If an AMC report, the specific AMC report type
+ * @return array A formatted array of record rows to be used for displaying a CQM/AMC/Standard report.
+ */
+function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = array())
 {
     $dataSheet = json_decode($data, true) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
-    foreach ($dataSheet as $row)
-    {
+    foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
         $row['total_patients'] = $row['total_patients'] ?? 0;
         $failed_items = null;
         $displayFieldSubHeader = "";
 
-        if ($is_cqm)
-        {
+        if ($is_cqm) {
             $row['type'] = 'cqm';
             $row['total_patients'] = $row['initial_population'] ?? 0;
             if (isset($row['cqm_pqri_code'])) {
-                $displayFieldSubHeader .= " " . xl('PQRI') .":" . $row['cqm_pqri_code'] . " ";
+                $displayFieldSubHeader .= " " . xl('PQRI') . ":" . $row['cqm_pqri_code'] . " ";
             }
             if (isset($row['cqm_nqf_code'])) {
                 $displayFieldSubHeader .= " " . xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
@@ -61,8 +71,7 @@ function formatReportData(&$data, $is_amc, $is_cqm, $type_report, $amc_report_da
             }
         }
 
-        if (isset($row['is_main']))
-        {
+        if (isset($row['is_main'])) {
             // note that the is_main record must always come before is_sub in the report or the data will not work.
             $main_pass_filter = $row['pass_filter'] ?? 0;
             $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
@@ -73,41 +82,48 @@ function formatReportData(&$data, $is_amc, $is_cqm, $type_report, $amc_report_da
                 $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
             }
             $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
-        }
-        else if (isset($row['is_sub']))
-        {
+        } else if (isset($row['is_sub'])) {
             $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category'])
                 . ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
             // Excluded is not part of denominator in standard rules so do not use in calculation
             $failed_items = $main_pass_filter - $row['pass_target'];
-        } else if (isset($row['is_plan']))
-        {
+        } else if (isset($row['is_plan'])) {
             $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
         }
 
-        if (isset($row['itemized_test_id']))
-        {
-            if (isset($row['pass_filter']) && $row['pass_filter'] > 0)
-            {
-                $row['numerator_label'] = $row['numerator_label'] ?? '';
-                $row['display_pass_link'] = true;
+        if (isset($row['itemized_test_id'])) {
+            $csrf_token = CsrfUtils::collectCsrfToken();
+
+            $base_link = sprintf(
+                "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"
+                . "&itemized_test_id=%d&numerator_label=%s&csrf_token_form=%s",
+                urlencode($report_id),
+                urlencode($row['itemized_test_id']),
+                urlencode($row['numerator_label'] ?? ''),
+                urlencode($csrf_token)
+            );
+
+            // we need the provider & group id here...
+
+            // denominator
+            if (isset($row['pass_filter']) && $row['pass_filter'] > 0) {
+                $row['display_pass_link'] = $base_link . "&pass_id=all";
             }
 
-            if (isset($row['excluded']) && ($row['excluded'] > 0))
-            {
-                $row['display_excluded_link'] = true;
+            // excluded denominator
+            if (isset($row['excluded']) && ($row['excluded'] > 0)) {
+                $row['display_excluded_link'] = $base_link . "&pass_id=exclude";
             }
 
-            if (isset($row['pass_target']) && ($row['pass_target'] > 0))
-            {
-                $row['display_target_link'] = true;
+            // passed numerator
+            if (isset($row['pass_target']) && ($row['pass_target'] > 0)) {
+                $row['display_target_link'] = $base_link . "&pass_id=pass";
             }
-            if (isset($failed_items) && $failed_items > 0)
-            {
-                $row['display_failed_link'] = true;
+            // failed numerator
+            if (isset($failed_items) && $failed_items > 0) {
+                $row['display_failed_link'] = $base_link . "&pass_id=fail";
             }
             $row['failed_items'] = $failed_items;
-            $row['csrf_token'] = CsrfUtils::collectCsrfToken();
         }
 
         $formatted[] = $row;
@@ -147,7 +163,7 @@ if (!empty($report_id)) {
 
 
     $amc_report_data = $amc_report_types[$type_report] ?? array();
-    $dataSheet = formatReportData($report_view['data'], $is_amc_report, $is_cqm_report, $type_report, $amc_report_data);
+    $dataSheet = formatReportData($report_id, $report_view['data'], $is_amc_report, $is_cqm_report, $type_report, $amc_report_data);
 } else {
   // Collect report type parameter (standard, amc, cqm)
   // Note that need to convert amc_2011 and amc_2014 to amc and cqm_2011 and cqm_2014 to cqm
@@ -693,241 +709,6 @@ if (!empty($report_id)) {
     } else {
         echo $twig->render('reports/cqm/results-table.html.twig', $data);
     }
-
-/*
-    ?>
-
-
-<div id="report_results">
-<table class="table">
-
-<thead class='thead-light'>
- <th>
-    <?php echo xlt('Title'); ?>
- </th>
-
- <th>
-    <?php
-    if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {
-        echo xlt('Initial Patient Population');
-    } else {
-        echo xlt('Total Patients');
-    }
-    ?>
-  </th>
-
-  <th>
-    <?php if ($is_amc_report) { ?>
-        <?php echo xlt('Denominator'); ?></a>
-    <?php } else { ?>
-        <?php echo xlt('Applicable Patients') . ' (' . xlt('Denominator') . ')'; ?></a>
-    <?php } ?>
-  </th>
-
-    <?php if (!$is_amc_report) { ?>
-   <th>
-        <?php echo xlt('Denominator Exclusion'); ?></a>
-   </th>
-    <?php }?>
-    <?php if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {?>
-   <th>
-        <?php echo xlt('Denominator Exception'); ?></a>
-   </th>
-    <?php } ?>
-
-  <th>
-    <?php if ($is_amc_report) { ?>
-        <?php echo xlt('Numerator'); ?></a>
-    <?php } else { ?>
-        <?php echo xlt('Passed Patients') . ' (' . xlt('Numerator') . ')'; ?></a>
-    <?php } ?>
-  </th>
-
-  <th>
-    <?php if ($is_amc_report) { ?>
-        <?php echo xlt('Failed'); ?></a>
-    <?php } else { ?>
-        <?php echo xlt('Failed Patients'); ?></a>
-    <?php } ?>
-  </th>
-
-  <th>
-    <?php echo xlt('Performance Percentage'); ?></a>
-  </th>
-
- </thead>
- <tbody>  <!-- added for better print-ability -->
-    <?php
-
-    if (empty($dataSheet)) {
-        $dataSheet = [];
-    }
-    $firstProviderFlag = true;
-    $firstPlanFlag = true;
-    $existProvider = false;
-    foreach ($dataSheet as $row) {
-        ?>
-
-<tr>
-
-        <?php
-        if (isset($row['is_main']) || isset($row['is_sub'])) {
-            echo "<td class='detail'>";
-            if (isset($row['is_main'])) {
-                // is_sub is a special case of is_main whereas total patients, denominator, and excluded patients are taken
-                // from is_main prior to it. So, need to store denominator patients from is_main for subsequent is_sub
-                // to calculate the number of patients that failed.
-                // Note that exlusion in the standard rules is not the same as in the cqm/amd and should not be in calculation
-                // as is in the cqm/amc rules.
-                $main_pass_filter = $row['pass_filter'];
-
-                echo "<b>" . generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']) . "</b>";
-
-                $tempCqmAmcString = "";
-                if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
-                    if (!empty($row['cqm_pqri_code'])) {
-                        $tempCqmAmcString .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
-                    }
-
-                    if (!empty($row['cqm_nqf_code'])) {
-                        $tempCqmAmcString .= " " . xlt('NQF') . ":" . text($row['cqm_nqf_code']) . " ";
-                    }
-                }
-
-
-                // if we are an AMC report type we are going to add in the abbreviation for that amc type and
-                // it's corresponding amc code column
-                if ($is_amc_report) {
-                    if (!empty($amc_report_types[$type_report]['code_col'])) {
-                        $code_col = $amc_report_types[$type_report]['code_col'];
-                        $tempCqmAmcString .= " " . text($amc_report_types[$type_report]['abbr']) . ":"
-                            . text($row[$code_col]) . " ";
-                    }
-                }
-
-                if (!empty($tempCqmAmcString)) {
-                    echo "(" . $tempCqmAmcString . ")";
-                }
-
-                if (!(empty($row['concatenated_label']))) {
-                    echo ", " . xlt($row['concatenated_label']) . " ";
-                }
-            } else { // isset($row['is_sub'])
-                echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category']);
-                echo ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
-            }
-
-            echo "</td>";
-
-            if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {
-                echo "<td align='center'>" . text($row['initial_population']) . "</td>";
-            } else {
-                echo "<td align='center'>" . text($row['total_patients']) . "</td>";
-            }
-
-            if (isset($row['itemized_test_id']) && ($row['pass_filter'] > 0)) {
-                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_filter']) . "</a></td>";
-            } else {
-                echo "<td align='center'>" . text($row['pass_filter']) . "</td>";
-            }
-
-            if (!$is_amc_report) {
-                // Note that amc will likely support in excluded items in the future for MU2
-                if (($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0)) {
-                    // Note standard reporting exluded is different than cqm/amc and will not support itemization
-                    echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['excluded']) . "</a></td>";
-                } else {
-                    echo "<td align='center'>" . text($row['excluded']) . "</td>";
-                }
-            }
-
-            if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {
-                // Note that amc will likely support in exception items in the future for MU2
-                if (isset($row['itemized_test_id']) && ($row['exception'] > 0)) {
-                   // Note standard reporting exluded is different than cqm/amc and will not support itemization
-                    echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['exception']) . "</a></td>";
-                } else {
-                     echo "<td align='center'>" . text($row['exception']) . "</td>";
-                }
-            }
-
-            if (isset($row['itemized_test_id']) && ($row['pass_target'] > 0)) {
-                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_target']) . "</a></td>";
-            } else {
-                echo "<td align='center'>" . text($row['pass_target']) . "</td>";
-            }
-
-            $failed_items = 0;
-            if (isset($row['is_main'])) {
-                if ($type_report == "standard") {
-                    // Excluded is not part of denominator in standard rules so do not use in calculation
-                    $failed_items = $row['pass_filter'] - $row['pass_target'];
-                } else {
-                    $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
-                }
-            } else { // isset($row['is_sub'])
-                // Excluded is not part of denominator in standard rules so do not use in calculation
-                $failed_items = $main_pass_filter - $row['pass_target'];
-            }
-
-            if (isset($row['itemized_test_id']) && ($failed_items > 0)) {
-                echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($failed_items) . "</a></td>";
-            } else {
-                echo "<td align='center'>" . text($failed_items) . "</td>";
-            }
-
-            echo "<td align='center'>" . text($row['percentage']) . "</td>";
-        } elseif (isset($row['is_provider'])) {
-           // Display the provider information
-            if (!$firstProviderFlag && $_POST['form_provider'] == 'collate_outer') {
-                echo "<tr><td>&nbsp</td></tr>";
-            }
-
-            echo "<td class='detail' align='center'><b>";
-            echo xlt("Provider") . ": " . text($row['prov_lname']) . "," . text($row['prov_fname']);
-            if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
-                echo " (";
-                if (!empty($row['npi'])) {
-                    echo " " . xlt('NPI') . ":" . text($row['npi']) . " ";
-                }
-
-                if (!empty($row['federaltaxid'])) {
-                    echo " " . xlt('TID') . ":" . text($row['federaltaxid']) . " ";
-                }
-
-                   echo ")";
-            }
-
-               echo "</b></td>";
-               $firstProviderFlag = false;
-               $existProvider = true;
-        } else { // isset($row['is_plan'])
-            if (!$firstPlanFlag && $_POST['form_provider'] != 'collate_outer') {
-                echo "<tr><td>&nbsp</td></tr>";
-            }
-
-            echo "<td class='detail' align='center'><b>";
-            echo xlt("Plan") . ": ";
-            echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
-            if (!empty($row['cqm_measure_group'])) {
-                echo " (" . xlt('Measure Group Code') . ": " . text($row['cqm_measure_group']) . ")";
-            }
-
-            echo "</b></td>";
-            $firstPlanFlag = false;
-        }
-        ?>
- </tr>
-
-        <?php
-
-    }
-    ?>
-</tbody>
-</table>
-</div>  <!-- end of search results -->
-<?php
-*/
 } else { ?>
 <div id="instructions_text" class='text'>
     <?php echo xlt('Please input search criteria above, and click Submit to start report.'); ?>

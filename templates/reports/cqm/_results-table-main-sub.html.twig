@@ -11,7 +11,7 @@
     </td>
     <td>
         {% if row.display_pass_link %}
-        <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id={{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+        <a href='{{ row.display_pass_link|attr }}'
            onclick='top.restoreSession()'>{{ row.pass_filter|text }}</a>
         {% else %}
             {{ row.pass_filter|text }}
@@ -20,7 +20,7 @@
     {% if display_excluded %}
     <td>
         {% if row.display_excluded_link %}
-            <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id={{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+            <a href='{{ row.display_excluded_link|attr }}'
                onclick='top.restoreSession()'>{{ row.excluded|text }}</a>
         {% else %}
             {{ row.excluded|text }}
@@ -31,7 +31,7 @@
     {% if display_exception %}
     <td>
         {% if row.display_exception_link %}
-            <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id={{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+            <a href='{{ row.display_exception_link|attr }}'
                onclick='top.restoreSession()'>{{ row.exception|text }}</a>
         {% else %}
             {{ row.exception|text }}
@@ -41,7 +41,7 @@
 
     <td>
         {% if row.display_target_link %}
-            <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id={{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+            <a href='{{ row.display_target_link|attr }}'
                onclick='top.restoreSession()'>{{ row.pass_target|text }}</a>
         {% else %}
             {{ row.pass_target|text }}
@@ -50,7 +50,7 @@
 
     <td>
         {% if row.display_failed_link %}
-            <a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id={{ report_id|attr_url }}&itemized_test_id={{ row.itemized_test_id|attr_url}}&numerator_label={{ row.numerator_label|attr_url }}&csrf_token_form={{ row.csrf_token|attr_url }}'
+            <a href='{{ row.display_failed_link|attr }}'
                onclick='top.restoreSession()'>{{ row.failed_items|text }}</a>
         {% else %}
             {{ row.failed_items|text }}

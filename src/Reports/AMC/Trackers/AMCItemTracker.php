@@ -43,7 +43,8 @@ class AMCItemTracker
         return $this->rules[$id] ?? null;
     }
 
-    public function getResults() : array {
+    public function getResults(): array
+    {
         return $this->items;
     }
 
@@ -51,7 +52,8 @@ class AMCItemTracker
      * Our summary result is empty as we don't do summarizing here.
      * @return array
      */
-    public function getSummaryResult() {
+    public function getSummaryResult()
+    {
         return [];
     }
 
