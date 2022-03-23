@@ -154,14 +154,14 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     }
 
     $output_return .= '
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$i][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$i]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_earliest"
                 name="PRIORS_' . attr($zone) . '_earliest"
                 class="fa fa-fast-backward fa-sm PRIORS"
                 title="' . attr($zone) . ': ' . attr($priors[$i]['encounter_date']) . '">
         </span>
         &nbsp;
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$earlier][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$earlier]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_minus_one"
                 name="PRIORS_' . attr($zone) . '_minus_one"
                 class="fa fa-step-backward fa-sm PRIORS"
@@ -174,13 +174,13 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 ' . $output . '
         </select>
                   &nbsp;
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$later][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$later]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_plus_one"
                 name="PRIORS_' . attr($zone) . '_plus_one"
                 class="fa  fa-step-forward PRIORS"
                 title="' . attr($zone) . ': ' . attr($priors[$later]['encounter_date']) . '">
         </span>&nbsp;&nbsp;
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[0][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[0]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_latest"
                 name="PRIORS_' . attr($zone) . '_latest"
                 class="fa  fa-fast-forward PRIORS"
