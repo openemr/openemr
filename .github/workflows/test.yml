@@ -12,7 +12,7 @@ jobs:
     name: PHP 7.4 - Apache - MariaDB 10.7
     runs-on: ubuntu-20.04
     env:
-      DOCKER_DIR: apache_74_106
+      DOCKER_DIR: apache_74_107
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
