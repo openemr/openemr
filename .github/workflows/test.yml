@@ -8,8 +8,8 @@ on:
 
 jobs:
 
-  build_apache_74_106:
-    name: PHP 7.4 - Apache - MariaDB 10.6
+  build_apache_74_107:
+    name: PHP 7.4 - Apache - MariaDB 10.7
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: apache_74_106
@@ -837,7 +837,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_74:
-    name: PHP 7.4 - Nginx - MariaDB 10.6
+    name: PHP 7.4 - Nginx - MariaDB 10.7
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_74
@@ -929,7 +929,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_8:
-    name: PHP 8.0 - Nginx - MariaDB 10.6
+    name: PHP 8.0 - Nginx - MariaDB 10.7
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_80
@@ -1021,7 +1021,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_81:
-    name: PHP 8.1 - Nginx - MariaDB 10.6
+    name: PHP 8.1 - Nginx - MariaDB 10.7
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_81
@@ -1113,7 +1113,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_82:
-    name: PHP 8.2 - Nginx - MariaDB 10.6
+    name: PHP 8.2 - Nginx - MariaDB 10.7
     runs-on: ubuntu-20.04
     env:
       DOCKER_DIR: nginx_82
