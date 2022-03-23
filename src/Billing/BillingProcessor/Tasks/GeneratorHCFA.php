@@ -2,11 +2,11 @@
 
 /**
  * This class represents the task that compiles claims into
- * a HCFA form batch. This prints the claim data only, with no
+ * a HCFA form batch. This prints the claim data only, in text form, with no
  * form fields (no background image) that are present on the HCFA 1500 paper form.
  *
- * The *other* HCFA generator will print the data over an image of
- * the paper form fields if enabled in globals.
+ * The *other* HCFA generators will print PDFs of the data either over an image of
+ * the paper form fields or not if enabled in globals.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -26,35 +26,19 @@ use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Hcfa1500;
 
-class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
+class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
 {
     use WritesToBillingLog;
-
-    /**
-     * Instance of the Cezpdf object for writing
-     * @Cezpdf
-     */
-    protected $pdf;
 
     /**
      * Our billing claim batch for tracking the filename and other
      * generic claim batch things
      *
-     * @BillingClaimBatch
+     * @var BillingClaimBatch
      */
     protected $batch;
 
-    /**
-     * When we run the execute function on each claim, we don't want
-     * to create a new page the first time. The instantiation of the PDF
-     * object "comes with" a canvas to write to, so the first claim, we
-     * don't need to create one. On subsequent claims, we do so we initialize
-     * this to false, and then set to true after the first claim.
-     *
-     * @bool
-     */
-    protected $createNewPage;
-
+   
     /**
      * This function is called by the BillingProcessor before the main
      * claim loop starts.
@@ -65,46 +49,28 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
      */
     public function setup(array $context)
     {
-        $post = $context['post'];
-        $this->pdf = new \Cezpdf('LETTER');
-        $this->pdf->ezSetMargins(trim($post['top_margin']) + 0, 0, trim($post['left_margin']) + 0, 0);
-        $this->pdf->selectFont('Courier');
-
         // This is to tell our execute method not to create a new page the first claim
         $this->createNewPage = false;
 
         // Instantiate mainly for the filename creation, we're not tracking text segments
         // since we're generating a PDF, which is managed in this object
-        $this->batch = new BillingClaimBatch('.pdf');
+        $this->batch = new BillingClaimBatch('.txt');
     }
 
     /**
-     * Do the work to append the given claim to the PDF document we're
+     * Do the work to append the given claim to the document we're
      * working on generating
      *
      * @param BillingClaim $claim
      */
-    protected function updateBatch(BillingClaim $claim)
+    protected function updateBatchFile(BillingClaim $claim)
     {
         // Do the actual claim processing
         $log = '';
         $hcfa = new Hcfa1500();
         $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
         $this->appendToLog($log);
-        $alines = explode("\014", $lines); // form feeds may separate pages
-        foreach ($alines as $tmplines) {
-            // The first claim we don't create a new page.
-            if ($this->createNewPage) {
-                $this->pdf->ezNewPage();
-            } else {
-                $this->createNewPage = true;
-            }
-            $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);
-            $this->pdf->ezText($tmplines, 12, array(
-                'justification' => 'left',
-                'leading' => 12
-            ));
-        }
+        $this->batch->append_claim($lines, true);
     }
 
     /**
@@ -120,7 +86,18 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
         $this->validateAndClear($claim);
 
         // Finalize the claim
-        if (!BillingUtilities::updateClaim(false, $claim->getPid(), $claim->getEncounter(), -1, -1, 2, 2, $this->batch->getBatFilename())) {
+        if (
+            !BillingUtilities::updateClaim(
+                false, 
+                $claim->getPid(),
+                $claim->getEncounter(),
+                -1,
+                -1,
+                2,
+                2,
+                $this->batch->getBatFilename()
+            )
+        ) {
             $this->printToScreen(xl("Internal error: claim ") . $claim->getId() . xl(" not found!") . "\n");
         } else {
             $this->printToScreen(xl("Successfully processed claim") . ": " . $claim->getId());
@@ -128,18 +105,18 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
     }
 
     /**
-     * When user chooses "validate only" we just build the PDF
+     * When user chooses "validate only" we just build the text
      *
      * @param BillingClaim $claim
      */
     public function validateOnly(BillingClaim $claim)
     {
-        $this->updateBatch($claim);
+        $this->updateBatchFile($claim);
         $this->printToScreen(xl("Successfully Validated claim") . ": " . $claim->getId());
     }
 
     /**
-     * When the user chooses "validate and clear" we build the PDF
+     * When the user chooses "validate and clear" we build the text
      * and mark the claim as 'billed'
      *
      * @param BillingClaim $claim
@@ -172,24 +149,12 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
      */
     public function completeToScreen(array $context)
     {
-        // If we are just validating, make a temp file
-        $tmp_claim_file = $GLOBALS['temporary_files_dir'] .
-            DIRECTORY_SEPARATOR .
-            $this->batch->getBatFilename();
-        file_put_contents($tmp_claim_file, $this->bat_content);
-
-        // If we are just validating, the output should be a PDF presented
-        // to the user, but we don't save to the edi/ directory.
-        // This just writes to a tmp file, serves to user and then removes tmp file
-        $this->logger->setLogCompleteCallback(function () {
-            // This is the callback function passed to the logger, called when the
-            // result screen is finished rendering. This prints some JS that will
-            // start the download of the 'temporary' HCFA pdf after messages have been printed to the
-            // screen. The delete flag tells get_claim_file.php endpoint to delete the file after
-            // download. The location string tells get_claim_file.php that the file is in
-            // the globally-configured tmp directory.
-            $this->printDownloadClaimFileJS($this->batch->getBatFilename(), 'tmp', true);
-        });
+        $this->batch->append_claim_close();
+        // If we're validating only, or clearing and validating, don't write to our EDI directory
+        // Just send to the browser in that case for the end-user to review.
+        $format_bat = str_replace('~', PHP_EOL, $this->batch->getBatContent());
+        $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
+        echo $wrap;
     }
 
     /**
@@ -202,11 +167,11 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
      */
     public function completeToFile(array $context)
     {
-        // If a writable edi directory exists (and it should), write the pdf to it.
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/{$this->batch->getBatFilename()}", 'a');
-        if ($fh) {
-            fwrite($fh, $this->pdf->ezOutput());
-            fclose($fh);
+        $success = $this->batch->write_batch_file();
+        if ($success) {
+            $this->printToScreen(xl('HCFA Generated Successfully'));
+        } else {
+            $this->printToScreen(xl('Error Generating Batch File'));
         }
 
         // Tell the billing_process.php script to initiate a download of this file

@@ -89,7 +89,7 @@ class BillingClaim implements \JsonSerializable
     protected $target;
 
     /**
-     * If this is the last claim in the processing queue, the this
+     * If this is the last claim in the processing queue, then this
      * is true otherwise it's false. It is set by the BillingProcessor
      * object while preparing claims.
      *
