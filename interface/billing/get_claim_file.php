@@ -24,10 +24,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 $content_type = "text/plain";
 
 // The key contains the filename
-$fname = $_GET['key'];
-$fname = preg_replace("[/]", "", $fname);
-$fname = preg_replace("[\.\.]", "", $fname);
-$fname = preg_replace("[\\\\]", "", $fname);
+$fname = convert_safe_file_dir_name($_GET['key']);
 
 // Because of the way the billing tables are constructed (as of 2021)
 // We may not know exactly where the file is, so we need to try a couple
