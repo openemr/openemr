@@ -66,7 +66,7 @@ if ($_REQUEST['formname'] ?? '') {
     $form_name = $_REQUEST['formname'];
 }
 
-if (!$id ?? '') {
+if (!($id ?? '')) {
     $id = $form_id ?? '';
 }
 
@@ -1296,7 +1296,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <br/>
         
         <?php
-        if ($GLAREODVA || $CONTRASTODVA || $ODK1 || $ODK2 || $LIODVA || $PAMODBA) { ?>
+        if ($GLAREODVA || ($CONTRASTODVA ?? '') || $ODK1 || $ODK2 || $LIODVA || ($PAMODBA ?? '')) { ?>
             <table>
                 <tr>
                     <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>"
@@ -1634,7 +1634,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
         <!-- start of Other exam -->
         <?php
-        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
+        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? '') || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
             ?>
                 <table>
                     <tr>
@@ -2448,7 +2448,7 @@ function display_draw_image($zone, $encounter, $pid)
     $filename = $base_name . ".jpg";
     $sql = "SELECT * from documents where documents.name like '%" . $filename . "'";
     $doc = sqlQuery($sql);
-    $document_id = $doc['id'];
+    $document_id = $doc['id'] ?? '';
 
     if (($document_id > '1') && (is_numeric($document_id))) {
         $d = new Document($document_id);

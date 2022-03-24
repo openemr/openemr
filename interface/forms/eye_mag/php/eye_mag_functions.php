@@ -2628,43 +2628,49 @@ function show_PMSFH_report($PMSFH)
 
     //4 panels
     $rows = '4';
-    if (!$PMFSH ?? '') {
+    if (!($PMFSH ?? '')) {
         $PMSFH = build_PMSFH($pid);
     }
 
     // Find out the number of items present now and put 1/4 in each column.
     foreach ($PMSFH[0] as $key => $value) {
-        $total_PMSFH ?? '';
-        $total_PMSFH += count($PMSFH[0][$key]);
-        $total_PMSFH += 2; //add two for the title and a space
+        if (!empty($total_PMSFH)) {
+            $total_PMSFH += count($PMSFH[0][$key]);
+            $total_PMSFH += 2; //add two for the title and a space
+        }
         $count[$key] = count($PMSFH[0][$key]) + 1;
     }
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
     foreach ($PMSFH[0]['ROS'] as $key => $value) {
-        if ($value['display'] == '') {
-            $total_PMSFH--;
+        if (($value['display'] ?? '') == '') {
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            }
             $count['ROS']--;
         }
     }
 
     foreach ($PMSFH[0]['FH'] as $key => $value) {
         if ($value['display'] == '') {
-            $total_PMSFH--;
-            $count['FH']--;
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            }            $count['FH']--;
         }
     }
 
     foreach ($PMSFH[0]['SOCH'] as $key => $value) {
         if (($value['display'] == '') || ($value['display'] == 'not_applicable')) {
-            $total_PMSFH--;
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            }
             $count['SOCH']--;
         }
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH / $rows) ;
-    $panel_size = round($total_PMSFH / $rows) ;
+    $column_max = round(($total_PMSFH ?? null) / $rows) ;
+    $panel_size = round(($total_PMSFH ?? null) / $rows) ;
 
     //<!-- POH -->
     $counter++;
@@ -2841,7 +2847,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    if (!$mention_PSOCH) {
+    if (!($mention_PSOCH ?? '')) {
         echo xlt("Negative") . "<br />";
     }
 
@@ -2889,7 +2895,7 @@ function show_PMSFH_report($PMSFH)
     ?><br />
     <?php
     foreach ($PMSFH[0]['ROS'] as $item) {
-        if ($item['display']) {
+        if ($item['display'] ?? '') {
             echo xlt($item['short_title']) . ": " . $item['display'] . "<br />";
             $mention_ROS ?? '';
             $mention_ROS++;
@@ -2897,7 +2903,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    if ($mention_ROS < '1') {
+    if (($mention_ROS ?? null) < '1') {
         echo xlt("Negative");
     }
 
@@ -3707,7 +3713,7 @@ function build_CODING_items($pid, $encounter)
         $CODING_items[$i]['pid'] = $frow['pid'];
         $CODING_items[$i]['id'] = $frow['id'];
         $CODING_items[$i]['codetype'] = $frow['code_type'];
-        $CODING_items[$i]['codedesc'] = $frow['code_desc'];
+        $CODING_items[$i]['codedesc'] = $frow['code_desc'] ?? '';
         $CODING_items[$i]['codetext'] = $frow['code_text'];
         $CODING_items[$i]['justify'] = $frow['justify'];
         $i++;
@@ -4904,7 +4910,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($encounter_data['ODIOPTARGET'] > '0') {
             $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else {
-            list($ODIOPTARGET, ) = getIOPTARGETS($pid, $id, $provider_id);
+            list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             $ODIOPTARGETS[$i] = $ODIOPTARGET;
             $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
         }
@@ -4912,7 +4918,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($encounter_data['OSIOPTARGET']) {
             $OSIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else {
-            list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, $id, $provider_id);
+            list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             $OSIOPTARGETS[$i] = $OSIOPTARGET;
             $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
         }
@@ -4982,16 +4988,16 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
         for ($k = 0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
-                if (preg_match('/[a-z]/i', $ODIOP[$k]['IOP'])) {
+                if (preg_match('/[a-z]/i', ($ODIOP[$k]['IOP'] ?? ''))) {
                     $ODIOP[$k]['IOP'] = '';}
-                if (preg_match('/[a-z]/i', $OSIOP[$k]['IOP'])) {
+                if (preg_match('/[a-z]/i', ($OSIOP[$k]['IOP'] ?? ''))) {
                     $OSIOP[$k]['IOP'] = '';}
-                $OD_values[$a] = "'" . $ODIOP[$k]['IOP'] . "'";
+                $OD_values[$a] = "'" . ($ODIOP[$k]['IOP'] ?? '') . "'";
                 $OD_methods[$a] = $ODIOP[$k]['method'] ?? '';
-                $OS_values[$a] = $OSIOP[$k]['IOP'];
+                $OS_values[$a] = $OSIOP[$k]['IOP'] ?? '';
                 $OS_methods[$a] = $OSIOP[$k]['method'] ?? '';
                 $ODIOPTARGET_values[$a] = $ODIOPTARGETS[$k];
-                $OSIOPTARGET_values[$a] = $OSIOPTARGETS[$k];
+                $OSIOPTARGET_values[$a] = $OSIOPTARGETS[$k] ?? '';
                 break;
             }
         }
@@ -5024,8 +5030,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     for ($a = 0; $a < count($times_OU); $a++) {
         for ($k = 0; $k < count($ODIOP); $k++) {
             if ($times_OU[$a] == $time_OU[$k]) {
-                $OD_time_values[$a] = $ODIOP[$k]['IOP'];
-                $OS_time_values[$a] = $OSIOP[$k]['IOP'];
+                $OD_time_values[$a] = $ODIOP[$k]['IOP'] ?? '';
+                $OS_time_values[$a] = $OSIOP[$k]['IOP'] ?? '';
                 break;
             }
         }

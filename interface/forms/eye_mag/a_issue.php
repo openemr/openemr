@@ -776,7 +776,7 @@ foreach (explode(',', $given) as $item) {
                         <td class="right align-self-center text-nowrap"><strong><?php echo xlt('Outcome'); ?>:</strong></td>
                         <td>
                             <?php
-                            echo generate_select_list('form_outcome', 'outcome', $irow['outcome'] ?? '', '', '', '', 'outcomeClicked(this);');
+                            echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? ''), '', '', '', 'outcomeClicked(this);');
                             ?>
                         </td>
                     </tr>
@@ -905,31 +905,31 @@ foreach (explode(',', $given) as $item) {
                             <td></td>
                             <td>
                                 <select name="form_tobacco" id="form_tobacco" onchange="radioChange(this.options[this.selectedIndex].value)" title="<?php xla('Tobacco use'); ?>">
-                                    <option value="" <?php if ($result2['tobacco']['reslist'] ?? '' == '') {
+                                    <option value="" <?php if (($result2['tobacco']['reslist'] ?? '') == '') {
                                         echo "selected";
                                                      } ?>><?php echo xlt('Unassigned'); ?></option>
-                                    <option value="1" <?php if ($result2['tobacco']['reslist'] ?? '' == '1') {
+                                    <option value="1" <?php if (($result2['tobacco']['reslist'] ?? '') == '1') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Current every day smoker'); ?></option>
-                                    <option value="2" <?php if ($result2['tobacco']['reslist'] ?? '' == '2') {
+                                    <option value="2" <?php if ($result2[('tobacco']['reslist'] ?? '') == '2') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Current some day smoker'); ?></option>
-                                    <option value="3" <?php if ($result2['tobacco']['reslist'] ?? '' == '3') {
+                                    <option value="3" <?php if (($result2['tobacco']['reslist'] ?? '') == '3') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Former smoker'); ?></option>
-                                    <option value="4" <?php if ($result2['tobacco']['reslist'] ?? '' == '4') {
+                                    <option value="4" <?php if (($result2['tobacco']['reslist'] ?? '') == '4') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Never smoker'); ?></option>
-                                    <option value="5" <?php if ($result2['tobacco']['reslist'] ?? '' == '5') {
+                                    <option value="5" <?php if (($result2['tobacco']['reslist'] ?? '') == '5') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Smoker, current status unknown'); ?></option>
-                                    <option value="9" <?php if ($result2['tobacco']['reslist'] ?? '' == '9') {
+                                    <option value="9" <?php if (($result2['tobacco']['reslist'] ?? '') == '9') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Unknown if ever smoked'); ?></option>
-                                    <option value="15" <?php if ($result2['tobacco']['reslist'] ?? '' == '15') {
+                                    <option value="15" <?php if (($result2['tobacco']['reslist'] ?? '') == '15') {
                                         echo "selected";
                                                        } ?>><?php echo xlt('Heavy tobacco smoker'); ?></option>
-                                    <option value="16" <?php if ($result2['tobacco']['reslist'] ?? '' == '16') {
+                                    <option value="16" <?php if (($result2['tobacco']['reslist'] ?? '') == '16') {
                                         echo "selected";
                                                        } ?>><?php echo xlt('Light tobacco smoker'); ?></option>
                                 </select>
@@ -960,7 +960,7 @@ foreach (explode(',', $given) as $item) {
                                                 echo " checked";
                                                                                                                                                                            } ?> />
                                         </td>
-                                        <td class="text-center"><input name="radio_tobacco" type="radio" id="radio_tobacco[not_applicable]" <?php if ($PMSFH[0]['SOCH']['tobacco']['restype'] ?? '' == 'not_applicable') {
+                                        <td class="text-center"><input name="radio_tobacco" type="radio" id="radio_tobacco[not_applicable]" <?php if (($PMSFH[0]['SOCH']['tobacco']['restype'] ?? '') == 'not_applicable') {
                                             echo " checked";
                                                                                                                                             } ?> value="not_applicabletobacco" />
                                         </td>
@@ -977,17 +977,17 @@ foreach (explode(',', $given) as $item) {
                                         <tr>
                                             <td><input type="text" name="form_coffee" id="form_box" size="20" value="<?php echo attr($result2['coffee']['resnote']); ?>" />&nbsp;</td>
 
-                                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[current]" value="currentcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] ?? '' == 'currentcoffee') {
+                                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[current]" value="currentcoffee" <?php if (($PMSFH[0]['SOCH']['coffee']['restype'] ?? '') == 'currentcoffee') {
                                                 echo " checked";
                                                                                                                                                       } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[quit]" value="quitcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] ?? '' == 'quitcoffee') {
+                                            <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[quit]" value="quitcoffee" <?php if (($PMSFH[0]['SOCH']['coffee']['restype'] ?? '') == 'quitcoffee') {
                                                 echo " checked";
                                                                                                                                                 } ?> /><?php echo xlt('Quit'); ?>&nbsp;</td>
                                             <td class="text"><input type="text" class="datepicker" size="6" name="date_coffee" id="date_coffee" value="" title="<?php echo xla('Caffeine consumption'); ?>" />&nbsp;</td>
-                                            <td class="text-center"><input type="radio" name="radio_coffee" id="radio_coffee[never]" value="nevercoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] ?? '' == 'nevercoffee') {
+                                            <td class="text-center"><input type="radio" name="radio_coffee" id="radio_coffee[never]" value="nevercoffee" <?php if (($PMSFH[0]['SOCH']['coffee']['restype'] ?? '') == 'nevercoffee') {
                                                 echo " checked";
                                                                                                                                                          } ?> /></td>
-                                            <td class="text-center"><input name="radio_coffee" type="radio" id="radio_coffee[not_applicable]" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] ?? '' == 'not_applicable') {
+                                            <td class="text-center"><input name="radio_coffee" type="radio" id="radio_coffee[not_applicable]" <?php if (($PMSFH[0]['SOCH']['coffee']['restype'] ?? '') == 'not_applicable') {
                                                 echo " checked";
                                                                                                                                               } ?> value="not_applicablecoffee" />
                                             </td>
@@ -1004,17 +1004,17 @@ foreach (explode(',', $given) as $item) {
                                     <tbody>
                                         <tr>
                                             <td><input type="text" name="form_alcohol" id="form_box" size="20" value="<?php echo attr($result2['alcohol']['resnote']); ?>" />&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[current]" value="currentalcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '' == 'currentalcohol') {
+                                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[current]" value="currentalcohol" <?php if (($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '') == 'currentalcohol') {
                                                 echo " checked";
                                                                                                                                                          } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[quit]" value="quitalcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '' == 'quitalcohol') {
+                                            <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[quit]" value="quitalcohol" <?php if (($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '') == 'quitalcohol') {
                                                 echo " checked";
                                                                                                                                                    } ?> /><?php echo xlt('Quit'); ?>&nbsp;</td>
                                             <td class="text"><input type="text" size="6" class="datepicker" name="date_alcohol" id="date_alcohol" value="" title="<?php echo xla('Alcohol consumption'); ?>" />&nbsp;</td>
-                                            <td class="text-center"><input type="radio" name="radio_alcohol" id="radio_alcohol[never]" value="neveralcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '' == 'neveralcohol') {
+                                            <td class="text-center"><input type="radio" name="radio_alcohol" id="radio_alcohol[never]" value="neveralcohol" <?php if (($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '') == 'neveralcohol') {
                                                 echo " checked";
                                                                                                                                                             } ?> /></td>
-                                            <td class="text-center"><input name="radio_alcohol" type="radio" id="radio_alcohol[not_applicable]" value="not_applicablealcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '' == 'not_applicable') {
+                                            <td class="text-center"><input name="radio_alcohol" type="radio" id="radio_alcohol[not_applicable]" value="not_applicablealcohol" <?php if (($PMSFH[0]['SOCH']['alcohol']['restype'] ?? '') == 'not_applicable') {
                                                 echo " checked";
                                                                                                                                                                               } ?> />
                                             </td>
@@ -1031,17 +1031,17 @@ foreach (explode(',', $given) as $item) {
                                     <tbody>
                                         <tr>
                                             <td><input type="text" name="form_recreational_drugs" id="form_box" size="20" value="<?php echo attr($result2['recreational_drugs']['resnote']); ?>" />&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[current]" value="currentrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '' == 'currentrecreational_drugs') {
+                                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[current]" value="currentrecreational_drugs" <?php if (($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '') == 'currentrecreational_drugs') {
                                                 echo " checked";
                                                                                                                                                                                           } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[quit]" value="quitrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '' == 'quitrecreational_drugs') {
+                                            <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[quit]" value="quitrecreational_drugs" <?php if (($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '') == 'quitrecreational_drugs') {
                                                 echo " checked";
                                                                                                                                                                                     } ?> /><?php echo xlt('Quit'); ?>&nbsp;</td>
                                             <td class="text"><input type="text" size="6" class="datepicker" name="date_recreational_drugs" id="date_recreational_drugs" value="" title="<?php echo xla('Recreational drug use'); ?>" />&nbsp;</td>
-                                            <td class="text-center"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[never]" value="neverrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '' == 'neverrecreational_drugs') {
+                                            <td class="text-center"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[never]" value="neverrecreational_drugs" <?php if (($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '') == 'neverrecreational_drugs') {
                                                 echo " checked";
                                                                                                                                                                                              } ?>></td>
-                                            <td class="text-center"><input name="radio_recreational_drugs" type="radio" id="radio_recreational_drugs[not_applicable]" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '' == 'not_applicable') {
+                                            <td class="text-center"><input name="radio_recreational_drugs" type="radio" id="radio_recreational_drugs[not_applicable]" <?php if (($PMSFH[0]['SOCH']['recreational_drugs']['restype'] ?? '') == 'not_applicable') {
                                                 echo " checked";
                                                                                                                                                                       } ?> value="not_applicablerecreational_drugs" />
                                             </td>
@@ -1058,17 +1058,17 @@ foreach (explode(',', $given) as $item) {
                                     <tbody>
                                         <tr>
                                             <td><input type="text" name="form_counseling" id="form_box" size="20" value="<?php echo attr($result2['counseling']['resnote']); ?>" />&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[current]" value="currentcounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] ?? '' == 'currentcounseling') {
+                                            <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[current]" value="currentcounseling" <?php if (($PMSFH[0]['SOCH']['counseling']['restype'] ?? '') == 'currentcounseling') {
                                                 echo " checked";
                                                                                                                                                                   } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[quit]" value="quitcounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] ?? '' == 'quitcounseling') {
+                                            <td class="text"><input type="radio" name="radio_counseling" id="radio_counseling[quit]" value="quitcounseling" <?php if (($PMSFH[0]['SOCH']['counseling']['restype'] ?? '') == 'quitcounseling') {
                                                 echo " checked";
                                                                                                                                                             } ?> /><?php echo xlt('Quit'); ?>&nbsp;</td>
                                             <td class="text"><input type="text" size="6" class="datepicker" name="date_counseling" id="date_counseling" value="" title="<?php echo xla('Counseling activities') ?>" />&nbsp;</td>
-                                            <td class="text-center"><input type="radio" name="radio_counseling" id="radio_counseling[never]" value="nevercounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] ?? '' == 'nevercounseling') {
+                                            <td class="text-center"><input type="radio" name="radio_counseling" id="radio_counseling[never]" value="nevercounseling" <?php if (($PMSFH[0]['SOCH']['counseling']['restype'] ?? '') == 'nevercounseling') {
                                                 echo " checked";
                                                                                                                                                                      } ?> /></td>
-                                            <td class="text-center"><input name="radio_counseling" type="radio" id="radio_counseling[not_applicable]" value="not_applicablecounseling" <?php if ($PMSFH[0]['SOCH']['counseling']['restype'] ?? '' == 'not_applicable') {
+                                            <td class="text-center"><input name="radio_counseling" type="radio" id="radio_counseling[not_applicable]" value="not_applicablecounseling" <?php if (($PMSFH[0]['SOCH']['counseling']['restype'] ?? '') == 'not_applicable') {
                                                 echo " checked";
                                                                                                                                                                                        } ?> />
                                             </td>
@@ -1086,17 +1086,17 @@ foreach (explode(',', $given) as $item) {
                                     <tbody>
                                         <tr>
                                             <td><input type="text" name="form_exercise_patterns" id="form_box" size="20" value="<?php echo attr($result2['exercise_patterns']['resnote']); ?>" />&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[current]" value="currentexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '' == 'currentexercise_patterns') {
+                                            <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[current]" value="currentexercise_patterns" <?php if (($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '') == 'currentexercise_patterns') {
                                                 echo " checked";
                                                                                                                                                                                        } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[quit]" value="quitexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '' == 'quitexercise_patterns') {
+                                            <td class="text"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[quit]" value="quitexercise_patterns" <?php if (($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '') == 'quitexercise_patterns') {
                                                 echo " checked";
                                                                                                                                                                                  } ?> /><?php echo xlt('Quit') ?>&nbsp;</td>
                                             <td class="text"><input type="text" size="6" class="datepicker" name="date_exercise_patterns" id="date_exercise_patterns" value="" title="<?php echo xla('Exercise patterns') ?>" />&nbsp;</td>
-                                            <td class="text-center"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[never]" value="neverexercise_patterns" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '' == 'neverexercise_patterns') {
+                                            <td class="text-center"><input type="radio" name="radio_exercise_patterns" id="radio_exercise_patterns[never]" value="neverexercise_patterns" <?php if (($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '') == 'neverexercise_patterns') {
                                                 echo " checked";
                                                                                                                                                                                           } ?> /></td>
-                                            <td class="text-center"><input name="radio_exercise_patterns" type="radio" id="radio_exercise_patterns[not_applicable]" <?php if ($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '' == 'not_applicable') {
+                                            <td class="text-center"><input name="radio_exercise_patterns" type="radio" id="radio_exercise_patterns[not_applicable]" <?php if (($PMSFH[0]['SOCH']['exercise_patterns']['restype'] ?? '') == 'not_applicable') {
                                                 echo " checked";
                                                                                                                                                                     } ?> value="not_applicableexercise_patterns" /></td>
                                         </tr>
@@ -1112,16 +1112,16 @@ foreach (explode(',', $given) as $item) {
                                     <tbody>
                                         <tr>
                                             <td><input type="text" name="form_hazardous_activities" id="form_box" size="20" value="<?php echo attr($result2['hazardous_activities']['resnote']); ?>" />&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[current]" value="currenthazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '' == 'currenthazardous_activities') {
+                                            <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[current]" value="currenthazardous_activities" <?php if (($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '') == 'currenthazardous_activities') {
                                                 echo " checked";
                                                                                                                                                                                                 } ?> /><?php echo xlt('Current'); ?>&nbsp;</td>
-                                            <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[quit]" value="quithazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '' == 'quithazardous_activities') {
+                                            <td class="text"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[quit]" value="quithazardous_activities" <?php if (($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '') == 'quithazardous_activities') {
                                                 echo " checked";
                                                                                                                                                                                           } ?> /><?php echo xlt('Quit') ?>&nbsp;</td>
                                             <td class="text"><input type="text" size="6" class="datepicker" name="date_hazardous_activities" id="date_hazardous_activities" value="" title="<?php echo xla('Hazardous activities') ?>" />&nbsp;</td>
-                                            <td class="text-center"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[never]" value="neverhazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '' == 'neverhazardous_activities') {
+                                            <td class="text-center"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[never]" value="neverhazardous_activities" <?php if (($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '') == 'neverhazardous_activities') {
                                                 echo " checked"; } ?> /></td>
-                                            <td class="text-center"><input name="radio_hazardous_activities" type="radio" id="radio_hazardous_activities[not_applicable]" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '' == 'not_applicable') {
+                                            <td class="text-center"><input name="radio_hazardous_activities" type="radio" id="radio_hazardous_activities[not_applicable]" <?php if (($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '') == 'not_applicable') {
                                                 echo " checked"; } ?> value="not_applicablehazardous_activities" onclick="hazardous_activities_statusClicked(this)" /></td>
                                         </tr>
                                     </tbody>
