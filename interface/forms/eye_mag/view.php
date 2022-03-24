@@ -1593,13 +1593,12 @@ if ($refresh and $refresh != 'fullscreen') {
                                             if ($CTLMANUFACTUREROD == $row['option_id']) {
                                                 $CTLMANUFACTURER_list_OD .= "selected";
                                             }
-    
+
                                             $CTLMANUFACTURER_list_OD .= '>' . text(substr($row['title'], 0, 12)) . '</option>
                                         ' ;
                                         }
-                                        
-                                        if (!empty($CTLMANUFACTURER_list_OS)) {
 
+                                        if (!empty($CTLMANUFACTURER_list_OS)) {
                                             $CTLMANUFACTURER_list_OS .= '<option value="' . attr($row['option_id']) . '"';
                                             if ($CTLMANUFACTUREROS == $row['option_id']) {
                                                 $CTLMANUFACTURER_list_OS .= "selected";
@@ -1619,13 +1618,12 @@ if ($refresh and $refresh != 'fullscreen') {
                                             if ($CTLSUPPLIEROD == $row['option_id']) {
                                                 $CTLSUPPLIER_list_OD .= "selected";
                                             }
-    
+
                                             $CTLSUPPLIER_list_OD .= '>' . text(substr($row['title'], 0, 10)) . '</option>
                                         ' ;
                                         }
-                                        
-                                        if (!empty($CTLSUPPLIER_list_OS)) {
 
+                                        if (!empty($CTLSUPPLIER_list_OS)) {
                                             $CTLSUPPLIER_list_OS .= '<option value="' . attr($row['option_id']) . '"';
                                             if ($CTLSUPPLIEROS == $row['option_id']) {
                                                 $CTLSUPPLIER_list_OS .= "selected";
