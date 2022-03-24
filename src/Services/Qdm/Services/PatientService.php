@@ -11,8 +11,10 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
+use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\BaseTypes\Telcom;
 use OpenEMR\Cqm\Qdm\Id;
 use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\Patient;
@@ -36,7 +38,14 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     P.ethnicity,
                     ETHN.notes AS ethnicity_code,
                     P.sex,
-                    SEX.codes AS sex_code
+                    SEX.codes AS sex_code,
+                    P.street,
+                    P.postal_code,
+                    P.city,
+                    P.state,
+                    P.phone_home,
+                    P.phone_cell,
+                    P.country_code
             FROM patient_data P
             LEFT JOIN list_options RACE ON RACE.list_id = 'race' AND P.race = RACE.option_id
             LEFT JOIN list_options ETHN ON ETHN.list_id = 'ethnicity' AND P.ethnicity = ETHN.option_id
@@ -52,8 +61,8 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
             'value' => $record['pid']
         ]);
 
-        $qdmPatient = new Patient(
-            ['patientName' => [
+        $qdmPatient = new Patient([
+            'patientName' => [
                 'given' => $record['fname'],
                 'middle' => $record['mname'] ?? '',
                 'family' => $record['lname']
@@ -62,6 +71,24 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                 'id' => $id // From PatientExtension trait
             ]
         );
+
+        // Create the address and add to model (for QRDA Cat 1 Export)
+        $address = new Address([
+            'street' => [
+                $record['street']
+            ],
+            'city' => $record['city'],
+            'state' => $record['state'],
+            'zip' => $record['postal_code'],
+            'country' => $record['country_code']
+        ]);
+        $qdmPatient->addAddress($address);
+
+        // Create the telcom and add to model (for QRDA Cat 1 Export)
+        $telcom = new Telcom([
+            'value' => $record['phone_home']
+        ]);
+        $qdmPatient->addTelcom($telcom);
 
         $qdmPatient->extendedData = [
             'pid' => $record['pid']

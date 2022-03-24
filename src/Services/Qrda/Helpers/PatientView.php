@@ -32,6 +32,16 @@ trait PatientView
         return null;
     }
 
+    public function patient_addresses()
+    {
+        return json_decode(json_encode($this->patient->addresses));
+    }
+
+    public function patient_telecoms()
+    {
+        return json_decode(json_encode($this->patient->telcoms));
+    }
+
     public function patient()
     {
         if (!empty($this->patient)) {
