@@ -786,7 +786,7 @@ class C_Document extends Controller
                     }
                 }
                 if ($disable_exit == true) {
-                    return $filetext;
+                    return $filetext ?? '';
                 }
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');
