@@ -142,7 +142,7 @@ class QrdaReportService
             $request = new QdmRequestAll();
         }
         $exportService = new ExportCat1Service($this->builder, $request);
-        $xml = $exportService->export(MeasureService::fetchAllMeasuresArray($measures));
+        $xml = $exportService->export($measures);
 
         return $xml;
     }
@@ -155,7 +155,12 @@ class QrdaReportService
             $request = new QdmRequestAll();
         }
         $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
-        $xml = $exportService->export($measure, $effectiveDate, $efffectiveDateEnd);
+        $xml = $exportService->export([
+                $measure
+            ],
+            $effectiveDate,
+            $efffectiveDateEnd
+        );
 
         return $xml;
     }
