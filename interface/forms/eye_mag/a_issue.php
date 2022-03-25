@@ -911,7 +911,7 @@ foreach (explode(',', $given) as $item) {
                                     <option value="1" <?php if (($result2['tobacco']['reslist'] ?? '') == '1') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Current every day smoker'); ?></option>
-                                    <option value="2" <?php if ($result2[('tobacco']['reslist'] ?? '') == '2') {
+                                    <option value="2" <?php if (($result2['tobacco']['reslist'] ?? '') == '2') {
                                         echo "selected";
                                                       } ?>><?php echo xlt('Current some day smoker'); ?></option>
                                     <option value="3" <?php if (($result2['tobacco']['reslist'] ?? '') == '3') {
