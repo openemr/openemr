@@ -38,7 +38,7 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
      */
     protected $batch;
 
-   
+
     /**
      * This function is called by the BillingProcessor before the main
      * claim loop starts.
@@ -88,7 +88,7 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
         // Finalize the claim
         if (
             !BillingUtilities::updateClaim(
-                false, 
+                false,
                 $claim->getPid(),
                 $claim->getEncounter(),
                 -1,
