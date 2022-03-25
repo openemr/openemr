@@ -84,11 +84,11 @@ options to choose from:
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
  - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mariadb-old` or `mariadb-very-old` or
-   `mariadb-very-very-old` or `mariadb-dev` or `mysql-old` (you have all
+   `mariadb-very-very-old` or `mariadb-very-very-very-old` or `mysql-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
    `mysql` is version 8.0; `mysql-old` is version 5.7;
-   `mariadb` is version 10.5; `mariadb-ssl` is version 10.5 with support for ssl; `mariadb-old` is version 10.4; `mariadb-very-old` is
-   version 10.3; `mariadb-very-very-old` is version 10.2; `mariadb-dev` is version 10.6)
+   `mariadb` is version 10.6; `mariadb-ssl` is version 10.6 with support for ssl; `mariadb-old` is version 10.5; `mariadb-very-old` is
+   version 10.4; `mariadb-very-very-old` is version 10.3; `mariadb-very-very-very-old` is version 10.2)
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'OpenEMR API'
-  version: 6.1.0
+  version: 7.0.0
 servers:
   -
     url: /apis/default/
@@ -2498,6 +2498,9 @@ paths:
                 pc_billing_location:
                   description: 'The billinag location id of the appointment.'
                   type: string
+                pc_aid:
+                  description: 'The provider id for the appointment.'
+                  type: string
               type: object
               example:
                 pc_catid: '5'
@@ -2509,6 +2512,7 @@ paths:
                 pc_startTime: '09:00'
                 pc_facility: '9'
                 pc_billing_location: '10'
+                pc_aid: '1'
       responses:
         '200':
           $ref: '#/components/responses/standard'
