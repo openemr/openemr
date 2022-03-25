@@ -4849,7 +4849,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             if ($visit['ODIOPTARGET'] > '') {
                 $ODIOPTARGETS[$i] = $visit['ODIOPTARGET'];
             } elseif ($i == 0) { //this should be set on in view/page load.  Keep for reports though...
-                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id ?? '', $provider_id);
+                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             } elseif (!$ODIOPTARGETS[$j]) {
                 list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id, $provider_id);
             } else {
@@ -4859,7 +4859,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             if ($visit['OSIOPTARGET'] > '') {
                  $OSIOPTARGETS[$i] = $visit['OSIOPTARGET'];
             } elseif ($i == 0) {
-                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id ?? '', $provider_id);
+                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             } elseif (!$OSIOPTARGETS[$j]) {
                 list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
             } else {
