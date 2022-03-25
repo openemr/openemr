@@ -2655,7 +2655,8 @@ function show_PMSFH_report($PMSFH)
         if ($value['display'] == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
-            }            $count['FH']--;
+            }
+            $count['FH']--;
         }
     }
 
