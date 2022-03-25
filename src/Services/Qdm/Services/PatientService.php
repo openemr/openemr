@@ -45,12 +45,17 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
+    public static function makeQdmIdentifier($pid)
+    {
+        return new Identifier([
+            'namingSystem' => 'OpenEMR pid',
+            'value' => $pid
+        ]);
+    }
+
     public function makeQdmModel(array $record)
     {
-        $id = new Identifier([
-            'namingSystem' => 'OpenEMR pid',
-            'value' => $record['pid']
-        ]);
+        $id = self::makeQdmIdentifier($record['pid']);
 
         $qdmPatient = new Patient(
             ['patientName' => [

@@ -10,6 +10,9 @@
 namespace OpenEMR\Services\Qrda;
 
 
+use OpenEMR\Services\Qdm\IndividualResult;
+use OpenEMR\Services\Qdm\PopulationSet;
+
 class AggregateCount
 {
     public $measure_id;
@@ -25,14 +28,14 @@ class AggregateCount
     {
         $population_set = null;
         foreach ($population_sets as $ps) {
-            if ($ps['population_set_id'] == $cache_entry['pop_set_hash']['population_set_id']) {
+            if ($ps->population_set_id == $cache_entry['pop_set_hash']['population_set_id']) {
                 $population_set = $ps;
                 break;
             }
         }
         $entry_populations = [];
         foreach(['IPP', 'DENOM', 'NUMER', 'NUMEX', 'DENEX', 'DENEXCEP', 'MSRPOPL', 'MSRPOPLEX'] as $pop_code) {
-            if (!isset($population_set['populations'][$pop_code])) {
+            if (!isset($population_set->populations[$pop_code])) {
                 continue;
             }
 
@@ -42,7 +45,7 @@ class AggregateCount
                  // observation = cache_entry['observations'][pop_code] if cache_entry['observations'] && cache_entry['observations'][pop_code]
                  // population.add_stratification(strat_id,cache_entry[pop_code], observation)
                 $strat_id = null;
-                foreach ($population_set['stratifications'] as $stratification) {
+                foreach ($population_set->stratifications as $stratification) {
                     if ($cache_entry['pop_set_hash']['stratification_id']) {
                         $strat_id = $stratification['hqmf_id'];
                     }
@@ -57,11 +60,11 @@ class AggregateCount
                 // population.value = cache_entry[pop_code]
                 // population.observation = cache_entry['observations'][pop_code] if cache_entry['observations'] && cache_entry['observations'][pop_code]
                 // population.supplemental_data = cache_entry.supplemental_data[pop_code]
-                $population['value'] = $cache_entry[$pop_code];
+                $population->value = $cache_entry[$pop_code];
                 if ($cache_entry['observations'] && $cache_entry['observations'][$pop_code]) {
-                    $population['observation'] = $cache_entry['observations'][$pop_code];
+                    $population->observation = $cache_entry['observations'][$pop_code];
                 }
-                $population['supplemental_data'] = $cache_entry->supplemental_data[$pop_code];
+                $population->supplemental_data = $cache_entry->supplemental_data[$pop_code];
             }
 
             $entry_populations[] = $population;
@@ -88,7 +91,7 @@ class AggregateCount
         }
     }
 
-    public function create_population_from_population_set($pop_code, $population_set, $cache_entry)
+    public function create_population_from_population_set($pop_code, PopulationSet $population_set, $cache_entry)
     {
         // population = populations.find { |pop| pop.id == population_set.populations[pop_code]&.hqmf_id } if pop_code != 'STRAT'
         // return population unless population.nil? && !cache_entry.pop_set_hash[:stratification_id]

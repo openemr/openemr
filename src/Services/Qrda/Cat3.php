@@ -10,6 +10,8 @@
 
 namespace OpenEMR\Services\Qrda;
 
+use OpenEMR\Services\Qdm\IndividualResult;
+use OpenEMR\Services\Qdm\Measure;
 use OpenEMR\Services\Qrda\Helpers\Cat3View;
 use OpenEMR\Services\Qrda\Helpers\Date;
 use OpenEMR\Services\Qrda\Helpers\PatientView;
@@ -27,7 +29,11 @@ class Cat3 extends \Mustache_Engine
         'qrda-export' . DIRECTORY_SEPARATOR .
         'catIII';
 
-    protected $template = 'qrda3.mustache';
+    // master branch qrda-reports uses this updated mustache template
+//    protected $template = 'qrda3.mustache';
+
+    // version 3.1.8 of qrda-reports uses this template which is what the latest Cypress version uses.
+    protected $template = 'qrda3_r21.mustache';
     protected $measures = [];
     protected $aggregate_results = [];
     protected $measure_result_hash = [];
@@ -51,11 +57,15 @@ class Cat3 extends \Mustache_Engine
 
         // Initialize our measure results data structure
         foreach ($this->measures as $measure) {
-            $this->measure_result_hash[$measure['hqmf_id']] = [
-                'population_sets' => $measure['population_sets'],
-                'hqmf_id' => $measure['hqmf_id'],
-                'hqmf_set_id' => $measure['hqmf_set_id'],
-                'description' => $measure['description'],
+            if (!$measure instanceof Measure)
+            {
+                throw new \InvalidArgumentException("Passed in measure must be of type " . Measure::class);
+            }
+            $this->measure_result_hash[$measure->hqmf_id] = [
+                'population_sets' => $measure->population_sets,
+                'hqmf_id' => $measure->hqmf_id,
+                'hqmf_set_id' => $measure->hqmf_set_id,
+                'description' => $measure->description,
                 'measure_data' => [],
                 'aggregate_count' => []
             ];
@@ -98,16 +108,31 @@ class Cat3 extends \Mustache_Engine
     public function measure_results()
     {
         $measure_results = array_values($this->measure_result_hash);
-        return $measure_results;
+        // we convert all QDM and other objects to serializable json and then decode them
+        return json_decode(json_encode($measure_results));
     }
 
     public function cpcplus()
     {
         return $this->submission_program == 'CPCPLUS';
+        /**
+
+        def cpcplus?
+        @submission_program == 'CPCPLUS'
+        end
+
+         */
     }
 
     public function ry2022_submission()
     {
         return $this->ry2022_submission;
+        /**
+
+        def ry2022_submission?
+        @ry2022_submission
+        end
+
+         */
     }
 }
