@@ -13,14 +13,14 @@
     <value xsi:type="CD" nullFlavor="UNK" />
     {{/unknown_supplemental_value?}}
     {{^unknown_supplemental_value?}}
-      {{#payer_code?}}
+      {{#payer_code}}
         <value xsi:type="CD" nullFlavor="OTH">
           <translation code="{{{cms_payer_code}}}" codeSystem="2.16.840.1.113883.3.249.12" codeSystemName="CMS Clinical Codes"/>
         </value>
-      {{/payer_code?}}
-      {{^payer_code?}}
+      {{/payer_code}}
+      {{^payer_code}}
         <value xsi:type="CD" code="{{code}}" codeSystem="{{supplemental_data_value_code_system}}"/>
-      {{/payer_code?}}
+      {{/payer_code}}
     {{/unknown_supplemental_value?}}
     <entryRelationship typeCode="SUBJ" inversionInd="true">
       <!-- Aggregate Count template -->
