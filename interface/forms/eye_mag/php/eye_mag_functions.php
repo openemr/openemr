@@ -99,6 +99,8 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
 
             if (!empty($output)) {
                 $output .= "<option value='" . attr($prior['id']) . "' " . attr($selected) . ">" . text($oeexam_date) . "</option>";
+            } else {
+                $output = "<option value='" . attr($prior['id']) . "' " . attr($selected) . ">" . text($oeexam_date) . "</option>";
             }
             $selected = '';
             $i++;
@@ -116,6 +118,8 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
 
             if (!empty($output)) {
                 $output .= "<option value='" . attr($priors[$i]['id']) . "' " . attr($selected) . ">" . text($priors[$i]['exam_date']) . "</option>";
+            } else {
+                $output = "<option value='" . attr($priors[$i]['id']) . "' " . attr($selected) . ">" . text($priors[$i]['exam_date']) . "</option>";
             }
         }
     }
@@ -2064,6 +2068,9 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
         if (!empty($total_PMSFH)) {
             $total_PMSFH += count($PMSFH[0][$key]);
             $total_PMSFH += 2; //add two for the title and a space
+        } else {
+            $total_PMSFH = count($PMSFH[0][$key]);
+            $total_PMSFH = 2; //add two for the title and a space
         }
         $count[$key] = count($PMSFH[0][$key]) + 1;
     }
@@ -2082,6 +2089,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
         if ($value['display'] == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
             }
             $count['FH']--;
         }
@@ -2314,6 +2323,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                         $counter++;
                         if (!empty($mention_SOCH)) {
                             $mentions_SOCH++;
+                        } else {
+                            $mentions_SOCH = 1;
                         }
                     }
                 }
@@ -2555,6 +2566,8 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
             if (!empty($mention_SOCH)) {
                 $mention_SOCH++;
+            } else {
+                $mention_SOCH = 1;
             }
         }
     }
@@ -2637,6 +2650,9 @@ function show_PMSFH_report($PMSFH)
         if (!empty($total_PMSFH)) {
             $total_PMSFH += count($PMSFH[0][$key]);
             $total_PMSFH += 2; //add two for the title and a space
+        } else {
+            $total_PMSFH = count($PMSFH[0][$key]);
+            $total_PMSFH = 2; //add two for the title and a space
         }
         $count[$key] = count($PMSFH[0][$key]) + 1;
     }
@@ -2646,6 +2662,8 @@ function show_PMSFH_report($PMSFH)
         if (($value['display'] ?? '') == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
             }
             $count['ROS']--;
         }
@@ -2655,6 +2673,8 @@ function show_PMSFH_report($PMSFH)
         if ($value['display'] == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
             }
             $count['FH']--;
         }
@@ -2664,6 +2684,8 @@ function show_PMSFH_report($PMSFH)
         if (($value['display'] == '') || ($value['display'] == 'not_applicable')) {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
             }
             $count['SOCH']--;
         }
@@ -2843,6 +2865,8 @@ function show_PMSFH_report($PMSFH)
             echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
             if (!empty($mention_PSOCH)) {
                 $mention_PSOCH++;
+            } else {
+                $mention_PSOCH = 1;
             }
             $counter++;
         }
@@ -2898,8 +2922,11 @@ function show_PMSFH_report($PMSFH)
     foreach ($PMSFH[0]['ROS'] as $item) {
         if ($item['display'] ?? '') {
             echo xlt($item['short_title']) . ": " . $item['display'] . "<br />";
-            $mention_ROS ?? '';
-            $mention_ROS++;
+            if (!empty($mention_ROS)) {
+                $mention_ROS++;
+            } else {
+                $mention_ROS  = 1;
+            }
             $counter++;
         }
     }
@@ -3007,6 +3034,8 @@ function display_QP($zone, $provider_id)
         echo $title_show;
         if (!empty($number_rows)) {
             $number_rows++;
+        } else {
+            $number_rows = 1;
         }
         ?><br />
         <?php
@@ -3862,6 +3891,8 @@ function display($pid, $encounter, $category_value)
         $episode .= '</td></tr>';
         if (!empty($i)) {
             $i++;
+        } else {
+            $i = 1;
         }
     }
 
@@ -5205,11 +5236,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $gonios .= "<tr><td class='GFS_td_1 " . $hideme . "'>" . $visit['exam_date'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['ODGONIO'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['OSGONIO'] . "</td></tr>";
                                 if (!empty($GONIO_chart)) {
                                     $GONIO_chart .= '"1",';
+                                } else {
+                                    $GONIO_chart = '"1",';
                                 }
                                 $count++;
                             } else {
                                 if (!empty($GONIO_chart)) {
                                     $GONIO_chart .= ',';
+                                } else {
+                                    $GONIO_chart = '"1",';
                                 }
                             }
                         }
@@ -5250,6 +5285,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         } else {
                             if (!empty($DISCS_chart)) {
                                 $DISCS_chart .= '"",';
+                            } else {
+                                $DISCS_chart = '"",';
                             }
                         }
                     }
