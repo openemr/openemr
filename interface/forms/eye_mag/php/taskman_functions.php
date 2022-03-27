@@ -148,6 +148,8 @@ function update_taskman($task, $action, $value)
         sqlQuery($sql, array($task['DOC_ID'],$task['ID']));
         if (!empty($send['comments'])) {
             $send['comments'] .= "Document created. ";
+        } else {
+            $send['comments'] = "Document created. ";
         }
     }
 
