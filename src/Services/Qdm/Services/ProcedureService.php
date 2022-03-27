@@ -24,9 +24,15 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     O.encounter_id AS encounter,
                     O.procedure_order_type,
                     O.date_ordered,
-                    OC.procedure_code
+                    OC.procedure_code,
+                    RES.date AS result_date,
+                    RES.result_code,
+                    RES.result_units,
+                    RES.units as result_value
                 FROM procedure_order O
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                    JOIN procedure_order_report REP ON O.procedure_order_id = REP.procedure_order_id
+                    JOIN procedure_order_result RES ON REP.procedure_report_id = RES.procedure_report_id
                 WHERE O.procedure_order_type = 'order'
                 ";
 
@@ -43,6 +49,10 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
         $qdmModel = new ProcedurePerformed([
             'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
+            ]),
+            'result' => new Quantity([
+                'value' => $record['result_value'],
+                'unit' => $record['result_units']
             ]),
         ]);
 

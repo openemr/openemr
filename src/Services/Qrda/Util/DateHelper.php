@@ -11,11 +11,23 @@ namespace OpenEMR\Services\Qrda\Util;
 
 class DateHelper
 {
-    public static function format_datetime_gmdate($datetime)
+    /**
+     * @param $datetime
+     * @return false|string
+     *
+     * For the JSON that gets passed to cqm-execution, this is the datetime format
+     */
+    public static function format_datetime_cqm($datetime)
     {
-        return gmdate('Ymd\THis\Z', date('U', strtotime($datetime)));
+        return gmdate('Y-m-d\TH:i:s.u', date('U', strtotime($datetime)));
     }
 
+    /**
+     * @param $datetime
+     * @return false|string
+     *
+     * For QRDA XML exports, this is the datetime format
+     */
     public static function format_datetime($datetime)
     {
         return gmdate('YmdHis', date('U', strtotime($datetime)));
