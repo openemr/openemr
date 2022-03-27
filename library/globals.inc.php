@@ -450,6 +450,13 @@ $GLOBALS_METADATA = array(
             xl('Application name used throughout the user interface.')
         ),
 
+        'machine_name' => [
+            xl('Application Machine Name'),
+            'text',
+            'openemr',
+            xl('The machine name of the application. Used to identify the EMR in various messaging systems like HL7. Should not contain spaces'),
+        ],
+
         'display_main_menu_logo' => [
             xl('Display main menu logo'),
             'bool',
