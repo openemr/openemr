@@ -757,47 +757,49 @@ if ($refresh and $refresh != 'fullscreen') {
                 while ($wearing = sqlFetchArray($wear)) {
                     if (!empty($count_rx)) {
                         $count_rx++;
-                        ${"display_W_$count_rx"}        = '';
-                        ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
-                        ${"ODCYL_$count_rx"}            = $wearing['ODCYL'];
-                        ${"ODAXIS_$count_rx"}           = $wearing['ODAXIS'];
-                        ${"OSSPH_$count_rx"}            = $wearing['OSSPH'];
-                        ${"OSCYL_$count_rx"}            = $wearing['OSCYL'];
-                        ${"OSAXIS_$count_rx"}           = $wearing['OSAXIS'];
-                        ${"ODMIDADD_$count_rx"}         = $wearing['ODMIDADD'];
-                        ${"OSMIDADD_$count_rx"}         = $wearing['OSMIDADD'];
-                        ${"ODADD_$count_rx"}            = $wearing['ODADD'];
-                        ${"OSADD_$count_rx"}            = $wearing['OSADD'];
-                        ${"ODVA_$count_rx"}             = $wearing['ODVA'];
-                        ${"OSVA_$count_rx"}             = $wearing['OSVA'];
-                        ${"ODNEARVA_$count_rx"}         = $wearing['ODNEARVA'];
-                        ${"OSNEARVA_$count_rx"}         = $wearing['OSNEARVA'];
-                        ${"ODPRISM_$count_rx"}          = $wearing['ODPRISM'] ?? null;
-                        ${"OSPRISM_$count_rx"}          = $wearing['OSPRISM'] ?? null;
-                        ${"W_$count_rx"}                = '1';
-                        ${"RX_TYPE_$count_rx"}          = $wearing['RX_TYPE'];
-                        ${"ODHPD_$count_rx"}            = $wearing['ODHPD'];
-                        ${"ODHBASE_$count_rx"}          = $wearing['ODHBASE'];
-                        ${"ODVPD_$count_rx"}            = $wearing['ODVPD'];
-                        ${"ODVBASE_$count_rx"}          = $wearing['ODVBASE'];
-                        ${"ODSLABOFF_$count_rx"}        = $wearing['ODSLABOFF'];
-                        ${"ODVERTEXDIST_$count_rx"}     = $wearing['ODVERTEXDIST'];
-                        ${"OSHPD_$count_rx"}            = $wearing['OSHPD'];
-                        ${"OSHBASE_$count_rx"}          = $wearing['OSHBASE'];
-                        ${"OSVPD_$count_rx"}            = $wearing['OSVPD'];
-                        ${"OSVBASE_$count_rx"}          = $wearing['OSVBASE'];
-                        ${"OSSLABOFF_$count_rx"}        = $wearing['OSSLABOFF'];
-                        ${"OSVERTEXDIST_$count_rx"}     = $wearing['OSVERTEXDIST'];
-                        ${"ODMPDD_$count_rx"}           = $wearing['ODMPDD'];
-                        ${"ODMPDN_$count_rx"}           = $wearing['ODMPDN'];
-                        ${"OSMPDD_$count_rx"}           = $wearing['OSMPDD'];
-                        ${"OSMPDN_$count_rx"}           = $wearing['OSMPDN'];
-                        ${"BPDD_$count_rx"}             = $wearing['BPDD'];
-                        ${"BPDN_$count_rx"}             = $wearing['BPDN'];
-                        ${"LENS_MATERIAL_$count_rx"}    = $wearing['LENS_MATERIAL'];
-                        ${"LENS_TREATMENTS_$count_rx"}  = $wearing['LENS_TREATMENTS'];
-                        ${"COMMENTS_$count_rx"}         = $wearing['COMMENTS'];
+                    } else {
+                        $count_rx = 1;
                     }
+                    ${"display_W_$count_rx"}        = '';
+                    ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
+                    ${"ODCYL_$count_rx"}            = $wearing['ODCYL'];
+                    ${"ODAXIS_$count_rx"}           = $wearing['ODAXIS'];
+                    ${"OSSPH_$count_rx"}            = $wearing['OSSPH'];
+                    ${"OSCYL_$count_rx"}            = $wearing['OSCYL'];
+                    ${"OSAXIS_$count_rx"}           = $wearing['OSAXIS'];
+                    ${"ODMIDADD_$count_rx"}         = $wearing['ODMIDADD'];
+                    ${"OSMIDADD_$count_rx"}         = $wearing['OSMIDADD'];
+                    ${"ODADD_$count_rx"}            = $wearing['ODADD'];
+                    ${"OSADD_$count_rx"}            = $wearing['OSADD'];
+                    ${"ODVA_$count_rx"}             = $wearing['ODVA'];
+                    ${"OSVA_$count_rx"}             = $wearing['OSVA'];
+                    ${"ODNEARVA_$count_rx"}         = $wearing['ODNEARVA'];
+                    ${"OSNEARVA_$count_rx"}         = $wearing['OSNEARVA'];
+                    ${"ODPRISM_$count_rx"}          = $wearing['ODPRISM'] ?? null;
+                    ${"OSPRISM_$count_rx"}          = $wearing['OSPRISM'] ?? null;
+                    ${"W_$count_rx"}                = '1';
+                    ${"RX_TYPE_$count_rx"}          = $wearing['RX_TYPE'];
+                    ${"ODHPD_$count_rx"}            = $wearing['ODHPD'];
+                    ${"ODHBASE_$count_rx"}          = $wearing['ODHBASE'];
+                    ${"ODVPD_$count_rx"}            = $wearing['ODVPD'];
+                    ${"ODVBASE_$count_rx"}          = $wearing['ODVBASE'];
+                    ${"ODSLABOFF_$count_rx"}        = $wearing['ODSLABOFF'];
+                    ${"ODVERTEXDIST_$count_rx"}     = $wearing['ODVERTEXDIST'];
+                    ${"OSHPD_$count_rx"}            = $wearing['OSHPD'];
+                    ${"OSHBASE_$count_rx"}          = $wearing['OSHBASE'];
+                    ${"OSVPD_$count_rx"}            = $wearing['OSVPD'];
+                    ${"OSVBASE_$count_rx"}          = $wearing['OSVBASE'];
+                    ${"OSSLABOFF_$count_rx"}        = $wearing['OSSLABOFF'];
+                    ${"OSVERTEXDIST_$count_rx"}     = $wearing['OSVERTEXDIST'];
+                    ${"ODMPDD_$count_rx"}           = $wearing['ODMPDD'];
+                    ${"ODMPDN_$count_rx"}           = $wearing['ODMPDN'];
+                    ${"OSMPDD_$count_rx"}           = $wearing['OSMPDD'];
+                    ${"OSMPDN_$count_rx"}           = $wearing['OSMPDN'];
+                    ${"BPDD_$count_rx"}             = $wearing['BPDD'];
+                    ${"BPDN_$count_rx"}             = $wearing['BPDN'];
+                    ${"LENS_MATERIAL_$count_rx"}    = $wearing['LENS_MATERIAL'];
+                    ${"LENS_TREATMENTS_$count_rx"}  = $wearing['LENS_TREATMENTS'];
+                    ${"COMMENTS_$count_rx"}         = $wearing['COMMENTS'];
                 }
                 ?>
               <div class="loading" id="LayerTechnical_sections_loading" name="LayerTechnical_sections_loading"><i class="fa fa-spinner fa-spin"></i>
@@ -1596,6 +1598,14 @@ if ($refresh and $refresh != 'fullscreen') {
 
                                             $CTLMANUFACTURER_list_OD .= '>' . text(substr($row['title'], 0, 12)) . '</option>
                                         ' ;
+                                        } else {
+                                            $CTLMANUFACTURER_list_OD = '<option value="' . attr($row['option_id']) . '"';
+                                            if ($CTLMANUFACTUREROD == $row['option_id']) {
+                                                $CTLMANUFACTURER_list_OD = "selected";
+                                            }
+
+                                            $CTLMANUFACTURER_list_OD = '>' . text(substr($row['title'], 0, 12)) . '</option>
+                                        ' ;
                                         }
 
                                         if (!empty($CTLMANUFACTURER_list_OS)) {
@@ -1605,6 +1615,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                             }
 
                                             $CTLMANUFACTURER_list_OS .= '>' . text(substr($row['title'], 0, 12)) . '</option>
+                                        ' ;
+                                        } else {
+                                            $CTLMANUFACTURER_list_OS = '<option value="' . attr($row['option_id']) . '"';
+                                            if ($CTLMANUFACTUREROS == $row['option_id']) {
+                                                $CTLMANUFACTURER_list_OS = "selected";
+                                            }
+
+                                            $CTLMANUFACTURER_list_OS = '>' . text(substr($row['title'], 0, 12)) . '</option>
                                         ' ;
                                         }
                                     }
@@ -1621,6 +1639,14 @@ if ($refresh and $refresh != 'fullscreen') {
 
                                             $CTLSUPPLIER_list_OD .= '>' . text(substr($row['title'], 0, 10)) . '</option>
                                         ' ;
+                                        } else {
+                                            $CTLSUPPLIER_list_OD = '<option value="' . attr($row['option_id']) . '"';
+                                            if ($CTLSUPPLIEROD == $row['option_id']) {
+                                                $CTLSUPPLIER_list_OD = "selected";
+                                            }
+
+                                            $CTLSUPPLIER_list_OD = '>' . text(substr($row['title'], 0, 10)) . '</option>
+                                        ' ;
                                         }
 
                                         if (!empty($CTLSUPPLIER_list_OS)) {
@@ -1630,6 +1656,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                             }
 
                                             $CTLSUPPLIER_list_OS .= '>' . text(substr($row['title'], 0, 10)) . '</option>
+                                        ' ;
+                                        } else {
+                                            $CTLSUPPLIER_list_OS = '<option value="' . attr($row['option_id']) . '"';
+                                            if ($CTLSUPPLIEROS == $row['option_id']) {
+                                                $CTLSUPPLIER_list_OS = "selected";
+                                            }
+
+                                            $CTLSUPPLIER_list_OS = '>' . text(substr($row['title'], 0, 10)) . '</option>
                                         ' ;
                                         }
                                     }
@@ -1646,6 +1680,14 @@ if ($refresh and $refresh != 'fullscreen') {
 
                                             $CTLBRAND_list_OD .= '>' . text(substr($row['title'], 0, 15)) . '</option>
                                         ' ;
+                                        } else {
+                                            $CTLBRAND_list_OD = '<option value="' . attr($row['option_id']) . '"';
+                                            if ($CTLBRANDOD == $row['option_id']) {
+                                                $CTLBRAND_list_OD = "selected";
+                                            }
+
+                                            $CTLBRAND_list_OD = '>' . text(substr($row['title'], 0, 15)) . '</option>
+                                        ' ;
                                         }
 
                                         if (!empty($CTLSBRAN_list_OS)) {
@@ -1655,6 +1697,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                             }
 
                                             $CTLBRAND_list_OS .= '>' . text(substr($row['title'], 0, 15)) . '</option>
+                                        ' ;
+                                        } else {
+                                            $CTLBRAND_list_OS = '<option value="' . attr($row['option_id']) . '"';
+                                            if ($CTLBRANDOS == $row['option_id']) {
+                                                $CTLBRAND_list_OS = "selected";
+                                            }
+
+                                            $CTLBRAND_list_OS = '>' . text(substr($row['title'], 0, 15)) . '</option>
                                         ' ;
                                         }
                                     }
