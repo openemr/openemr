@@ -8522,7 +8522,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Document/{id}/Binary",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="id",
@@ -8535,7 +8535,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -9041,11 +9041,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Group/{id}/$export",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10449,11 +10449,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Patient/$export",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11638,11 +11638,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/$export",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11675,11 +11675,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/$bulkdata-status",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11706,11 +11706,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Delete(
      *      path="/fhir/$bulkdata-status",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",

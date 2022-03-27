@@ -4240,7 +4240,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       parameters:
         -
           name: id
@@ -4251,7 +4251,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4502,10 +4502,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5330,10 +5330,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5917,10 +5917,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5932,10 +5932,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5946,10 +5946,10 @@ paths:
     delete:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
