@@ -4435,7 +4435,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Returns a list of Group resources.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       parameters:
         -
           name: _id
@@ -4477,7 +4477,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Returns a single Group resource.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       parameters:
         -
           name: uuid
@@ -4488,7 +4488,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
