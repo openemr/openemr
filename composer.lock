@@ -5158,7 +5158,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/openemr/oe-module-cqm",
-                "reference": "4257196db3b352d162e9592dd496db956267bb22"
+                "reference": "0455eb415465101b1d42b859f037c660940590c3"
             },
             "require": {
                 "mi-squared/mi-framework": "^0.1.0",
@@ -5182,7 +5182,7 @@
                 }
             ],
             "description": "Test CQM Services.",
-            "time": "2022-03-08T19:27:28+00:00"
+            "time": "2022-03-23T13:08:01+00:00"
         },
         {
             "name": "openemr/oe-module-installer-plugin",
@@ -12570,5 +12570,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

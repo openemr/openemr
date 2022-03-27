@@ -1,5 +1,8 @@
 <?php
 /**
+ * This file was adapted from the following file: https://github.com/projectcypress/cypress/blob/v6.2.2.1/lib/ext/individual_result.rb
+ * But I believe it should rather be adapted from this project: https://github.com/projecttacoma/cqm-models/blob/master/app/models/cqm/individual_result.rb
+ *
  * @package OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
@@ -10,8 +13,26 @@
 namespace OpenEMR\Services\Qdm;
 
 
-class IndividualResult
+use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
+use OpenEMR\Cqm\Qdm\Identifier;
+use OpenEMR\Services\Qdm\Services\PatientService;
+
+class IndividualResult extends AbstractType
 {
+    /**
+     * @var Identifier
+     */
+    public $patient_id;
+
+    public $episode_results;
+
+    public $population_set_key;
+
+    /**
+     * @var Measure
+     */
+    public $measure;
+
     protected $_result;
 
     /**
@@ -20,6 +41,8 @@ class IndividualResult
      */
     public function __construct($_result)
     {
+        parent::__construct($_result);
+        $this->patient_id = PatientService::makeQdmIdentifier($_result['patient_id'] ?? null);
         $this->_result = $_result;
     }
 
@@ -97,8 +120,46 @@ class IndividualResult
          */
     }
 
-    public function collect_observations($observation_hash = [], $agg_results = false)
+    /**
+     * For the given population set that this individual result represents we add all of our observations for each individual
+     * population in the set to the observation_hash array.
+     * @param array $observation_hash  The observations array we are adding addiitonal information to.
+     * @param bool $agg_results
+     * @return array|void
+     */
+    public function collect_observations(&$observation_hash = [], $agg_results = false)
     {
+        if (empty($this->episode_results))
+        {
+            return;
+        }
+        $population_keys = $this->measure->population_keys();
+        $key = $agg_results ? $this->population_set_key : $this->patient_id->value;
+        $this->setup_observation_hash($observation_hash, $key);
+        // reset grabs first item.
+        $population_set = reset($this->measure->population_set_for_key($this->population_set_key));
+        # collect the observation_statements for the population_set. There may be more than one. episode_results are recorded in the same order
+        $observation_statements = array_map(function($obs) {
+            return $obs['observation_parameter']['statement_name'];
+        }, $this->population_set->observations);
+      # collect the observation_values from and individual_result
+      # a scenario with multiple episodes and multiple observations would look like this [[2], [9, 1]]
+        // remove any empty values
+        $observation_values = array_filter('isset', $this->get_observ_values($this->episode_results));
+        foreach ($observation_values as $episode_index => $observation_value) {
+            foreach ($observation_value as $observation => $index) {
+                $obs_pop = null;
+                foreach ($population_keys as $pop) {
+                    if ($population_set[$pop]['statement_name'] == $observation_statements[$index]) {
+                        $obs_pop = $pop;
+                        break;
+                    }
+                }
+                $observation_hash[$key][$obs_pop]['values'][] = ['episode_index' => $episode_index, 'value' => $observation];
+                $observation_hash[$key][$obs_pop]['statement_name'][] = $observation_statements[$index];
+            }
+        }
+        return $observation_hash;
         /*
          *     # adds the observation values found in an individual_result to the observation_hash
     # Set agg_results to true if you are collecting aggregate results for multiple patients
