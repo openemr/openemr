@@ -7890,10 +7890,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken when trying to search with parameters.
-     */
     "GET /fhir/Coverage" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
@@ -7933,10 +7929,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken. Fix and then add standard response example.
      */
     "GET /fhir/Coverage/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
@@ -8556,9 +8548,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/Document/:id/Binary' => function ($documentId, HttpRestRequest $request) {
         // currently only allow users with the same permissions as export to take a file out
         // this could be relaxed to allow other types of files ie such as patient access etc.
@@ -8991,9 +8980,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/Group' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $getParams = $request->getQueryParams();
@@ -9040,9 +9026,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     "GET /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         if ($request->isPatientRequest()) {
@@ -9074,9 +9057,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -9155,10 +9135,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -9188,7 +9164,41 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95e8d8b7-e3e2-4e03-8eb1-31e1d9097d8f",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-03-26T05:42:59+00:00"
+     *                      },
+     *                      "resourceType": "Immunization",
+     *                      "status": "completed",
+     *                      "vaccineCode": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://hl7.org/fhir/sid/cvx",
+     *                                  "code": "207",
+     *                                  "display": "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 100 mcg/0.5mL dose"
+     *                              }
+     *                          }
+     *                      },
+     *                      "patient": {
+     *                          "reference": "Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf"
+     *                      },
+     *                      "occurrenceDateTime": "2022-03-26T05:35:00+00:00",
+     *                      "recorded": "2022-03-26T05:42:26+00:00",
+     *                      "primarySource": false
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -9204,10 +9214,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "GET /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
@@ -9432,10 +9438,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken uuid validation.
      */
     "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "med");
@@ -10118,9 +10120,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -10168,9 +10167,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     "PUT /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -10208,9 +10204,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /fhir/Patient" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
@@ -10258,9 +10251,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
@@ -10475,9 +10465,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
     'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
@@ -10791,10 +10778,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "GET /fhir/Person" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPersonRestController())->getAll($request->getQueryParams());
@@ -10834,10 +10817,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -11128,10 +11107,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
@@ -11178,10 +11153,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "PUT /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -11293,10 +11264,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken _id validation.
-     */
     "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getOne($uuid);
@@ -11375,10 +11342,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -11407,7 +11370,30 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95e9d3fb-fe7b-448a-aa60-d40b11b486a5",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-03-26T17:20:14+00:00"
+     *                      },
+     *                      "resourceType": "Procedure",
+     *                      "status": "in-progress",
+     *                      "subject": {
+     *                          "reference": "Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf",
+     *                          "type": "Patient"
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11423,10 +11409,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
@@ -11448,7 +11430,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Parameter(
      *          name="uuid",
      *          in="path",
-     *          description="The uuid for the Provenance resource.",
+     *          description="The id for the Provenance resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -11456,7 +11438,68 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145",
+     *                      "resourceType": "Provenance",
+     *                      "target": {
+     *                          {
+     *                              "reference": "AllergyIntolerance/95ea43f3-1066-4bc7-b224-6c23b985f145",
+     *                              "type": "AllergyIntolerance"
+     *                          }
+     *                      },
+     *                      "recorded": "2022-03-26T22:43:30+00:00",
+     *                      "agent": {
+     *                          {
+     *                              "type": {
+     *                                  "coding": {
+     *                                      {
+     *                                          "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+     *                                          "code": "author",
+     *                                          "display": "Author"
+     *                                      }
+     *                                  }
+     *                              },
+     *                              "who": {
+     *                                  "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                                  "type": "Organization"
+     *                              },
+     *                              "onBehalfOf": {
+     *                                  "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                                  "type": "Organization"
+     *                              }
+     *                          },
+     *                          {
+     *                              "type": {
+     *                                  "coding": {
+     *                                      {
+     *                                          "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type",
+     *                                          "code": "transmitter",
+     *                                          "display": "Transmitter"
+     *                                      }
+     *                                  }
+     *                              }
+     *                          },
+     *                          "who": {
+     *                              "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                              "type": "Organization"
+     *                          },
+     *                          "onBehalfOf": {
+     *                              "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                              "type": "Organization"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11472,9 +11515,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "GET /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
@@ -11496,7 +11536,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Parameter(
      *          name="_id",
      *          in="query",
-     *          description="The uuid for the Provenance resource.",
+     *          description="The id for the Provenance resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -11540,9 +11580,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
     // property to support which is why this endpoint exists.
@@ -11618,9 +11655,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/$export' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $fhirExportService = new FhirExportRestController($request);
@@ -11658,9 +11692,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $jobUuidString = $request->getQueryParam('job');
@@ -11691,9 +11722,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");

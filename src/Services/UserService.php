@@ -178,7 +178,7 @@ class UserService
                         phonecell,
                         users.notes,
                         state_license_number,
-                        abook.title as abook_title,
+                        abook.title as abook_title
                 FROM  users
                 LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
 
