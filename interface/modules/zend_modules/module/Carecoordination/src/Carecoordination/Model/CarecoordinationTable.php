@@ -227,9 +227,9 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['country_code'] = $xml['recordTarget']['patientRole']['addr']['country'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
-        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = ($xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code']) ?? null;
 
         //Author details
@@ -383,10 +383,10 @@ class CarecoordinationTable extends AbstractTableGateway
                         $newdata['patient_data'][$rowfield['field_name']] = $dob;
                     } else {
                         if ($rowfield['field_name'] == 'religion') {
-                            $religion_option_id = $this->getOptionId('religious_affiliation', $rowfield['field_value'], '');
+                            $religion_option_id = $this->getOptionId('religious_affiliation', $rowfield['field_value'], $rowfield['field_value']);
                             $newdata['patient_data'][$rowfield['field_name']] = $religion_option_id;
                         } elseif ($rowfield['field_name'] == 'race') {
-                            $race_option_id = $this->getOptionId('race', $rowfield['field_value'], '');
+                            $race_option_id = $this->getOptionId('race', $rowfield['field_value'], $rowfield['field_value']);
                             $newdata['patient_data'][$rowfield['field_name']] = $race_option_id;
                         } elseif ($rowfield['field_name'] == 'ethnicity') {
                             $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], $rowfield['field_value']);

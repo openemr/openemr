@@ -70,7 +70,7 @@ class QrdaReportController
     public function downloadQrdaIAsZip($pids, $measures = '', $type = 'xml')
     {
         $zip = new Zip();
-        $zip_directory = sys_get_temp_dir() . "/qrda_catI_export_" . time();
+        $zip_directory = sys_get_temp_dir() . "/catI_export_" . time();
         if (!is_dir($zip_directory)) {
             if (!mkdir($zip_directory, true) && !is_dir($zip_directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $zip_directory));
@@ -88,8 +88,10 @@ class QrdaReportController
             }
             foreach ($pids as $pid) {
                 $meta = sqlQuery("Select `fname`, `lname` From `patient_data` Where `pid` = ?", [$pid]);
-                $file = $measure_directory . "/QRDAI_{$meta['lname']}_{$meta['fname']}." . $type;
+                $file = $measure_directory . "/{$meta['fname']}_{$meta['lname']}." . $type;
                 $content = $this->getCategoryIReport($pid, $measure, $type);
+                $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'temp';
+                file_put_contents($directory . DIRECTORY_SEPARATOR . $measure . "_{$meta['lname']}_{$meta['fname']}." . 'xml', $content);
                 $f_handle = fopen($file, "w");
                 fwrite($f_handle, $content);
                 fclose($f_handle);
@@ -98,7 +100,7 @@ class QrdaReportController
                 }
             }
         }
-        $zip_name = "QRDAI_Export_" . time() . ".zip";
+        $zip_name = "QRDA1_Export_" . time() . ".zip";
         $save_path = sys_get_temp_dir() . "/" . $zip_name;
         $zip->setArchive($save_path);
         $zip->compress($zip_directory);
