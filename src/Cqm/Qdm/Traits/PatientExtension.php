@@ -9,12 +9,20 @@
 
 namespace OpenEMR\Cqm\Qdm\Traits;
 
+<<<<<<< HEAD
 use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Telcom;
+=======
+use OpenEMR\Cqm\Qdm\Identifier;
+>>>>>>> 2ef4a3c187586c62fce8c8420548b64aa30d976c
 
 trait PatientExtension
 {
     public $patientName;
+
+    /**
+     * @var Identifier
+     */
     public $id;
     public $addresses = [];
     public $telcoms = [];
