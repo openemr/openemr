@@ -599,7 +599,6 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
 function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
 {
     $results = [];
-    // TODO: @adunsulag do we need to batch the provider processing here?  Its unlikely to have more than 50-100 providers...
     if ($pat_prov_rel == "encounter") {
         $rez = sqlStatementCdrEngine(
             "SELECT id AS provider_id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 AND users.id IN( "
@@ -810,7 +809,6 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
         // First, collect active plans
         $plans_resolve = resolve_plans_sql($plan, $patient_id);
         // Second, run through function recursively
-        error_log(var_export($plans_resolve, true));
         foreach ($plans_resolve as $plan_item) {
             //  (if collate_inner, then nest a collation of providers within each plan)
             if ($provider === "collate_inner") {
@@ -1379,9 +1377,7 @@ function buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCoun
     }
     $sql .= "ORDER BY `pid`";
     if (!($start == null || $batchSize == null || $onlyCount)) {
-        $sql .= "LIMIT ?,?";
-        $binds[] = intval($start) - 1;
-        $binds[] = intval($batchSize);
+        $sql .= "LIMIT " . (intval($start) - 1) . "," . intval($batchSize);
     }
     $rez = sqlStatementCdrEngine($sql, $binds);
 
@@ -1427,9 +1423,7 @@ function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $on
     }
     $sql .= "ORDER BY `pid`";
     if (!($start == null || $batchSize == null || $onlyCount)) {
-        $sql .= "LIMIT ?,?";
-        $binds[] = intval($start) - 1;
-        $binds[] = intval($batchSize);
+        $sql .= "LIMIT " . (intval($start) - 1) . "," . intval($batchSize);
     }
     $rez = sqlStatementCdrEngine($sql, $binds);
 
