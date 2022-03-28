@@ -89,7 +89,7 @@ class X125010837P
             $out .= "NM1" . // Loop 1000A Submitter
             "*" . "41" .
             "*";
-            // check for 3rd party
+            // check for 3rd party.  We should only use this if we are sending directly to ins. co.  Otherwise, ignore.
             if ($claim->x12_submitter_name()) {
                 // non-person entity
                 $out .= "2" .
@@ -114,16 +114,16 @@ class X125010837P
                 "*" . // Name Prefix not used
                 "*" . $suffixName .
                 "*" . "46" .
-                "*" . $claim->clearingHouseETIN();
+                "*" . $claim->billingFacilityETIN();
             }
         // non-person entity, use 2
         } else {
             $out .= "NM1" .
             "*" . "41" .
-            "*" . "2";
+            "*" . "2" . "*";
             // check for 3rd party
             if ($claim->x12_submitter_name()) {
-                $out .= "*" . $claim->x12_submitter_name() .
+                $out .= $claim->x12_submitter_name() .
                 "*" .
                 "*" .
                 "*" .
@@ -143,7 +143,7 @@ class X125010837P
                 "*" .
                 "*" .
                 "*" . "46" .
-                "*" . $claim->clearingHouseETIN();
+                "*" . $claim->billingFacilityETIN();
             }
         }
         // close the NM1 segment
@@ -1639,16 +1639,16 @@ class X125010837P
                     "*" . // Name Prefix not used
                     "*" . $suffixName .
                     "*" . "46" .
-                    "*" . $claim->clearingHouseETIN();
+                    "*" . $claim->billingFacilityETIN();
                 }
             // non-person entity, use 2
             } else {
                 $out .= "NM1" .
                 "*" . "41" .
-                "*" . "2";
+                "*" . "2" . "*" ;
                 // check for 3rd party
                 if ($claim->x12_submitter_name()) {
-                    $out .= "*" . $claim->x12_submitter_name() .
+                    $out .=  $claim->x12_submitter_name() .
                     "*" .
                     "*" .
                     "*" .
@@ -1668,7 +1668,7 @@ class X125010837P
                     "*" .
                     "*" .
                     "*" . "46" .
-                    "*" . $claim->clearingHouseETIN();
+                    "*" . $claim->billingFacilityETIN();
                 }
             }
             // close the NM1 segment
