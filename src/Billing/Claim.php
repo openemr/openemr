@@ -46,6 +46,7 @@ class Claim
     public $copay;             // total of copays from the ar_activity table
     public $facilityService;   // via matthew.vita orm work :)
     public $pay_to_provider;   // to be implemented in facility ui
+    private $encounterService;
 
     public function __construct($pid, $encounter_id)
     {
@@ -602,11 +603,11 @@ class Claim
 //***MS Add - since we are a TPA we need to include this
     public function x12_submitter_name()
     {
-        $tmp = $this->x12_partner['x12_submitter_name'] ?? '';
-        while (strlen($tmp) < 15) {
-            $tmp .= " ";
+        if ($GLOBALS['gen_x12_based_on_ins_co'] != 1) {
+            return false;
         }
 
+        $tmp = $this->x12_partner['x12_submitter_name'] ?? false;
         return $tmp;
     }
 
