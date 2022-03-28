@@ -210,3 +210,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS771v3','Urinary Symptom Score Change 6-12 Months After Diagnosis of Benign Prostatic Hyperplasia',460,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS90v11','Functional Status Assessments for Congestive Heart Failure',470,0);
 #EndIf
+
+#IfNotRow2D layout_options LBTref field_id encounter_id
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`
+    ,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
+    VALUES ('LBTref','encounter_id'      ,'1','Patient Referral Encounter', 10, 53,1, 0,  0,'',1,1,'',''
+    ,'Encounter that the referral/transfer of care is based on', 0);
+#EndIf
