@@ -153,8 +153,9 @@ $download_format = $this->download_format;
     </div>
     <div id="componentsForQRDA" style="height:300px !important;display:none;" class="ap-st-st-13">
         <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
-        <select size="12" id="report_measures" name="report_measures[]" style="width:100%;" multiple>
-            <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures'); ?></option>
+        <select size="12" id="report_measures" name="report_measures[]" style="width:100%;">
+            <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures one per Patient'); ?></option>
+            <option value="all"><?php echo $this->listenerObject->z_xlt('Patient with all Measures'); ?></option>
             <?php
             foreach ($this->current_measures as $measure) {
                 $help = attr($measure['title']);
