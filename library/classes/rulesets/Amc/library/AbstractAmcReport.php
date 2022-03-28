@@ -29,10 +29,9 @@ require_once('AmcFilterIF.php');
 require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
 require_once(dirname(__FILE__) . "/../../../../amc.php");
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
 use OpenEMR\Reports\AMC\Trackers\AMCItemSkipTracker;
-
-use OpenEMR\Common\Logging\SystemLogger;
 
 abstract class AbstractAmcReport implements RsReportIF
 {

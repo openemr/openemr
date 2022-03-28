@@ -21,8 +21,8 @@ require_once(dirname(__FILE__) . "/report_database.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
-use OpenEMR\Reports\AMC\Trackers\AMCGroupItemTracker;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FacilityService;
 
 /**
  * Return listing of CDR reminders in log.
@@ -657,7 +657,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = arra
     (new SystemLogger())->debug(
         "test_rules_clinic_group_calculation()",
         array_combine(
-            ['provider', 'type', 'dateArray', 'mode', 'patient_id', 'plan', 'organize_mode'
+            ['type', 'dateArray', 'mode', 'patient_id', 'plan', 'organize_mode'
             ,
             'options',
             'pat_prov_rel',
@@ -669,7 +669,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = arra
     );
 
     $results = [];
-    $facilityService = new \OpenEMR\Services\FacilityService();
+    $facilityService = new FacilityService();
     $billingLocations = $facilityService->getAllBillingLocations();
     if (!empty($billingLocations)) {
         //Collect applicable rules
@@ -930,7 +930,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
     }
 
     if ($provider === "group_calculation") {
-        return test_rules_clinic_group_calculation($provider, $type, $dateArray, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
+        return test_rules_clinic_group_calculation($type, $dateArray, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
     }
 
   // Collect applicable patient pids

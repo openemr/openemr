@@ -302,11 +302,11 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
     foreach ($dataSheet as $row) {
         if ($display_group_provider_info) {
             if (isset($row['is_provider_group'])) {
-                $group_provider_label = xl('Group') . ': ' . $row['name'] . ' ( ' . xl('TIN') . ' '
-                    . $row['federaltaxid'] . ' )';
+                $group_provider_label = xlt('Group') . ': ' . text($row['name']) . ' ( ' . xlt('TIN') . ' '
+                    . text($row['federaltaxid']) . ' )';
             } else if (isset($row['is_provider'])) {
-                $provider_label = ' ' . xl('Provider') . ': ' . $row['prov_fname'] . ',' . $row['prov_lname']
-                    . ' ( ' . xl('NPI') . ' ' . $row['npi'] . ' ) ';
+                $provider_label = ' ' . xlt('Provider') . ': ' . text($row['prov_fname']) . ',' . text($row['prov_lname'])
+                    . ' ( ' . xlt('NPI') . ' ' . text($row['npi']) . ' ) ';
                 if (isset($row['is_provider_in_group'])) {
                     $group_provider_label .= $provider_label;
                 } else {
