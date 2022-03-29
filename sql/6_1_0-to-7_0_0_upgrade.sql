@@ -150,7 +150,7 @@ INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_f
 #IfNotRow2D list_options list_id clinical_rules option_id patient_access_amc
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`
                             , `codes`, `toggle_setting_1`, `toggle_setting_2`)
-    VALUES ('clinical_rules', 'patient_access_amc', 'Provide Patients Electronic Access to Their Health Information - API Access (ACM)'
+    VALUES ('clinical_rules', 'patient_access_amc', 'Provide Patients Electronic Access to Their Health Information - API Access'
     , 240, 0, 0, '', '', '', 0, 0);
 #EndIf
 
@@ -237,4 +237,22 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','snf','Skilled nursing facility',120,0,0,'','','',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','comm-hospital','Discharge to community hospital',130,0,0,'','','SNOMED-CT:306701001',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','oth','Other',140,0,0,'','','',0,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id clinical_rules option_id send_sum_2015_amc
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`
+                           , `codes`, `toggle_setting_1`, `toggle_setting_2`)
+VALUES ('clinical_rules', 'send_sum_2015_amc', 'Support Electronic Referral Loops by Sending Health Information'
+       , 240, 0, 0, '', '', '', 0, 0);
+#EndIf
+
+#IfNotRow clinical_rules id send_sum_2015_amc
+INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`,
+                              `cqm_2014_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`,
+                              `amc_2014_flag`, `amc_code`, `amc_code_2014`, `amc_code_2015`, `amc_2014_stage1_flag`,
+                              `amc_2014_stage2_flag`, `amc_2015_flag`, `patient_reminder_flag`, `developer`,
+                              `funding_source`, `release_version`, `web_reference`, `access_control`,
+                              `bibliographic_citation`, `linked_referential_cds`)
+VALUES ('send_sum_2015_amc', '0', '0', '0', '0', '0', '0', '', '', '1', '0', '0', '', ''
+       , '170.315(g)(1)/(2)–7', '0', '0', '1', '0', '', '', '', '', '', '', '');
 #EndIf

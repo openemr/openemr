@@ -24,6 +24,7 @@ require_once "$srcdir/report_database.inc";
 use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -140,6 +141,8 @@ $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
 $back_link = (isset($_GET['back'])) ? trim($_GET['back']) : "";
 
 // If showing an old report, then collect information
+$heading_title = "";
+$help_file_name = "";
 if (!empty($report_id)) {
     $report_view = collectReportDatabase($report_id);
     $date_report = $report_view['date_report'];
@@ -191,30 +194,42 @@ if (!empty($report_id)) {
     $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['form_pat_prov_rel']);
     $dataSheet = [];
 }
+
+$show_help = false;
+if ($type_report == "standard") {
+    $heading_title = xl('Standard Measures');
+} else if ($type_report == "cqm") {
+    $heading_title = xl('Clinical Quality Measures (CQM)');
+} else if ($type_report == 'cqm_2011') {
+    $heading_title = 'Clinical Quality Measures (CQM) - 2011';
+} else if ($is_amc_report) {
+    $heading_title = $amc_report_types[$type_report]['title'];
+    $show_help = true;
+    $help_file_name = "cqm_amc_help.php";
+}
+
+
+$arrOeUiSettings = array(
+    'heading_title' => xl('Add/Edit Patient Transaction'),
+    'include_patient_name' => false,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "conceal",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "cqm.php",//only for actions - reset, link and back
+    'show_help_icon' => $show_help,
+    'help_file_name' => $help_file_name
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+
+require_once("$srcdir/display_help_icon_inc.php");
+
 ?>
 
 <html>
 
 <head>
-
-<?php if ($type_report == "standard") { ?>
-  <title><?php echo xlt('Standard Measures'); ?></title>
-<?php } ?>
-
-<?php if ($type_report == "cqm") { ?>
-  <title><?php echo xlt('Clinical Quality Measures (CQM)'); ?></title>
-<?php } ?>
-<?php if ($type_report == "cqm_2011") { ?>
-  <title><?php echo xlt('Clinical Quality Measures (CQM) - 2011'); ?></title>
-<?php } ?>
-<?php if ($type_report == "cqm_2014") { ?>
-  <title><?php echo xlt('Clinical Quality Measures (CQM) - 2014'); ?></title>
-<?php } ?>
-
-    <?php if ($is_amc_report) : ?>
-    <title><?php echo text($amc_report_types[$type_report]['title']); ?></title>
-    <?php endif; ?>
-
+    <title><?php echo text($heading_title); ?></title>
 <?php Header::setupHeader('datetime-picker'); ?>
 
 <script>
@@ -411,6 +426,7 @@ if (!empty($report_id)) {
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+<div id="container_div" class="container-fluid mt-3">
 
 <span class='title'><?php echo xlt('Report'); ?> -
 
@@ -438,7 +454,11 @@ if (!empty($report_id)) {
         //prepare to disable form elements
         $dis_text = " disabled='disabled' ";
     ?>
-<?php } ?>
+<?php }
+if ($show_help) {
+    echo $help_icon;
+}
+?>
 </span>
 
 <form method='post' name='theform' id='theform' action='cqm.php?type=<?php echo attr($type_report) ;?>' onsubmit='return validateForm()'>
@@ -718,7 +738,10 @@ if (!empty($report_id)) {
 <input type='hidden' name='form_new_report_id' id='form_new_report_id' value=''/>
 
 </form>
-
+</div>
+<?php
+$oemr_ui->oeBelowContainerDiv();
+?>
 </body>
 
 </html>

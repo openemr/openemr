@@ -59,6 +59,11 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     private $logger;
 
+    /*
+     * @var int|null
+     */
+    protected $_billingFacility;
+
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options)
     {
         // require all .php files in the report's sub-folder
@@ -86,6 +91,7 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_beginMeasurement = $dateTarget['dateBegin'];
         $this->_endMeasurement = $dateTarget['dateTarget'];
         $this->_manualLabNumber = $options['labs_manual'];
+
         if (isset($GLOBALS['report_itemizing_temp_flag_and_id']) && $GLOBALS['report_itemizing_temp_flag_and_id']) {
             $this->_aggregator = $options['aggregator'] ?? new AMCItemTracker();
         } else {
@@ -93,6 +99,8 @@ abstract class AbstractAmcReport implements RsReportIF
         }
         $this->logger = new SystemLogger();
         $this->logger->debug(get_class($this) . "->__construct() finished", ['patients' => $patientIdArray]);
+
+        $this->_billingFacility = $options['billing_facility'] ?? null;
     }
 
     public function getPatientPopulation(): AmcPopulation
@@ -267,14 +275,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
                 break;
             case "transitions-out":
-                $sql = "SELECT transactions.id as id " .
-                       "FROM transactions " .
-                       "INNER JOIN lbt_data on lbt_data.form_id = transactions.id " .
-                       "WHERE transactions.title = 'LBTref' " .
-                       "AND transactions.pid = ? " .
-                       "AND lbt_data.field_id = 'refer_date' " .
-                       "AND lbt_data.field_value >= ? AND lbt_data.field_value <= ?";
-                array_push($sqlBindArray, $patient->id, $begin, $end);
+                return $this->collectTransitionOutObjects($patient, $begin, $end, $this->_billingFacility);
                 break;
             case "encounters":
                 $sql = "SELECT * " .
@@ -373,19 +374,47 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $rez = sqlStatement($sql, $sqlBindArray);
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-            if ('transitions-out' == $object_label) {
-                $fres = sqlStatement(
-                    "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
-                    array($row['id'])
-                );
-                while ($frow = sqlFetchArray($fres)) {
-                    $row[$frow['field_id']] = $frow['field_value'];
-                }
-            }
-
             $results[$iter] = $row;
         }
 
         return $results;
+    }
+
+    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility) {
+
+        $sqlBindArray = [];
+        $sqlSelect = "SELECT transactions.id as id ";
+        $sqlFrom = "FROM transactions " .
+            "INNER JOIN lbt_data on lbt_data.form_id = transactions.id ";
+        $sqlWhere = "WHERE transactions.title = 'LBTref' " .
+            "AND transactions.pid = ? " .
+            "AND lbt_data.field_id = 'refer_date' " .
+            "AND lbt_data.field_value >= ? AND lbt_data.field_value <= ?";
+
+        array_push($sqlBindArray, $patient->id, $begin, $end);
+
+        // for group calculation methods we need to restrict the data to the billing facility.
+        if (!empty($billing_facility) && intval($billing_facility) > 0)
+        {
+            $sqlFrom .= ' INNER JOIN lbt_data2 ON (lbt_data2.form_id = transactions.id AND lbt_data.field_id = "encounter_id"'
+                . 'INNER JOIN form_encounters enc ON lbt_data2.field_value = enc.encounter ';
+            $sqlWhere .= " AND enc.billing_facility = ? ";
+            $sqlBindArray[] = intval($billing_facility);
+        }
+
+        $sql = $sqlSelect . $sqlFrom . $sqlWhere;
+        (new \OpenEMR\Common\Logging\SystemLogger())->error($sql, ['binds' => $sqlBindArray]);
+        $rez = sqlStatement($sql, $sqlBindArray);
+        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+            $fres = sqlStatement(
+                "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
+                array($row['id'])
+            );
+            while ($frow = sqlFetchArray($fres)) {
+                $row[$frow['field_id']] = $frow['field_value'];
+            }
+            $results[$iter] = $row;
+        }
+
     }
 }

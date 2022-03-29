@@ -286,7 +286,11 @@ class EncountermanagerTable extends AbstractTableGateway
         if ($d_Address == '') {
             foreach ($elec_sent as $elec) {
                 $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_amc',?,'transactions',?,NOW(),NOW())", array($elec['pid'], $elec['map_id']));
+
+                // we only want to mark this as confirmed if the CCDA had all of the requisite parts
+                // TODO: @adunsulag need to check for medications, allergies, problems here
                 $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_elec_amc',?,'transactions',?,NOW(),NOW())", array($elec['pid'], $elec['map_id']));
+                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_elec_amc_confirmed',?,'transactions',?,NOW(),NOW())", array($elec['pid'], $elec['map_id']));
             }
 
             return ("Successfully Sent");
