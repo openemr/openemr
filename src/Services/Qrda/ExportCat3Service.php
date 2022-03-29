@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Services\Qrda;
-
 
 use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\IndividualResult;
@@ -43,8 +43,7 @@ class ExportCat3Service
     {
         // let's build our measures from our json
         $measureObjs = [];
-        foreach ($measures as $measurePath)
-        {
+        foreach ($measures as $measurePath) {
             $measure_arr = MeasureService::fetchMeasureJson($measurePath);
             $measure = new Measure($measure_arr);
             $measure->measure_path = $measurePath;
@@ -130,8 +129,7 @@ class ExportCat3Service
 
         $results = $this->calculator->calculateMeasure($patients, $measure->measure_path, $effectiveDate, $effectiveDateEnd);
         $final_results = [];
-        foreach ($results as $patient_id => $result)
-        {
+        foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient
             $aggregated_results = $this->aggregate_population_results_from_individual_results($result, $patient_id);
             $final_results = array_merge($final_results, $aggregated_results);

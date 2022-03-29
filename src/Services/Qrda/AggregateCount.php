@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Services\Qrda;
-
 
 use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\PopulationSet;
@@ -34,7 +34,7 @@ class AggregateCount
             }
         }
         $entry_populations = [];
-        foreach(['IPP', 'DENOM', 'NUMER', 'NUMEX', 'DENEX', 'DENEXCEP', 'MSRPOPL', 'MSRPOPLEX'] as $pop_code) {
+        foreach (['IPP', 'DENOM', 'NUMER', 'NUMEX', 'DENEX', 'DENEXCEP', 'MSRPOPL', 'MSRPOPLEX'] as $pop_code) {
             if (!isset($population_set->populations[$pop_code])) {
                 continue;
             }
@@ -55,7 +55,6 @@ class AggregateCount
                     $observation = $cache_entry['observations'][$pop_code];
                 }
                 $population->add_stratification($strat_id, $cache_entry[$pop_code], $observation);
-
             } else {
                 // population.value = cache_entry[pop_code]
                 // population.observation = cache_entry['observations'][pop_code] if cache_entry['observations'] && cache_entry['observations'][pop_code]
@@ -97,7 +96,8 @@ class AggregateCount
         // return population unless population.nil? && !cache_entry.pop_set_hash[:stratification_id]
         $population = null;
         foreach ($this->populations as $pop) {
-            if ($pop_code != 'STRAT' 
+            if (
+                $pop_code != 'STRAT'
                 && $pop->id == $population_set->populations[$pop_code]['hqmf_id']
             ) {
                 $population = $pop;
@@ -105,7 +105,8 @@ class AggregateCount
             }
         }
 
-        if ($population !== null 
+        if (
+            $population !== null
             || !empty($cache_entry['pop_set_hash']['stratification_id'])
         ) {
             return $population;

@@ -47,7 +47,8 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
     public function makeQdmModel(array $record)
     {
         $result = 'Negative';
-        if (!empty($record['result']) 
+        if (
+            !empty($record['result'])
             && $record['result'] != 'Negative'
         ) {
             $result = new Quantity(

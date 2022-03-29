@@ -30,5 +30,4 @@ class ExportCat1Service
 
         return $string;
     }
-
 }

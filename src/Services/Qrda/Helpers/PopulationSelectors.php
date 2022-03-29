@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Services\Qrda\Helpers;
-
 
 trait PopulationSelectors
 {
@@ -66,7 +66,8 @@ trait PopulationSelectors
         //          end
         $found = 0;
         foreach ($this->populations as $population) {
-            if ($population->type == $population_type 
+            if (
+                $population->type == $population_type
                 && $population->id == $population_id
             ) {
                 $found = $population->value;

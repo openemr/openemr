@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Services\Qrda;
-
 
 use OpenEMR\Services\Qrda\Helpers\PopulationSelectors;
 

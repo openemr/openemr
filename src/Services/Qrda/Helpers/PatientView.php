@@ -114,7 +114,8 @@ trait PatientView
     public function gender()
     {
         $gender_elements = array_filter(
-            $this->patient->dataElements, function ($de) {
+            $this->patient->dataElements,
+            function ($de) {
                 return $de->_type == "QDM::PatientCharacteristicSex";
             }
         );
@@ -130,7 +131,8 @@ trait PatientView
     public function birthdate()
     {
         $birthdate_elements = array_filter(
-            $this->patient->dataElements, function ($de) {
+            $this->patient->dataElements,
+            function ($de) {
                 return $de->_type == "QDM::PatientCharacteristicBirthdate";
             }
         );
@@ -144,7 +146,8 @@ trait PatientView
     public function expiration()
     {
         $elements = array_filter(
-            $this->patient->dataElements, function ($de) {
+            $this->patient->dataElements,
+            function ($de) {
                 return $de->_type == "QDM::PatientCharacteristicExpired";
             }
         );
@@ -158,7 +161,8 @@ trait PatientView
     public function race()
     {
         $elements = array_filter(
-            $this->patient->dataElements, function ($de) {
+            $this->patient->dataElements,
+            function ($de) {
                 return $de->_type == "QDM::PatientCharacteristicRace";
             }
         );
@@ -174,7 +178,8 @@ trait PatientView
     public function ethnic_group()
     {
         $elements = array_filter(
-            $this->patient->dataElements, function ($de) {
+            $this->patient->dataElements,
+            function ($de) {
                 return $de->_type == "QDM::PatientCharacteristicEthnicity";
             }
         );
@@ -190,7 +195,8 @@ trait PatientView
     public function payer()
     {
         $elements = array_filter(
-            $this->patient->dataElements, function ($de) {
+            $this->patient->dataElements,
+            function ($de) {
                 return $de->_type == "QDM::PatientCharacteristicPayer";
             }
         );

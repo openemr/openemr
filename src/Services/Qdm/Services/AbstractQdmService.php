@@ -133,7 +133,8 @@ abstract class AbstractQdmService
 
         $codeModel = null;
 
-        if (!empty($code) 
+        if (
+            !empty($code)
             && !empty($system)
         ) {
             $codeModel = new Code(

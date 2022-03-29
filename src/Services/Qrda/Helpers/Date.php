@@ -191,7 +191,8 @@ trait Date
 
     private function to_formatted_s_number($dateTime)
     {
-        if (empty($dateTime) 
+        if (
+            empty($dateTime)
             || !($dateTime instanceof \DateTime)
         ) {
             return 0;

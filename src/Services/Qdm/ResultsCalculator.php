@@ -1,4 +1,5 @@
 <?php
+
 /**
  * // @see projectcypress/cypress lib/cypress/expected_results_calculator.rb
  *
@@ -76,7 +77,8 @@ class ResultsCalculator
         $population_set_keys = array_map(
             function ($ps) use ($measure) {
                 return $measure->key_for_population_set($ps);
-            }, $measure->population_sets_and_stratifications_for_measure()
+            },
+            $measure->population_sets_and_stratifications_for_measure()
         );
         foreach ($population_set_keys as $psk) {
             $this->measure_result_hash[$measure->hqmf_id][$psk] = [];
@@ -140,7 +142,8 @@ class ResultsCalculator
                 }
                 $this->measure_result_hash[$measure->hqmf_id][$key][$pop] += $individual_result->$pop;
                 $this->increment_sup_info(
-                    $this->patient_sup_map[$individual_result->patient_id->value], $pop,
+                    $this->patient_sup_map[$individual_result->patient_id->value],
+                    $pop,
                     $this->measure_result_hash[$measure->hqmf_id][$key]
                 );
             }
@@ -261,18 +264,18 @@ class ResultsCalculator
             $value = 0;
             $array_values = array_values($observation_map);
             switch ($observation['aggregation_type']) {
-            case 'COUNT':
-                // original projectcypress algorithm still counted null values.  Is that correct?
-                $value = $this->count($array_values);
-                break;
-            case 'MEDIAN':
-                // remove any values that are null
-                $value = $this->median($array_values);
-                break;
-            case 'SUM':
-                // only sum up non-null values, then we reduce the array by summing up each value
-                $value = $this->sum($array_values);
-                break;
+                case 'COUNT':
+                    // original projectcypress algorithm still counted null values.  Is that correct?
+                    $value = $this->count($array_values);
+                    break;
+                case 'MEDIAN':
+                    // remove any values that are null
+                    $value = $this->median($array_values);
+                    break;
+                case 'SUM':
+                    // only sum up non-null values, then we reduce the array by summing up each value
+                    $value = $this->sum($array_values);
+                    break;
             }
             $this->measure_result_hash[$measure->hqmf_id][$key]['observations'][$population] = [
                 'value' => $value
@@ -314,7 +317,6 @@ class ResultsCalculator
          * end
          * end
          */
-
     }
 
     private function count(array $arr)
@@ -335,9 +337,11 @@ class ResultsCalculator
     private function sum(array $arr)
     {
         return array_reduce(
-            $this->filter_null_values($arr), function ($sum, $item) {
+            $this->filter_null_values($arr),
+            function ($sum, $item) {
                 return $sum + $item;
-            }, 0
+            },
+            0
         );
 
         /*

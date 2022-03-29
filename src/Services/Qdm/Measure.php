@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Services\Qdm;
-
 
 use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
 use OpenEMR\Cqm\Qdm\Identifier;
@@ -88,8 +88,7 @@ class Measure extends AbstractType
         $this->_measure = $measure;
         $this->population_sets  = [];
         if ($measure['population_sets']) {
-            foreach ($measure['population_sets'] as $population_set)
-            {
+            foreach ($measure['population_sets'] as $population_set) {
                 $this->population_sets[] = new PopulationSet($population_set);
             }
         }
@@ -99,8 +98,7 @@ class Measure extends AbstractType
     {
         $hashIdsSeen = [];
         $population_set_array = [];
-        foreach ($this->population_sets as $population_set)
-        {
+        foreach ($this->population_sets as $population_set) {
             // got a duplicate population set so we skip
             // we do it this way since we can't compare object references like ruby include? can do.
             if (!empty($hashIdsSeen[$population_set->population_set_id])) {
@@ -112,8 +110,7 @@ class Measure extends AbstractType
             $hashIdsSeen[$population_set->population_set_id] = $population_set->population_set_id;
 
             $population_set_array[] = $population_set_hash;
-            foreach ($population_set->stratifications as $stratification)
-            {
+            foreach ($population_set->stratifications as $stratification) {
                 $population_set_stratification_hash = [
                     'population_set_id' => $population_set->population_set_id
                     // TODO: change this if we move stratification to an object
@@ -149,12 +146,11 @@ class Measure extends AbstractType
      * @param  string $population_set_key
      * @return PopulationSet[]
      */
-    public function population_set_for_key(string $population_set_key) : ?array
+    public function population_set_for_key(string $population_set_key): ?array
     {
         $ps_hash = $this->population_sets_and_stratifications_for_measure();
         $ps_hash_keep = [];
-        foreach ($ps_hash as $ps)
-        {
+        foreach ($ps_hash as $ps) {
             if ($ps['population_set_id'] == $population_set_key || $ps['stratification_id'] == $population_set_key) {
                 $ps_hash_keep[] = $ps;
             }
@@ -187,7 +183,8 @@ class Measure extends AbstractType
     {
         $population_set_hash = $this->population_sets_and_stratifications_for_measure();
         $filtered_set_hash = array_filter(
-            $population_set_hash, function ($ps) use ($population_set_key) {
+            $population_set_hash,
+            function ($ps) use ($population_set_key) {
                 $set_id = $ps['population_set_id'] ?? null;
                 $strat_id = $ps['stratification_id'] ?? null;
                 return $set_id == $population_set_key || $strat_id == $population_set_key;
@@ -222,8 +219,7 @@ class Measure extends AbstractType
         $popKeys = [];
         $keys = ["IPP", "DENOM", "NUMER", "NUMEX", "DENEX", "DENEXCEP", "MSRPOPL", "MSRPOPLEX"];
         foreach ($keys as $pop) {
-            foreach ($this->population_sets as $ps)
-            {
+            foreach ($this->population_sets as $ps) {
                 if (!empty($ps->populations[$pop]['hqmf_id'])) {
                     $popKeys[] = $pop;
                     break;
@@ -244,5 +240,4 @@ class Measure extends AbstractType
         // get our populated measure if we have one or return the json.
         return $this->_measure || $this->jsonSerialize();
     }
-
 }

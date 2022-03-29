@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -9,10 +10,8 @@
 
 namespace OpenEMR\Services\Qrda\Helpers;
 
-
 trait AggregateObject
 {
-
 }
 
 /*

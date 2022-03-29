@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file was adapted from the following file: https://github.com/projectcypress/cypress/blob/v6.2.2.1/lib/ext/individual_result.rb
  * But I believe it should rather be adapted from this project: https://github.com/projecttacoma/cqm-models/blob/master/app/models/cqm/individual_result.rb
@@ -11,7 +12,6 @@
  */
 
 namespace OpenEMR\Services\Qdm;
-
 
 use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
 use OpenEMR\Cqm\Qdm\Identifier;
@@ -143,7 +143,8 @@ class IndividualResult extends AbstractType
         $observation_statements = array_map(
             function ($obs) {
                 return $obs['observation_parameter']['statement_name'];
-            }, $this->population_set->observations
+            },
+            $this->population_set->observations
         );
         // collect the observation_values from and individual_result
         // a scenario with multiple episodes and multiple observations would look like this [[2], [9, 1]]

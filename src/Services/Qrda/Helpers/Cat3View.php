@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenEMR\Services\Qrda\Helpers;
-
 
 trait Cat3View
 {
@@ -76,24 +74,24 @@ trait Cat3View
          */
     }
 
-    public function supplemental_template_ids(\Mustache_Context $context) :array
+    public function supplemental_template_ids(\Mustache_Context $context): array
     {
         $type = $context->find('type');
         switch ($type) {
-        case 'RACE':
-            return [
+            case 'RACE':
+                return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.8', 'extension' => '2016-09-01']
                 ];
-        case 'ETHNICITY':
-            return [
+            case 'ETHNICITY':
+                return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.7', 'extension' => '2016-09-01']
                 ];
-        case 'SEX':
-            return [
+            case 'SEX':
+                return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.6', 'extension' => '2016-09-01']
                 ];
-        case 'PAYER':
-            return [
+            case 'PAYER':
+                return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.9', 'extension' => '2016-02-01'],
                     ['tid' => '2.16.840.1.113883.10.20.27.3.18', 'extension' => '2018-05-01']
                 ];
@@ -115,7 +113,7 @@ trait Cat3View
          */
     }
 
-    public function cms_payer_code(\Mustache_Context $context) : string
+    public function cms_payer_code(\Mustache_Context $context): string
     {
         $code = $context->find('code');
         if ($code[0] && isset(Cat3View::$PAYER_MAP[$code[0]])) {
@@ -130,7 +128,7 @@ trait Cat3View
          */
     }
 
-    public function payer_code(\Mustache_Context $context) : bool
+    public function payer_code(\Mustache_Context $context): bool
     {
         $type = $context->find('type');
         return $type == 'PAYER';
@@ -141,24 +139,24 @@ trait Cat3View
          */
     }
 
-    public function supplemental_data_code(\Mustache_Context $context) : array
+    public function supplemental_data_code(\Mustache_Context $context): array
     {
         $type = $context->find('type');
         switch ($type) {
-        case 'RACE':
-            return [
+            case 'RACE':
+                return [
                     [ "supplemental_data_code" => '72826-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
                 ];
-        case 'ETHNICITY':
-            return [
+            case 'ETHNICITY':
+                return [
                     [ "supplemental_data_code" => '69490-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
                 ];
-        case 'SEX':
-            return [
+            case 'SEX':
+                return [
                     [ "supplemental_data_code" => '76689-9', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
                 ];
-        case 'PAYER':
-            return [
+            case 'PAYER':
+                return [
                     ["supplemental_data_code" => '48768-6', "supplemental_data_code_system" => '2.16.840.1.113883.6.1']
                 ];
         }
@@ -178,18 +176,18 @@ trait Cat3View
          */
     }
 
-    public function supplemental_data_value_code_system(\Mustache_Context $context) : string
+    public function supplemental_data_value_code_system(\Mustache_Context $context): string
     {
         $type = $context->find('type');
         switch ($type) {
-        case 'RACE':
-            return '2.16.840.1.113883.6.238';
-        case 'ETHNICITY':
-            return '2.16.840.1.113883.6.238';
-        case 'SEX':
-            return '2.16.840.1.113883.5.1';
-        case 'PAYER':
-            return '2.16.840.1.113883.3.221.5';
+            case 'RACE':
+                return '2.16.840.1.113883.6.238';
+            case 'ETHNICITY':
+                return '2.16.840.1.113883.6.238';
+            case 'SEX':
+                return '2.16.840.1.113883.5.1';
+            case 'PAYER':
+                return '2.16.840.1.113883.3.221.5';
         }
         /**
         def supplemental_data_value_code_system
@@ -207,7 +205,7 @@ trait Cat3View
          */
     }
 
-    public function unknown_supplemental_value(\Mustache_Context $context) :bool
+    public function unknown_supplemental_value(\Mustache_Context $context): bool
     {
         $code = $context->find('code');
         return $code == "" || $code == "UNK";
@@ -254,5 +252,4 @@ trait Cat3View
         end
          */
     }
-
 }
