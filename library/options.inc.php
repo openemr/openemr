@@ -1679,9 +1679,9 @@ function generate_form_field($frow, $currvalue)
         $res = $encounterService->getEncountersForPatientByPid($pid);
         echo "<div class='input-group w-75'>";
         echo "<select name='form_$field_id_esc'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform select-encounters'>";
-        echo "<option value=''>" . xl("Select Encounter") . "</option>";
+        echo "<option value=''>" . xlt("Select Encounter") . "</option>";
         foreach ($res as $row) {
-            $label = date("Y-m-d", strtotime($row['date']))  . " " . ($row['pc_catname'] ?? '');
+            $label = text(date("Y-m-d", strtotime($row['date']))  . " " . ($row['pc_catname'] ?? ''));
             $optionId = attr($row['eid']);
             // all names always selected
             if ($currvalue == $row['eid']) {
@@ -2883,12 +2883,15 @@ function generate_display_field($frow, $currvalue)
             }
             $i++;
         }
+        // now that we've concatenated everything, let's escape it.
+        $s = text($s);
     } elseif ($data_type == 53) {
         $service = new EncounterService();
         if (!empty($currvalue)) {
-            $encounter = $service->getEncounterById($currvalue);
-            if (!empty($encounter)) {
-                $s = $row['date'] ?? '';
+            $encounterResult = $service->getEncounterById($currvalue);
+            if (!empty($encounterResult) && $encounterResult->hasData()) {
+                $encounter = reset($encounterResult->getData());
+                $s = text($encounter['date'] ?? '');
             }
         }
     }
