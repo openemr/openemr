@@ -13,7 +13,7 @@ use Particle\Validator\Validator;
  * @copyright Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class InsuranceValidator extends BaseValidator
+class InsuranceCompanyValidator extends BaseValidator
 {
     /**
      * Configures validations for the Insurance Company DB Insert and Update use-case.
