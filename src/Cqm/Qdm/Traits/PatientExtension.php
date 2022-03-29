@@ -1,13 +1,28 @@
 <?php
+/**
+ * @package OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ */
 
 namespace OpenEMR\Cqm\Qdm\Traits;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\Address;
+use OpenEMR\Cqm\Qdm\BaseTypes\Telcom;
+use OpenEMR\Cqm\Qdm\Identifier;
+
 trait PatientExtension
 {
+    public $patientName;
+
     /**
-     * @Identifier
+     * @var Identifier
      */
     public $id;
+    public $addresses = [];
+    public $telcoms = [];
 
     // These are the "data criteria", or QDM datatype elements that exist on a
     // patient.
@@ -64,5 +79,15 @@ trait PatientExtension
     public function conditions()
     {
         return $this->get_data_elements('conditions');
+    }
+
+    public function addAddress(Address $address)
+    {
+        $this->addresses[] = $address;
+    }
+
+    public function addTelcom(Telcom $telcom)
+    {
+        $this->telcoms[]= $telcom;
     }
 }

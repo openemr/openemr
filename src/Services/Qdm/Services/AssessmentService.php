@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -35,22 +35,28 @@ class AssessmentService extends AbstractQdmService implements QdmServiceInterfac
     /**
      * Map an OpenEMR record into a QDM model
      *
-     * @param array $record
+     * @param  array $record
      * @return Diagnosis|null
      * @throws \Exception
      */
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new AssessmentPerformed([
-            'relevantDatetime' => new DateTime([
+        $qdmModel = new AssessmentPerformed(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
-            'authorDatetime' => new DateTime([
+                ]
+            ),
+            'authorDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
+                ]
+            ),
             'result' => $this->makeQdmCode($record['ob_code']),
             'negationRationale' => $this->makeQdmCode($record['ob_reason_code'])
-        ]);
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['code']);
         foreach ($codes as $code) {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -25,13 +25,22 @@ abstract class AbstractQdmService
      * because we want to pass in a standard set of dependencies.
      *
      * AbstractQdmService constructor.
+     *
      * @param QdmRequestInterface $request
-     * @param CodeTypesService $codeTypesService
+     * @param CodeTypesService    $codeTypesService
      */
     final public function __construct(QdmRequestInterface $request, CodeTypesService $codeTypesService)
     {
         $this->request = $request;
         $this->codeTypesService = $codeTypesService;
+    }
+
+    public function validDateOrNull($date)
+    {
+        if ($date == '0000-00-00') {
+            return null;
+        }
+        return $date;
     }
 
     public function getPatientIdColumn()
@@ -102,7 +111,7 @@ abstract class AbstractQdmService
      * Convert a code formatted in openEMR database style, ie: system:code
      * to a QDM Object
      *
-     * @param $openEmrCode
+     * @param  $openEmrCode
      * @return Code|null
      * @throws \Exception
      */
@@ -125,13 +134,15 @@ abstract class AbstractQdmService
         $codeModel = null;
 
         if (
-            !empty($code) &&
-            !empty($system)
+            !empty($code)
+            && !empty($system)
         ) {
-            $codeModel = new Code([
+            $codeModel = new Code(
+                [
                 'code' => $code,
                 'system' => $this->getSystemForCodeType($system)
-            ]);
+                ]
+            );
         }
 
         return $codeModel;
@@ -143,7 +154,7 @@ abstract class AbstractQdmService
      * For issues that have multiple diagnosis coded, they are semicolon-separated
      * explode() will return an array containing the individual diagnosis if there is no semicolon.
      *
-     * @param $openEmrMultiCode
+     * @param  $openEmrMultiCode
      * @return array
      */
     public function explodeAndMakeCodeArray($openEmrMultiCode)

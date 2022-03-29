@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -30,19 +30,29 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
 
     public function makeQdmModel(array $record)
     {
-        $model = new ImmunizationAdministered([
-            'relevantDatetime' => new DateTime([
+        $model = new ImmunizationAdministered(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['administered_date']
-            ]),
-            'authorDatetime' => new DateTime([
+                ]
+            ),
+            'authorDatetime' => new DateTime(
+                [
                 'date' => $record['administered_date']
-            ]),
-        ]);
+                ]
+            ),
+            ]
+        );
 
-        $model->addCode(new Code([
-            'code' => $record['cvx_code'],
-            'system' => $this->getSystemForCodeType('CVX')
-        ]));
+        $model->addCode(
+            new Code(
+                [
+                'code' => $record['cvx_code'],
+                'system' => $this->getSystemForCodeType('CVX')
+                ]
+            )
+        );
 
         return $model;
     }

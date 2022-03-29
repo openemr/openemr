@@ -1,5 +1,5 @@
 {{#populations}}
-{{#not_observ?}}
+{{#not_observ}}
 <component>
   <!--   MEASURE DATA REPORTING FOR    <%= population.type %>  <%= population.id %>  -->
   <observation classCode="OBS" moodCode="EVN">
@@ -37,5 +37,5 @@
     </reference>
   </observation>
 </component>
-{{/not_observ?}}
+{{/not_observ}}
 {{/populations}}
