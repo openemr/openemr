@@ -3723,7 +3723,7 @@ function build_IMPPLAN_items($pid, $form_id)
         $i++;
     }
 
-    return $IMPPLAN_items ?? '';
+    return $IMPPLAN_items;
 }
 
             /**
@@ -3988,7 +3988,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             } ?>
                         </ul>
                     </li>
-               
+
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true"><?php echo xlt("View"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
@@ -4124,7 +4124,7 @@ function menu_overhaul_left($pid, $encounter)
                 ?>
                 <object><embed
                             src="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture"
-                            
+
                             Xsrc="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&amp;retrieve&amp;patient_id=<?php echo attr($pid); ?>&amp;document_id=<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['id']); ?>&amp;as_file=false" frameborder="0"
                      type="<?php echo attr($documents['docs_in_name']['Patient Photograph'][0]['mimetype']); ?>" allowscriptaccess="always" allowfullscreen="false" height="100"></embed></object>
                 <?php
