@@ -23,18 +23,7 @@ class ExampleE2eTest extends PantherTestCase
     public function check_openEmr_login_page(): void
     {
         // ok - PantherClient
-        $client = static::createPantherClient(
-            ['external_base_uri' => $this->e2eBaseUrl],
-            [],
-            [
-                'chromedriver_arguments' => [
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--window-size=1920,1080',
-                ],
-            ]
-        );
+        $client = static::createPantherClient(['external_base_uri' => $this->e2eBaseUrl]);
         // ok - GoutteClient -> Goutte is not installed. Run "composer req fabpot/goutte".
         //$goutteClient = static::createGoutteClient();
         // ok ChromeClient
@@ -65,18 +54,7 @@ class ExampleE2eTest extends PantherTestCase
     {
         $openEmrPage = 'http://localhost';
         // ok - PantherClient
-        $client = static::createPantherClient(
-            ['external_base_uri' => $openEmrPage],
-            [],
-            [
-                'chromedriver_arguments' => [
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--window-size=1920,1080',
-                ],
-            ]
-        );
+        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
         $crawler = $client->request('GET', '/interface/login/login.php?site=default');
 
         $form = $crawler->filter('#login_form')->form();
@@ -92,18 +70,7 @@ class ExampleE2eTest extends PantherTestCase
     {
         $openEmrPage = 'http://localhost';
         // ok - PantherClient
-        $client = static::createPantherClient(
-            ['external_base_uri' => $openEmrPage],
-            [],
-            [
-                'chromedriver_arguments' => [
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--window-size=1920,1080',
-                ],
-            ]
-        );
+        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
         $crawler = $client->request('GET', '/interface/login/login.php?site=default');
 
         $form = $crawler->filter('#login_form')->form();

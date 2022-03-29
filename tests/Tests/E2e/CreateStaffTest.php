@@ -31,18 +31,7 @@ class CreateStaffTest extends PantherTestCase
     public function check_add_user(): void
     {
         $openEmrPage = $this->e2eBaseUrl;
-        $client = static::createPantherClient(
-            ['external_base_uri' => $openEmrPage],
-            [],
-            [
-                'chromedriver_arguments' => [
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--window-size=1920,1080',
-                ],
-            ]
-        );
+        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
         $lp = new LoginPage($client, $this);
         $mp = $lp->login('admin', 'pass');
 
