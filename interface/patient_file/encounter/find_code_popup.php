@@ -177,7 +177,7 @@ $focus = "document.theform.search_term.select();";
                     <tbody>
                     <?php
                     $search_term = $_REQUEST['search_term'];
-                    $res = main_code_set_search($form_code_type, $search_term);
+                    $res = main_code_set_search($allowed_codes, $search_term);
                     if ($form_code_type == 'PROD') {
                         // Special case that displays search for products/drugs
                         while ($row = sqlFetchArray($res)) {

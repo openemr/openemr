@@ -944,7 +944,7 @@ function getCodeText($code)
                             <?php } ?>
                         </div>
 
-                        <?php if ($irow['type'] == 'medication') : ?>
+                        <?php if (($irow['type'] ?? '') == 'medication') : ?>
                             <!-- any medication specific issue information goes here -->
                             <?php include "add_edit_issue_medication_fragment.php"; ?>
                         <?php endif; ?>
