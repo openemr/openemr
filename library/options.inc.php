@@ -46,6 +46,8 @@
 
 // note: isOption() returns true/false
 
+// NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
+
 require_once("user.inc");
 require_once("patient.inc");
 require_once("lists.inc");
@@ -53,6 +55,7 @@ require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 
@@ -1669,6 +1672,25 @@ function generate_form_field($frow, $currvalue)
         }
         echo "</select>";
         echo "<button type='button' class='btn btn-primary btn-sm' id='type_52_add' onclick='return specialtyFormDialog()'>" . xlt('Add') . "</button></div>";
+    // Patient Encounter List Field
+    } else if ($data_type == 53) {
+        global $pid;
+        $encounterService = new EncounterService();
+        $res = $encounterService->getEncountersForPatientByPid($pid);
+        echo "<div class='input-group w-75'>";
+        echo "<select name='form_$field_id_esc'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform select-encounters'>";
+        echo "<option value=''>" . xlt("Select Encounter") . "</option>";
+        foreach ($res as $row) {
+            $label = text(date("Y-m-d", strtotime($row['date']))  . " " . ($row['pc_catname'] ?? ''));
+            $optionId = attr($row['eid']);
+            // all names always selected
+            if ($currvalue == $row['eid']) {
+                echo "<option value='$optionId'" . " selected>$label</option>";
+            } else {
+                echo "<option value='$optionId'>$label</option>";
+            }
+        }
+        echo "</select>";
     }
 }
 
@@ -2860,6 +2882,17 @@ function generate_display_field($frow, $currvalue)
                 $s = $row['formatted_name'] ?? '';
             }
             $i++;
+        }
+        // now that we've concatenated everything, let's escape it.
+        $s = text($s);
+    } elseif ($data_type == 53) {
+        $service = new EncounterService();
+        if (!empty($currvalue)) {
+            $encounterResult = $service->getEncounterById($currvalue);
+            if (!empty($encounterResult) && $encounterResult->hasData()) {
+                $encounter = reset($encounterResult->getData());
+                $s = text($encounter['date'] ?? '');
+            }
         }
     }
 
