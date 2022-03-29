@@ -20,15 +20,24 @@
  * @package OpenEMR
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author Discover and Change, Inc. <snielson@discoverandchange.com>
  * @link    http://www.open-emr.org
  */
 
+require_once(dirname(__FILE__) . "/../../library/RsFilterIF.php");
 require_once('AmcFilterIF.php');
 require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
 require_once(dirname(__FILE__) . "/../../../../amc.php");
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
+use OpenEMR\Reports\AMC\Trackers\AMCItemSkipTracker;
+
 abstract class AbstractAmcReport implements RsReportIF
 {
+    /**
+     * @var AmcPopulation Patient Population
+     */
     protected $_amcPopulation;
 
     protected $_resultsArray = array();
@@ -40,9 +49,21 @@ abstract class AbstractAmcReport implements RsReportIF
 
     protected $_manualLabNumber;
 
+    /**
+     * @var AMCItemTracker
+     */
+    protected $_aggregator;
+
+    /**
+     * @var SystemLogger
+     */
+    private $logger;
+
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options)
     {
         // require all .php files in the report's sub-folder
+        // TODO: This really needs to be moved to using our namespace autoloader... no point in doing a file stat check
+        // for every single rule we have, over and over again every time the rule is instantiated.
         $className = get_class($this);
         foreach (glob(dirname(__FILE__) . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
@@ -65,11 +86,28 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_beginMeasurement = $dateTarget['dateBegin'];
         $this->_endMeasurement = $dateTarget['dateTarget'];
         $this->_manualLabNumber = $options['labs_manual'];
+        if (isset($GLOBALS['report_itemizing_temp_flag_and_id']) && $GLOBALS['report_itemizing_temp_flag_and_id']) {
+            $this->_aggregator = $options['aggregator'] ?? new AMCItemTracker();
+        } else {
+            $this->_aggregator = new AMCItemSkipTracker();
+        }
+        $this->logger = new SystemLogger();
+        $this->logger->debug(get_class($this) . "->__construct() finished", ['patients' => $patientIdArray]);
+    }
+
+    public function getPatientPopulation(): AmcPopulation
+    {
+        return $this->_amcPopulation;
     }
 
     abstract public function createNumerator();
     abstract public function createDenominator();
     abstract public function getObjectToCount();
+
+    public function getAggregator()
+    {
+        return $this->_aggregator;
+    }
 
     public function getResults()
     {
@@ -78,6 +116,8 @@ abstract class AbstractAmcReport implements RsReportIF
 
     public function execute()
     {
+
+        $this->logger->debug(get_class($this) . "->execute() starting function");
 
         // If itemization is turned on, then iterate the rule id iterator
         //
@@ -106,6 +146,8 @@ abstract class AbstractAmcReport implements RsReportIF
         if (empty($object_to_count)) {
             $object_to_count = "patients";
         }
+
+        $this->logger->debug(get_class($this) . "->execute()", ['totalPatients' => $totalPatients, 'object_to_count' => $object_to_count]);
 
         $numeratorObjects = 0;
         $denominatorObjects = 0;
@@ -143,53 +185,66 @@ abstract class AbstractAmcReport implements RsReportIF
             }
 
             // Count Numerators
+            $pass = 0;
             if ($object_to_count == "patients") {
                 // Counting patients
-                if (!$numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
-                    // If itemization is turned on, then record the "failed" item
-                    if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                        insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id);
-                    }
-
-                    continue;
-                } else {
+                if ($numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                     $numeratorObjects++;
-
-                    // If itemization is turned on, then record the "passed" item
-                    if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                        insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id);
-                    }
+                    $pass = 1;
                 }
+                // If itemization is turned on, then record the "passed" item
+                $this->_aggregator->addItem(
+                    $GLOBALS['report_itemizing_temp_flag_and_id'],
+                    $GLOBALS['report_itemized_test_id_iterator'],
+                    $this->_ruleId,
+                    $tempBeginMeasurement,
+                    $this->_endMeasurement,
+                    $pass,
+                    $patient->id,
+                    $object_to_count
+                );
             } else {
                 // Counting objects other than patients
                 //   test each object that passed the above denominator testing
                 foreach ($objects_pass as $object) {
+                    $pass = 0;
                     $patient->object = $object;
                     if ($numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                         $numeratorObjects++;
-
-                        // If itemization is turned on, then record the "passed" item
-                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id);
-                        }
-                    } else {
-                        // If itemization is turned on, then record the "failed" item
-                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id);
-                        }
+                        $pass = 1;
                     }
+                    $this->_aggregator->addItem(
+                        $GLOBALS['report_itemizing_temp_flag_and_id'],
+                        $GLOBALS['report_itemized_test_id_iterator'],
+                        $this->_ruleId,
+                        $tempBeginMeasurement,
+                        $this->_endMeasurement,
+                        $pass,
+                        $patient->id,
+                        $object_to_count
+                    );
                 }
             }
+            $this->logger->debug(
+                get_class($this) . "->execute() patient processed",
+                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
+            );
         }
 
         // Deal with the manually added labs for the electronic labs AMC measure
         if ($object_to_count == "labs") {
+            // not sure how we account for individual reporting here.
             $denominatorObjects = $denominatorObjects + $this->_manualLabNumber;
+            $this->logger->debug(
+                get_class($this) . "->execute() manual labs processed",
+                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
+            );
         }
 
         $percentage = calculate_percentage($denominatorObjects, 0, $numeratorObjects);
         $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
-        $this->_resultsArray[] = $result;
+        $this->_resultsArray[] = &$result;
+        $this->logger->debug(get_class($this) . "->execute() leaving rule");
     }
 
     private function collectObjects($patient, $object_label, $begin, $end)
