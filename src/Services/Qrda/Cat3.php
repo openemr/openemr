@@ -30,7 +30,7 @@ class Cat3 extends \Mustache_Engine
         'catIII';
 
     // master branch qrda-reports uses this updated mustache template
-//    protected $template = 'qrda3.mustache';
+    //    protected $template = 'qrda3.mustache';
 
     // version 3.1.8 of qrda-reports uses this template which is what the latest Cypress version uses.
     protected $template = 'qrda3_r21.mustache';
@@ -57,8 +57,7 @@ class Cat3 extends \Mustache_Engine
 
         // Initialize our measure results data structure
         foreach ($this->measures as $measure) {
-            if (!$measure instanceof Measure)
-            {
+            if (!$measure instanceof Measure) {
                 throw new \InvalidArgumentException("Passed in measure must be of type " . Measure::class);
             }
             $this->measure_result_hash[$measure->hqmf_id] = [
@@ -116,11 +115,10 @@ class Cat3 extends \Mustache_Engine
     {
         return $this->submission_program == 'CPCPLUS';
         /**
-
         def cpcplus?
+         *
         @submission_program == 'CPCPLUS'
         end
-
          */
     }
 
@@ -128,11 +126,10 @@ class Cat3 extends \Mustache_Engine
     {
         return $this->ry2022_submission;
         /**
-
         def ry2022_submission?
+         *
         @ry2022_submission
         end
-
          */
     }
 }

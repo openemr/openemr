@@ -1,6 +1,6 @@
 <?php
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -12,7 +12,7 @@ namespace OpenEMR\Services\Qrda\Util;
 class DateHelper
 {
     /**
-     * @param $datetime
+     * @param  $datetime
      * @return false|string
      *
      * For the JSON that gets passed to cqm-execution, this is the datetime format
@@ -23,7 +23,7 @@ class DateHelper
     }
 
     /**
-     * @param $datetime
+     * @param  $datetime
      * @return false|string
      *
      * For QRDA XML exports, this is the datetime format

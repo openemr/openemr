@@ -1,7 +1,8 @@
 <?php
 /**
  * // @see projectcypress/cypress lib/cypress/expected_results_calculator.rb
- * @package OpenEMR
+ *
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -23,14 +24,14 @@ class ResultsCalculator
     protected $measure_result_hash;
     protected $effective_date;
 
-    # @param [Array] patients the list of patients that are included in the aggregate results
-    # @param [String] correlation_id the id used to associate a group of patients
-    # @param [String] effective_date used when generating the query_cache_object for HDS QRDA Cat III export
-    # @param [Hash] options :individual_results are the raw results from CqmExecutionCalc
+    // @param [Array] patients the list of patients that are included in the aggregate results
+    // @param [String] correlation_id the id used to associate a group of patients
+    // @param [String] effective_date used when generating the query_cache_object for HDS QRDA Cat III export
+    // @param [Hash] options :individual_results are the raw results from CqmExecutionCalc
     public function __construct(array $patients, $correlation_id, $effective_date)
     {
         $this->correlation_id = $correlation_id;
-        # Hash of patient_id and their supplemental information
+        // Hash of patient_id and their supplemental information
         $this->patient_sup_map = [];
         $this->measure_result_hash = [];
         $this->effective_date = $effective_date;
@@ -72,9 +73,11 @@ class ResultsCalculator
         end
          */
         $this->measure_result_hash[$measure->hqmf_id] = [];
-        $population_set_keys = array_map(function ($ps) use ($measure) {
-            return $measure->key_for_population_set($ps);
-        }, $measure->population_sets_and_stratifications_for_measure());
+        $population_set_keys = array_map(
+            function ($ps) use ($measure) {
+                return $measure->key_for_population_set($ps);
+            }, $measure->population_sets_and_stratifications_for_measure()
+        );
         foreach ($population_set_keys as $psk) {
             $this->measure_result_hash[$measure->hqmf_id][$psk] = [];
             foreach ($measure->population_keys() as $pop_key) {
@@ -86,8 +89,8 @@ class ResultsCalculator
     }
 
     /**
-     * @param array $measures
-     * @param array $individual_results
+     * @param  array $measures
+     * @param  array $individual_results
      * @return mixed
      *
      * Ported from Ryby
@@ -102,7 +105,7 @@ class ResultsCalculator
             }
             $this->prepopulate_measure_result_hash($measure);
             $measure_individual_results = null;
-            # If individual_results are provided, use the results for the measure being aggregated
+            // If individual_results are provided, use the results for the measure being aggregated
             foreach ($individual_results as $measureId => $results) {
                 if ($measureId == $measure->hqmf_id) {
                     $measure_individual_results = $results;
@@ -110,7 +113,7 @@ class ResultsCalculator
                 }
             }
 
-            # If individual_results are provided, use them.  Otherwise, look them up in the database by measure id and correlation_id
+            // If individual_results are provided, use them.  Otherwise, look them up in the database by measure id and correlation_id
             // TODO not storing results in DB
             // measure_individual_results ||= CQM::IndividualResult.where('measure_id' => measure._id, correlation_id: @correlation_id)
 
@@ -136,8 +139,10 @@ class ResultsCalculator
                     continue;
                 }
                 $this->measure_result_hash[$measure->hqmf_id][$key][$pop] += $individual_result->$pop;
-                $this->increment_sup_info($this->patient_sup_map[$individual_result->patient_id->value], $pop
-                    , $this->measure_result_hash[$measure->hqmf_id][$key]);
+                $this->increment_sup_info(
+                    $this->patient_sup_map[$individual_result->patient_id->value], $pop,
+                    $this->measure_result_hash[$measure->hqmf_id][$key]
+                );
             }
 
             if (empty($individual_result->episode_results)) {
@@ -256,18 +261,18 @@ class ResultsCalculator
             $value = 0;
             $array_values = array_values($observation_map);
             switch ($observation['aggregation_type']) {
-                case 'COUNT':
-                    // original projectcypress algorithm still counted null values.  Is that correct?
-                    $value = $this->count($array_values);
-                    break;
-                case 'MEDIAN':
-                    // remove any values that are null
-                    $value = $this->median($array_values);
-                    break;
-                case 'SUM':
-                    // only sum up non-null values, then we reduce the array by summing up each value
-                    $value = $this->sum($array_values);
-                    break;
+            case 'COUNT':
+                // original projectcypress algorithm still counted null values.  Is that correct?
+                $value = $this->count($array_values);
+                break;
+            case 'MEDIAN':
+                // remove any values that are null
+                $value = $this->median($array_values);
+                break;
+            case 'SUM':
+                // only sum up non-null values, then we reduce the array by summing up each value
+                $value = $this->sum($array_values);
+                break;
             }
             $this->measure_result_hash[$measure->hqmf_id][$key]['observations'][$population] = [
                 'value' => $value
@@ -295,6 +300,7 @@ class ResultsCalculator
          * # https://www.hl7.org/documentcenter/public/standards/vocabulary/vocabulary_tables/infrastructure/vocabulary/ObservationMethod.html#_ObservationMethodAggregate
          * case observation.aggregation_type
          * when 'COUNT'
+         *
          * @measure_result_hash[measure.hqmf_id][key]['observations'][population] = { value: count(observation_map[:values].map(&:value)),
          * method: 'COUNT', hqmf_id: observation.hqmf_id }
          * when 'MEDIAN'
@@ -328,9 +334,11 @@ class ResultsCalculator
 
     private function sum(array $arr)
     {
-        return array_reduce($this->filter_null_values($arr), function ($sum, $item) {
-            return $sum + $item;
-        }, 0);
+        return array_reduce(
+            $this->filter_null_values($arr), function ($sum, $item) {
+                return $sum + $item;
+            }, 0
+        );
 
         /*
          *     def sum(array)
@@ -357,19 +365,19 @@ class ResultsCalculator
         return $value;
         /*
          *
-    def mean(array)
-      return 0.0 if array.empty?
+        def mean(array)
+        return 0.0 if array.empty?
 
-      array.inject(0.0) { |sum, elem| sum + elem } / array.size
-    end
+        array.inject(0.0) { |sum, elem| sum + elem } / array.size
+        end
 
-    def median(array, already_sorted: false)
-      return 0.0 if array.empty?
+        def median(array, already_sorted: false)
+        return 0.0 if array.empty?
 
-      array = array.sort unless already_sorted
-      m_pos = array.size / 2
-      array.size.odd? ? array[m_pos] : mean(array[m_pos - 1..m_pos])
-    end
+        array = array.sort unless already_sorted
+        m_pos = array.size / 2
+        array.size.odd? ? array[m_pos] : mean(array[m_pos - 1..m_pos])
+        end
          */
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -66,8 +66,9 @@ trait PopulationSelectors
         //          end
         $found = 0;
         foreach ($this->populations as $population) {
-            if ($population->type == $population_type &&
-            $population->id == $population_id) {
+            if ($population->type == $population_type 
+                && $population->id == $population_id
+            ) {
                 $found = $population->value;
                 break;
             }
@@ -88,28 +89,28 @@ trait PopulationSelectors
 
     // TODO how are these implemented?
 
-//        def method_missing(method, *args, &block)
-//          match_data = method.to_s.match(/^(.+)_count$/)
-//          if match_data
-//            population = send(match_data[1])
-//            if population
-//              population.value
-//            else
-//              0
-//            end
-//          else
-//            super
-//          end
-//        end
-//
-//        def respond_to_missing?(method, *args)
-//          match_data = method.to_s.match(/^(.+)_count$/)
-//          !match_data.nil? or super
-//        end
-//
-//        # Returns true if there is more than one IPP or DENOM, etc.
-//        def multiple_population_types?
-//          population_groups = populations.group_by(&:type)
-//          population_groups.values.any? { |pops| pops.size > 1 }
-//        end
+    //        def method_missing(method, *args, &block)
+    //          match_data = method.to_s.match(/^(.+)_count$/)
+    //          if match_data
+    //            population = send(match_data[1])
+    //            if population
+    //              population.value
+    //            else
+    //              0
+    //            end
+    //          else
+    //            super
+    //          end
+    //        end
+    //
+    //        def respond_to_missing?(method, *args)
+    //          match_data = method.to_s.match(/^(.+)_count$/)
+    //          !match_data.nil? or super
+    //        end
+    //
+    //        # Returns true if there is more than one IPP or DENOM, etc.
+    //        def multiple_population_types?
+    //          population_groups = populations.group_by(&:type)
+    //          population_groups.values.any? { |pops| pops.size > 1 }
+    //        end
 }

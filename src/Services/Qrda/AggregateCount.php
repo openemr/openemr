@@ -1,6 +1,6 @@
 <?php
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -97,18 +97,16 @@ class AggregateCount
         // return population unless population.nil? && !cache_entry.pop_set_hash[:stratification_id]
         $population = null;
         foreach ($this->populations as $pop) {
-            if (
-                $pop_code != 'STRAT' &&
-                $pop->id == $population_set->populations[$pop_code]['hqmf_id']
+            if ($pop_code != 'STRAT' 
+                && $pop->id == $population_set->populations[$pop_code]['hqmf_id']
             ) {
                 $population = $pop;
                 break;
             }
         }
 
-        if (
-            $population !== null ||
-            !empty($cache_entry['pop_set_hash']['stratification_id'])
+        if ($population !== null 
+            || !empty($cache_entry['pop_set_hash']['stratification_id'])
         ) {
             return $population;
         }

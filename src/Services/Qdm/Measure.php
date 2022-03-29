@@ -1,6 +1,6 @@
 <?php
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -75,6 +75,7 @@ class Measure extends AbstractType
 
     /**
      * Measure constructor.
+     *
      * @param $measure
      *
      * wrap a CQM measure with some extra functionality for reports
@@ -86,8 +87,7 @@ class Measure extends AbstractType
 
         $this->_measure = $measure;
         $this->population_sets  = [];
-        if ($measure['population_sets'])
-        {
+        if ($measure['population_sets']) {
             foreach ($measure['population_sets'] as $population_set)
             {
                 $this->population_sets[] = new PopulationSet($population_set);
@@ -103,8 +103,7 @@ class Measure extends AbstractType
         {
             // got a duplicate population set so we skip
             // we do it this way since we can't compare object references like ruby include? can do.
-            if (!empty($hashIdsSeen[$population_set->population_set_id]))
-            {
+            if (!empty($hashIdsSeen[$population_set->population_set_id])) {
                 continue;
             }
 
@@ -127,10 +126,10 @@ class Measure extends AbstractType
 
         /*
          *     # A measure may have 1 or more population sets that may have 1 or more stratifications
-    # This method returns an array of hashes with the population_set and stratification_id for every combindation
-    def population_sets_and_stratifications_for_measure
-      population_set_array = []
-      population_sets.each do |population_set|
+        # This method returns an array of hashes with the population_set and stratification_id for every combindation
+        def population_sets_and_stratifications_for_measure
+        population_set_array = []
+        population_sets.each do |population_set|
         population_set_hash = { population_set_id: population_set.population_set_id }
         next if population_set_array.include? population_set_hash
 
@@ -140,14 +139,14 @@ class Measure extends AbstractType
                                                  stratification_id: stratification.stratification_id }
           population_set_array << population_set_stratification_hash
         end
-      end
-      population_set_array
-    end
+        end
+        population_set_array
+        end
          */
     }
 
     /**
-     * @param string $population_set_key
+     * @param  string $population_set_key
      * @return PopulationSet[]
      */
     public function population_set_for_key(string $population_set_key) : ?array
@@ -156,19 +155,16 @@ class Measure extends AbstractType
         $ps_hash_keep = [];
         foreach ($ps_hash as $ps)
         {
-            if ($ps['population_set_id'] == $population_set_key || $ps['stratification_id'] == $population_set_key)
-            {
+            if ($ps['population_set_id'] == $population_set_key || $ps['stratification_id'] == $population_set_key) {
                 $ps_hash_keep[] = $ps;
             }
         }
-        if (empty($ps_hash_keep))
-        {
+        if (empty($ps_hash_keep)) {
             return null;
         }
         $found_population_sets = [];
         foreach ($this->population_sets as $ps) {
-            if ($ps->population_set_id == $ps_hash_keep[0]['population_set_id'])
-            {
+            if ($ps->population_set_id == $ps_hash_keep[0]['population_set_id']) {
                 $found_population_sets[] = $ps;
             }
         }
@@ -176,34 +172,36 @@ class Measure extends AbstractType
         return [$ps_hash[0]['stratification_id'] => $found_population_sets[0]];
         /*
          *     # This method returns the population_set for a given 'population_set_key.'  The popluation_set_key is the key used
-    # by the cqm-execution-service to reference the population set for a specific set of calculation results
-    def population_set_for_key(population_set_key)
-      ps_hash = population_sets_and_stratifications_for_measure
-      ps_hash.keep_if { |ps| [ps[:population_set_id], ps[:stratification_id]].include? population_set_key }
-      return nil if ps_hash.blank?
+        # by the cqm-execution-service to reference the population set for a specific set of calculation results
+        def population_set_for_key(population_set_key)
+        ps_hash = population_sets_and_stratifications_for_measure
+        ps_hash.keep_if { |ps| [ps[:population_set_id], ps[:stratification_id]].include? population_set_key }
+        return nil if ps_hash.blank?
 
-      [population_sets.where(population_set_id: ps_hash[0][:population_set_id]).first, ps_hash[0][:stratification_id]]
-    end
+        [population_sets.where(population_set_id: ps_hash[0][:population_set_id]).first, ps_hash[0][:stratification_id]]
+        end
          */
     }
 
     public function population_set_hash_for_key($population_set_key)
     {
         $population_set_hash = $this->population_sets_and_stratifications_for_measure();
-        $filtered_set_hash = array_filter($population_set_hash, function($ps) use ($population_set_key) {
-            $set_id = $ps['population_set_id'] ?? null;
-            $strat_id = $ps['stratification_id'] ?? null;
-            return $set_id == $population_set_key || $strat_id == $population_set_key;
-        });
+        $filtered_set_hash = array_filter(
+            $population_set_hash, function ($ps) use ($population_set_key) {
+                $set_id = $ps['population_set_id'] ?? null;
+                $strat_id = $ps['stratification_id'] ?? null;
+                return $set_id == $population_set_key || $strat_id == $population_set_key;
+            }
+        );
         return reset($filtered_set_hash); // grab the first one
         /*
          *     # This method returns an population_set_hash (from the population_sets_and_stratifications_for_measure)
-    # for a given 'population_set_key.' The popluation_set_key is the key used by the cqm-execution-service
-    # to reference the population set for a specific set of calculation results
-    def population_set_hash_for_key(population_set_key)
-      population_set_hash = population_sets_and_stratifications_for_measure
-      population_set_hash.keep_if { |ps| [ps[:population_set_id], ps[:stratification_id]].include? population_set_key }.first
-    end
+        # for a given 'population_set_key.' The popluation_set_key is the key used by the cqm-execution-service
+        # to reference the population set for a specific set of calculation results
+        def population_set_hash_for_key(population_set_key)
+        population_set_hash = population_sets_and_stratifications_for_measure
+        population_set_hash.keep_if { |ps| [ps[:population_set_id], ps[:stratification_id]].include? population_set_key }.first
+        end
          */
     }
 
@@ -212,9 +210,9 @@ class Measure extends AbstractType
         return $population_set_hash['stratification_id'] ?? $population_set_hash['population_set_id'];
         /*
          *     # This method returns a popluation_set_key for.a given population_set_hash
-    def key_for_population_set(population_set_hash)
-      population_set_hash[:stratification_id] || population_set_hash[:population_set_id]
-    end
+        def key_for_population_set(population_set_hash)
+        population_set_hash[:stratification_id] || population_set_hash[:population_set_id]
+        end
          */
     }
 
@@ -235,13 +233,14 @@ class Measure extends AbstractType
         return $popKeys;
         /*
          *     # This method returns the subset of population keys used in a specific measure
-    def population_keys
-      %w[IPP DENOM NUMER NUMEX DENEX DENEXCEP MSRPOPL MSRPOPLEX].keep_if { |pop| population_sets.any? { |ps| ps.populations[pop]&.hqmf_id } }
-    end
+        def population_keys
+        %w[IPP DENOM NUMER NUMEX DENEX DENEXCEP MSRPOPL MSRPOPLEX].keep_if { |pop| population_sets.any? { |ps| ps.populations[pop]&.hqmf_id } }
+        end
          */
     }
 
-    public function getJsonArrayDefinition() {
+    public function getJsonArrayDefinition()
+    {
         // get our populated measure if we have one or return the json.
         return $this->_measure || $this->jsonSerialize();
     }

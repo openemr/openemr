@@ -39,7 +39,6 @@ trait Cat3View
         $type = $context->find('type');
         return $type == 'MSRPOPL';
         /**
-
         def msrpopl?
         self['type'] == 'MSRPOPL'
         end
@@ -81,26 +80,25 @@ trait Cat3View
     {
         $type = $context->find('type');
         switch ($type) {
-            case 'RACE':
-                return [
+        case 'RACE':
+            return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.8', 'extension' => '2016-09-01']
                 ];
-            case 'ETHNICITY':
-                return [
+        case 'ETHNICITY':
+            return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.7', 'extension' => '2016-09-01']
                 ];
-            case 'SEX':
-                return [
+        case 'SEX':
+            return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.6', 'extension' => '2016-09-01']
                 ];
-            case 'PAYER':
-                return [
+        case 'PAYER':
+            return [
                     ['tid' => '2.16.840.1.113883.10.20.27.3.9', 'extension' => '2016-02-01'],
                     ['tid' => '2.16.840.1.113883.10.20.27.3.18', 'extension' => '2018-05-01']
                 ];
         }
         /**
-
         def supplemental_template_ids
         case self['type']
         when 'RACE'
@@ -114,7 +112,6 @@ trait Cat3View
         { tid: '2.16.840.1.113883.10.20.27.3.18', extension: '2018-05-01' }]
         end
         end
-
          */
     }
 
@@ -127,11 +124,9 @@ trait Cat3View
             return 'D';
         }
         /**
-
         def cms_payer_code
         PAYER_MAP[self['code'][0]] || 'D'
         end
-
          */
     }
 
@@ -150,25 +145,24 @@ trait Cat3View
     {
         $type = $context->find('type');
         switch ($type) {
-            case 'RACE':
-                return [
+        case 'RACE':
+            return [
                     [ "supplemental_data_code" => '72826-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
                 ];
-            case 'ETHNICITY':
-                return [
+        case 'ETHNICITY':
+            return [
                     [ "supplemental_data_code" => '69490-1', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
                 ];
-            case 'SEX':
-                return [
+        case 'SEX':
+            return [
                     [ "supplemental_data_code" => '76689-9', "supplemental_data_code_system" => '2.16.840.1.113883.6.1' ]
                 ];
-            case 'PAYER':
-                return [
+        case 'PAYER':
+            return [
                     ["supplemental_data_code" => '48768-6', "supplemental_data_code_system" => '2.16.840.1.113883.6.1']
                 ];
         }
         /**
-         *
         def supplemental_data_code
         case self['type']
         when 'RACE'
@@ -181,24 +175,23 @@ trait Cat3View
         [{ supplemental_data_code: '48768-6', supplemental_data_code_system: '2.16.840.1.113883.6.1' }]
         end
         end
-
          */
     }
 
-    public function supplemental_data_value_code_system(\Mustache_Context $context) : string {
+    public function supplemental_data_value_code_system(\Mustache_Context $context) : string
+    {
         $type = $context->find('type');
         switch ($type) {
-            case 'RACE':
-                return '2.16.840.1.113883.6.238';
-            case 'ETHNICITY':
-                return '2.16.840.1.113883.6.238';
-            case 'SEX':
-                return '2.16.840.1.113883.5.1';
-            case 'PAYER':
-                return '2.16.840.1.113883.3.221.5';
+        case 'RACE':
+            return '2.16.840.1.113883.6.238';
+        case 'ETHNICITY':
+            return '2.16.840.1.113883.6.238';
+        case 'SEX':
+            return '2.16.840.1.113883.5.1';
+        case 'PAYER':
+            return '2.16.840.1.113883.3.221.5';
         }
         /**
-
         def supplemental_data_value_code_system
         case self['type']
         when 'RACE'
@@ -220,9 +213,9 @@ trait Cat3View
         return $code == "" || $code == "UNK";
         /*
 
-    def unknown_supplemental_value?
-    self['code'] == "" || self['code'] == "UNK"
-    end
+        def unknown_supplemental_value?
+        self['code'] == "" || self['code'] == "UNK"
+        end
 
          */
     }
@@ -230,17 +223,16 @@ trait Cat3View
     public function population_supplemental_data(\Mustache_Context $context)
     {
         /**
-
         def population_supplemental_data
         reformat_supplemental_data(self['supplemental_data'])
         end
-
          */
         $supplemental_data = $context->find('supplemental_data');
         return $this->reformat_supplemental_data($supplemental_data);
     }
 
-    protected function reformat_supplemental_data($supplemental_data) {
+    protected function reformat_supplemental_data($supplemental_data)
+    {
         $supplemental_data_array = [];
         foreach ($supplemental_data as $supplemental_data_key => $counts) {
             foreach ($counts as $key => $value) {
@@ -250,7 +242,6 @@ trait Cat3View
         }
         return $supplemental_data_array;
         /**
-         *
         def reformat_supplemental_data(supplemental_data)
         supplemental_data_array = []
         supplemental_data.each do |supplemental_data_key, counts|
@@ -261,7 +252,6 @@ trait Cat3View
         end
         supplemental_data_array
         end
-
          */
     }
 

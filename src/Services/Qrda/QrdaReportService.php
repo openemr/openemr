@@ -56,7 +56,7 @@ class QrdaReportService
     }
 
     /**
-     * @param $measures
+     * @param  $measures
      * @return array
      */
     function resolveMeasuresPath($measures): array
@@ -95,7 +95,7 @@ class QrdaReportService
     }
 
     /**
-     * @param $pid
+     * @param  $pid
      * @return array
      * @throws \Exception
      */
@@ -112,10 +112,10 @@ class QrdaReportService
     }
 
     /**
-     * @param $pid
-     * @param $measure
-     * @param $effectiveDate
-     * @param $effectiveEndDate
+     * @param  $pid
+     * @param  $measure
+     * @param  $effectiveDate
+     * @param  $effectiveEndDate
      * @return \Psr\Http\Message\StreamInterface|array
      * @throws \Exception
      */
@@ -130,8 +130,8 @@ class QrdaReportService
     }
 
     /**
-     * @param $pid
-     * @param $measures
+     * @param  $pid
+     * @param  $measures
      * @return string
      */
     public function generateCategoryIXml($pid, $measures = []): string
@@ -155,7 +155,8 @@ class QrdaReportService
             $request = new QdmRequestAll();
         }
         $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
-        $xml = $exportService->export([
+        $xml = $exportService->export(
+            [
                 $measure
             ],
             $effectiveDate,

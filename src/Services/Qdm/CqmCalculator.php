@@ -1,6 +1,6 @@
 <?php
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -21,6 +21,7 @@ class CqmCalculator
 
     /**
      * CqmCalculator constructor.
+     *
      * @param $client
      */
     public function __construct()
@@ -29,10 +30,10 @@ class CqmCalculator
     }
 
     /**
-     * @param QdmRequestInterface $request
-     * @param $measure
-     * @param $effectiveDate
-     * @param $effectiveEndDate
+     * @param  QdmRequestInterface $request
+     * @param  $measure
+     * @param  $effectiveDate
+     * @param  $effectiveEndDate
      * @return \Psr\Http\Message\StreamInterface|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */

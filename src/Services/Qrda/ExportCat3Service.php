@@ -1,6 +1,6 @@
 <?php
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -28,7 +28,8 @@ class ExportCat3Service
 
     /**
      * ExportCat3Service constructor.
-     * @param CqmCalculator $calculator
+     *
+     * @param CqmCalculator       $calculator
      * @param QdmRequestInterface $request
      */
     public function __construct(QdmBuilder $builder, CqmCalculator $calculator, QdmRequestInterface $request)
@@ -96,7 +97,8 @@ class ExportCat3Service
          */
     }
 
-    private function CqmExecutionCalcExecute($patients, $measures, $effectiveDate, $effectiveEndDate) {
+    private function CqmExecutionCalcExecute($patients, $measures, $effectiveDate, $effectiveEndDate)
+    {
         $finalResults = [];
         foreach ($measures as $measure) {
             $results = $this->request_for($patients, $measure, $effectiveDate, $effectiveEndDate);
@@ -106,23 +108,25 @@ class ExportCat3Service
         return $finalResults;
         /**
         def initialize(patients, measures, correlation_id, options)
-        @patients = patients
+         *
+        @patients            = patients
         # This is a key -> value pair of patients mapped in the form "qdm-patient-id" => BSON::ObjectId("cqm-patient-id")
         @cqm_patient_mapping = patients.map { |patient| [patient.id.to_s, patient.cqmPatient] }.to_h
-        @measures = measures
-        @correlation_id = correlation_id
-        @options = options
+        @measures            = measures
+        @correlation_id      = correlation_id
+        @options             = options
         end
 
         def execute(save: true)
-        @measures.map do |measure|
+        @measures.map        do |measure|
         request_for(measure, save: save)
         end.flatten
         end
          */
     }
 
-    private function request_for($patients, Measure $measure, $effectiveDate, $effectiveDateEnd) {
+    private function request_for($patients, Measure $measure, $effectiveDate, $effectiveDateEnd)
+    {
 
         $results = $this->calculator->calculateMeasure($patients, $measure->measure_path, $effectiveDate, $effectiveDateEnd);
         $final_results = [];
@@ -142,6 +146,7 @@ class ExportCat3Service
         /**
         def request_for(measure, save: true)
         ir_list = []
+         *
         @options['requestDocument'] = true
         post_data = { patients: @patients, measure: measure, valueSets: measure.value_sets, options: @options }
         # cqm-execution-service expects a field called value_set_oids which is really just our
@@ -168,7 +173,8 @@ class ExportCat3Service
          */
     }
 
-    private function aggregate_population_results_from_individual_results($individual_results, $patient_id) {
+    private function aggregate_population_results_from_individual_results($individual_results, $patient_id)
+    {
 
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {
