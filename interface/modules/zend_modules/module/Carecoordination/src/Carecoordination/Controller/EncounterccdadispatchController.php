@@ -106,7 +106,7 @@ class EncounterccdadispatchController extends AbstractActionController
             if (is_array($measures)) {
                 if (empty($measures[0])) {
                     $measures = ''; // defaults to all current one per patient.
-                } elseif (!empty($measures[0] == 'all')) {
+                } elseif (($measures[0] ?? null) == 'all') {
                     $measures = 'all'; // defaults to all current measures per patient.
                 }
             }

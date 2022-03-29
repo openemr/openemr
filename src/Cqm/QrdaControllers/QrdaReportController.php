@@ -98,8 +98,8 @@ class QrdaReportController
                     chmod($measure_directory, 0777);
                 }
                 foreach ($pids as $pid) {
-                    $meta = sqlQuery("Select `fname`, `lname` From `patient_data` Where `pid` = ?", [$pid]);
-                    $file = $measure_directory . "/{$meta['fname']}_{$meta['lname']}." . $type;
+                    $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
+                    $file = $measure_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                     $content = $this->getCategoryIReport($pid, $measure, $type);
                     $f_handle = fopen($file, "w");
                     fwrite($f_handle, $content);
@@ -117,8 +117,8 @@ class QrdaReportController
             $zip->compress($zip_directory);
         } elseif ($bypid) {
             foreach ($pids as $pid) {
-                $meta = sqlQuery("Select `fname`, `lname` From `patient_data` Where `pid` = ?", [$pid]);
-                $file = $zip_directory . "/{$meta['fname']}_{$meta['lname']}." . $type;
+                $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
+                $file = $zip_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                 $content = $this->getCategoryIReport($pid, '', $type);
                 $f_handle = fopen($file, "w");
                 fwrite($f_handle, $content);
