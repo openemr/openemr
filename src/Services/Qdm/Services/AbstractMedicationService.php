@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -58,34 +58,50 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
 
         $modelClass = $this->getModelClass();
 
-        $qdmModel = new $modelClass([
-            'relevantPeriod' => new Interval([
-                'low' =>  new DateTime([
+        $qdmModel = new $modelClass(
+            [
+            'relevantPeriod' => new Interval(
+                [
+                'low' =>  new DateTime(
+                    [
                     'date' => $start_date
-                ]),
-                'high' => new DateTime([
+                    ]
+                ),
+                'high' => new DateTime(
+                    [
                     'date' => $end_date
-                ]),
+                    ]
+                ),
                 'lowClosed' => $start_date ? true : false,
                 'highClosed' => $end_date ? true : false
-            ]),
-            'dosage' => new Quantity([
+                ]
+            ),
+            'dosage' => new Quantity(
+                [
                 'value' => $record['dosage'],
                 'unit' => !empty($record['unit']) ? $record['unit'] : '1' // TODO Unit shouldn't be "0" but was on import, so if not set, make "1"
-            ]),
-            'frequency' => new Code([
+                ]
+            ),
+            'frequency' => new Code(
+                [
                 // TODO codes in list_options for frequency may not match exactly and do not have the actual SNOMED codes loaded
                 // https://browser.ihtsdotools.org/?perspective=full&conceptId1=396125000&edition=MAIN/2021-07-31&release=&languages=en
                 'code' => '396125000', // $record['interval'],
                 'system' => '2.16.840.1.113883.6.96' // $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_SNOMED_CT)
-            ]),
+                ]
+            ),
             'route' => null // In sample files, route was null, probably doesn't mater for eCQM
-        ]);
+            ]
+        );
 
-        $qdmModel->addCode(new Code([
-            'code' => $record['rxnorm_drugcode'],
-            'system' => $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_RXNORM)
-        ]));
+        $qdmModel->addCode(
+            new Code(
+                [
+                'code' => $record['rxnorm_drugcode'],
+                'system' => $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_RXNORM)
+                ]
+            )
+        );
 
         return $qdmModel;
     }

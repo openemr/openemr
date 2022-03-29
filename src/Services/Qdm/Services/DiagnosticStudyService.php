@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -27,15 +27,21 @@ class DiagnosticStudyService extends AbstractQdmService implements QdmServiceInt
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new DiagnosticStudyPerformed([
-            'relevantDatetime' => new DateTime([
+        $qdmModel = new DiagnosticStudyPerformed(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
-            'authorDatetime' => new DateTime([
+                ]
+            ),
+            'authorDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
+                ]
+            ),
             'result' => $this->makeQdmCode($record['ob_code'])
-        ]);
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['code']);
         foreach ($codes as $code) {

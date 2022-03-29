@@ -113,9 +113,11 @@ trait PatientView
 
     public function gender()
     {
-        $gender_elements = array_filter($this->patient->dataElements, function ($de) {
-            return $de->_type == "QDM::PatientCharacteristicSex";
-        });
+        $gender_elements = array_filter(
+            $this->patient->dataElements, function ($de) {
+                return $de->_type == "QDM::PatientCharacteristicSex";
+            }
+        );
         if (empty($gender_elements)) {
             return false;
         } else if (empty($gender_elements[0]->dataElementCodes)) {
@@ -127,9 +129,11 @@ trait PatientView
 
     public function birthdate()
     {
-        $birthdate_elements = array_filter($this->patient->dataElements, function ($de) {
-            return $de->_type == "QDM::PatientCharacteristicBirthdate";
-        });
+        $birthdate_elements = array_filter(
+            $this->patient->dataElements, function ($de) {
+                return $de->_type == "QDM::PatientCharacteristicBirthdate";
+            }
+        );
         if (empty($birthdate_elements)) {
             return "None";
         } else {
@@ -139,9 +143,11 @@ trait PatientView
 
     public function expiration()
     {
-        $elements = array_filter($this->patient->dataElements, function ($de) {
-            return $de->_type == "QDM::PatientCharacteristicExpired";
-        });
+        $elements = array_filter(
+            $this->patient->dataElements, function ($de) {
+                return $de->_type == "QDM::PatientCharacteristicExpired";
+            }
+        );
         if (empty($elements)) {
             return "None";
         } else {
@@ -151,9 +157,11 @@ trait PatientView
 
     public function race()
     {
-        $elements = array_filter($this->patient->dataElements, function ($de) {
-            return $de->_type == "QDM::PatientCharacteristicRace";
-        });
+        $elements = array_filter(
+            $this->patient->dataElements, function ($de) {
+                return $de->_type == "QDM::PatientCharacteristicRace";
+            }
+        );
         if (empty($elements)) {
             return false;
         } else if (empty($elements[0]->dataElementCodes)) {
@@ -165,9 +173,11 @@ trait PatientView
 
     public function ethnic_group()
     {
-        $elements = array_filter($this->patient->dataElements, function ($de) {
-            return $de->_type == "QDM::PatientCharacteristicEthnicity";
-        });
+        $elements = array_filter(
+            $this->patient->dataElements, function ($de) {
+                return $de->_type == "QDM::PatientCharacteristicEthnicity";
+            }
+        );
         if (empty($elements)) {
             return false;
         } else if (empty($elements[0]->dataElementCodes)) {
@@ -179,9 +189,11 @@ trait PatientView
 
     public function payer()
     {
-        $elements = array_filter($this->patient->dataElements, function ($de) {
-            return $de->_type == "QDM::PatientCharacteristicPayer";
-        });
+        $elements = array_filter(
+            $this->patient->dataElements, function ($de) {
+                return $de->_type == "QDM::PatientCharacteristicPayer";
+            }
+        );
         if (empty($elements)) {
             return false;
         } else if (empty($elements[0]->dataElementCodes)) {
@@ -193,8 +205,9 @@ trait PatientView
 
     /**
      * Given a list of ids and an oid to filter on, return all of the ids that match this filter
-     * @param $ids
-     * @param $oid
+     *
+     * @param  $ids
+     * @param  $oid
      * @return array|null
      */
     private function get_ids_for_oids($ids, $oid)

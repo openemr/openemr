@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -46,15 +46,21 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new ProcedurePerformed([
-            'relevantDatetime' => new DateTime([
+        $qdmModel = new ProcedurePerformed(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['date_ordered']
-            ]),
-            'result' => new Quantity([
+                ]
+            ),
+            'result' => new Quantity(
+                [
                 'value' => $record['result_value'],
                 'unit' => $record['result_units']
-            ]),
-        ]);
+                ]
+            ),
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {

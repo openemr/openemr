@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -48,30 +48,42 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         // Format string "%a" is literal days https://www.php.net/manual/en/dateinterval.format.php
         $days = $end->diff($start)->format("%a");
 
-        $qdmRecord = new EncounterPerformed([
-            'authorDatetime' => new DateTime([
+        $qdmRecord = new EncounterPerformed(
+            [
+            'authorDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
-            'relevantPeriod' => new Interval([
-                'low' =>  new DateTime([
+                ]
+            ),
+            'relevantPeriod' => new Interval(
+                [
+                'low' =>  new DateTime(
+                    [
                     'date' => $start->format('Y-m-d H:i:s')
-                ]),
-                'high' => new DateTime([
+                    ]
+                ),
+                'high' => new DateTime(
+                    [
                     'date' => $end->format('Y-m-d H:i:s')
-                ]),
+                    ]
+                ),
                 'lowClosed' => $record['date'] ? true : false,
                 'highClosed' => $record['date'] ? true : false
-            ]),
+                ]
+            ),
             'admissionSource' => null,
             'dischargeDisposition' => null,
             'facilityLocations' => [],
-            'lengthOfStay' => new Quantity([
+            'lengthOfStay' => new Quantity(
+                [
                 'value' => $days,
                 'unit' => 'd'
-            ]),
+                ]
+            ),
             'negationRationale' => null,
             'diagnoses' => null // TODO Should be 'diagnosis', but since we do checking on the properties we send into QDM objects, we have to make this typo which is in the modelinfo XML file
-        ]);
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['encounter_type_code']);
         foreach ($codes as $code) {

@@ -2,7 +2,8 @@
 
 /**
  * Date is a mustache helper trait with various helper methods for dealing with dates, date ranges, and timestamps.
- * @package OpenEMR
+ *
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -144,7 +145,8 @@ trait Date
      * Returns the helper function to call for the relevent date period or returns null flavor if there is no date period
      * If the current context has a period we return the period helpfunction, otherwise if we have a dateTime we return
      * the date time helper function
-     * @param Mustache_Context $context The current stack context
+     *
+     * @param  Mustache_Context $context The current stack context
      * @return string Helper function name or null flavor xml
      */
     public function relevant_date_period_or_null_flavor(Mustache_Context $context)
@@ -189,9 +191,8 @@ trait Date
 
     private function to_formatted_s_number($dateTime)
     {
-        if (
-            empty($dateTime) ||
-            !($dateTime instanceof \DateTime)
+        if (empty($dateTime) 
+            || !($dateTime instanceof \DateTime)
         ) {
             return 0;
         } else {

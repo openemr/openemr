@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -28,17 +28,23 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new AllergyIntolerance([
-            'authorDatetime' => new DateTime([
+        $qdmModel = new AllergyIntolerance(
+            [
+            'authorDatetime' => new DateTime(
+                [
                 'date' => $record['begdate']
-            ]),
-            'prevalencePeriod' => new Interval([
+                ]
+            ),
+            'prevalencePeriod' => new Interval(
+                [
                 'low' => $record['begdate'],
                 'high' => $record['enddate'],
                 'lowClosed' => $record['begdate'] ? true : false,
                 'highClosed' => $record['enddate'] ? true : false
-            ])
-        ]);
+                ]
+            )
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
         foreach ($codes as $code) {

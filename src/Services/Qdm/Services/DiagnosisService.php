@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -29,17 +29,23 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new Diagnosis([
-            'authorDatetime' => new DateTime([
+        $qdmModel = new Diagnosis(
+            [
+            'authorDatetime' => new DateTime(
+                [
                 'date' => $this->validDateOrNull($record['begdate'])
-            ]),
-            'prevalencePeriod' => new Interval([
+                ]
+            ),
+            'prevalencePeriod' => new Interval(
+                [
                 'low' => $this->validDateOrNull($record['begdate']),
                 'high' => $this->validDateOrNull($record['enddate']),
                 'lowClosed' => $this->validDateOrNull($record['begdate']) ? true : false,
                 'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
-            ])
-        ]);
+                ]
+            )
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
         foreach ($codes as $code) {

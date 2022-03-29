@@ -9,7 +9,6 @@
 
 namespace OpenEMR\Services\Qrda;
 
-
 class Stratification
 {
     public $id;
@@ -29,6 +28,4 @@ class Stratification
         $this->value = $value;
         $this->observation = $observation;
     }
-
-
 }
