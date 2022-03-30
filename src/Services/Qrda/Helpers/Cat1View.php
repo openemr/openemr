@@ -139,7 +139,11 @@ trait Cat1View
             $result_string = "<value xsi:type=\"ST\">" . $result . "</value>";
             // non-null value
         } else {
-            $result_string = "<value xsi:type=\"PQ\" value=\"" . $result . "\" unit=\"1\"/>";
+            if (is_numeric($result ?? null)) {
+                $result_string = "<value xsi:type=\"PQ\" value=\"" . $result . "\" unit=\"1\"/>";
+            } else {
+                return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
+            }
         }
         return $result_string;
     }
@@ -155,10 +159,10 @@ trait Cat1View
             $system = $this->get_code_system_for_oid($oid) ?: $result['codeSystem'];
             return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
                 . "\" codeSystemName=\"" . $system . "\"/>";
-        } elseif (!empty($result['value'] && array_key_exists('unit', $result))) {
-            // Almost always should have unit. TODO unsure if any patient models return just value.
+        } elseif (is_numeric($result['value'])) {
+            // Such as value 10.2 unit ml/??
             return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
-        } elseif (!empty($result['value'] && empty($result['unit'] ?? null))) {
+        } elseif (is_string($result['value'])) {
             // Such as urine color YELLOW
             return "<value xsi:type=\"ST\" value=\"" . $result['value'] . "\"/>";
         }
