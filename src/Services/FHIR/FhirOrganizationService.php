@@ -111,16 +111,28 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         }
         // we only allow facilities to be created... currently we have no way of creating a lab provider because we
         // can't differentiate on the type.
-        $concepts = $fhirResource->getType();
-        foreach ($concepts as $concept) {
-            foreach ($concept->getCoding() as $coding) {
-                if ($coding->getCode() == self::ORGANIZATION_TYPE_INSURANCE) {
-                    // insert into the insurance
-                    return $this->insuranceService->insert($fhirResource);
+        $types = $fhirResource->getType() ?? [];
+        foreach ($types as $type) {
+            // in theory, $type should be a object, but for some reason can also come back as an array
+            //  so will support both the array and the object
+            if (is_array($type)) {
+                foreach ($type['coding'] as $coding) {
+                    if ($coding['code'] == self::ORGANIZATION_TYPE_INSURANCE) {
+                        // insert into the insurance
+                        return $this->insuranceService->insert($fhirResource);
+                    }
+                }
+            } else {
+                $codings = $type->getCoding() ?? [];
+                foreach ($codings as $coding) {
+                    if ($coding->getCode() == self::ORGANIZATION_TYPE_INSURANCE) {
+                        // insert into the insurance
+                        return $this->insuranceService->insert($fhirResource);
+                    }
                 }
             }
         }
-        // if its not an insurance company we are going to bail out
+        // if its not an insurance company we are going to insert as a facility
         return $this->facilityService->insert($fhirResource);
     }
 

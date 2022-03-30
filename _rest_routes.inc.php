@@ -10020,16 +10020,22 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                      type="object"
      *                  ),
      *                  example={
-     *                      "id": "946da616-fae2-409d-b24d-56425bfb3316",
+     *                      "id": "95f0e672-be37-4c73-95c9-649c2d200018",
      *                      "meta": {
      *                          "versionId": "1",
-     *                          "lastUpdated": "2021-09-21T16:47:36+00:00"
+     *                          "lastUpdated": "2022-03-30T07:43:23+00:00"
      *                      },
      *                      "resourceType": "Organization",
      *                      "text": {
      *                          "status": "generated",
-     *                          "div": "<div xmlns=""http://www.w3.org/1999/xhtml""> <p>Your Clinic Name Here</p></div>"
+     *                          "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
      *                      },
+     *                      "identifier": {
+     *                          {
+     *                              "system": "http://hl7.org/fhir/sid/us-npi",
+     *                              "value": "1234567890"
+     *                          }
+     *                       },
      *                      "active": true,
      *                      "type": {
      *                          {
@@ -10047,7 +10053,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                          {
      *                              "system": "phone",
      *                              "value": "000-000-0000",
-     *                              "use": "work"
+     *                             "use": "work"
      *                          },
      *                          {
      *                              "system": "fax",
@@ -10102,12 +10108,114 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Organization resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "95f0e672-be37-4c73-95c9-649c2d200018",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2022-03-30T07:43:23+00:00"
+     *                  },
+     *                  "resourceType": "Organization",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "system": "http://hl7.org/fhir/sid/us-npi",
+     *                          "value": "1234567890"
+     *                      }
+     *                   },
+     *                  "active": true,
+     *                  "type": {
+     *                      {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+     *                                  "code": "prov",
+     *                                  "display": "Healthcare Provider"
+     *                              }
+     *                          }
+     *                      }
+     *                  },
+     *                  "name": "Your Clinic Name Here Hey",
+     *                  "telecom": {
+     *                      {
+     *                          "system": "phone",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      },
+     *                      {
+     *                          "system": "fax",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      }
+     *                  },
+     *                  "address": {
+     *                      null
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95f0e672-be37-4c73-95c9-649c2d200018",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-03-30T07:43:23+00:00"
+     *                      },
+     *                      "resourceType": "Organization",
+     *                      "text": {
+     *                          "status": "generated",
+     *                          "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
+     *                      },
+     *                      "identifier": {
+     *                          {
+     *                              "system": "http://hl7.org/fhir/sid/us-npi",
+     *                              "value": "1234567890"
+     *                          }
+     *                       },
+     *                      "active": true,
+     *                      "type": {
+     *                          {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+     *                                      "code": "prov",
+     *                                      "display": "Healthcare Provider"
+     *                                  }
+     *                              }
+     *                          }
+     *                      },
+     *                      "name": "Your Clinic Name Here Now",
+     *                      "telecom": {
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "000-000-0000",
+     *                             "use": "work"
+     *                          },
+     *                          {
+     *                              "system": "fax",
+     *                              "value": "000-000-0000",
+     *                              "use": "work"
+     *                          }
+     *                      },
+     *                      "address": {
+     *                          null
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10149,12 +10257,67 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Organization resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "95f0e672-be37-4c73-95c9-649c2d200018",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2022-03-30T07:43:23+00:00"
+     *                  },
+     *                  "resourceType": "Organization",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "system": "http://hl7.org/fhir/sid/us-npi",
+     *                          "value": "1234567890"
+     *                      }
+     *                   },
+     *                  "active": true,
+     *                  "type": {
+     *                      {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+     *                                  "code": "prov",
+     *                                  "display": "Healthcare Provider"
+     *                              }
+     *                          }
+     *                      }
+     *                  },
+     *                  "name": "Your Clinic Name Here",
+     *                  "telecom": {
+     *                      {
+     *                          "system": "phone",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      },
+     *                      {
+     *                          "system": "fax",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      }
+     *                  },
+     *                  "address": {
+     *                      null
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
+     *          response="201",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  example={
+     *                      "id": 14,
+     *                      "uuid": "95f217c1-258c-44ca-bf11-909dce369574"
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10239,7 +10402,57 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "946da616-fae2-409d-b24d-56425bfb3316",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2021-09-21T16:47:36+00:00"
+     *                      },
+     *                      "resourceType": "Organization",
+     *                      "text": {
+     *                          "status": "generated",
+     *                          "div": "<div xmlns=""http://www.w3.org/1999/xhtml""> <p>Your Clinic Name Here</p></div>"
+     *                      },
+     *                      "active": true,
+     *                      "type": {
+     *                          {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+     *                                      "code": "prov",
+     *                                      "display": "Healthcare Provider"
+     *                                  }
+     *                              }
+     *                          }
+     *                      },
+     *                      "name": "Your Clinic Name Here Now",
+     *                      "telecom": {
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "000-000-0000",
+     *                              "use": "work"
+     *                          },
+     *                          {
+     *                              "system": "fax",
+     *                              "value": "000-000-0000",
+     *                              "use": "work"
+     *                          }
+     *                      },
+     *                      "address": {
+     *                          null
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
