@@ -491,6 +491,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
+    // note for group_calculation we will have some inefficiencies here
     $totalNumPatients = (int)buildPatientArray('', $provider, $pat_prov_rel, null, null, true);
 
   // Cycle through the batches and collect/combine results
@@ -707,7 +708,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = arra
                 $results[] = $group_item;
 
                 foreach ($filteredRules as $rowRule) {
-                    $tempResults = test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateArray, $options);
+                    $tempResults = test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateArray, $options, null, $pat_prov_rel);
                     if (!empty($tempResults)) {
                         $results = array_merge($results, $tempResults);
                     }
@@ -861,13 +862,19 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
  * @return array The list of rule calculations that have been generated
  * @throws Exception If a rule is invalid or not found
  */
-function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateTarget, $options)
+function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateTarget, $options, $provider, $pat_prov_rel)
 {
+    // we need to give more context to some of our rules
+    $ruleOptions = $options;
+    $ruleOptions['pat_prov_rel'] = $pat_prov_rel;
+    if (is_numeric($provider)) {
+        $ruleOptions['provider_id'] = $provider;
+    }
     require_once(dirname(__FILE__) . "/classes/rulesets/ReportManager.php");
     $manager = new ReportManager();
     if ($rowRule['amc_flag']) {
         // Send array of dates ('dateBegin' and 'dateTarget')
-        $tempResults = $manager->runReport($rowRule, $patientData, $dateArray, $options);
+        $tempResults = $manager->runReport($rowRule, $patientData, $dateArray, $ruleOptions);
     } else {
         // Send target date
         $tempResults = $manager->runReport($rowRule, $patientData, $dateTarget);
@@ -957,7 +964,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         // If using cqm or amc type, then use the hard-coded rules set.
         // Note these rules are only used in report mode.
         if ($rowRule['cqm_flag'] || $rowRule['amc_flag']) {
-            $tempResults = test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateTarget, $options);
+            $tempResults = test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateTarget, $options, $provider, $pat_prov_rel);
             $results = array_merge($results, $tempResults);
             // Go on to the next rule
             continue;
@@ -1304,17 +1311,22 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
             } else if ($pat_prov_rel == 'primary_billing_facility' && is_numeric($provider)) {
                 return buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider);
             } else if ($pat_prov_rel == 'encounter') {
-                // Choose patients that are related to specific physician by an encounter
+                // Choose patients that are related to specific physician by an encounter (OR the provider was a referral originator)
+                $sql = "select DISTINCT `pid` FROM `form_encounter` WHERE `provider_id` =? OR `supervisor_id` = ? "
+                    . " UNION select DISTINCT `transactions`.`pid` FROM transactions "
+                    . "   INNER JOIN lbt_data ON lbt_data.form_id = transactions.id AND lbt_data.field_id = 'refer_from' AND lbt_data.field_value = ? "
+                    . " ORDER BY `pid`";
                 if ($start == null || $batchSize == null || $onlyCount) {
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                        " WHERE `provider_id`=? OR `supervisor_id`=? ORDER BY `pid`", array($provider, $provider));
+                    // we need to include referrals here as a referral can occur w/o there being an encounter
+
+                    $rez = sqlStatementCdrEngine($sql, array($provider, $provider, $provider));
                     if ($onlyCount) {
                         $patientNumber = sqlNumRows($rez);
                     }
                 } else {
                     //batching
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                        " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider, $provider, ($start - 1), $batchSize));
+                    $sql .= " LIMIT " . intval($start) - 1 . "," . intval($batchSize);
+                    $rez = sqlStatementCdrEngine($sql, array($provider, $provider, ($start - 1), $batchSize));
                 }
             } else {  //$pat_prov_rel == 'primary'
                 // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
@@ -1365,14 +1377,28 @@ function buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCoun
 
     $billing_facility = intval($billing_facility); // make sure its an integer
     if (empty($billing_facility)) {
-        $sql .= "WHERE `billing_facility` IS NOT NULL ";
+        $sql .= "WHERE `form_encounter`.`billing_facility` IS NOT NULL ";
     } else {
         //            " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ? ORDER BY `pid`", array($provider,$provider, $billing_facility));
-        $sql .= " WHERE `billing_facility` = ? ";
+        $sql .= " WHERE `form_encounter`.`billing_facility` = ? ";
         $binds[] = $billing_facility;
     }
     if (!empty($provider_id)) {
-        $sql .= " AND provider_id = ? ";
+        $provider_id = intval($provider_id); // make sure we convert this to a pure int
+        $sql .= " AND (`form_encounter`.`provider_id` = ? OR `form_encounter`.`supervisor_id` = ?)";
+        $binds[] = $provider_id;
+        $binds[] = $provider_id;
+    }
+    $sql .= "UNION SELECT DISTINCT `transactions`.`pid` FROM `transactions` ";
+    $sql .= "INNER JOIN `lbt_data` ON `lbt_data`.`form_id` = `transactions`.`id` AND `lbt_data`.`field_id` = 'billing_facility_id' ";
+    $sql .= "INNER JOIN lbt_data lbt_data2 ON lbt_data.form_id = transactions.id AND lbt_data2.field_id = 'refer_from' ";
+    if (!empty($billing_facility)) {
+        $sql .= " WHERE `lbt_data`.`field_value` = ? ";
+        $binds[] = $billing_facility;
+    }
+
+    if (!empty($provider_id)) {
+        $sql .= " AND `lbt_data2`.`field_value` = ? ";
         $binds[] = $provider_id;
     }
     $sql .= "ORDER BY `pid`";
@@ -1417,10 +1443,24 @@ function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $on
         $binds[] = $billing_facility;
     }
     if (!empty($provider_id)) {
-        $sql .= " AND (`provider_id`=? OR `supervisor_id`=?) ";
-        $binds[] = $provider_id;
+        $sql .= " AND `providers.id`=?";
         $binds[] = $provider_id;
     }
+    $sql .= "UNION SELECT DISTINCT `transactions`.`pid` FROM `transactions` ";
+    $sql .= "INNER JOIN lbt_data ON lbt_data.form_id = transactions.id AND lbt_data.field_id = 'refer_from' ";
+    $sql .= "INNER JOIN `users` providers ON `lbt_data`.`form_id` = `transactions`.`id` AND `lbt_data`.`form_value` = providers.id ";
+    if (empty($billing_facility)) {
+        $sql .= "WHERE (`providers`.`billing_facility_id` IS NOT NULL)";
+    } else {
+        $sql .= " WHERE (`providers`.`billing_facility_id`=?)";
+        $binds[] = $billing_facility;
+    }
+
+    if (!empty($provider_id)) {
+        $sql .= " AND `providers.id`=?";
+        $binds[] = $provider_id;
+    }
+
     $sql .= "ORDER BY `pid`";
     if (!($start == null || $batchSize == null || $onlyCount)) {
         $sql .= "LIMIT " . (intval($start) - 1) . "," . intval($batchSize);

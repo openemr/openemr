@@ -293,6 +293,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
     $type_report = $report_view['type'];
     $dataSheet = json_decode($report_view['data'], true);
     $display_group_provider_info = false;
+    $group_label = '';
     $group_provider_label = '';
 
     // for our group calculation reports we want to display the group and the provider label information
@@ -302,19 +303,18 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
     foreach ($dataSheet as $row) {
         if ($display_group_provider_info) {
             if (isset($row['is_provider_group'])) {
-                $group_provider_label = xlt('Group') . ': ' . text($row['name']) . ' ( ' . xlt('TIN') . ' '
+                $group_label = xlt('Group') . ': ' . text($row['name']) . ' ( ' . xlt('TIN') . ' '
                     . text($row['federaltaxid']) . ' )';
+                $group_provider_label = $group_label;
             } else if (isset($row['is_provider'])) {
                 $provider_label = ' ' . xlt('Provider') . ': ' . text($row['prov_fname']) . ',' . text($row['prov_lname'])
                     . ' ( ' . xlt('NPI') . ' ' . text($row['npi']) . ' ) ';
                 if (isset($row['is_provider_in_group'])) {
-                    $group_provider_label .= $provider_label;
+                    $group_provider_label = $group_label . ' ' . $provider_label;
                 } else {
                     $group_provider_label = $provider_label;
                 }
             }
-        } else {
-            $group_provider_label = '';
         }
 
         if (isset($row['is_main']) || isset($row['is_sub'])) {

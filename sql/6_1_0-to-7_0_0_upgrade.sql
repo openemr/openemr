@@ -211,13 +211,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS90v11','Functional Status Assessments for Congestive Heart Failure',470,0);
 #EndIf
 
-#IfNotRow2D layout_options form_id LBTref field_id encounter_id
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`
-    ,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
-    VALUES ('LBTref', 'encounter_id', '1', 'Patient Referral Encounter', 10, 53, 1, 0, 0, '', 1, 1, '', ''
-    ,'Encounter that the referral/transfer of care is based on', 0);
-#EndIf
-
 #IfNotRow2D list_options list_id discharge-disposition option_id home-hospice
 DELETE FROM list_options WHERE list_id = "discharge-disposition";
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = "discharge-disposition";
@@ -255,4 +248,11 @@ INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_f
                               `bibliographic_citation`, `linked_referential_cds`)
 VALUES ('send_sum_2015_amc', '0', '0', '0', '0', '0', '0', '', '', '1', '0', '0', '', ''
        , '170.315(g)(1)/(2)–7', '0', '0', '1', '0', '', '', '', '', '', '', '');
+#EndIf
+
+#IfNotRow2D layout_options form_id LBTref field_id billing_facility_id
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`
+                             ,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
+VALUES ('LBTref', 'billing_facility_id', '1', 'Patient Billing Facility', 11, 35, 1, 0, 0, '', 1, 1, '', ''
+       ,'Billing facility that patient claims are billed against', 0);
 #EndIf

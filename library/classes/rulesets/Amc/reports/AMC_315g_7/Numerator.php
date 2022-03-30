@@ -69,7 +69,6 @@ class AMC_315g_7_Numerator implements AmcFilterIF
             // and emailing it or some other mechanism, then they are responsible for checking that the CCDA had the
             // required elements.
             return true;
-
         }
     }
 }

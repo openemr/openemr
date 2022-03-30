@@ -62,7 +62,12 @@ abstract class AbstractAmcReport implements RsReportIF
     /*
      * @var int|null
      */
-    protected $_billingFacility;
+    protected $_billingFacilityId;
+
+    /**
+     * @var int|null
+     */
+    protected $_providerId;
 
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options)
     {
@@ -100,7 +105,8 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->logger = new SystemLogger();
         $this->logger->debug(get_class($this) . "->__construct() finished", ['patients' => $patientIdArray]);
 
-        $this->_billingFacility = $options['billing_facility'] ?? null;
+        $this->_billingFacilityId = $options['billing_facility_id'] ?? null;
+        $this->_providerId = $options['provider_id'] ?? null;
     }
 
     public function getPatientPopulation(): AmcPopulation
@@ -275,7 +281,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
                 break;
             case "transitions-out":
-                return $this->collectTransitionOutObjects($patient, $begin, $end, $this->_billingFacility);
+                return $this->collectTransitionOutObjects($patient, $begin, $end, $this->_billingFacilityId, $this->_providerId);
                 break;
             case "encounters":
                 $sql = "SELECT * " .
@@ -380,8 +386,10 @@ abstract class AbstractAmcReport implements RsReportIF
         return $results;
     }
 
-    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility) {
+    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id)
+    {
 
+        $results = [];
         $sqlBindArray = [];
         $sqlSelect = "SELECT transactions.id as id ";
         $sqlFrom = "FROM transactions " .
@@ -393,13 +401,19 @@ abstract class AbstractAmcReport implements RsReportIF
 
         array_push($sqlBindArray, $patient->id, $begin, $end);
 
-        // for group calculation methods we need to restrict the data to the billing facility.
-        if (!empty($billing_facility) && intval($billing_facility) > 0)
-        {
-            $sqlFrom .= ' INNER JOIN lbt_data2 ON (lbt_data2.form_id = transactions.id AND lbt_data.field_id = "encounter_id"'
-                . 'INNER JOIN form_encounters enc ON lbt_data2.field_value = enc.encounter ';
-            $sqlWhere .= " AND enc.billing_facility = ? ";
+        // for group calculation methods we need to restrict the data to the billing facility and the provider who issued the referral
+        // this is because we may have patients that have been seen by the provider, but a DIFFERENT provider issued a referral for that patient
+        // without this filtering that patient's referrals would be counted
+        if (!empty($billing_facility) && intval($billing_facility) > 0) {
+            $sqlFrom .= ' INNER JOIN lbt_data lbt_billing_fac ON (lbt_billing_fac.form_id = transactions.id AND lbt_billing_fac.field_id = "billing_facility_id")';
+            $sqlWhere .= " AND lbt_billing_fac.field_value = ? ";
             $sqlBindArray[] = intval($billing_facility);
+        }
+
+        if (!empty($provider_id) && intval($provider_id) > 0) {
+            $sqlFrom .= 'INNER JOIN lbt_data lbt_refer_from ON (lbt_refer_from.form_id = transactions.id AND lbt_refer_from.field_id = "refer_from") ';
+            $sqlWhere .= " AND lbt_refer_from.field_value = ? ";
+            $sqlBindArray[] = intval($provider_id);
         }
 
         $sql = $sqlSelect . $sqlFrom . $sqlWhere;
@@ -415,6 +429,6 @@ abstract class AbstractAmcReport implements RsReportIF
             }
             $results[$iter] = $row;
         }
-
+        return $results;
     }
 }
