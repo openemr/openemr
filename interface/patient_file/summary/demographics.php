@@ -834,6 +834,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </script>
 
     <style>
+        /* Bad practice to override here, will get moved to base style theme */
         .card {
             box-shadow: 1px 1px 1px hsl(0 0% 0% / .2);
             border-radius: 0;
@@ -887,7 +888,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
 </head>
 
-<body class="mt-3 patient-demographic bg-light">
+<body class="mt-1 patient-demographic bg-light">
 
     <?php
     // Create and fire the patient demographics view event
