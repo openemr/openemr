@@ -65,18 +65,20 @@ class SectionEvent extends Event
      * @param null|int $position Define a specific position in array. Null to append, 0 to prepend
      * @return void
      */
-    public function addCard(CardInterface $card, $position = null)
+    public function addCard(CardInterface $card, $position = null) : void
     {
         $currentCards = $this->getCardIdentifiers();
         if (in_array($card->getIdentifier(), $currentCards)) {
             throw new DomainException("Card {$card->getIdentifier()} is not unique in current list");
         }
 
-        if (!$position) {
-            $this->cards[] = $card;
-        } else {
-            array_splice($this->cards, $position ?? -1, 0, $card);
+        if (substr(strtolower($card->getIdentifier()), 0, 7) === 'oe_card') {
+            throw new DomainException("oe_card is a reserved Card Identifier Namespace");
         }
+
+        // @todo ensure position is an integer or null
+
+        array_splice($this->cards, $position ?? -1, 0, $card);
     }
 
     /**
@@ -95,7 +97,7 @@ class SectionEvent extends Event
         foreach ($this->cards as $card) {
             if (!$card instanceof CardInterface) {
                 $objtype = get_class($card);
-                throw new \UnexpectedValueException("Expected an object implementing CardInterface. Received {$objtype}");
+                throw new \UnexpectedValueException("Expecting an object implementing CardInterface. Received {$objtype}");
             }
             $_idArr[] = $card->getIdentifier();
         }
