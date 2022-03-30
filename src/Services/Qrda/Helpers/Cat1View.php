@@ -123,9 +123,8 @@ trait Cat1View
 
     public function result_value(Mustache_Context $context)
     {
-        // TODO Do patient models ever return a string for results?
         $result = $context->find('result');
-        if (empty($result['value'])) {
+        if (empty($result)) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
         if (is_array($result)) {
