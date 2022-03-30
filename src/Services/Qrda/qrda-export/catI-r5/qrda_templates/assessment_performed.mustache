@@ -1,7 +1,7 @@
 <entry>
-  <observation classCode="OBS" moodCode="EVN"{{{negation_ind}}}>
+  <observation classCode="OBS" moodCode="EVN" {{{negation_ind}}}>
     <!-- Assessment Performed -->
-    <templateId root="2.16.840.1.113883.10.20.24.3.144" extension="2021-08-01" />
+    <templateId root="2.16.840.1.113883.10.20.24.3.144" extension="2019-12-01" />
     <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
     {{> _codes}}
     <text>{{description}}</text>
@@ -11,10 +11,6 @@
     <!-- QDM Attribute: Result -->
     {{{result_value}}}
     {{/result}}
-    {{#interpretation}}
-      <!-- QDM Attribute: Interpretation -->
-      {{> qrda_templates/template_partials/_interpretation}}
-    {{/interpretation}}
     {{#method}}
       <!-- QDM Attribute: Method -->
       {{> qrda_templates/template_partials/_method}}
@@ -42,8 +38,8 @@
       {{> qrda_templates/template_partials/_component}}
     {{/components}}
     {{#relatedTo}}
-      <!-- QDM Attribute: Related To -->
-      {{> qrda_templates/template_partials/_related_to}}
+        <!-- QDM Attribute: Related To -->
+        {{> qrda_templates/template_partials/_related_to}}
     {{/relatedTo}}
   </observation>
 </entry>
