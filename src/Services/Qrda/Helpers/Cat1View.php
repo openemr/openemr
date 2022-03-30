@@ -123,11 +123,11 @@ trait Cat1View
 
     public function result_value(Mustache_Context $context)
     {
+        // TODO Do patient models ever return a string for results?
         $result = $context->find('result');
-        if (empty($result)) {
+        if (empty($result['value'])) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
-
         if (is_array($result)) {
             // indexed array
             if (array_key_exists(0, $result)) {
@@ -147,26 +147,23 @@ trait Cat1View
 
     public function result_value_as_string($result)
     {
-        if (empty($result)) {
+        if (empty($result['value'])) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
-
+        // Not all results will have code
         $oid = $result['system'] ?? $result['codeSystem'];
-        if (!empty($oid)) {
-            $system = $this->get_code_system_for_oid($oid);
-            if (!empty($result['code'])) {
-                return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
-                    . "\" codeSystemName=\"" . $system . "\"/>";
-            } elseif (!empty($result['value'])) {
-                return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
-            } else {
-                // TODO: @sjpadgett, @adunsulag, @ken.matrix the ruby code didn't handle this case... what happens here?
-                // no result so template shouldn't show.
-                return "";
-            }
-        } else {
-            return "";
+        if (!empty($result['code']) && !empty($oid)) {
+            $system = $this->get_code_system_for_oid($oid) ?: $result['codeSystem'];
+            return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
+                . "\" codeSystemName=\"" . $system . "\"/>";
+        } elseif (!empty($result['value'] && array_key_exists('unit', $result))) {
+            // Almost always should have unit. TODO unsure if any patient models return just value.
+            return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
+        } elseif (!empty($result['value'] && empty($result['unit'] ?? null))) {
+            // Such as urine color YELLOW
+            return "<value xsi:type=\"ST\" value=\"" . $result['value'] . "\"/>";
         }
+        return "";
     }
 
     public function authordatetime_or_dispenserid(Mustache_Context $context): bool
@@ -179,6 +176,6 @@ trait Cat1View
     private function get_code_system_for_oid($oid)
     {
         $codesService = new CodeTypesService();
-        return $codesService->getCodeSystemNameFromSystem($oid) ?: 'Unknown';
+        return $codesService->getCodeSystemNameFromSystem($oid);
     }
 }
