@@ -30,8 +30,8 @@ class PortalCard extends CardModel
         global $GLOBALS;
         $this->ed = $GLOBALS['kernel']->getEventDispatcher();
 
-        $this->title = xl('Patient Portal');
-        $this->identifier = self::CARD_ID;
+        $this->setOpts();
+        parent::__construct($this->opts);
 
         $this->processCard();
     }
@@ -47,7 +47,6 @@ class PortalCard extends CardModel
     private function processCard()
     {
         $this->renderCard();
-        $this->setOpts();
         $this->addListener();
     }
 
@@ -62,17 +61,16 @@ class PortalCard extends CardModel
     {
         $this->opts = [
             'acl' => ['patients', 'dem'],
-            'initiallyCollapsed' => false,
+            'initiallyCollapsed' => (getUserSetting(self::CARD_ID) == 0) ? false : true,
             'add' => true,
             'edit' => false,
             'collapse' => true,
             'templateFile' => self::TEMPLATE_FILE,
+            'identifier' => self::CARD_ID,
+            'title' => xl('Patient Portal'),
             'templateVariables' => [
                 'portalAuthorized' => portalAuthorized($pid),
                 'portalLoginHref' => $portal_login_href,
-                'title' => xl('Patient Portal'),
-                'id' => self::CARD_ID,
-                'initiallyCollapsed' => (getUserSetting(self::CARD_ID) == 0) ? false : true,
             ],
         ];
     }

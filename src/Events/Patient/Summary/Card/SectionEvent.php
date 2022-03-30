@@ -97,7 +97,7 @@ class SectionEvent extends Event
                 $objtype = get_class($card);
                 throw new \UnexpectedValueException("Expected an object implementing CardInterface. Received {$objtype}");
             }
-            $_idArr[] = $card->getIdentifer();
+            $_idArr[] = $card->getIdentifier();
         }
         return $_idArr;
     }
