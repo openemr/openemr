@@ -535,11 +535,13 @@ class CdaTemplateImportDispose
                             provider_id,
                             external_id,
                             reason,
+                            discharge_disposition,
                             encounter_type_code,
                             encounter_type_description
                            )
                            VALUES
                            (
+                            ?,
                             ?,
                             ?,
                             ?,
@@ -562,6 +564,7 @@ class CdaTemplateImportDispose
                         $provider_id,
                         $value['extension'] ?? null,
                         $value['code_text'] ?? null,
+                        $value['encounter_discharge_code'] ?? null,
                         $value['code'] ?? null,
                         $value['code_text'] ?? null
                     )

@@ -1,13 +1,13 @@
 <entry>
-  <act classCode="ACT" moodCode="EVN"{{{negation_ind}}}>
+  <act classCode="ACT" moodCode="EVN" {{{negation_ind}}}>
     <!-- Medication Dispensed Act -->
-    <templateId root="2.16.840.1.113883.10.20.24.3.139" extension="2021-08-01"/>
+    <templateId root="2.16.840.1.113883.10.20.24.3.139" extension="2019-12-01"/>
     <code code="SPLY" codeSystem="2.16.840.1.113883.5.6" displayName="supply" codeSystemName="ActClass"/>
     <entryRelationship typeCode="SUBJ">
       <!--Medication dispensed -->
       <supply classCode="SPLY" moodCode="EVN">
         <!--  Medication Dispensed template -->
-        <templateId root="2.16.840.1.113883.10.20.24.3.45" extension="2021-08-01"/>
+        <templateId root="2.16.840.1.113883.10.20.24.3.45" extension="2019-12-01"/>
         <!-- Medication Dispense template -->
         <templateId root="2.16.840.1.113883.10.20.22.4.18" extension="2014-06-09"/>
         <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
