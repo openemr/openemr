@@ -368,4 +368,17 @@ class CodeTypesService
         );
         return $value;
     }
+
+    public function dischargeOptionIdFromCode($formatted_code)
+    {
+        $listService = new ListService();
+        $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]) ?? '';
+        return $ret[0]['option_id'];
+    }
+
+    public function dischargeCodeFromOptionId($option_id)
+    {
+        $listService = new ListService();
+        return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
+    }
 }

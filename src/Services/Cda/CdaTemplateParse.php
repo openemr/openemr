@@ -323,6 +323,15 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_issue'] = $code['code_text'];
 
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'];
+
+            $discharge = $entry['encounter']['sdtc:dischargeDispositionCode'] ?? null;
+            $code = '';
+            if (!empty($discharge)) {
+                $code = $this->codeService->getCodeWithType(($discharge['code'] ?? ''), ($discharge['codeSystemName'] ?? ''), true) ?? '';
+                $option = $this->codeService->dischargeOptionIdFromCode($code) ?? '';
+            }
+            $this->templateData['field_name_value_array']['encounter'][$i]['encounter_discharge_code'] = $option;
+
             $this->templateData['entry_identification_array']['encounter'][$i] = $i;
         }
     }
