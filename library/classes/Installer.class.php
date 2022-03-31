@@ -472,8 +472,8 @@ class Installer
                 $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
                 return false;
             }
+            array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
         }
-
         return true;
     }
 
