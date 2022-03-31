@@ -10,10 +10,12 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\EncounterPerformed;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class EncounterService extends AbstractQdmService implements QdmServiceInterface
@@ -26,6 +28,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     FE.pid,
                     FE.date,
                     FE.encounter_type_code,
+                    FE.discharge_disposition,
                     C.pc_duration
                 FROM form_encounter FE
                 LEFT JOIN openemr_postcalendar_categories C
@@ -48,8 +51,11 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         // Format string "%a" is literal days https://www.php.net/manual/en/dateinterval.format.php
         $days = $end->diff($start)->format("%a");
 
-        $qdmRecord = new EncounterPerformed(
-            [
+        // Discharge Disposition code
+        $dischargeDispoCodeConcat = $this->codeTypesService->dischargeCodeFromOptionId($record['discharge_disposition']);
+        $dischargeDispoCode = $this->makeQdmCode($dischargeDispoCodeConcat);
+
+        $qdmRecord = new EncounterPerformed([
             'authorDatetime' => new DateTime(
                 [
                 'date' => $record['date']
@@ -81,9 +87,9 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                 ]
             ),
             'negationRationale' => null,
-            'diagnoses' => null // TODO Should be 'diagnosis', but since we do checking on the properties we send into QDM objects, we have to make this typo which is in the modelinfo XML file
-            ]
-        );
+            'diagnoses' => null, // TODO Should be 'diagnosis', but since we do checking on the properties we send into QDM objects, we have to make this typo which is in the modelinfo XML file
+            'dischargeDisposition' => $dischargeDispoCode
+        ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['encounter_type_code']);
         foreach ($codes as $code) {
