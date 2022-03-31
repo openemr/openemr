@@ -78,8 +78,8 @@ class EncountermanagerController extends AbstractActionController
                 $combination = $request->getPost('ccda_pid');
             }
 
-            for ($i = 0, $iMax = count($combination); $i < $iMax; $i++) {
-                if ($i == (count($combination) - 1)) {
+            for ($i = 0, $iMax = count($combination) ?? 0; $i < $iMax; $i++) {
+                if ($i == ((count($combination) ?? 0) - 1)) {
                     if ($combination == $pid) {
                         $pids = $pid;
                     } else {
