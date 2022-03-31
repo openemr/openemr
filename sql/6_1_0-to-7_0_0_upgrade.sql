@@ -256,3 +256,12 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 VALUES ('LBTref', 'billing_facility_id', '1', 'Patient Billing Facility', 11, 35, 1, 0, 0, '', 1, 1, '', ''
        ,'Billing facility that patient claims are billed against', 0);
 #EndIf
+
+
+#IfMissingColumn report_itemized rule_id
+ALTER TABLE `report_itemized` ADD COLUMN `rule_id` VARCHAR(31) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn report_itemized item_details
+ALTER TABLE `report_itemized` ADD COLUMN `item_details` TEXT DEFAULT NULL;
+#EndIf

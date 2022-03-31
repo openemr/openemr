@@ -26,6 +26,7 @@
 
 require_once(dirname(__FILE__) . "/../../library/RsFilterIF.php");
 require_once('AmcFilterIF.php');
+require_once('IAmcItemizedReport.php');
 require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
 require_once(dirname(__FILE__) . "/../../../../amc.php");
 
@@ -95,7 +96,7 @@ abstract class AbstractAmcReport implements RsReportIF
         // Parse measurement period, which is stored as array in $dateTarget ('dateBegin' and 'dateTarget').
         $this->_beginMeasurement = $dateTarget['dateBegin'];
         $this->_endMeasurement = $dateTarget['dateTarget'];
-        $this->_manualLabNumber = $options['labs_manual'];
+        $this->_manualLabNumber = $options['labs_manual'] ?? 0;
 
         if (isset($GLOBALS['report_itemizing_temp_flag_and_id']) && $GLOBALS['report_itemizing_temp_flag_and_id']) {
             $this->_aggregator = $options['aggregator'] ?? new AMCItemTracker();
@@ -206,6 +207,10 @@ abstract class AbstractAmcReport implements RsReportIF
                     $numeratorObjects++;
                     $pass = 1;
                 }
+                $resultItemDetails = null;
+                if ($numerator instanceof IAmcItemizedReport) {
+                    $resultItemDetails = $numerator->getItemizedDataForLastTest();
+                }
                 // If itemization is turned on, then record the "passed" item
                 $this->_aggregator->addItem(
                     $GLOBALS['report_itemizing_temp_flag_and_id'],
@@ -215,7 +220,8 @@ abstract class AbstractAmcReport implements RsReportIF
                     $this->_endMeasurement,
                     $pass,
                     $patient->id,
-                    $object_to_count
+                    $object_to_count,
+                    $resultItemDetails
                 );
             } else {
                 // Counting objects other than patients
@@ -227,6 +233,10 @@ abstract class AbstractAmcReport implements RsReportIF
                         $numeratorObjects++;
                         $pass = 1;
                     }
+                    $reportDetails = null;
+                    if ($numerator instanceof IAmcItemizedReport) {
+                        $reportDetails = $numerator->getItemizedDataForLastTest();
+                    }
                     $this->_aggregator->addItem(
                         $GLOBALS['report_itemizing_temp_flag_and_id'],
                         $GLOBALS['report_itemized_test_id_iterator'],
@@ -235,7 +245,8 @@ abstract class AbstractAmcReport implements RsReportIF
                         $this->_endMeasurement,
                         $pass,
                         $patient->id,
-                        $object_to_count
+                        $object_to_count,
+                        $reportDetails
                     );
                 }
             }
@@ -430,5 +441,16 @@ abstract class AbstractAmcReport implements RsReportIF
             $results[$iter] = $row;
         }
         return $results;
+    }
+
+    public function hydrateItemizedDataFromRecord($data): AmcItemizedActionData
+    {
+        $numerator = $this->createNumerator();
+        if ($numerator instanceof IAmcItemizedReport) {
+            return $numerator->hydrateItemizedDataFromRecord($data);
+        } else {
+            // return empty object
+            return new AmcItemizedActionData();
+        }
     }
 }

@@ -58,3 +58,8 @@
     </td>
     <td>{{ row.percentage|text }}</td>
 </tr>
+{% if displayPatients %}
+    {% include "reports/cqm/_results-table-patient-details.html.twig" with {title: "Denominator Patients"|xl, patients: row.patients_pass, cardClass:'info'} %}
+    {% include "reports/cqm/_results-table-patient-details.html.twig" with {title: "Numerator Passed Patients"|xl, patients: row.patients_target, cardClass:'success'} %}
+    {% include "reports/cqm/_results-table-patient-details.html.twig" with {title: "Numerator Failed Patients"|xl, patients: row.patients_failed, cardClass: 'danger'} %}
+{% endif %}

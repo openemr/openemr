@@ -20,7 +20,7 @@ class AMCItemSkipTracker extends AMCItemTracker
         parent::__construct();
     }
 
-    public function addItem($reportId, $itemId, $ruleId, $tempBeginMeasurement, $endMeasurement, $pass, $pid, $object_to_count)
+    public function addItem($reportId, $itemId, $ruleId, $tempBeginMeasurement, $endMeasurement, $pass, $pid, $object_to_count, \AmcItemizedActionData $itemizedDetails)
     {
         // no-op
         return;

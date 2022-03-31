@@ -25,12 +25,15 @@ class AMCItemTracker
         $this->rules = [];
     }
 
-    public function addItem($reportId, $itemId, $ruleId, $tempBeginMeasurement, $endMeasurement, $pass, $pid, $object_to_count)
+    public function addItem($reportId, $itemId, $ruleId, $tempBeginMeasurement, $endMeasurement, $pass, $pid, $object_to_count, \AmcItemizedActionData $itemizedDetails)
     {
         $this->items[] = ['reportId' => $reportId, 'itemId' => $itemId, 'ruleId' => $ruleId,
             'begin' => $tempBeginMeasurement, 'end' => $endMeasurement, 'pass' => $pass, 'pid' => $pid
-            , 'object_to_count' => $object_to_count];
-        insertItemReportTracker($reportId, $itemId, $pass, $pid);
+            , 'object_to_count' => $object_to_count
+            , 'itemizedDetails' => $itemizedDetails];
+
+        $detailsJson = json_encode($itemizedDetails);
+        insertItemReportTracker($reportId, $itemId, $pass, $pid, '', $ruleId, $detailsJson);
     }
 
     public function addRule($rule)

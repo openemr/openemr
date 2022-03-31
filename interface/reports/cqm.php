@@ -33,104 +33,7 @@ if (!empty($_POST)) {
 }
 
 
-/**
- * Formats the report data into a format that can be consumed by the twig rendering output.
- * @param $report_id The report that we are formatting
- * @param $data string json encoded report data retrieved from the database
- * @param $is_amc boolean True if this is an AMC report
- * @param $is_cqm boolean True if this is an CQM report
- * @param $type_report The specific report type (could be a subset of AMC or CQM)
- * @param $amc_report_types If an AMC report, the specific AMC report type
- * @return array A formatted array of record rows to be used for displaying a CQM/AMC/Standard report.
- */
-function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = array())
-{
-    $dataSheet = json_decode($data, true) ?? [];
-    $formatted = [];
-    $main_pass_filter = 0;
-    foreach ($dataSheet as $row) {
-        $row['type'] = $type_report;
-        $row['total_patients'] = $row['total_patients'] ?? 0;
-        $failed_items = null;
-        $displayFieldSubHeader = "";
 
-        if ($is_cqm) {
-            $row['type'] = 'cqm';
-            $row['total_patients'] = $row['initial_population'] ?? 0;
-            if (isset($row['cqm_pqri_code'])) {
-                $displayFieldSubHeader .= " " . xl('PQRI') . ":" . $row['cqm_pqri_code'] . " ";
-            }
-            if (isset($row['cqm_nqf_code'])) {
-                $displayFieldSubHeader .= " " . xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
-            }
-        } else if ($is_amc) {
-            $row['type'] = 'amc';
-            if (!empty($amc_report_types[$type_report]['code_col'])) {
-                $code_col = $amc_report_types[$type_report]['code_col'];
-                $displayFieldSubHeader .= " " . text($amc_report_types[$type_report]['abbr']) . ":"
-                    . text($row[$code_col]) . " ";
-            }
-        }
-
-        if (isset($row['is_main'])) {
-            // note that the is_main record must always come before is_sub in the report or the data will not work.
-            $main_pass_filter = $row['pass_filter'] ?? 0;
-            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
-            if ($type_report == "standard") {
-                // Excluded is not part of denominator in standard rules so do not use in calculation
-                $failed_items = $row['pass_filter'] - $row['pass_target'];
-            } else {
-                $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
-            }
-            $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
-        } else if (isset($row['is_sub'])) {
-            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category'])
-                . ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
-            // Excluded is not part of denominator in standard rules so do not use in calculation
-            $failed_items = $main_pass_filter - $row['pass_target'];
-        } else if (isset($row['is_plan'])) {
-            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
-        }
-
-        if (isset($row['itemized_test_id'])) {
-            $csrf_token = CsrfUtils::collectCsrfToken();
-
-            $base_link = sprintf(
-                "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"
-                . "&itemized_test_id=%d&numerator_label=%s&csrf_token_form=%s",
-                urlencode($report_id),
-                urlencode($row['itemized_test_id']),
-                urlencode($row['numerator_label'] ?? ''),
-                urlencode($csrf_token)
-            );
-
-            // we need the provider & group id here...
-
-            // denominator
-            if (isset($row['pass_filter']) && $row['pass_filter'] > 0) {
-                $row['display_pass_link'] = $base_link . "&pass_id=all";
-            }
-
-            // excluded denominator
-            if (isset($row['excluded']) && ($row['excluded'] > 0)) {
-                $row['display_excluded_link'] = $base_link . "&pass_id=exclude";
-            }
-
-            // passed numerator
-            if (isset($row['pass_target']) && ($row['pass_target'] > 0)) {
-                $row['display_target_link'] = $base_link . "&pass_id=pass";
-            }
-            // failed numerator
-            if (isset($failed_items) && $failed_items > 0) {
-                $row['display_failed_link'] = $base_link . "&pass_id=fail";
-            }
-            $row['failed_items'] = $failed_items;
-        }
-
-        $formatted[] = $row;
-    }
-    return $formatted;
-}
 
 $amc_report_types = CertificationReportTypes::getReportTypeRecords();
 
@@ -686,6 +589,9 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
             <?php } ?>
             <?php } ?>
             <?php if (!empty($report_id)) { ?>
+                <?php if ($is_amc_report) : ?>
+                    <a class="btn btn-secondary" href="amc_full_report.php?report_id=<?php echo attr_url($report_id); ?>"><?php echo xlt('AMC Detailed Report'); ?></a>
+                <?php endif; ?>
             <a href='#' class='btn btn-secondary btn-print' id='printbutton'><?php echo xlt('Print'); ?></a>
                 <?php if ($type_report == "cqm_2014") { ?>
               <a href='#' id="genQRDA" class='btn btn-secondary btn-transmit' onclick='return downloadQRDA()'><?php echo xlt('Generate QRDA I – 2014'); ?></a>
@@ -716,10 +622,30 @@ if (!empty($report_id)) {
     $twig = $twigContainer->getTwig();
     $form_provider = $_POST['form_provider'] ?? '';
 
+    $itemIdsSql = "SELECT itemized_test_id, `pid` FROM `report_itemized` WHERE report_id = ? GROUP BY itemized_test_id,pid";
+    $itemIds = \OpenEMR\Common\Database\QueryUtils::fetchRecords($itemIdsSql, [$report_id]);
+    $reportPatientMap = [];
+    foreach ($itemIds as $result) {
+        $item_id = $result['itemized_test_id'];
+        if (empty($reportPatientMap[$item_id])) {
+            $reportPatientMap[$item_id] = [];
+        }
+        $reportPatientMap[$item_id][] = $result['pid'];
+    }
+
+    $sql = "SELECT patient_data.* FROM patient_data WHERE pid IN (select DISTINCT pid FROM `report_itemized` WHERE report_id = ?)";
+    $patients = \OpenEMR\Common\Database\QueryUtils::fetchRecords($sql, [$report_id]);
+    $patientsById = [];
+    foreach ($patients as $patient) {
+        $patientsById[$patient['pid']] = $patient;
+    }
+
     $data = [
         'report_id' => $report_id
         , 'collate_outer' => $form_provider == 'collate_outer'
         , 'datasheet' => $dataSheet
+        , 'reportPatientMap' => $reportPatientMap
+        , 'patients' => $patients
     ];
 
     if ($is_cqm_report) {

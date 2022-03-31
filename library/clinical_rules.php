@@ -1326,7 +1326,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                 } else {
                     //batching
                     $sql .= " LIMIT " . intval($start) - 1 . "," . intval($batchSize);
-                    $rez = sqlStatementCdrEngine($sql, array($provider, $provider, ($start - 1), $batchSize));
+                    $rez = sqlStatementCdrEngine($sql, array($provider, $provider, $provider));
                 }
             } else {  //$pat_prov_rel == 'primary'
                 // Choose patients that are assigned to the specific physician (primary physician in patient demographics)

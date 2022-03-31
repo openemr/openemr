@@ -24,8 +24,22 @@
  *
  */
 
-class AMC_315g_7_Numerator implements AmcFilterIF
+class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
 {
+    const ACTION_LABEL_CCDA = "send_sum_elec";
+    const ACTION_LABEL_CONFIRMED = "send_sum_elec_confirmed";
+    const ACTION_DETAILS_KEY_CCDA_CREATED = 'ccda_sent';
+    const ACTION_DETAILS_KEY_RECEIPT_CONFIRMED = 'receipt_conf';
+    const ACTION_DETAILS_KEY_CCDA_NOT_SENT = 'no_ccda_sent';
+    const ACTION_DETAILS_KEY_CCDA_INVALID = 'ccda_invalid';
+
+    private $lastTestActionData;
+
+    public function __construct()
+    {
+        $this->lastTestActionData = new AmcItemizedActionData();
+    }
+
     public function getTitle()
     {
         return "AMC_315g_7 Numerator";
@@ -58,9 +72,35 @@ class AMC_315g_7_Numerator implements AmcFilterIF
         //count the action toward the measure. This may include confirmation of receipt or that a query
         //of the summary of care record has occurred in order to count the action in the numerator.
         // this means send_sum_elec_amc_confirmed needs to exist as well
+        $amcElementCCDAComplete = amcCollect('send_sum_ccda_complete', $patient->id, 'transactions', $patient->object['id']);
         $amcElementElecSent = amcCollect('send_sum_elec_amc', $patient->id, 'transactions', $patient->object['id']);
         $amcElementConfirmed = amcCollect('send_sum_amc_confirmed', $patient->id, 'transactions', $patient->object['id']);
 
+        // nothing sent so no details needed
+        if (empty($amcElementElecSent)) {
+            if (empty($amcElementCCDAComplete)) {
+                $this->lastTestActionData->addActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_NOT_SENT]);
+            } else {
+                $this->lastTestActionData->addActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_INVALID
+                    , 'date' => $amcElementCCDAComplete['date_completed']]);
+            }
+        } else {
+            $this->lastTestActionData->addActionData(
+                self::ACTION_LABEL_CCDA,
+                true,
+                ['type' => self::ACTION_DETAILS_KEY_CCDA_CREATED, 'date' => $amcElementElecSent['date_completed']]
+            );
+        }
+
+        if (empty($amcElementConfirmed)) {
+            $this->lastTestActionData->addActionData(self::ACTION_LABEL_CONFIRMED, false, '');
+        } else {
+            $this->lastTestActionData->addActionData(
+                self::ACTION_LABEL_CONFIRMED,
+                true,
+                ['type' => self::ACTION_DETAILS_KEY_RECEIPT_CONFIRMED, 'date' => $amcElementConfirmed['date_completed']]
+            );
+        }
         if (!empty($amcElementElecSent) && !(empty($amcElementConfirmed))) {
             // we check the problems, allergies, and medications pieces at the time we generate the send_sum_elec_amc
             // when OpenEMR is used to generate the CCDA
@@ -70,5 +110,52 @@ class AMC_315g_7_Numerator implements AmcFilterIF
             // required elements.
             return true;
         }
+    }
+
+    /**
+     * Returns the itemized data results as a hashmap of action_id => 0|1 where 0 is failed and 1 is passed
+     * @return array
+     */
+    public function getItemizedDataForLastTest(): AmcItemizedActionData
+    {
+        return $this->lastTestActionData;
+    }
+
+    /**
+     * Returns the hydrated (language translated) data record that came from the itemized data record
+     * @return AmcItemizedActionData
+     */
+    public function hydrateItemizedDataFromRecord($actionData): AmcItemizedActionData
+    {
+        $ccdaLabel = xl("Summary of Care Record (including all CMS required information or indication of none) Created and Transmitted / Exchanged Electronically During Calendar Year");
+        $confirmedLabel = xl("Receipt of Summary of Care Record Confirmed During Calendar Year");
+        $result = new AmcItemizedActionData();
+        foreach ($actionData as $key => $data) {
+            $details = $this->parseDetailsToString($data['details'] ?? []);
+            if ($key == self::ACTION_LABEL_CCDA) {
+                $result->addActionData($key, $data['value'] ?? false, $details, $ccdaLabel);
+            } else if ($key == self::ACTION_LABEL_CONFIRMED) {
+                $result->addActionData($key, $data['value'] ?? false, $details, $confirmedLabel);
+            }
+        }
+        return $result;
+    }
+    /*
+     * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
+     */
+    private function parseDetailsToString($details)
+    {
+        $newDetails = '';
+        $type = $details['type'] ?? '';
+        if ($type == self::ACTION_DETAILS_KEY_CCDA_CREATED) {
+            $newDetails = xl('Summary of Care Record Created and Transmitted On') . ' ' . $details['date'];
+        } else if ($type == self::ACTION_DETAILS_KEY_RECEIPT_CONFIRMED) {
+            $newDetails = xl('Receipt Confirmed On') . ' ' . $details['date'];
+        } else if ($type == self::ACTION_DETAILS_KEY_CCDA_NOT_SENT) {
+            $newDetails = xl("Summary of Care Document not created electronically for referral");
+        } else if ($type == self::ACTION_DETAILS_KEY_CCDA_INVALID) {
+            $newDetails = xl("Summary of Care Document created for referral had missing required data or missing notation of no current problem, medication, and/or medication allergy");
+        }
+        return $newDetails;
     }
 }
