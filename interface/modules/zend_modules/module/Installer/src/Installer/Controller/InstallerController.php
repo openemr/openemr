@@ -24,6 +24,7 @@ use Installer\Model\InstModule;
 use Application\Listener\Listener;
 use Installer\Model\InstModuleTable;
 use Laminas\Db\Adapter\Adapter;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use Laminas\Console\Request as ConsoleRequest;
 use OpenEMR\Services\Utils\SQLUpgradeService;
@@ -90,6 +91,11 @@ class InstallerController extends AbstractActionController
 
     public function registerAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            echo xlt('Not Authorized');
+            exit;
+        }
+
         $status = false;
         $request = $this->getRequest();
         if (method_exists($request, 'isPost')) {
@@ -133,6 +139,11 @@ class InstallerController extends AbstractActionController
 
     public function manageAction()
     {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            echo json_encode(["status" => xlt('Not Authorized')]);
+            exit;
+        }
+
         $outputToBrowser = '';
         $request = $this->getRequest();
         $status = $this->listenerObject->z_xlt("Failure");

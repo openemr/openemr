@@ -527,6 +527,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_date'] = $newdata['encounter']['encounter_diagnosis_date'];
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_code'] = $newdata['encounter']['encounter_diagnosis_code'];
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_issue'] = $newdata['encounter']['encounter_diagnosis_issue'];
+                $arr_encounter['encounter'][$k]['encounter_discharge_code'] = $newdata['encounter']['encounter_discharge_code'];
                 $k++;
             } elseif ($table == 'vital_sign') {
                 $arr_vitals['vitals'][$q]['extension'] = $newdata['vital_sign']['extension'];
@@ -1325,6 +1326,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_encounter['encounter'][$k]['encounter_diagnosis_date'] = $data['encounter-encounter_diagnosis_date'][$i];
                                 $arr_encounter['encounter'][$k]['encounter_diagnosis_code'] = $data['encounter-encounter_diagnosis_code'][$i];
                                 $arr_encounter['encounter'][$k]['encounter_diagnosis_issue'] = $data['encounter-encounter_diagnosis_issue'][$i];
+                                $arr_encounter['encounter'][$k]['encounter_discharge_code'] = $data['encounter-encounter_discharge_code'][$i] ?? '';
                                 $k++;
                             } elseif (substr($key, 0, -4) == 'procedure_result') {
                                 $arr_procedure_res['procedure_result'][$j]['proc_text'] = $data['procedure_result-proc_text'][$i];

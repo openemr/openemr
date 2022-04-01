@@ -103,8 +103,12 @@ class EncounterccdadispatchController extends AbstractActionController
             $view = $this->params('view');
             $pids = explode('|', $combination);
             $measures = $_REQUEST['report_measures'] ?? "";
-            if (is_array($measures) && empty($measures[0])) {
-                $measures = ''; // defaults to all current.
+            if (is_array($measures)) {
+                if (empty($measures[0])) {
+                    $measures = ''; // defaults to all current one per patient.
+                } elseif (($measures[0] ?? null) == 'all') {
+                    $measures = 'all'; // defaults to all current measures per patient.
+                }
             }
             $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
             exit;

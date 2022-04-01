@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -24,9 +24,15 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     O.encounter_id AS encounter,
                     O.procedure_order_type,
                     O.date_ordered,
-                    OC.procedure_code
+                    OC.procedure_code,
+                    RES.date AS result_date,
+                    RES.result_code,
+                    RES.units as result_units,
+                    RES.result as result_value
                 FROM procedure_order O
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                    JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
+                    JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
                 WHERE O.procedure_order_type = 'order'
                 ";
 
@@ -40,11 +46,21 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new ProcedurePerformed([
-            'relevantDatetime' => new DateTime([
+        $qdmModel = new ProcedurePerformed(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['date_ordered']
-            ]),
-        ]);
+                ]
+            ),
+            'result' => new Quantity(
+                [
+                'value' => $record['result_value'],
+                'unit' => $record['result_units']
+                ]
+            ),
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {

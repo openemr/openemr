@@ -23,6 +23,7 @@
 */
 
 // array of the data_types of the fields
+// TODO: Move these all to a statically typed class with constants that can be referenced throughout the codebase!
 $datatypes = array(
     "1"  => xl("List box"),
     "2"  => xl("Textbox"),
@@ -60,6 +61,7 @@ $datatypes = array(
     "46" => xl("List box w/comment"),
     "51" => xl("Patient"),
     "52" => xl("Previous Names"),
+    "53" => xl("Patient Encounters List")
 );
 
 // These are the data types that can reference a list.

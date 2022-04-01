@@ -14,20 +14,20 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\AddressService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Services\AddressService;
-use OpenEMR\Validators\InsuranceValidator;
-use OpenEMR\Common\Database\QueryUtils;
 
 class InsuranceCompanyService extends BaseService
 {
     private const INSURANCE_TABLE = "insurance_companies";
-    private $insuranceValidator;
+    private $insuranceCompanyValidator;
     private $addressService = null;
     public const TYPE_FAX = 5;
     public const TYPE_WORK = 2;
@@ -40,7 +40,7 @@ class InsuranceCompanyService extends BaseService
     {
         $this->addressService = new AddressService();
         UuidRegistry::createMissingUuidsForTables([self::INSURANCE_TABLE]);
-        $this->insuranceValidator = new InsuranceValidator();
+        $this->insuranceCompanyValidator = new InsuranceCompanyValidator();
         parent::__construct(self::INSURANCE_TABLE);
     }
 
@@ -121,7 +121,7 @@ class InsuranceCompanyService extends BaseService
     {
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {
-            $isValidcondition = $this->insuranceValidator->validateId(
+            $isValidcondition = $this->insuranceCompanyValidator->validateId(
                 'uuid',
                 self::INSURANCE_TABLE,
                 $search['id'],

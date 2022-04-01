@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -48,24 +48,32 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
     {
         $result = 'Negative';
         if (
-            !empty($record['result']) &&
-            $record['result'] != 'Negative'
+            !empty($record['result'])
+            && $record['result'] != 'Negative'
         ) {
-            $result = new Quantity([
+            $result = new Quantity(
+                [
                 'value' => $record['result'],
                 'unit' => $record['units']
-            ]);
+                ]
+            );
         }
 
-        $qdmModel = new LaboratoryTestPerformed([
-            'relevantDatetime' => new DateTime([
+        $qdmModel = new LaboratoryTestPerformed(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
+                ]
+            ),
             'result' => $result,
-            'resultDatetime' => new DateTime([
+            'resultDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ])
-        ]);
+                ]
+            )
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {

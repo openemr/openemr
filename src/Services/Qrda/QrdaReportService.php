@@ -21,6 +21,7 @@ use OpenEMR\Common\System\System;
 use OpenEMR\Cqm\CqmClient;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Generator;
+use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
 use OpenEMR\Services\Qdm\QdmRequestAll;
@@ -28,13 +29,15 @@ use OpenEMR\Services\Qdm\QdmRequestOne;
 
 class QrdaReportService
 {
-    protected $client;
+    protected $builder;
+    protected $calculator;
     protected $patientJson;
     public $measuresPath;
 
     public function __construct()
     {
-        $this->client = CqmServiceManager::makeCqmClient();
+        $this->builder = new QdmBuilder();
+        $this->calculator = new CqmCalculator($this->builder);
         $this->measuresPath = MeasureService::fetchMeasuresPath();
         $this->patientJson = "";
     }
@@ -53,7 +56,7 @@ class QrdaReportService
     }
 
     /**
-     * @param $measures
+     * @param  $measures
      * @return array
      */
     function resolveMeasuresPath($measures): array
@@ -92,7 +95,7 @@ class QrdaReportService
     }
 
     /**
-     * @param $pid
+     * @param  $pid
      * @return array
      * @throws \Exception
      */
@@ -103,17 +106,16 @@ class QrdaReportService
         } else {
             $request = new QdmRequestAll();
         }
-        $builder = new QdmBuilder();
-        $models = $builder->build($request) ?? [];
+        $models = $this->builder->build($request) ?? [];
 
         return $models;
     }
 
     /**
-     * @param $pid
-     * @param $measure
-     * @param $effectiveDate
-     * @param $effectiveEndDate
+     * @param  $pid
+     * @param  $measure
+     * @param  $effectiveDate
+     * @param  $effectiveEndDate
      * @return \Psr\Http\Message\StreamInterface|array
      * @throws \Exception
      */
@@ -124,34 +126,42 @@ class QrdaReportService
         } else {
             $request = new QdmRequestAll();
         }
-        $builder = new QdmBuilder();
-        $models = $builder->build($request);
-        $json_models = json_encode($models);
-        $patientStream = Psr7\Utils::streamFor($json_models);
-        $measureFiles = MeasureService::fetchMeasureFiles($measure);
-        $measureFileStream = new LazyOpenStream($measureFiles['measure'], 'r');
-        $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
-        $options = [
-            'doPretty' => true,
-            'includeClauseResults' => true,
-            'requestDocument' => true,
-            'effectiveDate' => $effectiveDate,
-            'effectiveDateEnd' => $effectiveEndDate
-        ];
-        $optionsStream = Psr7\Utils::streamFor(json_encode($options));
-
-        return $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+        return $this->calculator->calculateMeasure($request, $measure, $effectiveDate, $effectiveEndDate);
     }
 
     /**
-     * @param $pid
-     * @param $measures
+     * @param  $pid
+     * @param  $measures
      * @return string
      */
     public function generateCategoryIXml($pid, $measures = []): string
     {
-        $exportService = new ExportService(new QdmBuilder(), new QdmRequestOne($pid));
-        $xml = $exportService->export(MeasureService::fetchAllMeasuresArray($measures));
+        if ($pid) {
+            $request = new QdmRequestOne($pid);
+        } else {
+            $request = new QdmRequestAll();
+        }
+        $exportService = new ExportCat1Service($this->builder, $request);
+        $xml = $exportService->export($measures);
+
+        return $xml;
+    }
+
+    public function generateCategoryIIIXml($pid, $measure, $effectiveDate, $efffectiveDateEnd): string
+    {
+        if ($pid) {
+            $request = new QdmRequestOne($pid);
+        } else {
+            $request = new QdmRequestAll();
+        }
+        $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
+        $xml = $exportService->export(
+            [
+                $measure
+            ],
+            $effectiveDate,
+            $efffectiveDateEnd
+        );
 
         return $xml;
     }

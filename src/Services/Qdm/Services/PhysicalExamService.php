@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -49,18 +49,26 @@ class PhysicalExamService extends AbstractQdmService implements QdmServiceInterf
 
     public function makeQdmModel(array $record)
     {
-        $model = new PhysicalExamPerformed([
-            'relevantDatetime' => new DateTime([
+        $model = new PhysicalExamPerformed(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
-            'authorDatetime' => new DateTime([
+                ]
+            ),
+            'authorDatetime' => new DateTime(
+                [
                 'date' => $record['date']
-            ]),
-            'result' => new Quantity([
+                ]
+            ),
+            'result' => new Quantity(
+                [
                 'value' => $record['value'],
                 'unit' => $record['unit']
-            ])
-        ]);
+                ]
+            )
+            ]
+        );
 
         if (isset($this->code_maping[$record['type']])) {
             $model->addCode(new Code($this->code_maping[$record['type']]));

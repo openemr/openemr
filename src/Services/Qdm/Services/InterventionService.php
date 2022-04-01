@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -39,11 +39,15 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new InterventionPerformed([
-            'relevantDatetime' => new DateTime([
+        $qdmModel = new InterventionPerformed(
+            [
+            'relevantDatetime' => new DateTime(
+                [
                 'date' => $record['date_ordered']
-            ]),
-        ]);
+                ]
+            ),
+            ]
+        );
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {

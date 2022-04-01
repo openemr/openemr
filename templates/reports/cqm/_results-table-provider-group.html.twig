@@ -1,0 +1,15 @@
+<tr>
+    <td class="detail text-left">
+        <h5>
+            <span>{{ "Provider Group"|xlt }}: {{ row.name|text }}</span>
+            {% if row.npi or row.federaltaxid %}
+            <span>(
+                {% if row.npi %}<span>{{ "NPI"|xlt }}: {{ row.npi|text }}</span>{% endif %}
+                {% if row.federaltaxid %}<span>{{ "TIN"|xlt }}: {{ row.federaltaxid|text }}</span>{% endif %}
+                )
+            </span>
+            {% endif %}
+        </h5>
+    </td>
+    <td colspan="{{ columns-1|attr }}">&nbsp;</td>
+</tr>
