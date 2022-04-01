@@ -156,9 +156,8 @@ if ($GLOBALS['language_menu_login']) {
                                 ?>
                             </select>
                         </div>
-                    <?php
-                    } else {
-                      echo $hiddenLanguageField;
+                    <?php } else {
+                        echo $hiddenLanguageField;
                     }
                     ?>
 
