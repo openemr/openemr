@@ -253,7 +253,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $details['lname'] = '';
             $details['organization'] = '';
         } elseif ($recipients == 'emr_direct') {
-            $query = "select fname, lname, organization, street, city, state, zip, phonew1 from users where email = ?";
+            $query = "select fname, lname, organization, street, city, state, zip, phonew1 from users where email_direct = ?";
             $field_name[] = $params;
         } elseif ($recipients == 'patient') {
             $query = "select fname, lname from patient_data WHERE pid = ?";
