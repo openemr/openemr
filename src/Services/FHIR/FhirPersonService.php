@@ -265,9 +265,8 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         $processingResult = new ProcessingResult();
         $processingResult->setData([]);
         foreach ($records as $record) {
-            $processingResult->addData($this->parseOpenEMRRecord($record));
+            $processingResult->addData($record);
         }
-
         return $processingResult;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
