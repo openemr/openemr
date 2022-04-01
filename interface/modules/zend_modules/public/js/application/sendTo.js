@@ -431,25 +431,34 @@ function send() {
                 url: APP_URL + "/encounterccdadispatch/index?combination=" + combination + "&sections=" + components + "&view=1&emr_transfer=1&recipient=emr_direct&param=" + recipients + "&referral_reason=" + referral_reason + "&components=" + comp + "&latest_ccda=" + latest_ccda,
                 dataType: "html",
                 data: {},
-            });
-            $.ajax({
-                type: "POST",
-                url: APP_URL + "/encountermanager/transmitCCD?combination=" + combination + "&recipients=" + recipients + "&xml_type=" + format,
-                dataType: "html",
-                data: {},
-                success: function (thedata) {
-                    $('.ap-st-st-12').fadeOut();
-                    $('.activity_indicator').css({"display": "none"});
-                    var resultTranslated = js_xl(thedata);
-                    alert(resultTranslated.msg);
-                },
-                error: function () {
-                    $('.ap-st-st-12').fadeOut();
-                    $('.activity_indicator').css({"display": "none"});
-                    var resultTranslated = js_xl("Failed to send");
-                    alert(resultTranslated.msg);
-                }
-            });
+            })
+            .done(function() {
+                $.ajax({
+                    type: "POST",
+                    url: APP_URL + "/encountermanager/transmitCCD?combination=" + combination + "&recipients=" + recipients + "&xml_type=" + format,
+                    dataType: "html",
+                    data: {},
+                    success: function (thedata) {
+                        $('.ap-st-st-12').fadeOut();
+                        $('.activity_indicator').css({"display": "none"});
+                        var resultTranslated = js_xl(thedata);
+                        alert(resultTranslated.msg);
+                    },
+                    error: function () {
+                        $('.ap-st-st-12').fadeOut();
+                        $('.activity_indicator').css({"display": "none"});
+                        var resultTranslated = js_xl("Failed to send");
+                        alert(resultTranslated.msg);
+                    }
+                });
+            })
+            .fail(function() {
+                $('.ap-st-st-12').fadeOut();
+                $('.activity_indicator').css({"display": "none"});
+                var resultTranslated = js_xl("Failed to send");
+                alert(resultTranslated.msg);
+            })
+
         } else {
             $('.activity_indicator').css({"display": "none"});
             var resultTranslated = js_xl("Please Specify at least One Direct Address");
