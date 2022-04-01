@@ -93,6 +93,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id, $pass = 'all'
 
     $sql = "SELECT * FROM `report_itemized`";
     $sqlParameters = array($report_id,$itemized_test_id,$numerator_label);
+    $reportDataByPid = [];
     $actionHeaders = [];
 
     $processActions = true;
@@ -137,23 +138,25 @@ function collectItemizedPatientData($report_id, $itemized_test_id, $pass = 'all'
 
     // now grab all the patients and let's populate here
     $sanitizedPids = array_map('intval', array_keys($reportDataByPid));
-    $sql = "SELECT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS FROM patient_data WHERE pid "
-    . " IN (" . implode(",", $sanitizedPids) . ")";
+    if (!empty($sanitizedPids)) {
+        $sql = "SELECT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS FROM patient_data WHERE pid "
+            . " IN (" . implode(",", $sanitizedPids) . ")";
 
-    $rez = sqlStatementCdrEngine($sql, []);
-    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-        $pid = $row['pid'];
-        // do we want to make this an object to preserve memory?  Lot of duplicate counting
-        foreach ($reportDataByPid[$pid] as $index) {
-            $reportData[$index]['patient'] = $row;
+        $rez = sqlStatementCdrEngine($sql, []);
+        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+            $pid = $row['pid'];
+            // do we want to make this an object to preserve memory?  Lot of duplicate counting
+            foreach ($reportDataByPid[$pid] as $index) {
+                $reportData[$index]['patient'] = $row;
+            }
+            unset($reportDataByPid[$pid]);
         }
-        unset($reportDataByPid[$pid]);
-    }
-    // report data had mismatched keys or old pids... we've got to clean up the item data here and remove the patients
-    // that don't match here...
-    if (!empty($reportDataByPid)) {
-        foreach ($reportDataByPid as $pid => $index) {
-            unset($reportData[$index]['patient']);
+        // report data had mismatched keys or old pids... we've got to clean up the item data here and remove the patients
+        // that don't match here...
+        if (!empty($reportDataByPid)) {
+            foreach ($reportDataByPid as $pid => $index) {
+                unset($reportData[$index]['patient']);
+            }
         }
     }
 

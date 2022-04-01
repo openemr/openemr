@@ -72,17 +72,17 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
         //count the action toward the measure. This may include confirmation of receipt or that a query
         //of the summary of care record has occurred in order to count the action in the numerator.
         // this means send_sum_elec_amc_confirmed needs to exist as well
-        $amcElementCCDAComplete = amcCollect('send_sum_ccda_complete', $patient->id, 'transactions', $patient->object['id']);
+        $amcElementCCDAValid = amcCollect('send_sum_valid_ccda', $patient->id, 'transactions', $patient->object['id']);
         $amcElementElecSent = amcCollect('send_sum_elec_amc', $patient->id, 'transactions', $patient->object['id']);
         $amcElementConfirmed = amcCollect('send_sum_amc_confirmed', $patient->id, 'transactions', $patient->object['id']);
 
         // nothing sent so no details needed
         if (empty($amcElementElecSent)) {
-            if (empty($amcElementCCDAComplete)) {
+            if (empty($amcElementCCDAValid)) {
                 $this->lastTestActionData->addActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_NOT_SENT]);
             } else {
                 $this->lastTestActionData->addActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_INVALID
-                    , 'date' => $amcElementCCDAComplete['date_completed']]);
+                    , 'date' => $amcElementCCDAValid['date_completed']]);
             }
         } else {
             $this->lastTestActionData->addActionData(

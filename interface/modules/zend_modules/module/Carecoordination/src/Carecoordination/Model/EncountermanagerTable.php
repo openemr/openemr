@@ -15,6 +15,7 @@ namespace Carecoordination\Model;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
 require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
+require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
 use CouchDB;
 use DOMDocument;
@@ -239,25 +240,15 @@ class EncountermanagerTable extends AbstractTableGateway
                 $elec_sent = array();
                 $arr = explode('|', $ccda_combination);
                 foreach ($arr as $value) {
-                    $query = "SELECT id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
+                    $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = $appTable->zQuery($query, array($value));
+                    // wierd foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
+                        // gets connected at the time the ccda is created
+                        $trans_id = $val['transaction_id'];
                     }
 
-                    // this segment of code is attempting to connect a CCDA to a Referral form (stored in the transactions)
-                    // table so we can track for Automated Measure Calculation (AMC) purposes.  This assumes that a referral
-                    // form has been created before the CCDA was sent (otherwise the transaction id is 0)
-                    $refs = $appTable->zQuery("select t.id as trans_id from ccda c inner join transactions t on (t.pid = c.pid and t.date = c.updated_date) where c.pid = ? and c.emr_transfer = 1 and t.title = 'LBTref'", array($value));
-                    if ($refs->count() == 0) {
-                        $trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", array($value));
-                        $trans_cur = $trans->current();
-                        $trans_id = $trans_cur['id'] ? $trans_cur['id'] : 0;
-                    } else {
-                        foreach ($refs as $r) {
-                            $trans_id = $r['trans_id'];
-                        }
-                    }
                     $elec_sent[] = array('pid' => $value, 'map_id' => $trans_id);
 
                     $ccda = $this->getFile($ccda_id);
@@ -284,13 +275,17 @@ class EncountermanagerTable extends AbstractTableGateway
         }
 
         if ($d_Address == '') {
-            foreach ($elec_sent as $elec) {
-                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_amc',?,'transactions',?,NOW(),NOW())", array($elec['pid'], $elec['map_id']));
 
-                // we only want to mark this as confirmed if the CCDA had all of the requisite parts
-                // TODO: @adunsulag need to check for medications, allergies, problems here
-                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_elec_amc',?,'transactions',?,NOW(),NOW())", array($elec['pid'], $elec['map_id']));
-                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_elec_amc_confirmed',?,'transactions',?,NOW(),NOW())", array($elec['pid'], $elec['map_id']));
+            foreach ($elec_sent as $elec) {
+                // check to make sure its a valid ccda
+                $collect = amcCollect('send_sum_valid_ccda', $elec['pid'], 'transactions', $elec['map_id']);
+                // if the ccda is invalid we are not going to mark this as complete at all.
+                if (!empty($collect)) {
+                    amcAdd('send_sum_amc', true, $elec['pid'], 'transactions', $elec['map_id']);
+                    amcAdd('send_sum_elec_amc', true, $elec['pid'], 'transactions', $elec['map_id']);
+                    // when we use EMR Direct it ensures deliverability to the recipient so we automatically mark the ccda summary of care as confirmed
+                    amcAdd('send_sum_elec_amc_confirmed', true, $elec['pid'], 'transactions', $elec['map_id']);
+                }
             }
 
             return ("Successfully Sent");

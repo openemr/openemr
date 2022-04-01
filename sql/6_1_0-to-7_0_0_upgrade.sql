@@ -266,3 +266,7 @@ ALTER TABLE `report_itemized` ADD COLUMN `rule_id` VARCHAR(31) DEFAULT NULL;
 #IfMissingColumn report_itemized item_details
 ALTER TABLE `report_itemized` ADD COLUMN `item_details` TEXT;
 #EndIf
+
+#IfMissingColumn ccda transaction_id
+ALTER TABLE `ccda` ADD COLUMN `transaction_id` BIGINT(20) COMMENT 'fk to transactions referral record';
+#EndIf
