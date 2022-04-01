@@ -473,7 +473,9 @@ class Installer
                 return false;
             }
             // the new site will create it's own keys so okay to delete these copied from the source site
-            array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
+            if (!$this->clone_database) {
+                array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
+            }
         }
 
         return true;
