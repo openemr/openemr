@@ -17,57 +17,24 @@
                         <th class="amc-action-label">{{ label|text }}</th>
                         {% endfor %}
                         <th>&nbsp;</th>
-{#                        {% if patients.actionLabels|length %}#}
-{#                        <th class="d-print-none">{{ "Action Details"|xlt }}</th>#}
-{#                        {% else %}#}
-{#                        <th class="d-print-none">&nbsp;</th>#}
-{#                        {% endif %}#}
                     </tr>
                     </thead>
                     <tbody>
                         {% for patientDetails in patients.itemizedPatients %}
                             <tr>
-                                <td class="amc-demographic-label">{{ patientDetails.patient.fname }} {{ patientDetails.patient.lname}}</td>
-                                <td class="amc-demographic-label">{{ patientDetails.patient.sex }}</td>
-                                <td class="amc-demographic-label">{{ patientDetails.patient.DOB }}</td>
+                                <td class="amc-demographic-label">{{ patientDetails.patient.fname|text }} {{ patientDetails.patient.lname|text}}</td>
+                                <td class="amc-demographic-label">{{ patientDetails.patient.sex|text }}</td>
+                                <td class="amc-demographic-label">{{ patientDetails.patient.DOB|text }}</td>
                                 {% if patientDetails.actions|length %}
                                     {%  for action in patientDetails.actions %}
                                     <td class="amc-action-label">
                                         <strong>{% if action.value %}{{ "Yes"|xlt }}{% else %}{{ "No"|xlt }}{% endif %}</strong>
-                                        {% if action.details != "" %} - <span>{{ action.details }}</span>{% endif %}
+                                        {% if action.details != "" %} - <span>{{ action.details|text }}</span>{% endif %}
                                     </td>
                                     {% endfor %}
                                 {% endif %}
                                 <td></td>
-{#                                <td class="d-print-none">#}
-{#                                    {% if patientDetails.actions|length %}#}
-{#                                        <ul>#}
-{#                                            {%  for action in patientDetails.actions %}#}
-{#                                                {% if action.details != "" %}#}
-{#                                                    <li>{{ action.details|text }}</li>#}
-{#                                                {% endif %}#}
-{#                                            {% endfor %}#}
-{#                                        </ul>#}
-{#                                    {% endif %}#}
-{#                                </td>#}
                             </tr>
-{#                            {% if patientDetails.actions|length %}#}
-{#                            <tr class="d-print-table-row d-none">#}
-{#                                <td colspan="3">#}
-{#                                </td>#}
-{#                                <td colspan="{{ patientDetails.actions|length }}">#}
-{#                                        <ul>#}
-{#                                            {%  for action in patientDetails.actions %}#}
-{#                                                {% if action.details != "" %}#}
-{#                                                <li>#}
-{#                                                        {{ action.details|text }}#}
-{#                                                </li>#}
-{#                                                {% endif %}#}
-{#                                            {% endfor %}#}
-{#                                        </ul>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            {% endif %}#}
                         {% endfor %}
                     </tbody>
                 </table>

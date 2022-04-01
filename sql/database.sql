@@ -7713,7 +7713,7 @@ CREATE TABLE `report_itemized` (
   `pass` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is fail, 1 is pass, 2 is excluded',
   `pid` bigint(20) NOT NULL,
   `rule_id` VARCHAR(31) DEFAULT NULL  COMMENT 'fk to clinical_rules.rule_id',
-  `item_details` TEXT DEFAULT NULL COMMENT 'JSON with specific sub item results for a clinical rule',
+  `item_details` TEXT COMMENT 'JSON with specific sub item results for a clinical rule',
   KEY (`report_id`,`itemized_test_id`,`numerator_label`,`pass`)
 ) ENGINE=InnoDB;
 

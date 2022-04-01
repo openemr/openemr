@@ -251,6 +251,7 @@ VALUES ('send_sum_2015_amc', '0', '0', '0', '0', '0', '0', '', '', '1', '0', '0'
 #EndIf
 
 #IfNotRow2D layout_options form_id LBTref field_id billing_facility_id
+DELETE FROM `layout_options` WHERE `form_id`='LBTref' AND `field_id`='encounter_id' AND `data_type`=53 and `seq`=10;
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`
                              ,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
 VALUES ('LBTref', 'billing_facility_id', '1', 'Patient Billing Facility', 11, 35, 1, 0, 0, '', 1, 1, '', ''
@@ -263,5 +264,5 @@ ALTER TABLE `report_itemized` ADD COLUMN `rule_id` VARCHAR(31) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn report_itemized item_details
-ALTER TABLE `report_itemized` ADD COLUMN `item_details` TEXT DEFAULT NULL;
+ALTER TABLE `report_itemized` ADD COLUMN `item_details` TEXT;
 #EndIf
