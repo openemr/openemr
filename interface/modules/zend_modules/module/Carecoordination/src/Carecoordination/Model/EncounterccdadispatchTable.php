@@ -649,9 +649,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $problem_lists;
     }
 
-    private function getAmcCount($pid, $list_type, $current_count) {
-        if (empty($current_count))
-        {
+    private function getAmcCount($pid, $list_type, $current_count)
+    {
+        if (empty($current_count)) {
             $no_list_count = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = ?", array($pid, $list_type));
             $list_count = sqlQuery("select count(*) as cnt from lists where pid = ? and type = ?", array($pid, $list_type));
             $current_count = $no_list_count['cnt'] + $list_count['cnt'];
@@ -2255,7 +2255,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $pid
      * @return int|null
      */
-    private function getMostRecentPatientReferral($pid) {
+    private function getMostRecentPatientReferral($pid)
+    {
         $appTable = new ApplicationTable();
         // this segment of code is attempting to connect a CCDA to a Referral form (stored in the transactions)
         // table so we can track for Automated Measure Calculation (AMC) purposes.  This assumes that a referral

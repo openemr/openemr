@@ -275,7 +275,6 @@ class EncountermanagerTable extends AbstractTableGateway
         }
 
         if ($d_Address == '') {
-
             foreach ($elec_sent as $elec) {
                 // check to make sure its a valid ccda
                 $collect = amcCollect('send_sum_valid_ccda', $elec['pid'], 'transactions', $elec['map_id']);
