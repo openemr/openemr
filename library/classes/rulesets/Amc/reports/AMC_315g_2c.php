@@ -40,7 +40,7 @@ class AMC_315g_2c extends AbstractAmcReport
 
     public function createDenominator()
     {
-        return new AMC_315g_2c_Denominator();
+        return new AMC_315g_2c_Denominator($this->_billingFacilityId, $this->_providerId);
     }
 
     public function createNumerator()

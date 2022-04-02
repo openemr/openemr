@@ -9,6 +9,18 @@ class AmcItemizedActionData implements JsonSerializable
         $this->actionData = [];
     }
 
+    /**
+     * Merges the actions in the passed in $obj with the current action data.  Any existing keys are overwritten
+     * @param AmcItemizedActionData $obj
+     */
+    public function addActionObject(AmcItemizedActionData $obj)
+    {
+        foreach ($obj->actionData as $key => $data) {
+            // note this will overwrite any existing keys... hopefully that's ok
+            $this->actionData[$key] = $data;
+        }
+    }
+
     public function addActionData($action, bool $value, $details, $label = '')
     {
         // make sure we can serialize the details

@@ -94,8 +94,8 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_rowRule = $rowRule;
         $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
         // Parse measurement period, which is stored as array in $dateTarget ('dateBegin' and 'dateTarget').
-        $this->_beginMeasurement = $dateTarget['dateBegin'];
-        $this->_endMeasurement = $dateTarget['dateTarget'];
+        $this->_beginMeasurement = $dateTarget['dateBegin'] ?? '';
+        $this->_endMeasurement = $dateTarget['dateTarget'] ?? '';
         $this->_manualLabNumber = $options['labs_manual'] ?? 0;
 
         if (isset($GLOBALS['report_itemizing_temp_flag_and_id']) && $GLOBALS['report_itemizing_temp_flag_and_id']) {
