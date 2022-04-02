@@ -39,10 +39,10 @@ if (isset($_GET['term'])) {
     } else {
         $sql = "SELECT `name`, `drug_code` as rxnorm FROM `drugs` WHERE `name` LIKE ? GROUP BY `drug_code` ORDER BY `name` LIMIT 100";
     }
-    $val = array($term . '%');
+    $val = array('%' . $term . '%');
     if ($is_rxcui) {
         $code_type = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", array('RXCUI'));
-        $val = array($term . '%', $code_type['ct_id']);
+        $val = array('%' . $term . '%', $code_type['ct_id']);
         if (empty($code_type['ct_id'])) {
             throw new \Exception(xlt('Install RxCUI monthly via Native Load or enable in Lists!'));
         }
