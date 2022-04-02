@@ -593,6 +593,8 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         finishReportDatabase($report_id, json_encode($dataSheet));
         return $dataSheet;
     } else {
+        // make sure the report at least completes even if we have nothing here.
+        finishReportDatabase($report_id, json_encode([]));
         return [];
     }
 }
