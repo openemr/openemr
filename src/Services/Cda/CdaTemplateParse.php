@@ -130,7 +130,7 @@ class CdaTemplateParse
                     $text = $entry[$key]['templateId']['root'] . ' ' . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
                     error_log('Root Missing QDM: ' . $text);
                 }
-            } elseif (count($entry[$key]['templateId']) > 1) {
+            } elseif (count($entry[$key]['templateId'] ?? []) > 1) {
                 $key_1 = 1;
                 if (!empty($qrda_oids[$entry[$key]['templateId'][$key_1]['root']])) {
                     $this->currentOid = $entry[$key]['templateId'][$key_1]['root'];
@@ -145,9 +145,23 @@ class CdaTemplateParse
                     $text = $entry[$key]['templateId'][$key_1]['root'] . ' ' . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
                     error_log('Missing QDM: ' . $text);
                 }
+            } elseif (!empty($entry[$key]['root'])) {
+                if (!empty($qrda_oids[$entry[$key]['root']])) {
+                    $this->currentOid = $entry[$key]['root'];
+                    $func_name = $qrda_oids[$entry[$key]['root']] ?? null;
+                    if (!empty($func_name)) {
+                        $this->$func_name($entry);
+                    }
+                } else {
+                    $text = $entry[$key]['root'] . ' ' . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
+                    error_log('Root Missing QDM: ' . $text);
+                }
             }
         }
-        return $this->templateData;
+        if (empty($this->templateData)) {
+            error_log('Could not find any QDMs in document!');
+        }
+        return $this->templateData ?? '';
     }
 
     public function fetchDeceasedObservationData($entry)
@@ -924,7 +938,18 @@ class CdaTemplateParse
     {
         if (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value'])) {
             $i = 1;
-
+            if (!empty($this->templateData['field_name_value_array']['vital_sign'])) {
+                $cnt = count($this->templateData['field_name_value_array']['vital_sign'] ?? []);
+                $v_date = $entry['observation']['effectiveTime']['value'] ?? null;
+                for ($c = 1; $c <= $cnt; $c++) {
+                    if ($this->templateData['field_name_value_array']['vital_sign'][$c]['date'] == $v_date) {
+                        $i = 0;
+                        $cnt = $c;
+                        break;
+                    }
+                }
+                $i += $cnt;
+            }
             $this->templateData['field_name_value_array']['vital_sign'][$i]['extension'] = $entry['organizer']['id']['extension'] ?? null;
             $this->templateData['field_name_value_array']['vital_sign'][$i]['root'] = $entry['organizer']['id']['root'] ?? null;
             $this->templateData['field_name_value_array']['vital_sign'][$i]['date'] = $entry['observation']['effectiveTime']['value'] ?? null;
