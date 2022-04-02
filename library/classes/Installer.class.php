@@ -472,6 +472,10 @@ class Installer
                 $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
                 return false;
             }
+            // the new site will create it's own keys so okay to delete these copied from the source site
+            if (!$this->clone_database) {
+                array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
+            }
         }
 
         return true;
