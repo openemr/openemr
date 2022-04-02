@@ -28,11 +28,15 @@
 </head>
 <body class="body_top">
 <div id="container_div" class="container-fluid mt-3">
-    <span class='title'>{{ 'Report'|xlt }} - {{ title|text }}</span>
     <div class="btn-group float-right mb-2" role="group">
         <a href='#' class='btn btn-secondary btn-print d-print-none' id='printbutton'>{{ 'Print'|xlt }}</a>
         <a href='/interface/reports/cqm.php?report_id={{ report_id|attr_url }}&back=list' class='btn btn-secondary btn-transmit d-print-none'>{{ 'Return to Summary'|xlt }}</a>
     </div>
+    <h1 class="title">{{ 'Report'|xlt }} - {{ title|text }} - {{ "Date of Report"|xlt }}: {{ reportDate|text }}</h1>
+
+    {% if subTitle %}
+        <h2 class="title">{{ subTitle|text }}</h2>
+    {% endif %}
         {% include 'reports/cqm/amc-results-table.html.twig' %}
 
     <span class='title'>{{ 'Patient Details Report'|xlt }}</span>

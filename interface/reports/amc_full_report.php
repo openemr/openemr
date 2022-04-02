@@ -217,13 +217,18 @@ if (!empty($report_view)) {
         $patientsById[$patient['pid']] = $patient;
     }
 
+    $subTitle = '';
     if ($report_view['provider'] == "group_calculation") {
-        $title = $amc_report_types[$type_report]['title'] . '-' . xl("Group Calculation Method");
+        $subTitle = xl("Group Calculation Method");
     } else if (is_numeric($report_view['provider'])) {
-        $title = $amc_report_types[$type_report]['title'] . '-' . xl("Individual Calculation Method");
-    } else {
-        $title = $amc_report_types[$type_report]['title'];
+        // grab the provider
+        $userService = new \OpenEMR\Services\UserService();
+        $provider = $userService->getUser($report_view['provider']);
+        $providerTitle = ($provider['fname'] ?? '') . ' ' . ($provider['lname'] ?? '')
+            . ' (' . xl('NPI') . ':' . ($provider['npi'] ?? '') . ')';
+        $subTitle = xl("Individual Calculation Method") . ' - ' . trim($providerTitle);
     }
+    $title = $amc_report_types[$type_report]['title'];
     $data = [
         'report_id' => $report_id
         , 'collate_outer' => $form_provider == 'collate_outer'
@@ -231,6 +236,8 @@ if (!empty($report_view)) {
         , 'reportPatientMap' => $reportPatientMap
         , 'patients' => $patientsById
         , 'title' => $title
+        , 'subTitle' => $subTitle
+        , 'reportDate' => $report_view['date_report'] ?? ''
     ];
 
     echo $twig->render('reports/cqm/amc-full-report.html.twig', $data);
