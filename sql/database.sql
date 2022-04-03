@@ -11444,6 +11444,7 @@ CREATE TABLE ccda (
   `transfer` tinyint(4) NOT NULL DEFAULT '0',
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
+  `transaction_id` BIGINT(20) COMMENT 'fk to transaction referral record',
   PRIMARY KEY (id),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY unique_key (pid,encounter,time)
