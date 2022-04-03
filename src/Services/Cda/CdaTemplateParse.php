@@ -110,6 +110,7 @@ class CdaTemplateParse
              * CCDA 2.16.840.1.113883.10.20.22.4.13 - Procedure Activity Observation.
              * QRDA 2.16.840.1.113883.10.20.24.3.18 Diagnostic Study, Performed,
              * QRDA 2.16.840.1.113883.10.20.24.3.59 Physical Exam, Performed
+             * QRDA '2.16.840.1.113883.10.20.24.3.54' Deceased Observation (V3) is handled in patient data parse.
              * */
             '2.16.840.1.113883.10.20.24.3.59' => 'fetchPhysicalExamPerformedData', // Physical Exam, Performed observation Vitals
             '2.16.840.1.113883.10.20.24.3.18' => 'fetchObservationPerformedData', //
@@ -166,22 +167,8 @@ class CdaTemplateParse
 
     public function fetchDeceasedObservationData($entry)
     {
-        // @TODO
-        error_log('Todo for Missing QDM: Deceased Observation (V3) template');
-        /*<entry>
-              <observation classCode="OBS" moodCode="EVN">
-                <!-- C-CDA R2.1 Deceased Observation (V3) templateId -->
-                <templateId root="2.16.840.1.113883.10.20.22.4.79" extension="2015-08-01" />
-                <!-- Patient Characteristic Expired (V3) -->
-                <templateId root="2.16.840.1.113883.10.20.24.3.54" extension="2016-02-01" />
-                <id root="1.3.6.1.4.1.115" extension="622e7e0adfe4bd03cd567f7a"/>
-                <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4" codeSystemName="HL7ActCode" />
-                <statusCode code="completed" />
-                  <!-- QDM Attributes: expiredDatetime  -->
-                  <effectiveTime><low value='20190521084500'/></effectiveTime>
-                <value xsi:type="CD" code="419099009" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT" displayName="Dead" />
-              </observation>
-            </entry>*/
+        // handled in patient data parse.
+        // leave this function to prevent parse errors.
     }
 
     public function fetchPaymentSourceData($entry)
@@ -1055,7 +1042,7 @@ class CdaTemplateParse
         } elseif ($this->currentOid == '2.16.840.1.113883.10.20.24.3.37') {
             $plan_type = 'test_or_order';
         } elseif ($this->currentOid == '2.16.840.1.113883.10.20.24.3.143' || $this->currentOid == '2.16.840.1.113883.10.20.24.3.47') {
-            $plan_type = 'medication';
+            $plan_type = 'planned_medication_activity';
         }
 
         $i = 1;
@@ -1142,6 +1129,7 @@ class CdaTemplateParse
             if (!empty($entry['substanceAdministration']['effectiveTime'][0]['high']['value'])) {
                 $this->templateData['field_name_value_array']['care_plan'][$i]['end_date'] = $entry['substanceAdministration']['effectiveTime'][0]['high']['value'] ?? null;
             }
+            $this->templateData['entry_identification_array']['care_plan'][$i] = $i;
         }
     }
 
@@ -1159,7 +1147,7 @@ class CdaTemplateParse
 
     public function fetchFunctionalCognitiveStatusData($entry)
     {
-        if ($entry['observation']['value']['code'] != '' && $entry['observation']['value']['code'] != 0) {
+        if (!empty($entry['observation']['value']['code'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['functional_cognitive_status'])) {
                 $i += count($this->templateData['field_name_value_array']['functional_cognitive_status']);
