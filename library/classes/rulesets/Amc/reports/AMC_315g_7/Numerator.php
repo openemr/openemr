@@ -79,13 +79,13 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
         // nothing sent so no details needed
         if (empty($amcElementElecSent)) {
             if (empty($amcElementCCDAValid)) {
-                $this->lastTestActionData->addActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_NOT_SENT]);
+                $this->lastTestActionData->addNumeratorActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_NOT_SENT]);
             } else {
-                $this->lastTestActionData->addActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_INVALID
+                $this->lastTestActionData->addNumeratorActionData(self::ACTION_LABEL_CCDA, false, ['type' => self::ACTION_DETAILS_KEY_CCDA_INVALID
                     , 'date' => $amcElementCCDAValid['date_completed']]);
             }
         } else {
-            $this->lastTestActionData->addActionData(
+            $this->lastTestActionData->addNumeratorActionData(
                 self::ACTION_LABEL_CCDA,
                 true,
                 ['type' => self::ACTION_DETAILS_KEY_CCDA_CREATED, 'date' => $amcElementElecSent['date_completed']]
@@ -93,9 +93,9 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
         }
 
         if (empty($amcElementConfirmed)) {
-            $this->lastTestActionData->addActionData(self::ACTION_LABEL_CONFIRMED, false, '');
+            $this->lastTestActionData->addNumeratorActionData(self::ACTION_LABEL_CONFIRMED, false, '');
         } else {
-            $this->lastTestActionData->addActionData(
+            $this->lastTestActionData->addNumeratorActionData(
                 self::ACTION_LABEL_CONFIRMED,
                 true,
                 ['type' => self::ACTION_DETAILS_KEY_RECEIPT_CONFIRMED, 'date' => $amcElementConfirmed['date_completed']]
@@ -133,9 +133,9 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
         foreach ($actionData as $key => $data) {
             $details = $this->parseDetailsToString($data['details'] ?? []);
             if ($key == self::ACTION_LABEL_CCDA) {
-                $result->addActionData($key, $data['value'] ?? false, $details, $ccdaLabel);
+                $result->addNumeratorActionData($key, $data['value'] ?? false, $details, $ccdaLabel);
             } else if ($key == self::ACTION_LABEL_CONFIRMED) {
-                $result->addActionData($key, $data['value'] ?? false, $details, $confirmedLabel);
+                $result->addNumeratorActionData($key, $data['value'] ?? false, $details, $confirmedLabel);
             }
         }
         return $result;

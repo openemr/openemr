@@ -58,14 +58,14 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         $rez = sqlStatementCdrEngine($sql, $bind);
         $result = sqlFetchArray($rez);
         if (!empty($result) && $result['total_cnt'] > 0) {
-            $this->lastTestActionData->addActionData(
+            $this->lastTestActionData->addDenominatorActionData(
                 self::ACTION_LABEL,
                 true,
                 ['type' => self::ACTION_DETAILS_KEY_SEEN, 'enc' => $result['total_cnt']]
             );
             return true;
         } else {
-            $this->lastTestActionData->addActionData(
+            $this->lastTestActionData->addDenominatorActionData(
                 self::ACTION_LABEL,
                 false,
                 ['type' => self::ACTION_DETAILS_KEY_NOT_SEEN, 'enc' => 0]
@@ -94,7 +94,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         foreach ($actionData as $key => $data) {
             if ($key == self::ACTION_LABEL) {
                 $details = $this->parseDetailsToString($data['details'] ?? []);
-                $result->addActionData($key, $data['value'] ?? false, $details, $label);
+                $result->addDenominatorActionData($key, $data['value'] ?? false, $details, $label);
             }
         }
         return $result;

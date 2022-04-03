@@ -166,76 +166,123 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $numeratorObjects = 0;
         $denominatorObjects = 0;
+
+        // Deal with the manually added labs for the electronic labs AMC measure
+        if ($object_to_count == "labs") {
+            // not sure how we account for individual reporting here.
+            $denominatorObjects = $this->_manualLabNumber;
+            $this->logger->debug(
+                get_class($this) . "->execute() manual labs processed",
+                ['numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
+            );
+        }
+
+        // we handle patients differently then patient referenced objects.
+        if ($object_to_count == "patients") {
+            $this->executeForPatients($numerator, $denominator, $numeratorObjects, $denominatorObjects);
+        } else {
+            $this->executeForPatientObjects($numerator, $denominator, $object_to_count, $numeratorObjects, $denominatorObjects);
+        }
+
+
+        $percentage = calculate_percentage($denominatorObjects, 0, $numeratorObjects);
+
+        $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
+        $this->_resultsArray[] = &$result;
+        $this->logger->debug(get_class($this) . "->execute() leaving rule");
+    }
+
+    private function executeForPatients($numerator, $denominator, &$numeratorObjects, &$denominatorObjects)
+    {
+        $numeratorObjects = 0;
+        $denominatorObjects = 0;
+
+        foreach ($this->_amcPopulation as $patient) {
+            $numeratorResultItemDetails = new AmcItemizedActionData();
+            $denominatorResultItemDetails = new AmcItemizedActionData();
+
+            // If begin measurement is empty, then make the begin
+            //  measurement the patient dob.
+            $tempBeginMeasurement = $this->getRuleBeginDateForPatient($patient);
+
+            // Counting patients
+            if (!$denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
+                continue;
+            }
+            if ($denominator instanceof IAmcItemizedReport) {
+                $denominatorResultItemDetails = $denominator->getItemizedDataForLastTest();
+            }
+            $denominatorObjects++;
+
+            if ($numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
+                $numeratorObjects++;
+                $pass = 1;
+            }
+            if ($numerator instanceof IAmcItemizedReport) {
+                $numeratorResultItemDetails = $numerator->getItemizedDataForLastTest();
+            }
+            // If itemization is turned on, then record the "passed" item
+            $this->_aggregator->addItem(
+                $GLOBALS['report_itemizing_temp_flag_and_id'],
+                $GLOBALS['report_itemized_test_id_iterator'],
+                $this->_ruleId,
+                $tempBeginMeasurement,
+                $this->_endMeasurement,
+                $pass,
+                $patient->id,
+                'patients',
+                $numeratorResultItemDetails,
+                $denominatorResultItemDetails
+            );
+            $this->logger->debug(
+                get_class($this) . "->execute() patient processed",
+                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
+            );
+        }
+    }
+
+    private function getRuleBeginDateForPatient(AmcPatient $patient)
+    {
+        if (empty($this->_beginMeasurement)) {
+            $tempBeginMeasurement = $patient->dob;
+        } else {
+            $tempBeginMeasurement = $this->_beginMeasurement;
+        }
+        return $tempBeginMeasurement;
+    }
+
+    private function executeForPatientObjects($numerator, $denominator, $object_to_count, &$numeratorObjects, &$denominatorObjects)
+    {
         foreach ($this->_amcPopulation as $patient) {
             // If begin measurement is empty, then make the begin
             //  measurement the patient dob.
-            $tempBeginMeasurement = "";
-            if (empty($this->_beginMeasurement)) {
-                $tempBeginMeasurement = $patient->dob;
-            } else {
-                $tempBeginMeasurement = $this->_beginMeasurement;
-            }
+            $tempBeginMeasurement = $this->getRuleBeginDateForPatient($patient);
 
-            // Count Denominators
-            if ($object_to_count == "patients") {
-                // Counting patients
-                if (!$denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
-                    continue;
-                }
+            // Counting objects other than patients
+            //   First, collect the pertinent objects
+            $objects = $this->collectObjects($patient, $object_to_count, $tempBeginMeasurement, $this->_endMeasurement);
+            //   Second, test each object
+            foreach ($objects as $object) {
+                $numeratorResultItemDetails = new AmcItemizedActionData();
+                $denominatorResultItemDetails = new AmcItemizedActionData();
 
-                $denominatorObjects++;
-            } else {
-                // Counting objects other than patients
-                //   First, collect the pertinent objects
-                $objects = $this->collectObjects($patient, $object_to_count, $tempBeginMeasurement, $this->_endMeasurement);
-                //   Second, test each object
-                $objects_pass = array();
-                foreach ($objects as $object) {
-                    $patient->object = $object;
-                    if ($denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
-                        $denominatorObjects++;
-                        array_push($objects_pass, $object);
+                $pass = 0;
+                $patient->object = $object;
+                if ($denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
+                    $denominatorObjects++;
+
+                    // now that the denominator passed, let's add in our object
+                    if ($denominator instanceof IAmcItemizedReport) {
+                        $denominatorResultItemDetails = $denominator->getItemizedDataForLastTest();
                     }
-                }
-            }
 
-            // Count Numerators
-            $pass = 0;
-            if ($object_to_count == "patients") {
-                // Counting patients
-                if ($numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
-                    $numeratorObjects++;
-                    $pass = 1;
-                }
-                $resultItemDetails = null;
-                if ($numerator instanceof IAmcItemizedReport) {
-                    $resultItemDetails = $numerator->getItemizedDataForLastTest();
-                }
-                // If itemization is turned on, then record the "passed" item
-                $this->_aggregator->addItem(
-                    $GLOBALS['report_itemizing_temp_flag_and_id'],
-                    $GLOBALS['report_itemized_test_id_iterator'],
-                    $this->_ruleId,
-                    $tempBeginMeasurement,
-                    $this->_endMeasurement,
-                    $pass,
-                    $patient->id,
-                    $object_to_count,
-                    $resultItemDetails
-                );
-            } else {
-                // Counting objects other than patients
-                //   test each object that passed the above denominator testing
-                foreach ($objects_pass as $object) {
-                    $pass = 0;
-                    $patient->object = $object;
                     if ($numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                         $numeratorObjects++;
                         $pass = 1;
                     }
-                    $reportDetails = null;
+
                     if ($numerator instanceof IAmcItemizedReport) {
-                        $reportDetails = $numerator->getItemizedDataForLastTest();
+                        $numeratorResultItemDetails = $numerator->getItemizedDataForLastTest();
                     }
                     $this->_aggregator->addItem(
                         $GLOBALS['report_itemizing_temp_flag_and_id'],
@@ -246,7 +293,8 @@ abstract class AbstractAmcReport implements RsReportIF
                         $pass,
                         $patient->id,
                         $object_to_count,
-                        $reportDetails
+                        $numeratorResultItemDetails,
+                        $denominatorResultItemDetails
                     );
                 }
             }
@@ -255,21 +303,6 @@ abstract class AbstractAmcReport implements RsReportIF
                 ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
             );
         }
-
-        // Deal with the manually added labs for the electronic labs AMC measure
-        if ($object_to_count == "labs") {
-            // not sure how we account for individual reporting here.
-            $denominatorObjects = $denominatorObjects + $this->_manualLabNumber;
-            $this->logger->debug(
-                get_class($this) . "->execute() manual labs processed",
-                ['pid' => $patient->id, 'numeratorObjects' => $numeratorObjects, 'denominatorObjects' => $denominatorObjects]
-            );
-        }
-
-        $percentage = calculate_percentage($denominatorObjects, 0, $numeratorObjects);
-        $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
-        $this->_resultsArray[] = &$result;
-        $this->logger->debug(get_class($this) . "->execute() leaving rule");
     }
 
     private function collectObjects($patient, $object_label, $begin, $end)
@@ -402,7 +435,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
         $results = [];
         $sqlBindArray = [];
-        $sqlSelect = "SELECT transactions.id as id ";
+        $sqlSelect = "SELECT transactions.id as id,transactions.date ";
         $sqlFrom = "FROM transactions " .
             "INNER JOIN lbt_data on lbt_data.form_id = transactions.id ";
         $sqlWhere = "WHERE transactions.title = 'LBTref' " .
@@ -428,7 +461,6 @@ abstract class AbstractAmcReport implements RsReportIF
         }
 
         $sql = $sqlSelect . $sqlFrom . $sqlWhere;
-        (new \OpenEMR\Common\Logging\SystemLogger())->error($sql, ['binds' => $sqlBindArray]);
         $rez = sqlStatement($sql, $sqlBindArray);
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
             $fres = sqlStatement(
@@ -445,12 +477,21 @@ abstract class AbstractAmcReport implements RsReportIF
 
     public function hydrateItemizedDataFromRecord($data): AmcItemizedActionData
     {
+
+
         $numerator = $this->createNumerator();
         if ($numerator instanceof IAmcItemizedReport) {
-            return $numerator->hydrateItemizedDataFromRecord($data);
+            $numeratorData = $numerator->hydrateItemizedDataFromRecord($data['numerator'] ?? []);
         } else {
-            // return empty object
-            return new AmcItemizedActionData();
+            $numeratorData = new AmcItemizedActionData();
         }
+        $denominator = $this->createDenominator();
+        if ($denominator instanceof IAmcItemizedReport) {
+            $denominatorData = $denominator->hydrateItemizedDataFromRecord($data['denominator'] ?? []);
+        } else {
+            $denominatorData = new AmcItemizedActionData();
+        }
+        $numeratorData->addActionObject($denominatorData);
+        return $numeratorData;
     }
 }

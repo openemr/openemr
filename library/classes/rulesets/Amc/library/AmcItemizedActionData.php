@@ -2,11 +2,13 @@
 
 class AmcItemizedActionData implements JsonSerializable
 {
-    private $actionData;
+    private $numeratorActionData;
+    private $denominatorActionData;
 
     public function __construct()
     {
-        $this->actionData = [];
+        $this->numeratorActionData = [];
+        $this->denominatorActionData = [];
     }
 
     /**
@@ -15,13 +17,27 @@ class AmcItemizedActionData implements JsonSerializable
      */
     public function addActionObject(AmcItemizedActionData $obj)
     {
-        foreach ($obj->actionData as $key => $data) {
+        foreach ($obj->getNumeratorActionData() as $key => $data) {
             // note this will overwrite any existing keys... hopefully that's ok
-            $this->actionData[$key] = $data;
+            $this->numeratorActionData[$key] = $data;
+        }
+        foreach ($obj->getDenominatorActionData() as $key => $data) {
+            // note this will overwrite any existing keys... hopefully that's ok
+            $this->denominatorActionData[$key] = $data;
         }
     }
 
-    public function addActionData($action, bool $value, $details, $label = '')
+    public function addDenominatorActionData($action, bool $value, $details, $label = '')
+    {
+        $this->addActionData($action, $value, $details, $label, false);
+    }
+
+    public function addNumeratorActionData($action, bool $value, $details, $label = '')
+    {
+        $this->addActionData($action, $value, $details, $label, true);
+    }
+
+    public function addActionData($action, bool $value, $details, $label = '', $isNumerator = true)
     {
         // make sure we can serialize the details
         if (is_object($details) && !$details instanceof JsonSerializable) {
@@ -31,14 +47,27 @@ class AmcItemizedActionData implements JsonSerializable
         if (!empty($label)) {
             $data['label'] = $label;
         }
-        $this->actionData[$action] = $data;
+        if ($isNumerator) {
+            $this->numeratorActionData[$action] = $data;
+        } else {
+            $this->denominatorActionData[$action] = $data;
+        }
+    }
+
+    public function getNumeratorActionData(): array
+    {
+        return $this->numeratorActionData;
+    }
+
+    public function getDenominatorActionData(): array
+    {
+        return $this->denominatorActionData;
     }
 
     public function getActionData(): array
     {
-        return $this->actionData;
+        return ['numerator' => $this->getNumeratorActionData(), 'denominator' => $this->getDenominatorActionData()];
     }
-
 
     /**
      * Specify data which should be serialized to JSON

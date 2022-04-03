@@ -56,7 +56,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
             $endDate = strtotime($endDate);
             // creation date for the credentials was within the valid date boundary that we wanted
             if ($creationDate >= $beginDate && $creationDate <= $endDate) {
-                $this->lastTestActionData->addActionData(
+                $this->lastTestActionData->addNumeratorActionData(
                     self::ACTION_LABEL,
                     true,
                     ['type' => self::ACTION_DETAILS_KEY_ACCESS_GRANTED, 'date' => $date_created]
@@ -66,14 +66,14 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         }
         // we don't worry about casing here
         if (is_string($prevent_portal_access) && strtolower($prevent_portal_access) == "yes") {
-            $this->lastTestActionData->addActionData(self::ACTION_LABEL, true, ['type' => self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT]);
+            $this->lastTestActionData->addNumeratorActionData(self::ACTION_LABEL, true, ['type' => self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT]);
             // patient opted out of 3rd party portal access which makes them then eligible for 2c criteria
             // NOTE if we certify (e)(1) then this will no longer be valid and View, Download, Transmit (VDT) will need
             // to be checked alongside this condition.
             return true;
         }
         // no details as they just didn't have access
-        $this->lastTestActionData->addActionData(self::ACTION_LABEL, false, '');
+        $this->lastTestActionData->addNumeratorActionData(self::ACTION_LABEL, false, '');
         // no credentials generated, and they are enrolled in api access.
         return false;
     }
@@ -93,7 +93,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         // if either the fhir api or the patient api is disabled, then we must fail the measure as no patient
         // fhir api access is available.
         if ($fhir_api === '0' || $patient_api === '0') {
-            $this->lastTestActionData->addActionData(
+            $this->lastTestActionData->addNumeratorActionData(
                 self::ACTION_LABEL,
                 false,
                 ['type' => self::ACTION_DETAILS_KEY_API_DISABLED, 'fhir' => 0, 'portal' => 0]
@@ -112,7 +112,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
 
         $numeratorData = QueryUtils::fetchRecords($sql, [$patient->id]);
         if (empty($numeratorData)) {
-            $this->lastTestActionData->addActionData(
+            $this->lastTestActionData->addNumeratorActionData(
                 self::ACTION_LABEL,
                 false,
                 ['type' => self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS]
@@ -142,7 +142,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         foreach ($actionData as $key => $data) {
             if ($key == self::ACTION_LABEL) {
                 $details = $this->parseDetailsToString($data['details'] ?? []);
-                $result->addActionData($key, $data['value'] ?? false, $details, $label);
+                $result->addNumeratorActionData($key, $data['value'] ?? false, $details, $label);
             }
         }
         return $result;

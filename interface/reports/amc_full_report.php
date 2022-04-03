@@ -57,19 +57,7 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
 
         // this is very inefficient, but we are doing it just to get the report written for now.
         if (isset($row['itemized_test_id'])) {
-            // we don't display the links here
-            $row['patients_pass'] = collectItemizedPatientData($report_id, $row['itemized_test_id'], 'all');
-            if (!empty($row['patients_pass'])) {
-                $row['patients_target'] = collectItemizedPatientData($report_id, $row['itemized_test_id'], 'pass');
-            } else {
-                $row['patients_target'] = [];
-            }
-
-            if ($failed_items > 0) {
-                $row['patients_failed'] = collectItemizedPatientData($report_id, $row['itemized_test_id'], 'fail');
-            } else {
-                $row['patients_failed'] = [];
-            }
+            $row['itemized_patients'] = collectItemizedPatientData($report_id, $row['itemized_test_id']);
         }
 
         $row['failed_items'] = $failed_items;
@@ -80,77 +68,81 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
     return $formatted;
 }
 
-function collectItemizedPatientData($report_id, $itemized_test_id, $pass = 'all', $numerator_label = '', $sqllimit = 'all', $fstart = 0)
+function collectItemizedPatientData($report_id, $itemized_test_id)
 {
+    // TODO: @adunsulag we need to batch this so we don't trash the database.
+    $sql = "SELECT * FROM `report_itemized` WHERE report_id = ? AND itemized_test_id = ? ";
+    $sqlParameters = array($report_id,$itemized_test_id);
 
-    // we need to return an array of the following
-    // we have details in case we need to display any additional detail information or for more rule parsing from the numerator
-    // allows us to be open ended here if we have to add stuff.
-    // [[ 'patient' => [patientData], 'actions' => ['label' => ['value' => true, 'details' => mixed], label => [...],...]]
+    $numHeaders = [];
+    $denomHeaders = [];
 
-    $ruleObjectHash = [];
-    $reportData = [];
-
-    $sql = "SELECT * FROM `report_itemized`";
-    $sqlParameters = array($report_id,$itemized_test_id,$numerator_label);
-    $reportDataByPid = [];
-    $actionHeaders = [];
-
-    $processActions = true;
-    if ($pass == "all") {
-        $processActions = false;
-        $sqlWhere = " WHERE `report_itemized`.`pass` != 3 AND `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? ";
-    } elseif ($pass == "fail") {
-        $sqlWhere = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
-        array_push($sqlParameters, 0);
-    } else {
-        $sqlWhere = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
-        array_push($sqlParameters, 1);
-    }
-
-    $rez = sqlStatementCdrEngine($sql . $sqlWhere, $sqlParameters);
+    $rez = sqlStatementCdrEngine($sql, $sqlParameters);
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $pid = $row['pid'];
         if (!isset($reportDataByPid[$pid])) {
             $reportDataByPid[$pid] = [];
         }
         $reportDataByPid[$pid][] = $iter;// need to keep the indexes so we can populate patients later
-        $hydratedRecord = ['patient' => $pid, 'actions' => []];
+        $hydratedRecord = ['patient' => $pid, 'numerator' => [], 'denominator' => []];
         $ruleId = $row['rule_id'] ?? null;
-        if ($processActions && !empty($ruleId) && !empty($row['item_details'])) {
+        if (!empty($ruleId) && !empty($row['item_details'])) {
             if (empty($ruleObjectHash[$ruleId])) {
                 $ruleObjectHash[$ruleId] = getRuleObjectForId($ruleId) ?? new AMC_Unimplemented();
             }
             $data = json_decode($row['item_details'], true) ?? null;
             if (!empty($data)) {
-                $actionData = $ruleObjectHash[$ruleId]->hydrateItemizedDataFromRecord($data)->getActionData();
-                $hydratedRecord['actions'] = $actionData;
+                $data = $ruleObjectHash[$ruleId]->hydrateItemizedDataFromRecord($data)->getActionData();
+
+                $hydratedRecord['numerator'] = $data['numerator'] ?? [];
+                $hydratedRecord['denominator'] = $data['denominator'] ?? [];
+
                 // grab our headers
-                foreach ($actionData as $key => $item) {
-                    if (empty($actionHeaders[$key])) {
-                        $actionHeaders[$key] = $item['label'];
+                foreach ($hydratedRecord['numerator'] as $key => $item) {
+                    if (empty($numHeaders[$key])) {
+                        $numHeaders[$key] = $item['label'];
                     }
+                    // save memory usage by clearing out the label, we match with the header key
+                    unset($hydratedRecord['numerator'][$key]['label']);
+                }
+                foreach ($hydratedRecord['denominator'] as $key => $item) {
+                    if (empty($numHeaders[$key])) {
+                        $denomHeaders[$key] = $item['label'];
+                    }
+                    // save memory usage by clearing out the label, we match with the header key
+                    unset($hydratedRecord['denominator'][$key]['label']);
                 }
             }
         }
         $reportData[$iter] = $hydratedRecord;
     }
 
+    // Group ['patient' => [], 'records' => []]
+
     // now grab all the patients and let's populate here
     $sanitizedPids = array_map('intval', array_keys($reportDataByPid));
+    $aggregatedPatientRecords = [];
     if (!empty($sanitizedPids)) {
         $sql = "SELECT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS FROM patient_data WHERE pid "
             . " IN (" . implode(",", $sanitizedPids) . ")";
 
         $rez = sqlStatementCdrEngine($sql, []);
         for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+            $record = ['patient' => $row, 'records' => []];
             $pid = $row['pid'];
             // do we want to make this an object to preserve memory?  Lot of duplicate counting
             foreach ($reportDataByPid[$pid] as $index) {
-                $reportData[$index]['patient'] = $row;
+                unset($reportData[$index]['patient']);
+                $record['records'][] = $reportData[$index];
+                // now remove the record so we conserve memory
+                $reportData[$index] = null; // we set it to empty to clear it out and not reorder any internal array
             }
+
             unset($reportDataByPid[$pid]);
+            $aggregatedPatientRecords[] = $record;
         }
+
+
         // report data had mismatched keys or old pids... we've got to clean up the item data here and remove the patients
         // that don't match here...
         if (!empty($reportDataByPid)) {
@@ -160,9 +152,8 @@ function collectItemizedPatientData($report_id, $itemized_test_id, $pass = 'all'
         }
     }
 
-    return ['itemizedPatients' => $reportData, 'actionLabels' => $actionHeaders];
+    return ['patients' => $aggregatedPatientRecords, 'numeratorHeaders' => $numHeaders, 'denominatorHeaders' => $denomHeaders];
 }
-
 
 function getRuleObjectForId($ruleId)
 {
@@ -195,27 +186,7 @@ if (!empty($report_view)) {
 // See if showing an old report or creating a new report
     // now we are going to create our report
     $dataSheet = formatPatientReportData($report_id, $report_view['data'], true, false, $type_report, $amc_report_data);
-
     $form_provider = $_POST['form_provider'] ?? '';
-
-    // TODO: @adunsulag look at using collectItemizedPatientsCdrReport() per itemized report for each item...
-    $itemIdsSql = "SELECT itemized_test_id, `pid` FROM `report_itemized` WHERE report_id = ? GROUP BY itemized_test_id,pid";
-    $itemIds = \OpenEMR\Common\Database\QueryUtils::fetchRecords($itemIdsSql, [$report_id]);
-    $reportPatientMap = [];
-    foreach ($itemIds as $result) {
-        $item_id = $result['itemized_test_id'];
-        if (empty($reportPatientMap[$item_id])) {
-            $reportPatientMap[$item_id] = [];
-        }
-        $reportPatientMap[$item_id][] = $result['pid'];
-    }
-
-    $sql = "SELECT patient_data.* FROM patient_data WHERE pid IN (select DISTINCT pid FROM `report_itemized` WHERE report_id = ?)";
-    $patients = \OpenEMR\Common\Database\QueryUtils::fetchRecords($sql, [$report_id]);
-    $patientsById = [];
-    foreach ($patients as $patient) {
-        $patientsById[$patient['pid']] = $patient;
-    }
 
     $subTitle = '';
     if ($report_view['provider'] == "group_calculation") {
@@ -224,7 +195,7 @@ if (!empty($report_view)) {
         // grab the provider
         $userService = new \OpenEMR\Services\UserService();
         $provider = $userService->getUser($report_view['provider']);
-        $providerTitle = ($provider['fname'] ?? '') . ' ' . ($provider['lname'] ?? '')
+        $providerTitle = ($provider['lname'] ?? '') . ',' . ($provider['fname'] ?? '')
             . ' (' . xl('NPI') . ':' . ($provider['npi'] ?? '') . ')';
         $subTitle = xl("Individual Calculation Method") . ' - ' . trim($providerTitle);
     }
@@ -233,8 +204,6 @@ if (!empty($report_view)) {
         'report_id' => $report_id
         , 'collate_outer' => $form_provider == 'collate_outer'
         , 'datasheet' => $dataSheet
-        , 'reportPatientMap' => $reportPatientMap
-        , 'patients' => $patientsById
         , 'title' => $title
         , 'subTitle' => $subTitle
         , 'reportDate' => $report_view['date_report'] ?? ''
