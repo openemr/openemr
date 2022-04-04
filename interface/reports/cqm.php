@@ -23,17 +23,14 @@ require_once "$srcdir/report_database.inc";
 
 use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\PractitionerService;
+use OpenEMR\Common\Twig\TwigContainer;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
-
-
-
 
 $amc_report_types = CertificationReportTypes::getReportTypeRecords();
 
@@ -105,569 +102,126 @@ if ($type_report == "standard") {
     $heading_title = xl('Clinical Quality Measures (CQM)');
 } else if ($type_report == 'cqm_2011') {
     $heading_title = 'Clinical Quality Measures (CQM) - 2011';
+} else if ($type_report == "cqm_2014") {
+    $heading_title = 'Clinical Quality Measures (CQM) - 2014';
 } else if ($is_amc_report) {
     $heading_title = $amc_report_types[$type_report]['title'];
     $show_help = true;
     $help_file_name = "cqm_amc_help.php";
 }
 
+$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = $twigContainer->getTwig();
 
-$arrOeUiSettings = array(
-    'heading_title' => xl('Add/Edit Patient Transaction'),
-    'include_patient_name' => false,
-    'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
-    'action' => "conceal",//conceal, reveal, search, reset, link or back
-    'action_title' => "",
-    'action_href' => "cqm.php",//only for actions - reset, link and back
-    'show_help_icon' => $show_help,
-    'help_file_name' => $help_file_name
-);
-$oemr_ui = new OemrUI($arrOeUiSettings);
-
-require_once("$srcdir/display_help_icon_inc.php");
-
-?>
-
-<html>
-
-<head>
-    <title><?php echo text($heading_title); ?></title>
-<?php Header::setupHeader('datetime-picker'); ?>
-
-<script>
-
-    <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
-
- $(function () {
-  var win = top.printLogSetup ? top : opener.top;
-  win.printLogSetup(document.getElementById('printbutton'));
-
-  $('.datepicker').datetimepicker({
-    <?php $datetimepicker_timepicker = true; ?>
-    <?php $datetimepicker_showseconds = true; ?>
-    <?php $datetimepicker_formatInput = true; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-  });
- });
-
- function runReport() {
-
-   // Validate first
-   if (!(validateForm())) {
-     alert(<?php echo xlj("Rule Set and Plan Set selections are not consistent. Please fix and Submit again."); ?>);
-     return false;
-   }
-
-   // Showing processing wheel
-   $("#processing").show();
-
-   // hide Submit buttons
-   $("#submit_button").hide();
-   $("#xmla_button").hide();
-   $("#xmlb_button").hide();
-   $("#xmlc_button").hide();
-   $("#print_button").hide();
-   $("#genQRDA").hide();
-
-   // hide instructions
-   $("#instructions_text").hide();
-
-   // Collect an id string via an ajax request
-   top.restoreSession();
-   $.get("../../library/ajax/collect_new_report_id.php",
-     { csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
-     function(data){
-       // Set the report id in page form
-       $("#form_new_report_id").attr("value",data);
-
-       // Start collection status checks
-       collectStatus($("#form_new_report_id").val());
-
-       // Run the report
-       top.restoreSession();
-       $.post("../../library/ajax/execute_cdr_report.php",
-         {provider: $("#form_provider").val(),
-          type: $("#form_rule_filter").val(),
-          date_target: DateToYYYYMMDDHHMMSS_js($("#form_target_date").val()),
-          date_begin: DateToYYYYMMDDHHMMSS_js($("#form_begin_date").val()),
-          plan: $("#form_plan_filter").val(),
-          labs: $("#labs_manual_entry").val(),
-          pat_prov_rel: $("#form_pat_prov_rel").val(),
-          execute_report_id: $("#form_new_report_id").val(),
-          csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-         });
-   });
- }
-
- function collectStatus(report_id) {
-   // Collect the status string via an ajax request and place in DOM at timed intervals
-   top.restoreSession();
-   // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
-   $.post("../../library/ajax/status_report.php",
-     {
-       status_report_id: report_id,
-       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-     },
-     function(data){
-       if (data == "PENDING") {
-         // Place the pending string in the DOM
-         $('#status_span').replaceWith("<span id='status_span'><?php echo xla("Preparing To Run Report"); ?></span>");
-       }
-       else if (data == "COMPLETE") {
-         // Go into the results page
-         top.restoreSession();
-         link_report = "cqm.php?report_id=" + encodeURIComponent(report_id);
-         window.open(link_report,'_self',false);
-       }
-       else {
-         // Place the string in the DOM
-         $('#status_span').replaceWith("<span id='status_span'>"+data+"</span>");
-       }
-   });
-   // run status check every 10 seconds
-   var repeater = setTimeout("collectStatus("+report_id+")", 10000);
- }
-
- function GenXml(sNested) {
-      top.restoreSession();
-      //QRDA Category III Export
-      if(sNested == "QRDA"){
-        var form_rule_filter = theform.form_rule_filter.value
-        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&qrda_version=3&rule_filter=cqm_2014&form_provider=' + encodeURIComponent(theform.form_provider.value) + '&report_id=' + <?php echo js_url($report_id); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-      }else{
-        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&nested=' + encodeURIComponent(sNested) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-      }
-      dlgopen(sLoc, '_blank', 600, 500);
-      return false;
- }
-
- //QRDA I - 2014 Download
- function downloadQRDA() {
-    top.restoreSession();
-    var reportID = <?php echo js_escape($report_id); ?>;
-    var provider = $("#form_provider").val();
-    sLoc = '../../custom/download_qrda.php?&report_id=' + encodeURIComponent(reportID) + '&provider_id=' + encodeURIComponent(provider) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-    dlgopen(sLoc, '_blank', 600, 500);
- }
-
- function validateForm() {
-    <?php if ((empty($report_id)) && ($type_report == "cqm")) { ?>
-     // If this is a cqm and plan set not set to ignore, then need to ensure consistent with the rules set
-     if ($("#form_plan_filter").val() != '') {
-       if ($("#form_rule_filter").val() == $("#form_plan_filter").val()) {
-         return true;
-       } else {
-         return false;
-       }
-     }
-     else {
-       return true;
-     }
-    <?php } else { ?>
-     return true;
-    <?php } ?>
- }
-
- function Form_Validate() {
-        <?php if ((empty($report_id)) && $is_amc_report) { ?>
-         var d = document.forms[0];
-         FromDate = DateToYYYYMMDDHHMMSS_js(d.form_begin_date.value);
-         ToDate = DateToYYYYMMDDHHMMSS_js(d.form_target_date.value);
-          if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
-             if (FromDate > ToDate){
-                  alert(<?php echo xlj('End date must be later than Begin date!'); ?>);
-                  return false;
-             }
-         }
-        <?php } ?>
-
-    //For Results are in Gray Background & disabling anchor links
-    <?php if ($report_id != "") {?>
-    $("#report_results").css("opacity", '0.4');
-    $("#report_results").css("filter", 'alpha(opacity=40)');
-    $("a").removeAttr("href");
-    <?php }?>
-
-    $("#form_refresh").attr("value","true");
-    runReport();
-    return true;
-}
-
-</script>
-
-<style>
-
-/* specifically include & exclude from printing */
-@media print {
-    #report_parameters {
-        visibility: hidden;
-        display: none;
-    }
-    #report_parameters_daterange {
-        visibility: visible;
-        display: inline;
-    }
-    #report_results table {
-       margin-top: 0px;
-    }
-}
-
-/* specifically exclude some from the screen */
-@media screen {
-    #report_parameters_daterange {
-        visibility: hidden;
-        display: none;
-    }
-}
-
-</style>
-</head>
-
-<body class="body_top">
-
-<!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-<div id="container_div" class="container-fluid mt-3">
-
-<span class='title'><?php echo xlt('Report'); ?> -
-
-<?php if ($type_report == "standard") { ?>
-    <?php echo xlt('Standard Measures'); ?>
-<?php } ?>
-
-<?php if ($type_report == "cqm") { ?>
-    <?php echo xlt('Clinical Quality Measures (CQM)'); ?>
-<?php } ?>
-<?php if ($type_report == "cqm_2011") { ?>
-    <?php echo xlt('Clinical Quality Measures (CQM) - 2011'); ?>
-<?php } ?>
-<?php if ($type_report == "cqm_2014") { ?>
-    <?php echo xlt('Clinical Quality Measures (CQM) - 2014'); ?>
-<?php } ?>
-
-    <?php if (isset($amc_report_types[$type_report])) : ?>
-        <?php echo text($amc_report_types[$type_report]['title']); ?>
-    <?php endif; ?>
-
-<?php $dis_text = ''; ?>
-<?php if (!empty($report_id)) { ?>
-    <?php echo " - " . xlt('Date of Report') . ": " . text(oeFormatDateTime($date_report, "global", true));
-        //prepare to disable form elements
-        $dis_text = " disabled='disabled' ";
-    ?>
-<?php }
-if ($show_help) {
-    echo $help_icon;
-}
-?>
-</span>
-
-<form method='post' name='theform' id='theform' action='cqm.php?type=<?php echo attr($type_report) ;?>' onsubmit='return validateForm()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-<div id="report_parameters">
-<?php
-    $widthDyn = "610px";
+$formData = [
+    'type_report' => $type_report
+    ,'heading_title' => $heading_title
+    ,'date_report' => isset($date_report) ? oeFormatDateTime($date_report, "global", true) : ''
+    ,'report_id' => $report_id ?? null
+    ,'show_help' => $show_help
+    ,'oemrUiSettings' =>  [
+        'heading_title' => xl('Add/Edit Patient Transaction'),
+        'include_patient_name' => false,
+        'expandable' => false,
+        'expandable_files' => array(),//all file names need suffix _xpd
+        'action' => "conceal",//conceal, reveal, search, reset, link or back
+        'action_title' => "",
+        'action_href' => "cqm.php",//only for actions - reset, link and back
+        'show_help_icon' => $show_help,
+        'help_file_name' => $help_file_name
+    ]
+    ,'csrf_token' => CsrfUtils::collectCsrfToken()
+    ,'widthDyn' => '610px'
+    ,'is_amc_report' => $is_amc_report
+    ,'dis_text' => (!empty($report_id) ? "disabled='disabled'" : "")
+    ,'begin_date' => isset($begin_date) ? oeFormatDateTime($begin_date, 0, true) : ""
+    ,'target_date' => oeFormatDateTime($target_date, 0, true)
+    ,'target_date_label' => ($is_amc_report ? xl('End Date') : xl('Target Date'))
+    ,'rule_filters' => []
+    ,'show_plans' => !$is_amc_report
+    ,'plans' => []
+    ,'providerReportOptions' => [
+        ['value' => '', 'selected' => false, 'label' => '-- ' . xl('All (Cumulative)') . ' --']
+        ,['value' => 'collate_outer', 'selected' => $provider == 'collate_outer', 'label' => xl('All (Collated Format A)')]
+        ,['value' => 'collate_inner', 'selected' => $provider == 'collate_inner', 'label' => xl('All (Collated Format B)')]
+    ]
+    ,'providerRelationship' => [
+        ['value' => 'primary', 'selected' => $pat_prov_rel == 'primary', 'label' => xl('Primary')]
+        ,['value' => 'encounter', 'selected' => $pat_prov_rel == 'encounter', 'label' => xl('Encounter')]
+    ]
+    ,'show_manual_labs' => false
+    ,'labs_manual' => $labs_manual ?? 0
+    ,'display_submit' => empty($report_id)
+    ,'display_pqri_btns' => $type_report == 'cqm' && !empty($report_id)
+    ,'display_amc_details' => !empty($report_id) && $is_amc_report
+    ,'display_back_link' => $back_link == 'list'
+    ,'display_qrda_btns' => !empty($report_id) && $type_report == 'cqm_2014'
+    ,'display_new_report_btn' => !empty($report_id) && $back_link != 'list'
+    , 'collate_outer' => $provider == 'collate_outer'
+    , 'datasheet' => $dataSheet
+];
 if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
-    $widthDyn = "410px";
-}
-?>
-<table>
- <tr>
-  <td scope="row" width='<?php echo attr($widthDyn); ?>'>
-    <div style='float:left'>
-
-    <table class='text'>
-
-        <?php if ($is_amc_report) { ?>
-                   <tr>
-                      <td class='col-form-label'>
-                            <?php echo xlt('Begin Date'); ?>:
-                      </td>
-                      <td>
-                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>' class='datepicker form-control'>
-                            <?php if (empty($report_id)) { ?>
-                            <?php } ?>
-                      </td>
-                   </tr>
-        <?php } ?>
-
-                <tr>
-                        <td class='col-form-label'>
-                            <?php if ($is_amc_report) { ?>
-                                <?php echo xlt('End Date'); ?>:
-                            <?php } else { ?>
-                                <?php echo xlt('Target Date'); ?>:
-                            <?php } ?>
-                        </td>
-                        <td>
-                           <input <?php echo $dis_text; ?> type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo attr(oeFormatDateTime($target_date, 0, true)); ?>'
-                                class='datepicker form-control'>
-                            <?php if (empty($report_id)) { ?>
-                            <?php } ?>
-                        </td>
-                </tr>
-
-                <?php if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) { ?>
-                    <tr>
-                        <td class='col-form-label'>
-                            <?php echo xlt('Rule Set'); ?>:
-                        </td>
-                        <td>
-                            <select <?php echo $dis_text; ?> id='form_rule_filter' name='form_rule_filter' class='form-control'>
-                            <option value='cqm' <?php echo ($rule_filter == "cqm") ? "selected" : ""; ?>>
-                            <?php echo xlt('All Clinical Quality Measures (CQM)'); ?></option>
-                            <option value='cqm_2011' <?php echo ($rule_filter == "cqm_2011") ? "selected" : ""; ?>>
-                            <?php echo xlt('2011 Clinical Quality Measures (CQM)'); ?></option>
-                            <option value='cqm_2014' <?php echo ($rule_filter == "cqm_2014") ? "selected" : ""; ?>>
-                            <?php echo xlt('2014 Clinical Quality Measures (CQM)'); ?></option>
-                            </select>
-                        </td>
-                    </tr>
-                <?php } ?>
-
-                <?php if ($is_amc_report) { ?>
-                    <tr>
-                        <td class='col-form-label'>
-                            <?php echo xlt('Rule Set'); ?>:
-                        </td>
-                        <td>
-                            <select <?php echo $dis_text; ?> id='form_rule_filter' name='form_rule_filter' class='form-control'>
-
-                            <?php if ($rule_filter == "amc") { //only show this when displaying old reports. Not available option for new reports ?>
-                              <option value='amc' selected>
-                                <?php echo xlt('All Automated Measure Calculations (AMC)'); ?></option>
-                            <?php } ?>
-                            <?php foreach ($amc_report_types as $key => $report_type) : ?>
-                                <option value="<?php echo attr($key); ?>" <?php echo ($rule_filter == $key) ? "selected" : ""; ?>><?php echo text($report_type['ruleset_title']); ?></option>
-                            <?php endforeach; ?>
-                            </select>
-                        </td>
-                    </tr>
-                <?php } ?>
-
-                <?php if ($type_report == "standard") { ?>
-                    <tr>
-                        <td class='col-form-label'>
-                            <?php echo xlt('Rule Set'); ?>:
-                        </td>
-                        <td>
-                            <select <?php echo $dis_text; ?> id='form_rule_filter' name='form_rule_filter' class='form-control'>
-                            <option value='passive_alert' <?php echo ($rule_filter == "passive_alert") ? "selected" : ""; ?>>
-                            <?php echo xlt('Passive Alert Rules'); ?></option>
-                            <option value='active_alert' <?php echo ($rule_filter == "active_alert") ? "selected" : ""; ?>>
-                            <?php echo xlt('Active Alert Rules'); ?></option>
-                            <option value='patient_reminder' <?php echo ($rule_filter == "patient_reminder") ? "selected" : ""; ?>>
-                            <?php echo xlt('Patient Reminder Rules'); ?></option>
-                            </select>
-                        </td>
-                    </tr>
-                <?php } ?>
-
-                <?php if ($is_amc_report) { ?>
-                    <input type='hidden' id='form_plan_filter' name='form_plan_filter' value=''>
-                <?php } else { ?>
-                    <tr>
-                        <td class='col-form-label'>
-                            <?php echo xlt('Plan Set'); ?>:
-                        </td>
-                        <td>
-                                 <select <?php echo $dis_text; ?> id='form_plan_filter' name='form_plan_filter' class='form-control'>
-                                 <option value=''>-- <?php echo xlt('Ignore'); ?> --</option>
-                                    <?php if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) { ?>
-                                   <option value='cqm' <?php echo ($plan_filter == "cqm") ? "selected" : ""; ?>>
-                                        <?php echo xlt('All Official Clinical Quality Measures (CQM) Measure Groups'); ?></option>
-                                   <option value='cqm_2011' <?php echo ($plan_filter == "cqm_2011") ? "selected" : ""; ?>>
-                                        <?php echo xlt('2011 Official Clinical Quality Measures (CQM) Measure Groups'); ?></option>
-                                   <option value='cqm_2014' <?php echo ($plan_filter == "cqm_2014") ? "selected" : ""; ?>>
-                                        <?php echo xlt('2014 Official Clinical Quality Measures (CQM) Measure Groups'); ?></option>
-                                    <?php } ?>
-                                    <?php if ($type_report == "standard") { ?>
-                                   <option value='normal' <?php echo ($plan_filter == "normal") ? "selected" : ""; ?>>
-                                        <?php echo xlt('Active Plans'); ?></option>
-                                    <?php } ?>
-                        </td>
-                    </tr>
-                <?php } ?>
-
-                <tr>
-            <td class='col-form-label'>
-                <?php echo xlt('Provider'); ?>:
-            </td>
-            <td>
-                <select <?php echo $dis_text; ?> id='form_provider' name='form_provider' class='form-control'>
-                    <option value=''>-- <?php echo xlt('All (Cumulative)') ?>--</option>
-                    <option value='collate_outer' <?php echo ($provider == 'collate_outer') ? 'selected' : '';
-                    ?>>-- <?php echo xlt('All (Collated Format A)') ?>--</option>
-                    <option value='collate_inner' <?php echo ($provider == 'collate_inner') ? 'selected' : '';
-                    ?>>-- <?php echo xlt('All (Collated Format B)') ?>--</option>
-                    <option value='group_calculation' <?php echo ($provider == 'group_calculation') ? 'selected' : '';
-                    ?>>-- <?php echo xlt('All EP/EC Group Calculation') ?>--</option>
-                <?php
-
-                 // Build a drop-down list of providers.
-                 //
-
-                 $query = "SELECT id, lname, fname FROM users WHERE " .
-                  "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
-
-                 $ures = sqlStatement($query);
-
-                while ($urow = sqlFetchArray($ures)) {
-                    $provid = $urow['id'];
-                    echo "    <option value='" . attr($provid) . "'";
-                    if ($provid == $provider) {
-                        echo " selected";
-                    }
-
-                    echo ">" . text($urow['lname'] . ", " . $urow['fname']) . "\n";
-                }
-                ?>
-                </select>
-                        </td>
-        </tr>
-
-                <tr>
-                        <td class='col-form-label'>
-                            <?php echo xlt('Provider Relationship'); ?>:
-                        </td>
-                        <td>
-                                <?php
-
-                                 // Build a drop-down list of of patient provider relationships.
-                                 //
-                                 echo "   <select " . $dis_text . " id='form_pat_prov_rel' name='form_pat_prov_rel' class='form-control' title='" . xla('Only applicable if a provider or collated list was chosen above. PRIMARY only selects patients that the provider is the primary provider. ENCOUNTER selects all patients that the provider has seen.') . "'>\n";
-                                 echo "    <option value='primary'";
-                                if ($pat_prov_rel == 'primary') {
-                                    echo " selected";
-                                }
-
-                                 echo ">" . xlt('Primary') . "\n";
-                                 echo "    <option value='encounter'";
-                                if ($pat_prov_rel == 'encounter') {
-                                    echo " selected";
-                                }
-
-                                 echo ">" . xlt('Encounter') . "\n";
-                                 echo "   </select>\n";
-                                ?>
-                        </td>
-                </tr>
-
-                <?php if ($is_amc_report) { ?>
-                  <tr>
-                        <td>
-                                <?php echo xlt('Number labs'); ?>:<br />
-                               (<?php echo xlt('Non-electronic'); ?>)
-                        </td>
-                        <td>
-                               <input <?php echo $dis_text; ?> type="text" id="labs_manual_entry" name="labs_manual_entry" class='form-control' value="<?php echo attr($labs_manual); ?>">
-                        </td>
-                  </tr>
-                <?php } ?>
-
-    </table>
-
-    </div>
-
-  </td>
-  <td class='h-100' align='left' valign='middle'>
-    <table class='w-100 h-100' style='border-left:1px solid;'>
-        <tr>
-            <td scope="row">
-                <div class="text-center">
-          <div class="btn-group" role="group">
-            <?php if (empty($report_id)) { ?>
-            <a href='#' id='submit_button' class='btn btn-secondary btn-save' onclick='runReport();'><?php echo xlt('Submit'); ?></a>
-            <span id='status_span'></span>
-            <div id='processing' style='margin:10px; display:none;'><img src='../pic/ajax-loader.gif'/></div>
-                <?php if ($type_report == "cqm") { ?>
-                          <a href='#' id='xmla_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("false")'><?php echo xlt('Generate PQRI report (Method A) - 2011'); ?></a>
-              <a href='#' id='xmlb_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("true")'><?php echo xlt('Generate PQRI report (Method E) - 2011'); ?></a>
-            <?php } ?>
-            <?php } ?>
-            <?php if (!empty($report_id)) { ?>
-                <?php if ($is_amc_report) : ?>
-                    <a class="btn btn-secondary" href="amc_full_report.php?report_id=<?php echo attr_url($report_id); ?>"><?php echo xlt('AMC Detailed Report'); ?></a>
-                <?php endif; ?>
-            <a href='#' class='btn btn-secondary btn-print' id='printbutton'><?php echo xlt('Print'); ?></a>
-                <?php if ($type_report == "cqm_2014") { ?>
-              <a href='#' id="genQRDA" class='btn btn-secondary btn-transmit' onclick='return downloadQRDA()'><?php echo xlt('Generate QRDA I – 2014'); ?></a>
-              <a href='#' id="xmlc_button" class='btn btn-secondary btn-transmit' onclick='return GenXml("QRDA")'><?php echo xlt('Generate QRDA III - 2014'); ?></a>
-            <?php } ?>
-                <?php if ($back_link == "list") { ?>
-              <a href='report_results.php' class='btn btn-secondary btn-transmit' onclick='top.restoreSession()'><?php echo xlt("Return To Report Results"); ?></a>
-            <?php } else { ?>
-              <a href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#theform").submit();'><?php echo xlt("Start Another Report"); ?></a>
-            <?php } ?>
-            <?php } ?>
-          </div>
-                </div>
-            </td>
-        </tr>
-    </table>
-  </td>
- </tr>
-</table>
-
-</div>  <!-- end of search parameters -->
-
-<br />
-
-<?php
-if (!empty($report_id)) {
-    $twigContainer = new \OpenEMR\Common\Twig\TwigContainer(null, $GLOBALS['kernel']);
-    $twig = $twigContainer->getTwig();
-    $form_provider = $_POST['form_provider'] ?? '';
-
-    $itemIdsSql = "SELECT itemized_test_id, `pid` FROM `report_itemized` WHERE report_id = ? GROUP BY itemized_test_id,pid";
-    $itemIds = \OpenEMR\Common\Database\QueryUtils::fetchRecords($itemIdsSql, [$report_id]);
-    $reportPatientMap = [];
-    foreach ($itemIds as $result) {
-        $item_id = $result['itemized_test_id'];
-        if (empty($reportPatientMap[$item_id])) {
-            $reportPatientMap[$item_id] = [];
-        }
-        $reportPatientMap[$item_id][] = $result['pid'];
-    }
-
-    $sql = "SELECT patient_data.* FROM patient_data WHERE pid IN (select DISTINCT pid FROM `report_itemized` WHERE report_id = ?)";
-    $patients = \OpenEMR\Common\Database\QueryUtils::fetchRecords($sql, [$report_id]);
-    $patientsById = [];
-    foreach ($patients as $patient) {
-        $patientsById[$patient['pid']] = $patient;
-    }
-
-    $data = [
-        'report_id' => $report_id
-        , 'collate_outer' => $form_provider == 'collate_outer'
-        , 'datasheet' => $dataSheet
-        , 'reportPatientMap' => $reportPatientMap
-        , 'patients' => $patients
+    $formData['widthDyn'] = '410px';
+    $formData['rule_filters'] = [
+        ['value' => 'cqm', 'selected' => $type_report == 'cqm', 'label' => xl('All Clinical Quality Measures (CQM)')]
+        ,['value' => 'cqm_2011', 'selected' => $type_report == 'cqm_2011', 'label' => xl('2011 Clinical Quality Measures (CQM)')]
+        ,['value' => 'cqm_2014', 'selected' => $type_report == 'cqm_2014', 'label' => xl('2014 Clinical Quality Measures (CQM)')]
+    ];
+    $formData['plans'] = [
+        ['value' => '', 'selected' => false, 'label' => '-- ' . xl('Ignore') . ' --']
+        ,['value' => 'cqm', 'selected' => $plan_filter == 'cqm', 'label' => xl('All Official Clinical Quality Measures (CQM) Measure Groups')]
+        ,['value' => 'cqm_2011', 'selected' => $plan_filter == 'cqm_2011', 'label' => xl('2011 Official Clinical Quality Measures (CQM) Measure Groups')]
+        ,['value' => 'cqm_2014', 'selected' => $plan_filter == 'cqm_2014', 'label' => xl('2014 Official Clinical Quality Measures (CQM) Measure Groups')]
     ];
 
-    if ($is_cqm_report) {
-        echo $twig->render('reports/cqm/cqm-results-table.html.twig', $data);
-    } else if ($is_amc_report) {
-        echo $twig->render('reports/cqm/amc-results-table.html.twig', $data);
+} else if ($is_amc_report) {
+
+    // latest AMC doesn't have collate options
+    if (empty($report_id)) {
+        // truncate to just the first option
+        $formData['providerReportOptions'] = [
+            $formData['providerReportOptions'][0]
+        ];
+        $formData['rule_filters'] = [
+            ['value' => CertificationReportTypes::DEFAULT, 'selected' => true
+                , 'label' => $amc_report_types[CertificationReportTypes::DEFAULT]['ruleset_title']]
+        ];
+        // modern AMC only deals with encounter based relationships
+        $formData['providerRelationship'] = [
+            $formData['providerRelationship'][1]
+        ];
     } else {
-        echo $twig->render('reports/cqm/results-table.html.twig', $data);
+        // old AMC had a manual labs input for MIPS
+        $formData['show_manual_labs'] = true;
+        // need to handle historical data
+        foreach ($amc_report_types as $key => $report_type) {
+            $formData['rule_filters'][] = ['value' => $key, 'selected' => $type_report == $key
+                , 'label' => $amc_report_types[$key]['ruleset_title']];
+        }
     }
-} else { ?>
-<div id="instructions_text" class='text'>
-    <?php echo xlt('Please input search criteria above, and click Submit to start report.'); ?>
-</div>
-<?php } ?>
+    $formData['providerReportOptions'][] = ['value' => 'group_calculation', 'selected' => $provider == 'group_calculation'
+        , 'label' => xl('All EP/EC Group Calculation')];
+} else if ($type_report == 'standard') {
+    $formData['rule_filters'] = [
+        ['value' => 'passive_alert', 'selected' => $type_report == 'passive_alert', 'label' => xl('Passive Alert Rules')]
+        ,['value' => 'active_alert', 'selected' => $type_report == 'active_alert', 'label' => xl('Active Alert Rules')]
+        ,['value' => 'patient_reminder', 'selected' => $type_report == 'patient_reminder', 'label' => xl('Patient Reminder Rules')]
+    ];
+    $formData['plans'] = [
+        ['value' => '', 'selected' => false, 'label' => '-- ' . xl('Ignore') . ' --']
+        ,['value' => 'value', 'selected' => $plan_filter == 'normal', 'label' => xl('Active Plans')]
+    ];
+}
 
-<input type='hidden' name='form_new_report_id' id='form_new_report_id' value=''/>
-
-</form>
-</div>
-<?php
-$oemr_ui->oeBelowContainerDiv();
+// we need to grab the providers and add them to the provider dropdown
+$practitionerService = new PractitionerService();
+$result = $practitionerService->getAll();
+if ($result->hasData()) {
+    foreach ($result->getData() as $practitioner) {
+        $formData['providerReportOptions'][] = ['value' => $practitioner['id'], 'selected' => $provider == $practitioner['id']
+            , 'label' => $practitioner['lname'] . ',' . $practitioner['fname']];
+    }
+}
+echo $twig->render('reports/cqm/cqm.html.twig', $formData);
+exit;
 ?>
-</body>
-
-</html>
