@@ -110,6 +110,7 @@ class CdaTemplateParse
              * CCDA 2.16.840.1.113883.10.20.22.4.13 - Procedure Activity Observation.
              * QRDA 2.16.840.1.113883.10.20.24.3.18 Diagnostic Study, Performed,
              * QRDA 2.16.840.1.113883.10.20.24.3.59 Physical Exam, Performed
+             * QRDA '2.16.840.1.113883.10.20.24.3.54' Deceased Observation (V3) is handled in patient data parse.
              * */
             '2.16.840.1.113883.10.20.24.3.59' => 'fetchPhysicalExamPerformedData', // Physical Exam, Performed observation Vitals
             '2.16.840.1.113883.10.20.24.3.18' => 'fetchObservationPerformedData', //
@@ -130,7 +131,7 @@ class CdaTemplateParse
                     $text = $entry[$key]['templateId']['root'] . ' ' . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
                     error_log('Root Missing QDM: ' . $text);
                 }
-            } elseif (count($entry[$key]['templateId']) > 1) {
+            } elseif (count($entry[$key]['templateId'] ?? []) > 1) {
                 $key_1 = 1;
                 if (!empty($qrda_oids[$entry[$key]['templateId'][$key_1]['root']])) {
                     $this->currentOid = $entry[$key]['templateId'][$key_1]['root'];
@@ -145,29 +146,29 @@ class CdaTemplateParse
                     $text = $entry[$key]['templateId'][$key_1]['root'] . ' ' . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
                     error_log('Missing QDM: ' . $text);
                 }
+            } elseif (!empty($entry[$key]['root'])) {
+                if (!empty($qrda_oids[$entry[$key]['root']])) {
+                    $this->currentOid = $entry[$key]['root'];
+                    $func_name = $qrda_oids[$entry[$key]['root']] ?? null;
+                    if (!empty($func_name)) {
+                        $this->$func_name($entry);
+                    }
+                } else {
+                    $text = $entry[$key]['root'] . ' ' . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
+                    error_log('Root Missing QDM: ' . $text);
+                }
             }
         }
-        return $this->templateData;
+        if (empty($this->templateData)) {
+            error_log('Could not find any QDMs in document!');
+        }
+        return $this->templateData ?? '';
     }
 
     public function fetchDeceasedObservationData($entry)
     {
-        // @TODO
-        error_log('Todo for Missing QDM: Deceased Observation (V3) template');
-        /*<entry>
-              <observation classCode="OBS" moodCode="EVN">
-                <!-- C-CDA R2.1 Deceased Observation (V3) templateId -->
-                <templateId root="2.16.840.1.113883.10.20.22.4.79" extension="2015-08-01" />
-                <!-- Patient Characteristic Expired (V3) -->
-                <templateId root="2.16.840.1.113883.10.20.24.3.54" extension="2016-02-01" />
-                <id root="1.3.6.1.4.1.115" extension="622e7e0adfe4bd03cd567f7a"/>
-                <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4" codeSystemName="HL7ActCode" />
-                <statusCode code="completed" />
-                  <!-- QDM Attributes: expiredDatetime  -->
-                  <effectiveTime><low value='20190521084500'/></effectiveTime>
-                <value xsi:type="CD" code="419099009" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT" displayName="Dead" />
-              </observation>
-            </entry>*/
+        // handled in patient data parse.
+        // leave this function to prevent parse errors.
     }
 
     public function fetchPaymentSourceData($entry)
@@ -924,7 +925,18 @@ class CdaTemplateParse
     {
         if (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value'])) {
             $i = 1;
-
+            if (!empty($this->templateData['field_name_value_array']['vital_sign'])) {
+                $cnt = count($this->templateData['field_name_value_array']['vital_sign'] ?? []);
+                $v_date = $entry['observation']['effectiveTime']['value'] ?? null;
+                for ($c = 1; $c <= $cnt; $c++) {
+                    if ($this->templateData['field_name_value_array']['vital_sign'][$c]['date'] == $v_date) {
+                        $i = 0;
+                        $cnt = $c;
+                        break;
+                    }
+                }
+                $i += $cnt;
+            }
             $this->templateData['field_name_value_array']['vital_sign'][$i]['extension'] = $entry['organizer']['id']['extension'] ?? null;
             $this->templateData['field_name_value_array']['vital_sign'][$i]['root'] = $entry['organizer']['id']['root'] ?? null;
             $this->templateData['field_name_value_array']['vital_sign'][$i]['date'] = $entry['observation']['effectiveTime']['value'] ?? null;
@@ -1030,7 +1042,7 @@ class CdaTemplateParse
         } elseif ($this->currentOid == '2.16.840.1.113883.10.20.24.3.37') {
             $plan_type = 'test_or_order';
         } elseif ($this->currentOid == '2.16.840.1.113883.10.20.24.3.143' || $this->currentOid == '2.16.840.1.113883.10.20.24.3.47') {
-            $plan_type = 'medication';
+            $plan_type = 'planned_medication_activity';
         }
 
         $i = 1;
@@ -1117,6 +1129,7 @@ class CdaTemplateParse
             if (!empty($entry['substanceAdministration']['effectiveTime'][0]['high']['value'])) {
                 $this->templateData['field_name_value_array']['care_plan'][$i]['end_date'] = $entry['substanceAdministration']['effectiveTime'][0]['high']['value'] ?? null;
             }
+            $this->templateData['entry_identification_array']['care_plan'][$i] = $i;
         }
     }
 
@@ -1134,7 +1147,7 @@ class CdaTemplateParse
 
     public function fetchFunctionalCognitiveStatusData($entry)
     {
-        if ($entry['observation']['value']['code'] != '' && $entry['observation']['value']['code'] != 0) {
+        if (!empty($entry['observation']['value']['code'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['functional_cognitive_status'])) {
                 $i += count($this->templateData['field_name_value_array']['functional_cognitive_status']);

@@ -285,6 +285,17 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         $this->documentData['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
+        // test if patient is deceased
+        if ($this->is_qrda_import) {
+            foreach ($components[2]["section"]["entry"] as $entry_search) {
+                if ($entry_search["observation"]["value"]["code"] == '419099009') {
+                    $deceased_date = $entry_search["observation"]["effectiveTime"]["low"]["value"];
+                    $this->documentData['field_name_value_array']['patient_data'][1]['deceased_date'] = date('Y-m-d H:i:s', strtotime($deceased_date));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['deceased_reason'] = 'SNOMED-CT:419099009';
+                    break;
+                }
+            }
+        }
     }
 
     /*
@@ -1370,7 +1381,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_care_plan['care_plan'][$e]['text'] = $data['care_plan-text'][$i];
                                 $arr_care_plan['care_plan'][$e]['code'] = $data['care_plan-code'][$i];
                                 $arr_care_plan['care_plan'][$e]['description'] = $data['care_plan-description'][$i];
-                                $arr_care_plan['care_plan'][$e]['plan_type'] = $data['care_plan']['plan_type'];
+                                $arr_care_plan['care_plan'][$e]['plan_type'] = $data['care_plan']['plan_type'][$i];
                                 $e++;
                             } elseif (substr($key, 0, -4) == 'functional_cognitive_status') {
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $data['functional_cognitive_status-extension'][$i];

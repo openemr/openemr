@@ -80,9 +80,14 @@ trait Date
         return "<birthTime " . $this->value_or_null_flavor($context->find('birthDatetime')) . "/>";
     }
 
-    public function result_date_time(Mustache_Context $context): bool
+    public function has_result_date_time(Mustache_Context $context): bool
     {
         return !empty($context->find('resultDatetime'));
+    }
+
+    public function result_date_time(Mustache_Context $context): string
+    {
+        return "<effectiveTime " . $this->value_or_null_flavor($context->find('resultDatetime')) . "/>";
     }
 
     public function expired_date_time(Mustache_Context $context)

@@ -1297,11 +1297,16 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($query_update_pt, array($res_pt_id, $res_pt_id));
             }
 
+            if (!empty($value['date'] ?? null)) {
+                $date = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'yyyy/mm/dd') ?? null;
+            }
             if (!empty($value['result'][0]['result_date']) && empty($value['date'])) {
+                // no order date so give result date
                 $date = ApplicationTable::fixDate($value['result'][0]['result_date'], 'yyyy-mm-dd', 'yyyy/mm/dd');
                 $value['date'] = $date;
             }
             if (empty($value['date'])) {
+                // no order date make today
                 $value['date'] = $carecoordinationTable->formatDate(date('Ymd'), 1);
                 $date = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'yyyy/mm/dd');
             }

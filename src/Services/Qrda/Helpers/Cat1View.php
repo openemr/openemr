@@ -40,22 +40,22 @@ trait Cat1View
 
     public function display_author_dispenser_id(Mustache_Context $context): bool
     {
-        $category = $context->get('qdmCategory');
-        $status = $context->get('qdmStatus');
+        $category = $context->find('qdmCategory');
+        $status = $context->find('qdmStatus');
         return $category == 'medication' && $status == 'dispensed';
     }
 
     public function display_author_prescriber_id(Mustache_Context $context): bool
     {
-        $category = $context->get('qdmCategory');
-        $status = $context->get('qdmStatus');
+        $category = $context->find('qdmCategory');
+        $status = $context->find('qdmStatus');
         return $category == 'medication' && $status == 'order';
     }
 
     public function id_or_null_flavor(Mustache_Context $context): bool
     {
-        $namingSystem = $context->get('namingSystem');
-        $value = $context->get('value');
+        $namingSystem = $context->find('namingSystem');
+        $value = $context->find('value');
 
         if (empty($namingSystem) && empty($value)) {
             return "<id nullFlavor=\"NA\"/>";
