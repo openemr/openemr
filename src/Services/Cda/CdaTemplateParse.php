@@ -140,6 +140,21 @@ class CdaTemplateParse
                         $this->$func_name($entry);
                     } else {
                         $text = $entry[$key]['templateId'][$key_1]['root'] . " Key: $key_1 " . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
+                        error_log('Missing Function for: ' . $text);
+                    }
+                } elseif (count($entry[$key]['templateId'] ?? []) > 1) {
+                    $key_1 = 0;
+                    if (!empty($qrda_oids[$entry[$key]['templateId'][$key_1]['root']])) {
+                        $this->currentOid = $entry[$key]['templateId'][$key_1]['root'];
+                        $func_name = $qrda_oids[$entry[$key]['templateId'][$key_1]['root']] ?? null;
+                        if (!empty($func_name)) {
+                            $this->$func_name($entry);
+                        } else {
+                            $text = $entry[$key]['templateId'][$key_1]['root'] . " Key: $key_1 " . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
+                            error_log('Missing  Function for: ' . $text);
+                        }
+                    } else {
+                        $text = $entry[$key]['templateId'][$key_1]['root'] . " Key: $key_1 " . ($entry[$key]['text'] ?: $entry[$key]['code']['displayName']);
                         error_log('Missing QDM: ' . $text);
                     }
                 } else {
