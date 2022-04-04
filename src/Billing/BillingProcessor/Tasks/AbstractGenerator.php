@@ -100,15 +100,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask
                 $this->getAction() === BillingProcessor::VALIDATE_ONLY ||
                 $this->getAction() === BillingProcessor::VALIDATE_AND_CLEAR
             ) {
-                if (
-                    ($context['post']['bn_process_hcfa'] ?? '') ||
-                    ($context['post']['bn_process_hcfa_form'] ?? '') ||
-                    ($context['post']['bn_hcfa_txt_file'] ?? '')
-                ) {
                     $this->completeToScreen($context);
-                } else {
-                    $this->completeToFile($context);
-                }
             }
         }
 

@@ -149,7 +149,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     public function validateOnly(BillingClaim $claim)
     {
         $this->updateBatch($claim);
-        $this->printToScreen(xl("Successfully Validated claim") . ": " . $claim->getId());
+        $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
     /**
@@ -174,7 +174,6 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
             '', // process_file
             'hcfa'
         );
-
         $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() .  " " . xl("as billed"));
     }
 

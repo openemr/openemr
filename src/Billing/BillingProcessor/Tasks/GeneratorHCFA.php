@@ -52,8 +52,7 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
         // This is to tell our execute method not to create a new page the first claim
         $this->createNewPage = false;
 
-        // Instantiate mainly for the filename creation, we're not tracking text segments
-        // since we're generating a PDF, which is managed in this object
+        // Instantiate mainly for the filename creation
         $this->batch = new BillingClaimBatch('.txt');
     }
 
@@ -112,7 +111,7 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
     public function validateOnly(BillingClaim $claim)
     {
         $this->updateBatchFile($claim);
-        $this->printToScreen(xl("Successfully Validated claim") . ": " . $claim->getId());
+        $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
     /**
