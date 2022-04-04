@@ -39,8 +39,8 @@
     {% endif %}
         {% include 'reports/cqm/amc-results-table.html.twig' %}
 
-    <span class='title'>{{ 'Patient Details Report'|xlt }}</span>
-    {% include 'reports/cqm/amc-results-table.html.twig' with {displayPatients: true} %}
+    <h3 class='title'>{{ 'Patient Details Report'|xlt }}</h3>
+    {% include 'reports/cqm/amc-results-patient-details.html.twig' %}
 </div>
 </body>
 </html>
