@@ -105,9 +105,9 @@ abstract class AbstractGenerator extends AbstractProcessingTask
                     ($context['post']['bn_process_hcfa_form'] ?? '') ||
                     ($context['post']['bn_hcfa_txt_file'] ?? '')
                 ) {
-                    $this->completeToFile($context);
-                } else {
                     $this->completeToScreen($context);
+                } else {
+                    $this->completeToFile($context);
                 }
             }
         }

@@ -26,7 +26,10 @@ use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Hcfa1500;
 
-class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
+class GeneratorHCFA_PDF extends AbstractGenerator implements
+    GeneratorInterface,
+    GeneratorCanValidateInterface,
+    LoggerInterface
 {
     use WritesToBillingLog;
 
@@ -120,7 +123,18 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
         $this->validateAndClear($claim);
 
         // Finalize the claim
-        if (!BillingUtilities::updateClaim(false, $claim->getPid(), $claim->getEncounter(), -1, -1, 2, 2, $this->batch->getBatFilename())) {
+        if (
+            !BillingUtilities::updateClaim(
+                false,
+                $claim->getPid(),
+                $claim->getEncounter(),
+                -1,
+                -1,
+                2,
+                2,
+                $this->batch->getBatFilename()
+            )
+        ) {
             $this->printToScreen(xl("Internal error: claim ") . $claim->getId() . xl(" not found!") . "\n");
         } else {
             $this->printToScreen(xl("Successfully processed claim") . ": " . $claim->getId());
@@ -176,7 +190,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
         $tmp_claim_file = $GLOBALS['temporary_files_dir'] .
             DIRECTORY_SEPARATOR .
             $this->batch->getBatFilename();
-        file_put_contents($tmp_claim_file, $this->bat_content);
+        file_put_contents($tmp_claim_file, $this->pdf->ezOutput());
 
         // If we are just validating, the output should be a PDF presented
         // to the user, but we don't save to the edi/ directory.
