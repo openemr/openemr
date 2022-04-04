@@ -148,7 +148,6 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
      */
     public function completeToScreen(array $context)
     {
-        $this->batch->append_claim_close();
         // If we're validating only, or clearing and validating, don't write to our EDI directory
         // Just send to the browser in that case for the end-user to review.
         $format_bat = str_replace('~', PHP_EOL, $this->batch->getBatContent());
