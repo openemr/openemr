@@ -21,8 +21,8 @@ use ReflectionMethod;
 
 trait Date
 {
-    protected $performance_period_start;
-    protected $performance_period_end;
+    protected $_performance_period_start;
+    protected $_performance_period_end;
 
     public function value_or_null_flavor($time)
     {
@@ -37,12 +37,12 @@ trait Date
 
     public function performance_period_start(Mustache_Context $context)
     {
-        return $this->to_formatted_s_number($this->performance_period_start);
+        return $this->to_formatted_s_number($this->_performance_period_start);
     }
 
     public function performance_period_end(Mustache_Context $context)
     {
-        return $this->to_formatted_s_number($this->performance_period_end);
+        return $this->to_formatted_s_number($this->_performance_period_end);
     }
 
     public function current_time(Mustache_Context $context)

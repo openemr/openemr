@@ -52,9 +52,11 @@ class Cat1 extends \Mustache_Engine
         $this->patient = $patient;
         // comes from PatientView trait
         $this->provider = $options['provider'] ?? null;
-        $this->performance_period_end = $options['performance_period_start'] ?? null;
-        $this->performance_period_end = $options['performance_period_end'] ?? null;
-        $this->_measures = $measures; // Lambda for measures is in View "helper"
+        // lambda for performance period is in Date helper trait
+        $this->_performance_period_end = $options['performance_period_start'] ?? null;
+        $this->_performance_period_end = $options['performance_period_end'] ?? null;
+        // Lambda for measures is in View "helper"
+        $this->_measures = $measures;
         $this->submission_program = $options['submission_program'] ?? null;
     }
 

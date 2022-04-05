@@ -10,13 +10,46 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class MedicationOrderService extends AbstractMedicationService implements QdmServiceInterface
+class MedicationOrderService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getModelClass()
+    public function getCarePlanType()
     {
-        return MedicationOrder::class;
+        return 'planned_medication_activity';
+    }
+
+    public function makeQdmModel(array $record)
+    {
+        $model = new MedicationOrder([
+            'relevantPeriod' => new Interval(
+                [
+                    'low' =>  new DateTime(
+                        [
+                            'date' => $record['date']
+                        ]
+                    ),
+                    'high' => new DateTime(
+                        [
+                            'date' => $record['date']
+                        ]
+                    ),
+                    'lowClosed' => $record['date'] ? true : false,
+                    'highClosed' => $record['date'] ? true : false
+                ]
+            ),
+            'authorDatetime' => new DateTime(
+                [
+                    'date' => $record['date']
+                ]
+            ),
+        ]);
+
+        $model->addCode($this->makeQdmCode($record['code']));
+
+        return $model;
     }
 }
