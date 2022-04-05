@@ -70,84 +70,94 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
 
 function collectItemizedPatientData($report_id, $itemized_test_id)
 {
-    // TODO: @adunsulag we need to batch this so we don't trash the database.
-    $sql = "SELECT * FROM `report_itemized` WHERE report_id = ? AND itemized_test_id = ? ";
-    $sqlParameters = array($report_id,$itemized_test_id);
-
+    $has_results = true;
+    $batchSize = 100; // we will do 100 results at a time so we don't overload the MySQL server
+    $reportDataByPid = [];
     $numHeaders = [];
     $denomHeaders = [];
-
-    $rez = sqlStatementCdrEngine($sql, $sqlParameters);
-    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-        $pid = $row['pid'];
-        if (!isset($reportDataByPid[$pid])) {
-            $reportDataByPid[$pid] = [];
+    $index = 0;
+    $infiniteLoopMax = 100000; // 100*10^5 = 10 million records is the max we'll support without failing
+    while ($has_results && $index < $infiniteLoopMax) {
+        $sql = "SELECT * FROM `report_itemized` WHERE report_id = ? AND itemized_test_id = ? LIMIT " . $index . "," . $batchSize;
+        $sqlParameters = array($report_id, $itemized_test_id);
+        $rez = sqlStatementCdrEngine($sql, $sqlParameters);
+        if ($rez == false || $rez->EOF) {
+            $has_results = false;
+            continue;
         }
-        $reportDataByPid[$pid][] = $iter;// need to keep the indexes so we can populate patients later
-        $hydratedRecord = ['patient' => $pid, 'numerator' => [], 'denominator' => []];
-        $ruleId = $row['rule_id'] ?? null;
-        if (!empty($ruleId) && !empty($row['item_details'])) {
-            if (empty($ruleObjectHash[$ruleId])) {
-                $ruleObjectHash[$ruleId] = getRuleObjectForId($ruleId) ?? new AMC_Unimplemented();
-            }
-            $data = json_decode($row['item_details'], true) ?? null;
-            if (!empty($data)) {
-                $data = $ruleObjectHash[$ruleId]->hydrateItemizedDataFromRecord($data)->getActionData();
 
-                $hydratedRecord['numerator'] = $data['numerator'] ?? [];
-                $hydratedRecord['denominator'] = $data['denominator'] ?? [];
-
-                // grab our headers
-                foreach ($hydratedRecord['numerator'] as $key => $item) {
-                    if (empty($numHeaders[$key])) {
-                        $numHeaders[$key] = $item['label'];
-                    }
-                    // save memory usage by clearing out the label, we match with the header key
-                    unset($hydratedRecord['numerator'][$key]['label']);
+        for ($iter = $index; $row = sqlFetchArray($rez); $iter++) {
+            $pid = $row['pid'];
+            if (!isset($reportDataByPid[$pid])) {
+                $reportDataByPid[$pid] = [];
+            }
+            $reportDataByPid[$pid][] = $iter;// need to keep the indexes so we can populate patients later
+            $hydratedRecord = ['patient' => $pid, 'numerator' => [], 'denominator' => []];
+            $ruleId = $row['rule_id'] ?? null;
+            if (!empty($ruleId) && !empty($row['item_details'])) {
+                if (empty($ruleObjectHash[$ruleId])) {
+                    $ruleObjectHash[$ruleId] = getRuleObjectForId($ruleId) ?? new AMC_Unimplemented();
                 }
-                foreach ($hydratedRecord['denominator'] as $key => $item) {
-                    if (empty($numHeaders[$key])) {
-                        $denomHeaders[$key] = $item['label'];
+                $data = json_decode($row['item_details'], true) ?? null;
+                if (!empty($data)) {
+                    $data = $ruleObjectHash[$ruleId]->hydrateItemizedDataFromRecord($data)->getActionData();
+
+                    $hydratedRecord['numerator'] = $data['numerator'] ?? [];
+                    $hydratedRecord['denominator'] = $data['denominator'] ?? [];
+
+                    // grab our headers
+                    foreach ($hydratedRecord['numerator'] as $key => $item) {
+                        if (empty($numHeaders[$key])) {
+                            $numHeaders[$key] = $item['label'];
+                        }
+                        // save memory usage by clearing out the label, we match with the header key
+                        unset($hydratedRecord['numerator'][$key]['label']);
                     }
-                    // save memory usage by clearing out the label, we match with the header key
-                    unset($hydratedRecord['denominator'][$key]['label']);
+                    foreach ($hydratedRecord['denominator'] as $key => $item) {
+                        if (empty($numHeaders[$key])) {
+                            $denomHeaders[$key] = $item['label'];
+                        }
+                        // save memory usage by clearing out the label, we match with the header key
+                        unset($hydratedRecord['denominator'][$key]['label']);
+                    }
                 }
             }
+            $reportData[$iter] = $hydratedRecord;
         }
-        $reportData[$iter] = $hydratedRecord;
+        $index += $batchSize;
     }
-
-    // Group ['patient' => [], 'records' => []]
 
     // now grab all the patients and let's populate here
     $sanitizedPids = array_map('intval', array_keys($reportDataByPid));
+    $totalPids = count($sanitizedPids);
     $aggregatedPatientRecords = [];
     if (!empty($sanitizedPids)) {
-        $sql = "SELECT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS FROM patient_data WHERE pid "
-            . " IN (" . implode(",", $sanitizedPids) . ")";
+        for ($i = 0; $i < $totalPids; $i += $batchSize) {
+            $slicedPids = array_slice($sanitizedPids, $i, $batchSize, true);
 
-        $rez = sqlStatementCdrEngine($sql, []);
-        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-            $record = ['patient' => $row, 'records' => []];
-            $pid = $row['pid'];
-            // do we want to make this an object to preserve memory?  Lot of duplicate counting
-            foreach ($reportDataByPid[$pid] as $index) {
-                unset($reportData[$index]['patient']);
-                $record['records'][] = $reportData[$index];
-                // now remove the record so we conserve memory
-                $reportData[$index] = null; // we set it to empty to clear it out and not reorder any internal array
-            }
+            $sql = "SELECT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS FROM patient_data WHERE pid "
+                . " IN (" . implode(",", $slicedPids) . ")";
 
-            unset($reportDataByPid[$pid]);
-            $aggregatedPatientRecords[] = $record;
-        }
+            $rez = sqlStatementCdrEngine($sql, []);
+            for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+                $record = ['patient' => $row, 'records' => []];
+                $pid = $row['pid'];
+                // if its empty it means we processed it on a previous batch and everything's already been set so move on
+                // we shouldn't ever have duplicate pids... since we've handled it at the application layer, but we will
+                // be safe here.
+                if (empty($reportDataByPid[$pid])) {
+                    continue;
+                }
+                // do we want to make this an object to preserve memory?  Lot of duplicate counting
+                foreach ($reportDataByPid[$pid] as $index) {
+                    unset($reportData[$index]['patient']);
+                    $record['records'][] = $reportData[$index];
+                    // now remove the record so we conserve memory
+                    $reportData[$index] = null; // we set it to empty to clear it out and not reorder any internal array
+                }
 
-
-        // report data had mismatched keys or old pids... we've got to clean up the item data here and remove the patients
-        // that don't match here...
-        if (!empty($reportDataByPid)) {
-            foreach ($reportDataByPid as $pid => $index) {
-                unset($reportData[$index]['patient']);
+                unset($reportDataByPid[$pid]);
+                $aggregatedPatientRecords[] = $record;
             }
         }
     }
