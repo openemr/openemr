@@ -28,8 +28,21 @@
 
 use OpenEMR\Common\Database\QueryUtils;
 
-class AMC_315g_2c_Numerator implements AmcFilterIF
+class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
 {
+    const ACTION_LABEL = "pt_hlth_access";
+    const ACTION_DETAILS_KEY_ACCESS_GRANTED = 'access_granted';
+    const ACTION_DETAILS_KEY_API_DISABLED = 'api_disabled';
+    const ACTION_DETAILS_KEY_PATIENT_OPT_OUT = 'patient_opt_out';
+    const ACTION_DETAILS_KEY_MISSING_CREDENTIALS = 'missing_creds';
+
+    private $lastTestActionData;
+
+    public function __construct()
+    {
+        $this->lastTestActionData = new AmcItemizedActionData();
+    }
+
     public function getTitle()
     {
         return "AMC_315g_2c Numerator";
@@ -37,23 +50,30 @@ class AMC_315g_2c_Numerator implements AmcFilterIF
 
     public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate)
     {
-        // TODO: @adunsulag we will come back and visit this when we do grouping
         if (!empty($date_created)) {
             $creationDate = strtotime($date_created);
             $beginDate = strtotime($beginDate);
             $endDate = strtotime($endDate);
             // creation date for the credentials was within the valid date boundary that we wanted
             if ($creationDate >= $beginDate && $creationDate <= $endDate) {
+                $this->lastTestActionData->addNumeratorActionData(
+                    self::ACTION_LABEL,
+                    true,
+                    ['type' => self::ACTION_DETAILS_KEY_ACCESS_GRANTED, 'date' => $date_created]
+                );
                 return true;
             }
         }
         // we don't worry about casing here
         if (is_string($prevent_portal_access) && strtolower($prevent_portal_access) == "yes") {
+            $this->lastTestActionData->addNumeratorActionData(self::ACTION_LABEL, true, ['type' => self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT]);
             // patient opted out of 3rd party portal access which makes them then eligible for 2c criteria
             // NOTE if we certify (e)(1) then this will no longer be valid and View, Download, Transmit (VDT) will need
             // to be checked alongside this condition.
             return true;
         }
+        // no details as they just didn't have access
+        $this->lastTestActionData->addNumeratorActionData(self::ACTION_LABEL, false, '');
         // no credentials generated, and they are enrolled in api access.
         return false;
     }
@@ -73,6 +93,11 @@ class AMC_315g_2c_Numerator implements AmcFilterIF
         // if either the fhir api or the patient api is disabled, then we must fail the measure as no patient
         // fhir api access is available.
         if ($fhir_api === '0' || $patient_api === '0') {
+            $this->lastTestActionData->addNumeratorActionData(
+                self::ACTION_LABEL,
+                false,
+                ['type' => self::ACTION_DETAILS_KEY_API_DISABLED, 'fhir' => 0, 'portal' => 0]
+            );
             return false;
         }
 
@@ -87,8 +112,58 @@ class AMC_315g_2c_Numerator implements AmcFilterIF
 
         $numeratorData = QueryUtils::fetchRecords($sql, [$patient->id]);
         if (empty($numeratorData)) {
+            $this->lastTestActionData->addNumeratorActionData(
+                self::ACTION_LABEL,
+                false,
+                ['type' => self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS]
+            );
             return false;
         }
         return $this->isValidPatient($numeratorData[0]['date_created'], $numeratorData[0]['prevent_portal_apps'], $beginDate, $endDate);
+    }
+
+    /**
+     * Returns the itemized data results as a hashmap of action_id => 0|1 where 0 is failed and 1 is passed
+     * @return array
+     */
+    public function getItemizedDataForLastTest(): AmcItemizedActionData
+    {
+        return $this->lastTestActionData;
+    }
+
+    /**
+     * Returns the hydrated (language translated) data record that came from the itemized data record
+     * @return AmcItemizedActionData
+     */
+    public function hydrateItemizedDataFromRecord($actionData): AmcItemizedActionData
+    {
+        $label = xl("Patient Health Information is Available to Access via API within 48 hours (Medicaid) or 4 business days (MIPS)");
+        $result = new AmcItemizedActionData();
+        foreach ($actionData as $key => $data) {
+            if ($key == self::ACTION_LABEL) {
+                $details = $this->parseDetailsToString($data['details'] ?? []);
+                $result->addNumeratorActionData($key, $data['value'] ?? false, $details, $label);
+            }
+        }
+        return $result;
+    }
+    /*
+     * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
+     */
+    private function parseDetailsToString($details)
+    {
+        $newDetails = '';
+        $type = $details['type'] ?? '';
+        if ($type == self::ACTION_DETAILS_KEY_API_DISABLED) {
+            $newDetails = xl("Patient API access is disabled");
+        } else if ($type == self::ACTION_DETAILS_KEY_ACCESS_GRANTED) {
+            $newDetails = xl("Patient has automatic access to patient data since API credentials were generated on") . " "
+                . $details['date'];
+        } else if ($type == self::ACTION_DETAILS_KEY_PATIENT_OPT_OUT) {
+            $newDetails = xl("Patient opted out of 3rd party api access");
+        } else if ($type == self::ACTION_DETAILS_KEY_MISSING_CREDENTIALS) {
+            $newDetails = xl("API Credentials were not generated");
+        }
+        return $newDetails;
     }
 }

@@ -23,11 +23,11 @@
  */
 
 
-class AMC_304i_STG2 extends AbstractAmcReport
+class AMC_315g_7 extends AbstractAmcReport
 {
     public function getTitle()
     {
-        return "AMC_304i_STG2";
+        return "AMC_315g_7";
     }
 
     public function getObjectToCount()
@@ -39,20 +39,20 @@ class AMC_304i_STG2 extends AbstractAmcReport
     /**
      * 2015 Rule:  DENOMINATOR Number of transitions of care and referrals during the performance period for which the MIPS eligible
      * clinician was the transferring or referring clinician.
-     * @return AMC_304i_STG2_Denominator
+     * @return AMC_315g_7_Denominator
      */
     public function createDenominator()
     {
-        return new AMC_304i_STG2_Denominator();
+        return new AMC_315g_7_Denominator();
     }
 
     /**
      * 2015 Rule: NUMERATOR: The number of transitions of care and referrals in the denominator where a
      * summary of care record was created using CEHRT and exchanged electronically.
-     * @return AMC_304i_STG2_Numerator
+     * @return AMC_315g_7_Numerator
      */
     public function createNumerator()
     {
-        return new AMC_304i_STG2_Numerator();
+        return new AMC_315g_7_Numerator();
     }
 }

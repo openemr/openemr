@@ -25,10 +25,15 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
+require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
 class EncounterccdadispatchTable extends AbstractTableGateway
 {
-    public $amc_num_result = 0;
+    public $amc_num_result = [
+            'medications' => 0,
+            'allergies' => 0,
+            'problems' => 0
+    ];
 
     public function __construct()
     {
@@ -476,11 +481,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <RxNormCode>" . xmlEscape($code_rx) . "</RxNormCode>
                 <RxNormCode_text>" . xmlEscape(!empty($code_text_rx) ? $code_text_rx : $row['title']) . "</RxNormCode_text>
                 </allergy>";
-                $this->amc_num_result += 1;
+                $this->amc_num_result['allergies'] += 1;
             }
         }
 
         $allergies .= "</allergies>";
+        $this->amc_num_result['allergies'] = $this->getAmcCount($pid, 'allergy', $this->amc_num_result['allergies']);
         return $allergies;
     }
 
@@ -563,15 +569,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     <provider_id></provider_id>
     <provider_name></provider_name>
     </medication>";
-            $this->amc_num_result += 1;
+            $this->amc_num_result['medications'] += 1;
         }
 
         $medications .= "</medications>";
-        if (empty($this->amc_num_result)) {
-            $no_medication = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'medication'", array($pid));
-            $medications   = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'medication'", array($pid));
-            $this->amc_num_result += $no_medication['cnt'] + $medications['cnt'];
-        }
+        $this->amc_num_result['medications'] = $this->getAmcCount($pid, 'medication', $this->amc_num_result['medications']);
         return $medications;
     }
 
@@ -638,12 +640,23 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <observation_code>" . xmlEscape(($observation_code ?: '')) . "</observation_code>
                 <diagnosis>" . xmlEscape($code ?: '') . "</diagnosis>
                 </problem>";
-                $this->amc_num_result += 1;
+                $this->amc_num_result['problems'] += 1;
             }
         }
 
         $problem_lists .= '</problem_lists>';
+        $this->amc_num_result['problems'] = $this->getAmcCount($pid, 'medical_problem', $this->amc_num_result['problems']);
         return $problem_lists;
+    }
+
+    private function getAmcCount($pid, $list_type, $current_count)
+    {
+        if (empty($current_count)) {
+            $no_list_count = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = ?", array($pid, $list_type));
+            $list_count = sqlQuery("select count(*) as cnt from lists where pid = ? and type = ?", array($pid, $list_type));
+            $current_count = $no_list_count['cnt'] + $list_count['cnt'];
+        }
+        return $current_count;
     }
 
     public function getMedicalDeviceList($pid, $encounter)
@@ -2223,11 +2236,61 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $file_path = $file_path . "/" . $file_name;
         }
 
-        $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $referralId = $this->getMostRecentPatientReferral($pid);
+
+        $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $hash = hash('sha3-512', $content);
         $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted));
+        $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId));
+
+        // now let's go ahead and log our amc actions for this behavior
+        if (!empty($emr_transfer)) {
+            $this->logAmc($pid, $referralId);
+        }
         return $moduleInsertId = $result->getGeneratedValue();
+    }
+
+    /**
+     * Retrieves the most recent patient referral found in the transactions table or null if none is found.
+     * @param $pid
+     * @return int|null
+     */
+    private function getMostRecentPatientReferral($pid)
+    {
+        $appTable = new ApplicationTable();
+        // this segment of code is attempting to connect a CCDA to a Referral form (stored in the transactions)
+        // table so we can track for Automated Measure Calculation (AMC) purposes.  This assumes that a referral
+        // form has been created before the CCDA was sent (otherwise the transaction id is 0)
+
+        // this query is only true if the referral was inserted as part of the ccda generation process.  This is code migrated from EncountermanagerTable
+        $refs = $appTable->zQuery("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", array($pid));
+        if ($refs->count() == 0) {
+            // the choose the most recent transaction to link this up...  This could create problems in the
+            // future if multiple referrals are created BEFORE sending the CCDA.
+            // TODO: is there a way to fix it so we can choose a referral (works for single ccda generation, more problematic for multiple patient select).
+            $trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", array($pid));
+            $trans_cur = $trans->current();
+            $trans_id = $trans_cur['id'] ? $trans_cur['id'] : null;
+        } else {
+            foreach ($refs as $r) {
+                $trans_id = $r['trans_id'];
+            }
+        }
+        return $trans_id;
+    }
+
+    /**
+     * Marks a ccda as having all of the requisite data to be counted for the send summary of care amc rule
+     * @param $pid number The patient identifier
+     * @param $referralId number The id of the referral stored in the transactions table
+     */
+    private function logAmc($pid, $referralId)
+    {
+        $amc_num_result = $this->amc_num_result;
+        // either has the issue in the CCDA
+        if ($amc_num_result['problems'] > 0 && $amc_num_result['medications'] > 0 && $amc_num_result['allergies'] > 0) {
+            amcAdd('send_sum_valid_ccda', true, $pid, 'transactions', $referralId);
+        }
     }
 
     public function getCcdaLogDetails($logID = 0)

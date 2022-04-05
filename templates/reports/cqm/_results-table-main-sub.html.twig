@@ -58,3 +58,6 @@
     </td>
     <td>{{ row.percentage|text }}</td>
 </tr>
+{% if displayPatients %}
+    {% include "reports/cqm/_results-table-patient-details.html.twig" with {title: "Patients"|xl, details: row.itemized_patients, cardClass:'info'} %}
+{% endif %}

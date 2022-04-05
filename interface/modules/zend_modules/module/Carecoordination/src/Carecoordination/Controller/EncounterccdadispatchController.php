@@ -181,12 +181,6 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
 
                 $content = trim($content);
-
-                if (!empty($emr_transfer)) {
-                    $amc_flag = ($this->getEncounterccdadispatchTable()->amc_num_result > 0) ? 1 : 0;
-                    $sql = "INSERT INTO `amc_misc_data` (`amc_id`, `pid`, `map_category`, `map_id`, `date_created`, `date_completed`) VALUES ('ccda_numerator_amc', ?, 'ccda_transfer_direct', ?, NOW(), NOW())";
-                    $id = sqlInsert($sql, array($this->patient_id, $amc_flag));
-                }
                 $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
                 if (!$view) {
                     if ($hie_hook) {
@@ -633,7 +627,7 @@ class EncounterccdadispatchController extends AbstractActionController
     /**
      * Table Gateway
      *
-     * @return type
+     * @return EncounterccdadispatchTable
      */
     public function getEncounterccdadispatchTable()
     {

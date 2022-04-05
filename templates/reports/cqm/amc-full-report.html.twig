@@ -1,0 +1,46 @@
+<html>
+<head>
+    <title>{{ title|text }}</title>
+    {{ setupHeader([]) }}
+    <script>
+
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+        });
+    </script>
+    <style>
+        .amc-action-label {
+            width: 25rem;
+        }
+        .amc-demographic-label {
+            width: 15rem;
+        }
+        @media print {
+            .amc-action-label {
+                width: 20rem;
+            }
+            .amc-demographic-label {
+                width: 10rem;
+            }
+        }
+    </style>
+</head>
+<body class="body_top">
+<div id="container_div" class="container-fluid mt-3">
+    <div class="btn-group float-right mb-2" role="group">
+        <a href='#' class='btn btn-secondary btn-print d-print-none' id='printbutton'>{{ 'Print'|xlt }}</a>
+        <a href='/interface/reports/cqm.php?report_id={{ report_id|attr_url }}&back=list' class='btn btn-secondary btn-transmit d-print-none'>{{ 'Return to Summary'|xlt }}</a>
+    </div>
+    <h1 class="title">{{ 'Report'|xlt }} - {{ title|text }} - {{ "Date of Report"|xlt }}: {{ reportDate|text }}</h1>
+
+    {% if subTitle %}
+        <h2 class="title">{{ subTitle|text }}</h2>
+    {% endif %}
+        {% include 'reports/cqm/amc-results-table.html.twig' %}
+
+    <h3 class='title'>{{ 'Patient Details Report'|xlt }}</h3>
+    {% include 'reports/cqm/amc-results-patient-details.html.twig' %}
+</div>
+</body>
+</html>
