@@ -22,6 +22,7 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -50,6 +51,8 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
     protected function loadSearchParameters()
     {
         return  [
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+
             // not sure if this a token or not
             'active' => new FhirSearchParameterDefinition('active', SearchFieldType::TOKEN, ['active']),
 

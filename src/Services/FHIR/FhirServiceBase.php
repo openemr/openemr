@@ -205,6 +205,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 //            array_walk($oeSearchParameters, function ($v) {
 //                echo $v;
 //            });
+            error_log(print_r($oeSearchParameters, true));
             $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
 
 
