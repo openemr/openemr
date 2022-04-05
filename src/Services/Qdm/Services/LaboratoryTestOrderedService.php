@@ -18,7 +18,7 @@ class LaboratoryTestOrderedService extends AbstractCarePlanService implements Qd
 {
     public function getCarePlanType()
     {
-        return 'test_or_order';
+        return AbstractCarePlanService::CARE_PLAN_TYPE_TEST_OR_ORDER;
     }
 
     public function makeQdmModel(array $record)

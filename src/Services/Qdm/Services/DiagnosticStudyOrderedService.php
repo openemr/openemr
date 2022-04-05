@@ -17,7 +17,7 @@ class DiagnosticStudyOrderedService extends AbstractCarePlanService implements Q
 {
     public function getCarePlanType()
     {
-        return 'plan_of_care';
+        return AbstractCarePlanService::CARE_PLAN_TYPE_PLAN_OF_CARE;
     }
 
     public function makeQdmModel(array $record)

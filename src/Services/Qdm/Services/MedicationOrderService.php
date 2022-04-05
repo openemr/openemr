@@ -19,7 +19,7 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
 {
     public function getCarePlanType()
     {
-        return 'planned_medication_activity';
+        return AbstractCarePlanService::CARE_PLAN_TYPE_PLANNED_MED_ACTIVITY;
     }
 
     public function makeQdmModel(array $record)

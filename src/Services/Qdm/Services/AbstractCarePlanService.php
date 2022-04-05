@@ -18,6 +18,15 @@ namespace OpenEMR\Services\Qdm\Services;
  */
 abstract class AbstractCarePlanService extends AbstractQdmService
 {
+    /**
+     * Care Plan Types that map the care plan type in the form_care_plan.care_plan_type field to their QDM models
+     */
+    const CARE_PLAN_TYPE_TEST_OR_ORDER = 'test_or_order'; // for LaboratoryTestOrderedService
+    const CARE_PLAN_TYPE_PLAN_OF_CARE = 'plan_of_care'; // for DiagnosticStudyOrderedService
+    const CARE_PLAN_TYPE_INTERVENTION = 'intervention'; // for InterventionOrderedService
+    const CARE_PLAN_TYPE_PLANNED_MED_ACTIVITY = 'planned_medication_activity'; // for MedicationOrderService
+    const CARE_PLAN_TYPE_MEDICATION = 'medication'; // for SubstanceRecommendedService
+
     abstract public function getCarePlanType();
 
     public function getSqlStatement()

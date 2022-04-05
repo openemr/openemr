@@ -17,7 +17,7 @@ class SubstanceRecommendedService extends AbstractCarePlanService implements Qdm
 {
     public function getCarePlanType()
     {
-        return 'medication';
+        return AbstractCarePlanService::CARE_PLAN_TYPE_MEDICATION;
     }
 
     public function makeQdmModel(array $record)

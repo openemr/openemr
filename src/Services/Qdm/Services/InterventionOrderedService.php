@@ -17,7 +17,7 @@ class InterventionOrderedService extends AbstractCarePlanService implements QdmS
 {
     public function getCarePlanType()
     {
-        return 'intervention';
+        return AbstractCarePlanService::CARE_PLAN_TYPE_INTERVENTION;
     }
 
     public function makeQdmModel(array $record)
