@@ -96,6 +96,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     public function validateOnly(BillingClaim $claim)
     {
         $this->updateBatchFile($claim);
+        $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
     /**
@@ -124,6 +125,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
 
         // Update the batch file content with this claim's data
         $this->updateBatchFile($claim);
+        $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() .  " " . xl("as billed"));
     }
 
     /**
