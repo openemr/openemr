@@ -130,8 +130,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'jqueryDateTimePicker',
-                function ($domSelector, $datetimepicker_timepicker = true, $datetimepicker_showseconds=true, $datetimepicker_formatInput=true)
-                {
+                function ($domSelector, $datetimepicker_timepicker = true, $datetimepicker_showseconds = true, $datetimepicker_formatInput = true) {
                     ob_start();
                     echo "$('" . $domSelector . "').datetimepicker({";
 
@@ -150,7 +149,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'oemrUiBelowContainerDiv',
-                function($oemr_settings) {
+                function ($oemr_settings) {
                     $oemrUi = new OemrUI($oemr_settings);
                     ob_start();
                     $oemrUi->oeBelowContainerDiv();
@@ -158,8 +157,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             new TwigFunction(
-                'oemHelpIcon'
-                ,function() {
+                'oemHelpIcon',
+                function () {
                     // this setups a variable called $help_icon... strange
                     require $GLOBALS['srcdir'] . "/display_help_icon_inc.php";
                     return $help_icon ?? '';

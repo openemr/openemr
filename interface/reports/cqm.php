@@ -173,9 +173,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
         ,['value' => 'cqm_2011', 'selected' => $plan_filter == 'cqm_2011', 'label' => xl('2011 Official Clinical Quality Measures (CQM) Measure Groups')]
         ,['value' => 'cqm_2014', 'selected' => $plan_filter == 'cqm_2014', 'label' => xl('2014 Official Clinical Quality Measures (CQM) Measure Groups')]
     ];
-
 } else if ($is_amc_report) {
-
     // latest AMC doesn't have collate options
     if (empty($report_id)) {
         // truncate to just the first option
@@ -224,4 +222,3 @@ if ($result->hasData()) {
 }
 echo $twig->render('reports/cqm/cqm.html.twig', $formData);
 exit;
-?>
