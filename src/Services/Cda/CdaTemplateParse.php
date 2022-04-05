@@ -1133,17 +1133,19 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['care_plan'][$i]['code_text'] = $code['code_text'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['description'] = $entry['substanceAdministration']['text'] ?? $code['code_text'];
 
-            if (!empty($entry['substanceAdministration']['effectiveTime'][0]['low']['value'])) {
+            $this->templateData['field_name_value_array']['care_plan'][$i]['end_date'] = null;
+            if (!empty($entry['substanceAdministration']['effectiveTime']['low']['value'])) {
+                $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['substanceAdministration']['effectiveTime']['low']['value'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['end_date'] = $entry['substanceAdministration']['effectiveTime']['high']['value'] ?? null;
+            } elseif (!empty($entry['substanceAdministration']['effectiveTime'][0]['low']['value'])) {
                 $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['substanceAdministration']['effectiveTime'][0]['low']['value'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['end_date'] = $entry['substanceAdministration']['effectiveTime'][0]['high']['value'] ?? null;
             } elseif (!empty($entry['substanceAdministration']['effectiveTime']['value'])) {
                 $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['substanceAdministration']['effectiveTime']['value'];
             } else {
                 $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = date('Y-m-d');
             }
-            $this->templateData['field_name_value_array']['care_plan'][$i]['end_date'] = null;
-            if (!empty($entry['substanceAdministration']['effectiveTime'][0]['high']['value'])) {
-                $this->templateData['field_name_value_array']['care_plan'][$i]['end_date'] = $entry['substanceAdministration']['effectiveTime'][0]['high']['value'] ?? null;
-            }
+
             $this->templateData['entry_identification_array']['care_plan'][$i] = $i;
         }
     }
