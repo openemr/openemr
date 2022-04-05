@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Services\Qdm\Services;
-
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\LaboratoryTestOrder;
