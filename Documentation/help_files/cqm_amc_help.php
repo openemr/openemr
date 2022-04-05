@@ -49,20 +49,6 @@ require_once("../../interface/globals.php");
                     <?php echo xlt("Choose the Provider you wish to run for the calculation"); ?>.
                 </li>
                 <li>
-                    <?php echo xlt("Choose the Provider Relationship method that your clinic utilizes for billing purposes"); ?>.
-                    <h5><?php echo xlt("Available Provider Relationship Options"); ?></h5>
-                    <dl>
-                        <dt><?php echo xlt("Primary"); ?></dt>
-                        <dd><?php echo xlt("AMC calculation retrieves patient data where the selected provider is the assigned primary care provider for the patient"); ?>.</dd>
-                        <dt><?php echo xlt("Encounter"); ?></dt>
-                        <dd><?php echo xlt("AMC calculation retrieves patient data where the selected provider was the seen provider at the time of the patient encounter visit"); ?>.</dd>
-                    </dl>
-                </li>
-                <li>
-                    <?php echo xlt("Update the non-electronic number of labs count"); ?>.
-                    <i><?php echo xlt("Some rulesets such as 2011 and 2014 for Medicaid reporting required the number of labs that were done outside the CEHRT to be reported"); ?></i>.
-                </li>
-                <li>
                     <?php echo xlt("Once all the report settings have been chosen press the Submit button"); ?>.
                 </li>
             </ol>
@@ -71,7 +57,6 @@ require_once("../../interface/globals.php");
             <div class="alert alert-info">
                 <p><?php echo xlt("Note that for the Automated Measure Calculations to correctly calculate each EC must have have their NPI number setup correctly and be connected to a default Billing Facility"); ?>.</p>
                 <p><?php echo xlt("The default billing facility must have the tax id number (TIN) that each EC will be connected to for billing purposes"); ?>.</p>
-                <p><?php echo xlt("If providers provide services to multiple group TIN numbers then the report MUST be run using the Encounter Provider Relationship option"); ?>.</p>
             </div>
             <ol>
                 <li><?php echo xlt("Choose the promotion period for the calculation by setting the begin and end date for the report"); ?></li>
@@ -81,20 +66,6 @@ require_once("../../interface/globals.php");
                 </li>
                 <li>
                     <?php echo xlt("For the provider dropdown choose Group Calculation option"); ?>.
-                </li>
-                <li>
-                    <?php echo xlt("Choose the Provider Relationship method that your clinic utilizes for billing purposes"); ?>.
-                    <h5><?php echo xlt("Available Provider Relationship Options"); ?></h5>
-                    <dl>
-                        <dt><?php echo xlt("Primary"); ?></dt>
-                        <dd><?php echo xlt("AMC calculation retrieves patient data for each provider for a billing facility who is the assigned primary care clinician to a patient"); ?>.</dd>
-                        <dt><?php echo xlt("Encounter"); ?></dt>
-                        <dd><?php echo xlt("AMC calculation retrieves patient data for each provider for a billing facility where the selected provider was the seen provider at the time of the patient encounter visit and the encounter's billing facility is the billing facility of the provider"); ?>.</dd>
-                    </dl>
-                </li>
-                <li>
-                    <?php echo xlt("Update the non-electronic number of labs count"); ?>.
-                    <i><?php echo xlt("Some rulesets such as 2011 and 2014 for Medicaid reporting required the number of labs that were done outside the CEHRT to be reported"); ?></i>.
                 </li>
                 <li>
                     <?php echo xlt("Once all the report settings have been chosen press the Submit button"); ?>.
@@ -132,6 +103,8 @@ require_once("../../interface/globals.php");
                     <?php echo xlt("The pass/total percentage that was calculated from dividing the numerator by the denominator"); ?>.
                 </dd>
             </dl>
+            <p><?php echo xlt("Select the AMC Detailed Report button to see a detailed report of patients and patient actions for each AMC measure"); ?></p>
+            <p><?php echo xlt("Be aware that the AMC Detailed Report can take a long time to generate if the period selected includes a large amount of patient data"); ?></p>
         </div>
     </div>
 </div>
