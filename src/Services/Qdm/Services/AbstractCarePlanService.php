@@ -33,7 +33,7 @@ abstract class AbstractCarePlanService extends AbstractQdmService
     public function getSqlStatement()
     {
         $carePlanType = $this->getCarePlanType();
-        return "SELECT pid, `date`, code, codetext, description, care_plan_type
+        return "SELECT pid, `date`, code, codetext, description, care_plan_type, reason_code
             FROM form_care_plan
             WHERE care_plan_type = '$carePlanType'";
     }

@@ -50,6 +50,11 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
 
         $model->addCode($this->makeQdmCode($record['code']));
 
+        // If there is a reason noted why this plan was NOT done, add a negation
+        if (!empty($record['reason_code'])) {
+            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
+        }
+
         return $model;
     }
 }

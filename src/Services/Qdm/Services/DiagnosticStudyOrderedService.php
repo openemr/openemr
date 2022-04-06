@@ -24,14 +24,17 @@ class DiagnosticStudyOrderedService extends AbstractCarePlanService implements Q
     public function makeQdmModel(array $record)
     {
         $model = new DiagnosticStudyOrder([
-            'authorDatetime' => new DateTime(
-                [
-                    'date' => $record['date']
-                ]
-            ),
+            'authorDatetime' => new DateTime([
+                'date' => $record['date']
+            ]),
         ]);
 
         $model->addCode($this->makeQdmCode($record['code']));
+
+        // If there is a reason noted why this plan was NOT done, add a negation
+        if (!empty($record['reason_code'])) {
+            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
+        }
 
         return $model;
     }
