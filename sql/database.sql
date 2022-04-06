@@ -11530,7 +11530,12 @@ CREATE TABLE `form_care_plan` (
   `description` text,
   `external_id` varchar(30) DEFAULT NULL,
   `care_plan_type` varchar(30) DEFAULT NULL,
-  `note_related_to` text
+  `note_related_to` text,
+  `date_end` datetime DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL,
+  `reason_description` text DEFAULT NULL,
+  `reason_date_low` datetime DEFAULT NULL,
+  `reason_date_high` datetime DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

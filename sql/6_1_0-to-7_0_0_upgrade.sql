@@ -270,3 +270,7 @@ ALTER TABLE `report_itemized` ADD COLUMN `item_details` TEXT;
 #IfMissingColumn ccda transaction_id
 ALTER TABLE `ccda` ADD COLUMN `transaction_id` BIGINT(20) COMMENT 'fk to transactions referral record';
 #EndIf
+
+#IfMissingColumn form_care_plan date_end
+ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_code` VARCHAR(31) NULL, ADD `reason_description` TEXT, ADD `reason_date_low` DATETIME DEFAULT NULL, ADD `reason_date_high` DATETIME DEFAULT NULL;
+#EndIf
