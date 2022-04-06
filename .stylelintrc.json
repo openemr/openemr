@@ -1,6 +1,6 @@
 {
     "plugins": ["stylelint-order", "stylelint-scss"],
-    "extends": [ "stylelint-config-standard", "stylelint-config-sass-guidelines" ],
+    "extends": ["stylelint-config-standard", "stylelint-config-sass-guidelines"],
     "ignoreFiles": [
         "swagger/*.css"
     ],
