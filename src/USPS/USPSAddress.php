@@ -38,7 +38,7 @@ class USPSAddress
         return $this->setField('Address2', $value);
     }
   /**
-   * Set the address1 property usually the apt or suit number
+   * Set the address1 property usually the apt or suite number
    * @param string|int $value
    * @return object USPSAddress
    */
@@ -90,15 +90,6 @@ class USPSAddress
     public function setFirmName($value)
     {
         return $this->setField('FirmName', $value);
-    }
-   /**
-   * Set the revision property
-   * @param string|int $value
-   * @return object USPSAddress
-   */
-    public function setRevision($value)
-    {
-        return $this->setField('Revision', $value);
     }
   /**
    * Add an element to the stack
