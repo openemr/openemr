@@ -319,8 +319,8 @@ function address_verify() {
     '&city=' + encodeURIComponent(f.form_city.value) +
     '&state=' + encodeURIComponent(f.form_state.value) +
     '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0,5)) +
-    '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5,4))
-    , '_blank', 500, 400, '','Address Verify');
+    '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5,9))
+    , '_blank', 400, 150, '','Address Verify');
   return false;
 }
 
@@ -1161,7 +1161,7 @@ $use_validate_js = $GLOBALS['new_validate'];
 
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
-                "<input type='button' class='btn btn-sm btn-secondary' onclick='address_verify()' value ='Verify Address' />");
+                "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value ='Verify Address' />");
         <?php } ?>
     })
 </script>
