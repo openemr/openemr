@@ -314,6 +314,7 @@ function checkNum () {
 
 function address_verify() {
     var f = document.demographics_form;
+    
     dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(f.form_street.value) +
     '&address2=' + encodeURIComponent(f.form_street_line_2.value) +
     '&city=' + encodeURIComponent(f.form_city.value) +
@@ -321,7 +322,8 @@ function address_verify() {
     '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0,5)) +
     '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5,9))
     , '_blank', 400, 150, '','Address Verify');
-  return false;
+    
+    return false;
 }
 
 // Indicates which insurance slot is being updated.
