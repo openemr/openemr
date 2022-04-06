@@ -57,7 +57,7 @@ class ImmunizationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid'];
+        return ['uuid', 'puuid', 'provider_uuid'];
     }
 
     public function search($search, $isAndCondition = true)
