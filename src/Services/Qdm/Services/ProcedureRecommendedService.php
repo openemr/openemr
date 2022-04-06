@@ -11,22 +11,24 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\DiagnosticStudyOrder;
+use OpenEMR\Cqm\Qdm\ProcedureRecommended;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class DiagnosticStudyOrderedService extends AbstractCarePlanService implements QdmServiceInterface
+class ProcedureRecommendedService extends AbstractCarePlanService implements QdmServiceInterface
 {
     public function getCarePlanType()
     {
-        return AbstractCarePlanService::CARE_PLAN_TYPE_PLAN_OF_CARE;
+        return AbstractCarePlanService::CARE_PLAN_TYPE_PROCEDURE_REC;
     }
 
     public function makeQdmModel(array $record)
     {
-        $model = new DiagnosticStudyOrder([
-            'authorDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
+        $model = new ProcedureRecommended([
+            'authorDatetime' => new DateTime(
+                [
+                    'date' => $record['date']
+                ]
+            ),
         ]);
 
         // If there is a reason noted why this plan was NOT done, add a negation
