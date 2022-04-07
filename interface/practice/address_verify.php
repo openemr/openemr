@@ -72,7 +72,7 @@ if ($verify->isSuccess()) {
     ksort($address_array);
 
     foreach ($address_array as $key => $value) {
-        if ($_GET[strtolower($key)] != $value) {
+        if (($_GET[strtolower($key)] ?? null) != $value) {
             $output .= "<div class='text-danger'>";
         } else {
             $output .= "<div class='text-success'>";
@@ -82,7 +82,7 @@ if ($verify->isSuccess()) {
     //$output = var_dump($response_array);
 } else {
     $output .= "<div class='text-danger'>";
-    $output .= 'Error: ' . $verify->getErrorMessage()  . "</div>";
+    $output .= 'Error: ' . text($verify->getErrorMessage())  . "</div>";
 }
 
 $output .= "</div></body></html>";
