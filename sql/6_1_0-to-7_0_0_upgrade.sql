@@ -274,3 +274,19 @@ ALTER TABLE `ccda` ADD COLUMN `transaction_id` BIGINT(20) COMMENT 'fk to transac
 #IfMissingColumn form_care_plan date_end
 ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_code` VARCHAR(31) DEFAULT NULL, ADD `reason_description` TEXT, ADD `reason_date_low` DATETIME DEFAULT NULL, ADD `reason_date_high` DATETIME DEFAULT NULL;
 #EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id street edit_options U
+UPDATE `layout_options` SET `edit_options` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'street';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id street_line_2 edit_options U
+UPDATE `layout_options` SET `edit_options` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'street_line_2';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id city edit_options U
+UPDATE `layout_options` SET `edit_options` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'city';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id postal_code fld_length 10
+UPDATE `layout_options` SET `fld_length` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
+#EndIf
