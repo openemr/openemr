@@ -230,7 +230,12 @@ class FhirClinicalNotesService extends FhirServiceBase
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
+        $authors = $dataRecord->getAuthor();
+        $author = null;
+        if (!empty($authors)) {
+            $author = reset($authors); // grab the first one, as we only populate one anyways.
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

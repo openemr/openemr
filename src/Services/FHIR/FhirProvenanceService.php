@@ -110,6 +110,14 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         // TODO: adunsulag check with @sjpadgett or @brady.miller to see if we will always have a primary business entity.
         $primaryBusinessEntity = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         if (empty($primaryBusinessEntity)) {
+            if (!empty($userWHO)) {
+                (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() primary business entity not found, attempting to find user organization");
+                $primaryBusinessEntity = $fhirOrganizationService->getOrganizationReferenceForUser($userWHO->getId());
+            }
+        }
+
+        if (empty($primaryBusinessEntity)) {
+            // see if we can get this from the who if we
             (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
             return null;
         }
