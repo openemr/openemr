@@ -32,7 +32,7 @@ class USPSBase
   /**
    * @var string - the usps username provided by the usps website
    */
-    protected $username = '633CAREM3197';
+    protected $username = '';
   /**
    *  the error code if one exists
    * @var integer
