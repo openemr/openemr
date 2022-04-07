@@ -288,5 +288,5 @@ UPDATE `layout_options` SET `edit_options` = 'U' WHERE `layout_options`.`form_id
 #EndIf
 
 #IfNotRow3D layout_options form_id DEM field_id postal_code fld_length 10
-UPDATE `layout_options` SET `fld_length` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
+UPDATE `layout_options` SET `fld_length` = '10' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
 #EndIf
