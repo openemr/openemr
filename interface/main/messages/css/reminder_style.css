@@ -240,31 +240,31 @@ h1 {
 }
 
 .reddish {
-  background: rgba(246, 224, 224, 0.5);
+  background: rgb(246 224 224 / 50%);
   border-radius: 4px 4px 0 0;
   margin: 0 5px;
 }
 
 .yellowish {
-  background-color: rgba(245, 248, 152, 0.5);
+  background-color: rgb(245 248 152 / 50%);
   border-radius: 4px 4px 0 0;
   margin: 0 5px;
 }
 
 .greenish {
-  background-color: rgba(211, 242, 211, 0.5);
+  background-color: rgb(211 242 211 / 50%);
   border-radius: 4px 4px 0 0;
   margin: 0 5px;
 }
 
 .whitish {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgb(255 255 255 / 50%);
   border-radius: 4px 4px 0 0;
   margin: 0 5px;
 }
 
 .bluish {
-  background-color: rgba(134, 212, 233, 0.5);
+  background-color: rgb(134 212 233 / 50%);
   border-radius: 4px 4px 0 0;
   margin: 0 5px;
 }
@@ -350,7 +350,6 @@ input[type="radio"] {
   right: 20px;
   top: 10px;
 }
-
 
 .title {
   border-bottom: 2px solid var(--black);

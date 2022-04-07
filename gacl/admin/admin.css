@@ -78,7 +78,7 @@ ul#menu li a {
   width: 0.1em;
 }
 
-ul#menu li>a {
+ul#menu li > a {
   width: auto;
 }
 

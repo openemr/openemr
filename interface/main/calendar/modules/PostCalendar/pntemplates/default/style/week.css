@@ -1,11 +1,11 @@
 td.dayheader {
-  background-color: [-$STYLE.BGCOLOR2-];
+  background-color: [-$style.bgcolor2-];
   font-size: 13px;
   font-weight: bold;
 }
 
 table.dayheader {
-  background-color: [-$STYLE.BGCOLOR2-];
+  background-color: [-$style.bgcolor2-];
   border: 1px solid var(--black);
 }
 

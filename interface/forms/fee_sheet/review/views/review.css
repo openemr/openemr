@@ -63,7 +63,6 @@ div.justify_template span.search_results table {
   cursor: pointer;
 }
 
-
 tr[encounter_issue] > td.info {
   font-weight: bold;
 }

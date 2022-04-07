@@ -315,11 +315,11 @@ a:hover {
   width: 100%;
 }
 
-/*=============================================================
+/* =============================================================
  * This section relates to the custom layouts that can be made
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
- *============================================================*/
+ *============================================================ */
 #DEM .groupname {
   color: #080;
   font-size: 9pt;
@@ -342,7 +342,8 @@ a:hover {
   padding-right: 6px;
   text-align: left;
   vertical-align: top;
-  /*30px - ie 6 fix*/
+
+  /* 30px - ie 6 fix */
   width: 22%;
 }
 
@@ -372,10 +373,10 @@ a:hover {
   width: 22%;
 }
 
-/*=============================================================
+/* =============================================================
  * Patient Notes
  * seen in the patient summary and notes screens
- *============================================================*/
+ *============================================================ */
 #pnotes .billing {
   background-color: #dfd;
 }
@@ -399,10 +400,10 @@ a:hover {
   padding-right: 10px;
 }
 
-/*=============================================================
+/* =============================================================
  * Patient Stats
  * seen in the patient stats screens
- *============================================================*/
+ *============================================================ */
 #patient_stats {
   padding: 10px;
 }
@@ -447,10 +448,10 @@ a:hover {
   text-align: center;
 }
 
-/*=============================================================
+/* =============================================================
  * Patient Stats Summary
  * seen in the patient summary screen
- *============================================================*/
+ *============================================================ */
 #patient_stats_summary table {
   border-collapse: collapse;
 }
@@ -487,10 +488,10 @@ a:hover {
   width: 100%;
 }
 
-/*=============================================================
+/* =============================================================
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
- *============================================================*/
+ *============================================================ */
 #patient_pastenc {
   width: 100%;
 }
@@ -551,10 +552,10 @@ a:hover {
   position: absolute;
 }
 
-/*=============================================================
+/* =============================================================
  * Patient Reports
  * seen in the patient reports screens
- *============================================================*/
+ *============================================================ */
 #patient_reports {
   width: 100%;
 }
@@ -587,10 +588,10 @@ a:hover {
   list-style: none;
 }
 
-/*=============================================================
+/* =============================================================
  * Report - Custom
  * seen as the patient report (custom_report.php)
- *============================================================*/
+ *============================================================ */
 #report_custom {
   width: 100%;
 }
@@ -692,6 +693,7 @@ a:hover {
 
 #report_custom img.bigimage {
   width: 540pt;
+
   /* 540pt = 7.5 inches */
 }
 
@@ -799,7 +801,8 @@ div.tab table td.label_custom {
 
 div.tab table td.data {
   min-width: 120px;
-  /*170px*/
+
+  /* 170px */
 }
 
 div.notab {
@@ -964,6 +967,7 @@ div.notab-right {
 }
 
 /* Password alert styles */
+
 /* Style for red font */
 .redtext {
   color: #f00;
@@ -1010,76 +1014,104 @@ div.notab-right {
 
 #navigation-slide li a.collapsed {
   background: #999;
+
   /* for IE */
+
   /* for webkit browsers */
   background: linear-gradient(to top, #fe5301, #fefdcf);
+
   /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
+
   /* for firefox 3.6+ */
 }
 
 #navigation-slide li a.expanded {
   background: #999;
+
   /* for IE */
+
   /* for webkit browsers */
   background: linear-gradient(to top, #fefdcf, #fe5301);
+
   /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fe5301');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fe5301');
+
   /* for firefox 3.6+ */
 }
 
 #navigation-slide ul li a.collapsed_lv2 {
   background: #999;
+
   /* for IE */
+
   /* for webkit browsers */
   background: linear-gradient(to top, #ffac84, #fefdcf);
+
   /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf');
+
   /* for firefox 3.6+ */
 }
 
 #navigation-slide ul li a.expanded_lv2 {
   background: #999;
+
   /* for IE */
+
   /* for webkit browsers */
   background: linear-gradient(to top, #fefdcf, #ffac84);
+
   /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84');
+
   /* for firefox 3.6+ */
 }
 
 #navigation-slide ul li a.collapsed_lv3 {
   background: #999;
+
   /* for IE */
+
   /* for webkit browsers */
   background: linear-gradient(to top, #aaa, #eee);
+
   /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#eeeeee');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#eeeeee');
+
   /* for firefox 3.6+ */
 }
 
 #navigation-slide ul li a.expanded_lv3 {
   background: #999;
+
   /* for IE */
+
   /* for webkit browsers */
   background: linear-gradient(to top, #eee, #aaa);
+
   /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#aaaaaa');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#eeeeee', endColorstr='#aaaaaa');
+
   /* for firefox 3.6+ */
 }
 
 #sddm li {
   background: #999;
+
   /* for IE */
+
   /* for webkit browsers */
   background: linear-gradient(to top, #fe5301, #fefdcf);
   border: 1px solid #fefdcf;
+
   /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
   float: left;
   list-style: none;
   margin: 0;
   padding: 0;
+
   /* for firefox 3.6+ */
 }
 
@@ -1206,7 +1238,7 @@ div.notab-right {
   width: 100%;
 }
 
-.example_menu ul a:Subjective {
+.example_menu ul a:subjective {
   font-weight: normal;
 }
 
@@ -1288,7 +1320,6 @@ tr,
 td,
 th {
   text-align: right !important;
-
 }
 
 body {
@@ -1342,7 +1373,7 @@ body {
   margin-right: 30px;
 }
 
-/*------------------procedures rtl openemr 5.0.2---------------------*/
+/* ------------------procedures rtl openemr 5.0.2--------------------- */
 .oe-pl0 {
   padding-right: 0 !important;
 }
@@ -1375,16 +1406,16 @@ body {
   padding-right: 70px;
 }
 
-/*Bootstrap 3 classes modified for rtl*/
+/* Bootstrap 3 classes modified for rtl */
 .text-center {
   text-align: center !important;
 }
 
-/*=============================================================
+/* =============================================================
  * This section relates to the custom layouts that can be made
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
- *============================================================*/
+ *============================================================ */
 
 #DEM .label_custom {
 
@@ -1394,7 +1425,8 @@ body {
 #DEM .data {
   padding-right: 6px;
   text-align: right;
-  /*30px - ie 6 fix*/
+
+  /* 30px - ie 6 fix */
 }
 
 /* Patient History */
@@ -1409,22 +1441,19 @@ body {
   text-align: right;
 }
 
-
-/*=============================================================
+/* =============================================================
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
- *============================================================*/
+ *============================================================ */
 
 #patient_pastenc th {
   text-align: right;
-
 }
 
-
-/*=============================================================
+/* =============================================================
  * Patient Reports
  * seen in the patient reports screens
- *============================================================*/
+ *============================================================ */
 #patient_reports .issues {
   padding-right: 30px;
 }
@@ -1443,13 +1472,12 @@ body {
 
 #patient_reports .encounter_forms {
   margin: 5px 15px;
-
 }
 
-/*=============================================================
+/* =============================================================
  * Report - Custom
  * seen as the patient report (custom_report.php)
- *============================================================*/
+ *============================================================ */
 
 #report_custom .billing {
   margin: 5px;
@@ -1605,8 +1633,6 @@ div.tab table td {
   text-align: right;
 }
 
-
-
 #navigation-slide,
 #navigation-slide * {
   margin-right: 0;
@@ -1636,7 +1662,6 @@ div.tab table td {
   text-align: right;
 }
 
-
 .text-area {
   text-align: right;
 }
@@ -1665,8 +1690,7 @@ div.tab table td {
   border-right: 1px solid #000 !important;
 }
 
-
-/*miscellaneous*/
+/* miscellaneous */
 .misc-internet-search {
   float: right !important;
 }
@@ -1676,7 +1700,6 @@ div.tab table td {
 #record-disclosure > div {
 
   float: none !important;
-
 }
 
 /* /patient_file/encounter/forms.php  */
@@ -1707,7 +1730,6 @@ div.tab table td {
   margin-right: 55%;
 }
 
-
 #tdallday3 > span {
   direction: ltr;
   display: inline-block;
@@ -1731,7 +1753,6 @@ body > .nav {
   margin-right: 40px;
 }
 
-
 /* ajax_template.html */
 
 #dateNAV img {
@@ -1752,7 +1773,6 @@ body > .nav {
 
 #dateNav > a:nth-child(3) {
   background-image: url('../../public/images/leftbtn.gif');
-
 }
 
 /* /main/messages/messages.php */
@@ -1767,7 +1787,6 @@ td.amount-msg {
   float: right;
 }
 
-
 /* /interface/code_systems/dataloads_ajax.php */
 
 #accordion .left_wrpr,
@@ -1779,7 +1798,6 @@ td.amount-msg {
   float: none !important;
 }
 
-
 /*  /library/js/datatables/media/css/demo_table.css */
 
 .cancel-float {
@@ -1787,24 +1805,22 @@ td.amount-msg {
 }
 
 /* /templates/documents/general_view.html */
-#documents_actions form[name^=document] > div > div,
-#documents_actions form[name=notes] > div > div {
+#documents_actions form[name^="document"] > div > div,
+#documents_actions form[name="notes"] > div > div {
   display: inline-block;
   float: none !important;
 }
 
-
-#documents_list img[src*=branch],
-#documents_list img[src*=line],
-#documents_list img[src*=plus],
-#documents_list img[src*=minus] {
+#documents_list img[src*="branch"],
+#documents_list img[src*="line"],
+#documents_list img[src*="plus"],
+#documents_list img[src*="minus"] {
   transform: rotate(180deg);
 }
 
-#documents_list img[src*=branchbottom] {
+#documents_list img[src*="branchbottom"] {
   transform: translate(2px, 0) rotate(-90deg);
 }
-
 
 .tabs-container ul.tabs {
   width: 100%;
@@ -1822,7 +1838,6 @@ td.amount-msg {
 .top-menu-carecoordination li {
   float: right !important;
 }
-
 
 .setup-carecoordination .top-menu-carecoordination li {
   float: right !important;
@@ -1844,12 +1859,12 @@ td.amount-msg {
   padding-right: 2% !important;
 }
 
-.setup-carecoordination #paginatediv_database_tables a[rel=next] {
+.setup-carecoordination #paginatediv_database_tables a[rel="next"] {
   float: left !important;
   transform: rotate(180deg);
 }
 
-.setup-carecoordination #paginatediv_database_tables a[rel=previous] {
+.setup-carecoordination #paginatediv_database_tables a[rel="previous"] {
   float: right !important;
   transform: rotate(180deg);
 }
@@ -1915,7 +1930,7 @@ form#pattrk #inanewwindow > span {
   /* W3C compliant browsers */
 
   /* IE8 and below */
-  filter: progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand');
+  filter: progid:dximagetransform.microsoft.matrix(m11=-1, m12=0, m21=0, m22=-1, dx=0, dy=0, sizingmethod='auto expand');
   transform: rotate(180deg);
 }
 

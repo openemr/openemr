@@ -13,7 +13,7 @@
  speak for themselves. Background we set to 80% white with
  our animation centered, and no-repeating */
 .modal {
-  background: rgba(255, 255, 255, 0.8) url("ajax_wait.gif") 50% 50% no-repeat;
+  background: rgb(255 255 255 / 80%) url("ajax_wait.gif") 50% 50% no-repeat;
   display: none;
   height: 100%;
   left: 0;

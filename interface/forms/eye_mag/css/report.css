@@ -339,7 +339,7 @@ input[type="text"].refraction {
   text-decoration: underline;
 }
 
-/*Drop downs stuff */
+/* Drop downs stuff */
 
 .dropdowns {
   background-color: var(--danger);
@@ -380,7 +380,7 @@ input[type="text"].refraction {
   border-radius: 8px;
   box-shadow: 1px 10px 5px #888;
   float: left;
-  font-family: Arial, Serif;
+  font-family: Arial, serif;
   font-size: 1.2em;
   height: 1.05in;
   margin-right: 3px;
@@ -406,7 +406,9 @@ input[type="text"].refraction {
   padding-left: 180px; /* Equal to width of new image */
   width: 180px; /* Width of new image */
 }
+
 /* All in one selector */
+
 /*
 #AmslerOD {
  /*
@@ -429,7 +431,7 @@ input[type="text"].refraction {
   border: 1pt solid #000;
   border-radius: 8px;
   box-shadow: 5px 5px 9px #888;
-  font-family: Arial, Serif;
+  font-family: Arial, serif;
   margin-right: 4px;
   padding: 6px;
   position: relative;
@@ -477,6 +479,7 @@ body {
   display: inline-block;
   margin-left: auto;
   margin-right: auto;
+
   /* padding-left:5px; //Or whatever value you would like
      padding-right:5px; //Same ^
      */
@@ -557,7 +560,8 @@ textarea.EXTTEXT {
   height: 0.4in;
   max-height: 0.5in;
   max-width: 1in;
-  /*narrow_textarea*/
+
+  /* narrow_textarea */
   width: 1in;
 }
 
@@ -645,7 +649,7 @@ textarea.ANTSEGTEXT {
 }
 
 .button-success {
-  background: rgb(240, 240, 0); /* this is a green */
+  background: rgb(240 240 0); /* this is a green */
   border-radius: 45px;
   box-shadow: 2px 2px 2px #888;
 }
@@ -730,7 +734,7 @@ textarea.ANTSEGTEXT {
   box-shadow: inset 0 1px 0 0 #97c4fe;
   color: #000;
   display: inline-block;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9eedf0', endColorstr='#1e62d0');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#9eedf0', endColorstr='#1e62d0');
   font-family: Arial, sans-serif;
   font-size: 11px;
   font-weight: 600;
@@ -761,36 +765,38 @@ textarea.ANTSEGTEXT {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
   background-color: #1e62d0;
   color: #fff;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
 }
 
 .eye_button:active {
-  background: -webkit-gradient(linear,
-  left top,
-  left bottom,
-  color-stop(0.05, #1e62d0),
-  color-stop(1, #3d94f6));
+  background:
+    -webkit-gradient(linear,
+    left top,
+    left bottom,
+    color-stop(0.05, #1e62d0),
+    color-stop(1, #3d94f6));
   background-color: #1e62d0;
   color: #fff;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
   position: relative;
   top: 1px;
 }
 
 .eye_button_selected {
-  background: -webkit-gradient(linear,
-  left top,
-  left bottom,
-  color-stop(0.05, #000080),
-  color-stop(1, #3d94f6));
+  background:
+    -webkit-gradient(linear,
+    left top,
+    left bottom,
+    color-stop(0.05, #000080),
+    color-stop(1, #3d94f6));
   border: 1px solid #fff;
   border-radius: 2px;
   border-top-left-radius: 3px;
   box-shadow: inset 0 1px 0 0 #97c4fe;
   color: #fff;
   display: inline-block;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
-  font-family: Arial, Serif;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
+  font-family: Arial, serif;
   font-size: 11px;
   font-weight: 400;
   line-height: 12px;
@@ -808,15 +814,17 @@ textarea.ANTSEGTEXT {
   border-spacing: 0;
   cursor: pointer;
   float: left;
-  /*background-image: url('../../forms/eye_mag/images/cross.png');
+
+  /* background-image: url('../../forms/eye_mag/images/cross.png');
      */
   height: 100%;
   padding: 10px 0 0 5px;
   position: relative;
   width: 100%;
 
-  /*cellspacing:poor IE support for  this*/
-  /* border-collapse:separate;*/
+  /* cellspacing:poor IE support for  this */
+
+  /* border-collapse:separate; */
 }
 
 .divRow {
@@ -836,8 +844,9 @@ textarea.ANTSEGTEXT {
   border-collapse: collapse;
   border-top: 3px solid;
   float: left;
+
   /* display:table-column; */
-  text-align: center; /*fix for  buggy browsers*/
+  text-align: center; /* fix for  buggy browsers */
 }
 
 .divCell {
@@ -849,7 +858,7 @@ textarea.ANTSEGTEXT {
   height: 5.1px;
   padding: 0;
   text-align: center;
-  width: 5.1px; /*fix for  buggy browsers*/
+  width: 5.1px; /* fix for  buggy browsers */
 }
 
 .top_right {
@@ -1049,6 +1058,7 @@ textarea.EXTTEXT {
   cursor: pointer;
   text-decoration: none;
 }
+
 /* testing out the tabs header stuff for ACT */
 #header ul {
   list-style: none;
@@ -1107,6 +1117,7 @@ h1 {
 }
 
 /* done testing ACT header tabs */
+
 /* ACT_TEXT test */
 .ACT_TEXT {
   display: table-cell;
@@ -1208,6 +1219,7 @@ input[type="text"].fullscreen {
   margin: 3px auto;
   padding: 5px 8px;
   text-align: left;
+
   /*  height:2.5in; */
   width: 1.97in;
 }
@@ -1219,6 +1231,7 @@ input[type="text"].fullscreen {
   margin: 3px auto;
   padding: 5px 8px;
   text-align: left;
+
   /*   height:2.4in; */
   width: 1.97in;
 }
@@ -1229,7 +1242,7 @@ input[type="text"].fullscreen {
 }
 
 .rotate-left {
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+  filter: progid:dximagetransform.microsoft.basicimage(rotation=3);
   transform: rotate(-90deg);
 }
 
@@ -1287,7 +1300,7 @@ input {
 .nav > li > a:focus,
 .nav > li:focus {
   background-color: #1c5ecf; /* this is the "hover" blue */
-  color: #fff; /*#33aa33; <--- this is kelly green */
+  color: #fff; /* #33aa33; <--- this is kelly green */
   text-decoration: none;
 }
 
@@ -1310,8 +1323,8 @@ input {
 
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
-  background-color: #1c5ecf; /*#3E76C2;*/
-  color: #fff; /*#262626;*/
+  background-color: #1c5ecf; /* #3E76C2; */
+  color: #fff; /* #262626; */
   text-decoration: none;
 }
 
@@ -1327,7 +1340,7 @@ input {
 }
 
 .dropdown-menu .divider {
-  background-color: #c0c0c0; /*gba(131, 135, 146, 0.61);*/
+  background-color: #c0c0c0; /* gba(131, 135, 146, 0.61); */
   height: 1px;
   margin: 9px 0;
   overflow: hidden;
@@ -1347,8 +1360,8 @@ a:focus {
      * The fields/anchors are added as blank elements (sorry) in view.php
      */
   display: block;
-  height: 20px; /*same height as header*/
-  margin-top: -20px; /*same height as header*/
+  height: 20px; /* same height as header */
+  margin-top: -20px; /* same height as header */
   visibility: hidden;
 }
 
@@ -1386,7 +1399,7 @@ a:focus {
 .bottom_PMSFH_tab {
   bottom: 0;
   color: #000;
-  filter: progid:DXImageTransform.Microsoft.Glow(Color=#000, Strength=1); /* IE<10 */
+  filter: progid:dximagetransform.microsoft.glow(Color=#000, Strength=1); /* IE<10 */
   position: absolute;
   right: 10px;
   text-shadow: 0 0 2px #000; /* Firefox 3.5+, Opera 9+, Safari 1+, Chrome, IE10 */
@@ -1417,7 +1430,7 @@ a:focus {
   border-radius: 4px;
   box-shadow: 0 1px 3px #ddd inset;
   display: block;
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+  filter: progid:dximagetransform.microsoft.basicimage(rotation=3);
   float: left;
   font-size: 1.2em;
   padding: 3px;
