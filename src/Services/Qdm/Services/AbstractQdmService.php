@@ -98,7 +98,10 @@ abstract class AbstractQdmService
         // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT" because that's what we have in our lookup table
         $codeType = str_replace(" ", "-", $codeType);
 
-        if ($codeType == 'HCPCS-Level-II') {
+        if ($codeType == 'OID') {
+            // When there is a negation, the code is an OID from a measure value set. In this case, we ...
+            $system = '';
+        } else if ($codeType == 'HCPCS-Level-II') {
             $system = '2.16.840.1.113883.6.285';
         } else {
             $system = $this->codeTypesService->getSystemForCodeType($codeType, true);
@@ -117,6 +120,7 @@ abstract class AbstractQdmService
      */
     public function makeQdmCode($openEmrCode)
     {
+        $codeModel = null;
         $code = null;
         $system = null;
         $res = explode(":", $openEmrCode); //split diagnosis type and code
@@ -131,18 +135,14 @@ abstract class AbstractQdmService
             $system = $res[0];
         }
 
-        $codeModel = null;
-
         if (
             !empty($code)
             && !empty($system)
         ) {
-            $codeModel = new Code(
-                [
+            $codeModel = new Code([
                 'code' => $code,
                 'system' => $this->getSystemForCodeType($system)
-                ]
-            );
+            ]);
         }
 
         return $codeModel;
