@@ -3,6 +3,7 @@
 /**
  * PatientTransaction Service
  * DAL to be used for Transactions
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jonathan Moore <Jdcmoore@aol.com>
@@ -34,7 +35,8 @@ class PatientTransactionService extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public function getSelectStatement($predicateColumnName){
+    public function getSelectStatement($predicateColumnName)
+    {
 
         $criteriaItemsWhitelist = [
             self::_formPredicate,
@@ -105,7 +107,8 @@ class PatientTransactionService extends BaseService
         ";
     }
 
-    private function getOneFromDb($tid){
+    private function getOneFromDb($tid)
+    {
 
         $sqlBindArray = array();
 
@@ -127,8 +130,9 @@ class PatientTransactionService extends BaseService
 
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
 
-        if(count($records) > 0)
+        if(count($records) > 0) {
             $processingResult->addData($records);
+        }
 
         return $processingResult;
     }
@@ -137,13 +141,13 @@ class PatientTransactionService extends BaseService
     {
         sqlBeginTrans();
         $transactionId = $this->insertTransaction($pid, $data);
-        if($transactionId == false){
+        if($transactionId == false) {
             return false;
         }
             
 
         $lbtDataId = $this->insertTransactionForm($transactionId, $data);
-        if($lbtDataId == false){
+        if($lbtDataId == false) {
             return false;
         }
         sqlCommitTrans();
@@ -229,7 +233,8 @@ class PatientTransactionService extends BaseService
         return $results;
     }
 
-    public function update($tid, $data){
+    public function update($tid, $data)
+    {
         
         $referById = $this->getUserIdByNpi($data["referByNpi"]);
         $referToId = $this->getUserIdByNpi($data["referToNpi"]);
@@ -260,9 +265,9 @@ class PatientTransactionService extends BaseService
         return $this->getOneFromDb($tid);
     }
 
-    public function updateTransactionForm($formId, $fieldId, $value){
-        if(empty($value) == false)
-        {
+    public function updateTransactionForm($formId, $fieldId, $value)
+    {
+        if(empty($value) == false) {
             $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";
             $params = array($value, $fieldId, $formId);
             $res = sqlStatement($sql, $params);
@@ -273,19 +278,19 @@ class PatientTransactionService extends BaseService
     {
         $transactionType = $transaction["type"];
 
-        if(empty($transactionType)){
+        if(empty($transactionType)) {
             $this->throwException('type is not valid', 'type');
         }
 
         $validator = new Validator();
         switch($transactionType)
         {
-            case "LBTref":
-                $validator->required('referralDate')->datetime('Y-m-d');
-                $validator->required('body')->lengthBetween(2, 150);
-                $validator->required('groupname')->string();
-                $validator->required('referByNpi')->string();
-                break;
+        case "LBTref":
+            $validator->required('referralDate')->datetime('Y-m-d');
+            $validator->required('body')->lengthBetween(2, 150);
+            $validator->required('groupname')->string();
+            $validator->required('referByNpi')->string();
+            break;
         }
 
         return $validator->validate($transaction);

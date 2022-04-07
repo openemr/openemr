@@ -3,6 +3,7 @@
 /**
  * PatientRestController
  * This controller creates, updates, and retrieves transactions 
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jonathan Moore <Jdcmoore@aol.com>
@@ -21,7 +22,7 @@ class TransactionRestController
 {
     /**
      * @var PatientTransactionService
-    */
+     */
     private $patientTransactionService;
 
     /**
@@ -38,7 +39,8 @@ class TransactionRestController
 
     /**
      * Process a HTTP POST request used to create a patient record.
-     * @param $data - array of patient fields.
+     *
+     * @param  $data - array of patient fields.
      * @return a 201/Created status code and the patient identifier if successful.
      */
     public function CreateTransaction($pid, $data)
@@ -74,8 +76,9 @@ class TransactionRestController
     {
         $processingResult = $this->patientTransactionService->getAll($pid);
 
-        if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) 
+        if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) { 
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
+        }
 
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
