@@ -13,6 +13,7 @@ namespace OpenEMR\Services\Qdm;
 use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
+use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class CqmCalculator
@@ -30,6 +31,12 @@ class CqmCalculator
         $this->client = CqmServiceManager::makeCqmClient();
     }
 
+    private function convertToObjectIdBSONFormat($id) {
+        $hexValue = dechex($id);
+        // max bigint size will fit in 16 characters so we will always have enough space for this.
+        return sprintf("%024x", $hexValue);
+    }
+
     /**
      * @param  QdmRequestInterface $request
      * @param  $measure
@@ -40,7 +47,23 @@ class CqmCalculator
      */
     public function calculateMeasure($patients, $measure, $effectiveDate, $effectiveEndDate)
     {
-        $json_models = json_encode($patients);
+        $serializedPatients = [];
+        foreach ($patients as $patient) {
+            if ($patient instanceof \JsonSerializable) {
+                $patientJson = $patient->jsonSerialize();
+                if (!empty($patientJson)) {
+                    if ($patientJson['id'] instanceof Identifier) {
+                        $patientJson['_id'] = $this->convertToObjectIdBSONFormat($patientJson['id']->value);
+                    } else {
+                        $patientJson['_id'] = $patientJson['id'];
+                    }
+                }
+                $serializedPatients[] = $patientJson;
+            } else {
+                $serializedPatients[] = $patient;
+            }
+        }
+        $json_models = json_encode($serializedPatients);
         $patientStream = Psr7\Utils::streamFor($json_models);
         $measureFiles = MeasureService::fetchMeasureFiles($measure);
         $this->measure = $measureFiles['measure'];
@@ -55,7 +78,34 @@ class CqmCalculator
         ];
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));
 
-        return $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+        $results = $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+        return $this->convertResultsFromBSONObjectIdFormat($results);
+    }
+
+    public function convertResultsFromBSONObjectIdFormat($results) {
+        $newResult = [];
+        if (!empty($results)) {
+            foreach ($results as $key => $result) {
+                $convertedKey = $this->convertIdFromBSONObjectIdFormat($key);
+                // go and update the inner patient_id
+                $newResult[$convertedKey] = [];
+
+                foreach ($result as $popKey => $popResult) {
+                    $popResult['patient_id'] = $convertedKey;
+                    $newResult[$convertedKey][$popKey] = $popResult;
+                }
+
+            }
+        }
+        return $newResult;
+    }
+
+    private function convertIdFromBSONObjectIdFormat($id) {
+        // max bigint size is 8 bytes which will fit fine
+        // string ID should be prefixed with 0s so the converted data type should be far smaller
+        $trimmedId = ltrim($id, '\x0');
+        $decimal = hexdec($trimmedId);
+        return $decimal;
     }
 
     public function getMeasure()

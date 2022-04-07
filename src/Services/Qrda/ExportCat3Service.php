@@ -131,6 +131,7 @@ class ExportCat3Service
         $final_results = [];
         foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient
+            // need to unconvert from our hex format here
             $aggregated_results = $this->aggregate_population_results_from_individual_results($result, $patient_id);
             $final_results = array_merge($final_results, $aggregated_results);
         }
