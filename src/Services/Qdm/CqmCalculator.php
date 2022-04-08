@@ -31,7 +31,8 @@ class CqmCalculator
         $this->client = CqmServiceManager::makeCqmClient();
     }
 
-    private function convertToObjectIdBSONFormat($id) {
+    private function convertToObjectIdBSONFormat($id)
+    {
         $hexValue = dechex($id);
         // max bigint size will fit in 16 characters so we will always have enough space for this.
         return sprintf("%024x", $hexValue);
@@ -82,7 +83,8 @@ class CqmCalculator
         return $this->convertResultsFromBSONObjectIdFormat($results);
     }
 
-    public function convertResultsFromBSONObjectIdFormat($results) {
+    public function convertResultsFromBSONObjectIdFormat($results)
+    {
         $newResult = [];
         if (!empty($results)) {
             foreach ($results as $key => $result) {
@@ -94,13 +96,13 @@ class CqmCalculator
                     $popResult['patient_id'] = $convertedKey;
                     $newResult[$convertedKey][$popKey] = $popResult;
                 }
-
             }
         }
         return $newResult;
     }
 
-    private function convertIdFromBSONObjectIdFormat($id) {
+    private function convertIdFromBSONObjectIdFormat($id)
+    {
         // max bigint size is 8 bytes which will fit fine
         // string ID should be prefixed with 0s so the converted data type should be far smaller
         $trimmedId = ltrim($id, '\x0');

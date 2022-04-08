@@ -67,7 +67,11 @@ class ExportCat3Service
             'end_time' => $effectiveDateEnd
             /*
              * These are options: TODO what is required?
-            $options['provider'];
+            @see https://ecqi.healthit.gov/sites/default/files/2022-CMS-QRDA-III-Eligible-Clinicians-and-EP-IG-V1.1-508.pdf Section 5.1.4
+            for provider information.  provider is based upon group calculation vs individual calculation
+            Group calc is the TIN of the billing facility that the measure is run against
+            individual calc is the individual provider
+            $options['provider']; // @see
             $options['start_time'];
             $options['end_time'];
             $options['submission_program'];

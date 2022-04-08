@@ -63,7 +63,7 @@ class AggregateCount
                 if ($cache_entry['observations'] && $cache_entry['observations'][$pop_code]) {
                     $population->observation = $cache_entry['observations'][$pop_code];
                 }
-                $population->supplemental_data = $cache_entry->supplemental_data[$pop_code];
+                $population->supplemental_data = $cache_entry['supplemental_data'][$pop_code];
             }
 
             $entry_populations[] = $population;
