@@ -31,13 +31,6 @@ class CqmCalculator
         $this->client = CqmServiceManager::makeCqmClient();
     }
 
-    private function convertToObjectIdBSONFormat($id)
-    {
-        $hexValue = dechex($id);
-        // max bigint size will fit in 16 characters so we will always have enough space for this.
-        return sprintf("%024x", $hexValue);
-    }
-
     /**
      * @param  QdmRequestInterface $request
      * @param  $measure
@@ -48,23 +41,7 @@ class CqmCalculator
      */
     public function calculateMeasure($patients, $measure, $effectiveDate, $effectiveEndDate)
     {
-        $serializedPatients = [];
-        foreach ($patients as $patient) {
-            if ($patient instanceof \JsonSerializable) {
-                $patientJson = $patient->jsonSerialize();
-                if (!empty($patientJson)) {
-                    if ($patientJson['id'] instanceof Identifier) {
-                        $patientJson['_id'] = $this->convertToObjectIdBSONFormat($patientJson['id']->value);
-                    } else {
-                        $patientJson['_id'] = $patientJson['id'];
-                    }
-                }
-                $serializedPatients[] = $patientJson;
-            } else {
-                $serializedPatients[] = $patient;
-            }
-        }
-        $json_models = json_encode($serializedPatients);
+        $json_models = json_encode($patients);
         $patientStream = Psr7\Utils::streamFor($json_models);
         $measureFiles = MeasureService::fetchMeasureFiles($measure);
         $this->measure = $measureFiles['measure'];
@@ -80,7 +57,7 @@ class CqmCalculator
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));
 
         $results = $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
-        return $this->convertResultsFromBSONObjectIdFormat($results);
+        return $results;//$this->convertResultsFromBSONObjectIdFormat($results);
     }
 
     public function convertResultsFromBSONObjectIdFormat($results)

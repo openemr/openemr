@@ -41,21 +41,19 @@ class ResultsCalculator
         }
     }
 
+    private function extractCode()
+    {
+
+    }
+
     public function add_patient_to_sup_map(Patient $patient)
     {
-        //        $defaultCode = null;
-        // TODO: @kchapple once patient characters are fixed, REMOVE DEFAULT CODE OR CHANGE THIS TO NULL
-        $defaultCode = 1;
         $patient_id = $patient->id->value;
         $this->patient_sup_map[$patient_id] = [];
-        $sex = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'gender')), true);
-        $this->patient_sup_map[$patient_id]['SEX'] = $sex['code'] ?? 1;
-        $race = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'race')), true);
-        $this->patient_sup_map[$patient_id]['RACE'] = $race['code'] ?? 1;
-        $ethnicity = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'ethnicity')), true);
-        $this->patient_sup_map[$patient_id]['ETHNICITY'] = $ethnicity['code'] ?? 1;
-        $payer = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'payer')), true);
-        $this->patient_sup_map[$patient_id]['PAYER'] = $payer['code'] ?? 1;
+        $this->patient_sup_map[$patient_id]['SEX'] = $patient->extract_first_code('patient_characteristic', 'gender');
+        $this->patient_sup_map[$patient_id]['RACE'] = $patient->extract_first_code('patient_characteristic', 'race');
+        $this->patient_sup_map[$patient_id]['ETHNICITY'] = $patient->extract_first_code('patient_characteristic', 'ethnicity');
+        $this->patient_sup_map[$patient_id]['PAYER'] = $patient->extract_first_code('patient_characteristic', 'payer');
     }
 
     //https://github.com/projectcypress/cypress/blob/ef09517b96b269c60671e3af651eb52df2ff22fa/lib/ext/measure.rb#L27

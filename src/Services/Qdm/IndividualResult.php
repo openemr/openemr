@@ -43,7 +43,7 @@ class IndividualResult extends AbstractType
     public function __construct($_result)
     {
         parent::__construct($_result);
-        $this->patient_id = PatientService::makeQdmIdentifier($_result['patient_id'] ?? null);
+        $this->patient_id = PatientService::makeQdmIdentifier('System', PatientService::convertIdFromBSONObjectIdFormat($_result['patient_id'] ?? null));
         $this->_result = $_result;
     }
 
