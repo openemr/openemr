@@ -1294,6 +1294,8 @@ function dateChanged() {
 
 // This is for callback by the find-available popup.
 function setappt(year,mon,mday,hours,minutes) {
+    //Infeg Save button should become active once an appointment is selected.
+    $('#form_save').attr('disabled', false);
     var f = document.forms[0];
     <?php
     $currentDateFormat = $GLOBALS['date_display_format'];
@@ -1320,6 +1322,8 @@ function setappt(year,mon,mday,hours,minutes) {
 
 // Invoke the find-available popup.
 function find_available(extra) {
+    //Infeg Save button should become active once an appointment is selected.
+    $('#form_save').attr('disabled', false);
     top.restoreSession();
     // (CHEMED) Conditional value selection, because there is no <select> element
     // when making an appointment for a specific provider
