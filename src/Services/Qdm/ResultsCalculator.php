@@ -52,7 +52,9 @@ class ResultsCalculator
         $this->patient_sup_map[$patient_id]['SEX'] = $patient->extract_first_code('patient_characteristic', 'gender');
         $this->patient_sup_map[$patient_id]['RACE'] = $patient->extract_first_code('patient_characteristic', 'race');
         $this->patient_sup_map[$patient_id]['ETHNICITY'] = $patient->extract_first_code('patient_characteristic', 'ethnicity');
-        $this->patient_sup_map[$patient_id]['PAYER'] = $patient->extract_first_code('patient_characteristic', 'payer');
+        if ($payer = $patient->extract_first_code('patient_characteristic', 'payer') !== null) {
+            $this->patient_sup_map[$patient_id]['PAYER'] = $payer;
+        }
     }
 
     //https://github.com/projectcypress/cypress/blob/ef09517b96b269c60671e3af651eb52df2ff22fa/lib/ext/measure.rb#L27
