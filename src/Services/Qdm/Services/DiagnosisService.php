@@ -29,23 +29,14 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new Diagnosis(
-            [
-            'authorDatetime' => new DateTime(
-                [
-                'date' => $this->validDateOrNull($record['begdate'])
-                ]
-            ),
-            'prevalencePeriod' => new Interval(
-                [
+        $qdmModel = new Diagnosis([
+            'prevalencePeriod' => new Interval([
                 'low' => $this->validDateOrNull($record['begdate']),
                 'high' => $this->validDateOrNull($record['enddate']),
                 'lowClosed' => $this->validDateOrNull($record['begdate']) ? true : false,
                 'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
-                ]
-            )
-            ]
-        );
+            ])
+        ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
         foreach ($codes as $code) {

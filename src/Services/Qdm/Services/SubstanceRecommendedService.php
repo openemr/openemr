@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package   OpenEMR
+ * @package OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -11,36 +11,19 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
-use OpenEMR\Cqm\Qdm\MedicationOrder;
+use OpenEMR\Cqm\Qdm\SubstanceRecommended;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class MedicationOrderService extends AbstractCarePlanService implements QdmServiceInterface
+class SubstanceRecommendedService extends AbstractCarePlanService implements QdmServiceInterface
 {
     public function getCarePlanType()
     {
-        return AbstractCarePlanService::CARE_PLAN_TYPE_PLANNED_MED_ACTIVITY;
+        return AbstractCarePlanService::CARE_PLAN_TYPE_MEDICATION;
     }
 
     public function makeQdmModel(array $record)
     {
-        $model = new MedicationOrder([
-            'relevantPeriod' => new Interval(
-                [
-                    'low' =>  new DateTime(
-                        [
-                            'date' => $record['date']
-                        ]
-                    ),
-                    'high' => new DateTime(
-                        [
-                            'date' => $record['date']
-                        ]
-                    ),
-                    'lowClosed' => $record['date'] ? true : false,
-                    'highClosed' => $record['date'] ? true : false
-                ]
-            ),
+        $model = new SubstanceRecommended([
             'authorDatetime' => new DateTime(
                 [
                     'date' => $record['date']
