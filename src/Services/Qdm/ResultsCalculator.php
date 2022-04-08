@@ -43,7 +43,6 @@ class ResultsCalculator
 
     private function extractCode()
     {
-
     }
 
     public function add_patient_to_sup_map(Patient $patient)
