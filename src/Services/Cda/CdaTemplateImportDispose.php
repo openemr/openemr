@@ -5,6 +5,8 @@ namespace OpenEMR\Services\Cda;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\InsuranceService;
 
 class CdaTemplateImportDispose
 {
@@ -228,7 +230,7 @@ class CdaTemplateImportDispose
             $high_date = $value['reason_date_high'] == null ? $value['reason_date_high'] : date("Y-m-d H:i:s", strtotime($value['reason_date_high']));
 
             $query_insert = "INSERT INTO `form_care_plan` (`id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`care_plan_type`, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'],$end_date,$value['reason_code'],$value['reason_code_text'],$low_date,$high_date));
+            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'], $value['reason_code_text'], $low_date, $high_date));
         }
 
         if (count($care_plan_array) > 0) {
@@ -1707,5 +1709,36 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($query, array($date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation'));
             }
         }
+    }
+
+    public function InsertPayers($payer, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
+    {
+        if (empty($payer)) {
+            return;
+        }
+        $data = [];
+        $payer = $payer[1]; // will only be one payer per patient.
+        $insuranceData = new InsuranceService();
+
+        $appTable = new ApplicationTable();
+        $res_ins = $appTable->zQuery("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `ins_type_code` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", array($payer['code'] ?? '1'));
+        $res_ins_cur = $res_ins->current();
+        if (empty($res_ins_cur['id'])) {
+            $data["name"] = 'QRDA Insurance Company Payer ' . $payer['code'] ?? '1';
+            $data["ins_type_code"] = $payer['code'] ?? '1';
+            $insuranceCompany = new InsuranceCompanyService();
+            $ins_id = $insuranceCompany->insert($data);
+        } else {
+            $ins_id = $res_ins_cur['id'];
+        }
+        unset($data["name"]);
+        unset($data["ins_type_code"]);
+        $data["provider"] = $ins_id;
+        $data["date"] = $payer['low_date'] ?? null;
+        $data["type"] = 'primary';
+        $data["plan_name"] = 'QRDA Payer';
+        $data["policy_number"] = $payer['code'] ?? '1';
+
+        $id_data = $insuranceData->insert($pid, 'primary', $data);
     }
 }

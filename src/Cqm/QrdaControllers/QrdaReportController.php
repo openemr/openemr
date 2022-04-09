@@ -59,12 +59,25 @@ class QrdaReportController
         return $document;
     }
 
+    public function getCategoryIIIReport($pid, $measures, $effectiveDate, $effectiveDateEnd): string
+    {
+        if (empty($measures)) {
+            $measures = $this->reportMeasures;
+        }
+        // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
+        $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
+        // pass in measures with file path.
+        $document = $this->reportService->generateCategoryIIIXml($pid, $measures_resolved, $effectiveDate, $effectiveDateEnd);
+
+        return $document;
+    }
+
     /**
      * @param $pids
      * @param $measures
      * @return void
      */
-    public function downloadQrdaIAsZip($pids, $measures = '', $type = 'xml')
+    public function downloadQrdaIAsZip($pids, $measures = '', $type = 'xml'): void
     {
         $bypid = false;
         if (empty($measures)) {
@@ -143,6 +156,56 @@ class QrdaReportController
         header("Content-Length: " . filesize($save_path));
         flush();
         readfile($save_path);
+        flush();
+        exit;
+    }
+
+    public function downloadQrdaIII($pids, $measures = '', $effectiveDate = '', $effectiveDateEnd = ''): void
+    {
+        if (empty($measures)) {
+            $measures = $this->reportMeasures;
+        } elseif (!is_array($measures) && $measures === 'all') {
+            $measures = $this->reportMeasures;
+        }
+        $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
+        if (!is_dir($directory)) {
+            if (!mkdir($directory, true) && !is_dir($directory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
+            }
+            chmod($directory, 0777);
+        }
+        if (is_array($pids)) {
+            if (count($pids) === 1) {
+                $pids = $pids[0];
+            } else {
+                $pids = '';
+            }
+        }
+        foreach ($measures as $measure) {
+            if (is_array($measure)) {
+                $measure = $measure['measure_id'];
+            }
+            $xml = $this->getCategoryIIIReport($pids, $measure, $effectiveDate, $effectiveDateEnd);
+            $filename = $measure . "_all_patients.xml";
+            if (!empty($pids)) {
+                $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pids]);
+                $filename = $measure . '_' . $pids . '_' . $meta['fname'] . '_' . $meta['lname'] . ".xml";
+            }
+            $file = $directory  . DIRECTORY_SEPARATOR . $filename;
+            file_put_contents($file, $xml);
+            unset($content);
+        }
+        ob_clean();
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Cache-Control: private", false);
+        header('Content-type: application/zip');
+        header("Content-Disposition: attachment; filename=\"" . $filename . "\";");
+        header("Content-Transfer-Encoding: binary");
+        header("Content-Length: " . filesize($file));
+        flush();
+        readfile($file);
         flush();
         exit;
     }

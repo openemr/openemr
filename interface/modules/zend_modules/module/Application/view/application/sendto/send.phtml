@@ -147,6 +147,7 @@ $download_format = $this->download_format;
                 <tr>
                     <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_ccda" value="ccda" checked>&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('CCDA') ?></span></td>
                     <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda" value="qrda">&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA I') ?></span></td>
+                    <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda3" value="qrda3">&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA III') ?></span></td>
                 </tr>
             </table>
         </div>
@@ -163,7 +164,20 @@ $download_format = $this->download_format;
                 echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
             }
             ?>
-
+        </select>
+    </div>
+    <div id="componentsForQRDA3" style="height:300px !important;display:none;" class="ap-st-st-13">
+        <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
+        <select size="12" id="report_measures_cat3" name="report_measures_cat3[]" style="width:100%;">
+            <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures All Patients'); ?></option>
+            <!--<option value="all"><?php /*echo $this->listenerObject->z_xlt('Patient with all Measures'); */?></option>-->
+            <?php
+            foreach ($this->current_measures as $measure) {
+                $help = attr($measure['title']);
+                $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
+                echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
+            }
+            ?>
         </select>
     </div>
     <div id="componentsForCCDA" style="height:300px !important;display:none;" class="ap-st-st-13">

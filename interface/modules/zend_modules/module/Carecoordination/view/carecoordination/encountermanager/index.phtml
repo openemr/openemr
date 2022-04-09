@@ -107,7 +107,14 @@ foreach ($this->status_details as $row_status) {
         });
 
         $("#download_qrda").click(function () {
+            $('#downloadqrda3').val('');
             $('#downloadqrda').val('download_qrda');
+            $('#theform').submit();
+        });
+
+        $("#download_qrda3").click(function () {
+            $('#downloadqrda').val('');
+            $('#downloadqrda3').val('download_qrda3');
             $('#theform').submit();
         });
 
@@ -189,6 +196,8 @@ foreach ($this->status_details as $row_status) {
                                 <input type="hidden" name="downloadccda" id="downloadccda" value="">
                                 <div id="download_qrda" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadqrda" id="downloadqrda" value="">
+                                <div id="download_qrda3" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
+                                <input type="hidden" name="downloadqrda3" id="downloadqrda3" value="">
                                 <input type="hidden" name="components" id="components" value="">
                                 <div style="display:none;" id="download_ccr"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadccr" id="downloadccr" value="">

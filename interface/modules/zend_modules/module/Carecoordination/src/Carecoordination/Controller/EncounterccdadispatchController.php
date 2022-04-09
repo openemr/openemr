@@ -49,9 +49,8 @@ class EncounterccdadispatchController extends AbstractActionController
 
     protected $latest_ccda;
 
-    public function __construct(
-        EncounterccdadispatchTable $encounterccdadispatchTable
-    ) {
+    public function __construct(EncounterccdadispatchTable $encounterccdadispatchTable)
+    {
         $this->listenerObject = new Listener();
         $this->encounterccdadispatchTable = $encounterccdadispatchTable;
     }
@@ -86,6 +85,7 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->components = $this->getRequest()->getQuery('components') ?: $this->params('components');
         $downloadccda = $this->params('downloadccda');
         $downloadqrda = $this->params('downloadqrda');
+        $downloadqrda3 = $this->params('downloadqrda3');
         $this->latest_ccda = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
         $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
 
@@ -93,6 +93,14 @@ class EncounterccdadispatchController extends AbstractActionController
         if ($this->getRequest()->getQuery('doctype') === 'qrda') {
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIReport($combination, '', 'html');
+            echo $document;
+            exit;
+        }
+
+        // QRDA III user view html version @todo create reports html in service
+        if ($this->getRequest()->getQuery('doctype') === 'qrda3') {
+            $xmlController = new QrdaReportController();
+            $document = $xmlController->getCategoryIIIReport($combination, '', '', '');
             echo $document;
             exit;
         }
@@ -111,6 +119,24 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
             }
             $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
+            exit;
+        }
+
+        // QRDA III batch selected pids download as zip.
+        if ($downloadqrda3 === 'download_qrda3') {
+            $xmlController = new QrdaReportController();
+            $combination = $this->params('pids');
+            $view = $this->params('view');
+            $pids = explode('|', $combination);
+            $measures = $_REQUEST['report_measures_cat3'] ?? "";
+            if (is_array($measures)) {
+                if (empty($measures[0])) {
+                    $measures = ''; // defaults to all current one per patient.
+                } elseif (($measures[0] ?? null) == 'all') {
+                    $measures = 'all'; // defaults to all current measures per patient.
+                }
+            }
+            $xmlController->downloadQrdaIII($pids, $measures, '', '');
             exit;
         }
 
