@@ -34,7 +34,7 @@ class QrdaReportController
      * @param $type     string xml, html,
      * @return mixed
      */
-    public function getCategoryIReport($pid, $measures, $type = 'xml')
+    public function getCategoryIReport($pid, $measures, $type = 'xml', $options = [])
     {
         if (empty($measures)) {
             $measures = $this->reportMeasures;
@@ -42,7 +42,7 @@ class QrdaReportController
         // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
-        $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
+        $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved, $options);
         if ($type === 'html') {
             $xml = simplexml_load_string($document);
             $xsl = new DOMDocument();
@@ -59,7 +59,7 @@ class QrdaReportController
         return $document;
     }
 
-    public function getCategoryIIIReport($pid, $measures, $effectiveDate, $effectiveDateEnd): string
+    public function getCategoryIIIReport($pid, $measures, $options = []): string
     {
         if (empty($measures)) {
             $measures = $this->reportMeasures;
@@ -67,7 +67,7 @@ class QrdaReportController
         // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
-        $document = $this->reportService->generateCategoryIIIXml($pid, $measures_resolved, $effectiveDate, $effectiveDateEnd);
+        $document = $this->reportService->generateCategoryIIIXml($pid, $measures_resolved, $options['performance_period_start'], $options['performance_period_end']);
 
         return $document;
     }
@@ -77,7 +77,7 @@ class QrdaReportController
      * @param $measures
      * @return void
      */
-    public function downloadQrdaIAsZip($pids, $measures = '', $type = 'xml'): void
+    public function downloadQrdaIAsZip($pids, $measures = '', $type = 'xml', $options = []): void
     {
         $bypid = false;
         if (empty($measures)) {
@@ -113,7 +113,7 @@ class QrdaReportController
                 foreach ($pids as $pid) {
                     $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                     $file = $measure_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
-                    $content = $this->getCategoryIReport($pid, $measure, $type);
+                    $content = $this->getCategoryIReport($pid, $measure, $type, $options);
                     $f_handle = fopen($file, "w");
                     fwrite($f_handle, $content);
                     unset($content);
@@ -132,7 +132,7 @@ class QrdaReportController
             foreach ($pids as $pid) {
                 $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                 $file = $zip_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
-                $content = $this->getCategoryIReport($pid, '', $type);
+                $content = $this->getCategoryIReport($pid, '', $type, $options);
                 $f_handle = fopen($file, "w");
                 fwrite($f_handle, $content);
                 unset($content);
@@ -160,7 +160,7 @@ class QrdaReportController
         exit;
     }
 
-    public function downloadQrdaIII($pids, $measures = '', $effectiveDate = '', $effectiveDateEnd = ''): void
+    public function downloadQrdaIII($pids, $measures = '', $options = []): void
     {
         if (empty($measures)) {
             $measures = $this->reportMeasures;
@@ -185,7 +185,7 @@ class QrdaReportController
             if (is_array($measure)) {
                 $measure = $measure['measure_id'];
             }
-            $xml = $this->getCategoryIIIReport($pids, $measure, $effectiveDate, $effectiveDateEnd);
+            $xml = $this->getCategoryIIIReport($pids, $measure, $options);
             $filename = $measure . "_all_patients.xml";
             if (!empty($pids)) {
                 $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pids]);
