@@ -131,10 +131,11 @@ class QrdaReportService
 
     /**
      * @param  $pid
-     * @param  $measures
+     * @param array $measures
+     * @param array $options
      * @return string
      */
-    public function generateCategoryIXml($pid, $measures = []): string
+    public function generateCategoryIXml($pid, $measures = [], $options = []): string
     {
         if ($pid) {
             $request = new QdmRequestOne($pid);
@@ -142,7 +143,7 @@ class QrdaReportService
             $request = new QdmRequestAll();
         }
         $exportService = new ExportCat1Service($this->builder, $request);
-        $xml = $exportService->export($measures);
+        $xml = $exportService->export($measures, $options);
 
         return $xml;
     }
