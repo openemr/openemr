@@ -57,31 +57,56 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public static function makeQdmIdentifier($pid)
+    public static function convertToObjectIdBSONFormat($id)
+    {
+        $hexValue = dechex($id);
+        // max bigint size will fit in 16 characters so we will always have enough space for this.
+        return sprintf("%024x", $hexValue);
+    }
+
+    public static function convertIdFromBSONObjectIdFormat($id)
+    {
+        // max bigint size is 8 bytes which will fit fine
+        // string ID should be prefixed with 0s so the converted data type should be far smaller
+        $trimmedId = ltrim($id, '\x0');
+        $decimal = hexdec($trimmedId);
+        return $decimal;
+    }
+
+    public static function makeQdmIdentifier($namingSystem, $value)
     {
         return new Identifier(
             [
-            'namingSystem' => 'OpenEMR pid',
-            'value' => $pid
+            'namingSystem' => $namingSystem,
+            'value' => $value
             ]
         );
     }
 
     public function makeQdmModel(array $record)
     {
-        $id = self::makeQdmIdentifier($record['pid']);
+        // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned so we can associate results with patients
+        // This 'underscore' id is not part of QDM, but special for the cqm-execution calculator
+        $_id = self::convertToObjectIdBSONFormat($record['pid']);
 
-        $qdmPatient = new Patient(
-            [
+        // Make a formatted BSON that can be used as an index in a PHP associative array, this will be used for aggregating results
+        $formatted_id = self::convertIdFromBSONObjectIdFormat($_id);
+        $id = self::makeQdmIdentifier('OpenEMR BSON', $formatted_id);
+
+        $qdmPatient = new Patient([
             'patientName' => [
                 'given' => $record['fname'],
                 'middle' => $record['mname'] ?? '',
                 'family' => $record['lname']
             ],
-                'birthDatetime' => $record['DOB'],
-                'id' => $id // From PatientExtension trait
-            ]
-        );
+            'birthDatetime' => $record['DOB'],
+            'id' => $id, // From PatientExtension trait
+            '_id' => $_id //
+        ]);
+
+        $qdmPatient->extendedData = [
+            'pid' => $record['pid']
+        ];
 
         // Create the address and add to model (for QRDA Cat 1 Export)
         $address = new Address(

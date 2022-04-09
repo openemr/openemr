@@ -122,7 +122,7 @@ class Cat3 extends \Mustache_Engine
          */
     }
 
-    public function ry2022_submission()
+    public function is_ry2022_submission()
     {
         return $this->ry2022_submission;
         /**
