@@ -12,17 +12,41 @@
  */
 
 // comment below exit if plan to use this script
-exit;
+//exit;
+// setlocale(LC_ALL, "es_ES.UTF8" );
+
+global $argc;
 
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME'] = 'localhost';
 $backpic = "";
 
-// email notification
-$ignoreAuth = 1;
-require_once("../../interface/globals.php");
+// for cron
+if ($argc > 1 && empty($_SESSION['site_id']) && empty($_GET['site'])) {
+    $c = stripos($argv[1], 'site=');
+    if ($c === false) {
+        echo xlt("Missing Site Id using default") . "\n";
+        $argv[1] = "site=default";
+    }
+    $args = explode('=', $argv[1]);
+    $_GET['site'] = isset($args[1]) ? $args[1] : 'default';
+}
+if (php_sapi_name() === 'cli') {
+//    $_SERVER[‘HTTP_HOST’] = ‘localhost’;
+    $_SERVER['HTTP_HOST'] = 'localhost';
+
+    $ignoreAuth = true;
+}
+require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../library/appointments.inc.php");
 require_once("cron_functions.php");
+
+// check command line for quite option
+$bTestRun = isset($_REQUEST['dryrun']) ? 1 : 0;
+if ($argc > 1 && $argv[2] == 'test') {
+    $bTestRun = 1;
+}
 
 $TYPE = "Email";
 $CRON_TIME = 5;
@@ -44,14 +68,7 @@ echo "<br />Total " . count($db_patient) . " Records Found\n";
 for ($p = 0; $p < count($db_patient); $p++) {
     $prow = $db_patient[$p];
     //my_print_r($prow);
-    /*
-    if($prow['pc_eventDate'] < $check_date)
-    {
-        $app_date = date("Y-m-d")." ".$prow['pc_startTime'];
-    }else{
-        $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
-    }
-    */
+    
     $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
     $app_time = strtotime($app_date);
 
@@ -65,22 +82,22 @@ for ($p = 0; $p < count($db_patient); $p++) {
     $strMsg .= "\nSEND NOTIFICATION BEFORE:" . $EMAIL_NOTIFICATION_HOUR . " || CRONJOB RUN EVERY:" . $CRON_TIME . " || APPDATETIME:" . $app_date . " || REMAINING APP HOUR:" . ($remaining_app_hour) . " || SEND ALERT AFTER:" . ($remain_hour);
 
     if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
-        // insert entry in notification_log table
-        cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
-
         //set message
         $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
+        
+        // insert entry in notification_log table
+        cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 
         // send mail to patinet
         cron_SendMail(
             $prow['email'],
+            $prow['email_direct'],
             $db_email_msg['email_subject'],
-            $db_email_msg['message'],
-            $db_email_msg['email_sender']
+            $db_email_msg['message']
         );
 
         //update entry >> pc_sendalertemail='Yes'
-        cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
+        cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pt_tracker_id']);
 
         $strMsg .= " || ALERT SENT SUCCESSFULLY TO " . $prow['email'];
         $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
@@ -93,12 +110,12 @@ for ($p = 0; $p < count($db_patient); $p++) {
     $db_email_msg = cron_getNotificationData($TYPE);
 }
 
-sqlClose();
+//sqlClose();
 ?>
 
 <html>
 <head>
-<title>Conrjob - Email Notification</title>
+<title>Cronjob - Email Notification</title>
 </head>
 <body>
     <center>
