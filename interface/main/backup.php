@@ -521,6 +521,7 @@ if ($form_step == 1) {
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
         " --routines" .
+        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
         " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     } else {
@@ -528,6 +529,7 @@ if ($form_step == 1) {
         " -p" . escapeshellarg($sqlconf["pass"]) .
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
+        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
         " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     }
@@ -714,6 +716,7 @@ if ($form_step == 102) {
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
+                    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             } else {
@@ -721,6 +724,7 @@ if ($form_step == 102) {
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
+                    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             }
@@ -738,6 +742,7 @@ if ($form_step == 102) {
                  " -p" . escapeshellarg($sqlconf["pass"]) .
                  " -h " . escapeshellarg($sqlconf["host"]) .
                  " --port=" . escapeshellarg($sqlconf["port"]) .
+                 " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                  " --hex-blob --skip-opt --quote-names --no-tablespaces --complete-insert" .
                  " --no-create-info --skip-comments $mysql_ssl";
 
@@ -964,6 +969,7 @@ if ($form_step == 301) {
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=" . escapeshellarg($sqlconf["port"]) .
+    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
     " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
     escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
 # Set Eventlog Flag when it is done
