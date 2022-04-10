@@ -88,13 +88,24 @@ class QrdaReportController
         }
 
         $zip = new Zip();
-        $zip_directory = sys_get_temp_dir() . ($bypid ? '/EP_Measures_' : "/Qrda_Export_") . time();
+        $zip_directory = sys_get_temp_dir() . ($bypid ? '/ep_measures_' : "/qrda_export_") . time();
+        ;
         if (!is_dir($zip_directory)) {
-            if (!mkdir($zip_directory, true) && !is_dir($zip_directory)) {
+            if (!mkdir($zip_directory, true, true) && !is_dir($zip_directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $zip_directory));
             }
             chmod($zip_directory, 0777);
         }
+        // local xml save directory
+        $directory = $GLOBALS['OE_SITE_DIR'] . '/documents/' . 'cat1_reports';
+        $directory .= ($bypid ? '/all_measures' : "/measures");
+        if (!is_dir($directory)) {
+            if (!mkdir($directory, true, true) && !is_dir($directory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
+            }
+            chmod($directory, 0777);
+        }
+
         $pids = is_array($pids) ? $pids : [$pids];
         if (!$bypid) {
             foreach ($measures as $measure) {
@@ -103,47 +114,51 @@ class QrdaReportController
                 } else {
                     $dir_measure = $measure;
                 }
-                $measure_directory = $zip_directory . "/" . $dir_measure . "_" . time();
+                $measure_directory = $zip_directory . "/" . $dir_measure;
+                $local_directory = $directory . "/" . $dir_measure;
                 if (!is_dir($measure_directory)) {
-                    if (!mkdir($measure_directory, true) && !is_dir($measure_directory)) {
+                    if (!mkdir($measure_directory, true, true) && !is_dir($measure_directory)) {
                         throw new \RuntimeException(sprintf('Directory "%s" was not created', $measure_directory));
                     }
                     chmod($measure_directory, 0777);
                 }
+                if (!is_dir($local_directory)) {
+                    if (!mkdir($local_directory, true, true) && !is_dir($local_directory)) {
+                        throw new \RuntimeException(sprintf('Directory "%s" was not created', $local_directory));
+                    }
+                    chmod($local_directory, 0777);
+                }
                 foreach ($pids as $pid) {
                     $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                     $file = $measure_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
+                    $file_local = $local_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                     $content = $this->getCategoryIReport($pid, $measure, $type, $options);
-                    $f_handle = fopen($file, "w");
-                    fwrite($f_handle, $content);
+                    file_put_contents($file, $content);
+                    file_put_contents($file_local, $content);
                     unset($content);
-                    unset($file);
-                    fclose($f_handle);
                     if ($type === 'xml') {
                         copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
                     }
                 }
             }
-            $zip_name = "QRDA1_Export_" . time() . ".zip";
-            $save_path = sys_get_temp_dir() . "/" . $zip_name;
-            $zip->setArchive($save_path);
-            $zip->compress($zip_directory);
+            $zip_name = "qrda1_export_" . time() . ".zip";
         } elseif ($bypid) {
             foreach ($pids as $pid) {
                 $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                 $file = $zip_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
+                $file_local = $directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                 $content = $this->getCategoryIReport($pid, '', $type, $options);
-                $f_handle = fopen($file, "w");
-                fwrite($f_handle, $content);
+                file_put_contents($file, $content);
+                file_put_contents($file_local, $content);
                 unset($content);
                 unset($file);
-                fclose($f_handle);
             }
-            $zip_name = "EP_Measures_" . time() . ".zip";
-            $save_path = sys_get_temp_dir() . "/" . $zip_name;
-            $zip->setArchive($save_path);
-            $zip->compress($zip_directory);
+            $zip_name = "ep_measures_" . time() . ".zip";
         }
+
+        $save_path = sys_get_temp_dir() . "/" . $zip_name;
+        $zip->setArchive($save_path);
+        $zip->compress($zip_directory);
 
         ob_clean();
         header("Pragma: public");

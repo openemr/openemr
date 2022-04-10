@@ -249,7 +249,6 @@ class CodeTypesService
                     return $oid;
                 }
             }
-            error_log(xlt('Missing Code Type OID:' . $codeType));
         }
         return $system;
     }
