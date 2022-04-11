@@ -281,6 +281,6 @@ ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_c
 #IfUpdateEditOptionsNeeded add DEM U street, street_line_2, city
 #EndIf
 
-#IfNotRow3D layout_options form_id DEM field_id postal_code fld_length 10
+#IfNotRow3D layout_options form_id DEM field_id postal_code fld_length 8
 UPDATE `layout_options` SET `fld_length` = '8' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
 #EndIf
