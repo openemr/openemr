@@ -22,13 +22,10 @@ function cron_SendMail($to, $cc, $subject, $vBody)
 {
     // check if smtp globals set
     if ($GLOBALS['SMTP_HOST'] == '') {
-
         $mstatus = true;
         $mstatus = @mail($to, $cc, $subject, $vBody);
     } else {
-
         if (!class_exists("SMTP")) {
-
             $SenderName = $GLOBALS['patient_reminder_sender_name'];
             $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
             if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
@@ -39,7 +36,7 @@ function cron_SendMail($to, $cc, $subject, $vBody)
         }
 
 
-        $mail = new PHPMailer;
+        $mail = new PHPMailer();
         $mail->SMTPDebug = 3;
         $mail->IsSMTP();
         $mail->Host = $GLOBALS['SMTP_HOST'];
@@ -148,7 +145,6 @@ function cron_updateentry($type, $pid, $pc_eid, $tracker_id)
 
     //$query="update openemr_postcalendar_events set $set ";
     $query = "update openemr_postcalendar_events , patient_tracker_element set ";
-
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
     if ($type == 'SMS') {
         $query .= " openemr_postcalendar_events.pc_sendalertsms='YES' ,  openemr_postcalendar_events.pc_apptstatus='SMS' , patient_tracker_element.status='SMS' ";
@@ -156,8 +152,9 @@ function cron_updateentry($type, $pid, $pc_eid, $tracker_id)
         //$query .= " pc_sendalertemail='YES' ";
         $query .= " openemr_postcalendar_events.pc_sendalertemail='YES' ,  openemr_postcalendar_events.pc_apptstatus='EMAIL' , patient_tracker_element.status='EMAIL' ";
     }
-
-    $query .= " where openemr_postcalendar_events.pc_pid=? and openemr_postcalendar_events.pc_eid=? and patient_tracker_element.pt_tracker_id= ? ";
+    $query .= " where openemr_postcalendar_events.pc_pid=? and 
+                openemr_postcalendar_events.pc_eid=? and 
+                patient_tracker_element.pt_tracker_id= ? ";
     //echo "<br />".$query;
     $db_sql = (sqlStatement($query, [$pid, $pc_eid, $tracker_id]));
 }
