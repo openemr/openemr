@@ -14,7 +14,7 @@ global $EMAIL_NOTIFICATION_HOUR;
 ////////////////////////////////////////////////////////////////////
 // Function:    cron_SendMail
 // Purpose: send mail
-// Input:   to, subject, email body and from
+// Input:   to, cc, subject and email body
 // Output:  status - if sent or not
 ////////////////////////////////////////////////////////////////////
 function cron_SendMail($to, $cc, $subject, $vBody)
