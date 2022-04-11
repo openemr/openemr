@@ -103,7 +103,7 @@
 
 --  #IfUpdateEditOptionsNeeded
 --    desc: Change Layout edit options.
---    arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
+--    arguments: mode(add or remove) layout_form_id the_edit_option comma_separated_list_of_field_ids
 
 #IfNotRow2D layout_options form_id DEM field_id prevent_portal_apps
 SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='allow_patient_portal' AND form_id='DEM');
@@ -275,18 +275,12 @@ ALTER TABLE `ccda` ADD COLUMN `transaction_id` BIGINT(20) COMMENT 'fk to transac
 ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_code` VARCHAR(31) DEFAULT NULL, ADD `reason_description` TEXT, ADD `reason_date_low` DATETIME DEFAULT NULL, ADD `reason_date_high` DATETIME DEFAULT NULL;
 #EndIf
 
-#IfNotRow3D layout_options form_id DEM field_id street edit_options U
-UPDATE `layout_options` SET `edit_options` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'street';
+#IfUpdateEditOptionsNeeded remove DEM C street, street_line_2, city
 #EndIf
 
-#IfNotRow3D layout_options form_id DEM field_id street_line_2 edit_options U
-UPDATE `layout_options` SET `edit_options` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'street_line_2';
-#EndIf
-
-#IfNotRow3D layout_options form_id DEM field_id city edit_options U
-UPDATE `layout_options` SET `edit_options` = 'U' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'city';
+#IfUpdateEditOptionsNeeded add DEM U street, street_line_2, city
 #EndIf
 
 #IfNotRow3D layout_options form_id DEM field_id postal_code fld_length 10
-UPDATE `layout_options` SET `fld_length` = '10' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
+UPDATE `layout_options` SET `fld_length` = '8' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
 #EndIf
