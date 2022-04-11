@@ -43,7 +43,7 @@ class PatientTransactionService extends BaseService
             self::_transactionPredicate
         ];
 
-        return 
+        return
         "
         SELECT
             d.form_id,
@@ -114,14 +114,14 @@ class PatientTransactionService extends BaseService
 
         $sql = $this->getSelectStatement(self::_formPredicate);
         array_push($sqlBindArray, $tid);
-        
+
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
 
         return $records;
     }
 
     public function getAll($pid)
-    {    
+    {
         $processingResult = new ProcessingResult();
         $sqlBindArray = array();
 
@@ -130,7 +130,7 @@ class PatientTransactionService extends BaseService
 
         $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
 
-        if(count($records) > 0) {
+        if (count($records) > 0) {
             $processingResult->addData($records);
         }
 
@@ -141,13 +141,13 @@ class PatientTransactionService extends BaseService
     {
         sqlBeginTrans();
         $transactionId = $this->insertTransaction($pid, $data);
-        if($transactionId == false) {
+        if ($transactionId == false) {
             return false;
         }
-            
+
 
         $lbtDataId = $this->insertTransactionForm($transactionId, $data);
-        if($lbtDataId == false) {
+        if ($lbtDataId == false) {
             return false;
         }
         sqlCommitTrans();
@@ -157,7 +157,7 @@ class PatientTransactionService extends BaseService
     public function insertTransaction($pid, $data)
     {
         $user = $_SESSION['authUser'];
-        $sql = 
+        $sql =
         "
             INSERT INTO transactions SET
                 date=NOW(),
@@ -190,7 +190,7 @@ class PatientTransactionService extends BaseService
         $referById = $this->getUserIdByNpi($data["referByNpi"]);
         $referToId = $this->getUserIdByNpi($data["referToNpi"]);
 
-        $sql = 
+        $sql =
         "
             INSERT INTO lbt_data (form_id, field_id, field_value) VALUES
             (?,  'body', ?),
@@ -235,7 +235,7 @@ class PatientTransactionService extends BaseService
 
     public function update($tid, $data)
     {
-        
+
         $referById = $this->getUserIdByNpi($data["referByNpi"]);
         $referToId = $this->getUserIdByNpi($data["referToNpi"]);
         $body = $data["body"];
@@ -267,7 +267,7 @@ class PatientTransactionService extends BaseService
 
     public function updateTransactionForm($formId, $fieldId, $value)
     {
-        if(empty($value) == false) {
+        if (empty($value) == false) {
             $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";
             $params = array($value, $fieldId, $formId);
             $res = sqlStatement($sql, $params);
@@ -278,19 +278,18 @@ class PatientTransactionService extends BaseService
     {
         $transactionType = $transaction["type"];
 
-        if(empty($transactionType)) {
+        if (empty($transactionType)) {
             $this->throwException('type is not valid', 'type');
         }
 
         $validator = new Validator();
-        switch($transactionType)
-        {
-        case "LBTref":
-            $validator->required('referralDate')->datetime('Y-m-d');
-            $validator->required('body')->lengthBetween(2, 150);
-            $validator->required('groupname')->string();
-            $validator->required('referByNpi')->string();
-            break;
+        switch ($transactionType) {
+            case "LBTref":
+                $validator->required('referralDate')->datetime('Y-m-d');
+                $validator->required('body')->lengthBetween(2, 150);
+                $validator->required('groupname')->string();
+                $validator->required('referByNpi')->string();
+                break;
         }
 
         return $validator->validate($transaction);
@@ -298,14 +297,10 @@ class PatientTransactionService extends BaseService
 
     public function getUserIdByNpi($npi)
     {
-        try{
+        try {
             return QueryUtils::fetchSingleValue('Select id FROM users WHERE npi = ? ', 'id', [$npi]);
-        }
-        catch(exception $ex)
-        {
+        } catch (exception $ex) {
             return $ex;
         }
-        
     }
 }
-?>

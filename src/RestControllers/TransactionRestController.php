@@ -2,7 +2,7 @@
 
 /**
  * PatientRestController
- * This controller creates, updates, and retrieves transactions 
+ * This controller creates, updates, and retrieves transactions
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -52,11 +52,11 @@ class TransactionRestController
         if (is_array($controllerValidationResult)) {
             $processingResult->setValidationMessages($controllerValidationResult);
         }
-        
-        
+
+
         $serviceResult = $this->patientTransactionService->insert($pid, $data);
         $processingResult->addData($serviceResult);
-        
+
         return RestControllerHelper::handleProcessingResult($processingResult, 201, true);
     }
 
@@ -76,7 +76,7 @@ class TransactionRestController
     {
         $processingResult = $this->patientTransactionService->getAll($pid);
 
-        if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) { 
+        if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
         }
 
