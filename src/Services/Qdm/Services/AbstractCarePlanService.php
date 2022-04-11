@@ -10,6 +10,8 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+
 /**
  * Class AbstractCarePlanService
  * @package OpenEMR\Services\Qdm\Services
@@ -31,11 +33,41 @@ abstract class AbstractCarePlanService extends AbstractQdmService
 
     abstract public function getCarePlanType();
 
+    abstract public function getModelClass();
+
     public function getSqlStatement()
     {
         $carePlanType = $this->getCarePlanType();
         return "SELECT pid, `date`, code, codetext, description, care_plan_type, reason_code
             FROM form_care_plan
             WHERE care_plan_type = '" . add_escape_custom($carePlanType) . "'";
+    }
+
+    /**
+     * @param array $record
+     * @return mixed
+     * @throws \Exception
+     *
+     * Since almost all the care plans contain the same data, we put the base code for making the model here.
+     */
+    public function makeQdmModel(array $record)
+    {
+        $modelClass = $this->getModelClass();
+        $model = new $modelClass([
+            'authorDatetime' => new DateTime([
+                'date' => $record['date']
+            ]),
+        ]);
+
+        $model->addCode($this->makeQdmCode($record['code']));
+
+        // If there is a reason noted why this plan was NOT done, add a negation
+        if ($this->isNegationCode($record['reason_code'])) {
+            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
+        } else {
+            $model->reason = $this->makeQdmCode($record['reason_code']);
+        }
+
+        return $model;
     }
 }

@@ -99,7 +99,7 @@ abstract class AbstractQdmService
         $codeType = str_replace(" ", "-", $codeType);
 
         if ($codeType == 'OID') {
-            // When there is a negation, the code is an OID from a measure value set. In this case, we ...
+            // When there is a negation, the code is an OID from a measure value set. There is no official code system for this, as they are OIDs
             $system = '';
         } else if ($codeType == 'HCPCS-Level-II') {
             $system = '2.16.840.1.113883.6.285';
@@ -108,6 +108,20 @@ abstract class AbstractQdmService
         }
 
         return $system;
+    }
+
+    /**
+     * @param $openEmrCode
+     * @return bool
+     *
+     * Return true if the code begins with "OID:" which implies a negation (we made up this convention)
+     */
+    public function isNegationCode($openEmrCode)
+    {
+        if (str_starts_with('OID:', $openEmrCode)) {
+            return true;
+        }
+        return false;
     }
 
     /**
