@@ -14,6 +14,7 @@
                 {% endif %}
                 {# Display the Edit button #}
                 <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa {{ btnIcon }} fa-sm">&nbsp;</i></a>
+                {% block weno %}{% endblock %}
             {% endif %}
         </div>
         <div id="{{ id|attr }}" class="collapse {{ initiallyCollapsed == 1 ? "show" : ""}}">

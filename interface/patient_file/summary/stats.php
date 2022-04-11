@@ -127,7 +127,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     }
 
     if ($old_key == "medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
-        $display_current_medications_below = 1;
+        $display_current_medications_below = 0;
 
         if ($GLOBALS['erx_enable']) {
             $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
@@ -322,8 +322,17 @@ if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx'
 
     if ($GLOBALS['erx_enable']) {
         $viewArgs['title'] = 'Prescription History';
-        $viewArgs['btnLabel'] = 'Add/Edit eRx';
+        $viewArgs['btnLabel'] = 'Add';
         $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
+    } elseif ($GLOBALS['weno_rx_enable']) {
+        // preserve ability to create openemr prescriptions
+        // https://community.open-emr.org/t/weno-6-1-0-error/18106/6
+        $viewArgs['linkMethod'] = "javascript";
+        $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+        $viewArgs['btnClass'] = "iframe rx_modal";
+        // weno plus button which opens their iframe
+        $viewArgs['weno'] = true;
+        $viewArgs['wenoBtnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
     } else {
         $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
         $viewArgs['linkMethod'] = "javascript";

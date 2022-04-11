@@ -1,5 +1,10 @@
 {% extends "patient/card/card_base.html.twig" %}
 
+{# Display the Add button for this special circumstance #}
+{% block weno %}
+    <a class="ml-1 {{ btnClass|attr }}" href="{{ wenoBtnLink }}" {{ "onclick=\"top.restoreSession()\"" }}><i class="fa fa-plus fa-sm">&nbsp;</i></a>
+{% endblock %}    
+
 {% block content %}
     {{ content }}
 {% endblock %}
