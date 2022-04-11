@@ -13,7 +13,7 @@
  */
 
 require_once("../../../library/api.inc");
-require_once("../vitals/C_FormVitals.class.php");
+require_once($GLOBALS['incdir'] . "/forms/vitals/C_FormVitals.class.php");
 
 function addAppt($days, $time)
 {
@@ -279,7 +279,7 @@ function patient_age($birthday, $date)
     list($date_year,$date_month,$date_day) = explode("-", $date);
     $year_diff  = $date_year - $birth_year;
     $month_diff = $date_month - $birth_month;
-    $day_diff   = $date_day - $birth_day;
+    $day_diff   = (int)$date_day - $birth_day;
     if ($month_diff < 0) {
         $year_diff--;
     } elseif (($month_diff == 0) && ($day_diff < 0)) {
