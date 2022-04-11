@@ -46,7 +46,7 @@ trait View
 
     public function object_id()
     {
-        return spl_object_hash($this); // @TODO unknown what to use here!
+        return substr(sha1((string)random_bytes(512)), -24);
     }
 
     public function submission_program()

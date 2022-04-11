@@ -89,10 +89,20 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->latest_ccda = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
         $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
 
+        // @TODO uncomment below for production.
+        /*$qrda_options = [
+            'performance_period_start' => $this->getRequest()->getQuery('form_date_from') ?? null,
+            'performance_period_end' => $this->getRequest()->getQuery('form_date_to') ?? null
+        ];*/
+        $qrda_options = [
+            'performance_period_start' => "2020-01-01 00:00:00",
+            'performance_period_end' => "2020-12-31 23:59:59"
+        ];
+
         // QRDA I user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda') {
             $xmlController = new QrdaReportController();
-            $document = $xmlController->getCategoryIReport($combination, '', 'html');
+            $document = $xmlController->getCategoryIReport($combination, '', 'html', $qrda_options);
             echo $document;
             exit;
         }
@@ -100,7 +110,7 @@ class EncounterccdadispatchController extends AbstractActionController
         // QRDA III user view html version @todo create reports html in service
         if ($this->getRequest()->getQuery('doctype') === 'qrda3') {
             $xmlController = new QrdaReportController();
-            $document = $xmlController->getCategoryIIIReport($combination, '', '', '');
+            $document = $xmlController->getCategoryIIIReport($combination, '', $qrda_options);
             echo $document;
             exit;
         }
@@ -118,7 +128,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $measures = 'all'; // defaults to all current measures per patient.
                 }
             }
-            $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
+            $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml', $qrda_options);
             exit;
         }
 
@@ -136,7 +146,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $measures = 'all'; // defaults to all current measures per patient.
                 }
             }
-            $xmlController->downloadQrdaIII($pids, $measures, '', '');
+            $xmlController->downloadQrdaIII($pids, $measures, $qrda_options);
             exit;
         }
 
