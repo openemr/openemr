@@ -154,7 +154,8 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
      * @param FHIRReference $user Practitioner that we want to return the corresponding organization
      * @return FHIRReference|null
      */
-    public function getOrganizationReferenceFromUserReference(FHIRReference $user) {
+    public function getOrganizationReferenceFromUserReference(FHIRReference $user)
+    {
         $referenceUuid = UtilsService::getUuidFromReference($user);
         if ($user->getType() == (new FHIRPractitioner())->get_fhirElementName()) {
             return $this->facilityService->getOrganizationReferenceForUser($referenceUuid);

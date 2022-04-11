@@ -397,15 +397,16 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         $separator = self::SURROGATE_KEY_SEPARATOR_V2;
 
         // lastUpdated is a timesecond instant so we are going to get int value for comparison
-        if (empty($resource->getMeta()))
-        {
-            (new SystemLogger())->errorLogCaller("Resource missing required Meta field",
-                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]);
-        }
-        else if (empty($resource->getMeta()->getLastUpdated()))
-        {
-            (new SystemLogger())->errorLogCaller("Resource missing required Meta->lastUpdated field",
-                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]);
+        if (empty($resource->getMeta())) {
+            (new SystemLogger())->errorLogCaller(
+                "Resource missing required Meta field",
+                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
+            );
+        } else if (empty($resource->getMeta()->getLastUpdated())) {
+            (new SystemLogger())->errorLogCaller(
+                "Resource missing required Meta->lastUpdated field",
+                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
+            );
         } else {
             $lastUpdated = \DateTime::createFromFormat(DATE_ISO8601, $resource->getMeta()->getLastUpdated());
 
