@@ -30,6 +30,8 @@ $info_msg = "";
 $codetype = $_REQUEST['codetype'] ?? '';
 if (!empty($codetype)) {
     $allowed_codes = split_csv_line($codetype);
+} else {
+    $allowed_codes = array_keys($code_types);
 }
 
 $form_code_type = $_POST['form_code_type'] ?? '';
@@ -38,6 +40,8 @@ $form_code_type = $_POST['form_code_type'] ?? '';
 $default = '';
 if (!empty($form_code_type)) {
     $default = $form_code_type;
+    // if they've submitted a code type we only want to use those.
+    $allowed_codes = [$default];
 } elseif (!empty($allowed_codes) && count($allowed_codes) == 1) {
     $default = $allowed_codes[0];
 } elseif (!empty($_REQUEST['default'])) {
@@ -177,7 +181,7 @@ $focus = "document.theform.search_term.select();";
                     <tbody>
                     <?php
                     $search_term = $_REQUEST['search_term'];
-                    $res = main_code_set_search($form_code_type, $search_term);
+                    $res = main_code_set_search($allowed_codes, $search_term);
                     if ($form_code_type == 'PROD') {
                         // Special case that displays search for products/drugs
                         while ($row = sqlFetchArray($res)) {
