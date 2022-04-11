@@ -13,6 +13,7 @@ namespace OpenEMR\Services\Qdm;
 use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
+use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class CqmCalculator
@@ -55,7 +56,35 @@ class CqmCalculator
         ];
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));
 
-        return $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+        $results = $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
+        return $results;//$this->convertResultsFromBSONObjectIdFormat($results);
+    }
+
+    public function convertResultsFromBSONObjectIdFormat($results)
+    {
+        $newResult = [];
+        if (!empty($results)) {
+            foreach ($results as $key => $result) {
+                $convertedKey = $this->convertIdFromBSONObjectIdFormat($key);
+                // go and update the inner patient_id
+                $newResult[$convertedKey] = [];
+
+                foreach ($result as $popKey => $popResult) {
+                    $popResult['patient_id'] = $convertedKey;
+                    $newResult[$convertedKey][$popKey] = $popResult;
+                }
+            }
+        }
+        return $newResult;
+    }
+
+    private function convertIdFromBSONObjectIdFormat($id)
+    {
+        // max bigint size is 8 bytes which will fit fine
+        // string ID should be prefixed with 0s so the converted data type should be far smaller
+        $trimmedId = ltrim($id, '\x0');
+        $decimal = hexdec($trimmedId);
+        return $decimal;
     }
 
     public function getMeasure()

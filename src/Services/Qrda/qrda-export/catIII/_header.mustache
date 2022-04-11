@@ -3,14 +3,14 @@
 <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
 <!-- US Realm Header Template Id -->
 <templateId root="2.16.840.1.113883.10.20.27.1.1" extension="2017-06-01"/>
-{{#ry2022_submission?}}
+{{#is_ry2022_submission}}
 <!-- QRDA Category III Report - CMS (V6) -->
 <templateId root="2.16.840.1.113883.10.20.27.1.2" extension="2021-07-01"/>
-{{/ry2022_submission?}}
-{{^ry2022_submission?}}
+{{/is_ry2022_submission}}
+{{^is_ry2022_submission}}
 <!-- QRDA Category III Report - CMS (V5) -->
 <templateId root="2.16.840.1.113883.10.20.27.1.2" extension="2020-05-01"/>
-{{/ry2022_submission?}}
+{{/is_ry2022_submission}}
 <!-- This is the globally unique identifier for this QRDA document -->
 <id root="{{random_id}}"/>
 <!-- QRDA III document type code -->

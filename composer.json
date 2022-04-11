@@ -15,6 +15,7 @@
         "academe/omnipay-authorizenetapi": "3.1.2",
         "adodb/adodb-php": "5.21.4",
         "aranyasen/hl7": "2.1.2",
+        "digitickets/lalit": "3.3.0",
         "dompdf/dompdf": "1.1.1",
         "ezyang/htmlpurifier": "4.14.0",
         "google/apiclient": "2.12.1",
@@ -47,6 +48,7 @@
         "nyholm/psr7": "1.4.1",
         "nyholm/psr7-server": "1.0.2",
         "omnipay/stripe": "3.1.0",
+        "openemr/mustache": "2.15.2",
         "paragonie/multi-factor": "0.2.2",
         "particle/validator": "2.3.4",
         "pear/archive_tar": "1.4.14",
@@ -68,8 +70,7 @@
         "twig/twig": "3.3.8",
         "vlucas/phpdotenv": "5.4.1",
         "waryway/php-traits-library": "1.0.4",
-        "yubico/u2flib-server": "1.0.2",
-        "openemr/mustache": "2.15.2"
+        "yubico/u2flib-server": "1.0.2"
     },
     "config": {
         "platform": {

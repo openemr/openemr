@@ -49,6 +49,13 @@ class PhysicalExamService extends AbstractQdmService implements QdmServiceInterf
 
     public function makeQdmModel(array $record)
     {
+        // If there is no value, just return null which will tell the builder not to add this element to the template
+        // This can happen because of the way we query above.
+        // For example, though we always create a 'bmi' index, there is not always a value, so if no value, there was no exam.
+        if (empty($record['value'])) {
+            return null;
+        }
+
         $model = new PhysicalExamPerformed(
             [
             'relevantDatetime' => new DateTime(

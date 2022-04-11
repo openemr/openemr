@@ -79,7 +79,7 @@ class InsuranceService extends BaseService
     public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
-            return sqlQuery($sql, array($id, $type));
+        return sqlQuery($sql, array($id, $type));
     }
 
     public function getOne($uuid)
@@ -179,14 +179,17 @@ class InsuranceService extends BaseService
         return $processingResult;
     }
 
-    public function doesInsuranceTypeHaveEntry($pid, $type)
+    public function doesInsuranceTypeHaveEntry($pid, $type = '')
     {
+        if (!empty($type)) {
+            return sqlQuery("Select `id` From `insurance_data` Where pid = ? And type = ?", [$pid, $type])['id'] ?? null;
+        }
         return $this->getOne($pid, $type) !== false;
     }
 
     public function update($pid, $type, $data)
     {
-        $sql  = " UPDATE insurance_data SET ";
+        $sql = " UPDATE insurance_data SET ";
         $sql .= "   provider=?,";
         $sql .= "   plan_name=?,";
         $sql .= "   policy_number=?,";
@@ -259,7 +262,7 @@ class InsuranceService extends BaseService
             return $this->update($pid, $type, $data);
         }
 
-        $sql  = " INSERT INTO insurance_data SET ";
+        $sql = " INSERT INTO insurance_data SET ";
         $sql .= "   type=?,";
         $sql .= "   provider=?,";
         $sql .= "   plan_name=?,";
@@ -320,8 +323,8 @@ class InsuranceService extends BaseService
                 $data["date"],
                 $pid,
                 $data["subscriber_sex"],
-                $data["accept_assignment"],
-                $data["policy_type"]
+                $data["accept_assignment"] ?? '',
+                $data["policy_type"] ?? ''
             )
         );
     }
