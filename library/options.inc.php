@@ -1673,7 +1673,7 @@ function generate_form_field($frow, $currvalue)
         echo "</select>";
         echo "<button type='button' class='btn btn-primary btn-sm' id='type_52_add' onclick='return specialtyFormDialog()'>" . xlt('Add') . "</button></div>";
     // Patient Encounter List Field
-    } else if ($data_type == 53) {
+    } elseif ($data_type == 53) {
         global $pid;
         $encounterService = new EncounterService();
         $res = $encounterService->getEncountersForPatientByPid($pid);
@@ -2372,7 +2372,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
         }
 
     // Patient selector field.
-    } else if ($data_type == 51) {
+    } elseif ($data_type == 51) {
         if (!empty($currvalue)) {
             $tmp = text(getPatientDescription($currvalue));
         } else {
@@ -3230,7 +3230,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
 
     // Patient selector field.
-    } else if ($data_type == 51) {
+    } elseif ($data_type == 51) {
         if (!empty($currvalue)) {
             $s .= getPatientDescription($currvalue);
         }
@@ -3751,7 +3751,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
         while ($frow = sqlFetchArray($fres)) {
             $this_group = isset($frow['group_id']) ? $frow['group_id'] : "" ;
 
-            if ($grparr[$this_group]['grp_columns'] === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
