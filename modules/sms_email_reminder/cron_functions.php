@@ -8,7 +8,6 @@
 // larry :: somne global to be defined here
 global $smsgateway_info;
 global $patient_info;
-
 global $SMS_NOTIFICATION_HOUR;
 global $EMAIL_NOTIFICATION_HOUR;
 
@@ -34,8 +33,6 @@ function cron_SendMail($to, $cc, $subject, $vBody)
                 require(__DIR__ . "/../../library/classes/PHPMailer/src/SMTP.php");
             }
         }
-
-
         $mail = new PHPMailer();
         $mail->SMTPDebug = 3;
         $mail->IsSMTP();
@@ -64,10 +61,8 @@ function cron_SendMail($to, $cc, $subject, $vBody)
         }
         unset($mail);
     }
-
     return $mstatus;
 }
-
 
 ////////////////////////////////////////////////////////////////////
 // Function:    WriteLog
@@ -124,7 +119,6 @@ function cron_SendSMS($to, $subject, $vBody, $from)
     if (1) {
         //WriteLog($cnt);
     }
-
     $mstatus = true;
     // larry :: todo - find out about the billing inclusion ?
     // $mysms->getbalance();
@@ -142,7 +136,6 @@ function cron_updateentry($type, $pid, $pc_eid, $tracker_id)
     // larry :: this was commented - i remove comment - what it means * in this field ?
     //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - somthing to follow ?
     //$set = " pc_apptstatus='*' ";
-
     //$query="update openemr_postcalendar_events set $set ";
     $query = "update openemr_postcalendar_events , patient_tracker_element set ";
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
@@ -168,8 +161,6 @@ function cron_getAlertpatientData($type)
     // larry :: move this at the top - not in the function body
     global $SMS_NOTIFICATION_HOUR, $EMAIL_NOTIFICATION_HOUR;
     // larry :: end commment
-
-
     //$ssql .= " and ((ope.pc_eventDate='$check_date') OR ('$check_date' BETWEEN ope.pc_eventDate AND ope.pc_endDate)) ";
     if ($type == 'SMS') {
         // larry :: remove ope.pc_sendalertemail='No' - nothing like it in the calendar
@@ -184,7 +175,6 @@ function cron_getAlertpatientData($type)
 
         $check_date = date("Y-m-d", mktime(date("h") + $EMAIL_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
     }
-
     $patient_field = "pd.pid,pd.title,pd.fname,pd.lname,pd.mname,pd.phone_cell,pd.email,pd.email_direct,pd.hipaa_allowsms,pd.hipaa_allowemail,";
     $ssql .= " and (ope.pc_eventDate='" . add_escape_custom($check_date) . "')";
     // larry :: add condition if remnder was already sent
@@ -204,9 +194,7 @@ function cron_getAlertpatientData($type)
 			ope.pc_pid=pd.pid $ssql 
 		order by 
 			ope.pc_eventDate,ope.pc_endDate,pd.pid";
-
     //echo "<br />".$query;
-
     $db_patient = (sqlStatement($query));
     $patient_array = array();
     $cnt = 0;
@@ -214,7 +202,6 @@ function cron_getAlertpatientData($type)
         $patient_array[$cnt] = $prow;
         $cnt++;
     }
-
     return $patient_array;
 }
 
@@ -246,10 +233,8 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
     } else {
         $smsgateway_info = $db_email_msg['email_sender'] . "|||" . $db_email_msg['email_subject'];
     }
-
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_cell'] . "|||" . $prow['email'];
     $data_info = $prow['pc_eventDate'] . "|||" . $prow['pc_endDate'] . "|||" . $prow['pc_startTime'] . "|||" . $prow['pc_endTime'];
-
     $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `email_sender` , `email_subject` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES ";
     $sql_loginsert .= "(NULL , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $db_loginsert = (sqlStatement(
@@ -282,10 +267,8 @@ function cron_setmessage($prow, $db_email_msg)
 {
     // larry :: debug
     //echo "\nDEBUG :cron_setmessage: set message ".$prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname']."\n";
-
     $NAME = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'];
     //echo "DEBUG :1: name=".$NAME."\n";
-
     $PROVIDER = $prow['user_name'];
     $dtWrk = strtotime($prow['pc_eventDate'] . ' ' . $prow['pc_startTime']);
     $DATE = date('l, d M Y', $dtWrk);
@@ -296,7 +279,6 @@ function cron_setmessage($prow, $db_email_msg)
     $message = str_replace($find_array, $replace_array, $db_email_msg['message']);
     // larry :: debug
     //echo "DEBUG :2: msg=".$message."\n";
-
     return $message;
 }
 
