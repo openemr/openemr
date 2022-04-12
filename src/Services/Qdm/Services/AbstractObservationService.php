@@ -71,7 +71,7 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
             ]),
         ]);
 
-        $qdmModel->result = $this->makeReault($record);
+        $qdmModel->result = $this->makeResult($record);
 
         // If the reason status is "negated" then add the code to negation rationale, otherwise add to reason
         if ($record['ob_reason_status'] == self::NEGATED) {
