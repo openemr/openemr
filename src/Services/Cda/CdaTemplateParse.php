@@ -1141,7 +1141,7 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_high'] = $date_high;
             }
 
-            $this->templateData['field_name_value_array']['care_plan'][$i]['reason_status'] = (($entry['act']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
+            $this->templateData['field_name_value_array']['care_plan'][$i]['reason_status'] = (($entry['observation']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
             $this->templateData['entry_identification_array']['care_plan'][$i] = $i;
         } elseif (
             !empty($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'])
@@ -1199,7 +1199,7 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_high'] = $date_high;
             }
 
-            $this->templateData['field_name_value_array']['care_plan'][$i]['reason_status'] = (($entry['act']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
+            $this->templateData['field_name_value_array']['care_plan'][$i]['reason_status'] = (($entry['substanceAdministration']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
             $this->templateData['entry_identification_array']['care_plan'][$i] = $i;
         }
     }
