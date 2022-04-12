@@ -3077,7 +3077,7 @@ paths:
       security:
         -
           openemr_auth: []
-  '/api/patient/transaction/{tid}':
+  '/api/transaction/{tid}':
     put:
       tags:
         - standard
@@ -3106,7 +3106,7 @@ paths:
       security:
         -
           openemr_auth: []
-  /api/user/transaction_type:
+  /api/transaction_type:
     get:
       tags:
         - standard

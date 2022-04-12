@@ -6410,7 +6410,7 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\PUT(
-     *      path="/api/patient/transaction/{tid}",
+     *      path="/api/transaction/{tid}",
      *      description="Updates a transaction",
      *      tags={"standard"},
      *      @OA\Parameter(
@@ -6444,7 +6444,7 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /api/patient/transaction/:tid" => function ($tid) {
+    "PUT /api/transaction/:tid" => function ($tid) {
         RestConfig::authorization_check("patients", "trans");
          $data = (array) (json_decode(file_get_contents("php://input")));
          $return = (new TransactionRestController())->UpdateTransaction($tid, $data);
@@ -6454,7 +6454,7 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
-     *      path="/api/user/transaction_type",
+     *      path="/api/transaction_type",
      *      description="Get a list of transaction types",
      *      tags={"standard"},
      *      @OA\Response(
@@ -6473,7 +6473,7 @@ RestConfig::$ROUTE_MAP = array(
      *  )
      */
 
-    "GET /patient/transaction_type" => function () {
+    "GET /api/transaction_type" => function () {
         $return = (new TransactionRestController())->getTransactionTypes();
         RestConfig::apiLog($return);
         return $return;
