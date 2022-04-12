@@ -127,7 +127,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     }
 
     if ($old_key == "medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
-        $display_current_medications_below = 1;
+        $display_current_medications_below = 0;
 
         if ($GLOBALS['erx_enable']) {
             $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
@@ -322,8 +322,18 @@ if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx'
 
     if ($GLOBALS['erx_enable']) {
         $viewArgs['title'] = 'Prescription History';
-        $viewArgs['btnLabel'] = 'Add/Edit eRx';
+        $viewArgs['btnLabel'] = 'Add';
         $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
+    } elseif ($GLOBALS['weno_rx_enable']) {
+        // weno plus button which opens their iframe
+        $viewArgs['weno'] = true;
+        $viewArgs['title'] = "WENO ComposeRx";
+        $viewArgs['btnLabel'] = 'Add';
+        $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
+        $viewArgs['oemrBtnClass'] = "iframe rx_modal";
+        $viewArgs['oemrLinkMethod'] = "javascript";
+        $viewArgs['oemrBtnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+        $viewArgs['oemrBtnIcon'] = "fa-pencil-alt";
     } else {
         $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
         $viewArgs['linkMethod'] = "javascript";
