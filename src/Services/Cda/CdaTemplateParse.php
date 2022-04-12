@@ -211,16 +211,18 @@ class CdaTemplateParse
             !empty($entry['observation']['value']['code'] ?? null)
             || !empty($entry['observation']['code']['code'] ?? null)
             || (!empty($entry['observation']['value']['nullFlavor'] ?? null) && empty($entry['observation']['value']['code'] ?? null))
-            || (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null) && $entry['observation']['entryRelationship']['typeCode'] ?? null === 'RSON')
+            || (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null) && ($entry['observation']['entryRelationship']['typeCode'] ?? null) === 'RSON')
         ) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['observation_preformed'])) {
                 $i += count($this->templateData['field_name_value_array']['observation_preformed']);
             }
-
+            $is_negated = !empty($entry['observation']['negationInd'] ?? false);
             $ob_type = 'assessment'; // default and 2.16.840.1.113883.10.20.24.3.144
             if ($this->currentOid === '2.16.840.1.113883.10.20.24.3.18') {
                 $ob_type = 'procedure_diagnostic';
+            } elseif ($this->currentOid === '2.16.840.1.113883.10.20.24.3.59') {
+                $ob_type = 'physical_exam_performed';
             }
 
             $ob_code = $entry['observation']['code']['code'];
@@ -277,7 +279,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_code_text'] = $result_code['code_text'] ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_code_unit'] = $result_unit ?? '';
 
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_status'] = $reason_status ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_status'] = $is_negated ? 'negated' : ($reason_status ?? '');
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_code'] = $reason_code['formatted_code'] ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['reason_code_text'] = $reason_code['code_text'] ?? '';
 
@@ -934,6 +936,9 @@ class CdaTemplateParse
 
     public function fetchPhysicalExamPerformedData($entry)
     {
+        // create an observation for this exam.
+        $this->fetchObservationPerformedData($entry);
+        // and a vital in vital forms.
         if (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['vital_sign'])) {

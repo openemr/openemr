@@ -279,3 +279,8 @@ ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_c
 ALTER TABLE `insurance_companies` CHANGE `ins_type_code` `ins_type_code` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `insurance_companies` CHANGE `inactive` `inactive` TINYINT(1) NOT NULL DEFAULT '0';
 #EndIf
+
+#IfNotColumnType form_observation date datetime
+ALTER TABLE `form_observation` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `form_observation` CHANGE `ob_code` `ob_code` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_type` `ob_type` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_reason_code` `ob_reason_code` VARCHAR(64) NULL DEFAULT NULL;
+#EndIf

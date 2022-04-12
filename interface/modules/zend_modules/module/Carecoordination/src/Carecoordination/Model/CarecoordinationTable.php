@@ -319,6 +319,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $e = 1;
         $f = 1;
         $g = 1;
+        $h = 1;
         $p = 1; // payer QRDA
 
         $arr_procedure_res = array();
@@ -1745,6 +1746,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     /**
      * Method for review discard. Soft delete.
+     *
      * @param $data
      * @return void
      */
@@ -1759,8 +1761,10 @@ class CarecoordinationTable extends AbstractTableGateway
                       SET audit_master_approval_status='3'
                       WHERE audit_master_id=?", array($data['audit_master_id']));
     }
+
     /**
      * Method hard delete audit data.
+     *
      * @param $data
      * @return void
      */

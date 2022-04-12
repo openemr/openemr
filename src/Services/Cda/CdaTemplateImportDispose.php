@@ -1648,16 +1648,17 @@ class CdaTemplateImportDispose
         }
 
         foreach ($observation_preformed_array as $key => $value) {
-            if ($value['date'] != '') {
-                $date = $carecoordinationTable->formatDate($value['date']);
+            if (!empty($value['date'])) {
+                $enc_date = date("Y-m-d", strtotime($value['date']));
+                $date = date("Y-m-d H:i:s", strtotime($value['date']));
             } else {
                 $date = date('Y-m-d');
             }
 
             $query_sel_enc = 'SELECT encounter
                             FROM form_encounter
-                            WHERE date=? AND pid=?';
-            $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array($date, $pid));
+                            WHERE date LIKE ? AND pid=?';
+            $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array('%' . $enc_date . '%', $pid));
 
             if ($res_query_sel_enc->count() == 0) {
                 $res_enc = $appTable->zQuery('SELECT encounter
@@ -1704,6 +1705,9 @@ class CdaTemplateImportDispose
                 )
             );
             // insert form for observation
+            if (($observation_preformed_array[$key - 1]['date'] ?? null) == $value['date']) {
+                continue;
+            }
             if (count($observation_preformed_array) > 0) {
                 $query = 'INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)';
                 $appTable->zQuery($query, array($date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation'));
