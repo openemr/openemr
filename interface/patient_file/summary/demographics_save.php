@@ -73,7 +73,9 @@ while ($frow = sqlFetchArray($fres)) {
 }
 
 updatePatientData($pid, $newdata['patient_data']);
-updateEmployerData($pid, $newdata['employer_data']);
+if (!$GLOBALS['omit_employers']) {
+    updateEmployerData($pid, $newdata['employer_data']);
+}
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
