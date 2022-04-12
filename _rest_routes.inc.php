@@ -137,10 +137,10 @@
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
  *              "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
- *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
- *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "user/transaction.read": "Read transactions the user has access to (api:oemr)",
  *              "user/transaction.write": "Write transactions the user has access to (api:oemr)",
+ *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
+ *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
  *              "patient/encounter.read": "Read encounters the patient has access to (api:port)",
  *              "patient/patient.read": "Write encounters the patient has access to (api:port)"
