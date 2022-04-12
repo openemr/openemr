@@ -4,6 +4,9 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationInsuranceService;
@@ -11,6 +14,7 @@ use OpenEMR\Services\FHIR\Organization\FhirOrganizationProcedureProviderService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -143,6 +147,22 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
     {
         $ref = $this->facilityService->getPrimaryBusinessEntityReference();
         return $ref;
+    }
+
+    /**
+     * Returns the organization that we can find connected to the user.
+     * @param FHIRReference $user Practitioner that we want to return the corresponding organization
+     * @return FHIRReference|null
+     */
+    public function getOrganizationReferenceFromUserReference(FHIRReference $user)
+    {
+        $referenceUuid = UtilsService::getUuidFromReference($user);
+        if ($user->getType() == (new FHIRPractitioner())->get_fhirElementName()) {
+            return $this->facilityService->getOrganizationReferenceForUser($referenceUuid);
+        } else {
+            // TODO: if we need to support person, patient, or another mapping put that here
+            return null;
+        }
     }
 
     /**

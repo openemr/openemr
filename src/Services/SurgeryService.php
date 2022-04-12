@@ -70,7 +70,7 @@ class SurgeryService extends BaseService
                         ,`uuid`
                         ,`pid`
                         ,`comments`
-                        ,`username` as surgery_recorder
+                        ,`user` as surgery_recorder
                     FROM lists
                     WHERE
                         `type` = 'surgery'

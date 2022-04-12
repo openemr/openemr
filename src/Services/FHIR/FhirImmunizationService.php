@@ -3,6 +3,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationPerformer;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -165,7 +166,9 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
-            $immunizationResource->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+            $performer = new FHIRImmunizationPerformer();
+            $performer->setActor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+            $immunizationResource->addPerformer($performer);
         }
 
         // education is failing ONC validation, since we don't need it for ONC we are going to leave it off for now.
@@ -201,11 +204,12 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $performer = null;
+        $author = null;
         if (!empty($dataRecord->getPerformer())) {
             $performer = current($dataRecord->getPerformer());
+            $author = $performer->getActor();
         }
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {
