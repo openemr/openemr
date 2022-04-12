@@ -116,6 +116,8 @@ $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
+<!-- Infeg setup header at select2. -->
+<?php Header::setupHeader(['common', 'knockout', 'select2']);?>
 <title><?php echo $eid ? xlt('Edit') : xlt('Add New{{Event}}') ?> <?php echo xlt('Event');?></title>
 
 <!-- validation library -->
@@ -1564,7 +1566,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
             }
         }
         // build the selection tool
-        echo "<select class='form-control' name='form_provider[]' id='provd' multiple='multiple' size='5' >";
+        echo "<select class='provider form-control' name='form_provider[]' id='provd' multiple='multiple' size='5' >";
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . attr($urow['id']) . "'";
             if ($userid) {
@@ -1608,7 +1610,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
                 $defaultProvider = $userid;
             }
         }
-        echo "<select class='form-control' name='form_provider' id='provd'>";
+        echo "<select class='provider form-control' name='form_provider' id='provd'>";
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . attr($urow['id']) . "'";
             if ($urow['id'] == $defaultProvider) {
@@ -1817,6 +1819,10 @@ if (empty($_GET['prov'])) { ?>
 <!-- form support functions-->
 <script>
 /* Form init functions */
+$(document).ready(function(){
+    /*Infeg Initialize select2*/
+    $(".provider").select2();
+});
 <?php if ($eid) { ?>
     set_display();
 <?php } else { ?>

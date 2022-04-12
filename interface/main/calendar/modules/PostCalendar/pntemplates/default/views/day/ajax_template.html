@@ -21,7 +21,9 @@
 $timeslotHeightVal=20;
 $timeslotHeightUnit="px";
 [-/php-]
-
+[-php-]
+use OpenEMR\Core\Header;
+[-/php-]
 <script>
 
  // This is called from the event editor popup.
@@ -151,6 +153,10 @@ if ( $_SESSION['pc_facility'] ) {
 $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
 $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 [-/php-]
+
+<head>
+  [-php-]Header::setupHeader(['common', 'knockout', 'select2']);[-/php-]
+</head>
 <div id="wrapper">
     <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
       <div class="container-fluid sticky-top">
@@ -929,6 +935,11 @@ echo "</div>\n";
 </div>
 
 <script>
+    $(document).ready(function(){
+    /*Infeg Initialize select2*/
+    $(".view2").select2();
+    });
+
     var tsHeight=[-php-] echo js_escape($timeslotHeightVal.$timeslotHeightUnit); [-/php-];
     var tsHeightNum=[-php-] echo js_escape($timeslotHeightVal); [-/php-];
 
