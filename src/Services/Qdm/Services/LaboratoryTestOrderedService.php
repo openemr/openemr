@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\LaboratoryTestOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
@@ -21,23 +20,8 @@ class LaboratoryTestOrderedService extends AbstractCarePlanService implements Qd
         return AbstractCarePlanService::CARE_PLAN_TYPE_TEST_OR_ORDER;
     }
 
-    public function makeQdmModel(array $record)
+    public function getModelClass()
     {
-        $model = new LaboratoryTestOrder([
-            'authorDatetime' => new DateTime(
-                [
-                    'date' => $record['date']
-                ]
-            ),
-        ]);
-
-        $model->addCode($this->makeQdmCode($record['code']));
-
-        // If there is a reason noted why this plan was NOT done, add a negation
-        if (!empty($record['reason_code'])) {
-            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
-        }
-
-        return $model;
+        return LaboratoryTestOrder::class;
     }
 }

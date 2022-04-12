@@ -14,6 +14,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
 use OpenEMR\Cqm\Qdm\BaseTypes\Address;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Telcom;
 use OpenEMR\Cqm\Qdm\Id;
 use OpenEMR\Cqm\Qdm\Identifier;
@@ -21,16 +22,22 @@ use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicBirthdate;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicEthnicity;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicExpired;
+use OpenEMR\Cqm\Qdm\PatientCharacteristicPayer;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicRace;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicSex;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
+    public function getPatientIdColumn()
+    {
+        return 'P.pid';
+    }
+
     public function getSqlStatement()
     {
         $sql = "SELECT
-                    pid,
+                    P.pid,
                     fname,
                     lname,
                     DOB,
@@ -48,11 +55,14 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     P.phone_cell,
                     P.country_code,
                     P.deceased_date,
-                    P.deceased_reason
+                    P.deceased_reason,
+                    INS.date AS payer_eff_date,
+                    INS.policy_number AS payer_code
             FROM patient_data P
             LEFT JOIN list_options RACE ON RACE.list_id = 'race' AND P.race = RACE.option_id
             LEFT JOIN list_options ETHN ON ETHN.list_id = 'ethnicity' AND P.ethnicity = ETHN.option_id
             LEFT JOIN list_options SEX ON SEX.list_id = 'sex' AND P.sex = SEX.option_id
+            LEFT JOIN insurance_data INS ON P.pid = INS.pid
             ";
         return $sql;
     }
@@ -161,6 +171,16 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
             ]);
             $qdmPatient->add_data_element($pcexp);
         }
+
+        $payer = new PatientCharacteristicPayer([
+            'relevantPeriod' => new Interval([
+                'low' => new DateTime([
+                    'date' => $record['payer_eff_date']
+                ]),
+                'high' => null // TODO We don't have an end-date for insurance?
+            ]),
+        ]);
+        $qdmPatient->add_data_element($payer);
 
         // Reference: https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.6.238
         $pcr = new PatientCharacteristicRace(
