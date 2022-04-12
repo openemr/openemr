@@ -592,7 +592,7 @@ foreach (explode(',', $given) as $item) {
     <!-- Add Font stuff for the look and feel.  -->
 
     <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener', 'dialog'  ]); ?>
-    
+
     <link rel="stylesheet" href="<?php echo $GLOBALS['rootdir']; ?>/forms/<?php echo $form_folder; ?>/css/style.css">
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
@@ -621,7 +621,7 @@ foreach (explode(',', $given) as $item) {
                         $title = "Medications";
                     }
 
-                    if ($key == "Problem") {
+                    if ($key == "PMH") {
                         $key_short_title = "PMH";
                         $title = "Past Medical History";
                     }
@@ -635,8 +635,16 @@ foreach (explode(',', $given) as $item) {
                         $key_short_title = "Soc";
                         $title = "Social History";
                     }
+                    if ($key == "FH") {
+                        $key_short_title = "FH";
+                        $title = "Family History";
+                    }
+                    if ($key == "ROS") {
+                        $key_short_title = "ROS";
+                        $title = "Review of Systems";
+                    }
                     if ($key == "Allergy") {
-                        $key_short_title = "All";
+                        $key_short_title = "Aller";
                         $title = "Allergies";
                     }
                     if ($key == "Eye Meds") {
@@ -672,7 +680,7 @@ foreach (explode(',', $given) as $item) {
                         box-sizing: border-box;
                         display: inline-block;
                     }
-                    
+
                 </style>
                 <table class='border-0 w-100 small'>
                     <tr id='row_quick_picks'>
