@@ -188,22 +188,18 @@ class CdaTemplateParse
 
     public function fetchPaymentSourceData($entry)
     {
-        // @TODO I have no clue where to put this. Begin and end of insurance coverage.
-        error_log('Todo for Missing QDM: Patient Characteristic Payer template');
-        /*
-           <entry>
-              <!-- Patient Characteristic Payer -->
-              <observation classCode="OBS" moodCode="EVN">
-                <templateId root="2.16.840.1.113883.10.20.24.3.55"/>
-                <id root="aaf72040-92ef-0138-3932-2cde48001122"/>
-                <code code="48768-6" codeSystemName="LOINC" codeSystem="2.16.840.1.113883.6.1" displayName="Payment source"/>
-                <statusCode code="completed"/>
-                  <!-- QDM Attribute: Relevant Period -->
-                  <effectiveTime><low value='20020221150000'/><high nullFlavor='UNK'/></effectiveTime>
-                  <value xsi:type="CD" code="1" codeSystem="2.16.840.1.113883.3.221.5" codeSystemName="Source of Payment Typology"/>
-              </observation>
-            </entry>
-        */
+        if (!empty($entry['observation']['effectiveTime']['low']['value'] ?? null)) {
+            $i = 1;
+            if (!empty($this->templateData['field_name_value_array']['payer'])) {
+                $i += count($this->templateData['field_name_value_array']['payer']);
+            }
+            $this->templateData['field_name_value_array']['payer'][$i]['status'] = $entry['observation']['statusCode']['code'] ?? null;
+            $this->templateData['field_name_value_array']['payer'][$i]['code'] = $entry['observation']['value']['code'] ?? null;
+            $this->templateData['field_name_value_array']['payer'][$i]['low_date'] = $entry['observation']['effectiveTime']['low']['value'] ?? null;
+            $this->templateData['field_name_value_array']['payer'][$i]['high_date'] = $entry['observation']['effectiveTime']['high']['value'] ?? null;
+
+            $this->templateData['entry_identification_array']['payer'][$i] = $i;
+        }
     }
 
     /**

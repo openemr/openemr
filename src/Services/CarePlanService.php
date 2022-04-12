@@ -52,7 +52,7 @@ class CarePlanService extends BaseService
 
     function getUuidFields(): array
     {
-        return ['puuid', 'euuid'];
+        return ['puuid', 'euuid', 'provider_uuid'];
     }
 
     public function __construct($carePlanType = self::TYPE_PLAN_OF_CARE)

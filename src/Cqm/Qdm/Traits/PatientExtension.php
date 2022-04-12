@@ -18,9 +18,15 @@ trait PatientExtension
     public $patientName;
 
     /**
-     * @var Identifier
+     * @var Identifier Used to store our OpenEMR PID
      */
     public $id;
+
+    /**
+     * @var Identifier BSON representation that is preserved through cqm-execution
+     */
+    public $_id;
+
     public $addresses = [];
     public $telcoms = [];
 
@@ -37,6 +43,27 @@ trait PatientExtension
     public function add_data_element($dataElement)
     {
         $this->dataElements[] = $dataElement;
+    }
+
+    /**
+     * @param null $category
+     * @param null $status
+     * @return mixed
+     *
+     * Return the first actual code for this data element code. This is used for building a hash count of codes
+     */
+    public function extract_first_code($category = null, $status = null)
+    {
+        $code = null;
+        $data_elements = $this->get_data_elements($category, $status);
+        if (count($data_elements) > 0) {
+            $first_element = $data_elements[0];
+            if (count($first_element->dataElementCodes) > 0) {
+                $first_code = $first_element->dataElementCodes[0];
+                $code = $first_code->code;
+            }
+        }
+        return $code;
     }
 
     // Returns an array of elements that exist on this patient. Optionally

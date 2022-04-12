@@ -51,7 +51,7 @@ class InsuranceCompanyService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql  = " SELECT i.id,";
+        $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
         $sql .= "        i.attn,";
@@ -135,7 +135,7 @@ class InsuranceCompanyService extends BaseService
         }
 
         $sqlBindArray = array();
-        $sql  = " SELECT i.id,";
+        $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
         $sql .= "        i.attn,";
@@ -216,7 +216,7 @@ class InsuranceCompanyService extends BaseService
     {
         $freshId = $this->getFreshId("id", "insurance_companies");
 
-        $sql  = " INSERT INTO insurance_companies SET";
+        $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
@@ -239,14 +239,18 @@ class InsuranceCompanyService extends BaseService
                 $data["alt_cms_id"]
             )
         );
-
-        if (!$insuranceResults) {
+        // insurance_company doesn't have an auto increment primary
+        // therefore a good insert will return false. You might get an error code on fail!
+        if ($insuranceResults) {
             return false;
         }
 
-        $addressesResults = $this->addressService->insert($data, $freshId);
+        $addressesResults = false;
+        if (!empty($data["city"] ?? null) && !empty($data["state"] ?? null)) {
+            $addressesResults = $this->addressService->insert($data, $freshId);
+        }
 
-        if (!$addressesResults) {
+        if ($addressesResults) {
             return false;
         }
 
@@ -255,7 +259,7 @@ class InsuranceCompanyService extends BaseService
 
     public function update($data, $iid)
     {
-        $sql  = " UPDATE insurance_companies SET";
+        $sql = " UPDATE insurance_companies SET";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
         $sql .= "     cms_id=?,";
