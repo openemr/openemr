@@ -325,14 +325,15 @@ if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx'
         $viewArgs['btnLabel'] = 'Add';
         $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
     } elseif ($GLOBALS['weno_rx_enable']) {
-        // preserve ability to create openemr prescriptions
-        // https://community.open-emr.org/t/weno-6-1-0-error/18106/6
-        $viewArgs['linkMethod'] = "javascript";
-        $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
-        $viewArgs['btnClass'] = "iframe rx_modal";
         // weno plus button which opens their iframe
         $viewArgs['weno'] = true;
-        $viewArgs['wenoBtnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
+        $viewArgs['title'] = "WENO ComposeRx";
+        $viewArgs['btnLabel'] = 'Add';
+        $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
+        $viewArgs['oemrBtnClass'] = "iframe rx_modal";
+        $viewArgs['oemrLinkMethod'] = "javascript";
+        $viewArgs['oemrBtnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+        $viewArgs['oemrBtnIcon'] = "fa-pencil-alt";
     } else {
         $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
         $viewArgs['linkMethod'] = "javascript";
