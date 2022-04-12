@@ -26,10 +26,13 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     FE.pid,
                     FE.date,
                     FE.encounter_type_code,
+                    FE.discharge_disposition,
+                    L.codes AS discharge_dispo_code,
                     C.pc_duration
                 FROM form_encounter FE
-                LEFT JOIN openemr_postcalendar_categories C
-                ON FE.pc_catid = C.pc_catid";
+                LEFT JOIN openemr_postcalendar_categories C ON FE.pc_catid = C.pc_catid
+                LEFT JOIN list_options L ON FE.discharge_disposition = L.option_id AND L.list_id = 'discharge-disposition'
+                ";
 
         return $sql;
     }
@@ -67,7 +70,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                 ]
             ),
             'admissionSource' => null,
-            'dischargeDisposition' => null,
+            'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,
             'facilityLocations' => [],
             'lengthOfStay' => new Quantity(
                 [
