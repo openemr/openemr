@@ -22,38 +22,26 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
         return AbstractCarePlanService::CARE_PLAN_TYPE_PLANNED_MED_ACTIVITY;
     }
 
+    public function getModelClass()
+    {
+        return MedicationOrder::class;
+    }
+
     public function makeQdmModel(array $record)
     {
-        $model = new MedicationOrder([
-            'relevantPeriod' => new Interval(
-                [
-                    'low' =>  new DateTime(
-                        [
-                            'date' => $record['date']
-                        ]
-                    ),
-                    'high' => new DateTime(
-                        [
-                            'date' => $record['date']
-                        ]
-                    ),
-                    'lowClosed' => $record['date'] ? true : false,
-                    'highClosed' => $record['date'] ? true : false
-                ]
-            ),
-            'authorDatetime' => new DateTime(
-                [
-                    'date' => $record['date']
-                ]
-            ),
+        $model = parent::makeQdmModel($record);
+
+        // The medication order has an additional field for relevantPeriod that is not in the parent
+        $model->relevantPeriod = new Interval([
+            'low' =>  new DateTime([
+                'date' => $record['date']
+            ]),
+            'high' => new DateTime([
+                'date' => $record['date']
+            ]),
+            'lowClosed' => $record['date'] ? true : false,
+            'highClosed' => $record['date'] ? true : false
         ]);
-
-        $model->addCode($this->makeQdmCode($record['code']));
-
-        // If there is a reason noted why this plan was NOT done, add a negation
-        if (!empty($record['reason_code'])) {
-            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
-        }
 
         return $model;
     }
