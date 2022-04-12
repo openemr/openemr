@@ -4669,58 +4669,6 @@ paths:
       security:
         -
           openemr_auth: []
-  /fhir/Medication:
-    get:
-      tags:
-        - fhir
-      description: 'Returns a list of Medication resources.'
-      responses:
-        '200':
-          description: 'Standard Response'
-          content:
-            application/json:
-              schema:
-                properties:
-                  'json object': { description: 'FHIR Json object.', type: object }
-                type: object
-                example:
-                  meta: { lastUpdated: '2021-09-14T09:13:51' }
-                  resourceType: Bundle
-                  type: collection
-                  total: 0
-                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/Medication' }]
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      security:
-        -
-          openemr_auth: []
-  '/fhir/Medication/{uuid}':
-    get:
-      tags:
-        - fhir
-      description: 'Returns a single Medication resource.'
-      parameters:
-        -
-          name: uuid
-          in: path
-          description: 'The uuid for the Medication resource.'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/standard'
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-        '404':
-          $ref: '#/components/responses/uuidnotfound'
-      security:
-        -
-          openemr_auth: []
   /fhir/MedicationRequest:
     get:
       tags:
@@ -5043,7 +4991,7 @@ paths:
               type:
                 -
                   coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }]
-              name: 'Your Clinic Name Here'
+              name: 'Your Clinic Name Here Hey'
               telecom:
                 -
                   system: phone
@@ -5056,14 +5004,25 @@ paths:
               address:
                 - null
       responses:
-        '201':
+        '200':
           description: 'Standard Response'
           content:
             application/json:
               schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
                 example:
-                  id: 14
-                  uuid: 95f217c1-258c-44ca-bf11-909dce369574
+                  id: 95f0e672-be37-4c73-95c9-649c2d200018
+                  meta: { versionId: '1', lastUpdated: '2022-03-30T07:43:23+00:00' }
+                  resourceType: Organization
+                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>' }
+                  identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '1234567890' }]
+                  active: true
+                  type: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }] }]
+                  name: 'Your Clinic Name Here Now'
+                  telecom: [{ system: phone, value: 000-000-0000, use: work }, { system: fax, value: 000-000-0000, use: work }]
+                  address: [null]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5149,7 +5108,7 @@ paths:
               type:
                 -
                   coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }]
-              name: 'Your Clinic Name Here Hey'
+              name: 'Your Clinic Name Here'
               telecom:
                 -
                   system: phone
@@ -5162,25 +5121,14 @@ paths:
               address:
                 - null
       responses:
-        '200':
+        '201':
           description: 'Standard Response'
           content:
             application/json:
               schema:
-                properties:
-                  'json object': { description: 'FHIR Json object.', type: object }
-                type: object
                 example:
-                  id: 95f0e672-be37-4c73-95c9-649c2d200018
-                  meta: { versionId: '1', lastUpdated: '2022-03-30T07:43:23+00:00' }
-                  resourceType: Organization
-                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>' }
-                  identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '1234567890' }]
-                  active: true
-                  type: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }] }]
-                  name: 'Your Clinic Name Here Now'
-                  telecom: [{ system: phone, value: 000-000-0000, use: work }, { system: fax, value: 000-000-0000, use: work }]
-                  address: [null]
+                  id: 14
+                  uuid: 95f217c1-258c-44ca-bf11-909dce369574
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5359,14 +5307,26 @@ paths:
                 -
                   language: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason', code: unknown, display: Unknown }] }
       responses:
-        '201':
+        '200':
           description: 'Standard Response'
           content:
             application/json:
               schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
                 example:
-                  id: 2
-                  uuid: 95f2ad04-5834-4243-8838-e396a7faadbf
+                  id: 95f22ff4-dd25-4290-8b52-1dd2fedf8e54
+                  meta: { versionId: '1', lastUpdated: '2022-03-31T02:48:28+00:00' }
+                  resourceType: Patient
+                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>' }
+                  extension: [{ valueCode: F, url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex' }, { extension: [{ valueCoding: { system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: Unknown }, url: ombCategory }, { valueString: Unknown, url: text }], url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race' }]
+                  identifier: [{ use: official, type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: PT }] }, system: 'http://terminology.hl7.org/CodeSystem/v2-0203', value: '1' }]
+                  active: true
+                  name: [{ use: official, family: Smith, given: [Brenda] }]
+                  gender: female
+                  birthDate: '2017-03-10'
+                  communication: [{ language: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason', code: unknown, display: Unknown }] } }]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5471,26 +5431,14 @@ paths:
                 -
                   language: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason', code: unknown, display: Unknown }] }
       responses:
-        '200':
+        '201':
           description: 'Standard Response'
           content:
             application/json:
               schema:
-                properties:
-                  'json object': { description: 'FHIR Json object.', type: object }
-                type: object
                 example:
-                  id: 95f22ff4-dd25-4290-8b52-1dd2fedf8e54
-                  meta: { versionId: '1', lastUpdated: '2022-03-31T02:48:28+00:00' }
-                  resourceType: Patient
-                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>' }
-                  extension: [{ valueCode: F, url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex' }, { extension: [{ valueCoding: { system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: Unknown }, url: ombCategory }, { valueString: Unknown, url: text }], url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race' }]
-                  identifier: [{ use: official, type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: PT }] }, system: 'http://terminology.hl7.org/CodeSystem/v2-0203', value: '1' }]
-                  active: true
-                  name: [{ use: official, family: Smith, given: [Brenda] }]
-                  gender: female
-                  birthDate: '2017-03-10'
-                  communication: [{ language: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason', code: unknown, display: Unknown }] } }]
+                  id: 2
+                  uuid: 95f2ad04-5834-4243-8838-e396a7faadbf
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5784,16 +5732,24 @@ paths:
                 -
                   use: official
                   family: Smith
-                  given: [Billy]
+                  given: [Danny]
       responses:
-        '201':
+        '200':
           description: 'Standard Response'
           content:
             application/json:
               schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
                 example:
-                  id: 5
-                  uuid: 95f294d7-e14c-441d-81a6-309fe369ee21
+                  id: 9473b0cf-e969-4eaa-8044-51037767fa4f
+                  meta: { versionId: '1', lastUpdated: '2021-09-21T17:41:57+00:00' }
+                  resourceType: Practitioner
+                  text: { status: generated, div: '<div xmlns="http://www.w3.org/1999/xhtml"> <p>Billy Smith</p></div>' }
+                  identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '11223344554543' }]
+                  active: true
+                  name: [{ use: official, family: Smith, given: [Danny] }]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5877,24 +5833,16 @@ paths:
                 -
                   use: official
                   family: Smith
-                  given: [Danny]
+                  given: [Billy]
       responses:
-        '200':
+        '201':
           description: 'Standard Response'
           content:
             application/json:
               schema:
-                properties:
-                  'json object': { description: 'FHIR Json object.', type: object }
-                type: object
                 example:
-                  id: 9473b0cf-e969-4eaa-8044-51037767fa4f
-                  meta: { versionId: '1', lastUpdated: '2021-09-21T17:41:57+00:00' }
-                  resourceType: Practitioner
-                  text: { status: generated, div: '<div xmlns="http://www.w3.org/1999/xhtml"> <p>Billy Smith</p></div>' }
-                  identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '11223344554543' }]
-                  active: true
-                  name: [{ use: official, family: Smith, given: [Danny] }]
+                  id: 5
+                  uuid: 95f294d7-e14c-441d-81a6-309fe369ee21
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -7204,7 +7152,6 @@ components:
             patient/Goal.read: 'Read goal resources for the current patient (api:fhir)'
             patient/Immunization.read: 'Read immunization resources for the current patient (api:fhir)'
             patient/Location.read: 'Read location resources for the current patient (api:fhir)'
-            patient/Medication.read: 'Read medication resources for the current patient (api:fhir)'
             patient/MedicationRequest.read: 'Read medication request resources for the current patient (api:fhir)'
             patient/Observation.read: 'Read observation resources for the current patient (api:fhir)'
             patient/Organization.read: 'Read organization resources for the current patient (api:fhir)'
@@ -7227,7 +7174,6 @@ components:
             system/Group.read: 'Read all group resources in the system (api:fhir)'
             system/Immunization.read: 'Read all immunization resources in the system (api:fhir)'
             system/Location.read: 'Read all location resources in the system (api:fhir)'
-            system/Medication.read: 'Read all medication resources in the system (api:fhir)'
             system/MedicationRequest.read: 'Read all medication request resources in the system (api:fhir)'
             system/Observation.read: 'Read all observation resources in the system (api:fhir)'
             system/Organization.read: 'Read all organization resources in the system (api:fhir)'
@@ -7249,7 +7195,6 @@ components:
             user/Goal.read: 'Read all goal resources the user has access to (api:fhir)'
             user/Immunization.read: 'Read all immunization resources the user has access to (api:fhir)'
             user/Location.read: 'Read all location resources the user has access to (api:fhir)'
-            user/Medication.read: 'Read all medication resources the user has access to (api:fhir)'
             user/MedicationRequest.read: 'Read all medication request resources the user has access to (api:fhir)'
             user/Observation.read: 'Read all observation resources the user has access to (api:fhir)'
             user/Organization.read: 'Read all organization resources the user has access to (api:fhir)'
