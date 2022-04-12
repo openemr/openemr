@@ -11535,7 +11535,8 @@ CREATE TABLE `form_care_plan` (
   `reason_code` varchar(31) DEFAULT NULL,
   `reason_description` text,
   `reason_date_low` datetime DEFAULT NULL,
-  `reason_date_high` datetime DEFAULT NULL
+  `reason_date_high` datetime DEFAULT NULL,
+  `reason_status` varchar(31) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

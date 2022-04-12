@@ -685,6 +685,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_description'] = $newdata['care_plan']['reason_description'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_date_low'] = $newdata['care_plan']['reason_date_low'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_date_high'] = $newdata['care_plan']['reason_date_high'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];

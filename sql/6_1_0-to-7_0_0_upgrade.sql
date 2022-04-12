@@ -284,3 +284,7 @@ ALTER TABLE `insurance_companies` CHANGE `inactive` `inactive` TINYINT(1) NOT NU
 ALTER TABLE `form_observation` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `form_observation` CHANGE `ob_code` `ob_code` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_type` `ob_type` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_reason_code` `ob_reason_code` VARCHAR(64) NULL DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn form_care_plan reason_status
+ALTER TABLE `form_care_plan` ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL;
+#EndIf
