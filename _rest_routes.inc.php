@@ -6360,7 +6360,8 @@ RestConfig::$ROUTE_MAP = array(
      *          "authorization":"Auth_123",
      *          "visits": "1",
      *          "validFrom": "2022-01-02",
-     *          "validThrough": "2022-01-03"
+     *          "validThrough": "2022-01-03",
+     *          "body": "Reason 1"
      *      }
      *  )
      */

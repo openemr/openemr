@@ -6835,6 +6835,7 @@ components:
         visits: '1'
         validFrom: '2022-01-02'
         validThrough: '2022-01-03'
+        body: 'Reason 1'
   responses:
     standard:
       description: 'Standard Response'
