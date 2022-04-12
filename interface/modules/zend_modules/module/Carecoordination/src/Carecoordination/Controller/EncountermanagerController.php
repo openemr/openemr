@@ -65,9 +65,10 @@ class EncountermanagerController extends AbstractActionController
 
         $downloadccda = $request->getPost('downloadccda') ?: $request->getQuery()->downloadccda;
         $downloadqrda = $request->getPost('downloadqrda') ?: $request->getQuery()->downloadqrda;
+        $downloadqrda3 = $request->getPost('downloadqrda3') ?: $request->getQuery()->downloadqrda3;
         $latest_ccda = $request->getPost('latestccda') ?: $this->getRequest()->getQuery('latest_ccda');
 
-        if (($downloadccda == 'download_ccda') || ($downloadqrda == 'download_qrda')) {
+        if (($downloadccda == 'download_ccda') || ($downloadqrda == 'download_qrda') || ($downloadqrda3 == 'download_qrda3')) {
             $pids = '';
             if ($request->getQuery('pid_ccda')) {
                 $pid = $request->getQuery('pid_ccda');
@@ -104,6 +105,14 @@ class EncountermanagerController extends AbstractActionController
                     'pids' => $pids,
                     'view' => 1,
                     'downloadqrda' => $downloadqrda
+                );
+            }
+            if ($downloadqrda3 == 'download_qrda3') {
+                $send_params = array(
+                    'action' => 'index',
+                    'pids' => $pids,
+                    'view' => 1,
+                    'downloadqrda3' => $downloadqrda3
                 );
             }
             $this->forward()->dispatch(EncounterccdadispatchController::class, $send_params);

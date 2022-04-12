@@ -20,6 +20,7 @@ use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicBirthdate;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicEthnicity;
+use OpenEMR\Cqm\Qdm\PatientCharacteristicExpired;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicRace;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicSex;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
@@ -45,7 +46,9 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     P.state,
                     P.phone_home,
                     P.phone_cell,
-                    P.country_code
+                    P.country_code,
+                    P.deceased_date,
+                    P.deceased_reason
             FROM patient_data P
             LEFT JOIN list_options RACE ON RACE.list_id = 'race' AND P.race = RACE.option_id
             LEFT JOIN list_options ETHN ON ETHN.list_id = 'ethnicity' AND P.ethnicity = ETHN.option_id
@@ -54,31 +57,56 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public static function makeQdmIdentifier($pid)
+    public static function convertToObjectIdBSONFormat($id)
+    {
+        $hexValue = dechex($id);
+        // max bigint size will fit in 16 characters so we will always have enough space for this.
+        return sprintf("%024x", $hexValue);
+    }
+
+    public static function convertIdFromBSONObjectIdFormat($id)
+    {
+        // max bigint size is 8 bytes which will fit fine
+        // string ID should be prefixed with 0s so the converted data type should be far smaller
+        $trimmedId = ltrim($id, '\x0');
+        $decimal = hexdec($trimmedId);
+        return $decimal;
+    }
+
+    public static function makeQdmIdentifier($namingSystem, $value)
     {
         return new Identifier(
             [
-            'namingSystem' => 'OpenEMR pid',
-            'value' => $pid
+            'namingSystem' => $namingSystem,
+            'value' => $value
             ]
         );
     }
 
     public function makeQdmModel(array $record)
     {
-        $id = self::makeQdmIdentifier($record['pid']);
+        // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned so we can associate results with patients
+        // This 'underscore' id is not part of QDM, but special for the cqm-execution calculator
+        $_id = self::convertToObjectIdBSONFormat($record['pid']);
 
-        $qdmPatient = new Patient(
-            [
+        // Make a formatted BSON that can be used as an index in a PHP associative array, this will be used for aggregating results
+        $formatted_id = self::convertIdFromBSONObjectIdFormat($_id);
+        $id = self::makeQdmIdentifier('OpenEMR BSON', $formatted_id);
+
+        $qdmPatient = new Patient([
             'patientName' => [
                 'given' => $record['fname'],
                 'middle' => $record['mname'] ?? '',
                 'family' => $record['lname']
             ],
-                'birthDatetime' => $record['DOB'],
-                'id' => $id // From PatientExtension trait
-            ]
-        );
+            'birthDatetime' => $record['DOB'],
+            'id' => $id, // From PatientExtension trait
+            '_id' => $_id //
+        ]);
+
+        $qdmPatient->extendedData = [
+            'pid' => $record['pid']
+        ];
 
         // Create the address and add to model (for QRDA Cat 1 Export)
         $address = new Address(
@@ -124,6 +152,15 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
             ]
         );
         $qdmPatient->add_data_element($pcdob);
+
+        // If th patient is deceased/expired, then add the Patient Characteristic Expired
+        if (!empty($record['deceased_date'])) {
+            $pcexp = new PatientCharacteristicExpired([
+                'expiredDatetime' => $record['deceased_date'],
+                'cause' => $this->makeQdmCode($record['deceased_reason'])
+            ]);
+            $qdmPatient->add_data_element($pcexp);
+        }
 
         // Reference: https://phinvads.cdc.gov/vads/ViewCodeSystem.action?id=2.16.840.1.113883.6.238
         $pcr = new PatientCharacteristicRace(

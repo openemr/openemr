@@ -50,11 +50,6 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
 
         $qdmRecord = new EncounterPerformed(
             [
-            'authorDatetime' => new DateTime(
-                [
-                'date' => $record['date']
-                ]
-            ),
             'relevantPeriod' => new Interval(
                 [
                 'low' =>  new DateTime(

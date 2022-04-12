@@ -3522,6 +3522,20 @@ $GLOBALS_METADATA = array(
             '',
             xl('Easipro Server Password')
         ),
+
+        'usps_webtools_enable' => array(
+            xl('Enable USPS Web Tools API'),
+            'bool',                           // data type
+            '0',
+            xl('Enable USPS Web Tools API')
+        ),
+
+        'usps_webtools_username' => array(
+            xl('USPS Web Tools API Username'),
+            'text',                           // data type
+            '',
+            xl('USPS Web Tools API Username')
+        ),
     ),
 
     'Rx' => array(
