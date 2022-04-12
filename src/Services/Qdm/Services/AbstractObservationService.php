@@ -27,9 +27,9 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
     const OB_TYPE_DIAGNOSTIC_STUDY = 'procedure_diagnostic';
     const OB_TYPE_PHYSICAL_EXAM = 'physical_exam_performed';
 
-    public abstract function getObservationType();
+    abstract public function getObservationType();
 
-    public abstract function getModelClass();
+    abstract public function getModelClass();
 
     /**
      * Return the SQL query string that will retrieve these record types from the OpenEMR database
