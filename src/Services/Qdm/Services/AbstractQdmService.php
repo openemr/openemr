@@ -17,6 +17,11 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 abstract class AbstractQdmService
 {
+    /**
+     * Value in ob_reason_status indicates negated observation (observation not done)
+     */
+    const NEGATED = 'negated';
+
     protected $request;
     protected $codeTypesService;
 
@@ -118,7 +123,7 @@ abstract class AbstractQdmService
      */
     public function isNegationCode($openEmrCode)
     {
-        if (str_starts_with('OID:', $openEmrCode)) {
+        if (!empty($openEmrCode) && str_starts_with($openEmrCode, 'OID:')) {
             return true;
         }
         return false;

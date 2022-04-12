@@ -16,11 +16,6 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 abstract class AbstractObservationService extends AbstractQdmService implements QdmServiceInterface
 {
     /**
-     * Value in ob_reason_status indicates negated observation (observation not done)
-     */
-    const NEGATED = 'negated';
-
-    /**
      * Types of observations in ob_type field
      */
     const OB_TYPE_ASSESSMENT = 'assessment';
@@ -74,7 +69,7 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
         $qdmModel->result = $this->makeResult($record);
 
         // If the reason status is "negated" then add the code to negation rationale, otherwise add to reason
-        if ($record['ob_reason_status'] == self::NEGATED) {
+        if ($record['ob_reason_status'] == parent::NEGATED) {
             $qdmModel->negationRationale = $this->makeQdmCode($record['ob_reason_code']);
         } else {
             $qdmModel->reason = $this->makeQdmCode($record['ob_reason_code']);
