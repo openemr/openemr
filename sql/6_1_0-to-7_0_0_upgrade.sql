@@ -103,7 +103,7 @@
 
 --  #IfUpdateEditOptionsNeeded
 --    desc: Change Layout edit options.
---    arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
+--    arguments: mode(add or remove) layout_form_id the_edit_option comma_separated_list_of_field_ids
 
 #IfNotRow2D layout_options form_id DEM field_id prevent_portal_apps
 SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='allow_patient_portal' AND form_id='DEM');
@@ -279,3 +279,14 @@ ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_c
 ALTER TABLE `insurance_companies` CHANGE `ins_type_code` `ins_type_code` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `insurance_companies` CHANGE `inactive` `inactive` TINYINT(1) NOT NULL DEFAULT '0';
 #EndIf
+
+#IfUpdateEditOptionsNeeded remove DEM C street, street_line_2, city
+#EndIf
+
+#IfUpdateEditOptionsNeeded add DEM U street, street_line_2, city
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id postal_code fld_length 8
+UPDATE `layout_options` SET `fld_length` = '8' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
+#EndIf
+
