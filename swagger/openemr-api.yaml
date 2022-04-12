@@ -3035,7 +3035,7 @@ paths:
         -
           name: pid
           in: path
-          description: 'The patient'
+          description: 'The pid for the patient'
           required: true
           schema:
             type: string
@@ -3057,7 +3057,7 @@ paths:
         -
           name: pid
           in: path
-          description: 'The id for the patient.'
+          description: 'The pid for the patient.'
           required: true
           schema:
             type: string
@@ -3077,7 +3077,7 @@ paths:
       security:
         -
           openemr_auth: []
-  '/api/patient/transaction/{tid}':
+  '/api/transaction/{tid}':
     put:
       tags:
         - standard
@@ -3096,21 +3096,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/api_transaction_request'
-      responses:
-        '200':
-          $ref: '#/components/responses/standard'
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      security:
-        -
-          openemr_auth: []
-  /api/user/transaction_type:
-    get:
-      tags:
-        - standard
-      description: 'Get a list of transaction types'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -6790,7 +6775,7 @@ components:
         title: Other
         message_status: New
     api_transaction_request:
-      description: 'Schema for the message request'
+      description: 'Schema for the transaction request'
       required:
         - message
         - groupname
@@ -6805,17 +6790,11 @@ components:
         groupname:
           description: 'The group name (usually is ''Default'').'
           type: string
-        referByFirstName:
-          description: 'First Name of the referrer.'
+        referByNpi:
+          description: 'NPI of the person creating the referral.'
           type: string
-        referByLastName:
-          description: 'Last Name of the referrer.'
-          type: string
-        referToFirstName:
-          description: 'First Name of the referred.'
-          type: string
-        referToLastName:
-          description: 'Last Name of the referred.'
+        referToNpi:
+          description: 'NPI of the person getting the referral.'
           type: string
         referDiagnosis:
           description: 'The referral diagnosis.'
@@ -6846,10 +6825,8 @@ components:
         message: Message
         type: LBTref
         groupname: Default
-        referByFirstName: 'Refer By First Name'
-        referByLastName: 'Refer By Last Name'
-        referToFirstName: 'Refer To First Name'
-        referToLastName: 'Refer To Last Name'
+        referByNpi: '9999999999'
+        referToNpi: '9999999999'
         referDiagnosis: 'Diag 1'
         riskLevel: Low
         includeVitals: '1'
@@ -6858,6 +6835,7 @@ components:
         visits: '1'
         validFrom: '2022-01-02'
         validThrough: '2022-01-03'
+        body: 'Reason 1'
   responses:
     standard:
       description: 'Standard Response'
@@ -7050,10 +7028,10 @@ components:
             user/soap_note.write: 'Write soap notes the user has access to (api:oemr)'
             user/surgery.read: 'Read surgeries the user has access to (api:oemr)'
             user/surgery.write: 'Write surgeries the user has access to (api:oemr)'
+            user/transaction.read: 'Read transactions the user has access to (api:oemr)'
+            user/transaction.write: 'Write transactions the user has access to (api:oemr)'
             user/vital.read: 'Read vitals the user has access to (api:oemr)'
             user/vital.write: 'Write vitals the user has access to (api:oemr)'
-            user/transaction.read: ' (api:oemr)'
-            user/transaction.write: ' (api:oemr)'
             'api:port': 'Standard Patient Portal OpenEMR API'
             patient/encounter.read: 'Read encounters the patient has access to (api:port)'
             patient/patient.read: 'Write encounters the patient has access to (api:port)'

@@ -137,10 +137,10 @@
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
  *              "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
- *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
- *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "user/transaction.read": "Read transactions the user has access to (api:oemr)",
  *              "user/transaction.write": "Write transactions the user has access to (api:oemr)",
+ *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
+ *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
  *              "patient/encounter.read": "Read encounters the patient has access to (api:port)",
  *              "patient/patient.read": "Write encounters the patient has access to (api:port)"
@@ -6360,7 +6360,8 @@ RestConfig::$ROUTE_MAP = array(
      *          "authorization":"Auth_123",
      *          "visits": "1",
      *          "validFrom": "2022-01-02",
-     *          "validThrough": "2022-01-03"
+     *          "validThrough": "2022-01-03",
+     *          "body": "Reason 1"
      *      }
      *  )
      */
@@ -6410,7 +6411,7 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\PUT(
-     *      path="/api/patient/transaction/{tid}",
+     *      path="/api/transaction/{tid}",
      *      description="Updates a transaction",
      *      tags={"standard"},
      *      @OA\Parameter(
@@ -6444,39 +6445,12 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /api/patient/transaction/:tid" => function ($tid) {
+    "PUT /api/transaction/:tid" => function ($tid) {
         RestConfig::authorization_check("patients", "trans");
          $data = (array) (json_decode(file_get_contents("php://input")));
          $return = (new TransactionRestController())->UpdateTransaction($tid, $data);
          RestConfig::apiLog($return, $data);
          return $return;
-    },
-
-    /**
-     *  @OA\Get(
-     *      path="/api/user/transaction_type",
-     *      description="Get a list of transaction types",
-     *      tags={"standard"},
-     *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/badrequest"
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/unauthorized"
-     *      ),
-     *      security={{"openemr_auth":{}}}
-     *  )
-     */
-
-    "GET /patient/transaction_type" => function () {
-        $return = (new TransactionRestController())->getTransactionTypes();
-        RestConfig::apiLog($return);
-        return $return;
     },
 
     /**
