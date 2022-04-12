@@ -45,14 +45,12 @@ class ResultsCalculator
     {
         $patient_id = $patient->id->value;
         $this->patient_sup_map[$patient_id] = [];
-        $sex = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'gender')), true);
-        $this->patient_sup_map[$patient_id]['SEX'] = $sex['code'];
-        $race = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'race')), true);
-        $this->patient_sup_map[$patient_id]['RACE'] = $race['code'];
-        $ethnicity = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'ethnicity')), true);
-        $this->patient_sup_map[$patient_id]['ETHNICITY'] = $ethnicity['code'];
-        $payer = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'payer')), true);
-        $this->patient_sup_map[$patient_id]['PAYER'] = $payer['code'];
+        $this->patient_sup_map[$patient_id]['SEX'] = $patient->extract_first_code('patient_characteristic', 'gender');
+        $this->patient_sup_map[$patient_id]['RACE'] = $patient->extract_first_code('patient_characteristic', 'race');
+        $this->patient_sup_map[$patient_id]['ETHNICITY'] = $patient->extract_first_code('patient_characteristic', 'ethnicity');
+        if ($payer = $patient->extract_first_code('patient_characteristic', 'payer') !== null) {
+            $this->patient_sup_map[$patient_id]['PAYER'] = $payer;
+        }
     }
 
     //https://github.com/projectcypress/cypress/blob/ef09517b96b269c60671e3af651eb52df2ff22fa/lib/ext/measure.rb#L27

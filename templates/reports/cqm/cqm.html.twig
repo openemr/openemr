@@ -1,0 +1,195 @@
+<html>
+
+<head>
+    <title>{{ heading_title|text }}</title>
+    {{ setupHeader(['datetime-picker']) }}
+    <script>
+
+        {{ DateToYYYYMMDD_js() }}
+
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+
+            {{ jqueryDateTimePicker('.datepicker',true,true,true) }}
+        });
+
+        function runReport() {
+
+            // Validate first
+            if (!(validateForm())) {
+                alert({{ "Rule Set and Plan Set selections are not consistent. Please fix and Submit again."|xlj }});
+                return false;
+            }
+
+            // Showing processing wheel
+            $("#processing").show();
+
+            // hide Submit buttons
+            $("#submit_button").hide();
+            $("#xmla_button").hide();
+            $("#xmlb_button").hide();
+            $("#xmlc_button").hide();
+            $("#print_button").hide();
+            $("#genQRDA").hide();
+
+            // hide instructions
+            $("#instructions_text").hide();
+
+            // Collect an id string via an ajax request
+            top.restoreSession();
+            $.get("../../library/ajax/collect_new_report_id.php",
+                {csrf_token_form: {{ csrfTokenRaw()|js_escape }} },
+                function (data) {
+                    // Set the report id in page form
+                    $("#form_new_report_id").attr("value", data);
+
+                    // Start collection status checks
+                    collectStatus($("#form_new_report_id").val());
+
+                    // Run the report
+                    top.restoreSession();
+                    $.post("../../library/ajax/execute_cdr_report.php",
+                        {
+                            provider: $("#form_provider").val(),
+                            type: $("#form_rule_filter").val(),
+                            // note these functions come from DateToYYYYMMDD_js()
+                            date_target: DateToYYYYMMDDHHMMSS_js($("#form_target_date").val()),
+                            date_begin: DateToYYYYMMDDHHMMSS_js($("#form_begin_date").val()),
+                            plan: $("#form_plan_filter").val(),
+                            labs: $("#labs_manual_entry").val(),
+                            pat_prov_rel: $("#form_pat_prov_rel").val(),
+                            execute_report_id: $("#form_new_report_id").val(),
+                            csrf_token_form: {{ csrfTokenRaw()|js_escape }}
+                        });
+                });
+        }
+
+        function collectStatus(report_id) {
+            // Collect the status string via an ajax request and place in DOM at timed intervals
+            top.restoreSession();
+            // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
+            $.post("../../library/ajax/status_report.php",
+                {
+                    status_report_id: report_id,
+                    csrf_token_form: {{ csrfTokenRaw()|js_escape }}
+                },
+                function (data) {
+                    if (data == "PENDING") {
+                        // Place the pending string in the DOM
+                        $('#status_span').replaceWith("<span id='status_span'>{{ "Preparing To Run Report"|xlt }}</span>");
+                    } else if (data == "COMPLETE") {
+                        // Go into the results page
+                        top.restoreSession();
+                        link_report = "cqm.php?report_id=" + encodeURIComponent(report_id);
+                        window.open(link_report, '_self', false);
+                    } else {
+                        // Place the string in the DOM
+                        $('#status_span').replaceWith("<span id='status_span'>" + data + "</span>");
+                    }
+                });
+            // run status check every 10 seconds
+            var repeater = setTimeout("collectStatus(" + report_id + ")", 10000);
+        }
+
+        function GenXml(sNested) {
+            top.restoreSession();
+            //QRDA Category III Export
+            if (sNested == "QRDA") {
+                var form_rule_filter = theform.form_rule_filter.value
+                var sLoc = '../../custom/export_qrda_xml.php?target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&qrda_version=3&rule_filter=cqm_2014&form_provider=' + encodeURIComponent(theform.form_provider.value) + '&report_id=' + {{ report_id|js_url }} +'&csrf_token_form=' + {{ csrfTokenRaw()|js_url }};
+            } else {
+                var sLoc = '../../custom/export_registry_xml.php?&target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&nested=' + encodeURIComponent(sNested) + '&csrf_token_form=' + {{ csrfTokenRaw()|js_url }};
+            }
+            dlgopen(sLoc, '_blank', 600, 500);
+            return false;
+        }
+
+        //QRDA I - 2014 Download
+        function downloadQRDA() {
+            top.restoreSession();
+            var reportID = {{ report_id|js_escape }};
+            var provider = $("#form_provider").val();
+            sLoc = '../../custom/download_qrda.php?&report_id=' + encodeURIComponent(reportID) + '&provider_id=' + encodeURIComponent(provider) + '&csrf_token_form=' + {{ csrfTokenRaw()|js_url }};
+            dlgopen(sLoc, '_blank', 600, 500);
+        }
+
+        function validateForm() {
+            {% if not report_id and type_report == "cqm" %}
+            // If this is a cqm and plan set not set to ignore, then need to ensure consistent with the rules set
+            if ($("#form_plan_filter").val() != '') {
+                if ($("#form_rule_filter").val() == $("#form_plan_filter").val()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+            {% else %}
+            return true;
+            {% endif %}
+        }
+
+    </script>
+
+    <style>
+
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+                margin-top: 0px;
+            }
+        }
+
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+
+<body class="body_top">
+
+    <!-- Required for the popup date selectors -->
+    <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+    <div id="container_div" class="container-fluid mt-3">
+
+        <span class='title'>{{ 'Report'|xlt }} - {{ heading_title|text }} - {{ "Date of Report"|xlt }}: {{ date_report|text }}
+            {% if show_help %}{{ oemHelpIcon() }}{% endif %}
+        </span>
+            {% include 'reports/cqm/cqm-form.html.twig' %}
+
+            {% if report_id %}
+                {% if is_cqm_report %}
+                    {% include 'reports/cqm/cqm-results-table.html.twig' %}
+                {% elseif is_amc_report %}
+                    {% include 'reports/cqm/amc-results-table.html.twig' %}
+                {% else %}
+                    {% include 'reports/cqm/results-table.html.twig' %}
+                {% endif %}
+            {% else %}
+                <div id="instructions_text" class='text'>
+                    {{ 'Please input search criteria above, and click Submit to start report.'|xlt }}
+                </div>
+                <input type='hidden' name='form_new_report_id' id='form_new_report_id' value=''/>
+            {% endif %}
+
+            </form>
+    </div>
+    {{ oemrUiBelowContainerDiv(oemrUiSettings) }}
+</body>
+
+</html>

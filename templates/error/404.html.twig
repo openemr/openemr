@@ -1,0 +1,5 @@
+{% extends 'error/general_http_error.html.twig'  %}
+{% block title %}{{ "OpenEMR 404 Error"|xlt }}{% endblock %}
+{% block errorDetails %}
+<p>{{ "The page or data you requested could not be found in the system"|xlt }}</p>
+{% endblock %}

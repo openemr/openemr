@@ -63,16 +63,22 @@ class ExportCat3Service
         $results = $resultCalculator->aggregate_results_for_measures($measureObjs, $calculationResults);
 
         $options = [
-            'start_time' => $effectiveDate,
-            'end_time' => $effectiveDateEnd
             /*
              * These are options: TODO what is required?
-            $options['provider'];
+            @see https://ecqi.healthit.gov/sites/default/files/2022-CMS-QRDA-III-Eligible-Clinicians-and-EP-IG-V1.1-508.pdf Section 5.1.4
+            for provider information.  provider is based upon group calculation vs individual calculation
+            Group calc is the TIN of the billing facility that the measure is run against
+            individual calc is the individual provider
+            $options['provider']; // @see
             $options['start_time'];
             $options['end_time'];
             $options['submission_program'];
             $options['ry2022_submission'];
             */
+            'submission_program' => 'MIPS_INDIV', // This is the value Cypress test doc had.
+            'start_time' => $effectiveDate,
+            'end_time' => $effectiveDateEnd,
+            'ry2022_submission' => true
         ];
 
         // uses the measures and aggregated result objects (it will do some additional formatting on those objects
@@ -131,6 +137,7 @@ class ExportCat3Service
         $final_results = [];
         foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient
+            // need to unconvert from our hex format here
             $aggregated_results = $this->aggregate_population_results_from_individual_results($result, $patient_id);
             $final_results = array_merge($final_results, $aggregated_results);
         }

@@ -227,7 +227,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['country_code'] = $xml['recordTarget']['patientRole']['addr']['country'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
-        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['code'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = ($xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code']) ?? null;
@@ -285,6 +285,17 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         $this->documentData['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
+        // test if patient is deceased
+        if ($this->is_qrda_import) {
+            foreach ($components[2]["section"]["entry"] as $entry_search) {
+                if ($entry_search["observation"]["value"]["code"] == '419099009') {
+                    $deceased_date = $entry_search["observation"]["effectiveTime"]["low"]["value"];
+                    $this->documentData['field_name_value_array']['patient_data'][1]['deceased_date'] = date('Y-m-d H:i:s', strtotime($deceased_date));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['deceased_reason'] = 'SNOMED-CT:419099009';
+                    break;
+                }
+            }
+        }
     }
 
     /*
@@ -308,6 +319,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $e = 1;
         $f = 1;
         $g = 1;
+        $p = 1; // payer QRDA
 
         $arr_procedure_res = array();
         $arr_encounter = array();
@@ -421,6 +433,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $newdata['referral'][$rowfield['field_name']] = $rowfield['field_value'];
                 } elseif ($table == 'observation_preformed') {
                     $newdata['observation_preformed'][$rowfield['field_name']] = $rowfield['field_value'];
+                } elseif ($table == 'payer') {
+                    $newdata['payer'][$rowfield['field_name']] = $rowfield['field_value'];
                 }
             }
 
@@ -657,13 +671,19 @@ class CarecoordinationTable extends AbstractTableGateway
                 $y++;
             } elseif ($table == 'care_plan') {
                 $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'];
+                $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'];
                 $arr_care_plan['care_plan'][$e]['root'] = $newdata['care_plan']['root'];
                 $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'];
                 $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];
                 $arr_care_plan['care_plan'][$e]['description'] = $newdata['care_plan']['description'];
                 $arr_care_plan['care_plan'][$e]['plan_type'] = $newdata['care_plan']['plan_type'];
-                $arr_care_plan['care_plan'][$e]['date'] = $newdata['care_plan']['date'];
-                $arr_care_plan['care_plan'][$e]['end_date'] = $newdata['care_plan']['end_date'];
+                $arr_care_plan['care_plan'][$e]['date'] = $newdata['care_plan']['date'] ?? null;
+                $arr_care_plan['care_plan'][$e]['end_date'] = $newdata['care_plan']['end_date'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_code'] = $newdata['care_plan']['reason_code'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_code_text'] = $newdata['care_plan']['reason_code_text'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_description'] = $newdata['care_plan']['reason_description'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_date_low'] = $newdata['care_plan']['reason_date_low'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_date_high'] = $newdata['care_plan']['reason_date_high'] ?? null;
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
@@ -697,6 +717,12 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_observation_preformed['observation_preformed'][$h]['reason_code'] = $newdata['observation_preformed']['reason_code'];
                 $arr_observation_preformed['observation_preformed'][$h]['reason_code_text'] = $newdata['observation_preformed']['reason_code_text'];
                 $h++;
+            } elseif ($table == 'payer') {
+                $arr_payer['payer'][$p]['code'] = $newdata['payer']['code'];
+                $arr_payer['payer'][$p]['status'] = $newdata['payer']['status'];
+                $arr_payer['payer'][$p]['low_date'] = $newdata['payer']['low_date'];
+                $arr_payer['payer'][$p]['high_date'] = $newdata['payer']['high_date'];
+                $p++;
             }
         }
 
@@ -713,6 +739,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertFunctionalCognitiveStatus(($arr_functional_cognitive_status['functional_cognitive_status'] ?? null), $pid, $this, 0);
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
+        $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master
@@ -1370,7 +1397,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_care_plan['care_plan'][$e]['text'] = $data['care_plan-text'][$i];
                                 $arr_care_plan['care_plan'][$e]['code'] = $data['care_plan-code'][$i];
                                 $arr_care_plan['care_plan'][$e]['description'] = $data['care_plan-description'][$i];
-                                $arr_care_plan['care_plan'][$e]['plan_type'] = $data['care_plan']['plan_type'];
+                                $arr_care_plan['care_plan'][$e]['plan_type'] = $data['care_plan']['plan_type'][$i];
                                 $e++;
                             } elseif (substr($key, 0, -4) == 'functional_cognitive_status') {
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $data['functional_cognitive_status-extension'][$i];

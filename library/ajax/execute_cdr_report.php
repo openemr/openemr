@@ -52,7 +52,7 @@ if (!empty($_POST['execute_report_id'])) {
         //   need to send a manual data entry option (number of labs)
         $array_date['dateBegin'] = $_POST['date_begin'];
         $array_date['dateTarget'] = $target_date;
-        $options = array('labs_manual' => $_POST['labs']);
+        $options = array('labs_manual' => $_POST['labs'] ?? 0);
     } else {
         // For others, use the unmodified target date array and send an empty options array
         $array_date = $target_date;

@@ -98,11 +98,20 @@ if ($mode) {
         processAmcCall('send_sum_amc', true, 'add', $pid, 'transactions', $transid);
         if (!(empty($_POST['send_sum_elec_flag']))) {
             processAmcCall('send_sum_elec_amc', true, 'add', $pid, 'transactions', $transid);
+        } else {
+            processAmcCall('send_sum_elec_amc', true, 'remove', $pid, 'transactions', $transid);
+        }
+
+        if (!(empty($_POST['send_sum_amc_confirmed']))) {
+            processAmcCall('send_sum_amc_confirmed', true, 'add', $pid, 'transactions', $transid);
+        } else {
+            processAmcCall('send_sum_amc_confirmed', true, 'remove', $pid, 'transactions', $transid);
         }
     } else {
         // remove the sent records flags
         processAmcCall('send_sum_amc', true, 'remove', $pid, 'transactions', $transid);
         processAmcCall('send_sum_elec_amc', true, 'remove', $pid, 'transactions', $transid);
+        processAmcCall('send_sum_amc_confirmed', true, 'remove', $pid, 'transactions', $transid);
     }
 
     $body_onload_code = "javascript:location.href='transactions.php';";
@@ -172,11 +181,14 @@ $(function () {
     if ( $('#send_sum_flag').prop('checked') ) {
       // Enable the send_sum_elec_flag checkbox
       $("#send_sum_elec_flag").removeAttr("disabled");
+      $("#send_sum_amc_confirmed").removeAttr("disabled");
     }
     else {
       //Disable the send_sum_elec_flag checkbox (also uncheck it if applicable)
       $("#send_sum_elec_flag").attr("disabled", true);
       $("#send_sum_elec_flag").prop("checked", false);
+      $("#send_sum_amc_confirmed").attr("disabled", true);
+      $("#send_sum_amc_confirmed").prop("checked", false);
     }
   });
 
@@ -399,7 +411,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-sm-12 mt-3">
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
-                        <div class="forms col-sm-8">
+                        <div class="forms col-sm-7">
                             <label class="control-label" for="title"><?php echo xlt('Transaction Type'); ?>:</label>
                             <?php
                             $ttres = sqlStatement("SELECT grp_form_id, grp_title " .
@@ -417,7 +429,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo "</select>\n";
                             ?>
                         </div>
-                        <div class="forms col-sm-4">
+                        <div class="forms col-sm-5">
                             <?php
                             if ($GLOBALS['enable_amc_prompting'] && 'LBTref' == $form_id) { ?>
                                 <div class='oe-pull-away' style='margin-right:25px;border-style:solid;border-width:1px;'>
@@ -426,6 +438,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php // Display the send records checkboxes (AMC prompting)
                                             $itemAMC = amcCollect("send_sum_amc", $pid, 'transactions', $transid);
                                             $itemAMC_elec = amcCollect("send_sum_elec_amc", $pid, 'transactions', $transid);
+                                            $itemAMC_confirmed = amcCollect("send_sum_amc_confirmed", $pid, 'transactions', $transid);
                                         ?>
 
                                         <?php if (!(empty($itemAMC))) { ?>
@@ -443,9 +456,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php } else { ?>
                                             &nbsp;&nbsp;<input type="checkbox" id="send_sum_elec_flag" name="send_sum_elec_flag" disabled>
                                         <?php } ?>
+                                        <span class="text"><?php echo xlt('Sent Summary of Care Electronically?') ?><br />
 
-                                        <span class="text"><?php echo xlt('Sent Summary of Care Electronically?') ?></span><br />
-
+                                        <?php if (!(empty($itemAMC)) && !(empty($itemAMC_confirmed))) { ?>
+                                            &nbsp;&nbsp;<input type="checkbox" id="send_sum_amc_confirmed" name="send_sum_amc_confirmed" checked>
+                                        <?php } elseif (!(empty($itemAMC))) { ?>
+                                            &nbsp;&nbsp;<input type="checkbox" id="send_sum_amc_confirmed" name="send_sum_amc_confirmed">
+                                        <?php } else { ?>
+                                            &nbsp;&nbsp;<input type="checkbox" id="send_sum_amc_confirmed" name="send_sum_amc_confirmed" disabled>
+                                        <?php } ?>
+                                        <span class="text"><?php echo xlt('Confirmed Recipient Received Summary of Care?') ?>
                                     </div>
                                 </div>
                                 <?php

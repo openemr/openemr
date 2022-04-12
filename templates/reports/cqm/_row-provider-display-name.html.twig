@@ -1,0 +1,19 @@
+<h6>
+    <span>{{ "Provider"|xlt }}: {{ row.prov_lname|text }},{{ row.prov_fname|text }}</span>
+    {% if row.is_provider_in_group %}
+        {% if row.npi and row.group.federaltaxid %}
+            <span>(
+                    <span>{{ "NPI"|xlt }}: {{ row.npi|text }}</span>
+                    <span>{{ "Group TIN"|xlt }}: {{ row.group.federaltaxid|text }}</span>
+                    )</span>
+        {% endif %}
+    {% else %}
+        {% if row.npi or row.federaltaxid %}
+            <span>(
+                    {% if row.npi %}<span>{{ "NPI"|xlt }}: {{ row.npi|text }}</span>{% endif %}
+                {% if row.federaltaxid %}<span>{{ "TID"|xlt }}: {{ row.federaltaxid|text }}</span>{% endif %}
+                    )
+                </span>
+        {% endif %}
+    {% endif %}
+</h6>

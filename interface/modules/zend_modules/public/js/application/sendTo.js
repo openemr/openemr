@@ -172,20 +172,32 @@ $(function () {
         let qrda = $("input[name='downloadformat']:checked").val();
         if (qrda == 'qrda') {
             $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA3").hide('slow');
             $("#componentsForQRDA").show('slow');
+        } else if (qrda == 'qrda3') {
+            $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3").show('slow');
         } else {
             $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3").hide('slow');
             $("#componentsForCCDA").show('slow');
         }
     });
 
     $(".showcomponentsForCCDA-div").click(function () {
         let qrda = $("input[name='downloadformat']:checked").val();
-        if (qrda == 'qrda') {
+        if (qrda === 'qrda') {
             $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA3").hide('slow');
             $("#componentsForQRDA").toggle('slow');
+        } else if (qrda === 'qrda3') {
+            $("#componentsForCCDA").hide('slow');
+            $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3").toggle('slow');
         } else {
             $("#componentsForQRDA").hide('slow');
+            $("#componentsForQRDA3").hide('slow');
             $("#componentsForCCDA").toggle('slow');
         }
     });
@@ -431,25 +443,34 @@ function send() {
                 url: APP_URL + "/encounterccdadispatch/index?combination=" + combination + "&sections=" + components + "&view=1&emr_transfer=1&recipient=emr_direct&param=" + recipients + "&referral_reason=" + referral_reason + "&components=" + comp + "&latest_ccda=" + latest_ccda,
                 dataType: "html",
                 data: {},
-            });
-            $.ajax({
-                type: "POST",
-                url: APP_URL + "/encountermanager/transmitCCD?combination=" + combination + "&recipients=" + recipients + "&xml_type=" + format,
-                dataType: "html",
-                data: {},
-                success: function (thedata) {
-                    $('.ap-st-st-12').fadeOut();
-                    $('.activity_indicator').css({"display": "none"});
-                    var resultTranslated = js_xl(thedata);
-                    alert(resultTranslated.msg);
-                },
-                error: function () {
-                    $('.ap-st-st-12').fadeOut();
-                    $('.activity_indicator').css({"display": "none"});
-                    var resultTranslated = js_xl("Failed to send");
-                    alert(resultTranslated.msg);
-                }
-            });
+            })
+            .done(function() {
+                $.ajax({
+                    type: "POST",
+                    url: APP_URL + "/encountermanager/transmitCCD?combination=" + combination + "&recipients=" + recipients + "&xml_type=" + format,
+                    dataType: "html",
+                    data: {},
+                    success: function (thedata) {
+                        $('.ap-st-st-12').fadeOut();
+                        $('.activity_indicator').css({"display": "none"});
+                        var resultTranslated = js_xl(thedata);
+                        alert(resultTranslated.msg);
+                    },
+                    error: function () {
+                        $('.ap-st-st-12').fadeOut();
+                        $('.activity_indicator').css({"display": "none"});
+                        var resultTranslated = js_xl("Failed to send");
+                        alert(resultTranslated.msg);
+                    }
+                });
+            })
+            .fail(function() {
+                $('.ap-st-st-12').fadeOut();
+                $('.activity_indicator').css({"display": "none"});
+                var resultTranslated = js_xl("Failed to send");
+                alert(resultTranslated.msg);
+            })
+
         } else {
             $('.activity_indicator').css({"display": "none"});
             var resultTranslated = js_xl("Please Specify at least One Direct Address");
@@ -470,7 +491,7 @@ function send() {
                 }
             }
         }
-        if (count == 0) {
+        if (count == 0 && $('input:radio[name="downloadformat"]:checked').val() != 'qrda3') {
             $('.ap-st-st-12').fadeOut();
             $('.activity_indicator').css({"display": "none"});
             var resultTranslated = js_xl("Please select at least one patient.");
@@ -492,6 +513,13 @@ function send() {
                     window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda=download_qrda");
                 } else {
                     $('#download_qrda').trigger("click");
+                    $(".check_pid").prop("checked", false);
+                }
+            } else if (download_format == 'qrda3') {
+                if ($('#ccda_pid').val()) {
+                    window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda=download_qrda3");
+                } else {
+                    $('#download_qrda3').trigger("click");
                     $(".check_pid").prop("checked", false);
                 }
             } else if (download_format == 'ccr') {
