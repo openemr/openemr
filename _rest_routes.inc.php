@@ -6453,33 +6453,6 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
-     *  @OA\Get(
-     *      path="/api/transaction_type",
-     *      description="Get a list of transaction types",
-     *      tags={"standard"},
-     *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/badrequest"
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/unauthorized"
-     *      ),
-     *      security={{"openemr_auth":{}}}
-     *  )
-     */
-
-    "GET /api/transaction_type" => function () {
-        $return = (new TransactionRestController())->getTransactionTypes();
-        RestConfig::apiLog($return);
-        return $return;
-    },
-
-    /**
      *  @OA\Put(
      *      path="/api/patient/{pid}/message/{mid}",
      *      description="Edit a pnote message",
