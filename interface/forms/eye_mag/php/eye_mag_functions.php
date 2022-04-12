@@ -3723,7 +3723,7 @@ function build_IMPPLAN_items($pid, $form_id)
         $i++;
     }
 
-    return $IMPPLAN_items ?? '';
+    return $IMPPLAN_items ?? [];
 }
 
             /**
@@ -3818,10 +3818,10 @@ function document_engine($pid)
     $documents['children_names']    = $children_names;
     $documents['parent_name']       = $parent_name ?? null;
     $documents['zones']             = $zones;
-    $documents['docs_in_zone']      = $docs_in_zone;
-    $documents['docs_in_cat_id']    = $docs_in_cat_id;
-    $documents['docs_in_name']      = $docs_in_name;
-    $documents['docs_by_date']      = $docs_by_date;
+    $documents['docs_in_zone']      = $docs_in_zone ?? '';
+    $documents['docs_in_cat_id']    = $docs_in_cat_id ?? '';
+    $documents['docs_in_name']      = $docs_in_name ?? '';
+    $documents['docs_by_date']      = $docs_by_date ?? '';
 
     return array($documents);
 }
@@ -5314,7 +5314,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/Chart.bundle.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/chart.js"></script>
         <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
             <?php
             if ($priors) {
