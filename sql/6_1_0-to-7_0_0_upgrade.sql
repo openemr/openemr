@@ -303,3 +303,7 @@ ALTER TABLE `form_care_plan` ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL;
 ALTER TABLE `lists` CHANGE `begdate` `begdate` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `lists` CHANGE `enddate` `enddate` DATETIME NULL DEFAULT NULL;
 #EndIf
+
+#IfNotColumnType form_observation date date_end
+ALTER TABLE `form_observation` ADD `date_end` DATETIME NULL DEFAULT NULL;
+#EndIf

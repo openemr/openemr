@@ -11592,7 +11592,8 @@ CREATE TABLE `form_observation` (
   `ob_reason_code` varchar(64) DEFAULT NULL,
   `ob_reason_text` text,
   `ob_documentationof_table` varchar(255) DEFAULT NULL,
-  `ob_documentationof_table_id` bigint(21) DEFAULT NULL
+  `ob_documentationof_table_id` bigint(21) DEFAULT NULL,
+  `date_end` DATETIME DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
