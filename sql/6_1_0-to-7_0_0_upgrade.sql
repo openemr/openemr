@@ -298,3 +298,8 @@ ALTER TABLE `form_observation` CHANGE `ob_code` `ob_code` VARCHAR(64) NULL DEFAU
 #IfMissingColumn form_care_plan reason_status
 ALTER TABLE `form_care_plan` ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL;
 #EndIf
+
+#IfNotColumnType lists begdate datetime
+ALTER TABLE `lists` CHANGE `begdate` `begdate` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `lists` CHANGE `enddate` `enddate` DATETIME NULL DEFAULT NULL;
+#EndIf
