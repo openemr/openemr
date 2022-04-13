@@ -295,7 +295,7 @@ class CdaTemplateParse
         if ($this->is_qrda_import) {
             $entry = $entry['act']['entryRelationship'];
         }
-        if ($entry['encounter']['effectiveTime']['value'] != 0 || $entry['encounter']['effectiveTime']['low']['value'] != 0) {
+        if (!empty($entry['encounter']['effectiveTime']['value']) || !empty($entry['encounter']['effectiveTime']['low']['value'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['encounter'])) {
                 $i += count($this->templateData['field_name_value_array']['encounter']);
@@ -336,7 +336,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_issue'] = $code['code_text'];
 
-            $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'];
+            $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? null;
 
             $discharge = $entry['encounter']['sdtc:dischargeDispositionCode'] ?? null;
             $code = '';

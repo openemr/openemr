@@ -514,14 +514,13 @@ class CdaTemplateImportDispose
                 $facility_id = $res_query_ins_fac->getGeneratedValue();
             }
 
-            if ($value['date'] != 0 && $revapprove == 0) {
-                $encounter_date = $carecoordinationTable->formatDate($value['date'], 1);
-                $encounter_date_value = fixDate($encounter_date);
-            } elseif ($value['date'] != 0 && $revapprove == 1) {
-                $encounter_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['date'] == 0) {
-                $encounter_date = $value['date'];
-                $encounter_date_value = fixDate($encounter_date);
+            if (!empty($value['date']) && $revapprove == 0) {
+                $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
+            } elseif (!empty($value['date']) && $revapprove == 1) {
+                $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
+            } elseif (empty($value['date'])) {
+                $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
+                ;
             }
 
             if (!empty($value['extension'])) {
@@ -611,7 +610,7 @@ class CdaTemplateImportDispose
                 } else {
                     //to lists
                     $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis) VALUES (?,?,?,?,?,?,?)";
-                    $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', $value['encounter_diagnosis_date'], 1,
+                    $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])), 1,
                         $value['encounter_diagnosis_issue'], date('Y-m-d H:i:s'), $value['encounter_diagnosis_code']));
                     $list_id = $result->getGeneratedValue();
                 }
@@ -1113,25 +1112,19 @@ class CdaTemplateImportDispose
         foreach ($med_pblm_array as $key => $value) {
             $activity = 1;
 
-            if ($value['begdate'] != 0 && $revapprove == 0) {
-                $med_pblm_begdate = $carecoordinationTable->formatDate($value['begdate'], 1);
-                $med_pblm_begdate_value = fixDate($med_pblm_begdate);
+            if (!empty($value['begdate']) && $revapprove == 0) {
+                $med_pblm_begdate_value = date("Y-m-d H:i:s", strtotime($value['begdate']));
             } elseif ($value['begdate'] != 0 && $revapprove == 1) {
-                $med_pblm_begdate_value = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['begdate'] == 0) {
-                $med_pblm_begdate = $value['begdate'];
-                //$med_pblm_begdate_value = fixDate($med_pblm_begdate);
+                $med_pblm_begdate_value = date("Y-m-d H:i:s", strtotime($value['begdate']));
+            } elseif (empty($value['begdate'])) {
                 $med_pblm_begdate_value = (null);
             }
 
-            if ($value['enddate'] != 0 && $revapprove == 0) {
-                $med_pblm_enddate = $carecoordinationTable->formatDate($value['enddate'], 1);
-                $med_pblm_enddate_value = fixDate($med_pblm_enddate);
-            } elseif ($value['enddate'] != 0 && $revapprove == 1) {
-                $med_pblm_enddate_value = ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['enddate'] == 0 || $value['enddate'] == '') {
-                $med_pblm_enddate = $value['enddate'];
-                //$med_pblm_enddate_value = fixDate($med_pblm_enddate);
+            if (!empty($value['enddate']) && $revapprove == 0) {
+                $med_pblm_enddate_value = date("Y-m-d H:i:s", strtotime($value['enddate']));
+            } elseif (!empty($value['enddate']) && $revapprove == 1) {
+                $med_pblm_enddate_value = date("Y-m-d H:i:s", strtotime($value['enddate']));
+            } elseif (empty($value['enddate'])) {
                 $med_pblm_enddate_value = (null);
             }
 
