@@ -31,7 +31,7 @@ class DateHelper
      */
     public static function format_datetime($datetime)
     {
-        return gmdate('YmdHis', date('U', strtotime($datetime)));
+        return !empty($datetime) ? date('YmdHis', strtotime($datetime)) : null;
     }
 
     public static function format_date($date)
