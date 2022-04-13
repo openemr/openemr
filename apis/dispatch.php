@@ -24,6 +24,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use Psr\Http\Message\ResponseInterface;
 
@@ -266,6 +267,19 @@ if ($isLocalApi) {
             http_response_code(401);
             exit();
         }
+        if ($restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
+            // attempt to pull from our session store and populate our patient contexts here
+            $sessionCache = $isTrusted['session_cache'] ?? '[]';
+            $cache = json_decode($sessionCache, true);
+            if (!empty($cache['pid'])) { // really strange how we are using the pid for the UUID
+            // TODO: do we want to hit the database and make sure the user has access to this patient?
+                // its another sanity check to make sure somehow the trusted user session didn't get contaminated...
+                // will slow down the request though.
+                $restRequest->setPatientUuidString($cache['pid']);
+            } else {
+                $logger->error(("OpenEMR Error: api had patient launch scope but no patient was set in the session cache.  Resources restricted with patient scopes will not return results"));
+            }
+        }
     } elseif ($userRole == 'patient') {
         $_SESSION['pid'] = $user['pid'] ?? null;
         $puuidCheck = $user['uuid'] ?? null;
@@ -277,6 +291,8 @@ if ($isLocalApi) {
             http_response_code(401);
             exit();
         }
+        $restRequest->setPatientRequest(true);
+        $restRequest->setPatientUuidString($puuidStringCheck);
     } else if ($userRole === 'system') {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;

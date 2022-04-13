@@ -162,9 +162,10 @@ class SMARTAuthorizationController
 
         // set our patient information up in our pid so we can handle our code property...
         try {
-            $patient_id = $_POST['patient_id'];
+            $patient_id = $_POST['patient_id']; // this patient_id is actually a uuid.. wierd
             $searchController = new PatientContextSearchController(new PatientService(), $this->logger);
-            $searchController->getPatientForUser($patient_id, $user_uuid);
+            // throws access denied if user doesn't have access
+            $foundPatient = $searchController->getPatientForUser($patient_id, $user_uuid);
             // put PID in session
             $_SESSION['pid'] = $patient_id;
 
