@@ -304,6 +304,10 @@ ALTER TABLE `lists` CHANGE `begdate` `begdate` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `lists` CHANGE `enddate` `enddate` DATETIME NULL DEFAULT NULL;
 #EndIf
 
-#IfNotColumnType form_observation date date_end
+#IfMissingColumn form_observation date_end
 ALTER TABLE `form_observation` ADD `date_end` DATETIME NULL DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_care_plan date datetime
+ALTER TABLE `form_care_plan` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
 #EndIf

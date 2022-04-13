@@ -11518,7 +11518,7 @@ CREATE TABLE `external_encounters` (
 DROP TABLE IF EXISTS `form_care_plan`;
 CREATE TABLE `form_care_plan` (
   `id` bigint(20) NOT NULL,
-  `date` date DEFAULT NULL,
+  `date` datetime DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
   `encounter` varchar(255) DEFAULT NULL,
   `user` varchar(255) DEFAULT NULL,
