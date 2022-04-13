@@ -25,7 +25,7 @@ trait Cat1View
 
     public function negated(Mustache_Context $context): bool
     {
-        return empty($context->find('negationRationale'));
+        return !empty($context->find('negationRationale'));
     }
 
     public function multiple_codes(Mustache_Context $context): bool
