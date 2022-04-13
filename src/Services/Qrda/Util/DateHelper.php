@@ -20,7 +20,7 @@ class DateHelper
      */
     public static function format_datetime_cqm($datetime)
     {
-        return gmdate('Y-m-d\TH:i:s.u', date('U', strtotime($datetime)));
+        return date('Y-m-d\TH:i:s.u', strtotime($datetime));
     }
 
     /**
