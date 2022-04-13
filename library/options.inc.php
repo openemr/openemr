@@ -3718,7 +3718,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
         while ($frow = sqlFetchArray($fres)) {
             $this_group = isset($frow['group_id']) ? $frow['group_id'] : "" ;
 
-            if ($grparr[$this_group]['grp_columns'] === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
