@@ -37,10 +37,10 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
                 'date' => $record['date']
             ]),
             'high' => new DateTime([
-                'date' => $record['date']
+                'date' => $record['date_end']
             ]),
             'lowClosed' => $record['date'] ? true : false,
-            'highClosed' => $record['date'] ? true : false
+            'highClosed' => $record['date_end'] ? true : false
         ]);
 
         return $model;

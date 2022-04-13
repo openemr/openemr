@@ -38,7 +38,7 @@ abstract class AbstractCarePlanService extends AbstractQdmService
     public function getSqlStatement()
     {
         $carePlanType = $this->getCarePlanType();
-        return "SELECT pid, `date`, code, codetext, description, care_plan_type, reason_code
+        return "SELECT pid, `date`, date_end, code, codetext, description, care_plan_type, reason_code, reason_status
             FROM form_care_plan
             WHERE care_plan_type = '" . add_escape_custom($carePlanType) . "'";
     }
@@ -63,12 +63,14 @@ abstract class AbstractCarePlanService extends AbstractQdmService
         // with a code-system of "OID". Otherwise, add the code as usual
         if ($this->isNegationCode($record['code'])) {
             $model->negationRationale = $this->makeQdmCode($record['code']);
+        } else if ($record['reason_status'] == parent::NEGATED) {
+            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
         } else {
             $model->addCode($this->makeQdmCode($record['code']));
         }
 
-        // Add the reason code if we are supplied one
-        if (!empty($record['reason_code'])) {
+        // Add the reason code if we are supplied one, but only if it's not a negation (we already took care of that case above)
+        if (!empty($record['reason_code']) && $record['reason_status'] != parent::NEGATED) {
             $model->reason = $this->makeQdmCode($record['reason_code']);
         }
 

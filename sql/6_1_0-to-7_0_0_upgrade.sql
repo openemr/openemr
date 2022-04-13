@@ -290,3 +290,24 @@ ALTER TABLE `insurance_companies` CHANGE `inactive` `inactive` TINYINT(1) NOT NU
 UPDATE `layout_options` SET `fld_length` = '8' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
 #EndIf
 
+#IfNotColumnType form_observation date datetime
+ALTER TABLE `form_observation` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `form_observation` CHANGE `ob_code` `ob_code` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_type` `ob_type` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_reason_code` `ob_reason_code` VARCHAR(64) NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_care_plan reason_status
+ALTER TABLE `form_care_plan` ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType lists begdate datetime
+ALTER TABLE `lists` CHANGE `begdate` `begdate` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `lists` CHANGE `enddate` `enddate` DATETIME NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_observation date_end
+ALTER TABLE `form_observation` ADD `date_end` DATETIME NULL DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_care_plan date datetime
+ALTER TABLE `form_care_plan` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
+#EndIf
