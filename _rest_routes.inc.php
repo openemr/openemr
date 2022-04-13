@@ -11663,7 +11663,47 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "960c806f-9463-482e-b228-67b5be1fed55",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-13T06:18:17+00:00"
+     *                      },
+     *                      "resourceType": "PractitionerRole",
+     *                      "practitioner": {
+     *                          "reference": "Practitioner/960c7cd6-187a-4119-8cd4-85389d80efb9",
+     *                          "display": "Administrator Administrator"
+     *                      },
+     *                      "organization": {
+     *                          "reference": "Organization/960c7cc6-b4ae-49bc-877b-1a2913271c43",
+     *                          "display": "Your Clinic Name Here"
+     *                      },
+     *                      "code": {
+     *                          {
+     *                              "coding": {
+     *                                  "102L00000X"
+     *                              },
+     *                              "text": "Psychoanalyst"
+     *                          },
+     *                          {
+     *                              "coding": {
+     *                                  "101Y00000X"
+     *                              },
+     *                              "text": "Counselor"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
