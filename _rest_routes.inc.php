@@ -11114,7 +11114,74 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "960c7cd6-187a-4119-8cd4-85389d80efb9",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-13T08:57:32+00:00"
+     *                      },
+     *                      "resourceType": "Person",
+     *                      "text": {
+     *                          "status": "generated",
+     *                          "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Administrator Administrator</p></div>"
+     *                      },
+     *                      "name": {
+     *                          {
+     *                              "use": "official",
+     *                              "family": "Administrator",
+     *                              "given": {
+     *                                  "Administrator",
+     *                                  "Larry"
+     *                              }
+     *                          }
+     *                      },
+     *                      "telecom": {
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "1234567890",
+     *                              "use": "home"
+     *                          },
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "1234567890",
+     *                              "use": "work"
+     *                          },
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "1234567890",
+     *                              "use": "mobile"
+     *                          },
+     *                          {
+     *                              "system": "email",
+     *                              "value": "hey@hey.com",
+     *                              "use": "home"
+     *                          }
+     *                      },
+     *                      "address": {
+     *                          {
+     *                              "line": {
+     *                                  "123 Lane Street"
+     *                              },
+     *                              "city": "Bellevue",
+     *                              "state": "WA",
+     *                              "period": {
+     *                                  "start": "2021-04-13T08:57:32.146+00:00"
+     *                              }
+     *                          }
+     *                      },
+     *                      "active": true
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
