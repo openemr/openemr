@@ -57,7 +57,7 @@ class FhirPersonRestController
     public function getOne($fhirId)
     {
         $this->logger->debug("FhirPersonRestController->getOne(fhirId)", ["fhirId" => $fhirId]);
-        $processingResult = $this->fhirPersonService->getOne($fhirId);
+        $processingResult = $this->fhirPersonService->getOne($fhirId, true);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
