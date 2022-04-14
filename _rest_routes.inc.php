@@ -36,6 +36,7 @@
  *              "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
  *              "patient/CareTeam.read": "Read care team resources for the current patient (api:fhir)",
  *              "patient/Condition.read": "Read condition resources for the current patient (api:fhir)",
+ *              "patient/Coverage.read": "Read coverage resources for the current patient (api:fhir)",
  *              "patient/Device.read": "Read device resources for the current patient (api:fhir)",
  *              "patient/DiagnosticReport.read": "Read diagnostic report resources for the current patient (api:fhir)",
  *              "patient/DocumentReference.read": "Read document reference resources for the current patient (api:fhir)",
@@ -7888,8 +7889,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *  )
      */
     "GET /fhir/Coverage" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCoverageRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
+        }
         RestConfig::apiLog($return);
         return $return;
     },
@@ -7910,7 +7916,37 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "960d5f10-edc6-4c65-a6d4-39a1e1da87a8",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-14T07:58:45+00:00"
+     *                      },
+     *                      "resourceType": "Coverage",
+     *                      "status": "active",
+     *                      "beneficiary": {
+     *                          "reference": "Patient/960d5f08-9fdf-4bdc-9108-84a149e28bac"
+     *                      },
+     *                      "relationship": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+     *                                  "code": ""
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -7928,8 +7964,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *  )
      */
     "GET /fhir/Coverage/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirCoverageRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCoverageRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirCoverageRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
