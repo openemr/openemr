@@ -11,10 +11,11 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\DeviceOrder;
+use OpenEMR\Cqm\Qdm\DeviceApplied;
+use OpenEMR\Cqm\Qdm\ProcedurePerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class DeviceOrderService extends AbstractQdmService implements QdmServiceInterface
+class DeviceAppliedService extends AbstractQdmService implements QdmServiceInterface
 {
     public function getSqlStatement()
     {
@@ -39,7 +40,7 @@ class DeviceOrderService extends AbstractQdmService implements QdmServiceInterfa
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new DeviceOrder([
+        $qdmModel = new DeviceApplied([
             'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
             ])
