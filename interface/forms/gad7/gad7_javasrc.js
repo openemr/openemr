@@ -14,7 +14,6 @@ var no_qs = 8; // number of questions in the form
  // 'cause the server side doesn't parse this file and execute the php before sending to client
 
 var all_scores = [0,0,0,0,0,0,0,0];
-var changes_made = false; 
 var q8_gone = true; // if question 8 has been removed - or on startup when it's not displayed automatically
 var question = null;  //the element that holds the 8th question
 var all_answered = [false, false, false, false, false, false, false];
@@ -34,20 +33,19 @@ var str_score_analysis = [" " + xl("No anxiety disorder"), " " + xl("Mild anxiet
  * @return undefined
 */
 function manage_question_8 (value) {
-    var another_change = false;   /* record if user makes any changes to the form's data */
     if ((gad7_score > 0 ) && q8_gone){
         question = document.createElement("small");  // create the node to hold question 8
         question.class="text";
         var menue = document.createElement("select");  // create 'select' element, to hold the menue
         // set some of the parameters
         menue.name = "difficulty";
-        menue.onchange = "record_score_q8(my_form.difficulty.value);changes_made = true;" ;
+        menue.onchange = "record_score_q8(my_form.difficulty.value);" ;
         menue.length=5;
         create_q8 (question, menue); // populate question 8 and menue - do in main page as it requires php
         // set the default value - if new it's 'select answer', else it's previous value
-        if (value == "undef")  {menue.options[0].defaultSelected = true;}
+        if (value == "undef")  {menue.options[4].defaultSelected = true;}
          // else we can use value as an index
-        else {menue.options[Number(value)+1].defaultSelected = true;}
+        else {menue.options[Number(value)].defaultSelected = true;}
         //    display the question and  menue in the reservered place
         place = document.getElementById("q8_place");
         place.parentNode.appendChild( question, place);
@@ -62,18 +60,17 @@ function manage_question_8 (value) {
     // nothing to do as
     //   score > 0 but the question is already there -
     // or score == 0 and this is at startup
-    return another_change;
 }
 
 // function update_score - display new total score - check if question 8 should be displayed
 // @param int index  question being answered, is 'undef' if we simply want to display the score, e.g. on startup
 // @param int new_score is 'undef' if it's from clicking 'please select an answer' in a new form - treat as zero.
 // @return true|false
-function update_score(index, new_score) {  //index is the number of the question, score it's score
+function update_score(index, new_score){  //index is the number of the question, score it's score
     var score = new_score;
     var explanation ='';
     var total_string = '';
-     
+
     if (index == 'undef'){
         // display score  - called from view on startup - 'new_score' is previous total
         gad7_score = score;
