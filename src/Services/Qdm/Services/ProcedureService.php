@@ -11,7 +11,7 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\InterventionPerformed;
+use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\ProcedurePerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
@@ -30,9 +30,9 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     RES.units as result_units,
                     RES.result as result_value
                 FROM procedure_order O
-                    JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
-                    JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
-                    JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
+                    LEFT JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                    LEFT JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
+                    LEFT JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
                 WHERE O.procedure_order_type = 'order'
                 ";
 
@@ -46,21 +46,18 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new ProcedurePerformed(
-            [
-            'relevantDatetime' => new DateTime(
-                [
+        $qdmModel = new ProcedurePerformed([
+            'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
-                ]
-            ),
-            'result' => new Quantity(
-                [
+            ]),
+        ]);
+
+        if (!empty($record['result_value']) && !empty($record['result_units'])) {
+            $qdmModel->result = new Quantity([
                 'value' => $record['result_value'],
                 'unit' => $record['result_units']
-                ]
-            ),
-            ]
-        );
+            ]);
+        }
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {
