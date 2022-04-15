@@ -1224,6 +1224,13 @@ $GLOBALS_METADATA = array(
             xl('Turn on to show all payment history in Patient Ledger')
         ),
 
+        'void_checkout_reopen' => array(
+            xl('Void Checkout and Reopen in Fee Sheet'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Void Checkout and Reopen in Fee Sheet')
+        ),
+
         'support_fee_sheet_line_item_provider' => array(
             xl('Support provider in line item in fee sheet'),
             'bool',                           // data type
