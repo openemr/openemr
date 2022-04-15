@@ -249,6 +249,7 @@ class CodeTypesService
                     return $oid;
                 }
             }
+            error_log(xlt('Missing Code Type OID:' . $codeType));
         }
         return $system;
     }
@@ -369,10 +370,17 @@ class CodeTypesService
 
     public function lookupFromValueset($code, $codeType, $codeSystem)
     {
-        $value = sqlQuery(
-            "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
-            array($code, $codeType, "$codeType%", $codeSystem)
-        );
+        if (empty($codeSystem) && empty($codeType)) {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? LIMIT 1",
+                array($code)
+            );
+        } else {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
+                array($code, $codeType, "$codeType%", $codeSystem)
+            );
+        }
         return $value;
     }
 

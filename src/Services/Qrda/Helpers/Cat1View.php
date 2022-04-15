@@ -68,6 +68,12 @@ trait Cat1View
     {
         $oid = $context->find('system');
         $code = $context->find('code');
+        if (empty($oid) && !empty($code)) {
+            $codeService = new CodeTypesService();
+            $code_tmp = $codeService->resolveCode($code, '', '');
+            $code = $code_tmp['code'] ?? null;
+            $oid = $code_tmp['system_oid'] ?? null;
+        }
         if (empty($oid)) {
             return "nullFlavor=\"NA\" sdtc:valueSet=\"$code\"";
         } else {
