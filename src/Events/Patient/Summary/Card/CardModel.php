@@ -8,7 +8,6 @@ namespace OpenEMR\Events\Patient\Summary\Card;
 
 class CardModel implements CardInterface
 {
-
     private $backgroundColorClass = '';
 
     private $textColorClass = '';

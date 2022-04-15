@@ -65,7 +65,7 @@ class SectionEvent extends Event
      * @param null|int $position Define a specific position in array. Null to append, 0 to prepend
      * @return void
      */
-    public function addCard(CardInterface $card, $position = null) : void
+    public function addCard(CardInterface $card, $position = null): void
     {
         $currentCards = $this->getCardIdentifiers();
         if (in_array($card->getIdentifier(), $currentCards)) {

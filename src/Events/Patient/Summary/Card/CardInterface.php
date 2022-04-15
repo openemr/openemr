@@ -18,7 +18,6 @@ namespace OpenEMR\Events\Patient\Summary\Card;
  */
 interface CardInterface
 {
-
     /**
      * Return the class name used to manage the background color of the entire card
      *
@@ -105,5 +104,4 @@ interface CardInterface
      * @return array
      */
     public function getTemplateVariables(): array;
-
 }

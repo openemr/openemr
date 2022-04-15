@@ -13,7 +13,6 @@ use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
 
 class PortalCard extends CardModel
 {
-
     const TEMPLATE_FILE = 'patient/partials/portal.html.twig';
 
     const CARD_ID = 'patient_portal';
