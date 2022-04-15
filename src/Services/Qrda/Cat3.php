@@ -38,8 +38,6 @@ class Cat3 extends \Mustache_Engine
     protected $aggregate_results = [];
     protected $measure_result_hash = [];
     protected $provider;
-    protected $performance_period_start;
-    protected $performance_period_end;
     protected $submission_program;
     protected $ry2022_submission;
 
@@ -83,8 +81,9 @@ class Cat3 extends \Mustache_Engine
         }
 
         $this->provider = $options['provider'];
-        $this->performance_period_start = $options['start_time'];
-        $this->performance_period_end = $options['end_time'];
+        // Start and end time properties are in Date helper
+        $this->_performance_period_start = $options['start_time'];
+        $this->_performance_period_end = $options['end_time'];
         $this->submission_program = $options['submission_program'];
         $this->ry2022_submission = $options['ry2022_submission'];
     }

@@ -103,7 +103,7 @@
 
 --  #IfUpdateEditOptionsNeeded
 --    desc: Change Layout edit options.
---    arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
+--    arguments: mode(add or remove) layout_form_id the_edit_option comma_separated_list_of_field_ids
 
 #IfNotRow2D layout_options form_id DEM field_id prevent_portal_apps
 SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='allow_patient_portal' AND form_id='DEM');
@@ -278,4 +278,36 @@ ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_c
 #IfNotColumnType insurance_companies ins_type_code int(11)
 ALTER TABLE `insurance_companies` CHANGE `ins_type_code` `ins_type_code` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `insurance_companies` CHANGE `inactive` `inactive` TINYINT(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfUpdateEditOptionsNeeded remove DEM C street, street_line_2, city
+#EndIf
+
+#IfUpdateEditOptionsNeeded add DEM U street, street_line_2, city
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id postal_code fld_length 8
+UPDATE `layout_options` SET `fld_length` = '8' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'postal_code';
+#EndIf
+
+#IfNotColumnType form_observation date datetime
+ALTER TABLE `form_observation` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `form_observation` CHANGE `ob_code` `ob_code` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_type` `ob_type` VARCHAR(64) NULL DEFAULT NULL, CHANGE `ob_reason_code` `ob_reason_code` VARCHAR(64) NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_care_plan reason_status
+ALTER TABLE `form_care_plan` ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType lists begdate datetime
+ALTER TABLE `lists` CHANGE `begdate` `begdate` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `lists` CHANGE `enddate` `enddate` DATETIME NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_observation date_end
+ALTER TABLE `form_observation` ADD `date_end` DATETIME NULL DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_care_plan date datetime
+ALTER TABLE `form_care_plan` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
 #EndIf

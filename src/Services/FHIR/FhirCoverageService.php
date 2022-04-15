@@ -9,10 +9,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -26,7 +28,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-class FhirCoverageService extends FhirServiceBase
+class FhirCoverageService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
     use FhirServiceBaseEmptyTrait;
 
@@ -49,9 +51,9 @@ class FhirCoverageService extends FhirServiceBase
     protected function loadSearchParameters()
     {
         return  [
-            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::TOKEN, ['pid']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['id']),
-            'payor' => new FhirSearchParameterDefinition('payor', SearchFieldType::TOKEN, ['provider'])
+            'patient' => $this->getPatientContextSearchField(),
+            'payor' => new FhirSearchParameterDefinition('payor', SearchFieldType::TOKEN, ['provider']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)])
         ];
     }
 
@@ -109,11 +111,15 @@ class FhirCoverageService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->coverageService->getAll($openEMRSearchParameters, false);
+        return $this->coverageService->search($openEMRSearchParameters);
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 }

@@ -319,6 +319,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $e = 1;
         $f = 1;
         $g = 1;
+        $h = 1;
         $p = 1; // payer QRDA
 
         $arr_procedure_res = array();
@@ -684,6 +685,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_description'] = $newdata['care_plan']['reason_description'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_date_low'] = $newdata['care_plan']['reason_date_low'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_date_high'] = $newdata['care_plan']['reason_date_high'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
@@ -1745,6 +1747,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     /**
      * Method for review discard. Soft delete.
+     *
      * @param $data
      * @return void
      */
@@ -1759,8 +1762,10 @@ class CarecoordinationTable extends AbstractTableGateway
                       SET audit_master_approval_status='3'
                       WHERE audit_master_id=?", array($data['audit_master_id']));
     }
+
     /**
      * Method hard delete audit data.
+     *
      * @param $data
      * @return void
      */

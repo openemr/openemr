@@ -48,7 +48,7 @@ $provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['aut
 
 if (
     ($_POST['setting_new_window'] ?? '') ||
-    ($_POST['setting_bootstrap_submenu' ?? '']) ||
+    ($_POST['setting_bootstrap_submenu'] ?? '') ||
     ($_POST['setting_selectors'] ?? '')
 ) {
     // These are not form elements. We only ever change them via ajax, so exit now.

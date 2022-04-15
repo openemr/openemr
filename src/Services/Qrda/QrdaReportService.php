@@ -148,7 +148,7 @@ class QrdaReportService
         return $xml;
     }
 
-    public function generateCategoryIIIXml($pid, $measures, $effectiveDate, $efffectiveDateEnd): string
+    public function generateCategoryIIIXml($pid, $measures, $effectiveDate, $effectiveDateEnd): string
     {
         if ($pid) {
             $request = new QdmRequestOne($pid);
@@ -156,7 +156,7 @@ class QrdaReportService
             $request = new QdmRequestAll();
         }
         $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
-        $xml = $exportService->export($measures, $effectiveDate, $efffectiveDateEnd);
+        $xml = $exportService->export($measures, $effectiveDate, $effectiveDateEnd);
 
         return $xml;
     }
