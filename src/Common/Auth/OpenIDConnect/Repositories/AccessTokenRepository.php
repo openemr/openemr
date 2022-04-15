@@ -151,7 +151,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      * Sets the context array that will be saved to the database for new acess tokens.
      * @param $context The array of context variables.  If this is not an array the context is set to null;
      */
-    public function setContextForNewTokens($context) {
+    public function setContextForNewTokens($context)
+    {
         $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
     }
 
@@ -161,7 +162,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      * @param $scopes The scopes in the access token that determines what context variables to use in the access token
      * @return array The built context session.
      */
-    private function getContextForNewAccessTokens($scopes) {
+    private function getContextForNewAccessTokens($scopes)
+    {
         if (!empty($this->contextForNewTokens)) {
             $context = $this->builder->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
         } else {

@@ -530,7 +530,8 @@ class RestConfig
         return $restRequest;
     }
 
-    public function getTokenContextForRequest(HttpRestRequest $restRequest) {
+    public function getTokenContextForRequest(HttpRestRequest $restRequest)
+    {
         $accessTokenRepo = new AccessTokenRepository();
         // note this is pretty confusing as getAccessTokenId comes from the oauth_access_id which is the token NOT
         // the database id even though this is called accessTokenId....
@@ -538,8 +539,7 @@ class RestConfig
         $context = $token['context'] ?? "{}"; // if there is no populated context we just return an empty return
         try {
             return json_decode($context, true);
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             (new SystemLogger())->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                 , 'tokenId' => $restRequest->getAccessTokenId()]);
         }
@@ -553,7 +553,8 @@ class RestConfig
      * @param $patientUuid The uuid from the patient_data table that represents the patient
      * @return bool True if has access, false otherwise
      */
-    private function checkUserHasAccessToPatient($userId, $patientUuid) {
+    private function checkUserHasAccessToPatient($userId, $patientUuid)
+    {
         // TODO: the session should never be populated with the pid from the access token unless the user had access to
         // it.  However, if we wanted an additional check or if we anted to fire off any kind of event that does
         // patient filtering by provider / clinic we would handle that here.

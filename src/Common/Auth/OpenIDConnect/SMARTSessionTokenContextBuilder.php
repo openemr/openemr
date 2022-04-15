@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
-
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
@@ -30,10 +29,10 @@ class SMARTSessionTokenContextBuilder
         $this->logger = new SystemLogger();
     }
 
-    public function getEHRLaunchContext() {
+    public function getEHRLaunchContext()
+    {
         $launch = $this->sessionArray['launch'] ?? null;
-        if (empty($launch))
-        {
+        if (empty($launch)) {
             return [];
         }
         $context = [];
@@ -64,7 +63,8 @@ class SMARTSessionTokenContextBuilder
         return $context;
     }
 
-    public function getContextForScopesWithExistingContext(array $context, array $scopes) : array {
+    public function getContextForScopesWithExistingContext(array $context, array $scopes): array
+    {
         $returnContext = [];
         $populateKeys = ['patient'];
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
@@ -90,7 +90,8 @@ class SMARTSessionTokenContextBuilder
         return $returnContext;
     }
 
-    public function getContextForScopes($scopes) : array {
+    public function getContextForScopes($scopes): array
+    {
         $context = [];
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             $context = $this->getStandaloneLaunchContext();
@@ -100,7 +101,8 @@ class SMARTSessionTokenContextBuilder
         return $context;
     }
 
-    public function getStandaloneLaunchContext() {
+    public function getStandaloneLaunchContext()
+    {
         $context = [];
         if (empty($this->sessionArray['puuid'])) {
             return $context;

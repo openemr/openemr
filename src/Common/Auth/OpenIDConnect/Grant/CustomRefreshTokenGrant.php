@@ -48,13 +48,12 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         // we are going to grab our old access token and grab any context information that we may have
         if ($this->accessTokenRepository instanceof AccessTokenRepository) {
             $oldToken = $this->accessTokenRepository->getTokenByToken($oldRefreshToken['access_token_id']);
-            $context= $oldToken['context'] ?? '{}';
+            $context = $oldToken['context'] ?? '{}';
             if (!empty($context)) {
                 try {
                     $decodedContext = \json_decode($context, true);
                     $this->accessTokenRepository->setContextForNewTokens($decodedContext);
-                }
-                catch (\Exception $exception) {
+                } catch (\Exception $exception) {
                     (new SystemLogger())->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                         , 'tokenId' => $oldRefreshToken['access_token_id']]);
                 }
