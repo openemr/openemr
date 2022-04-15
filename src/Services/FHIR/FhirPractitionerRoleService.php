@@ -9,6 +9,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\PractitionerRoleService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -43,7 +44,8 @@ class FhirPractitionerRoleService extends FhirServiceBase
     {
         return  [
             'specialty' => new FhirSearchParameterDefinition('specialty', SearchFieldType::TOKEN, ['specialty_code']),
-            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::STRING, ['user_name'])
+            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::STRING, ['user_name']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('providers.facility_role_uuid', ServiceField::TYPE_UUID)])
         ];
     }
 
@@ -65,10 +67,10 @@ class FhirPractitionerRoleService extends FhirServiceBase
         $id->setValue($dataRecord['uuid']);
         $practitionerRoleResource->setId($id);
 
-        if (!empty($dataRecord['user_uuid'])) {
+        if (!empty($dataRecord['provider_uuid'])) {
             $practitioner = new FHIRReference(
                 [
-                    'reference' => 'Practitioner/' . $dataRecord['user_uuid'],
+                    'reference' => 'Practitioner/' . $dataRecord['provider_uuid'],
                     'display' => $dataRecord['user_name']
                 ]
             );
@@ -87,14 +89,14 @@ class FhirPractitionerRoleService extends FhirServiceBase
         if (!empty($dataRecord['role_code'])) {
             $reason = new FHIRCodeableConcept();
             $reason->addCoding($dataRecord['role_code']);
-            $reason->setText($dataRecord['role']);
+            $reason->setText($dataRecord['role_title']);
             $practitionerRoleResource->addCode($reason);
         }
 
         if (!empty($dataRecord['specialty_code'])) {
             $reason = new FHIRCodeableConcept();
             $reason->addCoding($dataRecord['specialty_code']);
-            $reason->setText($dataRecord['specialty']);
+            $reason->setText($dataRecord['specialty_title']);
             $practitionerRoleResource->addCode($reason);
         }
 
@@ -147,7 +149,7 @@ class FhirPractitionerRoleService extends FhirServiceBase
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->practitionerRoleService->getAll($openEMRSearchParameters, false);
+        return $this->practitionerRoleService->search($openEMRSearchParameters);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {

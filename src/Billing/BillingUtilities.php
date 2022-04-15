@@ -1897,12 +1897,7 @@ class BillingUtilities
                 );
             }
 
-            sqlStatement(
-                "UPDATE form_encounter SET last_level_billed = 0, " .
-                "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
-                "WHERE pid = ? AND encounter = ?",
-                array($patient_id, $encounter_id)
-            );
+            self::reOpenEncounterForBilling($patient_id, $encounter_id);
         } elseif ($usingirnpools) {
             // Non-purge means just assign a new invoice reference number.
             $new_invoice_refno = self::updateInvoiceRefNumber();
@@ -1913,5 +1908,22 @@ class BillingUtilities
                 array($new_invoice_refno, $patient_id, $encounter_id)
             );
         }
+    }
+
+    // Common function for re-opening an encounter
+    public static function reOpenEncounterForBilling($patient_id, $encounter_id)
+    {
+        sqlStatement(
+            "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
+            "pid = ? AND encounter = ? AND activity = 1",
+            array($patient_id, $encounter_id)
+        );
+
+        sqlStatement(
+            "UPDATE form_encounter SET last_level_billed = 0, " .
+            "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
+            "WHERE pid = ? AND encounter = ?",
+            array($patient_id, $encounter_id)
+        );
     }
 }

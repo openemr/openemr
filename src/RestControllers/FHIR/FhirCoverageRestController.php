@@ -41,9 +41,9 @@ class FhirCoverageRestController
      * - patient
      * @return FHIR bundle with query results, if found
      */
-    public function getAll($searchParams)
+    public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->fhirCoverage->getAll($searchParams);
+        $processingResult = $this->fhirCoverage->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
@@ -64,9 +64,9 @@ class FhirCoverageRestController
      * @param $fhirId The FHIR Coverage resource id (uuid)
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->fhirCoverage->getOne($fhirId, true);
+        $processingResult = $this->fhirCoverage->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 }
