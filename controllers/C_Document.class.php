@@ -11,6 +11,7 @@
  */
 
 require_once(__DIR__ . "/../library/forms.inc");
+require_once(__DIR__ . "/../library/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -348,7 +349,7 @@ class C_Document extends Controller
             }
         }
 
-        $this->assign("error", nl2br($error));
+        $this->assign("error", $error);
         //$this->_state = false;
         $_POST['process'] = "";
         //return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
@@ -785,7 +786,7 @@ class C_Document extends Controller
                     }
                 }
                 if ($disable_exit == true) {
-                    return $filetext;
+                    return $filetext ?? '';
                 }
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');

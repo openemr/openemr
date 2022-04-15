@@ -74,6 +74,24 @@ class CarecoordinationController extends AbstractActionController
         if ($action == 'add_new_patient') {
             $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);
         }
+        if (($request->getPost('chart_all_imports') ?? null) === 'true' && empty($action)) {
+            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            foreach ($records as $record) {
+                if (!empty($record['matched_patient'])) {
+                    // @todo figure out a way to make this auto. $data is array of doc changes.
+                    //$this->getCarecoordinationTable()->insertApprovedData($data);
+                    // meantime make user approve changes.
+                    continue;
+                }
+                $this->getCarecoordinationTable()->insert_patient($record['amid'], $record['document_id']);
+            }
+        }
+        if (($request->getPost('delete_all_imports') ?? null) === 'true' && empty($action)) {
+            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            foreach ($records as $record) {
+                $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $record['amid']));
+            }
+        }
 
         $upload = $request->getPost('upload');
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
@@ -108,6 +126,8 @@ class CarecoordinationController extends AbstractActionController
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
         ));
+        // I haven't a clue why this delay is needed to allow batch to work from fetch.
+        sleep(1);
         return $view;
     }
 
@@ -169,9 +189,6 @@ class CarecoordinationController extends AbstractActionController
         $view = new JsonModel();
         $view->setTerminal(true);
         return $view;
-        // $view = new ViewModel(array());
-        // $view->setTerminal(true);
-        // return $view;
     }
 
     public function revandapproveAction()

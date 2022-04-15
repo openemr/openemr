@@ -16,33 +16,45 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\Services\AllergyIntoleranceService;
 use OpenEMR\Services\Qdm\Services\AssessmentService;
 use OpenEMR\Services\Qdm\Services\ConditionService;
+use OpenEMR\Services\Qdm\Services\DeviceAppliedService;
 use OpenEMR\Services\Qdm\Services\DiagnosisService;
+use OpenEMR\Services\Qdm\Services\DiagnosticStudyOrderedService;
 use OpenEMR\Services\Qdm\Services\DiagnosticStudyService;
 use OpenEMR\Services\Qdm\Services\EncounterService;
 use OpenEMR\Services\Qdm\Services\ImmunizationAdministeredService;
+use OpenEMR\Services\Qdm\Services\InterventionOrderedService;
 use OpenEMR\Services\Qdm\Services\InterventionService;
+use OpenEMR\Services\Qdm\Services\LaboratoryTestOrderedService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestService;
 use OpenEMR\Services\Qdm\Services\MedicationActiveService;
 use OpenEMR\Services\Qdm\Services\MedicationOrderService;
 use OpenEMR\Services\Qdm\Services\PatientService;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
+use OpenEMR\Services\Qdm\Services\ProcedureRecommendedService;
 use OpenEMR\Services\Qdm\Services\ProcedureService;
+use OpenEMR\Services\Qdm\Services\SubstanceRecommendedService;
 
 class QdmBuilder
 {
     protected $services = [
-        AssessmentService::class,
-        DiagnosticStudyService::class,
-        EncounterService::class,
-        LaboratoryTestService::class,
-        InterventionService::class,
-        MedicationOrderService::class,
-        MedicationActiveService::class,
         AllergyIntoleranceService::class,
+        AssessmentService::class,
+        DeviceAppliedService::class,
         DiagnosisService::class,
-        PhysicalExamService::class,
+        DiagnosticStudyService::class,
+        DiagnosticStudyOrderedService::class,
+        EncounterService::class,
         ImmunizationAdministeredService::class,
+        InterventionService::class,
+        InterventionOrderedService::class,
+        LaboratoryTestService::class,
+        LaboratoryTestOrderedService::class,
+        MedicationActiveService::class,
+        MedicationOrderService::class,
+        PhysicalExamService::class,
         ProcedureService::class,
+        ProcedureRecommendedService::class,
+        SubstanceRecommendedService::class,
     ];
 
     public function build(QdmRequestInterface $request): array
@@ -77,10 +89,15 @@ class QdmBuilder
                     // Use the service to make a QDM model with the data from the query result
                     try {
                         $qdmModel = $service->makeQdmModel($qdmRecord->getData());
-                        // Using the PID map, find the patient this model belongs to and add this data element
-                        // to the correct patient's QDM model
-                        $qdmPatient = $qdm_patients_map[$qdmRecord->getPid()];
-                        $qdmPatient->add_data_element($qdmModel);
+                        // If for some reason the the model doesn't need to return a value, or the date is invalid, makeQdmModel can return null
+                        if ($qdmModel !== null) {
+                            // Using the PID map, find the patient this model belongs to and add this data element
+                            // to the correct patient's QDM model
+                            $qdmPatient = $qdm_patients_map[$qdmRecord->getPid()];
+                            $qdmPatient->add_data_element($qdmModel);
+                        } else {
+                            error_log("QDM Builder Warning: NULL returned by makeQdmModel() on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
+                        }
                     } catch (\Exception $e) {
                         // There was an error creating the model, such as passing a parameter that is not a member of a QDM Object
                         // TODO improve error handling

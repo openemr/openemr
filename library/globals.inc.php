@@ -450,6 +450,13 @@ $GLOBALS_METADATA = array(
             xl('Application name used throughout the user interface.')
         ),
 
+        'machine_name' => [
+            xl('Application Machine Name'),
+            'text',
+            'openemr',
+            xl('The machine name of the application. Used to identify the EMR in various messaging systems like HL7. Should not contain spaces'),
+        ],
+
         'display_main_menu_logo' => [
             xl('Display main menu logo'),
             'bool',
@@ -1222,6 +1229,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = true
             xl('Turn on to show all payment history in Patient Ledger')
+        ),
+
+        'void_checkout_reopen' => array(
+            xl('Void Checkout and Reopen in Fee Sheet'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Void Checkout and Reopen in Fee Sheet')
         ),
 
         'support_fee_sheet_line_item_provider' => array(
@@ -2577,6 +2591,13 @@ $GLOBALS_METADATA = array(
             xl('PQRI Registry ID')
         ),
 
+        'cqm_performance_period' => array(
+            xl('Eligible Clinician eCQM Performance Period'),
+            'text',                           // data type
+            '2022', // default set
+            xl('Enter the eCQM Performance Period year. For example 2022')
+        ),
+
         'enable_amc' => array(
             xl('Enable AMC Reporting'),
             'bool',                           // data type
@@ -3508,6 +3529,20 @@ $GLOBALS_METADATA = array(
             '',
             xl('Easipro Server Password')
         ),
+
+        'usps_webtools_enable' => array(
+            xl('Enable USPS Web Tools API'),
+            'bool',                           // data type
+            '0',
+            xl('Enable USPS Web Tools API')
+        ),
+
+        'usps_webtools_username' => array(
+            xl('USPS Web Tools API Username'),
+            'text',                           // data type
+            '',
+            xl('USPS Web Tools API Username')
+        ),
     ),
 
     'Rx' => array(
@@ -4108,7 +4143,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Visits by Item Report'),
             'bool',                           // data type
             '0',                              // default
-            xl('Visits by Item Report.')
+            xl('Visits by Item Report')
         ),
 
         'gbl_menu_acct_trans' => array(
@@ -4157,7 +4192,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Service and Client Volume Report'),
             'bool', // data type
             '1', // default
-            xl('Service and client volume report')
+            xl('Service and Client Volume Report')
         ),
     );
 

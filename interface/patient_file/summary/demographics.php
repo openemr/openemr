@@ -165,19 +165,30 @@ function portalAuthorized($pid)
     }
 
     $return = [
-        'allowed' => false,
-        'created' => false,
+        'isAllowed' => false
+        ,'allowed' => [
+                'api' => false
+                ,'portal' => false
+        ],
+        'credentials' => [
+                'created' => false
+                ,'date' => null
+        ]
     ];
 
-    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
-    if ($portalStatus['allow_patient_portal'] == 'YES') {
-        $return['allowed'] = true;
-        $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
+    $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
+    $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
+    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps']) != 'YES';
+    if ($return['allowed']['portal'] || $return['allowed']['api']) {
+        $return['isAllowed'] = true;
+        $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
         if ($portalLogin) {
-            $return['created'] = true;
+            $return['credentials']['date'] = $portalLogin['date_created'];
+            $return['credentials']['created'] = true;
         }
         return $return;
     }
+    return $return;
 }
 
 function deceasedDays($days_deceased)
@@ -675,7 +686,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                dlgopen('', '', 380, 400, '', '', {
+                dlgopen('', '', 550, 550, '', '', {
                     buttons: [{
                         text: <?php echo xlj('Close'); ?>,
                         close: true,
@@ -1068,7 +1079,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         if ($GLOBALS["enable_oa"]) {
-                            if ($_POST['status_update'] === 'true') {
+                            if (($_POST['status_update'] ?? '') === 'true') {
                                 unset($_POST['status_update']);
                                 $showEligibility = true;
                                 $ok = EDI270::requestEligibleTransaction($pid);
@@ -1346,7 +1357,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     endif;
 
-
+                    if ($GLOBALS['portal_onsite_two_enable']) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('portal'));
+                        echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
+                            'portalAuthorized' => portalAuthorized($pid),
+                            'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
+                            'title' => xl('Patient Portal') . ' / ' . xl('API Access'),
+                            'id' => 'patient_portal',
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                        ]);
+                    endif;
 
                     // If there is an ID Card or any Photos show the widget
                     $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);

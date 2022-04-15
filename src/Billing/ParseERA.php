@@ -427,7 +427,7 @@ class ParseERA
                 // Provider-level adjustments are a General Ledger thing and should not
                 // alter the A/R for the claim, so we just report them as notes.
                 for ($k = 3; $k < 15; $k += 2) {
-                    if (!$seg[$k]) {
+                    if (!($seg[$k] ?? '')) {
                         break;
                     }
 

@@ -100,7 +100,8 @@ class FacilityService extends BaseService
 
         $results = $this->search($searchArgs);
         if (!empty($results->getData())) {
-            return array_pop($results->getData());
+            $pbe_results = $results->getData();
+            return array_pop($pbe_results);
         }
         return null;
     }

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+ */
 
 namespace OpenEMR\Cqm\Qdm;
 
@@ -7,14 +14,13 @@ namespace OpenEMR\Cqm\Qdm;
  *
  * This is a class generated with Laminas\Code\Generator.
  *
- * @QDM Version 5.5
+ * @QDM Version 5.6
  * @author Ken Chapple <ken@mi-squared.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
  */
 class DiagnosticStudyPerformed extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -46,6 +52,11 @@ class DiagnosticStudyPerformed extends QDMBaseType
     public $resultDatetime = null;
 
     /**
+     * @property BaseTypes\Code $interpretation
+     */
+    public $interpretation = null;
+
+    /**
      * @property BaseTypes\Code $status
      */
     public $status = null;
@@ -69,13 +80,25 @@ class DiagnosticStudyPerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**
      * @property BaseTypes\Any $performer
      */
     public $performer = null;
+
+    /**
+     * @property array $relatedTo
+     */
+    public $relatedTo = [
+
+    ];
+
+    /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Diagnostic Study, Performed';
 
     /**
      * @property string $hqmfOid
@@ -99,3 +122,4 @@ class DiagnosticStudyPerformed extends QDMBaseType
 
     public $_type = 'QDM::DiagnosticStudyPerformed';
 }
+

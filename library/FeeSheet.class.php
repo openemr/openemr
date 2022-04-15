@@ -960,7 +960,7 @@ class FeeSheet
 
                 $fee = sprintf('%01.2f', $price * $units);
 
-                if (!$cod0 && $code_types[$code_type]['fee'] == 1) {
+                if (!$cod0 && ($code_types[$code_type]['fee'] ?? null) == 1) {
                     $mod0 = $modifier;
                     $cod0 = $code;
                     $ct0  = $code_type;

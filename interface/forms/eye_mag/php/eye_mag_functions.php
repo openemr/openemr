@@ -97,7 +97,11 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 $current = $i;
             }
 
-            $output .= "<option value='" . attr($prior['id']) . "' " . attr($selected) . ">" . text($oeexam_date) . "</option>";
+            if (!empty($output)) {
+                $output .= "<option value='" . attr($prior['id']) . "' " . attr($selected) . ">" . text($oeexam_date) . "</option>";
+            } else {
+                $output = "<option value='" . attr($prior['id']) . "' " . attr($selected) . ">" . text($oeexam_date) . "</option>";
+            }
             $selected = '';
             $i++;
         }
@@ -112,7 +116,11 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 $selected = '';
             }
 
-            $output .= "<option value='" . attr($priors[$i]['id']) . "' " . attr($selected) . ">" . text($priors[$i]['exam_date']) . "</option>";
+            if (!empty($output)) {
+                $output .= "<option value='" . attr($priors[$i]['id']) . "' " . attr($selected) . ">" . text($priors[$i]['exam_date']) . "</option>";
+            } else {
+                $output = "<option value='" . attr($priors[$i]['id']) . "' " . attr($selected) . ">" . text($priors[$i]['exam_date']) . "</option>";
+            }
         }
     }
 
@@ -154,14 +162,14 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     }
 
     $output_return .= '
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$i][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$i]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_earliest"
                 name="PRIORS_' . attr($zone) . '_earliest"
                 class="fa fa-fast-backward fa-sm PRIORS"
                 title="' . attr($zone) . ': ' . attr($priors[$i]['encounter_date']) . '">
         </span>
         &nbsp;
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$earlier][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$earlier]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_minus_one"
                 name="PRIORS_' . attr($zone) . '_minus_one"
                 class="fa fa-step-backward fa-sm PRIORS"
@@ -171,16 +179,16 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 id="PRIOR_' . attr($zone) . '"
                 style="padding:0 0;font-size:1.2em;"
                 class="PRIORS">
-                ' . $output . '
+                ' . ($output ?? '') . '
         </select>
                   &nbsp;
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$later][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$later]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_plus_one"
                 name="PRIORS_' . attr($zone) . '_plus_one"
                 class="fa  fa-step-forward PRIORS"
                 title="' . attr($zone) . ': ' . attr($priors[$later]['encounter_date']) . '">
         </span>&nbsp;&nbsp;
-        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[0][id]) . '").trigger("change");\'
+        <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[0]['id']) . '").trigger("change");\'
                 id="PRIORS_' . attr($zone) . '_latest"
                 name="PRIORS_' . attr($zone) . '_latest"
                 class="fa  fa-fast-forward PRIORS"
@@ -2044,7 +2052,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     global $PMSFH;
     global $pid;
     global $PMSFH_titles;
-    if (!$PMFSH) {
+    if (!($PMFSH ?? '')) {
         $PMSFH = build_PMSFH($pid);
     }
 
@@ -2057,35 +2065,46 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     // Let's put half in each of the 2 rows... or try to at least.
     // Find out the number of items present now and put half in each column.
     foreach ($PMSFH[0] as $key => $value) {
-        $total_PMSFH += count($PMSFH[0][$key]);
-        $total_PMSFH += 2; //add two for the title and a space
+        if (!empty($total_PMSFH)) {
+            $total_PMSFH += count($PMSFH[0][$key]);
+            $total_PMSFH += 2; //add two for the title and a space
+        } else {
+            $total_PMSFH = count($PMSFH[0][$key]);
+            $total_PMSFH = 2; //add two for the title and a space
+        }
         $count[$key] = count($PMSFH[0][$key]) + 1;
     }
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
     foreach ($PMSFH[0]['ROS'] as $key => $value) {
         if ($value['display'] == '') {
-            $total_PMSFH--;
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            }
             $count['ROS']--;
         }
     }
 
     foreach ($PMSFH[0]['FH'] as $key => $value) {
         if ($value['display'] == '') {
-            $total_PMSFH--;
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
+            }
             $count['FH']--;
         }
     }
 
     foreach ($PMSFH[0]['SOCH'] as $key => $value) {
-        if (($value['display'] == '') || ($item['display'] == 'not_applicable')) {
+        if (($value['display'] == '') || (($item['display'] ?? '') == 'not_applicable')) {
             $total_PMSFH--;
             $count['SOCH']--;
         }
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH / $rows) + 1;
+    $column_max = round(($total_PMSFH ?? null) / $rows) + 1;
     if ($column_max < "25") {
         $column_max = '20';
     }
@@ -2164,7 +2183,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 }
 
                 $table .= "<span $red name='QP_PMH_" . $item['rowid'] . "' href='#PMH_anchor' id='QP_PMH_" . $item['rowid'] . "'
-                onclick=\"alter_issue2(" . attr_js($item['rowid']) . "," . attr_js($key) . "," . attr_js($index) . ");\">" . text($item['title'] . $reaction) . "</span><br />";
+                onclick=\"alter_issue2(" . attr_js($item['rowid']) . "," . attr_js($key) . "," . attr_js($index) . ");\">" . text($item['title'] . ($reaction ?? '')) . "</span><br />";
                 $index++;
             }
         } else {
@@ -2187,13 +2206,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     }
 
     echo $display_PMSFH['POS'];
-    $count = $count + $count['POS'] + 4;
+    $count = $count + ($count['POS'] ?? null) + 4;
     if ($count >= $column_max) {
         echo $div . $header1;
     }
 
     echo $display_PMSFH['Eye Meds'];
-    $count = $count + $count['Surgery'] +  4;
+    $count = $count + ($count['Surgery'] ?? null) +  4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count = 0;
@@ -2201,7 +2220,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     }
 
     echo $display_PMSFH['PMH'];
-    $count = $count + $count['Surgery'] +  4;
+    $count = $count + ($count['Surgery'] ?? null) +  4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count = 0;
@@ -2210,7 +2229,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
     echo $display_PMSFH['Surgery'];
 
-    $count = $count + $count['Medication'] + 4;
+    $count = $count + ($count['Medication'] ?? null) + 4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count = 0;
@@ -2219,7 +2238,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
     echo $display_PMSFH['Medication'];
 
-    $count = $count + $count['Allergy'] + 4;
+    $count = $count + ($count['Allergy'] ?? null) + 4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count = 0;
@@ -2228,7 +2247,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
     echo $display_PMSFH['Allergy'];
 
-    $count = $count + $count['FH'] + 4;
+    $count = $count + ($count['FH'] ?? null) + 4;
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count = 0;
@@ -2272,7 +2291,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
         }
 
         echo $close_table;
-        $count = $count + $count['SOCH'] + 4;
+        $count = $count + ($count['SOCH'] ?? null) + 4;
 
         if (($count > $column_max) && ($row_count < $rows)) {
             echo $div;
@@ -2299,14 +2318,18 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     }
 
                     if (($item['display'] > '') && ($item['display'] != 'not_applicable')) {
-                        echo "<span name='QP_PMH_" . $item['rowid'] . "' href='#PMH_anchor' id='QP_PMH_" . $item['rowid'] . "'
+                        echo "<span name='QP_PMH_" . ($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . ($item['rowid'] ?? '') . "'
                                 onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
                         $counter++;
-                        $mentions_SOCH++;
+                        if (!empty($mention_SOCH)) {
+                            $mentions_SOCH++;
+                        } else {
+                            $mentions_SOCH = 1;
+                        }
                     }
                 }
 
-                if (!$mentions_SOCH) {
+                if (!($mentions_SOCH ?? null)) {
                     ?>
                     <span href="#PMH_anchor"
                     onclick="alter_issue2('0','SOCH','');" style="text-align:right;"><?php echo xlt("Not documented"); ?></span><br />
@@ -2315,7 +2338,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 }
 
                 echo $close_table;
-                $count = $count + $count['ROS'] + 4;
+                $count = $count + ($count['ROS'] ?? null) + 4;
 
                 if (($count > $column_max) && ($row_count < $rows)) {
                     echo $div;
@@ -2350,7 +2373,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 }
             }
 
-            if ($mention < 1) {
+            if (($mention ?? null) < 1) {
                 echo  xlt("Negative") . "<br />";
                 $counter = $counter++;
             }
@@ -2539,14 +2562,17 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     <?php
     foreach ($PMSFH[0]['SOCH'] as $k => $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
-            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+            echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
         onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
-
-            $mention_SOCH++;
+            if (!empty($mention_SOCH)) {
+                $mention_SOCH++;
+            } else {
+                $mention_SOCH = 1;
+            }
         }
     }
 
-    if (!$mention_SOCH) {
+    if (!($mention_SOCH ?? '')) {
         ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','SOCH','');" class="disabled_button"><?php echo xlt("Negative"); ?><br /></span>
@@ -2569,7 +2595,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         }
     }
 
-    if (!$mention_FH) {
+    if (!($mention_FH ?? '')) {
         ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','FH','');" class="disabled_button"><?php echo xlt("Negative"); ?><br /></span>
@@ -2589,7 +2615,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         }
     }
 
-    if (!$mention_ROS) { ?>
+    if (!($mention_ROS ?? '')) { ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','ROS','');" class="disabled_button"><?php echo xlt('Negative'); ?><br /></span>
         <?php
@@ -2615,42 +2641,59 @@ function show_PMSFH_report($PMSFH)
 
     //4 panels
     $rows = '4';
-    if (!$PMFSH) {
+    if (!($PMFSH ?? '')) {
         $PMSFH = build_PMSFH($pid);
     }
 
     // Find out the number of items present now and put 1/4 in each column.
     foreach ($PMSFH[0] as $key => $value) {
-        $total_PMSFH += count($PMSFH[0][$key]);
-        $total_PMSFH += 2; //add two for the title and a space
+        if (!empty($total_PMSFH)) {
+            $total_PMSFH += count($PMSFH[0][$key]);
+            $total_PMSFH += 2; //add two for the title and a space
+        } else {
+            $total_PMSFH = count($PMSFH[0][$key]);
+            $total_PMSFH = 2; //add two for the title and a space
+        }
         $count[$key] = count($PMSFH[0][$key]) + 1;
     }
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
     foreach ($PMSFH[0]['ROS'] as $key => $value) {
-        if ($value['display'] == '') {
-            $total_PMSFH--;
+        if (($value['display'] ?? '') == '') {
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
+            }
             $count['ROS']--;
         }
     }
 
     foreach ($PMSFH[0]['FH'] as $key => $value) {
         if ($value['display'] == '') {
-            $total_PMSFH--;
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
+            }
             $count['FH']--;
         }
     }
 
     foreach ($PMSFH[0]['SOCH'] as $key => $value) {
         if (($value['display'] == '') || ($value['display'] == 'not_applicable')) {
-            $total_PMSFH--;
+            if (!empty($total_PMSFH)) {
+                $total_PMSFH--;
+            } else {
+                $total_PMSFH = 0;
+            }
             $count['SOCH']--;
         }
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH / $rows) ;
-    $panel_size = round($total_PMSFH / $rows) ;
+    $column_max = round(($total_PMSFH ?? null) / $rows) ;
+    $panel_size = round(($total_PMSFH ?? null) / $rows) ;
 
     //<!-- POH -->
     $counter++;
@@ -2820,12 +2863,16 @@ function show_PMSFH_report($PMSFH)
     foreach ($PMSFH[0]['SOCH'] as $k => $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
             echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
-            $mention_PSOCH++;
+            if (!empty($mention_PSOCH)) {
+                $mention_PSOCH++;
+            } else {
+                $mention_PSOCH = 1;
+            }
             $counter++;
         }
     }
 
-    if (!$mention_PSOCH) {
+    if (!($mention_PSOCH ?? '')) {
         echo xlt("Negative") . "<br />";
     }
 
@@ -2853,7 +2900,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    if (!$mention_FH) {
+    if (!($mention_FH ?? '')) {
         echo xlt("Negative") . "<br />";
     }
 
@@ -2873,14 +2920,18 @@ function show_PMSFH_report($PMSFH)
     ?><br />
     <?php
     foreach ($PMSFH[0]['ROS'] as $item) {
-        if ($item['display']) {
+        if ($item['display'] ?? '') {
             echo xlt($item['short_title']) . ": " . $item['display'] . "<br />";
-            $mention_ROS++;
+            if (!empty($mention_ROS)) {
+                $mention_ROS++;
+            } else {
+                $mention_ROS  = 1;
+            }
             $counter++;
         }
     }
 
-    if ($mention_ROS < '1') {
+    if (($mention_ROS ?? null) < '1') {
         echo xlt("Negative");
     }
 
@@ -2938,7 +2989,7 @@ function display_QP($zone, $provider_id)
             $title_show = "<em><strong>$title</strong></em>";
         }
 
-        if ($values['OD']) {
+        if ($values['OD'] ?? '') {
             if ($values['OD']['activity'] == '0') {
                 $action = "ADD";
             }
@@ -2973,7 +3024,7 @@ function display_QP($zone, $provider_id)
             ?>
             <span>
                 <a class="underline QP" onclick="fill_QP_field('<?php echo attr($zone); ?>','R','<?php echo attr($values['R']['mapping']); ?>','<?php echo attr($values['R']['notes']); ?>','<?php echo attr($action); ?>');"><?php echo xlt('R{{right side}}'); ?></a> |
-                <a class="underline QP" onclick="fill_QP_field('<?php echo attr($zone); ?>','L','<?php echo attr($values['L']['mapping']); ?>','<?php echo attr($values['L']['notes']); ?>','<?php echo attr($action); ?>');"><?php echo xlt('L{{left side}}'); ?></a> |
+                <a class="underline QP" onclick="fill_QP_field('<?php echo attr($zone); ?>','L','<?php echo attr($values['L']['mapping'] ?? ''); ?>','<?php echo attr($values['L']['notes'] ?? ''); ?>','<?php echo attr($action); ?>');"><?php echo xlt('L{{left side}}'); ?></a> |
                 <a class="underline QP" onclick="fill_QP_2fields('<?php echo attr($zone); ?>','B','<?php echo attr($values['B']['mapping']); ?>','<?php echo attr($values['B']['notes']); ?>','<?php echo attr($action); ?>');"><?php echo xlt('B{{both sides}}'); ?></a>
             </span>
             &nbsp;
@@ -2981,15 +3032,19 @@ function display_QP($zone, $provider_id)
         }
 
         echo $title_show;
-        $number_rows++;
+        if (!empty($number_rows)) {
+            $number_rows++;
+        } else {
+            $number_rows = 1;
+        }
         ?><br />
         <?php
-        if ($number_rows == 19) {  ?>
+        if (($number_rows ?? null) == 19) {  ?>
           </div>
           <div class="QP_block_outer borderShadow text_clinical" ><?php
         }
 
-        if ($number_rows == 38) {
+        if (($number_rows ?? null) == 38) {
             break;
         }
     } //end QP section items
@@ -3107,7 +3162,7 @@ function canvas_select($zone, $encounter, $pid)
         </div>';
         }
     }
-    return $select;
+    return $select ?? '';
 }
 /**
  *  This function returns display the draw/sketch diagram for a zone (4 input values)
@@ -3162,7 +3217,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 $sql = "SELECT * from documents where name like ? ORDER by id DESC";
                 $doc = sqlQuery($sql, array("%" . $base_name . "%"));
                 $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
-                if (($doc['id'] > '0')) {
+                if ((($doc['id'] ?? null) > '0')) {
                     $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']) . "&as_file=false&show_original=true&blahblah=" . rand();
                 } else {
                     //base image.
@@ -3607,8 +3662,8 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
                   ${"OSVA_$count_rx"}             = $wearing['OSVA'];
                   ${"ODNEARVA_$count_rx"}         = $wearing['ODNEARVA'];
                   ${"OSNEARVA_$count_rx"}         = $wearing['OSNEARVA'];
-                  ${"ODPRISM_$count_rx"}          = $wearing['ODPRISM'];
-                  ${"OSPRISM_$count_rx"}          = $wearing['OSPRISM'];
+                  ${"ODPRISM_$count_rx"}          = $wearing['ODPRISM'] ?? '';
+                  ${"OSPRISM_$count_rx"}          = $wearing['OSPRISM'] ?? '';
                   ${"W_$count_rx"}                = '1';
                   ${"RX_TYPE_$count_rx"}          = $wearing['RX_TYPE'];
                   ${"ODHPD_$count_rx"}            = $wearing['ODHPD'];
@@ -3668,7 +3723,7 @@ function build_IMPPLAN_items($pid, $form_id)
         $i++;
     }
 
-    return $IMPPLAN_items;
+    return $IMPPLAN_items ?? [];
 }
 
             /**
@@ -3688,13 +3743,13 @@ function build_CODING_items($pid, $encounter)
         $CODING_items[$i]['pid'] = $frow['pid'];
         $CODING_items[$i]['id'] = $frow['id'];
         $CODING_items[$i]['codetype'] = $frow['code_type'];
-        $CODING_items[$i]['codedesc'] = $frow['code_desc'];
+        $CODING_items[$i]['codedesc'] = $frow['code_desc'] ?? '';
         $CODING_items[$i]['codetext'] = $frow['code_text'];
         $CODING_items[$i]['justify'] = $frow['justify'];
         $i++;
     }
 
-    return $CODING_items;
+    return $CODING_items ?? '';
 }
 
 /**
@@ -3714,9 +3769,11 @@ function document_engine($pid)
         $row1['name'] = preg_replace('/ - Eye/', '', $row1['name']);
 
         $my_name[$row1['id']] = $row1['name'];
-        $children_names[$row1['parent']][] = $row1['name'];
-        $parent_name[$row1['name']] = $my_name[$row1['parent']];
-        if ($row1['value'] > '') {
+        $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
+        if (!empty($parent_name)) {
+            $parent_name[$row1['name']] = $my_name[$row1['parent']];
+        }
+        if (($row1['value'] ?? '') > '') {
             //if there is a value, tells us what segment of exam ($zone) this belongs in...
             $zones[$row1['value']][] = $row1;
         } else {
@@ -3759,12 +3816,12 @@ function document_engine($pid)
     $documents['categories']        = $categories;
     $documents['my_name']           = $my_name;
     $documents['children_names']    = $children_names;
-    $documents['parent_name']       = $parent_name;
+    $documents['parent_name']       = $parent_name ?? null;
     $documents['zones']             = $zones;
-    $documents['docs_in_zone']      = $docs_in_zone;
-    $documents['docs_in_cat_id']    = $docs_in_cat_id;
-    $documents['docs_in_name']      = $docs_in_name;
-    $documents['docs_by_date']      = $docs_by_date;
+    $documents['docs_in_zone']      = $docs_in_zone ?? '';
+    $documents['docs_in_cat_id']    = $docs_in_cat_id ?? '';
+    $documents['docs_in_name']      = $docs_in_name ?? '';
+    $documents['docs_by_date']      = $docs_by_date ?? '';
 
     return array($documents);
 }
@@ -3811,7 +3868,7 @@ function display($pid, $encounter, $category_value)
     for ($j = 0; $j < count($documents['zones'][$category_value]); $j++) {
         $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
-        $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'];
+        $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '';
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
         <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
@@ -3832,7 +3889,11 @@ function display($pid, $encounter, $category_value)
         }
 
         $episode .= '</td></tr>';
-        $i++;
+        if (!empty($i)) {
+            $i++;
+        } else {
+            $i = 1;
+        }
     }
 
     return array($documents,$episode);
@@ -4019,7 +4080,7 @@ function menu_overhaul_left($pid, $encounter)
                 <table style="text-align:left;">
                     <tr><td class="right" >
                             <?php
-                            $age = getPatientAgeDisplay($pat_data['DOB'], $encounter_date);
+                            $age = getPatientAgeDisplay($pat_data['DOB'], ($encounter_date ?? ''));
                             $DOB = oeFormatShortDate($pat_data['DOB']);
                             echo "<span class='font-weight-bold'>" . xlt('Name') . ":</span> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
                                     <tr><td class='right'><span class='font-weight-bold'>" . xlt('DOB') . ":</span></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
@@ -4040,7 +4101,7 @@ function menu_overhaul_left($pid, $encounter)
                         <td><?php echo text($reason); ?></td>
                     </tr>
                     <?php
-                    if ($priors[0]['TODO']) {
+                    if ($priors[0]['TODO'] ?? '') {
                         ?>
                     <tr>
                         <td class="right" style="vertical-align:top;" nowrap><span style="font-weight:bold;"><?php echo xlt("Plan"); ?>:</span>&nbsp;</td>
@@ -4088,7 +4149,7 @@ function menu_overhaul_left($pid, $encounter)
                     </tr>
 
                     <tr><td class="right" nowrap><span style="font-weight:bold;"><?php echo xlt("Referred By"); ?>:</span>&nbsp;</td>
-                        <td class="left"> <span id="ref_name"><?php echo text($ref_data['fname']) . " " . text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
+                        <td class="left"> <span id="ref_name"><?php echo text($ref_data['fname'] ?? '') . " " . text($ref_data['lname'] ?? ''); ?><?php if ($ref_data['suffix'] ?? '') {
                                     echo ", " . text($ref_data['suffix']);} ?></span></td>
                         </tr>
                     <tr><td class="right"><span style="font-weight:bold;"><?php echo xlt("Insurance"); ?>:</span>&nbsp;</td><td class="left">&nbsp;<?php echo text($ins_coA); ?></td></tr>
@@ -4269,7 +4330,7 @@ function start_your_engines($FIELDS)
     global $pid;
     global $codes_found;
     global $PMSFH;
-    if (!$PMFSH) {
+    if (!($PMFSH ?? '')) {
         $PMSFH = build_PMSFH($pid);
     }
 
@@ -4787,9 +4848,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             if (($visit['ODGONIO'] > '') || ($visit['OSGONIO'] > '')) {
                 $GONIO_date[$i] = $visit["exam_date"];
-                $GONIO[$i]["list"] = '1';
+                $GONIO[$i]['list'] = '1';
             } else {
-                $GONIO[$i]["list"] = '';
+                $GONIO[$i]['list'] = '';
             }
 
             if ($visit['ODIOPAP'] > '') {
@@ -4820,7 +4881,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             if ($visit['ODIOPTARGET'] > '') {
                 $ODIOPTARGETS[$i] = $visit['ODIOPTARGET'];
             } elseif ($i == 0) { //this should be set on in view/page load.  Keep for reports though...
-                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id, $provider_id);
+                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             } elseif (!$ODIOPTARGETS[$j]) {
                 list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id, $provider_id);
             } else {
@@ -4830,7 +4891,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             if ($visit['OSIOPTARGET'] > '') {
                  $OSIOPTARGETS[$i] = $visit['OSIOPTARGET'];
             } elseif ($i == 0) {
-                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
+                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             } elseif (!$OSIOPTARGETS[$j]) {
                 list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
             } else {
@@ -4881,7 +4942,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($encounter_data['ODIOPTARGET'] > '0') {
             $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else {
-            list($ODIOPTARGET, ) = getIOPTARGETS($pid, $id, $provider_id);
+            list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             $ODIOPTARGETS[$i] = $ODIOPTARGET;
             $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
         }
@@ -4889,7 +4950,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($encounter_data['OSIOPTARGET']) {
             $OSIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else {
-            list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, $id, $provider_id);
+            list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             $OSIOPTARGETS[$i] = $OSIOPTARGET;
             $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
         }
@@ -4901,10 +4962,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     //can't merge empty arrays
     $list = array();
-    $arrs[] = $OCT_date;
-    $arrs[] = $VF_date;
-    $arrs[] = $GONIO_date;
-    $arrs[] = $VISITS_date;
+    $arrs[] = $OCT_date ?? '';
+    $arrs[] = $VF_date ?? '';
+    $arrs[] = $GONIO_date ?? '';
+    $arrs[] = $VISITS_date ?? '';
 
     foreach ($arrs as $arr) {
         if (is_array($arr)) {
@@ -4927,7 +4988,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             }
         }
 
-        if (!$GONIO_values[$a]) {
+        if (!($GONIO_values[$a] ?? null)) {
             $GONIO_values[$a] = "";
         }
 
@@ -4940,7 +5001,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             }
         }
 
-        if (!$OCT_values[$a]) {
+        if (!($OCT_values[$a] ?? null)) {
             $OCT_values[$a] = "";
         }
 
@@ -4953,22 +5014,22 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             }
         }
 
-        if (!$VF_values[$a]) {
+        if (!($VF_values[$a] ?? null)) {
             $VF_values[] = "";
         }
 
         for ($k = 0; $k < count($VISITS_date); $k++) {
             if ($date_OU[$a] == $VISITS_date[$k]) {
-                if (preg_match('/[a-z]/i', $ODIOP[$k]['IOP'])) {
+                if (preg_match('/[a-z]/i', ($ODIOP[$k]['IOP'] ?? ''))) {
                     $ODIOP[$k]['IOP'] = '';}
-                if (preg_match('/[a-z]/i', $OSIOP[$k]['IOP'])) {
+                if (preg_match('/[a-z]/i', ($OSIOP[$k]['IOP'] ?? ''))) {
                     $OSIOP[$k]['IOP'] = '';}
-                $OD_values[$a] = "'" . $ODIOP[$k]['IOP'] . "'";
-                $OD_methods[$a] = $ODIOP[$k]['method'];
-                $OS_values[$a] = $OSIOP[$k]['IOP'];
-                $OS_methods[$a] = $OSIOP[$k]['method'];
+                $OD_values[$a] = "'" . ($ODIOP[$k]['IOP'] ?? '') . "'";
+                $OD_methods[$a] = $ODIOP[$k]['method'] ?? '';
+                $OS_values[$a] = $OSIOP[$k]['IOP'] ?? '';
+                $OS_methods[$a] = $OSIOP[$k]['method'] ?? '';
                 $ODIOPTARGET_values[$a] = $ODIOPTARGETS[$k];
-                $OSIOPTARGET_values[$a] = $OSIOPTARGETS[$k];
+                $OSIOPTARGET_values[$a] = $OSIOPTARGETS[$k] ?? '';
                 break;
             }
         }
@@ -5001,8 +5062,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     for ($a = 0; $a < count($times_OU); $a++) {
         for ($k = 0; $k < count($ODIOP); $k++) {
             if ($times_OU[$a] == $time_OU[$k]) {
-                $OD_time_values[$a] = $ODIOP[$k]['IOP'];
-                $OS_time_values[$a] = $OSIOP[$k]['IOP'];
+                $OD_time_values[$a] = $ODIOP[$k]['IOP'] ?? '';
+                $OS_time_values[$a] = $OSIOP[$k]['IOP'] ?? '';
                 break;
             }
         }
@@ -5063,7 +5124,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         $i++;
                     }
 
-                    if (!$current_drugs) {
+                    if (!($current_drugs ?? null)) {
                         $current_drugs = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('None documented') . "</td></tr>";
                         $no_drugs = '1';
                     }
@@ -5080,17 +5141,17 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         <?php  ($no_drugs) ? ($meds_here = '') : $meds_here = xlt('Start'); ?>
                     <td class="GFS_title" style="text-align:center;"><?php echo $meds_here; ?></td>
                     <?php
-                    if ($FAILED_drugs) {
+                    if ($FAILED_drugs ?? null) {
                         echo '<td><span class="right toggleme" id="toggle_drugs"><i class="fa fa-toggle-down"></i></span></td>';
                     } ?>
                 </tr>
                 <?php
                 echo $current_drugs;
-                if ($FAILED_drugs) {
+                if ($FAILED_drugs ?? null) {
                     echo '<tr class="' . $hideme . '"><td class="GFS_title" colspan="1">' . xlt('Prior Eye Meds') . '</td><td class="GFS_title" style="text-align:center;">' . xlt('Start') . '</td><td  style="text-align:center;" class="GFS_title">End</td></tr>';
                 }
 
-                echo $FAILED_drugs;
+                echo $FAILED_drugs ?? '';
 
                 //start VF section
                 if ($count_VF > '0') { //need to decide how many to show on open, and hide the rest?  For now the first only.
@@ -5121,12 +5182,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 <tr class="GFS_tr">
                     <td colspan="3" class="GFS_title"><?php echo xlt('Visual Fields'); ?>:
                     <?php
-                    if ($old_VFs) {
+                    if ($old_VFs ?? null) {
                         echo '<td><span class="top right" id="toggle_VFs"><i class="fa fa-toggle-down"></i></span></td>';
                     }
                     ?>
                 </tr>
-                <?php echo $current_VF . $old_VFs;
+                <?php echo $current_VF . ($old_VFs ?? '');
                 //end VF section
 
                 //start Optic Nerve section
@@ -5157,12 +5218,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                             $current_OCT = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                         }
 
-                        if ($old_OCTs) {
+                        if ($old_OCTs ?? null) {
                             echo '<td><span class="top right " id="toggle_OCTs"><i class="fa fa-toggle-down"></i></span></td>';
                         }
 
                         echo "</tr>";
-                        echo $current_OCT . $old_OCTs;
+                        echo $current_OCT . ($old_OCTs ?? '');
 
                         $count = 0;
                         $hideme = '';
@@ -5173,14 +5234,22 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 }
 
                                 $gonios .= "<tr><td class='GFS_td_1 " . $hideme . "'>" . $visit['exam_date'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['ODGONIO'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['OSGONIO'] . "</td></tr>";
-                                $GONIO_chart .= '"1",';
+                                if (!empty($GONIO_chart)) {
+                                    $GONIO_chart .= '"1",';
+                                } else {
+                                    $GONIO_chart = '"1",';
+                                }
                                 $count++;
                             } else {
-                                $GONIO_chart .= ',';
+                                if (!empty($GONIO_chart)) {
+                                    $GONIO_chart .= ',';
+                                } else {
+                                    $GONIO_chart = '"1",';
+                                }
                             }
                         }
-                        if (!empty($GONIO)) {
-                            $GONIO = chop($GONIO, ",");
+                        if (!empty($GONIO[$i]['list'])) {
+                            $GONIO = chop(($GONIO[$i]['list']), ",");
                         }
                         if ($count == 0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
@@ -5214,11 +5283,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                             $DISCS_chart .= '"1",';
                             $count++;
                         } else {
-                            $DISCS_chart .= '"",';
+                            if (!empty($DISCS_chart)) {
+                                $DISCS_chart .= '"",';
+                            } else {
+                                $DISCS_chart = '"",';
+                            }
                         }
                     }
 
-                    $DISCS_chart = chop($DISCS_chart, ",");
+                    $DISCS_chart = chop(($DISCS_chart ?? ''), ",");
                     if ($count == 0) {
                         $cups = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                     }
@@ -5241,7 +5314,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/Chart.bundle.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/chart.js"></script>
         <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
             <?php
             if ($priors) {
@@ -5685,13 +5758,13 @@ function findProvider($pid, $encounter)
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", array($pid,$encounter));
-    $providerid = $find_provider['provider_id'];
+    $providerid = $find_provider['provider_id'] ?? '';
     if ($providerid < '1') {
        //find the default providerID from the calendar
-        $visit_date = date('Y-m-d', strtotime($find_provider['date']));
+        $visit_date = date('Y-m-d', strtotime($find_provider['date'] ?? ''));
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
         $find_provider3 = sqlQuery($query, array($pid,$visit_date));
-        $new_providerid = $find_provider3['pc_aid'];
+        $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
             $get_authorized = $_SESSION['userauthorized'];
             if ($get_authorized == 1) {
@@ -5793,22 +5866,22 @@ function generate_specRx($W)
                             <?php echo xlt('Rx Type{{Type of glasses prescription}}'); ?></span><br />
                             <label for="Single_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
                             <input type="radio" value="0" id="Single_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if ($RX_TYPE == '0') {
+                            if (($RX_TYPE ?? null) == '0') {
                                 echo 'checked="checked"';
                             } ?> /></span><br /><br />
                             <label for="Bifocal_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Bifocal'); ?></label>
                             <input type="radio" value="1" id="Bifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if ($RX_TYPE == '1') {
+                            if (($RX_TYPE ?? null) == '1') {
                                 echo 'checked="checked"';
                             } ?> /></span><br /><br />
                             <label for="Trifocal_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Trifocal'); ?></label>
                             <input type="radio" value="2" id="Trifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if ($RX_TYPE == '2') {
+                            if (($RX_TYPE ?? null) == '2') {
                                 echo 'checked="checked"';
                             } ?> /></span><br /><br />
                             <label for="Progressive_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.{{Progressive lenses}}'); ?></label>
                             <input type="radio" value="3" id="Progressive_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
-                            if ($RX_TYPE == '3') {
+                            if (($RX_TYPE ?? null) == '3') {
                                 echo 'checked="checked"';
                             } ?> /></span><br />
                           </td>
@@ -5816,46 +5889,47 @@ function generate_specRx($W)
                         <tr>
                           <td rowspan="2"><?php echo xlt('Dist{{distance}}'); ?></td>
                           <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?>:</td>
-                          <td><?php echo ${"ODSPH_$W"}; ?><input type="text" class="sphere" id="ODSPH_<?php echo attr($W); ?>" name="ODSPH_<?php echo attr($W); ?>"  value="<?php echo attr($ODSPH); ?>" tabindex="<?php echo attr($W); ?>0100"></td>
-                          <td><input type="text" class="cylinder" id="ODCYL_<?php echo attr($W); ?>" name="ODCYL_<?php echo attr($W); ?>"  value="<?php echo attr($ODCYL); ?>" tabindex="<?php echo attr($W); ?>0101"></td>
-                          <td><input type="text" class="axis" id="ODAXIS_<?php echo attr($W); ?>" name="ODAXIS_<?php echo attr($W); ?>" value="<?php echo attr($ODAXIS); ?>" tabindex="<?php echo attr($W); ?>0102"></td>
-                          <td><input type="text" class="acuity" id="ODVA_<?php echo attr($W); ?>" name="ODVA_<?php echo attr($W); ?>" value="<?php echo attr($ODVA); ?>" tabindex="<?php echo attr($W); ?>0108"></td>
+                          <td><?php if (!empty(${"ODSPH_$W"})) {
+                                echo ${"ODSPH_$W"};} ?><input type="text" class="sphere" id="ODSPH_<?php echo attr($W); ?>" name="ODSPH_<?php echo attr($W); ?>"  value="<?php echo attr($ODSPH ?? ''); ?>" tabindex="<?php echo attr($W); ?>0100"></td>
+                          <td><input type="text" class="cylinder" id="ODCYL_<?php echo attr($W); ?>" name="ODCYL_<?php echo attr($W); ?>"  value="<?php echo attr($ODCYL ?? ''); ?>" tabindex="<?php echo attr($W); ?>0101"></td>
+                          <td><input type="text" class="axis" id="ODAXIS_<?php echo attr($W); ?>" name="ODAXIS_<?php echo attr($W); ?>" value="<?php echo attr($ODAXIS ?? ''); ?>" tabindex="<?php echo attr($W); ?>0102"></td>
+                          <td><input type="text" class="acuity" id="ODVA_<?php echo attr($W); ?>" name="ODVA_<?php echo attr($W); ?>" value="<?php echo attr($ODVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0108"></td>
 
                           <td name="W_wide"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODHPD_<?php echo attr($W); ?>" name="ODHPD_<?php echo attr($W); ?>" value="<?php echo attr($ODHPD); ?>" tabindex="<?php echo attr($W); ?>0112"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODHBASE_<?php echo attr($W); ?>" name="ODHBASE_<?php echo attr($W); ?>" value="<?php echo attr($ODHBASE); ?>" tabindex="<?php echo attr($W); ?>0114"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODVPD_<?php echo attr($W); ?>" name="ODVPD_<?php echo attr($W); ?>" value="<?php echo attr($ODVPD); ?>" tabindex="<?php echo attr($W); ?>0116"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODVBASE_<?php echo attr($W); ?>" name="ODVBASE_<?php echo attr($W); ?>" value="<?php echo attr($ODVBASE); ?>" tabindex="<?php echo attr($W); ?>0118"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODSLABOFF_<?php echo attr($W); ?>" name="ODSLABOFF_<?php echo attr($W); ?>" value="<?php echo attr($ODSLABOFF); ?>" tabindex="<?php echo attr($W); ?>0120"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODVERTEXDIST_<?php echo attr($W); ?>" name="ODVERTEXDIST_<?php echo attr($W); ?>" value="<?php echo attr($ODVERTEXDIST); ?>" tabindex="<?php echo attr($W); ?>0122"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODMPDD_<?php echo attr($W); ?>" name="ODMPDD_<?php echo attr($W); ?>" value="<?php echo attr($ODMPDD); ?>" tabindex="<?php echo attr($W); ?>0124"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="ODMPDN_<?php echo attr($W); ?>" name="ODMPDN_<?php echo attr($W); ?>" value="<?php echo attr($ODMPDN); ?>" tabindex="<?php echo attr($W); ?>0126"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODHPD_<?php echo attr($W); ?>" name="ODHPD_<?php echo attr($W); ?>" value="<?php echo attr($ODHPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0112"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODHBASE_<?php echo attr($W); ?>" name="ODHBASE_<?php echo attr($W); ?>" value="<?php echo attr($ODHBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0114"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODVPD_<?php echo attr($W); ?>" name="ODVPD_<?php echo attr($W); ?>" value="<?php echo attr($ODVPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0116"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODVBASE_<?php echo attr($W); ?>" name="ODVBASE_<?php echo attr($W); ?>" value="<?php echo attr($ODVBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0118"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODSLABOFF_<?php echo attr($W); ?>" name="ODSLABOFF_<?php echo attr($W); ?>" value="<?php echo attr($ODSLABOFF ?? ''); ?>" tabindex="<?php echo attr($W); ?>0120"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODVERTEXDIST_<?php echo attr($W); ?>" name="ODVERTEXDIST_<?php echo attr($W); ?>" value="<?php echo attr($ODVERTEXDIST ?? ''); ?>" tabindex="<?php echo attr($W); ?>0122"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODMPDD_<?php echo attr($W); ?>" name="ODMPDD_<?php echo attr($W); ?>" value="<?php echo attr($ODMPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0124"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="ODMPDN_<?php echo attr($W); ?>" name="ODMPDN_<?php echo attr($W); ?>" value="<?php echo attr($ODMPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0126"></td>
                         </tr>
                         <tr>
                           <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?>:</td>
-                          <td><input type="text" class="sphere" id="OSSPH_<?php echo attr($W); ?>" name="OSSPH_<?php echo attr($W); ?>" value="<?php echo attr($OSSPH); ?>" tabindex="<?php echo attr($W); ?>0103"></td>
-                          <td><input type="text" class="cylinder" id="OSCYL_<?php echo attr($W); ?>" name="OSCYL_<?php echo attr($W); ?>" value="<?php echo attr($OSCYL); ?>" tabindex="<?php echo attr($W); ?>0104"></td>
-                          <td><input type="text" class="axis" id="OSAXIS_<?php echo attr($W); ?>" name="OSAXIS_<?php echo attr($W); ?>" value="<?php echo attr($OSAXIS); ?>" tabindex="<?php echo attr($W); ?>0105"></td>
-                          <td><input type="text" class="acuity" id="OSVA_<?php echo attr($W); ?>" name="OSVA_<?php echo attr($W); ?>" value="<?php echo attr($OSVA); ?>" tabindex="<?php echo attr($W); ?>0109"></td>
+                          <td><input type="text" class="sphere" id="OSSPH_<?php echo attr($W); ?>" name="OSSPH_<?php echo attr($W); ?>" value="<?php echo attr($OSSPH ?? ''); ?>" tabindex="<?php echo attr($W); ?>0103"></td>
+                          <td><input type="text" class="cylinder" id="OSCYL_<?php echo attr($W); ?>" name="OSCYL_<?php echo attr($W); ?>" value="<?php echo attr($OSCYL ?? ''); ?>" tabindex="<?php echo attr($W); ?>0104"></td>
+                          <td><input type="text" class="axis" id="OSAXIS_<?php echo attr($W); ?>" name="OSAXIS_<?php echo attr($W); ?>" value="<?php echo attr($OSAXIS ?? ''); ?>" tabindex="<?php echo attr($W); ?>0105"></td>
+                          <td><input type="text" class="acuity" id="OSVA_<?php echo attr($W); ?>" name="OSVA_<?php echo attr($W); ?>" value="<?php echo attr($OSVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0109"></td>
 
                           <td name="W_wide"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSHPD_<?php echo attr($W); ?>" name="OSHPD_<?php echo attr($W); ?>" value="<?php echo attr($OSHPD); ?>" tabindex="<?php echo attr($W); ?>0113"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSHBASE_<?php echo attr($W); ?>" name="OSHBASE_<?php echo attr($W); ?>" value="<?php echo attr($OSHBASE); ?>" tabindex="<?php echo attr($W); ?>0115"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSVPD_<?php echo attr($W); ?>" name="OSVPD_<?php echo attr($W); ?>" value="<?php echo attr($OSVPD); ?>" tabindex="<?php echo attr($W); ?>0117"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSVBASE_<?php echo attr($W); ?>" name="OSVBASE_<?php echo attr($W); ?>" value="<?php echo attr($OSVBASE); ?>" tabindex="<?php echo attr($W); ?>0119"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSSLABOFF_<?php echo attr($W); ?>" name="OSSLABOFF_<?php echo attr($W); ?>" value="<?php echo attr($OSSLABOFF); ?>" tabindex="<?php echo attr($W); ?>0121"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSVERTEXDIST_<?php echo attr($W); ?>" name="OSVERTEXDIST_<?php echo attr($W); ?>" value="<?php echo attr($OSVERTEXDIST); ?>" tabindex="<?php echo attr($W); ?>0123"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSMPDD_<?php echo attr($W); ?>" name="OSMPDD_<?php echo attr($W); ?>" value="<?php echo attr($OSMPDD); ?>" tabindex="<?php echo attr($W); ?>0125"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="OSMPDN_<?php echo attr($W); ?>" name="OSMPDN_<?php echo attr($W); ?>" value="<?php echo attr($OSMPDN); ?>" tabindex="<?php echo attr($W); ?>0127"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSHPD_<?php echo attr($W); ?>" name="OSHPD_<?php echo attr($W); ?>" value="<?php echo attr($OSHPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0113"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSHBASE_<?php echo attr($W); ?>" name="OSHBASE_<?php echo attr($W); ?>" value="<?php echo attr($OSHBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0115"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSVPD_<?php echo attr($W); ?>" name="OSVPD_<?php echo attr($W); ?>" value="<?php echo attr($OSVPD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0117"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSVBASE_<?php echo attr($W); ?>" name="OSVBASE_<?php echo attr($W); ?>" value="<?php echo attr($OSVBASE ?? ''); ?>" tabindex="<?php echo attr($W); ?>0119"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSSLABOFF_<?php echo attr($W); ?>" name="OSSLABOFF_<?php echo attr($W); ?>" value="<?php echo attr($OSSLABOFF ?? ''); ?>" tabindex="<?php echo attr($W); ?>0121"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSVERTEXDIST_<?php echo attr($W); ?>" name="OSVERTEXDIST_<?php echo attr($W); ?>" value="<?php echo attr($OSVERTEXDIST ?? ''); ?>" tabindex="<?php echo attr($W); ?>0123"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSMPDD_<?php echo attr($W); ?>" name="OSMPDD_<?php echo attr($W); ?>" value="<?php echo attr($OSMPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0125"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="OSMPDN_<?php echo attr($W); ?>" name="OSMPDN_<?php echo attr($W); ?>" value="<?php echo attr($OSMPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0127"></td>
                         </tr>
                         <tr class="WNEAR">
                           <td rowspan=2><?php echo xlt('Mid{{middle Rx strength}}'); ?>/<br /><?php echo xlt('Near'); ?></td>
                           <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?>:</td>
-                            <?php echo '<input type="hidden" name="RXStart_' . $W . ' id="RXStart_' . $W . '" value="' . attr($RX_TYPE) . '">'; ?>
-                          <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD); ?>"></td>
-                          <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_<?php echo attr($W); ?>" name="ODADD_<?php echo attr($W); ?>" value="<?php echo attr($ODADD); ?>" tabindex="<?php echo attr($W); ?>0106"></td>
+                            <?php echo '<input type="hidden" name="RXStart_' . $W . ' id="RXStart_' . $W . '" value="' . attr($RX_TYPE ?? '') . '">'; ?>
+                          <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD ?? ''); ?>"></td>
+                          <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_<?php echo attr($W); ?>" name="ODADD_<?php echo attr($W); ?>" value="<?php echo attr($ODADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0106"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="NEARODVA_<?php echo attr($W); ?>" name="NEARODVA_<?php echo attr($W); ?>" value="<?php echo attr($NEARODVA); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
+                          <td><input class="jaeger" type="text" id="NEARODVA_<?php echo attr($W); ?>" name="NEARODVA_<?php echo attr($W); ?>" value="<?php echo attr($NEARODVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
 
                           <td name="W_wide"></td>
 
@@ -5871,22 +5945,22 @@ function generate_specRx($W)
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
                                   name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt-alt fa-fw"></i> </a>
                             <br />
-                            <?php  echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
+                            <?php  echo generate_lens_treatments($W, ($LENS_TREATMENTS ?? '')); ?>
                           </td>
                         </tr>
                         <tr class="WNEAR">
                           <td style="font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?>:</td>
-                          <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_<?php echo attr($W); ?>" name="OSMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($OSMIDADD); ?>"></td>
-                          <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_<?php echo attr($W); ?>" name="OSADD_<?php echo attr($W); ?>" value="<?php echo attr($OSADD); ?>" tabindex="<?php echo attr($W); ?>0107"></td>
+                          <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_<?php echo attr($W); ?>" name="OSMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($OSMIDADD ?? ''); ?>"></td>
+                          <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_<?php echo attr($W); ?>" name="OSADD_<?php echo attr($W); ?>" value="<?php echo attr($OSADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0107"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="NEAROSVA_<?php echo attr($W); ?>" name="NEAROSVA_<?php echo attr($W); ?>" value="<?php echo attr($NEAROSVA); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
+                          <td><input class="jaeger" type="text" id="NEAROSVA_<?php echo attr($W); ?>" name="NEAROSVA_<?php echo attr($W); ?>" value="<?php echo attr($NEAROSVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
 
                           <td name="W_wide"></td>
 
-                          <td name="W_wide"><input type="text" class="prism" id="BPDD_<?php echo attr($W); ?>" name="BPDD_<?php echo attr($W); ?>" value="<?php echo attr($BPDD); ?>" tabindex="<?php echo attr($W); ?>0128"></td>
-                          <td name="W_wide"><input type="text" class="prism" id="BPDN_<?php echo attr($W); ?>" name="BPDN_<?php echo attr($W); ?>" value="<?php echo attr($BPDN); ?>" tabindex="<?php echo attr($W); ?>0129"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="BPDD_<?php echo attr($W); ?>" name="BPDD_<?php echo attr($W); ?>" value="<?php echo attr($BPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0128"></td>
+                          <td name="W_wide"><input type="text" class="prism" id="BPDN_<?php echo attr($W); ?>" name="BPDN_<?php echo attr($W); ?>" value="<?php echo attr($BPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0129"></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material Options'); ?>" colspan="2">
-                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px','tabindex' => $W . '0130')); ?>
+                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", ($LENS_MATERIAL  ?? ''), '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px','tabindex' => $W . '0130')); ?>
                           </td>
                         </tr>
                         <tr>
@@ -5896,7 +5970,7 @@ function generate_specRx($W)
                         </tr>
                         <tr>
                           <td colspan="6">
-                            <textarea id="COMMENTS_<?php echo attr($W); ?>" name="COMMENTS_W" tabindex="<?php echo attr($W); ?>0110"><?php echo text($COMMENTS); ?></textarea>
+                            <textarea id="COMMENTS_<?php echo attr($W); ?>" name="COMMENTS_W" tabindex="<?php echo attr($W); ?>0110"><?php echo text($COMMENTS ?? ''); ?></textarea>
                           </td>
                           <td colspan="2">
                           </td>
@@ -6316,7 +6390,7 @@ function getIOPTARGETS($pid, $id, $provider_id)
             $OSIOPTARGET = $default_TARGETS["title"];
         }
     }
-    if (($ODIOPTARGET > '0') || ($OSIOPTARGET > '0')) {
+    if ((($ODIOPTARGET ?? null) > '0') || (($OSIOPTARGET ?? null) > '0')) {
         return array($ODIOPTARGET, $OSIOPTARGET);
     }
     return array('21','21');

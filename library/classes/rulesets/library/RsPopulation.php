@@ -41,6 +41,9 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
         reset($this->_patients);
     }
 
+    /**
+     * @return RsPatient
+     */
     public function current()
     {
         return current($this->_patients);

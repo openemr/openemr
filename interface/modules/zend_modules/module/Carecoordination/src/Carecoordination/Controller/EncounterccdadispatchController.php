@@ -22,6 +22,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Carecoordination\Controller\EncountermanagerController;
 use Exception;
+use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
 class EncounterccdadispatchController extends AbstractActionController
@@ -48,9 +49,8 @@ class EncounterccdadispatchController extends AbstractActionController
 
     protected $latest_ccda;
 
-    public function __construct(
-        EncounterccdadispatchTable $encounterccdadispatchTable
-    ) {
+    public function __construct(EncounterccdadispatchTable $encounterccdadispatchTable)
+    {
         $this->listenerObject = new Listener();
         $this->encounterccdadispatchTable = $encounterccdadispatchTable;
     }
@@ -70,35 +70,99 @@ class EncounterccdadispatchController extends AbstractActionController
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
-        $request            = $this->getRequest();
-        $this->patient_id   = $this->getRequest()->getQuery('pid');
+        $request = $this->getRequest();
+        $this->patient_id = $this->getRequest()->getQuery('pid');
         $this->encounter_id = $this->getRequest()->getQuery('encounter');
-        $combination        = $this->getRequest()->getQuery('combination');
-        $this->sections     = $this->getRequest()->getQuery('sections');
-        $sent_by            = $this->getRequest()->getQuery('sent_by');
-        $send               = $this->getRequest()->getQuery('send') ?: 0;
-        $view               = $this->getRequest()->getQuery('view') ?: 0;
-        $emr_transfer       = $this->getRequest()->getQuery('emr_transfer') ?: 0;
-        $this->recipients   = $this->getRequest()->getQuery('recipient');
-        $this->params       = $this->getRequest()->getQuery('param');
-        $this->referral_reason  = $this->getRequest()->getQuery('referral_reason');
-        $this->components       = $this->getRequest()->getQuery('components') ?: $this->params('components');
-        $downloadccda           = $this->params('downloadccda');
-        $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
+        $combination = $this->getRequest()->getQuery('combination');
+        $this->sections = $this->getRequest()->getQuery('sections');
+        $sent_by = $this->getRequest()->getQuery('sent_by');
+        $send = $this->getRequest()->getQuery('send') ?: 0;
+        $view = $this->getRequest()->getQuery('view') ?: 0;
+        $emr_transfer = $this->getRequest()->getQuery('emr_transfer') ?: 0;
+        $this->recipients = $this->getRequest()->getQuery('recipient');
+        $this->params = $this->getRequest()->getQuery('param');
+        $this->referral_reason = $this->getRequest()->getQuery('referral_reason');
+        $this->components = $this->getRequest()->getQuery('components') ?: $this->params('components');
+        $downloadccda = $this->params('downloadccda');
+        $downloadqrda = $this->params('downloadqrda');
+        $downloadqrda3 = $this->params('downloadqrda3');
+        $this->latest_ccda = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
         $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
-        if ($downloadccda === 'download_ccda') {
-            $combination      = $this->params('pids');
-            $view             = $this->params('view');
+
+        // @TODO uncomment below for production.
+        /*$qrda_options = [
+            'performance_period_start' => $this->getRequest()->getQuery('form_date_from') ?? null,
+            'performance_period_end' => $this->getRequest()->getQuery('form_date_to') ?? null
+        ];*/
+        $qrda_options = [
+            'performance_period_start' => "2020-01-01 00:00:00",
+            'performance_period_end' => "2020-12-31 23:59:59"
+        ];
+
+        // QRDA I user view html version
+        if ($this->getRequest()->getQuery('doctype') === 'qrda') {
+            $xmlController = new QrdaReportController();
+            $document = $xmlController->getCategoryIReport($combination, '', 'html', $qrda_options);
+            echo $document;
+            exit;
         }
-        // Since if called outside of a route(cdaDocumentService) we haven't any route parameters
-        // we need to get necessary parameters from post request.
+
+        // QRDA III user view html version @todo create reports html in service
+        if ($this->getRequest()->getQuery('doctype') === 'qrda3') {
+            $xmlController = new QrdaReportController();
+            $document = $xmlController->getCategoryIIIReport($combination, '', $qrda_options);
+            echo $document;
+            exit;
+        }
+        // QRDA I batch selected pids download as zip.
+        if ($downloadqrda === 'download_qrda') {
+            $xmlController = new QrdaReportController();
+            $combination = $this->params('pids');
+            $view = $this->params('view');
+            $pids = explode('|', $combination);
+            $measures = $_REQUEST['report_measures'] ?? "";
+            if (is_array($measures)) {
+                if (empty($measures[0])) {
+                    $measures = ''; // defaults to all current one per patient.
+                } elseif (($measures[0] ?? null) == 'all') {
+                    $measures = 'all'; // defaults to all current measures per patient.
+                }
+            }
+            $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml', $qrda_options);
+            exit;
+        }
+
+        // QRDA III batch selected pids download as zip.
+        if ($downloadqrda3 === 'download_qrda3') {
+            $xmlController = new QrdaReportController();
+            $combination = $this->params('pids');
+            $view = $this->params('view');
+            $pids = explode('|', $combination);
+            $measures = $_REQUEST['report_measures_cat3'] ?? "";
+            if (is_array($measures)) {
+                if (empty($measures[0])) {
+                    $measures = ''; // defaults to all current one per patient.
+                } elseif (($measures[0] ?? null) == 'all') {
+                    $measures = 'all'; // defaults to all current measures per patient.
+                }
+            }
+            $xmlController->downloadQrdaIII($pids, $measures, $qrda_options);
+            exit;
+        }
+
+        if ($downloadccda === 'download_ccda') {
+            $combination = $this->params('pids');
+            $view = $this->params('view');
+        }
+        // Since called outside a route(api from cdaDocumentService) we haven't any route parameters
+        // so we need to get necessary parameters from post request.
         if (!empty($_POST['sent_by_app'] ?? '')) {
             $downloadccda = $this->getRequest()->getPost('downloadccda');
             if ($downloadccda === 'download_ccda') {
-                $combination      = $this->getRequest()->getPost('combination');
-                $view             = $this->getRequest()->getPost('view');
-                $this->latest_ccda      = $this->getRequest()->getPost('latest_ccda');
-                $this->components       = $this->getRequest()->getPost('components');
+                $combination = $this->getRequest()->getPost('combination');
+                $view = $this->getRequest()->getPost('view');
+                $this->latest_ccda = $this->getRequest()->getPost('latest_ccda');
+                $this->components = $this->getRequest()->getPost('components');
             }
         }
 
@@ -107,7 +171,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
 
         if (!$this->sections) {
-            $components0  = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
+            $components0 = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
             foreach ($components0 as $key => $value) {
                 if ($str ?? '') {
                     $str .= '|';
@@ -115,15 +179,13 @@ class EncounterccdadispatchController extends AbstractActionController
                     $str = $key;
                     continue;
                 }
-
                 $str .= $key;
             }
-
             $this->sections = $str;
         }
 
         if (!$this->components) {
-            $components1  = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
+            $components1 = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
             foreach ($components1 as $key => $value) {
                 if ($str1 ?? '') {
                     $str1 .= '|';
@@ -131,18 +193,16 @@ class EncounterccdadispatchController extends AbstractActionController
                     $str1 = $key;
                     continue;
                 }
-
                 $str1 .= $key;
             }
-
             $this->components = $str1;
         }
 
-        if ($combination != '') {
+        if (!empty($combination)) {
             $arr = explode('|', $combination);
             foreach ($arr as $row) {
                 $arr = explode('_', $row);
-                $this->patient_id   = $arr[0];
+                $this->patient_id = $arr[0];
                 $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
                 if ($this->latest_ccda) {
                     $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
@@ -157,7 +217,6 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
 
                 $content = trim($content);
-
                 $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
                 if (!$view) {
                     if ($hie_hook) {
@@ -172,7 +231,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 $xml = simplexml_load_string($content);
                 $xsl = new DOMDocument();
                 // cda.xsl is self contained with bootstrap and jquery.
-                // cda-web.xsl is used when referencing styles from internet.
+                // cda-web.xsl when used, is for referencing styles from internet.
                 $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
                 $proc = new XSLTProcessor();
                 $proc->importStyleSheet($xsl); // attach the xsl rules
@@ -190,7 +249,6 @@ class EncounterccdadispatchController extends AbstractActionController
                 die;
             }
         } else {
-            $practice_filename  = "CCDA_{$this->patient_id}.xml";
             $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, '');
             $content = $this->socket_get($this->data);
 
@@ -206,6 +264,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $content;
                 exit;
             }
+            $practice_filename = "CCDA_{$this->patient_id}.xml";
             header("Cache-Control: public");
             header("Content-Description: File Transfer");
             header("Content-Disposition: attachment; filename=" . $practice_filename);
@@ -602,10 +661,10 @@ class EncounterccdadispatchController extends AbstractActionController
     }
 
     /**
-    * Table Gateway
-    *
-    * @return type
-    */
+     * Table Gateway
+     *
+     * @return EncounterccdadispatchTable
+     */
     public function getEncounterccdadispatchTable()
     {
         return $this->encounterccdadispatchTable;
@@ -619,12 +678,12 @@ class EncounterccdadispatchController extends AbstractActionController
     */
     public function autosendAction()
     {
-        $auto_send   = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_send_id');
+        $auto_send = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_send_id');
         if ($auto_send != 'yes') {
             return;
         }
 
-        $view        =  new ViewModel(array(
+        $view = new ViewModel(array(
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,
         ));
@@ -640,11 +699,11 @@ class EncounterccdadispatchController extends AbstractActionController
     */
     public function autosignoffAction()
     {
-        $auto_signoff_days  = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_sign_off_id');
-        $str_time           = ((strtotime(date('Y-m-d'))) - ($auto_signoff_days * 60 * 60 * 24));
-        $date               = date('Y-m-d', $str_time);
+        $auto_signoff_days = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_sign_off_id');
+        $str_time = ((strtotime(date('Y-m-d'))) - ($auto_signoff_days * 60 * 60 * 24));
+        $date = date('Y-m-d', $str_time);
 
-        $encounter          = $this->getEncounterccdadispatchTable()->getEncounterDate($date);
+        $encounter = $this->getEncounterccdadispatchTable()->getEncounterDate($date);
         foreach ($encounter as $row) {
             $result = $this->getEncounterccdadispatchTable()->signOff($row['pid'], $row['encounter']);
         }

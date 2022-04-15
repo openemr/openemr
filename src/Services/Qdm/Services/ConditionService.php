@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -27,7 +27,7 @@ class ConditionService extends AbstractQdmService implements QdmServiceInterface
      *
      * This
      *
-     * @param array $record
+     * @param  array $record
      * @return Diagnosis|null
      * @throws \Exception
      */
@@ -37,14 +37,18 @@ class ConditionService extends AbstractQdmService implements QdmServiceInterface
         if ($record['type'] === 'medical_problem') {
             if ($record['diagnosis']) {
                 // Get diagnosis
-                $qdmRecord = new Diagnosis([
-                    'prevalencePeriod' => new Interval([
+                $qdmRecord = new Diagnosis(
+                    [
+                    'prevalencePeriod' => new Interval(
+                        [
                         'low' => $record['begdate'],
                         'high' => $record['enddate'],
                         'lowClosed' => $record['begdate'] ? true : false,
-                        'highClosed' => $record['enddate'] ? true : false]),
+                        'highClosed' => $record['enddate'] ? true : false]
+                    ),
                     'dataElementCodes' => $record['diagnosis'] // diagnosis contains code and system
-                ]);
+                    ]
+                );
             }
         }
 

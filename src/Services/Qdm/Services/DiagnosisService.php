@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -10,6 +10,8 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\Diagnosis;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
@@ -29,10 +31,10 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
     {
         $qdmModel = new Diagnosis([
             'prevalencePeriod' => new Interval([
-                'low' => $record['begdate'],
-                'high' => $record['enddate'],
-                'lowClosed' => $record['begdate'] ? true : false,
-                'highClosed' => $record['enddate'] ? true : false
+                'low' => $this->validDateOrNull($record['begdate']),
+                'high' => $this->validDateOrNull($record['enddate']),
+                'lowClosed' => $this->validDateOrNull($record['begdate']) ? true : false,
+                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
             ])
         ]);
 

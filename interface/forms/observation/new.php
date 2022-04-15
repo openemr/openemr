@@ -212,7 +212,7 @@ $check_res = $formid ? $check_res : array();
                                                 }
                                                 ?>
                                                 <label id="ob_value_head_<?php echo attr($key) + 1; ?>" class="ob_value_head h5" <?php echo (!$obj["ob_value"]) ? "style='display: none;'" : ""; ?>><?php echo xlt('Value'); ?>:</label>
-                                                <input type="text" name="ob_value[]" id="ob_value_<?php echo attr($key) + 1; ?>" style="<?php echo $style; ?>" class="ob_value" value="<?php echo (($obj["code"] == '21612-7' || $obj["code"] == '8661-1') && $obj["code"] != 'SS003') ? attr($obj["ob_value"]) : ""; ?>" />
+                                                <input type="text" name="ob_value[]" id="ob_value_<?php echo attr($key) + 1; ?>" style="<?php echo $style; ?>" class="ob_value form-control" value="<?php echo attr($obj["ob_value"]); ?>" />
                                                 <select name="ob_value_phin[]" id="ob_value_phin_<?php echo attr($key) + 1; ?>" class="ob_value_phin" <?php echo ($obj["code"] != 'SS003') ? "style='display: none;'" : ""; ?>>
                                                     <option value="261QE0002X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QE0002X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Emergency Care'); ?></option>
                                                     <option value="261QM2500X" <?php echo ($obj["code"] == 'SS003' && $obj["ob_value"] == '261QM2500X') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Medical Specialty'); ?></option>
@@ -229,13 +229,17 @@ $check_res = $formid ? $check_res : array();
                                                 }
                                                 ?>
                                                 <label id="ob_unit_head_<?php echo attr($key) + 1; ?>" class="ob_unit_head h5" <?php echo (!$obj["ob_value"]) ? 'style="display: none;"' : ''; ?>><?php echo xlt('Units'); ?>:</label>
-                                                <select <?php echo ($obj["code"] != '21612-7') ? 'style="display: none;"' : ''; ?> name="ob_unit[]" id="ob_unit_<?php echo attr($key) + 1; ?>" class="ob_unit">
-                                                    <option value="d" <?php echo ($obj["code"] == '21612-7' && $obj["ob_unit"] == 'd') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Day'); ?></option>
-                                                    <option value="mo" <?php echo ($obj["code"] == '21612-7' && $obj["ob_unit"] == 'mo') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Month'); ?></option>
-                                                    <option value="UNK" <?php echo ($obj["code"] == '21612-7' && $obj["ob_unit"] == 'UNK') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Unknown'); ?></option>
-                                                    <option value="wk" <?php echo ($obj["code"] == '21612-7' && $obj["ob_unit"] == 'wk') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Week'); ?></option>
-                                                    <option value="a" <?php echo ($obj["code"] == '21612-7' && $obj["ob_unit"] == 'a') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Year'); ?></option>
+                                                <?php if ($obj["code"] == '21612-7') { ?>
+                                                <select name="ob_unit[]" id="ob_unit_<?php echo attr($key) + 1; ?>" class="ob_unit">
+                                                    <option value="d" <?php echo ($obj["ob_unit"] == 'd') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Day'); ?></option>
+                                                    <option value="mo" <?php echo ($obj["ob_unit"] == 'mo') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Month'); ?></option>
+                                                    <option value="UNK" <?php echo ($obj["ob_unit"] == 'UNK') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Unknown'); ?></option>
+                                                    <option value="wk" <?php echo ($obj["ob_unit"] == 'wk') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Week'); ?></option>
+                                                    <option value="a" <?php echo ($obj["ob_unit"] == 'a') ? 'selected = "selected"' : ''; ?>><?php echo xlt('Year'); ?></option>
                                                 </select>
+                                                <?php } else { ?>
+                                                    <input type="text" name="ob_unit[]" id="ob_unit_<?php echo attr($key) + 1; ?>" class="ob_unit form-control" value="<?php echo attr($obj["ob_unit"]); ?>" />
+                                                <?php } ?>
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>

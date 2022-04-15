@@ -33,7 +33,7 @@ function make_task($ajax_req)
     $to_id      = $ajax_req['to_id'];
     $patient_id = $ajax_req['pid'];
     $doc_type   = $ajax_req['doc_type'];
-    $doc_id     = $ajax_req['doc_id'];
+    $doc_id     = $ajax_req['doc_id'] ?? '';
     $enc        = $ajax_req['enc'];
 
     $query      = "SELECT * FROM users WHERE id=?";
@@ -52,20 +52,20 @@ function make_task($ajax_req)
         $dated = $dated->format('Y/m/d');
         $sent_date = oeFormatShortDate($dated);
     }
-    if (!$doc['ID'] && $task['ID'] && (strtotime($task['REQ_DATE']) < (time() - 60))) {
+    if (!($doc['ID'] ?? '') && $task['ID'] && (strtotime($task['REQ_DATE']) < (time() - 60))) {
         // The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
         // but the document was deleted (to redo it)...
         // Delete the task, recreate the task, and send the newly made PDF.
         $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
         $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
     }
-    if ($task['ID'] && $task['COMPLETED'] == '2') {
+    if (($task['ID'] ?? '') && $task['COMPLETED'] == '2') {
         $send['comments'] = xlt('This fax has already been sent to') . " " . text($task['to_name']) . " " . xlt('via') . " " . text($task['to_fax']) . " on " . text($sent_date) . ". " .
                             xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.') . " " .
                             xlt('Filename') . ": " . text($filename);
         echo json_encode($send);
         exit;
-    } elseif ($task['ID'] && $task['COMPLETED'] >= '1') {
+    } elseif (($task['ID'] ?? '') && $task['COMPLETED'] >= '1') {
         if ($task['DOC_TYPE'] == 'Fax') {
             $send['DOC_link'] = "<a href=\"JavaScript:void(0);\"
                                     onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
@@ -96,7 +96,7 @@ function make_task($ajax_req)
         } else { //DOC_TYPE is a Report
             $send['comments'] = xlt('Currently working on making this document') . "...\n";
         }
-    } elseif (!$task['ID']) {
+    } elseif (!($task['ID'] ?? '')) {
         $sql = "INSERT into form_taskman
 				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
 				(NOW(), ?, ?, ?, ?, ?, ?)";
@@ -130,7 +130,7 @@ function process_tasks($task)
         $send['DOC_link'] = "<a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                 href=\"JavaScript:void(0);\"
                                 title='" . xlt('Report was faxed to') . " " . attr($task['to_name']) . " @ " . attr($task['to_fax']) . " on " .
-                                text($task['COMPLETED_DATE']) . ". " . xla(' Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
+                                text($task['COMPLETED_DATE']) . ". " . xla('Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
                             //if we want a "resend" icon, add it here.
     }
 
@@ -146,7 +146,11 @@ function update_taskman($task, $action, $value)
     if ($action == 'created') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMMENT=concat('Created: ',NOW()) where ID=?";
         sqlQuery($sql, array($task['DOC_ID'],$task['ID']));
-        $send['comments'] .= "Document created. ";
+        if (!empty($send['comments'])) {
+            $send['comments'] .= "Document created. ";
+        } else {
+            $send['comments'] = "Document created. ";
+        }
     }
 
     if ($action == 'completed') {

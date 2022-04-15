@@ -14,23 +14,23 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\AddressService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Services\AddressService;
-use OpenEMR\Validators\InsuranceValidator;
-use OpenEMR\Common\Database\QueryUtils;
 
 class InsuranceCompanyService extends BaseService
 {
     private const INSURANCE_TABLE = "insurance_companies";
-    private $insuranceValidator;
+    private $insuranceCompanyValidator;
     private $addressService = null;
-    const TYPE_FAX = 5;
-    const TYPE_WORK = 2;
+    public const TYPE_FAX = 5;
+    public const TYPE_WORK = 2;
 
 
     /**
@@ -40,7 +40,7 @@ class InsuranceCompanyService extends BaseService
     {
         $this->addressService = new AddressService();
         UuidRegistry::createMissingUuidsForTables([self::INSURANCE_TABLE]);
-        $this->insuranceValidator = new InsuranceValidator();
+        $this->insuranceCompanyValidator = new InsuranceCompanyValidator();
         parent::__construct(self::INSURANCE_TABLE);
     }
 
@@ -51,7 +51,7 @@ class InsuranceCompanyService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql  = " SELECT i.id,";
+        $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
         $sql .= "        i.attn,";
@@ -121,7 +121,7 @@ class InsuranceCompanyService extends BaseService
     {
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {
-            $isValidcondition = $this->insuranceValidator->validateId(
+            $isValidcondition = $this->insuranceCompanyValidator->validateId(
                 'uuid',
                 self::INSURANCE_TABLE,
                 $search['id'],
@@ -135,7 +135,7 @@ class InsuranceCompanyService extends BaseService
         }
 
         $sqlBindArray = array();
-        $sql  = " SELECT i.id,";
+        $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
         $sql .= "        i.attn,";
@@ -216,7 +216,7 @@ class InsuranceCompanyService extends BaseService
     {
         $freshId = $this->getFreshId("id", "insurance_companies");
 
-        $sql  = " INSERT INTO insurance_companies SET";
+        $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
@@ -235,18 +235,22 @@ class InsuranceCompanyService extends BaseService
                 $data["cms_id"],
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
-                $data["x12_default_partner_id"],
+                $data["x12_default_partner_id"] ?? '',
                 $data["alt_cms_id"]
             )
         );
-
-        if (!$insuranceResults) {
+        // insurance_company doesn't have an auto increment primary
+        // therefore a good insert will return false. You might get an error code on fail!
+        if ($insuranceResults) {
             return false;
         }
 
-        $addressesResults = $this->addressService->insert($data, $freshId);
+        $addressesResults = false;
+        if (!empty($data["city"] ?? null) && !empty($data["state"] ?? null)) {
+            $addressesResults = $this->addressService->insert($data, $freshId);
+        }
 
-        if (!$addressesResults) {
+        if ($addressesResults) {
             return false;
         }
 
@@ -255,7 +259,7 @@ class InsuranceCompanyService extends BaseService
 
     public function update($data, $iid)
     {
-        $sql  = " UPDATE insurance_companies SET";
+        $sql = " UPDATE insurance_companies SET";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
         $sql .= "     cms_id=?,";

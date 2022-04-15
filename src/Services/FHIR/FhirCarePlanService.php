@@ -113,7 +113,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
-            $carePlanResource->getAuthor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+            $carePlanResource->setAuthor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
         }
 
         if ($encode) {

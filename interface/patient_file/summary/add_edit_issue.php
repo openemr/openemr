@@ -249,11 +249,24 @@ if (!empty($_POST['form_save'])) {
         ,'pid' => $thispid
     ];
     // TODO: we could simplify this array by just adding 'form_' onto everything but not all of the fields precisely match so that would need to be fixed up
-    $issue_form_fields = ['title' => 'form_title', 'udi' => 'form_udi', 'udi_data' => 'udi_data', 'form_comments' => 'comments'
-        , 'diagnosis' => 'form_diagnosis', 'occurrence' => 'form_occur', 'classification' => 'form_classification'
-        , 'reinjury_id' => 'form_reinjury_id', 'referredby' => 'form_referredby', 'injury_grade' => 'form_injury_grade'
-        , 'outcome' => 'form_outcome', 'destination' => 'form_destination', 'reaction' => 'form_reaction'
-        , 'verification' => 'form_verification', 'severity_al' => 'form_severity_id', 'list_option_id' => 'form_title_id'];
+    $issue_form_fields = [
+        'title' => 'form_title',
+        'udi' => 'form_udi',
+        'udi_data' => 'udi_data',
+        'comments' => 'form_comments',
+        'diagnosis' => 'form_diagnosis',
+        'occurrence' => 'form_occur',
+        'classification' => 'form_classification',
+        'reinjury_id' => 'form_reinjury_id',
+        'referredby' => 'form_referredby',
+        'injury_grade' => 'form_injury_grade',
+        'outcome' => 'form_outcome',
+        'destination' => 'form_destination',
+        'reaction' => 'form_reaction',
+        'verification' => 'form_verification',
+        'severity_al' => 'form_severity_id',
+        'list_option_id' => 'form_title_id'
+    ];
     foreach ($issue_form_fields as $field => $form_field) {
         if (isset($_POST[$form_field])) {
             $issueRecord[$field] = $_POST[$form_field];
@@ -931,7 +944,7 @@ function getCodeText($code)
                             <?php } ?>
                         </div>
 
-                        <?php if ($irow['type'] == 'medication') : ?>
+                        <?php if (($irow['type'] ?? '') == 'medication') : ?>
                             <!-- any medication specific issue information goes here -->
                             <?php include "add_edit_issue_medication_fragment.php"; ?>
                         <?php endif; ?>

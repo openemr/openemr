@@ -39,11 +39,11 @@ class CodeTypesService
         '2.16.840.1.113883.6.101' => self::CODE_TYPE_NUCC,
         '2.16.840.1.113883.6.88' => self::CODE_TYPE_RXNORM,
         '2.16.840.1.113883.6.90' => self::CODE_TYPE_ICD10,
-        '2.16.840.1.113883.6.103' =>  'ICD-9-CM',
-        '2.16.840.1.113883.6.104' =>  'ICD-9-PCS',
-        '2.16.840.1.113883.6.4' =>   'ICD-10-PCS',
-        '2.16.840.1.113883.6.14' =>   'HCP',
-        '2.16.840.1.113883.6.285' =>   'HCPCS',
+        '2.16.840.1.113883.6.103' => 'ICD9-CM',
+        '2.16.840.1.113883.6.104' => 'ICD9-PCS',
+        '2.16.840.1.113883.6.4' => 'ICD10-PCS',
+        '2.16.840.1.113883.6.14' => 'HCP',
+        '2.16.840.1.113883.6.285' => 'HCPCS',
         '2.16.840.1.113883.5.2' => "HL7 Marital Status",
         '2.16.840.1.113883.12.292' => 'CVX',
         '2.16.840.1.113883.5.83' => 'HITSP C80 Observation Status',
@@ -243,6 +243,13 @@ class CodeTypesService
                 $system = FhirCodeSystemConstants::RXNORM;
             }
         }
+        if (empty($system)) {
+            foreach (self::CODE_TYPE_OID as $oid => $system_code) {
+                if ($system_code == $codeType) {
+                    return $oid;
+                }
+            }
+        }
         return $system;
     }
 
@@ -367,5 +374,18 @@ class CodeTypesService
             array($code, $codeType, "$codeType%", $codeSystem)
         );
         return $value;
+    }
+
+    public function dischargeOptionIdFromCode($formatted_code)
+    {
+        $listService = new ListService();
+        $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]) ?? '';
+        return $ret[0]['option_id'];
+    }
+
+    public function dischargeCodeFromOptionId($option_id)
+    {
+        $listService = new ListService();
+        return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
     }
 }

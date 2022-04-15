@@ -154,6 +154,13 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             //END (CHEMED)
         }
 
+        if ($_POST["billing_facility_id"]) {
+            sqlStatement("update users set billing_facility_id = ? where id = ? ", array($_POST["billing_facility_id"], $_POST["id"]));
+            //(CHEMED) Update facility name when changing the id
+            sqlStatement("UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.id = ?", array($_POST["billing_facility_id"], $_POST["id"]));
+            //END (CHEMED)
+        }
+
         if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) {
             if (empty($_POST["schedule_facility"])) {
                 $_POST["schedule_facility"] = array();
@@ -354,6 +361,7 @@ if (isset($_POST["mode"])) {
             "', npi  = '"          . add_escape_custom(trim((isset($_POST['npi']) ? $_POST['npi'] : ''))) .
             "', taxonomy = '"      . add_escape_custom(trim((isset($_POST['taxonomy']) ? $_POST['taxonomy'] : ''))) .
             "', facility_id = '"   . add_escape_custom(trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : ''))) .
+            "', billing_facility_id = '"   . add_escape_custom(trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : ''))) .
             "', specialty = '"     . add_escape_custom(trim((isset($_POST['specialty']) ? $_POST['specialty'] : ''))) .
             "', see_auth = '"      . add_escape_custom(trim((isset($_POST['see_auth']) ? $_POST['see_auth'] : ''))) .
             "', default_warehouse = '" . add_escape_custom(trim((isset($_POST['default_warehouse']) ? $_POST['default_warehouse'] : ''))) .
@@ -385,6 +393,16 @@ if (isset($_POST["mode"])) {
                     array(
                         $uuid,
                         trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : '')),
+                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                    )
+                );
+
+                //set the billing facility name from the selected billing_facility_id
+                sqlStatement(
+                    "UPDATE users, facility SET users.billing_facility = facility.name, users.uuid =? WHERE facility.id = ? AND users.username = ?",
+                    array(
+                        $uuid,
+                        trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : '')),
                         trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
                     )
                 );

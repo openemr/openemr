@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -26,14 +26,24 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     FE.pid,
                     FE.date,
                     FE.encounter_type_code,
+                    FE.discharge_disposition,
+                    LISTS.diagnosis,
+                    L.codes AS discharge_dispo_code,
                     C.pc_duration
                 FROM form_encounter FE
-                LEFT JOIN openemr_postcalendar_categories C
-                ON FE.pc_catid = C.pc_catid";
+                LEFT JOIN issue_encounter IE ON FE.encounter = IE.encounter
+                LEFT JOIN lists LISTS ON IE.list_id = LISTS.id
+                LEFT JOIN openemr_postcalendar_categories C ON FE.pc_catid = C.pc_catid
+                LEFT JOIN list_options L ON FE.discharge_disposition = L.option_id AND L.list_id = 'discharge-disposition'
+                ";
 
         return $sql;
     }
 
+    public function getPatientIdColumn()
+    {
+        return 'FE.pid';
+    }
 
     public function makeQdmModel(array $record)
     {
@@ -60,14 +70,14 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                 'highClosed' => $record['date'] ? true : false
             ]),
             'admissionSource' => null,
-            'dischargeDisposition' => null,
+            'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,
             'facilityLocations' => [],
             'lengthOfStay' => new Quantity([
                 'value' => $days,
                 'unit' => 'd'
-            ]),
+                ]),
             'negationRationale' => null,
-            'diagnoses' => null // TODO Should be 'diagnosis', but since we do checking on the properties we send into QDM objects, we have to make this typo which is in the modelinfo XML file
+            'diagnoses' => $this->makeQdmCode($record['diagnosis']) ?? null
         ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['encounter_type_code']);

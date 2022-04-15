@@ -46,28 +46,28 @@ $facilityService = new FacilityService();
 
 require_once(__DIR__ . "/../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
-if ($_REQUEST['CHOICE']) {
+if ($_REQUEST['CHOICE'] ?? '') {
     $choice = $_REQUEST['choice'];
 }
 
-if ($_REQUEST['ptid']) {
+if ($_REQUEST['ptid'] ?? '') {
     $pid = $_REQUEST['ptid'];
 }
 
-if ($_REQUEST['encid']) {
+if ($_REQUEST['encid'] ?? '') {
     $encounter = $_REQUEST['encid'];
 }
 
-if ($_REQUEST['formid']) {
+if ($_REQUEST['formid'] ?? '') {
     $form_id = $_REQUEST['formid'];
 }
 
-if ($_REQUEST['formname']) {
+if ($_REQUEST['formname'] ?? '') {
     $form_name = $_REQUEST['formname'];
 }
 
-if (!$id) {
-    $id = $form_id;
+if (!($id ?? '')) {
+    $id = $form_id ?? '';
 }
 
 // Get users preferences, for this user
@@ -503,8 +503,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         ${"OSVA_$count_rx"} = $wearing['OSVA'];
                         ${"ODNEARVA_$count_rx"} = $wearing['ODNEARVA'];
                         ${"OSNEARVA_$count_rx"} = $wearing['OSNEARVA'];
-                        ${"ODPRISM_$count_rx"} = $wearing['ODPRISM'];
-                        ${"OSPRISM_$count_rx"} = $wearing['OSPRISM'];
+                        ${"ODPRISM_$count_rx"} = $wearing['ODPRISM'] ?? '';
+                        ${"OSPRISM_$count_rx"} = $wearing['OSPRISM'] ?? '';
                         ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
                         ${"W_$count_rx"} = '1';
                         ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
@@ -599,7 +599,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                     <td><?php echo text($SCNEAROSVA); ?></td>
                                 </tr>
                             <?php }
-                        if ($ODNEARVA_1 || $WNEAROSVA_1) { ?>
+                        if ($ODNEARVA_1 || ($WNEAROSVA_1 ?? '')) { ?>
                                 <tr>
                                     <td><?php echo xlt('ccNear{{with correction at near}}'); ?></td>
                                     <td><?php echo text($ODNEARVA_1); ?></td>
@@ -634,7 +634,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                     <td><?php echo text($GLAREOSVA); ?></td>
                                 </tr>
                             <?php }
-                        if ($CONTRASTODVA || $CONTRASTOSVA) { ?>
+                        if (($CONTRASTODVA ?? '') || ($CONTRASTOSVA ?? '')) { ?>
                                 <tr>
                                     <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
                                     <td><?php echo text($CONTRASTODVA); ?></td>
@@ -723,7 +723,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 }
                 ?>
                 <?php
-                if ($bad < '1') { ?>
+                if (($bad ?? '') < '1') { ?>
             <td style="border-right: 1pt #000 solid;
                           float: left;
                           font-size: 0.9em;
@@ -1051,7 +1051,18 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         if ($cols != 'Fax') {
             ?><!-- start of the refraction boxes -->
             <?php
-            if ($ODVA || $OSVA || $ARODSPH || $AROSSPH || $MRODSPH || $MROSSPH || $CRODSPH || $CROSSPH || $CTLODSPH || $CTLOSSPH) { ?>
+            if (
+                ($ODVA ?? '') ||
+                 ($OSVA ?? '') ||
+                 ($ARODSPH ?? '') ||
+                  ($AROSSPH ?? '') ||
+                   ($MRODSPH ?? '') ||
+                    ($MROSSPH ?? '') ||
+                    ($CRODSPH ?? '') ||
+                    ($CROSSPH ?? '') ||
+                    ($CTLODSPH ?? '') ||
+                    ($CTLOSSPH ?? '')
+            ) { ?>
                 <br/>
                 <table class="refraction_tables">
                 <tr>
@@ -1285,7 +1296,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <br/>
         
         <?php
-        if ($GLAREODVA || $CONTRASTODVA || $ODK1 || $ODK2 || $LIODVA || $PAMODBA) { ?>
+        if ($GLAREODVA || ($CONTRASTODVA ?? '') || $ODK1 || $ODK2 || $LIODVA || ($PAMODBA ?? '')) { ?>
             <table>
                 <tr>
                     <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>"
@@ -1623,7 +1634,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
         <!-- start of Other exam -->
         <?php
-        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
+        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? '') || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
             ?>
                 <table>
                     <tr>
@@ -2437,7 +2448,7 @@ function display_draw_image($zone, $encounter, $pid)
     $filename = $base_name . ".jpg";
     $sql = "SELECT * from documents where documents.name like '%" . $filename . "'";
     $doc = sqlQuery($sql);
-    $document_id = $doc['id'];
+    $document_id = $doc['id'] ?? '';
 
     if (($document_id > '1') && (is_numeric($document_id))) {
         $d = new Document($document_id);

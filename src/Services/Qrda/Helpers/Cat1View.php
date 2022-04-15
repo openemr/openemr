@@ -40,22 +40,22 @@ trait Cat1View
 
     public function display_author_dispenser_id(Mustache_Context $context): bool
     {
-        $category = $context->get('qdmCategory');
-        $status = $context->get('qdmStatus');
+        $category = $context->find('qdmCategory');
+        $status = $context->find('qdmStatus');
         return $category == 'medication' && $status == 'dispensed';
     }
 
     public function display_author_prescriber_id(Mustache_Context $context): bool
     {
-        $category = $context->get('qdmCategory');
-        $status = $context->get('qdmStatus');
+        $category = $context->find('qdmCategory');
+        $status = $context->find('qdmStatus');
         return $category == 'medication' && $status == 'order';
     }
 
     public function id_or_null_flavor(Mustache_Context $context): bool
     {
-        $namingSystem = $context->get('namingSystem');
-        $value = $context->get('value');
+        $namingSystem = $context->find('namingSystem');
+        $value = $context->find('value');
 
         if (empty($namingSystem) && empty($value)) {
             return "<id nullFlavor=\"NA\"/>";
@@ -127,7 +127,6 @@ trait Cat1View
         if (empty($result)) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
-
         if (is_array($result)) {
             // indexed array
             if (array_key_exists(0, $result)) {
@@ -140,33 +139,34 @@ trait Cat1View
             $result_string = "<value xsi:type=\"ST\">" . $result . "</value>";
             // non-null value
         } else {
-            $result_string = "<value xsi:type=\"PQ\" value=\"" . $result . "\" unit=\"1\"/>";
+            if (is_numeric($result ?? null)) {
+                $result_string = "<value xsi:type=\"PQ\" value=\"" . $result . "\" unit=\"1\"/>";
+            } else {
+                return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
+            }
         }
         return $result_string;
     }
 
     public function result_value_as_string($result)
     {
-        if (empty($result)) {
+        if (empty($result['value'])) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
-
+        // Not all results will have code
         $oid = $result['system'] ?? $result['codeSystem'];
-        if (!empty($oid)) {
-            $system = $this->get_code_system_for_oid($oid);
-            if (!empty($result['code'])) {
-                return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
-                    . "\" codeSystemName=\"" . $system . "\"/>";
-            } elseif (!empty($result['value'])) {
-                return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
-            } else {
-                // TODO: @sjpadgett, @adunsulag, @ken.matrix the ruby code didn't handle this case... what happens here?
-                // no result so template shouldn't show.
-                return "";
-            }
-        } else {
-            return "";
+        if (!empty($result['code']) && !empty($oid)) {
+            $system = $this->get_code_system_for_oid($oid) ?: $result['codeSystem'];
+            return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid
+                . "\" codeSystemName=\"" . $system . "\"/>";
+        } elseif (is_numeric($result['value'])) {
+            // Such as value 10.2 unit ml/??
+            return "<value xsi:type=\"PQ\" value=\"" . $result['value'] . "\" unit=\"" . ($result['unit'] ?: "UNK") . "\"/>";
+        } elseif (is_string($result['value'])) {
+            // Such as urine color YELLOW
+            return "<value xsi:type=\"ST\" value=\"" . $result['value'] . "\"/>";
         }
+        return "";
     }
 
     public function authordatetime_or_dispenserid(Mustache_Context $context): bool
@@ -179,6 +179,6 @@ trait Cat1View
     private function get_code_system_for_oid($oid)
     {
         $codesService = new CodeTypesService();
-        return $codesService->getCodeSystemNameFromSystem($oid) ?: 'Unknown';
+        return $codesService->getCodeSystemNameFromSystem($oid);
     }
 }

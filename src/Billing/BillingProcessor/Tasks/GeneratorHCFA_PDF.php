@@ -26,7 +26,10 @@ use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Hcfa1500;
 
-class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
+class GeneratorHCFA_PDF extends AbstractGenerator implements
+    GeneratorInterface,
+    GeneratorCanValidateInterface,
+    LoggerInterface
 {
     use WritesToBillingLog;
 
@@ -120,7 +123,18 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
         $this->validateAndClear($claim);
 
         // Finalize the claim
-        if (!BillingUtilities::updateClaim(false, $claim->getPid(), $claim->getEncounter(), -1, -1, 2, 2, $this->batch->getBatFilename())) {
+        if (
+            !BillingUtilities::updateClaim(
+                false,
+                $claim->getPid(),
+                $claim->getEncounter(),
+                -1,
+                -1,
+                2,
+                2,
+                $this->batch->getBatFilename()
+            )
+        ) {
             $this->printToScreen(xl("Internal error: claim ") . $claim->getId() . xl(" not found!") . "\n");
         } else {
             $this->printToScreen(xl("Successfully processed claim") . ": " . $claim->getId());
@@ -135,7 +149,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
     public function validateOnly(BillingClaim $claim)
     {
         $this->updateBatch($claim);
-        $this->printToScreen(xl("Successfully Validated claim") . ": " . $claim->getId());
+        $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
     /**
@@ -160,8 +174,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements GeneratorInterface,
             '', // process_file
             'hcfa'
         );
-
-        $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() . xl(" as billed"));
+        $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() .  " " . xl("as billed"));
     }
 
     /**

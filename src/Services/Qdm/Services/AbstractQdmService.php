@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package OpenEMR
+ * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -17,6 +17,11 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 abstract class AbstractQdmService
 {
+    /**
+     * Value in ob_reason_status indicates negated observation (observation not done)
+     */
+    const NEGATED = 'negated';
+
     protected $request;
     protected $codeTypesService;
 
@@ -25,13 +30,22 @@ abstract class AbstractQdmService
      * because we want to pass in a standard set of dependencies.
      *
      * AbstractQdmService constructor.
+     *
      * @param QdmRequestInterface $request
-     * @param CodeTypesService $codeTypesService
+     * @param CodeTypesService    $codeTypesService
      */
     final public function __construct(QdmRequestInterface $request, CodeTypesService $codeTypesService)
     {
         $this->request = $request;
         $this->codeTypesService = $codeTypesService;
+    }
+
+    public function validDateOrNull($date)
+    {
+        if ($date == '0000-00-00') {
+            return null;
+        }
+        return $date;
     }
 
     public function getPatientIdColumn()
@@ -89,7 +103,10 @@ abstract class AbstractQdmService
         // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT" because that's what we have in our lookup table
         $codeType = str_replace(" ", "-", $codeType);
 
-        if ($codeType == 'HCPCS-Level-II') {
+        if ($codeType == 'OID') {
+            // When there is a negation, the code is an OID from a measure value set. There is no official code system for this, as they are OIDs
+            $system = '';
+        } else if ($codeType == 'HCPCS-Level-II') {
             $system = '2.16.840.1.113883.6.285';
         } else {
             $system = $this->codeTypesService->getSystemForCodeType($codeType, true);
@@ -99,15 +116,30 @@ abstract class AbstractQdmService
     }
 
     /**
+     * @param $openEmrCode
+     * @return bool
+     *
+     * Return true if the code begins with "OID:" which implies a negation (we made up this convention)
+     */
+    public function isNegationCode($openEmrCode)
+    {
+        if (!empty($openEmrCode) && str_starts_with($openEmrCode, 'OID:')) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Convert a code formatted in openEMR database style, ie: system:code
      * to a QDM Object
      *
-     * @param $openEmrCode
+     * @param  $openEmrCode
      * @return Code|null
      * @throws \Exception
      */
     public function makeQdmCode($openEmrCode)
     {
+        $codeModel = null;
         $code = null;
         $system = null;
         $res = explode(":", $openEmrCode); //split diagnosis type and code
@@ -122,11 +154,9 @@ abstract class AbstractQdmService
             $system = $res[0];
         }
 
-        $codeModel = null;
-
         if (
-            !empty($code) &&
-            !empty($system)
+            !empty($code)
+            && !empty($system)
         ) {
             $codeModel = new Code([
                 'code' => $code,
@@ -143,7 +173,7 @@ abstract class AbstractQdmService
      * For issues that have multiple diagnosis coded, they are semicolon-separated
      * explode() will return an array containing the individual diagnosis if there is no semicolon.
      *
-     * @param $openEmrMultiCode
+     * @param  $openEmrMultiCode
      * @return array
      */
     public function explodeAndMakeCodeArray($openEmrMultiCode)

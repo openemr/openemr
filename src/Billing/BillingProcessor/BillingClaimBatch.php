@@ -194,8 +194,13 @@ class BillingClaimBatch
         return $unique_x12_partners;
     }
 
-    public function append_claim(&$segs)
+    public function append_claim(&$segs, $hcfa_txt = false)
     {
+        if ($hcfa_txt) {
+            $this->bat_content .= $segs;
+            return;
+        }
+
         foreach ($segs as $seg) {
             if (!$seg) {
                 continue;

@@ -472,6 +472,10 @@ class Installer
                 $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
                 return false;
             }
+            // the new site will create it's own keys so okay to delete these copied from the source site
+            if (!$this->clone_database) {
+                array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
+            }
         }
 
         return true;
@@ -1441,7 +1445,7 @@ $config = 1; /////////////
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
         " -p" . escapeshellarg($pass) .
-        " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
+        " --ignore-table=" . escapeshellarg($dbase . ".onsite_activity_view") . " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
         $tmp1 = [];
@@ -1471,12 +1475,16 @@ $config = 1; /////////////
     {
         $current_theme =  $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
         $current_theme = mysqli_fetch_array($current_theme);
-        return $current_theme [0];
+        return $current_theme[0];
     }
 
     public function setCurrentTheme()
     {
-        $this->getCurrentTheme();//why is this needed ?
+        $current_theme = $this->getCurrentTheme();
+        // for cloned sites since they're not asked about a new theme
+        if (!$this->new_theme) {
+            $this->new_theme = $current_theme;
+        }
         return $this->execute_sql("UPDATE globals SET gl_value='" . $this->escapeSql($this->new_theme) . "' WHERE gl_name LIKE '%css_header%'");
     }
 
@@ -1574,6 +1582,10 @@ DSTD;
 
     public function displayNewThemeDiv()
     {
+        // cloned sites don't get a chance to set a new theme
+        if (!$this->new_theme) {
+            $this->new_theme = $this->getCurrentTheme();
+        }
         $theme_file_name = $this->new_theme;
         $arr_extracted_file_name = $this->extractFileName($theme_file_name);
         $theme_value = $arr_extracted_file_name['theme_value'];

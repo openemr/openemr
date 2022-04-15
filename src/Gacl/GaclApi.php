@@ -2869,7 +2869,7 @@ class GaclApi extends Gacl {
 			return false;
 		}
 
-		$query = 'SELECT section_value FROM '. $table .' WHERE id='. $object_id;
+		$query = 'SELECT section_value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
@@ -3127,7 +3127,7 @@ class GaclApi extends Gacl {
 		$this->db->BeginTrans();
 
 		//Get old value incase it changed, before we do the update.
-		$query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $object_id;
+		$query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
 		$old = $this->db->GetRow($query);
 
 		$query  = '

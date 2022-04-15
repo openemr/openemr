@@ -17,6 +17,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
@@ -39,6 +40,23 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+
+    // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
+    // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
+    // numerals, "-" and ".".  Logical ids are opaque to the resource server and should NOT be changed once they've
+    // been issued by the resource server
+    // Up to OpenEMR 6.1.0 patch 0 we used : as our separator for Provenance, and _ as our separator for resources such
+    // as CarePlan and Goals.
+    const SURROGATE_KEY_SEPARATOR_V1 = ":";
+    // use the abbreviation PSK for Provenance Surrogate key and hyphens.  Since Logical ids are opaque we can do this as long as
+    // our UUID NEVER generates a three digit hyphenated id which none of the standards currently do.
+    // our other resources use -SK- as a surrogate key
+    // the best approach would be to have a complete accessible provenance data table with its own uuids that's
+    // searchable but right now provenance is tracked so dispararately across the system we go to each resource
+    // in order to grab these ids.
+    const SURROGATE_KEY_SEPARATOR_V2 = "-PSK-";
+    const V2_TIMESTAMP = 1649476800; // strtotime("2022-04-09");
+
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance';
 
@@ -87,7 +105,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     {
 
         $fhirProvenance = new FHIRProvenance();
-        $fhirProvenance->setId($resource->get_fhirElementName() . ":" . $resource->getId());
+
+        $fhirProvenance->setId($this->getSurrogateKeyForResource($resource));
         /**
          * Attributes required/must support for US.Core
          */
@@ -107,9 +126,16 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         }
 
         $fhirOrganizationService = new FhirOrganizationService();
-        // TODO: adunsulag check with @sjpadgett or @brady.miller to see if we will always have a primary business entity.
         $primaryBusinessEntity = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         if (empty($primaryBusinessEntity)) {
+            if (!empty($userWHO)) {
+                (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() primary business entity not found, attempting to find user organization");
+                $primaryBusinessEntity = $fhirOrganizationService->getOrganizationReferenceFromUserReference($userWHO);
+            }
+        }
+
+        if (empty($primaryBusinessEntity)) {
+            // see if we can get this from the who if we
             (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
             return null;
         }
@@ -265,10 +291,10 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     private function getProvenanceRecordsForId($id, $puuidBind)
     {
         $processingResult = new ProcessingResult();
-        $idParts = explode(":", $id);
-        $resourceName = array_shift($idParts);
+        $idParts = $this->splitSurrogateKeyIntoParts($id);
+        $resourceName = $idParts['resource'];
+        $innerId = $idParts['id'];
 
-        $innerId = implode(":", $idParts);
         $className = RestControllerHelper::FHIR_SERVICES_NAMESPACE . $resourceName . "Service";
         if (!class_exists($className)) {
             throw new SearchFieldException("_id", "Provenance _id was invalid");
@@ -359,5 +385,55 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
+    }
+
+    /**
+     * Given a FHIRDomainResource resource generate the surrogate key.  If either column is empty it uses an empty string as the value.
+     * @param array $resource The domain resource
+     * @return string The surrogate key.
+     */
+    public function getSurrogateKeyForResource(FHIRDomainResource $resource)
+    {
+        $separator = self::SURROGATE_KEY_SEPARATOR_V2;
+
+        // lastUpdated is a timesecond instant so we are going to get int value for comparison
+        if (empty($resource->getMeta())) {
+            (new SystemLogger())->errorLogCaller(
+                "Resource missing required Meta field",
+                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
+            );
+        } else if (empty($resource->getMeta()->getLastUpdated())) {
+            (new SystemLogger())->errorLogCaller(
+                "Resource missing required Meta->lastUpdated field",
+                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
+            );
+        } else {
+            $lastUpdated = \DateTime::createFromFormat(DATE_ISO8601, $resource->getMeta()->getLastUpdated());
+
+            if ($lastUpdated !== false && $lastUpdated->getTimestamp() < self::V2_TIMESTAMP) {
+                $separator = self::SURROGATE_KEY_SEPARATOR_V1;
+            }
+        }
+
+        return $resource->get_fhirElementName() . $separator . $resource->getId();
+    }
+
+    /**
+     * Given the surrogate key representing a Provenance, split the key into its component parts.
+     * @param $key string the key to parse
+     * @return array The broken up key parts.
+     */
+    public function splitSurrogateKeyIntoParts($key)
+    {
+        $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
+        if (strpos($key, self::SURROGATE_KEY_SEPARATOR_V1) !== false) {
+            $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
+        }
+        $parts = explode($delimiter, $key);
+        $key = [
+            "resource" => $parts[0] ?? ""
+            ,"id" => $parts[1] ?? ""
+        ];
+        return $key;
     }
 }

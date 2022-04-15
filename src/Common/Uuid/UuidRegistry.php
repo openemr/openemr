@@ -134,6 +134,11 @@ class UuidRegistry
             self::appendPopulateLog('uuid_mapping', $mappedCounter, $logEntryComment);
         }
 
+        // To rectify a bug where mapped uuids were created but nothing in the UUID register for vital observations we
+        // will populate the UUIDRegistry
+        $mappedRegistryUuidCounter = self::createMissingMappedUuids();
+        self::appendPopulateLog('uuid_registry', $mappedRegistryUuidCounter, $logEntryComment);
+
         if (!empty($logEntryComment)) {
             $logEntryComment = rtrim($logEntryComment, ', ');
         }
@@ -149,6 +154,23 @@ class UuidRegistry
         } else {
             return false;
         }
+    }
+
+    /**
+     * Creates registry entries for missing uuids in uuid_mapping that are not in uuid_registry.  Returns the count of
+     * the records that were created.
+     * @return int
+     */
+    private static function createMissingMappedUuids()
+    {
+        $createdRows = 0;
+        $sql = "INSERT INTO `uuid_registry`(`uuid`,`table_name`,`table_id`,`mapped`) "
+            . " SELECT `uuid_mapping`.`uuid`,'uuid_mapping','id',1 FROM `uuid_mapping` LEFT JOIN `uuid_registry` registry2 ON `uuid_mapping`.`uuid` = registry2.uuid WHERE registry2.uuid IS NULL";
+        $result = sqlStatementNoLog($sql, []);
+        if ($result !== false) {
+            $createdRows = generic_sql_affected_rows();
+        }
+        return $createdRows;
     }
 
     /**
