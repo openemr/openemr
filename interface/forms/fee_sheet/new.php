@@ -734,7 +734,7 @@ function validate(f) {
   <?php if ($GLOBALS['void_checkout_reopen']) { ?>
   var voiding = reopening && f.bn_reopen.clicked == 2;
   <?php } else { ?>
-  var voiding = false && f.bn_reopen.clicked == 2;;
+  var voiding = false;
   <?php } ?>
   f.bn_reopen.clicked = false;
   if (reopening) {
