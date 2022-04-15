@@ -609,16 +609,16 @@ if (!$alertmsg && (!empty($_POST['bn_reopen']) || !empty($_POST['form_reopen']))
             $_POST['form_reason'],
             $_POST['form_notes']
         );
-        $current_checksum = $fs->visitChecksum();
-        // Remove the line items so they are refreshed from the database on redisplay.
-        unset($_POST['bill']);
-        unset($_POST['prod']);
     } else {
         BillingUtilities::reOpenEncounterForBilling(
             $fs->pid,
             $fs->encounter
         );
     }
+    $current_checksum = $fs->visitChecksum();
+        // Remove the line items so they are refreshed from the database on redisplay.
+        unset($_POST['bill']);
+        unset($_POST['prod']);
 }
 
 $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, "*");
