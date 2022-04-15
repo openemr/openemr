@@ -240,8 +240,8 @@ class CdaTemplateParse
             $reason_code = [];
             $reason_status = '';
             if (!empty($entry['observation']['value']['nullFlavor'])) {
-                $result_code['formatted_code'] = 'nullFlavor:' . $entry['observation']['value']['nullFlavor'];
-                $result_code['code_text'] = $entry['observation']['value']['nullFlavor'];
+                $result_code['formatted_code'] = null;
+                $result_code['code_text'] = null;
                 $result_status = $entry['observation']['statusCode']['code'] ?? '';
             } elseif (($entry['observation']['value']['type'] ?? '') === 'CD') {
                 $ob_code = $entry['observation']['value']['code'];
@@ -333,6 +333,15 @@ class CdaTemplateParse
                 $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['codeSystemName'] ?: $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
                 $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['displayName']
             );
+            $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? $this->templateData['field_name_value_array']['encounter'][$i]['date'] ?? null;
+            if (empty($code['code'])) {
+                $code = $this->codeService->resolveCode(
+                    $entry["encounter"]["entryRelationship"]["observation"]["value"]["code"],
+                    $entry["encounter"]["entryRelationship"]["observation"]["value"]['codeSystemName'] ?: $entry["encounter"]["entryRelationship"]["observation"]["value"]['codeSystem'] ?? '',
+                    $entry["encounter"]["entryRelationship"]["observation"]["value"]['displayName']
+                );
+                $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $this->templateData['field_name_value_array']['encounter'][$i]['date'] ?? null;
+            }
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_issue'] = $code['code_text'];
 
@@ -1083,7 +1092,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['care_plan'][$i]['code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['code_text'] = $code['code_text'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['description'] = $entry['act']['text'] ?? $code['code_text'];
-            $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['act']['effectiveTime']['center']['value'] ?? $entry['act']['author']['time']['value'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['act']['effectiveTime']['center']['value'] ?? $entry['act']['author']['time']['value'] ?? null;
 
             // negate
             if ($entry['act']['entryRelationship']['observation']['value']['code']) {

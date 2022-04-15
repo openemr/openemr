@@ -518,9 +518,9 @@ class CdaTemplateImportDispose
             } elseif (!empty($value['date']) && $revapprove == 1) {
                 $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
             } elseif (empty($value['date'])) {
-                $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
-                ;
+                $encounter_date_value = null;
             }
+            $diag_date = !empty($value['encounter_diagnosis_date']) ? date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])) : null;
 
             if (!empty($value['extension'])) {
                 $q_sel_encounter = "SELECT *
@@ -601,7 +601,7 @@ class CdaTemplateImportDispose
             $appTable->zQuery($q_ins_forms, array($encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient'));
             if (!empty($value['encounter_diagnosis_issue'])) {
                 $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
-                $result = $appTable->zQuery($query_select, array($value['encounter_diagnosis_date'], $value['encounter_diagnosis_issue'], $pid));
+                $result = $appTable->zQuery($query_select, array($diag_date, $value['encounter_diagnosis_issue'], $pid));
                 if ($result->count() > 0) {
                     foreach ($result as $value1) {
                         $list_id = $value1['id'];
@@ -622,7 +622,6 @@ class CdaTemplateImportDispose
                     $appTable->zQuery($insert, array($pid, $list_id, $encounter_id, 0));
                 }
             }
-
             //to external_encounters
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
             $appTable->zQuery($insertEX, array($encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)));
