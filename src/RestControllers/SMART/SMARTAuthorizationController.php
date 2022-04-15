@@ -124,8 +124,8 @@ class SMARTAuthorizationController
      */
     public function needSMARTAuthorization()
     {
-        if (empty($_SESSION['pid']) && strpos($_SESSION['scopes'], SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE) !== false) {
-            $this->logger->debug("AuthorizationController->userLogin() SMART app request for patient context ", ['scopes' => $_SESSION['scopes'], $_SESSION['pid']]);
+        if (empty($_SESSION['puuid']) && strpos($_SESSION['scopes'], SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE) !== false) {
+            $this->logger->debug("AuthorizationController->userLogin() SMART app request for patient context ", ['scopes' => $_SESSION['scopes'], 'puuid' => $_SESSION['puuid'] ?? null]);
             return true;
         }
         return false;
@@ -167,7 +167,7 @@ class SMARTAuthorizationController
             // throws access denied if user doesn't have access
             $foundPatient = $searchController->getPatientForUser($patient_id, $user_uuid);
             // put PID in session
-            $_SESSION['pid'] = $patient_id;
+            $_SESSION['puuid'] = $patient_id;
 
             // now redirect to our scope-authorize
             $redirect = $this->smartFinalRedirectURL;

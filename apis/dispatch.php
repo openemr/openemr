@@ -134,6 +134,10 @@ $sessionAllowWrite = true;
 require_once("./../interface/globals.php");
 
 // we now can check the database to see if the token is revoked
+// Note despite League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator.php:L117 already checking for revoked
+// access token we have to do this logic here as we use the access token SCOPE parameter to determine our multi-site setting
+// and load up the correct database, our earlier access token logic returns false for revoked as we don't have db access
+//  for that reason we have this double check on validating the access token.
 if (!empty($tokenId)) {
     $result = $gbl::validateAccessTokenRevoked($tokenId);
     if ($result instanceof ResponseInterface) {
@@ -268,17 +272,7 @@ if ($isLocalApi) {
             exit();
         }
         if ($restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
-            // attempt to pull from our session store and populate our patient contexts here
-            $sessionCache = $isTrusted['session_cache'] ?? '[]';
-            $cache = json_decode($sessionCache, true);
-            if (!empty($cache['pid'])) { // really strange how we are using the pid for the UUID
-            // TODO: do we want to hit the database and make sure the user has access to this patient?
-                // its another sanity check to make sure somehow the trusted user session didn't get contaminated...
-                // will slow down the request though.
-                $restRequest->setPatientUuidString($cache['pid']);
-            } else {
-                $logger->error(("OpenEMR Error: api had patient launch scope but no patient was set in the session cache.  Resources restricted with patient scopes will not return results"));
-            }
+            $restRequest = $gbl->populateTokenContextForRequest($restRequest);
         }
     } elseif ($userRole == 'patient') {
         $_SESSION['pid'] = $user['pid'] ?? null;
