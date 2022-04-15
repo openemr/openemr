@@ -37,18 +37,32 @@ if (empty($GLOBALS['rest_fhir_api'])) {
 }
 
 // This code allows configurable positioning in the login page
-$loginrow = "row login-row align-items-center m-5";
+$logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-primary";
+$formarea = "py-3 px-2 p-sm-5 bg-white order-2";
+$loginrow = "row login-row bg-white shadow-lg align-items-center my-sm-5";
 
-if ($GLOBALS['login_page_layout'] == 'left') {
-    $logoarea = "col-md-6 login-bg-left py-3 px-5 py-md-login order-1 order-md-2";
-    $formarea = "col-md-6 p-5 login-area-left order-2 order-md-1";
-} else if ($GLOBALS['login_page_layout'] == 'right') {
-    $logoarea = "col-md-6 login-bg-right py-3 px-5 py-md-login order-1 order-md-1";
-    $formarea = "col-md-6 p-5 login-area-right order-2 order-md-2";
-} else {
-    $logoarea = "col-12 login-bg-center py-3 px-5 order-1";
-    $formarea = "col-12 p-5 login-area-center order-2";
-    $loginrow = "row login-row login-row-center align-items-center";
+// Apply these classes to the logo area if the login page is left or right
+$lrArr = ['left', 'right'];
+$logoarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
+$formarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
+
+// More finite control on a per-setting basis
+switch ($GLOBALS['login_page_layout']) {
+    case 'left':
+        $logoarea .= " order-md-2";
+        $formarea .= " order-md-1";
+        break;
+
+    case 'right':
+        $logoarea .= " order-md-1";
+        $formarea .= " order-md-2";
+        break;
+
+    default:
+        $logoarea .= " order-1";
+        $formarea .= " col-12";
+        $loginrow .= " login-row-center";
+        break;
 }
 
 // TODO: adunsulag find out where our openemr name comes from
@@ -242,24 +256,28 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
 <body class="register-app">
 <form id="app_form" method="POST" autocomplete="off">
     <div class="<?php echo $loginrow; ?> card m-5">
-        <div class="<?php echo $logoarea; ?>">
+        <div class="<?php echo attr($logoarea); ?>">
             <?php $extraLogo = $GLOBALS['extra_logo_login']; ?>
             <?php if ($extraLogo) { ?>
                 <div class="text-center">
-                    <span class="d-inline-block w-40"><?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?></span>
+                    <span class="d-inline-block w-40">
+                        <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
+                    </span>
                     <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
-                    <span class="d-inline-block w-40"><?php echo $logocode; ?></span>
+                    <span class="d-inline-block w-40">
+                        <?php echo $logocode; ?>
+                    </span>
                 </div>
             <?php } else { ?>
                 <div class="mx-auto m-4 w-75">
                     <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
                 </div>
             <?php } ?>
+            <?php if ($GLOBALS['show_label_login']) { ?>
             <div class="text-center login-title-label">
-                <?php if ($GLOBALS['show_label_login']) { ?>
                     <?php echo text($openemr_name); ?>
-                <?php } ?>
             </div>
+            <?php } ?>
             <?php
             // Figure out how to display the tiny logos
             $t1 = $GLOBALS['tiny_logo_1'];
@@ -274,8 +292,8 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                     <div class="col-sm-6"><?php echo $tinylogocode2;?></div>
                 </div>
             <?php } ?>
-            <p class="text-center lead font-weight-normal login-bg-text-color"><?php echo xlt('The most popular open-source Electronic Health Record and Medical Practice Management solution.'); ?></p>
-            <p class="text-center small"><a href="../../acknowledge_license_cert.html" class="login-bg-text-color" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a></p>
+            <p class="text-center lead font-weight-normal login-bg-text-color text-white"><?php echo xlt('The most popular open-source Electronic Health Record and Medical Practice Management solution.'); ?></p>
+            <p class="text-center small"><a href="../../acknowledge_license_cert.html" class="login-bg-text-color text-white" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a></p>
         </div>
         <div class="<?php echo $formarea; ?>">
             <h3 class="card-title text-center"><?php echo xlt("App Registration Form"); ?></h3>
