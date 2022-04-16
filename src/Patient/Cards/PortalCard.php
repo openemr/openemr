@@ -1,7 +1,16 @@
 <?php
 
-/*
- * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
+/**
+ *
+ * Portal Card.
+ *
+ * A class representing the Patient Portal card displayed on the MRD.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Patient\Cards;

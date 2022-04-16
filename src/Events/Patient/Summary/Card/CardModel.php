@@ -2,6 +2,15 @@
 
 /**
  *
+ * A CardModel which implements CardInterface.
+ *
+ * Represents a Card which can be injected into a Section.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Events\Patient\Summary\Card;

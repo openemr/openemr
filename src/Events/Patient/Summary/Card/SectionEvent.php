@@ -2,11 +2,21 @@
 
 /**
  *
+ * Section Event.
+ *
+ * Event that can be used to render a block of Cards.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Events\Patient\Summary\Card;
 
 use DomainException;
+use LogicException;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -73,6 +83,9 @@ class SectionEvent extends Event
         }
 
         // @todo ensure position is an integer or null
+        // if (!is_int($position) || !is_null($position)) {
+        //     throw new LogicException('Position parameter must be either null or an interger');
+        // }
 
         array_splice($this->cards, $position ?? -1, 0, $card);
     }
