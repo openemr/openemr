@@ -95,6 +95,7 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.24.3.139' => 'fetchMedicationData', // Medication Dispensed Act @todo set med type
             '2.16.840.1.113883.10.20.24.3.105' => 'fetchMedicationData', // Medication Discharge Act
             '2.16.840.1.113883.10.20.24.3.137' => 'fetchMedicalProblemData',// diagnosis
+            '2.16.840.1.113883.10.20.24.3.138' => 'fetchMedicalProblemData',// concern symtom
             '2.16.840.1.113883.10.20.24.3.140' => 'fetchImmunizationData',  // Immunization Administered (V3)
             '2.16.840.1.113883.10.20.22.4.14' => 'fetchProcedureActivityData', // procedure activity-performed 2.16.840.1.113883.10.20.24.3.64
             '2.16.840.1.113883.10.20.24.3.7' => 'fetchProcedureDeviceData', // procedure preformed Device Applied
@@ -177,7 +178,7 @@ class CdaTemplateParse
         if (empty($this->templateData)) {
             error_log('Could not find any QDMs in document!');
         }
-        return $this->templateData ?? '';
+        return $this->templateData ?? [];
     }
 
     public function fetchDeceasedObservationData($entry)
@@ -369,7 +370,11 @@ class CdaTemplateParse
             if (!empty($this->templateData['field_name_value_array']['lists1'])) {
                 $i += count($this->templateData['field_name_value_array']['lists1']);
             }
-
+            $classification = 'diagnosis';
+            if ($this->currentOid == '2.16.840.1.113883.10.20.24.3.138') {
+                $classification = 'concern';
+            }
+            $this->templateData['field_name_value_array']['lists1'][$i]['classification'] = $classification;
             $code = $this->codeService->resolveCode(
                 $entry['act']['entryRelationship']['observation']['value']['code'],
                 ($entry['act']['entryRelationship']['observation']['value']['codeSystemName'] ?? '') ?: $entry['act']['entryRelationship']['observation']['value']['codeSystem'] ?? '',

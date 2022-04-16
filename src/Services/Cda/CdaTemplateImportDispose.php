@@ -1171,10 +1171,12 @@ class CdaTemplateImportDispose
                     enddate,
                     outcome,
                     type,
-                    external_id
+                    external_id,
+                    classification
                   )
                   VALUES
                   ( ?,
+                    ?,
                     ?,
                     ?,
                     ?,
@@ -1194,7 +1196,9 @@ class CdaTemplateImportDispose
                     $med_pblm_enddate_value,
                     $o_id,
                     'medical_problem',
-                    $value['extension']));
+                    $value['extension'],
+                    $value['classification'])
+                );
 
                 $list_id = $result->getGeneratedValue();
             } else {
