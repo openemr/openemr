@@ -1172,7 +1172,7 @@ class CdaTemplateImportDispose
                     outcome,
                     type,
                     external_id,
-                    classification
+                    subtype
                   )
                   VALUES
                   ( ?,
