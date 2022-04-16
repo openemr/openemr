@@ -112,23 +112,23 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($_POST["taxid"]) {
-            sqlStatement("update users set federaltaxid=? where id= ? ", array($_POST["taxid"], $_POST["id"]));
+            sqlStatement("update users set federaltaxid=? where id= ? ", array(filter_var ( $_POST["taxid"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["state_license_number"]) {
-            sqlStatement("update users set state_license_number=? where id= ? ", array($_POST["state_license_number"], $_POST["id"]));
+            sqlStatement("update users set state_license_number=? where id= ? ", array(filter_var ( $_POST["state_license_number"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["drugid"]) {
-            sqlStatement("update users set federaldrugid=? where id= ? ", array($_POST["drugid"], $_POST["id"]));
+            sqlStatement("update users set federaldrugid=? where id= ? ", array(filter_var ( $_POST["drugid"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["upin"]) {
-            sqlStatement("update users set upin=? where id= ? ", array($_POST["upin"], $_POST["id"]));
+            sqlStatement("update users set upin=? where id= ? ", array(filter_var ( $_POST["upin"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["npi"]) {
-            sqlStatement("update users set npi=? where id= ? ", array($_POST["npi"], $_POST["id"]));
+            sqlStatement("update users set npi=? where id= ? ", array(filter_var ( $_POST["npi"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["taxonomy"]) {
@@ -136,15 +136,15 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($_POST["lname"]) {
-            sqlStatement("update users set lname=? where id= ? ", array($_POST["lname"], $_POST["id"]));
+            sqlStatement("update users set lname=? where id= ? ", array(filter_var ( $_POST["lname"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["job"]) {
-            sqlStatement("update users set specialty=? where id= ? ", array($_POST["job"], $_POST["id"]));
+            sqlStatement("update users set specialty=? where id= ? ", array(filter_var ( $_POST["job"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["mname"]) {
-            sqlStatement("update users set mname=? where id= ? ", array($_POST["mname"], $_POST["id"]));
+            sqlStatement("update users set mname=? where id= ? ", array(filter_var ( $_POST["mname"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if ($_POST["facility_id"]) {
@@ -219,7 +219,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($_POST["fname"]) {
-            sqlStatement("update users set fname=? where id= ? ", array($_POST["fname"], $_POST["id"]));
+            sqlStatement("update users set fname=? where id= ? ", array(filter_var ( $_POST["fname"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if (isset($_POST['default_warehouse'])) {
@@ -270,7 +270,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($_POST["comments"]) {
-            sqlStatement("update users set info = ? where id = ? ", array($_POST["comments"], $_POST["id"]));
+            sqlStatement("update users set info = ? where id = ? ", array(filter_var ( $_POST["comments"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         $erxrole = isset($_POST['erxrole']) ? $_POST['erxrole'] : '';
@@ -291,7 +291,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         if ($_POST["erxprid"]) {
-            sqlStatement("update users set weno_prov_id = ? where id = ? ", array($_POST["erxprid"], $_POST["id"]));
+            sqlStatement("update users set weno_prov_id = ? where id = ? ", array(filter_var ( $_POST["erxprid"], FILTER_SANITIZE_STRING), $_POST["id"]));
         }
 
         if (isset($_POST["supervisor_id"])) {
