@@ -192,8 +192,41 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
             }
             function showNodeFunction(node)
             {
+                if (node.checked !== undefined)
+                {
+                    node.checked = true;
+                }
+
                 if (node.parentNode.classList.contains('d-none')) {
                     node.parentNode.classList.remove("d-none");
+                }
+            }
+            function togglePatientTypeFields(event) {
+                if (!event.target)
+                {
+                    return;
+                }
+                let val = event.target.value;
+                if (val == 'single') {
+                    document.querySelectorAll("input[value^='user/']").forEach(hideNodeFunction);
+                    document.querySelectorAll("input[value^='patient/']").forEach(showNodeFunction);
+                    toggleSystemFunctionality(false);
+                } else if (val == 'multiple') {
+                    toggleSystemFunctionality(false);
+                    document.querySelectorAll("input[value^='user/']").forEach(showNodeFunction);
+                    document.querySelectorAll("input[value^='patient/']").forEach(hideNodeFunction);
+                } else if (val == 'client') {
+                    document.querySelectorAll("input[value^='user/']").forEach(hideNodeFunction);
+                    document.querySelectorAll("input[value^='patient/']").forEach(hideNodeFunction);
+                    toggleSystemFunctionality(true);
+                } else if (val == 'all') {
+
+                    let selected =document.querySelector("input[name='appType']:checked");
+                    if (selected && selected.value == "private") {
+                        toggleSystemFunctionality(true);
+                    }
+                    document.querySelectorAll("input[value^='user/']").forEach(showNodeFunction);
+                    document.querySelectorAll("input[value^='patient/']").forEach(showNodeFunction);
                 }
             }
             function toggleAppTypeFields(event)
@@ -206,18 +239,29 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
 
                 if (val === 'private')
                 {
-                    document.querySelectorAll("input[value^='system/']").forEach(showNodeFunction);
-                    document.querySelectorAll("input[value^='user/']").forEach(showNodeFunction);
+                    toggleSystemFunctionality(true);
                     document.querySelectorAll("input[value='offline_access']").forEach(showNodeFunction);
                     document.querySelectorAll("#clientSecretID").forEach(showNodeFunction);
-                    document.getElementById('systemSetup').classList.remove("d-none");
+                    document.querySelectorAll("#patientTypeClient").forEach(showNodeFunction);
+                    document.querySelectorAll("label[for='patientTypeClient']").forEach(showNodeFunction);
+
                 }
                 else if (val == 'public')
                 {
-                    document.querySelectorAll("input[value^='system/']").forEach(hideNodeFunction);
-                    document.querySelectorAll("input[value^='user/']").forEach(hideNodeFunction);
+                    toggleSystemFunctionality(false);
                     document.querySelectorAll("input[value='offline_access']").forEach(hideNodeFunction);
                     document.querySelectorAll("#clientSecretID").forEach(hideNodeFunction);
+                    document.querySelectorAll("#patientTypeClient").forEach(hideNodeFunction);
+                    document.querySelectorAll("label[for='patientTypeClient']").forEach(hideNodeFunction);
+                }
+            }
+
+            function toggleSystemFunctionality(enabled) {
+                if (enabled) {
+                    document.getElementById('systemSetup').classList.remove("d-none");
+                    document.querySelectorAll("input[value^='system/']").forEach(showNodeFunction);
+                } else {
+                    document.querySelectorAll("input[value^='system/']").forEach(hideNodeFunction);
                     document.getElementById('systemSetup').classList.add("d-none");
                 }
             }
@@ -232,6 +276,12 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                 for (var element of appTypes)
                 {
                     element.addEventListener('click', toggleAppTypeFields);
+                }
+
+                var patientTypes = document.querySelectorAll("input[name='patientType']");
+                for (var element of patientTypes)
+                {
+                    element.addEventListener('click', togglePatientTypeFields);
                 }
 
                 document.querySelector('#submit').addEventListener('click', registerApp);
@@ -280,11 +330,41 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
         <div class="<?php echo $formarea; ?>">
             <h3 class="card-title text-center"><?php echo xlt("App Registration Form"); ?></h3>
             <div>
+                <div class="row">
+                    <div class="col">
+                        <h2><?php echo xlt("Application Type"); ?></h2>
+                        <p><?php echo xlt("Confidential clients must be able to securely safeguard a secret."); ?></p>
+                        <p><?php echo xlt("If your application cannot keep a secret (such as an application that runs in a web browser) you should use the public application type."); ?></p>
+                    </div>
+                </div>
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input" id="appTypeConfidential" name="appType" value="private" checked="checked"/>
                     <label for="appTypeConfidential" class="form-check-label pr-2"><?php echo xlt('Confidential'); ?></label>
                     <input type="radio" class="form-check-input" id="appTypePublic" name="appType" value="public"/>
                     <label for="appTypePublic" class="form-check-label"><?php echo xlt('Public'); ?></label>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h2><?php echo xlt("Application Context"); ?></h2>
+                    </div>
+                </div>
+                <div class="row pl-3 pr-3">
+                    <div class="col">
+                        <input type="radio" class="form-check-input" id="patientTypeSingle" name="patientType" value="single"/>
+                        <label for="patientTypeSingle" class="form-check-label pr-3"><?php echo xlt('Single Patient Application'); ?></label>
+                    </div>
+                    <div class="col">
+                        <input type="radio" class="form-check-input" id="patientTypeMultiple" name="patientType" value="multiple"/>
+                        <label for="patientTypeMultiple" class="form-check-label pr-3"><?php echo xlt('Multiple Patients Application'); ?></label>
+                    </div>
+                    <div class="col">
+                        <input type="radio" class="form-check-input" id="patientTypeClient" name="patientType" value="client"/>
+                        <label for="patientTypeClient" class="form-check-label pr-3"><?php echo xlt('System Client Application'); ?></label>
+                    </div>
+                    <div class="col">
+                        <input type="radio" class="form-check-input" id="patientTypeAll" name="patientType" value="all" checked="checked"/>
+                        <label for="patientTypeAll" class="form-check-label"><?php echo xlt('Multipurpose Application'); ?></label>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col alert alert-info">
@@ -318,6 +398,8 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                     <?php echo xlt("Scopes Requested"); ?>:
                     <input type="button" class="select-all-toggle toggle-on btn btn-secondary d-none" value="<?php echo xlt('Select all'); ?>" />
                     <input type="button" class="select-all-toggle toggle-off btn btn-secondary" value="<?php echo xlt('Unselect all'); ?>" />
+                    <input type="button" class="select-single-patient btn btn-secondary d-none" value="<?php echo xlt('Single Patient Application'); ?>" />
+                    <input type="button" class="select-multi-patient btn btn-secondary d-none" value="<?php echo xlt('Multiple Patients Application'); ?>" />
                     <div class="list-group">
                     <?php foreach ($scopes as $scope) : ?>
                         <label class="list-group-item m-0">
