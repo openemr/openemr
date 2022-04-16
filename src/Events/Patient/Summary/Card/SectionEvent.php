@@ -72,10 +72,6 @@ class SectionEvent extends Event
             throw new DomainException("Card {$card->getIdentifier()} is not unique in current list");
         }
 
-        if (substr(strtolower($card->getIdentifier()), 0, 7) === 'oe_card') {
-            throw new DomainException("oe_card is a reserved Card Identifier Namespace");
-        }
-
         // @todo ensure position is an integer or null
 
         array_splice($this->cards, $position ?? -1, 0, $card);
