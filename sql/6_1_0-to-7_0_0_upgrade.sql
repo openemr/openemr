@@ -311,3 +311,7 @@ ALTER TABLE `form_observation` ADD `date_end` DATETIME NULL DEFAULT NULL;
 #IfNotColumnType form_care_plan date datetime
 ALTER TABLE `form_care_plan` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn form_encounter date_end
+ALTER TABLE `form_encounter` ADD `date_end` DATETIME DEFAULT NULL;
+#EndIf
