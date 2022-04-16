@@ -104,6 +104,7 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.24.3.133' => 'fetchEncounterPerformed',
             '2.16.840.1.113883.10.20.24.3.143' => 'fetchCarePlanData',  // Immunization Order Substance Order @todo this is planned or goal MOVE
             '2.16.840.1.113883.10.20.24.3.47' => 'fetchCarePlanData', // Plan of Care Medication Substance Observation Activity Ordered
+            '2.16.840.1.113883.10.20.24.3.130' => 'fetchCarePlanData', // Plan of Care Activity Supply CDA 2.16.840.1.113883.10.20.24.3.43
             '2.16.840.1.113883.10.20.24.3.31' => 'fetchCarePlanData', // Plan of Care Activity (act) Intervention Order
             '2.16.840.1.113883.10.20.24.3.37' => 'fetchCarePlanData', // Plan of Care Activity Observation Lab order
             '2.16.840.1.113883.10.20.24.3.17' => 'fetchCarePlanData', // Plan of Care Activity Observation Diagnostic Study, Order
@@ -1074,10 +1075,62 @@ class CdaTemplateParse
             $plan_type = 'test_or_order';
         } elseif ($this->currentOid == '2.16.840.1.113883.10.20.24.3.143' || $this->currentOid == '2.16.840.1.113883.10.20.24.3.47') {
             $plan_type = 'planned_medication_activity';
+        } elseif ($this->currentOid == '2.16.840.1.113883.10.20.24.3.130') {
+            $plan_type = 'supply_order';
+            if (($entry["act"]["entryRelationship"]["supply"]["templateId"][1]["root"] ?? null) == '2.16.840.1.113883.10.20.24.3.9') {
+                $plan_type = 'device_order';
+            }
         }
 
         $i = 1;
-        if (!empty($entry['act']['code']['code']) || ($entry['act']['negationInd'] ?? 'false') == 'true') {
+
+        if (
+            (!empty($entry['act']['code']['code']) && $plan_type == 'device_order')
+            || (($entry['act']['negationInd'] ?? 'false') == 'true' && $plan_type == 'device_order')
+        ) {
+            if (!empty($this->templateData['field_name_value_array']['care_plan'])) {
+                $i += count($this->templateData['field_name_value_array']['care_plan']);
+            }
+
+            $device_code = $entry["act"]["entryRelationship"]["supply"]["participant"]["participantRole"]["playingDevice"]["code"]["code"];
+            $device_system = $entry["act"]["entryRelationship"]["supply"]["participant"]["participantRole"]["playingDevice"]["code"]["codeSystem"];
+            $device_name = $entry["act"]["entryRelationship"]["supply"]["participant"]["participantRole"]["playingDevice"]["code"]["codeSystemName"];
+
+            $code = $this->codeService->resolveCode(
+                $device_code,
+                $device_name ?: $device_system ?? null,
+                ''
+            );
+
+            $this->templateData['field_name_value_array']['care_plan'][$i]['plan_type'] = $plan_type;
+            $this->templateData['field_name_value_array']['care_plan'][$i]['extension'] = $entry['act']['templateId']['root'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['root'] = $entry['act']['templateId']['root'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['code'] = $code['formatted_code'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['code_text'] = $code['code_text'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['description'] = $entry["act"]["entryRelationship"]["supply"]['text'] ?? $code['code_text'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['act']['effectiveTime']['center']['value'] ?? $entry["act"]["entryRelationship"]["supply"]['author']['time']['value'] ?? null;
+
+            // reason
+            $reason_code = $entry["act"]["entryRelationship"]["supply"]["entryRelationship"]["observation"]["value"]["code"] ?? null;
+            if ($reason_code) {
+                $reason_system = $entry["act"]["entryRelationship"]["supply"]["entryRelationship"]["observation"]["value"]["codeSystem"];
+                $reason_name = $entry["act"]["entryRelationship"]["supply"]["entryRelationship"]["observation"]["value"]["codeSystemName"];
+                $code = $this->codeService->resolveCode(
+                    $reason_code,
+                    $reason_name ?: $reason_system ?? '',
+                    ''
+                );
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code'] = $code['formatted_code'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code_text'] = $code['code_text'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $entry['act']['text'] ?? $code['code_text'];
+                $date_low = $entry["act"]["entryRelationship"]["supply"]["entryRelationship"]["observation"]['effectiveTime']['low']['value'] ?? null;
+                $date_high = $entry["act"]["entryRelationship"]["supply"]["entryRelationship"]["observation"]['effectiveTime']['high']['value'] ?? null;
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_low'] = $date_low;
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_high'] = $date_high;
+            }
+            $this->templateData['field_name_value_array']['care_plan'][$i]['reason_status'] = (($entry['act']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
+            $this->templateData['entry_identification_array']['care_plan'][$i] = $i;
+        } elseif (!empty($entry['act']['code']['code']) || ($entry['act']['negationInd'] ?? 'false') == 'true') {
             if (!empty($this->templateData['field_name_value_array']['care_plan'])) {
                 $i += count($this->templateData['field_name_value_array']['care_plan']);
             }
