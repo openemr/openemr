@@ -504,7 +504,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     $str_dob = xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']);
                                                     $pname = $prow['fname'] . " " . $prow['lname'];
                                                     echo "<a href='javascript:void(0);' ";
-                                                    echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
+                                                    echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'] ?? $prow['pid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
                                                     echo text($d->get_name()) . "-" . text($d->get_id());
                                                     echo "</a>\n";
                                                 }

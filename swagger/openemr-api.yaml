@@ -3022,6 +3022,86 @@ paths:
       security:
         -
           openemr_auth: []
+  '/api/patient/{pid}/transaction':
+    get:
+      tags:
+        - standard
+      description: 'Get Transactions for a patient'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      description: 'Submits a transaction'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_transaction_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/transaction/{tid}':
+    put:
+      tags:
+        - standard
+      description: 'Updates a transaction'
+      parameters:
+        -
+          name: tid
+          in: path
+          description: 'The id for the transaction.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_transaction_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   '/api/patient/{pid}/message/{mid}':
     put:
       tags:
@@ -6690,6 +6770,68 @@ components:
         to: admin
         title: Other
         message_status: New
+    api_transaction_request:
+      description: 'Schema for the transaction request'
+      required:
+        - message
+        - groupname
+        - title
+      properties:
+        message:
+          description: 'The message of the transaction.'
+          type: string
+        type:
+          description: 'The type of transaction. Use an option from resource=/api/transaction_type'
+          type: string
+        groupname:
+          description: 'The group name (usually is ''Default'').'
+          type: string
+        referByNpi:
+          description: 'NPI of the person creating the referral.'
+          type: string
+        referToNpi:
+          description: 'NPI of the person getting the referral.'
+          type: string
+        referDiagnosis:
+          description: 'The referral diagnosis.'
+          type: string
+        riskLevel:
+          description: 'The risk level. (Low, Medium, High)'
+          type: string
+        includeVitals:
+          description: 'Are vitals included (0,1)'
+          type: string
+        referralDate:
+          description: 'The date of the referral'
+          type: string
+        authorization:
+          description: 'The authorization for the referral'
+          type: string
+        visits:
+          description: 'The number of vists for the referral'
+          type: string
+        validFrom:
+          description: 'The date the referral is valid from'
+          type: string
+        validThrough:
+          description: 'The date the referral is valid through'
+          type: string
+      type: object
+      example:
+        message: Message
+        type: LBTref
+        groupname: Default
+        referByNpi: '9999999999'
+        referToNpi: '9999999999'
+        referDiagnosis: 'Diag 1'
+        riskLevel: Low
+        includeVitals: '1'
+        referralDate: '2022-01-01'
+        authorization: Auth_123
+        visits: '1'
+        validFrom: '2022-01-02'
+        validThrough: '2022-01-03'
+        body: 'Reason 1'
   responses:
     standard:
       description: 'Standard Response'
@@ -6882,6 +7024,8 @@ components:
             user/soap_note.write: 'Write soap notes the user has access to (api:oemr)'
             user/surgery.read: 'Read surgeries the user has access to (api:oemr)'
             user/surgery.write: 'Write surgeries the user has access to (api:oemr)'
+            user/transaction.read: 'Read transactions the user has access to (api:oemr)'
+            user/transaction.write: 'Write transactions the user has access to (api:oemr)'
             user/vital.read: 'Read vitals the user has access to (api:oemr)'
             user/vital.write: 'Write vitals the user has access to (api:oemr)'
             'api:port': 'Standard Patient Portal OpenEMR API'
