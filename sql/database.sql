@@ -114,6 +114,7 @@ CREATE TABLE `api_token` (
   `client_id` varchar(80) DEFAULT NULL,
   `scope` text COMMENT 'json encoded',
   `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
+  `context` TEXT COMMENT 'context values that change/govern how access token are used',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
