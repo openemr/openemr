@@ -236,7 +236,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $fhirProvenanceService = new FhirProvenanceService();
         $reference = null;
         if (!empty($dataRecord->getPerformer()) && count($dataRecord->getPerformer()) == 1) {
-            $dataRecord->getPerformer()[0]->getActor();
+            $reference = $dataRecord->getPerformer()[0]->getActor();
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $reference);
 

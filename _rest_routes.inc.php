@@ -10636,10 +10636,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            if (empty($id) || ($id != $request->getPatientUUIDString())) {
+            if (empty($uuid) || ($uuid != $request->getPatientUUIDString())) {
                 throw new AccessDeniedException("patients", "demo", "patient id invalid");
             }
-            $id = $request->getPatientUUIDString();
+            $uuid = $request->getPatientUUIDString();
         } else {
             RestConfig::authorization_check("patients", "demo");
         }

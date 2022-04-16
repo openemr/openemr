@@ -226,7 +226,7 @@ class FormVitals extends ORDataObject
     }
     public function set_weight($w)
     {
-        if (!empty($w) && is_numeric($w)) {
+        if (is_numeric($w)) {
             $this->weight = $w;
         }
     }
@@ -251,7 +251,7 @@ class FormVitals extends ORDataObject
     }
     public function set_height($h)
     {
-        if (!empty($h) && is_numeric($h)) {
+        if (is_numeric($h)) {
             $this->height = $h;
         }
     }
@@ -265,7 +265,7 @@ class FormVitals extends ORDataObject
     }
     public function set_temperature($t)
     {
-        if (!empty($t) && is_numeric($t)) {
+        if (is_numeric($t)) {
             $this->temperature = $t;
         }
     }
@@ -286,7 +286,7 @@ class FormVitals extends ORDataObject
     }
     public function set_pulse($p)
     {
-        if (!empty($p) && is_numeric($p)) {
+        if (is_numeric($p)) {
             $this->pulse = $p;
         }
     }
@@ -296,7 +296,7 @@ class FormVitals extends ORDataObject
     }
     public function set_respiration($r)
     {
-        if (!empty($r) && is_numeric($r)) {
+        if (is_numeric($r)) {
             $this->respiration = $r;
         }
     }
@@ -320,7 +320,7 @@ class FormVitals extends ORDataObject
     }
     public function set_BMI($bmi)
     {
-        if (!empty($bmi) && is_numeric($bmi)) {
+        if (is_numeric($bmi)) {
             $this->BMI = $bmi;
         }
     }
@@ -342,7 +342,7 @@ class FormVitals extends ORDataObject
     }
     public function set_waist_circ($w)
     {
-        if (!empty($w) && is_numeric($w)) {
+        if (is_numeric($w)) {
             $this->waist_circ = $w;
         }
     }
@@ -356,7 +356,7 @@ class FormVitals extends ORDataObject
     }
     public function set_head_circ($h)
     {
-        if (!empty($h) && is_numeric($h)) {
+        if (is_numeric($h)) {
             $this->head_circ = $h;
         }
     }
@@ -366,7 +366,7 @@ class FormVitals extends ORDataObject
     }
     public function set_oxygen_saturation($o)
     {
-        if (!empty($o) && is_numeric($o)) {
+        if (is_numeric($o)) {
             $this->oxygen_saturation = $o;
         }
     }
@@ -377,7 +377,7 @@ class FormVitals extends ORDataObject
     }
     public function set_oxygen_flow_rate($o)
     {
-        if (!empty($o) && is_numeric($o)) {
+        if (is_numeric($o)) {
             $this->oxygen_flow_rate = $o;
         } else {
             $this->oxygen_flow_rate = 0.00;
@@ -391,7 +391,7 @@ class FormVitals extends ORDataObject
 
     public function set_inhaled_oxygen_concentration($value)
     {
-        if (!empty($value) && is_numeric($value)) {
+        if (is_numeric($value)) {
             $this->inhaled_oxygen_concentration = $value;
         } else {
             $this->inhaled_oxygen_concentration = 0.00;
@@ -404,7 +404,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_weight_height($o)
     {
-        if (!empty($o) && is_numeric($o)) {
+        if (is_numeric($o)) {
             $this->ped_weight_height = $o;
         } else {
             $this->ped_weight_height = 0.00;
@@ -417,7 +417,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_bmi($o)
     {
-        if (!empty($o) && is_numeric($o)) {
+        if (is_numeric($o)) {
             $this->ped_bmi = $o;
         } else {
             $this->ped_bmi = 0.00;
@@ -430,7 +430,7 @@ class FormVitals extends ORDataObject
     }
     public function set_ped_head_circ($o)
     {
-        if (!empty($o) && is_numeric($o)) {
+        if (is_numeric($o)) {
             $this->ped_head_circ = $o;
         } else {
             $this->ped_head_circ = 0.00;
