@@ -513,12 +513,13 @@ class CdaTemplateImportDispose
                 $facility_id = $res_query_ins_fac->getGeneratedValue();
             }
 
-            if (!empty($value['date']) && $revapprove == 0) {
+            $encounter_date_value = null;
+            $encounter_date_end = null;
+            if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
                 $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
-            } elseif (!empty($value['date']) && $revapprove == 1) {
-                $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
-            } elseif (empty($value['date'])) {
-                $encounter_date_value = null;
+            }
+            if (!empty($value['date_end']) && ($revapprove == 0 || $revapprove == 1)) {
+                $encounter_date_end = date("Y-m-d H:i:s", strtotime($value['date_end']));
             }
             $diag_date = !empty($value['encounter_diagnosis_date']) ? date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])) : null;
 
@@ -541,10 +542,12 @@ class CdaTemplateImportDispose
                             reason,
                             discharge_disposition,
                             encounter_type_code,
-                            encounter_type_description
+                            encounter_type_description,
+                            date_end
                            )
                            VALUES
                            (
+                            ?,
                             ?,
                             ?,
                             ?,
@@ -570,7 +573,8 @@ class CdaTemplateImportDispose
                         $value['code_text'] ?? null,
                         $value['encounter_discharge_code'] ?? null,
                         $value['code'] ?? null,
-                        $value['code_text'] ?? null
+                        $value['code_text'] ?? null,
+                        $encounter_date_end ?? null
                     )
                 );
                 $enc_id = $result->getGeneratedValue();

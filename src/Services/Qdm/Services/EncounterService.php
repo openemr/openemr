@@ -25,6 +25,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     FE.encounter,
                     FE.pid,
                     FE.date,
+                    FE.date_end,
                     FE.encounter_type_code,
                     FE.discharge_disposition,
                     LISTS.diagnosis,
@@ -47,16 +48,20 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
 
     public function makeQdmModel(array $record)
     {
-        // Convert the encounter datetime into a DateTime Object so we can calculate end time based on appt category duration
+        // Convert the encounter datetime into a DateTime Object so we can calculate end time based on encounter end date
         $start_tmp = \DateTime::createFromFormat('Y-m-d H:i:s', $record['date']);
         // DateTime->modify() modifies the calling object, so we need to copy our start date
         $start = clone $start_tmp;
-        $duration = 3600; // $record['pc_duration'];
-        $end = $start_tmp->modify('+' . $duration . 'second');
+        $end = \DateTime::createFromFormat('Y-m-d H:i:s', $record['date_end']);
 
-        // Get the difference in days for the length of stay (will usually be 0)
-        // Format string "%a" is literal days https://www.php.net/manual/en/dateinterval.format.php
-        $days = $end->diff($start)->format("%a");
+        $days = '';
+        $end_date = '';
+        if (!empty($end)) {
+            // Get the difference in days for the length of stay (will usually be 0)
+            // Format string "%a" is literal days https://www.php.net/manual/en/dateinterval.format.php
+            $days = $end->diff($start)->format("%a");
+            $end_date = $end->format('Y-m-d H:i:s');
+        }
 
         $qdmRecord = new EncounterPerformed([
             'relevantPeriod' => new Interval([
@@ -64,10 +69,10 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     'date' => $start->format('Y-m-d H:i:s')
                 ]),
                 'high' => new DateTime([
-                    'date' => $end->format('Y-m-d H:i:s')
+                    'date' => $end_date
                 ]),
                 'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $record['date'] ? true : false
+                'highClosed' => $record['date_end'] ? true : false
             ]),
             'admissionSource' => null,
             'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,

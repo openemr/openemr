@@ -521,6 +521,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_encounter['encounter'][$k]['extension'] = $newdata['encounter']['extension'];
                 $arr_encounter['encounter'][$k]['root'] = $newdata['encounter']['root'];
                 $arr_encounter['encounter'][$k]['date'] = $newdata['encounter']['date'];
+                $arr_encounter['encounter'][$k]['date_end'] = $newdata['encounter']['date_end'] ?? null;
 
                 $arr_encounter['encounter'][$k]['provider_npi'] = $newdata['encounter']['provider_npi'];
                 $arr_encounter['encounter'][$k]['provider_name'] = $newdata['encounter']['provider_name'];
