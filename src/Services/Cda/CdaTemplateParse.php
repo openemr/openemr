@@ -374,7 +374,7 @@ class CdaTemplateParse
             if ($this->currentOid == '2.16.840.1.113883.10.20.24.3.138') {
                 $classification = 'concern';
             }
-            $this->templateData['field_name_value_array']['lists1'][$i]['classification'] = $classification;
+            $this->templateData['field_name_value_array']['lists1'][$i]['subtype'] = $classification;
             $code = $this->codeService->resolveCode(
                 $entry['act']['entryRelationship']['observation']['value']['code'],
                 ($entry['act']['entryRelationship']['observation']['value']['codeSystemName'] ?? '') ?: $entry['act']['entryRelationship']['observation']['value']['codeSystem'] ?? '',

@@ -502,7 +502,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_med_pblm['lists1'][$d]['status'] = $newdata['lists1']['status'];
                 $arr_med_pblm['lists1'][$d]['observation_text'] = $newdata['lists1']['observation_text'];
                 $arr_med_pblm['lists1'][$d]['observation_code'] = $newdata['lists1']['observation'];
-                $arr_med_pblm['lists1'][$d]['classification'] = $newdata['lists1']['classification'];
+                $arr_med_pblm['lists1'][$d]['subtype'] = $newdata['lists1']['subtype'];
                 $d++;
             } elseif ($table == 'lists2' && !empty($newdata['lists2']['list_code'])) {
                 $arr_allergies['lists2'][$c]['extension'] = $newdata['lists2']['extension'];
