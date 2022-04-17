@@ -312,6 +312,10 @@ ALTER TABLE `form_observation` ADD `date_end` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `form_care_plan` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
 #EndIf
 
+#IfMissingColumn api_token context
+ALTER TABLE api_token ADD COLUMN `context` TEXT COMMENT 'context values that change/govern how access token are used';
+#EndIf
+
 #IfMissingColumn form_encounter date_end
 ALTER TABLE `form_encounter` ADD `date_end` DATETIME DEFAULT NULL;
 #EndIf

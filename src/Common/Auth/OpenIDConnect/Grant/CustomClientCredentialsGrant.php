@@ -361,7 +361,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
                 // a 400 HTTP status code, despite the SMART spec specifically stating that invalid_client w/ 401 is
                 // the response https://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification
                 // so we force this to be a 400 exception
-                // TODO: @adunsulag is there an update to inferno that fixes this issue?
+                // TODO: @adunsulag is there an update to inferno that fixes this issue? (as of inferno 1.9.0 there is no update).
                 $exception = new OAuthServerException('Client authentication failed', 4, 'invalid_client', 400);
                 $exception->setServerRequest($request);
                 throw $exception;
