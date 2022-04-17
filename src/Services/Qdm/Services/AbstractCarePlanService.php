@@ -30,6 +30,8 @@ abstract class AbstractCarePlanService extends AbstractQdmService
     const CARE_PLAN_TYPE_PLANNED_MED_ACTIVITY = 'planned_medication_activity'; // for MedicationOrderService
     const CARE_PLAN_TYPE_MEDICATION = 'medication'; // for SubstanceRecommendedService
     const CARE_PLAN_TYPE_PROCEDURE_REC = 'procedure'; // for ProcedureRecommendedService
+    const CARE_PLAN_TYPE_DEVICE_ORDER = 'device_order'; // for DeviceOrderService
+    const CARE_PLAN_TYPE_DEVICE_RECOMMENDED = 'device'; // for DeviceRecommendedService
 
     abstract public function getCarePlanType();
 

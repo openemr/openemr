@@ -10,18 +10,18 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\DeviceOrder;
+use OpenEMR\Cqm\Qdm\DeviceRecommended;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class DeviceOrderService extends AbstractCarePlanService implements QdmServiceInterface
+class DeviceRecommendedService extends AbstractCarePlanService implements QdmServiceInterface
 {
     public function getCarePlanType()
     {
-        return parent::CARE_PLAN_TYPE_DEVICE_ORDER;
+        return parent::CARE_PLAN_TYPE_DEVICE_RECOMMENDED;
     }
 
     public function getModelClass()
     {
-        return DeviceOrder::class;
+        return DeviceRecommended::class;
     }
 }

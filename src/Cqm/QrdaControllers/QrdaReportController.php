@@ -100,10 +100,9 @@ class QrdaReportController
         $directory = $GLOBALS['OE_SITE_DIR'] . '/documents/' . 'cat1_reports';
         $directory .= ($bypid ? '/all_measures' : "/measures");
         if (!is_dir($directory)) {
-            if (!mkdir($directory, true, true) && !is_dir($directory)) {
+            if (!mkdir($directory, 0755, true) && !is_dir($directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
             }
-            chmod($directory, 0777);
         }
 
         $pids = is_array($pids) ? $pids : [$pids];
