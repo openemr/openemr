@@ -703,7 +703,7 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['procedure'][$i]['reason_date_low'] = $date_low;
                 $this->templateData['field_name_value_array']['procedure'][$i]['reason_date_high'] = $date_high;
             }
-
+            $this->templateData['field_name_value_array']['procedure'][$i]['reason_status'] = (($entry['act']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
             $this->templateData['entry_identification_array']['procedure'][$i] = $i;
         }
     }
