@@ -472,14 +472,14 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['lists3'][$i]['request_type'] = $request_type;
             $this->templateData['field_name_value_array']['lists3'][$i]['extension'] = $entry['substanceAdministration']['id']['extension'] ?? null;
             $this->templateData['field_name_value_array']['lists3'][$i]['root'] = $entry['substanceAdministration']['id']['root'] ?? null;
-            if (empty($entry['substanceAdministration']['effectiveTime'][0]['low']['value'])) {
-                $this->templateData['field_name_value_array']['lists3'][$i]['begdate'] = date('Y-m-d');
-            } else {
-                $this->templateData['field_name_value_array']['lists3'][$i]['begdate'] = $entry['substanceAdministration']['effectiveTime'][0]['low']['value'];
-            }
 
-            if (!empty($entry['substanceAdministration']['effectiveTime'][0]['high']['value'])) {
+            $this->templateData['field_name_value_array']['lists3'][$i]['begdate'] = date('Y-m-d');
+            if (!empty($entry['substanceAdministration']['effectiveTime'][0]['low']['value'])) {
+                $this->templateData['field_name_value_array']['lists3'][$i]['begdate'] = $entry['substanceAdministration']['effectiveTime'][0]['low']['value'];
                 $this->templateData['field_name_value_array']['lists3'][$i]['enddate'] = $entry['substanceAdministration']['effectiveTime'][0]['high']['value'] ?? null;
+            } elseif (!empty($entry['substanceAdministration']['effectiveTime']['low']['value'])) {
+                $this->templateData['field_name_value_array']['lists3'][$i]['begdate'] = $entry['substanceAdministration']['effectiveTime']['low']['value'];
+                $this->templateData['field_name_value_array']['lists3'][$i]['enddate'] = $entry['substanceAdministration']['effectiveTime']['high']['value'] ?? null;
             }
 
             $this->templateData['field_name_value_array']['lists3'][$i]['route'] = $entry['substanceAdministration']['routeCode']['code'] ?? null;

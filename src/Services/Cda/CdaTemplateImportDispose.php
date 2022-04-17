@@ -1728,6 +1728,9 @@ class CdaTemplateImportDispose
         if (empty($res_ins_cur['id'])) {
             $data["name"] = 'QRDA Insurance Company Payer ' . $payer['code'] ?? '1';
             $data["ins_type_code"] = $payer['code'] ?? '1';
+            $data["city"] = 'QRDA City';
+            $data["state"] = 'QRDA State';
+            $data["zip"] = '33333';
             $insuranceCompany = new InsuranceCompanyService();
             $ins_id = $insuranceCompany->insert($data);
         } else {
