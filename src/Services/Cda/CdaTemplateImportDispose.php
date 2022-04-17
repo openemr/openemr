@@ -246,16 +246,11 @@ class CdaTemplateImportDispose
         $encounter_for_billing = 0;
         $appTable = new ApplicationTable();
         foreach ($proc_array as $key => $value) {
-            if ($value['date'] != 0 && $revapprove == 0) {
-                $procedure_date = $carecoordinationTable->formatDate($value['date'], 1);
-                $procedure_date_value = fixDate($procedure_date);
-            } elseif ($value['date'] != 0 && $revapprove == 1) {
-                $procedure_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['date'] == 0) {
-                $procedure_date = $value['date'];
-                $procedure_date_value = fixDate($procedure_date);
+            $procedure_date_value = null;
+            if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
+                $procedure_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
+                $end_date = $value['end_date'] ? date("Y-m-d H:i:s", strtotime($value['end_date'])) : null;
             }
-
             //facility1
             if (empty($value['represented_organization1'])) {
                 $value['represented_organization1'] = CarecoordinationTable::ORGANIZATION_SAMPLE;
@@ -424,13 +419,17 @@ class CdaTemplateImportDispose
                 sqlQuery($query_update_pt, array($ptid, $ptid));
             }
             //procedure_order
-            $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type) VALUES (?,?,?,NULL,?,?,?,?,?,?)';
+            $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_low'])) : null;
+            $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_high'])) : null;
+
+            $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type) 
+                VALUES (?,?,?,NULL,?,?,?,?,?,?)';
             $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $encounter_for_billing, $procedure_date_value, 'normal', ($value['status'] ?? 'completed'), 1, $pro_id, $value['procedure_type']));
             $po_id = $result_po->getGeneratedValue();
 
             //procedure_order_code
-            $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type) VALUES (?,?,?,?,?,?,?)';
-            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type']));
+            $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
+            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type'], $end_date, $value['reason_code'], $value['reason_description'], $low_date, $high_date, $value['reason_status'] ?? null));
 
             $pro_name_enc = $pro_name . '-' . $value['procedure_type'];
             addForm($encounter_for_billing, $pro_name_enc, $po_id, 'procedure_order', $pid, $this->userauthorized);

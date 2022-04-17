@@ -9245,6 +9245,12 @@ CREATE TABLE `procedure_order_code` (
   `procedure_order_title`   varchar( 255 ) NULL DEFAULT NULL,
   `procedure_type`          varchar(31) DEFAULT NULL,
   `transport`               varchar(31) DEFAULT NULL,
+  `date_end` datetime DEFAULT NULL,
+  `reason_code` varchar(32) DEFAULT NULL,
+  `reason_description` text DEFAULT NULL,
+  `reason_date_low` datetime DEFAULT NULL,
+  `reason_date_high` datetime DEFAULT NULL,
+  `reason_status` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 

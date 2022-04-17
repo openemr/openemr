@@ -675,14 +675,33 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['procedure'][$i]['extension'] = $entry['act']['id']['extension'] ?? null;
             $this->templateData['field_name_value_array']['procedure'][$i]['root'] = $entry['act']['id']['root'] ?? null;
 
-            $this->templateData['field_name_value_array']['procedure'][$i]['code'] = $code['code'];
-            $this->templateData['field_name_value_array']['procedure'][$i]['code_text'] = $code['code_text'];
-            $this->templateData['field_name_value_array']['procedure'][$i]['codeSystemName'] = $code['formatted_code_type'];
+            $this->templateData['field_name_value_array']['procedure'][$i]['code'] = $code['code'] ?? '';
+            $this->templateData['field_name_value_array']['procedure'][$i]['code_text'] = $entry['act']['text'] ?? $code['code_text'] ?? '';
+            $this->templateData['field_name_value_array']['procedure'][$i]['codeSystemName'] = $code['formatted_code_type'] ?? '';
 
             if (!empty($entry['act']['effectiveTime']['low']['value'])) {
                 $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['act']['effectiveTime']['low']['value'] ?? null;
+                $this->templateData['field_name_value_array']['procedure'][$i]['date_end'] = $entry['act']['effectiveTime']['high']['value'] ?? null;
             } else {
                 $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['act']['effectiveTime']['value'] ?? null;
+            }
+
+            $reason_code = $entry["act"]["entryRelationship"]["observation"]["value"]["code"] ?? null;
+            if ($reason_code) {
+                $reason_system = $entry["act"]["entryRelationship"]["observation"]["value"]["codeSystem"];
+                $reason_name = $entry["act"]["entryRelationship"]["observation"]["value"]["codeSystemName"];
+                $code = $this->codeService->resolveCode(
+                    $reason_code,
+                    $reason_name ?: $reason_system ?? '',
+                    ''
+                );
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_code'] = $code['formatted_code'];
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_code_text'] = $code['code_text'];
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_description'] = $code['code_text'] ?? $entry['act']['text'];
+                $date_low = $entry["act"]["entryRelationship"]["observation"]['effectiveTime']['low']['value'] ?? null;
+                $date_high = $entry["act"]["entryRelationship"]["observation"]['effectiveTime']['high']['value'] ?? null;
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_date_low'] = $date_low;
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_date_high'] = $date_high;
             }
 
             $this->templateData['entry_identification_array']['procedure'][$i] = $i;
@@ -1122,7 +1141,7 @@ class CdaTemplateParse
                 );
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code'] = $code['formatted_code'];
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code_text'] = $code['code_text'];
-                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $entry['act']['text'] ?? $code['code_text'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $code['code_text'] ?? $entry['act']['text'];
                 $date_low = $entry["act"]["entryRelationship"]["supply"]["entryRelationship"]["observation"]['effectiveTime']['low']['value'] ?? null;
                 $date_high = $entry["act"]["entryRelationship"]["supply"]["entryRelationship"]["observation"]['effectiveTime']['high']['value'] ?? null;
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_low'] = $date_low;
@@ -1162,7 +1181,7 @@ class CdaTemplateParse
                 );
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code'] = $code['formatted_code'];
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code_text'] = $code['code_text'];
-                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $entry['act']['text'] ?? $code['code_text'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $code['code_text'] ?? $entry['act']['text'];
                 $date_low = $entry['act']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? null;
                 $date_high = $entry['act']['entryRelationship']['observation']['effectiveTime']['high']['value'] ?? null;
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_low'] = $date_low;
@@ -1202,7 +1221,7 @@ class CdaTemplateParse
                 );
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code'] = $code['formatted_code'];
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code_text'] = $code['code_text'];
-                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $entry['observation']['text'] ?? $code['code_text'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $code['code_text'] ?? $entry['observation']['text'];
                 $date_low = $entry['observation']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? null;
                 $date_high = $entry['observation']['entryRelationship']['observation']['effectiveTime']['high']['value'];
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_low'] = $date_low;
@@ -1260,7 +1279,7 @@ class CdaTemplateParse
                 );
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code'] = $code['formatted_code'];
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code_text'] = $code['code_text'];
-                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $entry['observation']['text'] ?? $code['code_text'];
+                $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $code['code_text'] ?? $entry['observation']['text'];
                 $date_low = $entry['substanceAdministration']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? null;
                 $date_high = $entry['substanceAdministration']['entryRelationship']['observation']['effectiveTime']['high']['value'];
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_low'] = $date_low;

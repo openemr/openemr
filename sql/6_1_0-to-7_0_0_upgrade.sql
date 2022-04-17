@@ -319,3 +319,12 @@ ALTER TABLE api_token ADD COLUMN `context` TEXT COMMENT 'context values that cha
 #IfMissingColumn form_encounter date_end
 ALTER TABLE `form_encounter` ADD `date_end` DATETIME DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn procedure_order_code date_end
+ALTER TABLE `procedure_order_code` ADD `date_end` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_code` varchar(31) DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_description` text DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_date_low` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_date_high` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_status` varchar(31) DEFAULT NULL;
+#EndIf

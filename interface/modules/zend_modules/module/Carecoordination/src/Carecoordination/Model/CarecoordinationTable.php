@@ -649,9 +649,9 @@ class CarecoordinationTable extends AbstractTableGateway
             } elseif ($table == 'procedure') {
                 $arr_procedures['procedure'][$y]['extension'] = $newdata['procedure']['extension'];
                 $arr_procedures['procedure'][$y]['root'] = $newdata['procedure']['root'];
-                $arr_procedures['procedure'][$y]['codeSystemName'] = $newdata['procedure']['codeSystemName'];
-                $arr_procedures['procedure'][$y]['code'] = $newdata['procedure']['code'];
-                $arr_procedures['procedure'][$y]['code_text'] = $newdata['procedure']['code_text'];
+                $arr_procedures['procedure'][$y]['codeSystemName'] = $newdata['procedure']['codeSystemName'] ?? '';
+                $arr_procedures['procedure'][$y]['code'] = $newdata['procedure']['code'] ?? '';
+                $arr_procedures['procedure'][$y]['code_text'] = $newdata['procedure']['code_text'] ?? '';
                 $arr_procedures['procedure'][$y]['date'] = $newdata['procedure']['date'];
 
                 $arr_procedures['procedure'][$y]['status'] = $newdata['procedure']['status'];
@@ -671,6 +671,12 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_procedures['procedure'][$y]['represented_organization_state2'] = $newdata['procedure']['represented_organization_state2'];
                 $arr_procedures['procedure'][$y]['represented_organization_postalcode2'] = $newdata['procedure']['represented_organization_postalcode2'];
                 $arr_procedures['procedure'][$y]['represented_organization_country2'] = $newdata['procedure']['represented_organization_country2'];
+                $arr_procedures['procedure'][$y]['reason_code'] = $newdata['procedure']['reason_code'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_code_text'] = $newdata['procedure']['reason_code_text'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_description'] = $newdata['procedure']['reason_description'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_date_low'] = $newdata['procedure']['reason_date_low'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_date_high'] = $newdata['procedure']['reason_date_high'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_status'] = $newdata['procedure']['reason_status'] ?? null;
                 $y++;
             } elseif ($table == 'care_plan') {
                 $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'];
