@@ -275,9 +275,14 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['observation_preformed'][$i]['date_end'] = $entry['observation']['effectiveTime']['high'] ?? null;
             }
 
+            if (!empty($entry['observation']['code']["nullFlavor"]) && !empty($entry['observation']['code']["valueSet"])) {
+                $code['code'] = $entry['observation']['code']["valueSet"] ?? null;
+                $code['formatted_code'] = 'OID:' . $entry['observation']['code']["valueSet"] ?? null;
+                $code['code_text'] = $entry['observation']['text'] ?? '';
+            }
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation_status'] = $result_status ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation'] = $entry['observation']['text'] ?: $code['code_text'] ?? null;
-            $this->templateData['field_name_value_array']['observation_preformed'][$i]['code'] = $code['formatted_code'] ?? '';
+            $this->templateData['field_name_value_array']['observation_preformed'][$i]['code'] = $code['formatted_code'] ?? null;
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['code_text'] = $code['code_text'] ?? '';
 
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['result_status'] = $result_status ?? '';
@@ -1163,7 +1168,7 @@ class CdaTemplateParse
                 $entry['act']['code']['codeSystemName'] ?: $entry['act']['code']['codeSystem'] ?? null,
                 $entry['act']['code']['displayName'] ?? $entry['act']['text']
             );
-            if (!empty($entry["act"]["code"]["nullFlavor"])) {
+            if (!empty($entry["act"]["code"]["nullFlavor"]) && !empty($entry['act']['code']["valueSet"])) {
                 $code['code'] = $entry["act"]["code"]["valueSet"] ?? null;
                 $code['formatted_code'] = 'OID:' . $entry["act"]["code"]["valueSet"] ?? null;
                 $code['code_text'] = $entry['act']['text'] ?? '';
@@ -1203,7 +1208,7 @@ class CdaTemplateParse
                 $entry['observation']['code']['codeSystemName'] ?? $value['observation']['code']['codeSystem'] ?? '',
                 $entry['observation']['code']['displayName'] ?? ''
             );
-            if (!empty($entry['observation']['code']["nullFlavor"])) {
+            if (!empty($entry['observation']['code']["nullFlavor"]) && !empty($entry['observation']['code']["valueSet"])) {
                 $code['code'] = $entry['observation']['code']["valueSet"] ?? null;
                 $code['formatted_code'] = 'OID:' . $entry['observation']['code']["valueSet"] ?? null;
                 $code['code_text'] = $entry['observation']['text'] ?? '';

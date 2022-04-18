@@ -1645,9 +1645,11 @@ class CdaTemplateImportDispose
         }
 
         foreach ($observation_preformed_array as $key => $value) {
+            $date_end = null;
             if (!empty($value['date'])) {
                 $enc_date = date("Y-m-d", strtotime($value['date']));
                 $date = date("Y-m-d H:i:s", strtotime($value['date']));
+                $date_end = $value['date_end'] ? date("Y-m-d H:i:s", strtotime($value['date_end'])) : null;
             } else {
                 $date = date('Y-m-d');
             }
@@ -1689,7 +1691,7 @@ class CdaTemplateImportDispose
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 array(
                     $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
-                    $value['code'],
+                    $value['code'] ?: null,
                     $value['observation'],
                     $value['result_code_text'],
                     $value['result_code_unit'] ?? '',
@@ -1700,7 +1702,7 @@ class CdaTemplateImportDispose
                     $value['reason_status'],
                     $value['reason_code'],
                     $value['reason_code_text'],
-                    $value['date_end']
+                    $date_end
                 )
             );
             // insert form for observation
