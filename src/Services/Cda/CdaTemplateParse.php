@@ -691,7 +691,7 @@ class CdaTemplateParse
      */
     public function fetchProcedurePreformedActivity($entry): void
     {
-        if (!empty($entry['act']['code']['code'])) {
+        if (!empty($entry['act']['code']['code'])|| $entry['act']['negationInd'] ?? 'false' == 'true') {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['procedure'])) {
                 $i += count($this->templateData['field_name_value_array']['procedure']);
@@ -707,6 +707,12 @@ class CdaTemplateParse
                 $entry['act']['code']['codeSystemName'] ?: $entry['act']['code']['codeSystem'] ?? null,
                 $entry['act']['code']['displayName'] ?? $entry['act']['text']
             );
+            // negated oid
+            if (!empty($entry["act"]["code"]["nullFlavor"]) && !empty($entry['act']['code']["valueSet"])) {
+                $code['code'] = 'OID:' . $entry["act"]["code"]["valueSet"] ?? null;
+                $code['formatted_code'] = 'OID:' . $entry["act"]["code"]["valueSet"] ?? null;
+                $code['code_text'] = $entry['act']['text'] ?? '';
+            }
 
             $this->templateData['field_name_value_array']['procedure'][$i]['procedure_type'] = $procedure_type;
 
