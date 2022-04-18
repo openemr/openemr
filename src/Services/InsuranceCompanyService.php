@@ -214,7 +214,7 @@ class InsuranceCompanyService extends BaseService
 
     public function insert($data)
     {
-        $freshId = $this->getFreshId("id", "insurance_companies");
+        $freshId = generate_id();
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
