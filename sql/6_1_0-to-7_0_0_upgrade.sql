@@ -323,8 +323,12 @@ ALTER TABLE `form_encounter` ADD `date_end` DATETIME DEFAULT NULL;
 #IfMissingColumn procedure_order_code date_end
 ALTER TABLE `procedure_order_code` ADD `date_end` datetime DEFAULT NULL;
 ALTER TABLE `procedure_order_code` ADD `reason_code` varchar(31) DEFAULT NULL;
-ALTER TABLE `procedure_order_code` ADD `reason_description` text DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_description` text;
 ALTER TABLE `procedure_order_code` ADD `reason_date_low` datetime DEFAULT NULL;
 ALTER TABLE `procedure_order_code` ADD `reason_date_high` datetime DEFAULT NULL;
 ALTER TABLE `procedure_order_code` ADD `reason_status` varchar(31) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType procedure_order_code procedure_code VAR(64)
+ALTER TABLE `procedure_order_code` CHANGE `procedure_code` `procedure_code` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'like procedure_type.procedure_code';
 #EndIf

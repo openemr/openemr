@@ -563,7 +563,7 @@ class CdaTemplateParse
      */
     public function fetchProcedureActivityData($entry): void
     {
-        if (!empty($entry['procedure']['code']['code'])) {
+        if (!empty($entry['procedure']['code']['code']) || !empty($entry['procedure']['code']["nullFlavor"])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['procedure'])) {
                 $i += count($this->templateData['field_name_value_array']['procedure']);
@@ -574,12 +574,18 @@ class CdaTemplateParse
                 ($entry['procedure']['code']['codeSystemName'] ?? '') ?: $entry['procedure']['code']['codeSystem'] ?? null,
                 $entry['procedure']['code']['displayName'] ?? ''
             );
+            if (!empty($entry['procedure']['code']["nullFlavor"]) && !empty($entry['procedure']['code']["valueSet"])) {
+                $code['code'] = $entry['procedure']['code']["valueSet"] ?? null;
+                $code['formatted_code'] = 'OID:' . $entry['procedure']['code']["valueSet"] ?? null;
+                $code['code_text'] = $entry['procedure']['text'] ?? '';
+            }
+
             $procedure_type = 'order';
 
             $this->templateData['field_name_value_array']['procedure'][$i]['extension'] = $entry['procedure']['id']['extension'] ?? null;
             $this->templateData['field_name_value_array']['procedure'][$i]['root'] = $entry['procedure']['id']['root'] ?? null;
 
-            $this->templateData['field_name_value_array']['procedure'][$i]['code'] = $code['code'];
+            $this->templateData['field_name_value_array']['procedure'][$i]['code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['procedure'][$i]['code_text'] = $code['code_text'];
             $this->templateData['field_name_value_array']['procedure'][$i]['codeSystemName'] = $code['formatted_code_type'];
 
@@ -588,9 +594,33 @@ class CdaTemplateParse
 
             if (!empty($entry['procedure']['effectiveTime']['low']['value'])) {
                 $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['procedure']['effectiveTime']['low']['value'] ?? null;
+                $this->templateData['field_name_value_array']['procedure'][$i]['date_end'] = $entry['procedure']['effectiveTime']['high']['value'] ?? null;
             } else {
                 $this->templateData['field_name_value_array']['procedure'][$i]['date'] = $entry['procedure']['effectiveTime']['value'] ?? null;
             }
+
+            // check for a reason code if observation.
+            if (is_array($entry['procedure']['entryRelationship'])) {
+                $entryRelationship = $entry['procedure']['entryRelationship'][1];
+            } else {
+                $entryRelationship = $entry['procedure']['entryRelationship'];
+            }
+            if ($entryRelationship['observation']['value']['code']) {
+                $code = $this->codeService->resolveCode(
+                    $entryRelationship['observation']['value']['code'],
+                    $entryRelationship['observation']['value']['codeSystemName'] ?: $entryRelationship['observation']['value']['codeSystem'] ?? '',
+                    $entryRelationship['observation']['value']['displayName']
+                );
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_code'] = $code['formatted_code'];
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_code_text'] = $code['code_text'];
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_description'] = $code['code_text'] ?? $entry['observation']['text'];
+                $date_low = $entryRelationship['observation']['effectiveTime']['low']['value'] ?? null;
+                $date_high = $entryRelationship['observation']['effectiveTime']['high']['value'] ?? null;
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_date_low'] = $date_low;
+                $this->templateData['field_name_value_array']['procedure'][$i]['reason_date_high'] = $date_high;
+            }
+
+            $this->templateData['field_name_value_array']['procedure'][$i]['reason_status'] = (($entry['procedure']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
 
             $this->templateData['field_name_value_array']['procedure'][$i]['represented_organization1'] = $entry['procedure']['performer']['assignedEntity']['representedOrganization']['name'] ?? null;
             $this->templateData['field_name_value_array']['procedure'][$i]['represented_organization_address1'] = $entry['procedure']['performer']['assignedEntity']['addr']['streetAddressLine'] ?? null;
@@ -606,6 +636,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['procedure'][$i]['represented_organization_state2'] = $entry['procedure']['participant']['participantRole']['addr']['state'] ?? null;
             $this->templateData['field_name_value_array']['procedure'][$i]['represented_organization_postalcode2'] = $entry['procedure']['participant']['participantRole']['addr']['postalCode'] ?? null;
             $this->templateData['field_name_value_array']['procedure'][$i]['represented_organization_country2'] = $entry['procedure']['participant']['participantRole']['addr']['country'] ?? null;
+
             $this->templateData['entry_identification_array']['procedure'][$i] = $i;
         }
     }
@@ -1232,7 +1263,7 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_code_text'] = $code['code_text'];
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_description'] = $code['code_text'] ?? $entry['observation']['text'];
                 $date_low = $entry['observation']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? null;
-                $date_high = $entry['observation']['entryRelationship']['observation']['effectiveTime']['high']['value'];
+                $date_high = $entry['observation']['entryRelationship']['observation']['effectiveTime']['high']['value'] ?? null;
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_low'] = $date_low;
                 $this->templateData['field_name_value_array']['care_plan'][$i]['reason_date_high'] = $date_high;
             }

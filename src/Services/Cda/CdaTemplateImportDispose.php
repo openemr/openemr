@@ -28,26 +28,20 @@ class CdaTemplateImportDispose
         foreach ($allergy_array as $key => $value) {
             $active = 1;
 
-            if ($value['begdate'] != 0 && $revapprove == 0) {
+            $allergy_begdate_value = null;
+            $allergy_enddate_value = null;
+            if (!empty($value['begdate']) && $revapprove == 0) {
                 $allergy_begdate = $carecoordinationTable->formatDate($value['begdate'], 1);
                 $allergy_begdate_value = fixDate($allergy_begdate);
-            } elseif ($value['begdate'] != 0 && $revapprove == 1) {
+            } elseif (!empty($value['begdate']) && $revapprove == 1) {
                 $allergy_begdate_value = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['begdate'] == 0) {
-                $allergy_begdate = $value['begdate'];
-                //$allergy_begdate_value = fixDate($allergy_begdate);
-                $allergy_begdate_value = (null);
             }
 
-            if ($value['enddate'] != 0 && $revapprove == 0) {
+            if (!empty($value['enddate']) && $revapprove == 0) {
                 $allergy_enddate = $carecoordinationTable->formatDate($value['enddate'], 1);
                 $allergy_enddate_value = fixDate($allergy_enddate);
             } elseif ($value['enddate'] != 0 && $revapprove == 1) {
                 $allergy_enddate_value = ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['enddate'] == 0 || $value['enddate'] == '') {
-                $allergy_enddate = $value['enddate'];
-                //$allergy_enddate_value = fixDate($allergy_enddate);
-                $allergy_enddate_value = (null);
             }
 
             if ($revapprove == 1) {
@@ -390,8 +384,12 @@ class CdaTemplateImportDispose
                 $qB_insert = "INSERT INTO external_procedures(ep_date,ep_code,ep_code_type,ep_code_text,ep_pid,ep_encounter,ep_facility_id,ep_external_id) VALUES (?,?,?,?,?,?,?,?)";
                 $appTable->zQuery($qB_insert, array($procedure_date_value, $value['code'], $value['codeSystemName'], $value['code_text'], $pid, $encounter_for_billing, ($facility_id2 ?? null), $value['extension']));
             }
+
+            $code = $value['code'];
             // format code
-            $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName']);
+            if (stripos($value['code'], 'OID:') === false) {
+                $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName']);
+            }
 
             $pro_name = xlt('External Procedure');
             $query_select_pro = 'SELECT * FROM procedure_providers WHERE name = ?';
