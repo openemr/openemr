@@ -270,6 +270,10 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['extension'] = $entry['observation']['id']['extension'] ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['root'] = $entry['observation']['id']['root'] ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['date'] = $entry['observation']['effectiveTime']['value'] ?? '';
+            if (!empty($entry['observation']['effectiveTime']['low'])) {
+                $this->templateData['field_name_value_array']['observation_preformed'][$i]['date'] = $entry['observation']['effectiveTime']['low'];
+                $this->templateData['field_name_value_array']['observation_preformed'][$i]['date_end'] = $entry['observation']['effectiveTime']['high'] ?? null;
+            }
 
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation_status'] = $result_status ?? '';
             $this->templateData['field_name_value_array']['observation_preformed'][$i]['observation'] = $entry['observation']['text'] ?: $code['code_text'] ?? null;

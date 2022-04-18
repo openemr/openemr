@@ -1684,8 +1684,9 @@ class CdaTemplateImportDispose
                              ob_type,
                              ob_reason_status,
                              ob_reason_code,
-                             ob_reason_text) 
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                             ob_reason_text,
+                             date_end) 
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 array(
                     $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
                     $value['code'],
@@ -1698,7 +1699,8 @@ class CdaTemplateImportDispose
                     $value['observation_type'],
                     $value['reason_status'],
                     $value['reason_code'],
-                    $value['reason_code_text']
+                    $value['reason_code_text'],
+                    $value['date_end']
                 )
             );
             // insert form for observation
