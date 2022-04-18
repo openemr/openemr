@@ -136,7 +136,7 @@ class QrdaReportController
                     file_put_contents($file_local, $content);
                     unset($content);
                     if ($type === 'xml') {
-                        copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
+                        //copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
                     }
                 }
             }
@@ -183,10 +183,9 @@ class QrdaReportController
         }
         $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
         if (!is_dir($directory)) {
-            if (!mkdir($directory, true) && !is_dir($directory)) {
+            if (!mkdir($directory, 775, true) && !is_dir($directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
             }
-            chmod($directory, 0777);
         }
         if (is_array($pids)) {
             if (count($pids) === 1) {

@@ -329,6 +329,10 @@ ALTER TABLE `procedure_order_code` ADD `reason_date_high` datetime DEFAULT NULL;
 ALTER TABLE `procedure_order_code` ADD `reason_status` varchar(31) DEFAULT NULL;
 #EndIf
 
-#IfNotColumnType procedure_order_code procedure_code VAR(64)
+#IfNotColumnType procedure_order_code procedure_code VARCHAR(64)
 ALTER TABLE `procedure_order_code` CHANGE `procedure_code` `procedure_code` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'like procedure_type.procedure_code';
+#EndIf
+
+#IfNotColumnType procedure_order date_ordered DATETIME
+ALTER TABLE `procedure_order` CHANGE `date_ordered` `date_ordered` DATETIME DEFAULT NULL;
 #EndIf

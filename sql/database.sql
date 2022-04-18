@@ -9197,7 +9197,7 @@ CREATE TABLE `procedure_order` (
   `patient_id`             bigint(20)       NOT NULL            COMMENT 'references patient_data.pid',
   `encounter_id`           bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
   `date_collected`         datetime         DEFAULT NULL        COMMENT 'time specimen collected',
-  `date_ordered`           date             DEFAULT NULL,
+  `date_ordered`           datetime         DEFAULT NULL,
   `order_priority`         varchar(31)      NOT NULL DEFAULT '',
   `order_status`           varchar(31)      NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
   `patient_instructions`   text,

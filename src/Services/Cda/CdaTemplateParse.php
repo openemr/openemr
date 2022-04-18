@@ -691,7 +691,7 @@ class CdaTemplateParse
      */
     public function fetchProcedurePreformedActivity($entry): void
     {
-        if (!empty($entry['act']['code']['code'])|| $entry['act']['negationInd'] ?? 'false' == 'true') {
+        if (!empty($entry['act']['code']['code']) || $entry['act']['negationInd'] ?? 'false' == 'true') {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['procedure'])) {
                 $i += count($this->templateData['field_name_value_array']['procedure']);
