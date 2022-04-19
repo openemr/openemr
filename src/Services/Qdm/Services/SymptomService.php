@@ -10,26 +10,24 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\Diagnosis;
+use OpenEMR\Cqm\Qdm\Symptom;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
+class SymptomService extends AbstractQdmService implements QdmServiceInterface
 {
     public function getSqlStatement()
     {
         $sql = "SELECT pid, begdate, enddate, `date`, diagnosis
                 FROM lists
-                WHERE `type` = 'medical_problem' AND subtype = 'diagnosis'
+                WHERE `type` = 'medical_problem' AND subtype = 'concern'
                 ";
         return $sql;
     }
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new Diagnosis([
+        $qdmModel = new Symptom([
             'prevalencePeriod' => new Interval([
                 'low' => $this->validDateOrNull($record['begdate']),
                 'high' => $this->validDateOrNull($record['enddate']),

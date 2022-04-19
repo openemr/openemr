@@ -512,3 +512,31 @@ DROP TABLE lang_updates_610;
 #IfNotRow3D list_options list_id language option_id malay notes ms
 UPDATE list_options SET notes='ms' WHERE list_id='language' AND option_id='malay';
 #EndIf
+
+#IfMissingColumn form_encounter date_end
+ALTER TABLE `form_encounter` ADD `date_end` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order_code date_end
+ALTER TABLE `procedure_order_code` ADD `date_end` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_code` varchar(31) DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_description` text;
+ALTER TABLE `procedure_order_code` ADD `reason_date_low` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_date_high` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_status` varchar(31) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType procedure_order_code procedure_code VARCHAR(64)
+ALTER TABLE `procedure_order_code` CHANGE `procedure_code` `procedure_code` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'like procedure_type.procedure_code';
+#EndIf
+
+#IfNotColumnType procedure_order date_ordered DATETIME
+ALTER TABLE `procedure_order` CHANGE `date_ordered` `date_ordered` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn immunizations reason_code
+ALTER TABLE `immunizations` CHANGE `cvx_code` `cvx_code` VARCHAR(64) DEFAULT NULL;
+ALTER TABLE `immunizations` ADD `reason_code` varchar(31) DEFAULT NULL;
+ALTER TABLE `immunizations` ADD `reason_description` text;
+ALTER TABLE `immunizations` ADD `reason_status` varchar(31) DEFAULT NULL;
+#EndIf
