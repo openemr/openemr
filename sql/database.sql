@@ -3025,7 +3025,7 @@ CREATE TABLE `immunizations` (
   `patient_id` bigint(20) default NULL,
   `administered_date` datetime default NULL,
   `immunization_id` int(11) default NULL,
-  `cvx_code` varchar(10) default NULL,
+  `cvx_code` varchar(64) default NULL,
   `manufacturer` varchar(100) default NULL,
   `lot_number` varchar(50) default NULL,
   `administered_by_id` bigint(20) default NULL,
@@ -3048,9 +3048,9 @@ CREATE TABLE `immunizations` (
   `information_source` VARCHAR(31) DEFAULT NULL,
   `refusal_reason` VARCHAR(31) DEFAULT NULL,
   `ordering_provider` INT(11) DEFAULT NULL,
-  `reason_code` varchar(32) DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL,
   `reason_description` text,
-  `reason_status` varchar(32) DEFAULT NULL,
+  `reason_status` varchar(31) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -9249,11 +9249,11 @@ CREATE TABLE `procedure_order_code` (
   `procedure_type`          varchar(31) DEFAULT NULL,
   `transport`               varchar(31) DEFAULT NULL,
   `date_end` datetime DEFAULT NULL,
-  `reason_code` varchar(32) DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL,
   `reason_description` text,
   `reason_date_low` datetime DEFAULT NULL,
   `reason_date_high` datetime DEFAULT NULL,
-  `reason_status` varchar(32) DEFAULT NULL,
+  `reason_status` varchar(31) DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 
