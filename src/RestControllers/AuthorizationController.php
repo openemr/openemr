@@ -53,6 +53,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -824,6 +825,17 @@ class AuthorizationController
 
 
         $claims = $_SESSION['claims'] ?? [];
+
+        $clientRepository = new ClientRepository();
+        $client = $clientRepository->getClientEntity($_SESSION['client_id']);
+        $clientName = "<" . xl("Client Name Not Found") . ">";
+        if (!empty($client)) {
+            $clientName =  $client->getName();
+        }
+
+        $uuidToUser = new UuidUserAccount($_SESSION['user_id']);
+        $userRole = $uuidToUser->getUserRole();
+        $userAccount = $uuidToUser->getUserAccount();
         require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
     }
 
