@@ -4853,7 +4853,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 $GONIO[$i]['list'] = '';
             }
 
-            if (($visit['ODKTHICKNESS'] > '') || ($visit['ODKTHICKNESS'] > '')) {
+            if (($visit['ODKTHICKNESS'] > '') || ($visit['OSKTHICKNESS'] > '')) {
                 $KTHICKNESS_date[$i] = $visit["exam_date"];
                 $KTHICKNESS[$i]['list'] = '1';
             } else {
