@@ -454,9 +454,9 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_immunization['immunization'][$a]['manufacturer'] = $newdata['immunization']['manufacturer'];
                 $arr_immunization['immunization'][$a]['completion_status'] = $newdata['immunization']['completion_status'];
                 // reason
-                $arr_procedures['immunization'][$a]['reason_code'] = $newdata['immunization']['reason_code'] ?? null;
-                $arr_procedures['immunization'][$a]['reason_description'] = $newdata['immunization']['reason_description'] ?? null;
-                $arr_procedures['immunization'][$a]['reason_status'] = $newdata['immunization']['reason_status'] ?? null;
+                $arr_immunization['immunization'][$a]['reason_code'] = $newdata['immunization']['reason_code'] ?? null;
+                $arr_immunization['immunization'][$a]['reason_description'] = $newdata['immunization']['reason_description'] ?? null;
+                $arr_immunization['immunization'][$a]['reason_status'] = $newdata['immunization']['reason_status'] ?? null;
 
                 $arr_immunization['immunization'][$a]['provider_npi'] = $newdata['immunization']['provider_npi'];
                 $arr_immunization['immunization'][$a]['provider_name'] = $newdata['immunization']['provider_name'];
