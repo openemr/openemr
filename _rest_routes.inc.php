@@ -44,6 +44,7 @@
  *              "patient/Goal.read": "Read goal resources for the current patient (api:fhir)",
  *              "patient/Immunization.read": "Read immunization resources for the current patient (api:fhir)",
  *              "patient/Location.read": "Read location resources for the current patient (api:fhir)",
+ *              "patient/Medication.read": "Read medication resources for the current patient (api:fhir)",
  *              "patient/MedicationRequest.read": "Read medication request resources for the current patient (api:fhir)",
  *              "patient/Observation.read": "Read observation resources for the current patient (api:fhir)",
  *              "patient/Organization.read": "Read organization resources for the current patient (api:fhir)",
@@ -87,6 +88,7 @@
  *              "user/Goal.read": "Read all goal resources the user has access to (api:fhir)",
  *              "user/Immunization.read": "Read all immunization resources the user has access to (api:fhir)",
  *              "user/Location.read": "Read all location resources the user has access to (api:fhir)",
+ *              "user/Medication.read": "Read all medication resources the user has access to (api:fhir)",
  *              "user/MedicationRequest.read": "Read all medication request resources the user has access to (api:fhir)",
  *              "user/Observation.read": "Read all observation resources the user has access to (api:fhir)",
  *              "user/Organization.read": "Read all organization resources the user has access to (api:fhir)",
@@ -9389,6 +9391,102 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      */
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
         $return = (new FhirLocationRestController())->getOne($uuid, $request->getPatientUUIDString());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Medication",
+     *      description="Returns a list of Medication resources.",
+     *      tags={"fhir"},
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Medication"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Medication" => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new FhirMedicationRestController())->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Medication/{uuid}",
+     *      description="Returns a single Medication resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Medication resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirMedicationRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirMedicationRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },

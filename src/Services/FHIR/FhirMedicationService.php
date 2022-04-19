@@ -10,6 +10,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -42,7 +45,9 @@ class FhirMedicationService extends FhirServiceBase
      */
     protected function loadSearchParameters()
     {
-        return  [];
+        return  [
+            '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+        ];
     }
 
     /**
@@ -130,12 +135,12 @@ class FhirMedicationService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param $puuidBind - Patient uuid to return drug resources that are only visible to the current patient
      * @return ProcessingResult
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->medicationService->getAll($openEMRSearchParameters, false, true);
+        return $this->medicationService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())
