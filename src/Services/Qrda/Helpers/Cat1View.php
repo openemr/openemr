@@ -68,11 +68,21 @@ trait Cat1View
     {
         $oid = $context->find('system');
         $code = $context->find('code');
+        // if unresolved code at this point, we'll try to fix with a value set search.
         if (empty($oid) && !empty($code)) {
-            $codeService = new CodeTypesService();
-            $code_tmp = $codeService->resolveCode($code, '', '');
-            $code = $code_tmp['code'] ?? null;
-            $oid = $code_tmp['system_oid'] ?? null;
+            // test code for value set if so, ignore.
+            if (!str_contains($code, '2.16.840.1.113883.')) {
+                $codeService = new CodeTypesService();
+                $code_tmp = $codeService->resolveCode($code, '', '');
+                $code = $code_tmp['code'] ?? null;
+                $oid = $code_tmp['system_oid'] ?? null;
+            }
+        }
+        // Below if we miss a negation value set.
+        if (stripos($code, 'OID:') !== false) {
+            $tmp = str_split($code, 4);
+            $code = substr($code, 4);
+            $oid = '';
         }
         if (empty($oid)) {
             return "nullFlavor=\"NA\" sdtc:valueSet=\"$code\"";
