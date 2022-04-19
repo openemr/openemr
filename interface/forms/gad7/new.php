@@ -18,7 +18,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-    <title><?php echo text($string_form_title); ?> </title>
+    <title><?php echo text($str_form_title); ?> </title>
     <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
@@ -26,7 +26,7 @@ use OpenEMR\Core\Header;
 <script>
 var no_qs = 8; // number of questions in the form
 var gad7_score = 0; // total score
-var changes_made = false; 
+var changes_made = false;
 </script>
 
 <SCRIPT
@@ -95,9 +95,8 @@ function create_q8(question, menue){
 <br></br>
 </tr>
  </table>
- <tr>
-<td>
  <table>
+ <tr> <td>
 <span class=text ><?php echo xlt('Worrying too much about different things'); ?></span>
 <select name="worry_score" onchange="update_score(2, my_form.worry_score.value);" >
     <option selected value="undef" ><?php echo text($str_default); ?></option>

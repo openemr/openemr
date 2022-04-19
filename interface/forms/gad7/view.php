@@ -22,7 +22,7 @@ $form_folder = "gad7";
 ?>
 <html><head>
  <head>
-    <title><?php echo text($string_form_title); ?> </title>
+    <title><?php echo text($str_form_title); ?> </title>
     <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
@@ -39,7 +39,7 @@ var gad7_score = 0;
 
 <SCRIPT>
 // stuff that uses embedded php must go here, not in the include javascript file - it must be executed on server side before page is sent to client. included javascript is only executed on the client
-var changes_made = false; 
+var changes_made = false;
 
 function create_q8(question, menue){
  // create the question - the second part is italicised
@@ -60,7 +60,7 @@ function create_q8(question, menue){
          menue.options[3] = new Option ( <?php echo js_escape($str_very); ?>, "2");
          menue.options[4] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
         /*  menue.options[5] = new Option ( <?php echo js_escape($str_default);  ?>, "4"); */
-        
+
 }
 // check user really wants to exit without saving new answers
 function nosave_exit() {
@@ -110,6 +110,7 @@ return ( conf );
 </tr>
  </table>
   <table>
+  <tr> <td>
 <span class="text" ><?php echo text($str_control_worry); ?></span>
 <select name="control_worry_score" onchange="update_score(1, my_form.control_worry_score.value);changes_made=true" >
     <option value="0"><?php echo text($str_not); ?></option>
