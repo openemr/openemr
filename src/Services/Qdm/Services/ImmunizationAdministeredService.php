@@ -60,7 +60,6 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
                     'system' => $this->getSystemForCodeType('CVX')
                 ])
             );
-
         }
 
 
