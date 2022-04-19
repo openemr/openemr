@@ -161,7 +161,7 @@ function vitalsFormSubmitted() {
                                     </th>
                                     <th class="currentvalues editonly">{xlt t="Abn"}</th>
                                     {foreach item=result from=$results}
-                                        <th class='historicalvalues'>{$result->get_date()|date_format:"%Y-%m-%d %H:%M"|text}</th>
+                                        <th class='historicalvalues'>{$result->get_date()|date_format:"%Y-%m-%d"|text}</th>
                                     {/foreach}
                                 </tr>
                             </thead>

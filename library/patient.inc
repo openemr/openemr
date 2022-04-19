@@ -1493,6 +1493,7 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
 
     // strip any dashes from the DOB
     $dobYMD = preg_replace("/-/", "", $dobYMD);
+    $nowYMD = preg_replace("/-/", "", $nowYMD);
     $dobDay = substr($dobYMD, 6, 2);
     $dobMonth = substr($dobYMD, 4, 2);
     $dobYear = substr($dobYMD, 0, 4);
@@ -1723,6 +1724,19 @@ function is_patient_deceased($pid, $date = '')
         }
 
         return $results;
+    }
+}
+
+function hasDownSyndrome($pid): bool
+{
+
+    $sql = "Select * from lists where pid = ? and type = 'medical_problem' and diagnosis like '%Q90.9%'";
+    $res = sqlStatement($sql, array($pid));
+
+    if (sqlNumRows($res) > 0) {
+        return true;
+    } else {
+        return false;
     }
 }
 
