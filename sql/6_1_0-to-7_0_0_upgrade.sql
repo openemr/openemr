@@ -316,8 +316,8 @@ ALTER TABLE `form_care_plan` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
 ALTER TABLE api_token ADD COLUMN `context` TEXT COMMENT 'context values that change/govern how access token are used';
 #EndIf
 
-#IfNotRow3D list_options list_id language notes eng codes en
-CREATE TEMPORARY TABLE lang_updates_610 (notes char(15), codes char(2));
+#IfRow2D list_options list_id language notes eng
+CREATE TEMPORARY TABLE lang_updates_610 (notes char(15), twodigit_notes char(2));
 START TRANSACTION;
 INSERT INTO lang_updates_610 VALUES
 ('abk','ab'), 
@@ -505,6 +505,6 @@ INSERT INTO lang_updates_610 VALUES
 ('zha','za'), 
 ('zul','zu'); 
 
-UPDATE list_options JOIN lang_updates_610 ON list_options.list_id='language' AND list_options.notes = lang_updates_610.notes SET list_options.codes = lang_updates_610.codes;
+UPDATE list_options JOIN lang_updates_610 ON list_options.list_id='language' AND list_options.notes = lang_updates_610.notes SET list_options.notes = lang_updates_610.twodigit_notes;
 DROP TABLE lang_updates_610;
 #EndIf;
