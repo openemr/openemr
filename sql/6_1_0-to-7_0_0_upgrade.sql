@@ -336,3 +336,10 @@ ALTER TABLE `procedure_order_code` CHANGE `procedure_code` `procedure_code` VARC
 #IfNotColumnType procedure_order date_ordered DATETIME
 ALTER TABLE `procedure_order` CHANGE `date_ordered` `date_ordered` DATETIME DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn immunizations reason_code
+ALTER TABLE `immunizations` CHANGE `cvx_code` `cvx_code` VARCHAR(64) DEFAULT NULL;
+ALTER TABLE `immunizations` ADD `reason_code` varchar(32) DEFAULT NULL;
+ALTER TABLE `immunizations` ADD `reason_description` text;
+ALTER TABLE `immunizations` ADD `reason_status` varchar(32) DEFAULT NULL;
+#EndIf
