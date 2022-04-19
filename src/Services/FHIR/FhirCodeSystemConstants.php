@@ -72,4 +72,6 @@ class FhirCodeSystemConstants
     const OID_RACE_AND_ETHNICITY = "urn:oid:2.16.840.1.113883.6.238";
 
     const HL7_US_CORE_RACE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race";
+
+    const LANGUAGE_BCP_47 = "urn:ietf:bcp:47";
 }
