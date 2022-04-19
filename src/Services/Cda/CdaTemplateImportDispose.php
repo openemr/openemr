@@ -801,10 +801,14 @@ class CdaTemplateImportDispose
                     amount_administered_unit,
                     manufacturer,
                     completion_status,
-                    external_id
+                    external_id,
+                    reason_code,
+                    reason_status
                   )
                   VALUES
                   (
+                   ?,
+                   ?,
                    ?,
                    ?,
                    ?,
@@ -825,7 +829,9 @@ class CdaTemplateImportDispose
                     $oid_unit,
                     $value['manufacturer'],
                     $value['completion_status'],
-                    $value['extension']));
+                    $value['extension'],
+                    $value['reason_code'],
+                    $value['reason_status']));
             } else {
                 $q_upd_imm = "UPDATE immunizations
                       SET patient_id=?,

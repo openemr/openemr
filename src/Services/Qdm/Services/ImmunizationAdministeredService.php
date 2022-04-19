@@ -24,34 +24,36 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
 
     public function getSqlStatement()
     {
-        $sql = "SELECT patient_id, patient_id AS pid, administered_date, cvx_code FROM immunizations";
+        $sql = "SELECT patient_id, patient_id AS pid, administered_date, cvx_code, reason_code, reason_status
+                FROM immunizations";
         return $sql;
     }
 
     public function makeQdmModel(array $record)
     {
-        $model = new ImmunizationAdministered(
-            [
-            'relevantDatetime' => new DateTime(
-                [
+        $model = new ImmunizationAdministered([
+            'relevantDatetime' => new DateTime([
                 'date' => $record['administered_date']
-                ]
-            ),
-            'authorDatetime' => new DateTime(
-                [
+            ]),
+            'authorDatetime' => new DateTime([
                 'date' => $record['administered_date']
-                ]
-            ),
-            ]
-        );
+            ]),
+        ]);
+
+        // If the reason status is "negated" then add the code to negation rationale, otherwise add to reason
+        if (!empty($record['reason_code'])) {
+            if ($record['reason_status'] == parent::NEGATED) {
+                $model->negationRationale = $this->makeQdmCode($record['reason_code']);
+            } else {
+                $model->reason = $this->makeQdmCode($record['reason_code']);
+            }
+        }
 
         $model->addCode(
-            new Code(
-                [
+            new Code([
                 'code' => $record['cvx_code'],
                 'system' => $this->getSystemForCodeType('CVX')
-                ]
-            )
+            ])
         );
 
         return $model;

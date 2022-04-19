@@ -27,7 +27,7 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
                     OC.reason_code,
                     OC.reason_status
                 FROM procedure_order O
-                    JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                    LEFT JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
                 WHERE O.procedure_order_type = 'intervention'
                 ";
 
@@ -41,15 +41,14 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
 
     public function makeQdmModel(array $record)
     {
-        $qdmModel = new InterventionPerformed(
-            [
-                'relevantDatetime' => new DateTime(
-                    [
-                        'date' => $record['date_ordered']
-                    ]
-                ),
-            ]
-        );
+        $qdmModel = new InterventionPerformed([
+            'relevantDatetime' => new DateTime([
+                'date' => $record['date_ordered']
+            ]),
+            'authorDatetime' => new DateTime([
+                'date' => $record['date_ordered']
+            ])
+        ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {

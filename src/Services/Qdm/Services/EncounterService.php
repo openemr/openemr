@@ -74,6 +74,9 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                 'lowClosed' => $record['date'] ? true : false,
                 'highClosed' => $record['date_end'] ? true : false
             ]),
+            'authorDatetime' => new DateTime([
+                'date' => $record['date']
+            ]),
             'admissionSource' => null,
             'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,
             'facilityLocations' => [],

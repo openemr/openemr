@@ -25,6 +25,8 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     O.procedure_order_type,
                     O.date_ordered,
                     OC.procedure_code,
+                    OC.reason_status,
+                    OC.reason_code,
                     RES.date AS result_date,
                     RES.result_code,
                     RES.units as result_units,
@@ -50,6 +52,9 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
             'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
             ]),
+            'authorDatetime' => new DateTime([
+                'date' => $record['date_ordered']
+            ])
         ]);
 
         if (!empty($record['result_value']) && !empty($record['result_units'])) {
@@ -57,6 +62,14 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                 'value' => $record['result_value'],
                 'unit' => $record['result_units']
             ]);
+        }
+
+        if (!empty($record['reason_code'])) {
+            if ($record['reason_status'] === parent::NEGATED) {
+                $qdmModel->negationRationale = $this->makeQdmCode($record['reason_code']);
+            } else {
+                $qdmModel->reason = $this->makeQdmCode($record['reason_code']);
+            }
         }
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);

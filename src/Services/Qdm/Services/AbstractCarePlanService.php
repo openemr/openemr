@@ -63,10 +63,12 @@ abstract class AbstractCarePlanService extends AbstractQdmService
 
         // If there is a Negation reason noted why this plan was NOT done, add a negation. It will be in the 'code' column
         // with a code-system of "OID". Otherwise, add the code as usual
-        if ($record['reason_status'] == parent::NEGATED) {
-            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
-        } else if (!empty($record['reason_code'])) {
-            $model->reason = $this->makeQdmCode($record['reason_code']);
+        if (!empty($record['reason_code'])) {
+            if ($record['reason_status'] == parent::NEGATED) {
+                $model->negationRationale = $this->makeQdmCode($record['reason_code']);
+            } else {
+                $model->reason = $this->makeQdmCode($record['reason_code']);
+            }
         }
 
         $model->addCode($this->makeQdmCode($record['code']));

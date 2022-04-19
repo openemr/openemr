@@ -522,7 +522,10 @@ class CdaTemplateParse
      */
     public function fetchImmunizationData($entry): void
     {
-        if (!empty($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'])) {
+        if (
+            !empty($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'])
+            || !empty($entry['substanceAdministration']['negationInd']) == "true"
+        ) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['immunization'])) {
                 $i += count($this->templateData['field_name_value_array']['immunization']);
@@ -538,6 +541,16 @@ class CdaTemplateParse
                 $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['codeSystemName'] ?? null,
                 $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName']
             );
+            $code = $this->codeService->resolveCode(
+                $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'],
+                $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['codeSystemName'] ?? $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['codeSystem'],
+                $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['displayName']
+            );
+            if (!empty($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']["nullFlavor"])) {
+                $code['code'] = 'OID:' . $entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']["valueSet"] ?? null;
+                $code['formatted_code'] = 'OID:' . $code['code'];
+                $code['code_text'] = $entry['substanceAdministration']['text'] ?? '';
+            }
             $this->templateData['field_name_value_array']['immunization'][$i]['cvx_code'] = $code['code'];
             $this->templateData['field_name_value_array']['immunization'][$i]['cvx_code_text'] = $code['code_text'];
             $this->templateData['field_name_value_array']['immunization'][$i]['amount_administered'] = $entry['substanceAdministration']['doseQuantity']['value'] ?? null;
@@ -554,6 +567,23 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['immunization'][$i]['provider_telecom'] = $entry['substanceAdministration']['performer']['assignedEntity']['telecom']['value'] ?? null;
             $this->templateData['field_name_value_array']['immunization'][$i]['represented_organization'] = $entry['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['name'] ?? null;
             $this->templateData['field_name_value_array']['immunization'][$i]['represented_organization_tele'] = $entry['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['telecom'] ?? null;
+
+            if ($entry['substanceAdministration']['entryRelationship']['observation']['value']['code']) {
+                $code = $this->codeService->resolveCode(
+                    $entry['substanceAdministration']['entryRelationship']['observation']['value']['code'],
+                    $entry['substanceAdministration']['entryRelationship']['observation']['value']['codeSystemName'] ?: $entry['substanceAdministration']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
+                    $entry['substanceAdministration']['entryRelationship']['observation']['value']['displayName']
+                );
+                $this->templateData['field_name_value_array']['immunization'][$i]['reason_code'] = $code['formatted_code'];
+                $this->templateData['field_name_value_array']['immunization'][$i]['reason_code_text'] = $code['code_text'];
+                $this->templateData['field_name_value_array']['immunization'][$i]['reason_description'] = $code['code_text'] ?? $entry['observation']['text'];
+                $date_low = $entry['substanceAdministration']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? null;
+                $date_high = $entry['substanceAdministration']['entryRelationship']['observation']['effectiveTime']['high']['value'];
+                $this->templateData['field_name_value_array']['immunization'][$i]['reason_date_low'] = $date_low;
+                $this->templateData['field_name_value_array']['immunization'][$i]['reason_date_high'] = $date_high;
+            }
+
+            $this->templateData['field_name_value_array']['immunization'][$i]['reason_status'] = (($entry['substanceAdministration']['negationInd'] ?? 'false') == 'true') ? 'negated' : null;
             $this->templateData['entry_identification_array']['immunization'][$i] = $i;
         }
     }

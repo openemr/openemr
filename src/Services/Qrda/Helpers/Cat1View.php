@@ -156,7 +156,8 @@ trait Cat1View
 
     public function result_value_as_string($result)
     {
-        if (empty($result['value'])) {
+        // Result could be a code or value, but if we have neither, we return null/UNK
+        if (empty($result['code']) && empty($result['value'])) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
         // Not all results will have code
