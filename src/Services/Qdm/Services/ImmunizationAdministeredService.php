@@ -49,12 +49,20 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
             }
         }
 
-        $model->addCode(
-            new Code([
-                'code' => $record['cvx_code'],
-                'system' => $this->getSystemForCodeType('CVX')
-            ])
-        );
+        if (strpos($record['cvx_code'], ':') !== false) {
+            // Use the make code that blanks out the OID portion, or creates a code with code type
+            $model->addCode($this->makeQdmCode($record['cvx_code']));
+        } else {
+            // We make the code manually here, not using makeQdmCode because we need to set the code system
+            $model->addCode(
+                new Code([
+                    'code' => $record['cvx_code'],
+                    'system' => $this->getSystemForCodeType('CVX')
+                ])
+            );
+
+        }
+
 
         return $model;
     }
