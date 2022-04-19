@@ -508,3 +508,7 @@ INSERT INTO lang_updates_610 VALUES
 UPDATE list_options JOIN lang_updates_610 ON list_options.list_id='language' AND list_options.notes = lang_updates_610.notes SET list_options.notes = lang_updates_610.twodigit_notes;
 DROP TABLE lang_updates_610;
 #EndIf;
+
+#IfNotRow3D list_options list_id language option_id malay notes ms
+UPDATE list_options SET notes='ms' WHERE list_id='language' AND option_id='malay';
+#EndIf
