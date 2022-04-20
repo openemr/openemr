@@ -67,6 +67,7 @@
  *              "system/Group.read": "Read all group resources in the system (api:fhir)",
  *              "system/Immunization.read": "Read all immunization resources in the system (api:fhir)",
  *              "system/Location.read": "Read all location resources in the system (api:fhir)",
+ *              "system/Medication.read": "Read all medication resources in the system (api:fhir)",
  *              "system/MedicationRequest.read": "Read all medication request resources in the system (api:fhir)",
  *              "system/Observation.read": "Read all observation resources in the system (api:fhir)",
  *              "system/Organization.read": "Read all organization resources in the system (api:fhir)",
@@ -9462,7 +9463,38 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "961aa334-9348-4145-8252-de665e3c4afa",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-19T23:42:14+00:00"
+     *                      },
+     *                      "resourceType": "Medication",
+     *                      "code": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+     *                                  "code": 153165
+     *                              }
+     *                          }
+     *                      },
+     *                      "status": "active",
+     *                      "batch": {
+     *                          "lotNumber": "132",
+     *                          "expirationDate": "0000-00-00"
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
