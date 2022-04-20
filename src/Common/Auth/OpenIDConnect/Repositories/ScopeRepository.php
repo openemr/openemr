@@ -915,6 +915,7 @@ class ScopeRepository implements ScopeRepositoryInterface
                 break;
             case 'Device':
                 $description .= xl("implantable medical device records");
+                break;
             case 'DiagnosticReport':
                 $description .= xl("diagnostic reports including laboratory,cardiology,radiology, and pathology reports");
                 break;
