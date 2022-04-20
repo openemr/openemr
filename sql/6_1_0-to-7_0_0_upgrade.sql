@@ -513,12 +513,6 @@ DROP TABLE lang_updates_610;
 UPDATE list_options SET notes='ms' WHERE list_id='language' AND option_id='malay';
 #EndIf
 
-#IfMissingColumn categories category_codes
-ALTER TABLE categories ADD COLUMN `codes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Category codes for documents stored in this category';
-UPDATE categories SET codes='LOINC:LP173418-7' WHERE name='Advance Directive';
-UPDATE categories SET codes='LOINC:LP173421-1' WHERE name='FHIR Export Document';
-UPDATE categories SET codes='LOINC:LP173394-0' WHERE name='Reviewed';
-#EndIf
 #IfMissingColumn form_encounter date_end
 ALTER TABLE `form_encounter` ADD `date_end` DATETIME DEFAULT NULL;
 #EndIf
@@ -545,4 +539,11 @@ ALTER TABLE `immunizations` CHANGE `cvx_code` `cvx_code` VARCHAR(64) DEFAULT NUL
 ALTER TABLE `immunizations` ADD `reason_code` varchar(31) DEFAULT NULL;
 ALTER TABLE `immunizations` ADD `reason_description` text;
 ALTER TABLE `immunizations` ADD `reason_status` varchar(31) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn categories codes
+ALTER TABLE categories ADD COLUMN `codes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Category codes for documents stored in this category';
+UPDATE categories SET codes='LOINC:LP173418-7' WHERE name='Advance Directive';
+UPDATE categories SET codes='LOINC:LP173421-1' WHERE name='FHIR Export Document';
+UPDATE categories SET codes='LOINC:LP173394-0' WHERE name='Reviewed';
 #EndIf
