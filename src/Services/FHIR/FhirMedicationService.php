@@ -25,7 +25,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirMedicationService extends FhirServiceBase
+class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     /**
      * @var MedicationService
@@ -160,5 +160,19 @@ class FhirMedicationService extends FhirServiceBase
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    function getProfileURIs(): array
+    {
+        return [
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication'
+        ];
     }
 }
