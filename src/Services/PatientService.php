@@ -760,6 +760,10 @@ class PatientService extends BaseService
 
     private function parseSuffixForPatientRecord($patientRecord)
     {
+        // if we have a suffix populated (that wasn't entered into last name) let's use that.
+        if (!empty($patientRecord['suffix'])) {
+            return $patientRecord['suffix'];
+        }
         // parse suffix from last name. saves messing with LBF
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;
