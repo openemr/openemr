@@ -53,8 +53,8 @@ class EncountermanagerController extends AbstractActionController
             $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         }
 
-        $results = $request->getPost('form_results', 100);
-        $results = ($results > 0) ? $results : 100;
+        $results = $request->getPost('form_results', 500);
+        $results = ($results > 0) ? $results : 500;
         $current_page = $request->getPost('form_current_page', 1);
         $expand_all = $request->getPost('form_expand_all', 0);
         $select_all = $request->getPost('form_select_all', 0);
