@@ -25,7 +25,7 @@ class SMARTSessionTokenContextBuilder
     private $sessionArray;
     public function __construct($sessionArray = array())
     {
-        $this->sessionArray = !empty($sessionArray) ? $sessionArray : $_SESSION;
+        $this->sessionArray = !empty($sessionArray) ? $sessionArray : $_SESSION ?? [];
         $this->logger = new SystemLogger();
     }
 
