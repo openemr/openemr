@@ -540,3 +540,10 @@ ALTER TABLE `immunizations` ADD `reason_code` varchar(31) DEFAULT NULL;
 ALTER TABLE `immunizations` ADD `reason_description` text;
 ALTER TABLE `immunizations` ADD `reason_status` varchar(31) DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn categories codes
+ALTER TABLE categories ADD COLUMN `codes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Category codes for documents stored in this category';
+UPDATE categories SET codes='LOINC:LP173418-7' WHERE name='Advance Directive';
+UPDATE categories SET codes='LOINC:LP173421-1' WHERE name='FHIR Export Document';
+UPDATE categories SET codes='LOINC:LP173394-0' WHERE name='Reviewed';
+#EndIf
