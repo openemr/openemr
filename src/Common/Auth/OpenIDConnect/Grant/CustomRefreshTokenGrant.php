@@ -20,6 +20,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -53,6 +54,10 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
                 try {
                     $decodedContext = \json_decode($context, true);
                     $this->accessTokenRepository->setContextForNewTokens($decodedContext);
+                    if ($responseType instanceof IdTokenSMARTResponse)
+                    {
+                        $responseType->setContextForNewTokens($decodedContext);
+                    }
                 } catch (\Exception $exception) {
                     (new SystemLogger())->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                         , 'tokenId' => $oldRefreshToken['access_token_id']]);
