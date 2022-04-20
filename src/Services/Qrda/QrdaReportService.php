@@ -15,12 +15,7 @@
 
 namespace OpenEMR\Services\Qrda;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
-use GuzzleHttp\Psr7;
-use OpenEMR\Common\System\System;
-use OpenEMR\Cqm\CqmClient;
 use OpenEMR\Cqm\CqmServiceManager;
-use OpenEMR\Cqm\Generator;
 use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
@@ -36,13 +31,16 @@ class QrdaReportService
 
     public function __construct()
     {
+        // first thing, start node service.
+        $this->client = CqmServiceManager::makeCqmClient();
+        $this->client->start();
         $this->builder = new QdmBuilder();
         $this->calculator = new CqmCalculator($this->builder);
         $this->measuresPath = MeasureService::fetchMeasuresPath();
         $this->patientJson = "";
     }
 
-    function fetchCurrentMeasures($scope = 'active')
+    function fetchCurrentMeasures($scope = 'active'): array
     {
         $measures = [];
         $year = trim($GLOBALS['cqm_performance_period'] ?? '2022');
@@ -86,51 +84,7 @@ class QrdaReportService
     }
 
     /**
-     * @return void
-     */
-    public function generateModels()
-    {
-        $generator = new Generator();
-        $generator->execute();
-    }
-
-    /**
-     * @param  $pid
-     * @return array
-     * @throws \Exception
-     */
-    public function generatePatient($pid): array
-    {
-        if ($pid) {
-            $request = new QdmRequestOne($pid);
-        } else {
-            $request = new QdmRequestAll();
-        }
-        $models = $this->builder->build($request) ?? [];
-
-        return $models;
-    }
-
-    /**
-     * @param  $pid
-     * @param  $measure
-     * @param  $effectiveDate
-     * @param  $effectiveEndDate
-     * @return \Psr\Http\Message\StreamInterface|array
-     * @throws \Exception
-     */
-    public function executeMeasure($pid, $measure, $effectiveDate, $effectiveEndDate)
-    {
-        if ($pid) {
-            $request = new QdmRequestOne($pid);
-        } else {
-            $request = new QdmRequestAll();
-        }
-        return $this->calculator->calculateMeasure($request, $measure, $effectiveDate, $effectiveEndDate);
-    }
-
-    /**
-     * @param  $pid
+     * @param       $pid
      * @param array $measures
      * @param array $options
      * @return string
@@ -155,9 +109,15 @@ class QrdaReportService
         } else {
             $request = new QdmRequestAll();
         }
-        $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
-        $xml = $exportService->export($measures, $effectiveDate, $effectiveDateEnd);
 
-        return $xml;
+        if (!empty($this->client->getHealth()['uptime'] ?? null)) {
+            $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
+            $xml = $exportService->export($measures, $effectiveDate, $effectiveDateEnd);
+        } else {
+            $msg = xlt("Can not complete report request. Node Service is not running.");
+            throw new \RuntimeException($msg);
+        }
+
+        return $xml ?? '';
     }
 }
