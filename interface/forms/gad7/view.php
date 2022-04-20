@@ -16,7 +16,6 @@ require_once("gad7.inc.php");  // common strings, require_once(globals.php), oth
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
-/* se Mpdf\Mpdf; /* to generate pdf files*/
 
 $form_folder = "gad7";
 ?>
