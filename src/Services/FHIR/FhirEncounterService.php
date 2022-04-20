@@ -30,7 +30,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService
+class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
@@ -213,5 +213,19 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
     {
         return $this->encounterService->search($searchParam, true, $puuidBind);
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    function getProfileURIs(): array
+    {
+        return [
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter'
+        ];
     }
 }
