@@ -46,6 +46,7 @@ if (!empty($form_code_type)) {
     $default = $allowed_codes[0];
 } elseif (!empty($_REQUEST['default'])) {
     $default = $_REQUEST['default'];
+    $codetype = $default;
 }
 
 // This variable is used to store the html element
