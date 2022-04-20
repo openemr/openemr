@@ -913,6 +913,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             case 'Condition':
                 $description .= xl("conditions including health concerns, problems, and encounter diagnoses");
                 break;
+            case 'Device':
+                $description .= xl("implantable medical device records");
             case 'DiagnosticReport':
                 $description .= xl("diagnostic reports including laboratory,cardiology,radiology, and pathology reports");
                 break;
@@ -950,6 +952,10 @@ class ScopeRepository implements ScopeRepositoryInterface
                 $description .= xl("procedures");
                 break;
             case 'Location':
+                $description .= xl("locations associated with a patient, provider, or organization");
+                break;
+            case 'Provenance':
+                $description .= xl("provenance information (including person(s) responsible for the information, author organizations, and transmitter organizations)");
                 break;
             default:
                 $description .= xl("medical records for this resource type");
