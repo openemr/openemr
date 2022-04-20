@@ -1129,6 +1129,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; //end if prw is activated
 
                     if (AclMain::aclCheckCore('patients', 'disclosure')) :
+                        $authWriteDisclosure = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
+                        $authAddonlyDisclosure = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
                         $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('disclosure'));
                         // disclosures expand collapse widget
                         $id = "disclosures_ps_expand";
@@ -1140,7 +1142,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => 'disclosure_full.php',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
-                            'auth' => AclMain::aclCheckCore('patients', 'disclosure', '', 'write'),
+                            'auth' => ($authWriteDisclosure || $authAddonlyDisclosure),
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
