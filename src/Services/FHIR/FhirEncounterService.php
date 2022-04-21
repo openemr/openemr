@@ -210,8 +210,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         }
         $provenanceService = new FhirProvenanceService();
         $author = null;
-        if (!empty($dataRecord->getParticipant()))
-        {
+        if (!empty($dataRecord->getParticipant())) {
             // grab the first one for author
             $participant = reset($dataRecord->getParticipant());
             $author = $participant->getIndividual() ?? null;

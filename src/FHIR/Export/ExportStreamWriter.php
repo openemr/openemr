@@ -82,8 +82,10 @@ class ExportStreamWriter
             $this->incrementRecordCount();
             $this->lastProcessedId = $resource->getId();
             if ($this->willShutdown()) {
-                (new SystemLogger())->debug("ExportStreamWriter->append() reached shutdown time limit for export",
-                    ['lastProcessedId' => $this->lastProcessedId, 'resource' => $resource->get_fhirElementName()]);
+                (new SystemLogger())->debug(
+                    "ExportStreamWriter->append() reached shutdown time limit for export",
+                    ['lastProcessedId' => $this->lastProcessedId, 'resource' => $resource->get_fhirElementName()]
+                );
 
                 throw new ExportWillShutdownException("Export time has exceeded shutdown limit", 0, $this->lastProcessedId);
             }

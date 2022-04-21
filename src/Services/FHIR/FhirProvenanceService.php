@@ -277,7 +277,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $processingResult;
     }
 
-    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, $service, array $searchParams, $puuidBind = null) {
+    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, $service, array $searchParams, $puuidBind = null)
+    {
         $searchParams['_revinclude'] = 'Provenance:target';
         $serviceResult = $service->getAll($searchParams, $puuidBind);
         // now loop through and grab all of our provenance resources
