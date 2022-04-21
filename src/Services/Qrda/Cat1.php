@@ -16,6 +16,7 @@ use OpenEMR\Services\Qrda\Helpers\Date;
 use OpenEMR\Services\Qrda\Helpers\Frequency;
 use OpenEMR\Services\Qrda\Helpers\PatientView;
 use OpenEMR\Services\Qrda\Helpers\View;
+use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class Cat1 extends \Mustache_Engine
 {
@@ -48,6 +49,8 @@ class Cat1 extends \Mustache_Engine
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
             )
         );
+
+        $this->_qrda_guid = UuidV4::uuid4();
 
         $this->patient = $patient;
         // comes from PatientView trait
