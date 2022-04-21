@@ -79,7 +79,7 @@ class CarecoordinationController extends AbstractActionController
             foreach ($records as $record) {
                 if (!empty($record['matched_patient'])) {
                     // @todo figure out a way to make this auto. $data is array of doc changes.
-                    //$this->getCarecoordinationTable()->insertApprovedData($data);
+                    // $this->getCarecoordinationTable()->insertApprovedData($data);
                     // meantime make user approve changes.
                     continue;
                 }
@@ -100,11 +100,13 @@ class CarecoordinationController extends AbstractActionController
             $time_start = date('Y-m-d H:i:s');
             $obj_doc = $this->documentsController;
             $cdoc = $obj_doc->uploadAction($request);
-            $uploaded_documents = array();
-            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
+            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
+                array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s'))
+            );
             if ($uploaded_documents[0]['id'] > 0) {
                 $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
                 $_REQUEST["batch_import"] = 'YES';
+                // TODO validate error true then remove uploaded doc
                 $this->importAction();
             }
         } else {
@@ -184,8 +186,10 @@ class CarecoordinationController extends AbstractActionController
         }
 
         $document_id = $_REQUEST["document_id"];
-        $this->getCarecoordinationTable()->import($document_id);
-
+        $error = $this->getCarecoordinationTable()->import($document_id);
+        if ($error) {
+            return $error;
+        }
         $view = new JsonModel();
         $view->setTerminal(true);
         return $view;

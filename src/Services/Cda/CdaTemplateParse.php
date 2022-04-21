@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Services\Cda;
 
+use DOMDocument;
 use OpenEMR\Services\CodeTypesService;
 
 class CdaTemplateParse
@@ -180,6 +181,49 @@ class CdaTemplateParse
             error_log('Could not find any QDMs in document!');
         }
         return $this->templateData ?? [];
+    }
+
+    public function validateXmlXsd($document)
+    {
+        libxml_use_internal_errors(true);
+        $dom = new DomDocument();
+        $dom->loadXML($document);
+        $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
+        $result = $dom->schemaValidate($xsd);
+        if ($result) {
+            return true;
+        } else {
+            $errors = libxml_get_errors();
+            foreach ($errors as $error) {
+                 error_log($this->formatXsdError($error));
+            }
+            libxml_clear_errors();
+
+            return false;
+        }
+    }
+
+    private function formatXsdError($error): string
+    {
+        $error_str = "\n";
+        switch ($error->level) {
+            case LIBXML_ERR_WARNING:
+                $error_str .= "Warning $error->code: ";
+                break;
+            case LIBXML_ERR_ERROR:
+                $error_str .= "Error $error->code: ";
+                break;
+            case LIBXML_ERR_FATAL:
+                $error_str .= "Fatal Error $error->code: ";
+                break;
+        }
+        $error_str .= trim($error->message);
+        if ($error->file) {
+            $error_str .=    " in $error->file";
+        }
+        $error_str .= " on line $error->line\n";
+
+        return $error_str;
     }
 
     public function fetchDeceasedObservationData($entry)
@@ -578,7 +622,7 @@ class CdaTemplateParse
                 $this->templateData['field_name_value_array']['immunization'][$i]['reason_code_text'] = $code['code_text'];
                 $this->templateData['field_name_value_array']['immunization'][$i]['reason_description'] = $code['code_text'] ?? $entry['observation']['text'];
                 $date_low = $entry['substanceAdministration']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? null;
-                $date_high = $entry['substanceAdministration']['entryRelationship']['observation']['effectiveTime']['high']['value'];
+                $date_high = $entry['substanceAdministration']['entryRelationship']['observation']['effectiveTime']['high']['value'] ?? null;
                 $this->templateData['field_name_value_array']['immunization'][$i]['reason_date_low'] = $date_low;
                 $this->templateData['field_name_value_array']['immunization'][$i]['reason_date_high'] = $date_high;
             }

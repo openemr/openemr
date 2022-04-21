@@ -1,0 +1,1587 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema targetNamespace="urn:hl7-org:v3" xmlns:mif="urn:hl7-org:v3/mif" xmlns="urn:hl7-org:v3" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified" xmlns:sdtc="urn:hl7-org:sdtc">
+  <xs:annotation>
+    <xs:documentation>XML schema for message type POCD_MT000040.</xs:documentation>
+    <xs:documentation>
+      Copyright (c) 2015 Health Level Seven.
+      All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or
+      without modification, are permitted provided that the following
+      conditions are met:
+      1. Redistributions of source code must retain the above
+      copyright notice, this list of conditions and the following
+      disclaimer.
+      2. Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials
+      provided with the distribution.
+      3. All advertising materials mentioning features or use of this
+      software must display the following acknowledgement:
+      
+      This product includes software developed by Health Level Seven.
+      
+      THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS
+      ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+      NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+      FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT
+      SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+      INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+      GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+      INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+      WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+      NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+      DAMAGE.
+    </xs:documentation>
+    <xs:documentation>
+      2012-07-06  Created POCD_MT000040_SDTC.xsd (this file) this file is an edited version of POCD_MT000040.xsd that contains the SDTC extensions.
+    </xs:documentation>
+    <xs:documentation>
+      2012-07-06 Added extensions approved by SDWG prior to 2012-07-06: 
+                    RelatedSubject/sdtc:id,
+                    SubjectPerson/sdtc:id,
+                    Patient/sdtc:deceasedInd,
+                    SubjectPerson/sdtc:deceasedInd,
+                    Patient/sdtc:deceasedTime, 
+                    SubjectPerson/sdtc:deceasedTime,
+                    Encounter/sdtc:dischargeDispositionCode,
+                    Patient/sdtc:raceCode,
+                    SubjectPerson/sdtc:raceCode,
+                    PlayingEntity/sdtc:birthTime
+    </xs:documentation>
+    <xs:documentation>
+      2014-07-14 Added extensions approved by SDWG on xxxx date:
+                    Authenticator/sdtc:signatureText,
+                    LegalAuthenticator/sdtc:signatureText
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 Added extensions approved by SDWG on 2014-11-xx:
+                    Patient/sdtc:multipleBirthInd,
+                    SubjectPerson/sdtc:multipleBirthInd,
+                    Patient/sdtc:multipleBirthOrderNumber,
+                    SubjectPerson/sdtc:multipleBirthOrderNumber
+                 Added extensions approved by SDWG on 2014-12-18:
+                    Patient/sdtc:ethnicGroupCode,
+                    SubjectPerson/sdtc:ethnicGroupCode         
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 Added extension approved by SDWG on 2014-01-xx:
+                    ClinicalDocument/sdtc:statusCode
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 Added extension approved by SDWG on 2015-03-05:
+                    Patient/sdtc:desc
+                    SubjectPerson/sdtc:desc
+                    Person/sdtc:desc
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 Added extension approved by SDWG on 2015-03-05:
+                    AssignedEntity/sdtc:patient
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 Added extension approved by SDWG on 2015-03-19:
+                    Observation/sdtc:inFulfillmentOf1
+                    SubstanceAdministration/sdtc:inFulfillmentOf1
+                    Supply/sdtc:inFulfillmentOf1
+                    Procedure/sdtc:inFulfillmentOf1
+                    Encounter/sdtc:inFulfillmentOf1
+                    Act/sdtc:inFulfillmentOf1
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 Added extension approved by SDWG on 2015-03-05:
+                 Person/sdtc:asPatientRelationship
+    </xs:documentation>
+    <xs:documentation>
+          2016-05-12 Added extension approved by SDWG on 2016-01-28
+                     Component4/priorityNumber
+      </xs:documentation>
+    <xs:documentation>
+        2017-10-10  Added extension approved by SDWG on 2017-05-17
+                      Participant2/functionCode
+                      Performer2/functionCode
+      </xs:documentation>
+
+    <xs:documentation>
+        2018-07-09  Added extension approved by SDWG on 2018-06-28
+                      ObservationRange/sdtc:precondition1
+      </xs:documentation>
+
+    <xs:documentation>
+        2019-04-14  Added extension approved by SDWG in 2018-11
+        Organizer/sdtc:text
+      </xs:documentation>
+
+    <xs:documentation>
+        2019-08-06  Extensions created for Form Definition Document IG include: 
+            precondition
+      </xs:documentation>
+    <xs:documentation>
+      2020-10-12
+      Added alternateIdentification extension approved by SDWG on 2020-09
+      Fix missing sdtc: prefix on functionCode approved by SDWG on 2020-10
+    </xs:documentation>
+
+  </xs:annotation>
+  <xs:include schemaLocation="../../processable/coreschemas/datatypes.xsd" />
+  <xs:include schemaLocation="../../processable/coreschemas/voc.xsd" />
+  <xs:include schemaLocation="../../processable/coreschemas/NarrativeBlock.xsd" />
+  <!-- Added SDTC namespace which holds the SDTC extensions -->
+  <xs:import namespace="urn:hl7-org:sdtc" schemaLocation="SDTC.xsd" />
+  <xs:complexType name="POCD_MT000040.InfrastructureRoot.typeId">
+    <xs:complexContent>
+      <xs:restriction base="II">
+        <xs:attribute name="root" type="uid" use="required" fixed="2.16.840.1.113883.1.3" />
+        <xs:attribute name="extension" type="st" use="required" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Act">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="priorityCode" type="CE" minOccurs="0" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition2" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:inFulfillmentOf1" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="x_ActClassDocumentEntryAct" use="required" />
+    <xs:attribute name="moodCode" type="x_DocumentActMood" use="required" />
+    <xs:attribute name="negationInd" type="bl" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.AssignedAuthor">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:choice>
+        <xs:element name="assignedPerson" type="POCD_MT000040.Person" minOccurs="0" />
+        <xs:element name="assignedAuthoringDevice" type="POCD_MT000040.AuthoringDevice" minOccurs="0" />
+      </xs:choice>
+      <xs:element name="representedOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassAssignedEntity" use="optional" fixed="ASSIGNED" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.AssignedCustodian">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="representedCustodianOrganization" type="POCD_MT000040.CustodianOrganization" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassAssignedEntity" use="optional" fixed="ASSIGNED" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.AssignedEntity">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="assignedPerson" type="POCD_MT000040.Person" minOccurs="0" />
+      <xs:element name="representedOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:patient" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassAssignedEntity" use="optional" fixed="ASSIGNED" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.AssociatedEntity">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="associatedPerson" type="POCD_MT000040.Person" minOccurs="0" />
+      <xs:element name="scopingOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassAssociative" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Authenticator">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="time" type="TS" />
+      <xs:element name="signatureCode" type="CS" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:signatureText" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="AUTHEN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Author">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="functionCode" type="CE" minOccurs="0" />
+      <xs:element name="time" type="TS" />
+      <xs:element name="assignedAuthor" type="POCD_MT000040.AssignedAuthor" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="AUT" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.AuthoringDevice">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="manufacturerModelName" type="SC" minOccurs="0" />
+      <xs:element name="softwareName" type="SC" minOccurs="0" />
+      <xs:element name="asMaintainedEntity" type="POCD_MT000040.MaintainedEntity" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassDevice" use="optional" fixed="DEV" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Authorization">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="consent" type="POCD_MT000040.Consent" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipType" use="optional" fixed="AUTH" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Birthplace">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="place" type="POCD_MT000040.Place" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClass" use="optional" fixed="BIRTHPL" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ClinicalDocument">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" />
+      <xs:element name="code" type="CE" />
+      <xs:element name="title" type="ST" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:statusCode" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="effectiveTime" type="TS" />
+      <xs:element name="confidentialityCode" type="CE" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="setId" type="II" minOccurs="0" />
+      <xs:element name="versionNumber" type="INT" minOccurs="0" />
+      <xs:element name="copyTime" type="TS" minOccurs="0" />
+      <xs:element name="recordTarget" type="POCD_MT000040.RecordTarget" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" maxOccurs="unbounded" />
+      <xs:element name="dataEnterer" type="POCD_MT000040.DataEnterer" minOccurs="0" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="custodian" type="POCD_MT000040.Custodian" />
+      <xs:element name="informationRecipient" type="POCD_MT000040.InformationRecipient" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="legalAuthenticator" type="POCD_MT000040.LegalAuthenticator" minOccurs="0" />
+      <xs:element name="authenticator" type="POCD_MT000040.Authenticator" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant1" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="inFulfillmentOf" type="POCD_MT000040.InFulfillmentOf" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="documentationOf" type="POCD_MT000040.DocumentationOf" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="relatedDocument" type="POCD_MT000040.RelatedDocument" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="authorization" type="POCD_MT000040.Authorization" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="componentOf" type="POCD_MT000040.Component1" minOccurs="0" />
+      <xs:element name="component" type="POCD_MT000040.Component2" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClinicalDocument" use="optional" fixed="DOCCLIN" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Component1">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="encompassingEncounter" type="POCD_MT000040.EncompassingEncounter" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipHasComponent" use="optional" fixed="COMP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Component2">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:choice>
+        <xs:element name="nonXMLBody" type="POCD_MT000040.NonXMLBody" />
+        <xs:element name="structuredBody" type="POCD_MT000040.StructuredBody" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipHasComponent" use="optional" fixed="COMP" />
+    <xs:attribute name="contextConductionInd" type="bl" use="optional" fixed="true" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Component3">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="section" type="POCD_MT000040.Section" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipHasComponent" use="optional" fixed="COMP" />
+    <xs:attribute name="contextConductionInd" type="bl" use="optional" fixed="true" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Component4">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="sequenceNumber" type="INT" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:priorityNumber" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="seperatableInd" type="BL" minOccurs="0" />
+      <xs:choice>
+        <xs:element name="act" type="POCD_MT000040.Act" />
+        <xs:element name="encounter" type="POCD_MT000040.Encounter" />
+        <xs:element name="observation" type="POCD_MT000040.Observation" />
+        <xs:element name="observationMedia" type="POCD_MT000040.ObservationMedia" />
+        <xs:element name="organizer" type="POCD_MT000040.Organizer" />
+        <xs:element name="procedure" type="POCD_MT000040.Procedure" />
+        <xs:element name="regionOfInterest" type="POCD_MT000040.RegionOfInterest" />
+        <xs:element name="substanceAdministration" type="POCD_MT000040.SubstanceAdministration" />
+        <xs:element name="supply" type="POCD_MT000040.Supply" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipHasComponent" use="optional" fixed="COMP" />
+    <xs:attribute name="contextConductionInd" type="bl" use="optional" fixed="true" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Component5">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="section" type="POCD_MT000040.Section" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipHasComponent" use="optional" fixed="COMP" />
+    <xs:attribute name="contextConductionInd" type="bl" use="optional" fixed="true" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Consent">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="optional" fixed="CONS" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Consumable">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="manufacturedProduct" type="POCD_MT000040.ManufacturedProduct" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="CSM" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Criterion">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="value" type="ANY" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassObservation" use="optional" default="OBS" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN.CRT" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Custodian">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="assignedCustodian" type="POCD_MT000040.AssignedCustodian" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="CST" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.CustodianOrganization">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" maxOccurs="unbounded" />
+      <xs:element name="name" type="ON" minOccurs="0" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassOrganization" use="optional" fixed="ORG" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.DataEnterer">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="time" type="TS" minOccurs="0" />
+      <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="ENT" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Device">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="manufacturerModelName" type="SC" minOccurs="0" />
+      <xs:element name="softwareName" type="SC" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassDevice" use="optional" default="DEV" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.DocumentationOf">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="serviceEvent" type="POCD_MT000040.ServiceEvent" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipType" use="optional" fixed="DOC" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.EncompassingEncounter">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="effectiveTime" type="IVL_TS" />
+      <xs:element name="dischargeDispositionCode" type="CE" minOccurs="0" />
+      <xs:element name="responsibleParty" type="POCD_MT000040.ResponsibleParty" minOccurs="0" />
+      <xs:element name="encounterParticipant" type="POCD_MT000040.EncounterParticipant" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="location" type="POCD_MT000040.Location" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="optional" fixed="ENC" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Encounter">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:dischargeDispositionCode" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="priorityCode" type="CE" minOccurs="0" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition2" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:inFulfillmentOf1" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="required" />
+    <xs:attribute name="moodCode" type="x_DocumentEncounterMood" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.EncounterParticipant">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="time" type="IVL_TS" minOccurs="0" />
+      <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="x_EncounterParticipant" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Entity">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="desc" type="ED" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassRoot" use="optional" default="ENT" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Entry">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:choice>
+        <xs:element name="act" type="POCD_MT000040.Act" />
+        <xs:element name="encounter" type="POCD_MT000040.Encounter" />
+        <xs:element name="observation" type="POCD_MT000040.Observation" />
+        <xs:element name="observationMedia" type="POCD_MT000040.ObservationMedia" />
+        <xs:element name="organizer" type="POCD_MT000040.Organizer" />
+        <xs:element name="procedure" type="POCD_MT000040.Procedure" />
+        <xs:element name="regionOfInterest" type="POCD_MT000040.RegionOfInterest" />
+        <xs:element name="substanceAdministration" type="POCD_MT000040.SubstanceAdministration" />
+        <xs:element name="supply" type="POCD_MT000040.Supply" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="x_ActRelationshipEntry" use="optional" default="COMP" />
+    <xs:attribute name="contextConductionInd" type="bl" use="optional" fixed="true" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.EntryRelationship">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="sequenceNumber" type="INT" minOccurs="0" />
+      <xs:element name="seperatableInd" type="BL" minOccurs="0" />
+      <xs:choice>
+        <xs:element name="act" type="POCD_MT000040.Act" />
+        <xs:element name="encounter" type="POCD_MT000040.Encounter" />
+        <xs:element name="observation" type="POCD_MT000040.Observation" />
+        <xs:element name="observationMedia" type="POCD_MT000040.ObservationMedia" />
+        <xs:element name="organizer" type="POCD_MT000040.Organizer" />
+        <xs:element name="procedure" type="POCD_MT000040.Procedure" />
+        <xs:element name="regionOfInterest" type="POCD_MT000040.RegionOfInterest" />
+        <xs:element name="substanceAdministration" type="POCD_MT000040.SubstanceAdministration" />
+        <xs:element name="supply" type="POCD_MT000040.Supply" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="x_ActRelationshipEntryRelationship" use="required" />
+    <xs:attribute name="inversionInd" type="bl" use="optional" />
+    <xs:attribute name="contextConductionInd" type="bl" use="optional" default="true" />
+    <xs:attribute name="negationInd" type="bl" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ExternalAct">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassRoot" use="optional" default="ACT" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ExternalDocument">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="setId" type="II" minOccurs="0" />
+      <xs:element name="versionNumber" type="INT" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassDocument" use="optional" default="DOC" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ExternalObservation">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassObservation" use="optional" default="OBS" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ExternalProcedure">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="optional" fixed="PROC" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Guardian">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:choice>
+        <xs:element name="guardianPerson" type="POCD_MT000040.Person" />
+        <xs:element name="guardianOrganization" type="POCD_MT000040.Organization" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClass" use="optional" fixed="GUARD" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.HealthCareFacility">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="location" type="POCD_MT000040.Place" minOccurs="0" />
+      <xs:element name="serviceProviderOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassServiceDeliveryLocation" use="optional" default="SDLOC" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Informant12">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:choice>
+        <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+        <xs:element name="relatedEntity" type="POCD_MT000040.RelatedEntity" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="INF" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.InformationRecipient">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="intendedRecipient" type="POCD_MT000040.IntendedRecipient" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="x_InformationRecipient" use="optional" default="PRCP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.InFulfillmentOf">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="order" type="POCD_MT000040.Order" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipFulfills" use="optional" fixed="FLFS" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.IntendedRecipient">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informationRecipient" type="POCD_MT000040.Person" minOccurs="0" />
+      <xs:element name="receivedOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="x_InformationRecipientRole" use="optional" default="ASSIGNED" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.LabeledDrug">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="name" type="EN" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassManufacturedMaterial" use="optional" fixed="MMAT" />
+    <xs:attribute name="determinerCode" type="EntityDeterminerDetermined" use="optional" fixed="KIND" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.LanguageCommunication">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="modeCode" type="CE" minOccurs="0" />
+      <xs:element name="proficiencyLevelCode" type="CE" minOccurs="0" />
+      <xs:element name="preferenceInd" type="BL" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.LegalAuthenticator">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="time" type="TS" />
+      <xs:element name="signatureCode" type="CS" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:signatureText" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="LA" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Location">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="healthCareFacility" type="POCD_MT000040.HealthCareFacility" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationTargetLocation" use="optional" fixed="LOC" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.MaintainedEntity">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="maintainingPerson" type="POCD_MT000040.Person" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClass" use="optional" fixed="MNT" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ManufacturedProduct">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:choice>
+        <xs:element name="manufacturedLabeledDrug" type="POCD_MT000040.LabeledDrug" />
+        <xs:element name="manufacturedMaterial" type="POCD_MT000040.Material" />
+      </xs:choice>
+      <xs:element name="manufacturerOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassManufacturedProduct" use="optional" fixed="MANU" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Material">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="name" type="EN" minOccurs="0" />
+      <xs:element name="lotNumberText" type="ST" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassManufacturedMaterial" use="optional" fixed="MMAT" />
+    <xs:attribute name="determinerCode" type="EntityDeterminerDetermined" use="optional" fixed="KIND" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.NonXMLBody">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="text" type="ED" />
+      <xs:element name="confidentialityCode" type="CE" minOccurs="0" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="optional" fixed="DOCBODY" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Observation">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" />
+      <xs:element name="derivationExpr" type="ST" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="priorityCode" type="CE" minOccurs="0" />
+      <xs:element name="repeatNumber" type="IVL_INT" minOccurs="0" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="value" type="ANY" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="interpretationCode" type="CE" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="methodCode" type="CE" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="targetSiteCode" type="CD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition2" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="referenceRange" type="POCD_MT000040.ReferenceRange" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:inFulfillmentOf1" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassObservation" use="required" />
+    <xs:attribute name="moodCode" type="x_ActMoodDocumentObservation" use="required" />
+    <xs:attribute name="negationInd" type="bl" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ObservationMedia">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="value" type="ED" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition2" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:ID" />
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassObservation" use="required" />
+    <xs:attribute name="moodCode" type="ActMood" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ObservationRange">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="value" type="ANY" minOccurs="0" />
+      <xs:element name="interpretationCode" type="CE" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition1" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassObservation" use="optional" default="OBS" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN.CRT" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Order">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="priorityCode" type="CE" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassRoot" use="optional" default="ACT" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="RQO" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Organization">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="name" type="ON" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="standardIndustryClassCode" type="CE" minOccurs="0" />
+      <xs:element name="asOrganizationPartOf" type="POCD_MT000040.OrganizationPartOf" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassOrganization" use="optional" fixed="ORG" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.OrganizationPartOf">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="wholeOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClass" use="optional" fixed="PART" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Organizer">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:text" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="statusCode" type="CS" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition2" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="component" type="POCD_MT000040.Component4" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="x_ActClassDocumentEntryOrganizer" use="required" />
+    <xs:attribute name="moodCode" type="ActMood" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ParentDocument">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="setId" type="II" minOccurs="0" />
+      <xs:element name="versionNumber" type="INT" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClinicalDocument" use="optional" fixed="DOCCLIN" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Participant1">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="functionCode" type="CE" minOccurs="0" />
+      <xs:element name="time" type="IVL_TS" minOccurs="0" />
+      <xs:element name="associatedEntity" type="POCD_MT000040.AssociatedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="required" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Participant2">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:functionCode" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="time" type="IVL_TS" minOccurs="0" />
+      <xs:element name="awarenessCode" type="CE" minOccurs="0" />
+      <xs:element name="participantRole" type="POCD_MT000040.ParticipantRole" />
+
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="required" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ParticipantRole">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:choice>
+        <xs:element name="playingDevice" type="POCD_MT000040.Device" minOccurs="0" />
+        <xs:element name="playingEntity" type="POCD_MT000040.PlayingEntity" minOccurs="0" />
+      </xs:choice>
+      <xs:element name="scopingEntity" type="POCD_MT000040.Entity" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassRoot" use="optional" default="ROL" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Patient">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" />
+      <xs:element name="name" type="PN" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:desc" minOccurs="0" maxOccurs="1" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="administrativeGenderCode" type="CE" minOccurs="0" />
+      <xs:element name="birthTime" type="TS" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:deceasedInd" minOccurs="0" />
+      <xs:element ref="sdtc:deceasedTime" minOccurs="0" />
+      <xs:element ref="sdtc:multipleBirthInd" minOccurs="0" />
+      <xs:element ref="sdtc:multipleBirthOrderNumber" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="maritalStatusCode" type="CE" minOccurs="0" />
+      <xs:element name="religiousAffiliationCode" type="CE" minOccurs="0" />
+      <xs:element name="raceCode" type="CE" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:raceCode" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="ethnicGroupCode" type="CE" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:ethnicGroupCode" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="guardian" type="POCD_MT000040.Guardian" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="birthplace" type="POCD_MT000040.Birthplace" minOccurs="0" />
+      <xs:element name="languageCommunication" type="POCD_MT000040.LanguageCommunication" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClass" use="optional" fixed="PSN" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.PatientRole">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="patient" type="POCD_MT000040.Patient" minOccurs="0" />
+      <xs:element name="providerOrganization" type="POCD_MT000040.Organization" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClass" use="optional" fixed="PAT" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Performer1">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="functionCode" type="CE" minOccurs="0" />
+      <xs:element name="time" type="IVL_TS" minOccurs="0" />
+      <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="x_ServiceEventPerformer" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Performer2">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:functionCode" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="time" type="IVL_TS" minOccurs="0" />
+      <xs:element name="modeCode" type="CE" minOccurs="0" />
+      <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationPhysicalPerformer" use="optional" fixed="PRF" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Person">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="name" type="PN" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:desc" minOccurs="0" />
+      <xs:element ref="sdtc:asPatientRelationship" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClass" use="optional" fixed="PSN" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Place">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="name" type="EN" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassPlace" use="optional" fixed="PLC" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.PlayingEntity">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="quantity" type="PQ" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="name" type="PN" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:birthTime" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="desc" type="ED" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClassRoot" use="optional" default="ENT" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Precondition">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="criterion" type="POCD_MT000040.Criterion" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipType" use="optional" fixed="PRCN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Procedure">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="priorityCode" type="CE" minOccurs="0" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="methodCode" type="CE" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="approachSiteCode" type="CD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="targetSiteCode" type="CD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition2" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:inFulfillmentOf1" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="required" />
+    <xs:attribute name="moodCode" type="x_DocumentProcedureMood" use="required" />
+    <xs:attribute name="negationInd" type="bl" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Product">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="manufacturedProduct" type="POCD_MT000040.ManufacturedProduct" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="PRD" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.RecordTarget">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="patientRole" type="POCD_MT000040.PatientRole" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="RCT" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Reference">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="seperatableInd" type="BL" minOccurs="0" />
+      <xs:choice>
+        <xs:element name="externalAct" type="POCD_MT000040.ExternalAct" />
+        <xs:element name="externalObservation" type="POCD_MT000040.ExternalObservation" />
+        <xs:element name="externalProcedure" type="POCD_MT000040.ExternalProcedure" />
+        <xs:element name="externalDocument" type="POCD_MT000040.ExternalDocument" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="x_ActRelationshipExternalReference" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ReferenceRange">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="observationRange" type="POCD_MT000040.ObservationRange" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ActRelationshipType" use="optional" fixed="REFV" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.RegionOfInterest.value">
+    <xs:complexContent>
+      <xs:extension base="INT">
+        <xs:attribute name="unsorted" type="xs:boolean" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.RegionOfInterest">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" maxOccurs="unbounded" />
+      <xs:element name="code" type="CS" />
+      <xs:element name="value" type="POCD_MT000040.RegionOfInterest.value" maxOccurs="unbounded" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:precondition2" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:ID" />
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="required" fixed="ROIOVL" />
+    <xs:attribute name="moodCode" type="ActMood" use="required" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.RelatedDocument">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="parentDocument" type="POCD_MT000040.ParentDocument" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="x_ActRelationshipDocument" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.RelatedEntity">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="relatedPerson" type="POCD_MT000040.Person" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassMutualRelationship" use="required" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.RelatedSubject">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:id" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="addr" type="AD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="telecom" type="TEL" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="subject" type="POCD_MT000040.SubjectPerson" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="x_DocumentSubject" use="optional" default="PRS" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ResponsibleParty">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="assignedEntity" type="POCD_MT000040.AssignedEntity" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="RESP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Section">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="title" type="ST" minOccurs="0" />
+      <xs:element name="text" type="StrucDoc.Text" minOccurs="0" />
+      <xs:element name="confidentialityCode" type="CE" minOccurs="0" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entry" type="POCD_MT000040.Entry" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="component" type="POCD_MT000040.Component5" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:ID" />
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="optional" fixed="DOCSECT" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.ServiceEvent">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CE" minOccurs="0" />
+      <xs:element name="effectiveTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="performer" type="POCD_MT000040.Performer1" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassRoot" use="optional" default="ACT" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Specimen">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="specimenRole" type="POCD_MT000040.SpecimenRole" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationType" use="optional" fixed="SPC" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.SpecimenRole">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:identifiedBy" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="specimenPlayingEntity" type="POCD_MT000040.PlayingEntity" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="RoleClassSpecimen" use="optional" fixed="SPEC" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.StructuredBody">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="confidentialityCode" type="CE" minOccurs="0" />
+      <xs:element name="languageCode" type="CS" minOccurs="0" />
+      <xs:element name="component" type="POCD_MT000040.Component3" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="optional" fixed="DOCBODY" />
+    <xs:attribute name="moodCode" type="ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Subject">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="awarenessCode" type="CE" minOccurs="0" />
+      <xs:element name="relatedSubject" type="POCD_MT000040.RelatedSubject" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="ParticipationTargetSubject" use="optional" fixed="SBJ" />
+    <xs:attribute name="contextControlCode" type="ContextControl" use="optional" fixed="OP" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.SubjectPerson">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:id" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="name" type="PN" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:desc" minOccurs="0" maxOccurs="1" />
+      <!-- End Extension: (SDTC) -->
+      <xs:element name="administrativeGenderCode" type="CE" minOccurs="0" />
+      <xs:element name="birthTime" type="TS" minOccurs="0" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:deceasedInd" minOccurs="0" />
+      <xs:element ref="sdtc:deceasedTime" minOccurs="0" />
+      <xs:element ref="sdtc:multipleBirthInd" minOccurs="0" />
+      <xs:element ref="sdtc:multipleBirthOrderNumber" minOccurs="0" />
+      <!-- End Extension: (SDTC) -->
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:raceCode" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:ethnicGroupCode" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="EntityClass" use="optional" fixed="PSN" />
+    <xs:attribute name="determinerCode" type="EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.SubstanceAdministration">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="SXCM_TS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="priorityCode" type="CE" minOccurs="0" />
+      <xs:element name="repeatNumber" type="IVL_INT" minOccurs="0" />
+      <xs:element name="routeCode" type="CE" minOccurs="0" />
+      <xs:element name="approachSiteCode" type="CD" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="doseQuantity" type="IVL_PQ" minOccurs="0" />
+      <xs:element name="rateQuantity" type="IVL_PQ" minOccurs="0" />
+      <xs:element name="maxDoseQuantity" type="RTO_PQ_PQ" minOccurs="0" />
+      <xs:element name="administrationUnitCode" type="CE" minOccurs="0" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="consumable" type="POCD_MT000040.Consumable" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:inFulfillmentOf1" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClass" use="required" fixed="SBADM" />
+    <xs:attribute name="moodCode" type="x_DocumentSubstanceMood" use="required" />
+    <xs:attribute name="negationInd" type="bl" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="POCD_MT000040.Supply">
+    <xs:sequence>
+      <xs:element name="realmCode" type="CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="CD" minOccurs="0" />
+      <xs:element name="text" type="ED" minOccurs="0" />
+      <xs:element name="statusCode" type="CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="SXCM_TS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="priorityCode" type="CE" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="repeatNumber" type="IVL_INT" minOccurs="0" />
+      <xs:element name="independentInd" type="BL" minOccurs="0" />
+      <xs:element name="quantity" type="PQ" minOccurs="0" />
+      <xs:element name="expectedUseTime" type="IVL_TS" minOccurs="0" />
+      <xs:element name="subject" type="POCD_MT000040.Subject" minOccurs="0" />
+      <xs:element name="specimen" type="POCD_MT000040.Specimen" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="product" type="POCD_MT000040.Product" minOccurs="0" />
+      <xs:element name="performer" type="POCD_MT000040.Performer2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="author" type="POCD_MT000040.Author" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="informant" type="POCD_MT000040.Informant12" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="participant" type="POCD_MT000040.Participant2" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entryRelationship" type="POCD_MT000040.EntryRelationship" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="reference" type="POCD_MT000040.Reference" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="precondition" type="POCD_MT000040.Precondition" minOccurs="0" maxOccurs="unbounded" />
+      <!-- Begin Extension: (SDTC) -->
+      <xs:element ref="sdtc:inFulfillmentOf1" minOccurs="0" maxOccurs="unbounded" />
+      <!-- End Extension: (SDTC) -->
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional" />
+    <xs:attribute name="classCode" type="ActClassSupply" use="required" fixed="SPLY" />
+    <xs:attribute name="moodCode" type="x_DocumentSubstanceMood" use="required" />
+  </xs:complexType>
+</xs:schema>
