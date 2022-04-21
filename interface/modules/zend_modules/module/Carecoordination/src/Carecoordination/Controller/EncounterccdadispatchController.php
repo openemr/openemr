@@ -95,8 +95,8 @@ class EncounterccdadispatchController extends AbstractActionController
             'performance_period_end' => $this->getRequest()->getQuery('form_date_to') ?? null
         ];*/
         $qrda_options = [
-            'performance_period_start' => "2020-01-01 00:00:00",
-            'performance_period_end' => "2020-12-31 23:59:59"
+            'performance_period_start' => "2022-01-01 00:00:00",
+            'performance_period_end' => "2022-12-31 23:59:59"
         ];
 
         // QRDA I user view html version
