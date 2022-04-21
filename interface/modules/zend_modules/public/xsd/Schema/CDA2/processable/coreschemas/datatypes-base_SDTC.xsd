@@ -1,0 +1,1856 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:sch="http://www.ascc.net/xml/schematron" xmlns:sdtc="urn:hl7-org:sdtc" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:import namespace="urn:hl7-org:sdtc" schemaLocation="../../infrastructure/cda/SDTC.xsd" />
+  <xs:annotation>
+    <xs:documentation>XML schema for message type POCD_MT000040.</xs:documentation>
+    <xs:documentation>
+    Copyright (c) 2015 Health Level Seven.
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or
+    without modification, are permitted provided that the following
+    conditions are met:
+    1. Redistributions of source code must retain the above
+    copyright notice, this list of conditions and the following
+    disclaimer.
+    2. Redistributions in binary form must reproduce the above
+    copyright notice, this list of conditions and the following
+    disclaimer in the documentation and/or other materials
+    provided with the distribution.
+    3. All advertising materials mentioning features or use of this
+    software must display the following acknowledgement:
+    
+    This product includes software developed by Health Level Seven.
+    
+    THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS
+    ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+    NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+    FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT
+    SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+    INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+    DAMAGE.
+    </xs:documentation>
+
+    <xs:documentation>
+      2012-07-06 Created datatypes-base_SDTC.xsd (this file) this file is an edited version of datatypes-base.xsd that contains the SDTC extensions.
+    </xs:documentation>
+    <xs:documentation>
+      2012-07-06 Added extensions approved by SDWG prior to 2012-07-06: 
+                  valueSet, 
+                  valuesetVersion
+    </xs:documentation>
+    <xs:documentation>
+      2015-12-26 Commented out Schematron validation rule on II datatype
+    </xs:documentation>
+    <xs:documentation>
+      2017-10-10  Fixed ED datatype bug approved by SD on 2017-09-13 to allow other content in ED
+    </xs:documentation>
+  </xs:annotation>
+  <xs:include schemaLocation="voc.xsd" />
+  <xs:complexType name="ANY" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+            Defines the basic properties of every data value. This
+            is an abstract type, meaning that no value can be just
+            a data value without belonging to any concrete type.
+            Every concrete type is a specialization of this
+            general abstract DataValue type.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="nullFlavor" type="NullFlavor" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+               An exceptional value expressing missing information
+               and possibly the reason why the information is missing.
+            </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:simpleType name="bl">
+    <xs:annotation>
+      <xs:documentation>
+            The Boolean type stands for the values of two-valued logic.
+            A Boolean value can be either true or
+            false, or, as any other value may be NULL.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:boolean">
+      <xs:pattern value="true|false" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="BL">
+    <xs:annotation>
+      <xs:documentation>
+            The Boolean type stands for the values of two-valued logic.
+            A Boolean value can be either true or
+            false, or, as any other value may be NULL.
+         </xs:documentation>
+      <xs:appinfo>
+        <sch:pattern name="validate BL">
+          <sch:rule abstract="true" id="rule-BL">
+            <sch:report test="(@nullFlavor or @value) and not(@nullFlavor and @value)" />
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:attribute name="value" use="optional" type="bl" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="bn">
+    <xs:annotation>
+      <xs:documentation>
+            The BooleanNonNull type is used where a Boolean cannot
+            have a null value. A Boolean value can be either
+            true or false.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="bl" />
+  </xs:simpleType>
+  <xs:complexType name="ANYNonNull">
+    <xs:annotation>
+      <xs:documentation>
+            The BooleanNonNull type is used where a Boolean cannot
+            have a null value. A Boolean value can be either
+            true or false.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="ANY">
+        <xs:attribute name="nullFlavor" type="NullFlavor" use="prohibited" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="BN">
+    <xs:annotation>
+      <xs:documentation>
+            The BooleanNonNull type is used where a Boolean cannot
+            have a null value. A Boolean value can be either
+            true or false.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANYNonNull">
+        <xs:attribute name="value" use="optional" type="bn" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="BIN" abstract="true" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            Binary data is a raw block of bits. Binary data is a
+            protected type that MUST not be used outside the data
+            type specification.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:attribute name="representation" use="optional" type="BinaryDataEncoding" default="TXT">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies the representation of the binary data that
+                     is the content of the binary data value.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="bin">
+    <xs:annotation>
+      <xs:documentation>
+            Binary data is a raw block of bits. Binary data is a
+            protected type that MUST not be used outside the data
+            type specification.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:base64Binary" />
+  </xs:simpleType>
+  <xs:simpleType name="BinaryDataEncoding">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="B64" />
+      <xs:enumeration value="TXT" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ED" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            Data that is primarily intended for human interpretation
+            or for further machine processing is outside the scope of
+            HL7. This includes unformatted or formatted written language,
+            multimedia data, or structured information as defined by a
+            different standard (e.g., XML-signatures.)  Instead of the
+            data itself, an ED may contain 
+            only a reference (see TEL.) Note
+            that the ST data type is a
+            specialization of 
+            when the  is text/plain.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="BIN">
+        <xs:sequence>
+          <xs:element name="reference" type="TEL" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation>
+                        A telecommunication address (TEL), such as a URL
+                        for HTTP or FTP, which will resolve to precisely
+                        the same binary data that could as well have been
+                        provided as inline data.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="thumbnail" minOccurs="0" maxOccurs="1" type="thumbnail" />
+          <!-- Begin Schema Fix: Added to fix Schema to allow XML/XHTML content in ED data type -->
+          <xs:any minOccurs="0" namespace="##other" processContents="skip" />
+          <!-- End Schema Fix: Added to fix Schema to allow XML/XHTML content in ED data type -->
+        </xs:sequence>
+        <xs:attribute name="mediaType" type="cs" use="optional" default="text/plain">
+          <xs:annotation>
+            <xs:documentation>
+                     Identifies the type of the encapsulated data and
+                     identifies a method to interpret or render the data.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="language" type="cs" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     For character based information the language property
+                     specifies the human language of the text.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="compression" type="CompressionAlgorithm" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     Indicates whether the raw byte data is compressed,
+                     and what compression algorithm was used.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="integrityCheck" type="bin" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The integrity check is a short binary value representing
+                     a cryptographically strong checksum that is calculated
+                     over the binary data. The purpose of this property, when
+                     communicated with a reference is for anyone to validate
+                     later whether the reference still resolved to the same
+                     data that the reference resolved to when the encapsulated
+                     data value with reference was created.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="integrityCheckAlgorithm" type="IntegrityCheckAlgorithm" use="optional" default="SHA-1">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies the algorithm used to compute the
+                     integrityCheck value.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="thumbnail" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+                     A thumbnail is an abbreviated rendition of the full
+                     data. A thumbnail requires significantly fewer
+                     resources than the full data, while still maintaining
+                     some distinctive similarity with the full data. A
+                     thumbnail is typically used with by-reference
+                     encapsulated data. It allows a user to select data
+                     more efficiently before actually downloading through
+                     the reference.
+                  </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="ED">
+        <xs:sequence>
+          <xs:element name="reference" type="TEL" minOccurs="0" maxOccurs="1" />
+          <xs:element name="thumbnail" type="thumbnail" minOccurs="0" maxOccurs="0" />
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="st">
+    <xs:annotation>
+      <xs:documentation>
+            The character string data type stands for text data,
+            primarily intended for machine processing (e.g.,
+            sorting, querying, indexing, etc.) Used for names,
+            symbols, and formal expressions.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ST" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            The character string data type stands for text data,
+            primarily intended for machine processing (e.g.,
+            sorting, querying, indexing, etc.) Used for names,
+            symbols, and formal expressions.
+         </xs:documentation>
+      <xs:appinfo>
+        <sch:pattern name="validate ST">
+          <sch:rule abstract="true" id="rule-ST">
+            <sch:report test="(@nullFlavor or text()) and not(@nullFlavor and text())">
+              <p xmlns:gsd="http://aurora.regenstrief.org/GenericXMLSchema" xmlns:xlink="http://www.w3.org/TR/WD-xlink">Text content is only allowed in non-NULL values.</p>
+            </sch:report>
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="ED">
+        <xs:sequence>
+          <xs:element name="reference" type="TEL" minOccurs="0" maxOccurs="0" />
+          <xs:element name="thumbnail" type="ED" minOccurs="0" maxOccurs="0" />
+        </xs:sequence>
+        <xs:attribute name="representation" type="BinaryDataEncoding" fixed="TXT" />
+        <xs:attribute name="mediaType" type="cs" fixed="text/plain" />
+        <xs:attribute name="language" type="cs" use="optional" />
+        <xs:attribute name="compression" type="CompressionAlgorithm" use="prohibited" />
+        <xs:attribute name="integrityCheck" type="bin" use="prohibited" />
+        <xs:attribute name="integrityCheckAlgorithm" type="IntegrityCheckAlgorithm" use="prohibited" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="cs">
+    <xs:annotation>
+      <xs:documentation>
+            Coded data in its simplest form, consists of a code.
+            The code system and code system version is fixed by 
+            the context in which the  value occurs.  is used
+            for coded attributes that have a single HL7-defined
+            value set.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:token">
+      <xs:pattern value="[^\s]+" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="CD">
+    <xs:annotation>
+      <xs:documentation>
+            A concept descriptor represents any kind of concept usually
+            by giving a code defined in a code system.  A concept
+            descriptor can contain the original text or phrase that
+            served as the basis of the coding and one or more
+            translations into different coding systems. A concept
+            descriptor can also contain qualifiers to describe, e.g.,
+            the concept of a "left foot" as a postcoordinated term built
+            from the primary code "FOOT" and the qualifier "LEFT".
+            In exceptional cases, the concept descriptor need not
+            contain a code but only the original text describing
+            that concept.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:sequence>
+          <xs:element name="originalText" type="ED" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation>
+                        The text or phrase used as the basis for the coding.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="qualifier" type="CR" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>
+                        Specifies additional codes that increase the
+                        specificity of the primary code.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="translation" type="CD" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>
+                        A set of other concept descriptors that translate
+                        this concept descriptor into other code systems.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="code" type="cs" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The plain code symbol defined by the code system.
+                     For example, "784.0" is the code symbol of the ICD-9
+                     code "784.0" for headache.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystem" type="uid" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies the code system that defines the code.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A common name of the coding system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemVersion" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     If applicable, a version descriptor defined
+                     specifically for the given code system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="displayName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A name or title for the code, under which the sending
+                     system shows the code value to its users.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+
+        <!-- Begin Extensions: SDTC -->
+        <xs:attribute ref="sdtc:valueSet" use="optional" />
+        <xs:attribute ref="sdtc:valueSetVersion" use="optional" />
+        <!-- End Extensions: SDTC -->
+
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CE">
+    <xs:annotation>
+      <xs:documentation>
+            Coded data, consists of a coded value (CV)
+            and, optionally, coded value(s) from other coding systems
+            that identify the same concept. Used when alternative
+            codes may exist.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="CD">
+        <xs:sequence>
+          <xs:element name="originalText" type="ED" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation>
+                        The text or phrase used as the basis for the coding.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="qualifier" type="CR" minOccurs="0" maxOccurs="0" />
+          <xs:element name="translation" type="CD" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>
+                        A set of other concept descriptors that translate
+                        this concept descriptor into other code systems.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="code" type="cs" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The plain code symbol defined by the code system.
+                     For example, "784.0" is the code symbol of the ICD-9
+                     code "784.0" for headache.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystem" type="uid" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies the code system that defines the code.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A common name of the coding system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemVersion" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     If applicable, a version descriptor defined
+                     specifically for the given code system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="displayName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A name or title for the code, under which the sending
+                     system shows the code value to its users.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CV">
+    <xs:annotation>
+      <xs:documentation>
+            Coded data, consists of a code, display name, code system,
+            and original text. Used when a single code value must be sent.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="CE">
+        <xs:sequence>
+          <xs:element name="originalText" type="ED" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation>
+                        The text or phrase used as the basis for the coding.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="translation" type="CD" minOccurs="0" maxOccurs="0" />
+        </xs:sequence>
+        <xs:attribute name="code" type="cs" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The plain code symbol defined by the code system.
+                     For example, "784.0" is the code symbol of the ICD-9
+                     code "784.0" for headache.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystem" type="uid" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies the code system that defines the code.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A common name of the coding system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemVersion" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     If applicable, a version descriptor defined
+                     specifically for the given code system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="displayName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A name or title for the code, under which the sending
+                     system shows the code value to its users.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CS">
+    <xs:annotation>
+      <xs:documentation>
+            Coded data, consists of a code, display name, code system,
+            and original text. Used when a single code value must be sent.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="CV">
+        <xs:attribute name="code" type="cs" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The plain code symbol defined by the code system.
+                     For example, "784.0" is the code symbol of the ICD-9
+                     code "784.0" for headache.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystem" type="uid" use="prohibited" />
+        <xs:attribute name="codeSystemName" type="st" use="prohibited" />
+        <xs:attribute name="codeSystemVersion" type="st" use="prohibited" />
+        <xs:attribute name="displayName" type="st" use="prohibited" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CO">
+    <xs:annotation>
+      <xs:documentation>
+            Coded data, where the domain from which the codeset comes
+            is ordered. The Coded Ordinal data type adds semantics
+            related to ordering so that models that make use of such
+            domains may introduce model elements that involve statements
+            about the order of the terms in a domain. 
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="CV" />
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CR">
+    <xs:annotation>
+      <xs:documentation>
+            A concept qualifier code with optionally named role.
+            Both qualifier role and value codes must be defined by
+            the coding system.  For example, if SNOMED RT defines a
+            concept "leg", a role relation "has-laterality", and
+            another concept "left", the concept role relation allows
+            to add the qualifier "has-laterality: left" to a primary
+            code "leg" to construct the meaning "left leg".
+         </xs:documentation>
+      <xs:appinfo>
+        <sch:pattern name="validate CR">
+          <sch:rule abstract="true" id="rule-CR">
+            <sch:report test="(value or @nullFlavor) and not(@nullFlavor and node())">
+              <p xmlns:gsd="http://aurora.regenstrief.org/GenericXMLSchema" xmlns:xlink="http://www.w3.org/TR/WD-xlink">
+                        A value component is required or else the
+                        code role is NULL.
+                     </p>
+            </sch:report>
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:sequence>
+          <xs:element name="name" type="CV" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation>
+                        Specifies the manner in which the concept role value
+                        contributes to the meaning of a code phrase.  For
+                        example, if SNOMED RT defines a concept "leg", a role
+                        relation "has-laterality", and another concept "left",
+                        the concept role relation allows to add the qualifier
+                        "has-laterality: left" to a primary code "leg" to
+                        construct the meaning "left leg".  In this example
+                        "has-laterality" is .
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="value" type="CD" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation>
+                        The concept that modifies the primary code of a code
+                        phrase through the role relation.  For example, if
+                        SNOMED RT defines a concept "leg", a role relation
+                        "has-laterality", and another concept "left", the
+                        concept role relation allows adding the qualifier
+                        "has-laterality: left" to a primary code "leg" to
+                        construct the meaning "left leg".  In this example
+                        "left" is .
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="inverted" type="bn" use="optional" default="false">
+          <xs:annotation>
+            <xs:documentation>
+                     Indicates if the sense of the role name is inverted.
+                     This can be used in cases where the underlying code
+                     system defines inversion but does not provide reciprocal
+                     pairs of role names. By default, inverted is false.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SC" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            An ST that optionally may have a code attached.
+            The text must always be present if a code is present. The
+            code is often a local code.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ST">
+        <xs:attribute name="code" type="cs" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The plain code symbol defined by the code system.
+                     For example, "784.0" is the code symbol of the ICD-9
+                     code "784.0" for headache.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystem" type="uid" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies the code system that defines the code.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A common name of the coding system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="codeSystemVersion" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     If applicable, a version descriptor defined
+                     specifically for the given code system.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="displayName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A name or title for the code, under which the sending
+                     system shows the code value to its users.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="uid">
+    <xs:annotation>
+      <xs:documentation>
+            A unique identifier string is a character string which
+            identifies an object in a globally unique and timeless
+            manner. The allowable formats and values and procedures
+            of this data type are strictly controlled by HL7. At this
+            time, user-assigned identifiers may be certain character
+            representations of ISO Object Identifiers ()
+            and DCE
+            Universally Unique Identifiers ().
+            HL7 also reserves
+            the right to assign other forms of UIDs (,
+            such as mnemonic
+            identifiers for code systems.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:union memberTypes="oid uuid ruid" />
+  </xs:simpleType>
+  <xs:simpleType name="oid">
+    <xs:annotation>
+      <xs:documentation />
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-2](\.(0|[1-9][0-9]*))*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="uuid">
+    <xs:annotation>
+      <xs:documentation />
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ruid">
+    <xs:annotation>
+      <xs:documentation />
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z][A-Za-z0-9\-]*" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="II">
+    <xs:annotation>
+      <xs:documentation>
+            An identifier that uniquely identifies a thing or object.
+            Examples are object identifier for HL7 RIM objects,
+            medical record number, order id, service catalog item id,
+            Vehicle Identification Number (VIN), etc. Instance
+            identifiers are defined based on ISO object identifiers.
+         </xs:documentation>
+      <!-- SDTC: Removed as per http://www.hl7.org/dstucomments/showdetail_comment.cfm?commentid=346 -->
+      <!--<xs:appinfo>
+        <sch:pattern name="validate II">
+          <sch:rule abstract="true" id="rule-II">
+            <sch:report test="(@root or @nullFlavor) and not(@root and @nullFlavor)">
+                     A root component is required or else the II value is NULL.
+                  </sch:report>
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>-->
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:attribute name="root" type="uid" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A unique identifier that guarantees the global uniqueness
+                     of the instance identifier. The root alone may be the
+                     entire instance identifier.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="extension" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A character string as a unique identifier within the
+                     scope of the identifier root.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="assigningAuthorityName" type="st" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A human readable name or mnemonic for the assigning
+                     authority. This name may be provided solely for the
+                     convenience of unaided humans interpreting an  value
+                     and can have no computational meaning. Note: no
+                     automated processing must depend on the assigning
+                     authority name to be present in any form.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="displayable" type="bl" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies if the identifier is intended for human
+                     display and data entry (displayable = true) as
+                     opposed to pure machine interoperation (displayable
+                     = false).
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="url">
+    <xs:annotation>
+      <xs:documentation>
+            A telecommunications address  specified according to
+            Internet standard RFC 1738
+            [http://www.ietf.org/rfc/rfc1738.txt]. The
+            URL specifies the protocol and the contact point defined
+            by that protocol for the resource.  Notable uses of the
+            telecommunication address data type are for telephone and
+            telefax numbers, e-mail addresses, Hypertext references,
+            FTP references, etc.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:anyURI" />
+  </xs:simpleType>
+  <xs:complexType name="URL" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+            A telecommunications address  specified according to
+            Internet standard RFC 1738
+            [http://www.ietf.org/rfc/rfc1738.txt]. The
+            URL specifies the protocol and the contact point defined
+            by that protocol for the resource.  Notable uses of the
+            telecommunication address data type are for telephone and
+            telefax numbers, e-mail addresses, Hypertext references,
+            FTP references, etc.
+         </xs:documentation>
+      <xs:appinfo>
+        <sch:pattern name="validate URL">
+          <sch:rule abstract="true" id="rule-URL">
+            <sch:report test="(@nullFlavor or @value) and not(@nullFlavor and @value)" />
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:attribute name="value" type="url" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="ts">
+    <xs:annotation>
+      <xs:documentation>
+            A quantity specifying a point on the axis of natural time.
+            A point in time is most often represented as a calendar
+            expression.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{1,8}|([0-9]{9,14}|[0-9]{14,14}\.[0-9]+)([+\-][0-9]{1,4})?" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="TS">
+    <xs:annotation>
+      <xs:documentation>
+            A quantity specifying a point on the axis of natural time.
+            A point in time is most often represented as a calendar
+            expression.
+         </xs:documentation>
+      <xs:appinfo>
+        <diff>PQ</diff>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="QTY">
+        <xs:attribute name="value" use="optional" type="ts" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TEL">
+    <xs:annotation>
+      <xs:documentation>
+            A telephone number (voice or fax), e-mail address, or
+            other locator for a resource (information or service)
+            mediated by telecommunication equipment. The address
+            is specified as a URL
+            qualified by time specification and use codes that help
+            in deciding which address to use for a given time and
+            purpose.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="URL">
+        <xs:sequence>
+          <xs:element name="useablePeriod" minOccurs="0" maxOccurs="unbounded" type="SXCM_TS">
+            <xs:annotation>
+              <xs:documentation>
+                     Specifies the periods of time during which the
+                     telecommunication address can be used.  For a
+                     telephone number, this can indicate the time of day
+                     in which the party can be reached on that telephone.
+                     For a web address, it may specify a time range in
+                     which the web content is promised to be available
+                     under the given address.
+                  </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="use" use="optional" type="set_TelecommunicationAddressUse">
+          <xs:annotation>
+            <xs:documentation>
+                     One or more codes advising a system or user which
+                     telecommunication address in a set of like addresses
+                     to select for a given telecommunication need.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ADXP" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            A character string that may have a type-tag signifying its
+            role in the address. Typical parts that exist in about
+            every address are street, house number, or post box,
+            postal code, city, country but other roles may be defined
+            regionally, nationally, or on an enterprise level (e.g. in
+            military addresses). Addresses are usually broken up into
+            lines, which are indicated by special line-breaking
+            delimiter elements (e.g., DEL).
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ST">
+        <xs:attribute name="partType" type="AddressPartType">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies whether an address part names the street,
+                     city, country, postal code, post box, etc. If the type
+                     is NULL the address part is unclassified and would
+                     simply appear on an address label as is.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.delimiter">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DEL" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.country">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="CNT" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.state">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="STA" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.county">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="CPA" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.city">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="CTY" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.postalCode">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="ZIP" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.streetAddressLine">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="SAL" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.houseNumber">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="BNR" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.houseNumberNumeric">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="BNN" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.direction">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DIR" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.streetName">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="STR" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.streetNameBase">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="STB" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--
+   jaxb implementors note: the jaxb code generator (v1.0.?) will
+   fail to append "Type" to streetNameType so that there will be
+   duplicate definitions in the java source for streetNameType.
+   You will have to fix this manually.
+  -->
+  <xs:complexType mixed="true" name="adxp.streetNameType">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="STTYP" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.additionalLocator">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="ADL" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.unitID">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="UNID" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.unitType">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="UNIT" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.careOf">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="CAR" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.censusTract">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="CEN" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.deliveryAddressLine">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DAL" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.deliveryInstallationType">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DINST" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.deliveryInstallationArea">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DINSTA" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.deliveryInstallationQualifier">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DINSTQ" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.deliveryMode">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DMOD" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.deliveryModeIdentifier">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="DMODID" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.buildingNumberSuffix">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="BNS" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.postBox">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="POB" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType mixed="true" name="adxp.precinct">
+    <xs:complexContent>
+      <xs:restriction base="ADXP">
+        <xs:attribute name="partType" type="AddressPartType" fixed="PRE" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AD" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            Mailing and home or office addresses. A sequence of
+            address parts, such as street or post office Box, city,
+            postal code, country, etc.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:sequence>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="delimiter" type="adxp.delimiter" />
+            <xs:element name="country" type="adxp.country" />
+            <xs:element name="state" type="adxp.state" />
+            <xs:element name="county" type="adxp.county" />
+            <xs:element name="city" type="adxp.city" />
+            <xs:element name="postalCode" type="adxp.postalCode" />
+            <xs:element name="streetAddressLine" type="adxp.streetAddressLine" />
+            <xs:element name="houseNumber" type="adxp.houseNumber" />
+            <xs:element name="houseNumberNumeric" type="adxp.houseNumberNumeric" />
+            <xs:element name="direction" type="adxp.direction" />
+            <xs:element name="streetName" type="adxp.streetName" />
+            <xs:element name="streetNameBase" type="adxp.streetNameBase" />
+            <xs:element name="streetNameType" type="adxp.streetNameType" />
+            <xs:element name="additionalLocator" type="adxp.additionalLocator" />
+            <xs:element name="unitID" type="adxp.unitID" />
+            <xs:element name="unitType" type="adxp.unitType" />
+            <xs:element name="careOf" type="adxp.careOf" />
+            <xs:element name="censusTract" type="adxp.censusTract" />
+            <xs:element name="deliveryAddressLine" type="adxp.deliveryAddressLine" />
+            <xs:element name="deliveryInstallationType" type="adxp.deliveryInstallationType" />
+            <xs:element name="deliveryInstallationArea" type="adxp.deliveryInstallationArea" />
+            <xs:element name="deliveryInstallationQualifier" type="adxp.deliveryInstallationQualifier" />
+            <xs:element name="deliveryMode" type="adxp.deliveryMode" />
+            <xs:element name="deliveryModeIdentifier" type="adxp.deliveryModeIdentifier" />
+            <xs:element name="buildingNumberSuffix" type="adxp.buildingNumberSuffix" />
+            <xs:element name="postBox" type="adxp.postBox" />
+            <xs:element name="precinct" type="adxp.precinct" />
+          </xs:choice>
+          <xs:element name="useablePeriod" minOccurs="0" maxOccurs="unbounded" type="SXCM_TS">
+            <xs:annotation>
+              <xs:documentation>
+                        A GTS specifying the
+                        periods of time during which the address can be used.
+                        This is used to specify different addresses for
+                        different times of the year or to refer to historical
+                        addresses.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="use" use="optional" type="set_PostalAddressUse">
+          <xs:annotation>
+            <xs:documentation>
+                     A set of codes advising a system or user which address
+                     in a set of like addresses to select for a given purpose.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="isNotOrdered" type="bl" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     A boolean value specifying whether the order of the
+                     address parts is known or not. While the address parts
+                     are always a Sequence, the order in which they are
+                     presented may or may not be known. Where this matters,
+                      can be used to convey this
+                     information.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ENXP" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            A character string token representing a part of a name.
+            May have a type code signifying the role of the part in
+            the whole entity name, and a qualifier code for more detail
+            about the name part type. Typical name parts for person
+            names are given names, and family names, titles, etc.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ST">
+        <xs:attribute name="partType" type="EntityNamePartType">
+          <xs:annotation>
+            <xs:documentation>
+                     Indicates whether the name part is a given name, family
+                     name, prefix, suffix, etc.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="qualifier" use="optional" type="set_EntityNamePartQualifier">
+          <xs:annotation>
+            <xs:documentation> is a set of codes each of which specifies
+                     a certain subcategory of the name part in addition to
+                     the main name part type. For example, a given name may
+                     be flagged as a nickname, a family name may be a
+                     pseudonym or a name of public records.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="en.delimiter" mixed="true">
+    <xs:complexContent>
+      <xs:restriction base="ENXP">
+        <xs:attribute name="partType" type="EntityNamePartType" fixed="DEL" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="en.family" mixed="true">
+    <xs:complexContent>
+      <xs:restriction base="ENXP">
+        <xs:attribute name="partType" type="EntityNamePartType" fixed="FAM" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="en.given" mixed="true">
+    <xs:complexContent>
+      <xs:restriction base="ENXP">
+        <xs:attribute name="partType" type="EntityNamePartType" fixed="GIV" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="en.prefix" mixed="true">
+    <xs:complexContent>
+      <xs:restriction base="ENXP">
+        <xs:attribute name="partType" type="EntityNamePartType" fixed="PFX" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="en.suffix" mixed="true">
+    <xs:complexContent>
+      <xs:restriction base="ENXP">
+        <xs:attribute name="partType" type="EntityNamePartType" fixed="SFX" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="EN" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            A name for a person, organization, place or thing. A
+            sequence of name parts, such as given name or family
+            name, prefix, suffix, etc. Examples for entity name
+            values are "Jim Bob Walton, Jr.", "Health Level Seven,
+            Inc.", "Lake Tahoe", etc. An entity name may be as simple
+            as a character string or may consist of several entity name
+            parts, such as, "Jim", "Bob", "Walton", and "Jr.", "Health
+            Level Seven" and "Inc.", "Lake" and "Tahoe".
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY">
+        <xs:sequence>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="delimiter" type="en.delimiter" />
+            <xs:element name="family" type="en.family" />
+            <xs:element name="given" type="en.given" />
+            <xs:element name="prefix" type="en.prefix" />
+            <xs:element name="suffix" type="en.suffix" />
+          </xs:choice>
+          <xs:element name="validTime" minOccurs="0" maxOccurs="1" type="IVL_TS">
+            <xs:annotation>
+              <xs:documentation>
+                        An interval of time specifying the time during which
+                        the name is or was used for the entity. This
+                        accomodates the fact that people change names for
+                        people, places and things.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="use" use="optional" type="set_EntityNameUse">
+          <xs:annotation>
+            <xs:documentation>
+                     A set of codes advising a system or user which name
+                     in a set of like names to select for a given purpose.
+                     A name without specific use code might be a default
+                     name useful for any purpose, but a name with a specific
+                     use code would be preferred for that respective purpose.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PN" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            A name for a person. A sequence of name parts, such as
+            given name or family name, prefix, suffix, etc. PN differs
+            from EN because the qualifier type cannot include LS
+            (Legal Status).
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="EN" />
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ON" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            A name for an organization. A sequence of name parts.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="EN">
+        <xs:sequence>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="delimiter" type="en.delimiter" />
+            <xs:element name="prefix" type="en.prefix" />
+            <xs:element name="suffix" type="en.suffix" />
+          </xs:choice>
+          <xs:element name="validTime" minOccurs="0" maxOccurs="1" type="IVL_TS">
+            <xs:annotation>
+              <xs:documentation>
+                        An interval of time specifying the time during which
+                        the name is or was used for the entity. This
+                        accomodates the fact that people change names for
+                        people, places and things.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="use" use="optional" type="set_EntityNameUse">
+          <xs:annotation>
+            <xs:documentation>
+                     A set of codes advising a system or user which name
+                     in a set of like names to select for a given purpose.
+                     A name without specific use code might be a default
+                     name useful for any purpose, but a name with a specific
+                     use code would be preferred for that respective purpose.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TN" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+            A restriction of entity name that is effectively a simple string used
+            for a simple name for things and places.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="EN">
+        <xs:sequence>
+          <xs:element name="validTime" minOccurs="0" maxOccurs="1" type="IVL_TS">
+            <xs:annotation>
+              <xs:documentation>
+                        An interval of time specifying the time during which
+                        the name is or was used for the entity. This
+                        accomodates the fact that people change names for
+                        people, places and things.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="QTY" abstract="true">
+    <xs:annotation>
+      <xs:documentation> is an abstract generalization
+            for all data types (1) whose value set has an order
+            relation (less-or-equal) and (2) where difference is
+            defined in all of the data type's totally ordered value
+            subsets.  The quantity type abstraction is needed in
+            defining certain other types, such as the interval and
+            the probability distribution.
+         </xs:documentation>
+      <xs:appinfo>
+        <diff>QTY</diff>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="ANY" />
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="int">
+    <xs:annotation>
+      <xs:documentation>
+            Integer numbers (-1,0,1,2, 100, 3398129, etc.) are precise
+            numbers that are results of counting and enumerating.
+            Integer numbers are discrete, the set of integers is
+            infinite but countable.  No arbitrary limit is imposed on
+            the range of integer numbers. Two NULL flavors are
+            defined for the positive and negative infinity.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:integer" />
+  </xs:simpleType>
+  <xs:complexType name="INT">
+    <xs:annotation>
+      <xs:documentation>
+            Integer numbers (-1,0,1,2, 100, 3398129, etc.) are precise
+            numbers that are results of counting and enumerating.
+            Integer numbers are discrete, the set of integers is
+            infinite but countable.  No arbitrary limit is imposed on
+            the range of integer numbers. Two NULL flavors are
+            defined for the positive and negative infinity.
+         </xs:documentation>
+      <xs:appinfo>
+        <diff>INT</diff>
+        <sch:pattern name="validate INT">
+          <sch:rule abstract="true" id="rule-INT">
+            <sch:report test="(@value or @nullFlavor) and not(@value and @nullFlavor)" />
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="QTY">
+        <xs:attribute name="value" use="optional" type="int" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="real">
+    <xs:annotation>
+      <xs:documentation>
+            Fractional numbers. Typically used whenever quantities
+            are measured, estimated, or computed from other real
+            numbers.  The typical representation is decimal, where
+            the number of significant decimal digits is known as the
+            precision. Real numbers are needed beyond integers
+            whenever quantities of the real world are measured,
+            estimated, or computed from other real numbers. The term
+            "Real number" in this specification is used to mean
+            that fractional values are covered without necessarily
+            implying the full set of the mathematical real numbers.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:union memberTypes="xs:decimal xs:double" />
+  </xs:simpleType>
+  <xs:complexType name="REAL">
+    <xs:annotation>
+      <xs:documentation>
+            Fractional numbers. Typically used whenever quantities
+            are measured, estimated, or computed from other real
+            numbers.  The typical representation is decimal, where
+            the number of significant decimal digits is known as the
+            precision. Real numbers are needed beyond integers
+            whenever quantities of the real world are measured,
+            estimated, or computed from other real numbers. The term
+            "Real number" in this specification is used to mean
+            that fractional values are covered without necessarily
+            implying the full set of the mathematical real numbers.
+         </xs:documentation>
+      <xs:appinfo>
+        <diff>REAL</diff>
+        <sch:pattern name="validate REAL">
+          <sch:rule abstract="true" id="rule-REAL">
+            <sch:report test="(@nullFlavor or @value) and not(@nullFlavor and @value)" />
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="QTY">
+        <xs:attribute name="value" use="optional" type="real" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PQR">
+    <xs:annotation>
+      <xs:documentation>
+            A representation of a physical quantity in a unit from
+            any code system. Used to show alternative representation
+            for a physical quantity.
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="CV">
+        <xs:attribute name="value" type="real" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The magnitude of the measurement value in terms of
+                     the unit specified in the code.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PQ">
+    <xs:annotation>
+      <xs:documentation>
+            A dimensioned quantity expressing the result of a
+            measurement act.
+        </xs:documentation>
+      <xs:appinfo>
+        <diff>PQ</diff>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="QTY">
+        <xs:sequence>
+          <xs:element name="translation" type="PQR" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>
+                        An alternative representation of the same physical
+                        quantity expressed in a different unit, of a different
+                        unit code system and possibly with a different value.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="value" type="real" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The magnitude of the quantity measured in terms of
+                     the unit.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="unit" type="cs" use="optional" default="1">
+          <xs:annotation>
+            <xs:documentation>
+                     The unit of measure specified in the Unified Code for
+                     Units of Measure (UCUM)
+                     [http://aurora.rg.iupui.edu/UCUM].
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="MO">
+    <xs:annotation>
+      <xs:documentation>
+            A monetary amount is a quantity expressing the amount of
+            money in some currency. Currencies are the units in which
+            monetary amounts are denominated in different economic
+            regions. While the monetary amount is a single kind of
+            quantity (money) the exchange rates between the different
+            units are variable.  This is the principle difference
+            between physical quantity and monetary amounts, and the
+            reason why currency units are not physical units.
+         </xs:documentation>
+      <xs:appinfo>
+        <diff>MO</diff>
+        <sch:pattern name="validate MO">
+          <sch:rule abstract="true" id="rule-MO">
+            <sch:report test="not(@nullFlavor and (@value or @currency))" />
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="QTY">
+        <xs:attribute name="value" type="real" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The magnitude of the monetary amount in terms of the
+                     currency unit.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="currency" type="cs" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+                     The currency unit as defined in ISO 4217.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RTO">
+    <xs:annotation>
+      <xs:documentation>
+            A quantity constructed as the quotient of a numerator
+            quantity divided by a denominator quantity. Common
+            factors in the numerator and denominator are not
+            automatically cancelled out.   supports titers
+            (e.g., "1:128") and other quantities produced by
+            laboratories that truly represent ratios. Ratios are
+            not simply "structured numerics", particularly blood
+            pressure measurements (e.g. "120/60") are not ratios.
+            In many cases REAL should be used instead
+            of .
+         </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="RTO_QTY_QTY" />
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="probability">
+    <xs:annotation>
+      <xs:documentation>
+               The probability assigned to the value, a decimal number
+               between 0 (very uncertain) and 1 (certain).
+            </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="0.0" />
+      <xs:maxInclusive value="1.0" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="EIVL.event">
+    <xs:annotation>
+      <xs:documentation>
+                        A code for a common (periodical) activity of daily
+                        living based on which the event related periodic
+                        interval is specified.
+                     </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="CE">
+        <xs:attribute name="code" type="TimingEvent" use="optional" />
+        <xs:attribute name="codeSystem" type="uid" fixed="2.16.840.1.113883.5.139" />
+        <xs:attribute name="codeSystemName" type="st" fixed="TimingEvent" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--
+      Instantiated templates
+    -->
+  <xs:complexType name="SXCM_TS">
+    <xs:complexContent>
+      <xs:extension base="TS">
+        <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+          <xs:annotation>
+            <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="set_TelecommunicationAddressUse">
+    <xs:list itemType="TelecommunicationAddressUse" />
+  </xs:simpleType>
+  <xs:simpleType name="set_PostalAddressUse">
+    <xs:list itemType="PostalAddressUse" />
+  </xs:simpleType>
+  <xs:simpleType name="set_EntityNamePartQualifier">
+    <xs:list itemType="EntityNamePartQualifier" />
+  </xs:simpleType>
+  <xs:complexType name="IVL_TS">
+    <xs:complexContent>
+      <xs:extension base="SXCM_TS">
+        <xs:choice minOccurs="0">
+          <xs:sequence>
+            <xs:element name="low" minOccurs="1" maxOccurs="1" type="IVXB_TS">
+              <xs:annotation>
+                <xs:documentation>
+                           The low limit of the interval.
+                        </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:choice minOccurs="0">
+              <xs:element name="width" minOccurs="0" maxOccurs="1" type="PQ">
+                <xs:annotation>
+                  <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_TS">
+                <xs:annotation>
+                  <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:choice>
+          </xs:sequence>
+          <xs:element name="high" minOccurs="1" maxOccurs="1" type="IVXB_TS">
+            <xs:annotation>
+              <xs:documentation />
+            </xs:annotation>
+          </xs:element>
+          <xs:sequence>
+            <xs:element name="width" minOccurs="1" maxOccurs="1" type="PQ">
+              <xs:annotation>
+                <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_TS">
+              <xs:annotation>
+                <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:sequence>
+            <xs:element name="center" minOccurs="1" maxOccurs="1" type="TS">
+              <xs:annotation>
+                <xs:documentation>
+                           The arithmetic mean of the interval (low plus high
+                           divided by 2). The purpose of distinguishing the center
+                           as a semantic property is for conversions of intervals
+                           from and to point values.
+                        </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="width" minOccurs="0" maxOccurs="1" type="PQ">
+              <xs:annotation>
+                <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="IVXB_TS">
+    <xs:complexContent>
+      <xs:extension base="TS">
+        <xs:attribute name="inclusive" type="bl" use="optional" default="true">
+          <xs:annotation>
+            <xs:documentation>
+                     Specifies whether the limit is included in the
+                     interval (interval is closed) or excluded from the
+                     interval (interval is open).
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="set_EntityNameUse">
+    <xs:list itemType="EntityNameUse" />
+  </xs:simpleType>
+  <xs:complexType name="RTO_QTY_QTY">
+    <xs:annotation>
+      <xs:appinfo>
+        <diff>RTO_QTY_QTY</diff>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="QTY">
+        <xs:sequence>
+          <xs:element name="numerator" type="QTY">
+            <xs:annotation>
+              <xs:documentation>
+                        The quantity that is being divided in the ratio.  The
+                        default is the integer number 1 (one).
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="denominator" type="QTY">
+            <xs:annotation>
+              <xs:documentation>
+                        The quantity that devides the numerator in the ratio.
+                        The default is the integer number 1 (one).
+                        The denominator must not be zero.
+                     </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>
