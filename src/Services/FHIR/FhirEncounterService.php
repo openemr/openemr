@@ -203,6 +203,22 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         }
     }
 
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        if (!($dataRecord instanceof FHIREncounter)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $provenanceService = new FhirProvenanceService();
+        $author = null;
+        if (!empty($dataRecord->getParticipant())) {
+            // grab the first one for author
+            $participant = reset($dataRecord->getParticipant());
+            $author = $participant->getIndividual() ?? null;
+        }
+        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $author);
+        return $provenance;
+    }
+
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *

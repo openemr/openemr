@@ -73,6 +73,7 @@
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
 //   Urdu                           // xl('Urdu')
+//   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
 use OpenEMR\Services\Globals\GlobalsService;
