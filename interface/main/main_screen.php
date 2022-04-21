@@ -432,7 +432,7 @@ if ($is_expired) {
     $frame1target = "adm";
     $frame1label = "";
 } elseif (!empty($_POST['patientID'])) {
-    $patientID = 0 + $_POST['patientID'];
+    $patientID = (int) $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
         $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
@@ -440,7 +440,7 @@ if ($is_expired) {
         $frame1label = xl('Patient Search/Add Screen');
     } else {
         // Open patient summary screen with a specific encounter
-        $encounterID = 0 + $_POST['encounterID'];
+        $encounterID = (int) $_POST['encounterID'];
         $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID) . "&set_encounterid=" . attr_url($encounterID);
         $frame1target = "pat";
         $frame1label = xl('Patient Search/Add Screen');

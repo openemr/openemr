@@ -1458,12 +1458,12 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // Make sure we have the encounter ID applicable to this request.
 if (!empty($_POST['form_save'])) {
-    $patient_id = 0 + $_POST['form_pid'];
-    $encounter_id = 0 + $_POST['form_encounter'];
+    $patient_id = (int) $_POST['form_pid'];
+    $encounter_id = (int) $_POST['form_encounter'];
 } else {
     foreach (array('regen', 'enc', 'void', 'voidall') as $key) {
         if (!empty($_GET[$key])) {
-            $encounter_id = 0 + $_GET[$key];
+            $encounter_id = (int) $_GET[$key];
             break;
         }
     }
