@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c1aa21771a5894002d59e3a8a8b2113",
+    "content-hash": "67858d654e15472b864c9f8f927d6e8a",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -4324,6 +4324,54 @@
                 "source": "https://github.com/MarkBaker/PHPMatrix/tree/3.0.0"
             },
             "time": "2021-07-01T19:01:15+00:00"
+        },
+        {
+            "name": "milo/schematron",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/milo/schematron.git",
+                "reference": "ee201d52390f55985cba5799cbc6910e42a8f9ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/milo/schematron/zipball/ee201d52390f55985cba5799cbc6910e42a8f9ca",
+                "reference": "ee201d52390f55985cba5799cbc6910e42a8f9ca",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "nette/tester": "~1.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/Schematron.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause",
+                "GPL-2.0",
+                "GPL-3.0",
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Miloslav Hůla",
+                    "email": "miloslav.hula@gmail.com",
+                    "homepage": "https://github.com/milo"
+                }
+            ],
+            "description": "Implementation of ISO Schematron with Schematron 1.5 back compatibility. Library does not need any XSLT.",
+            "support": {
+                "issues": "https://github.com/milo/schematron/issues",
+                "source": "https://github.com/milo/schematron/tree/master"
+            },
+            "time": "2014-04-07T10:32:35+00:00"
         },
         {
             "name": "mobiledetect/mobiledetectlib",
@@ -12509,5 +12557,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }

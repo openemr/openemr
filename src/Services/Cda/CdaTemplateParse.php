@@ -14,6 +14,7 @@ namespace OpenEMR\Services\Cda;
 
 use DOMDocument;
 use OpenEMR\Services\CodeTypesService;
+use Milo\Schematron;
 
 class CdaTemplateParse
 {
@@ -183,9 +184,28 @@ class CdaTemplateParse
         return $this->templateData ?? [];
     }
 
-    public function validateXmlXsd($document)
+    private function validateSchematron($xml)
     {
         libxml_use_internal_errors(true);
+        $schema_IG = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/2022-CMS-QRDA-I-v1.0-April-2021.sch';
+        $schema = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/EH_CAT_I.sch';
+
+        try {
+            $schematron = new Schematron();
+            $schematron->load($schema);
+            $document = new DOMDocument();
+            $document->loadXML($xml);
+            $result = $schematron->validate($document, Schematron::RESULT_SIMPLE);
+            return $result;
+        } catch (Milo\SchematronException $e) {
+            error_log(errorLogEscape($e->getMessage()));
+        }
+    }
+
+    public function validateXmlXsd($document): bool
+    {
+        libxml_use_internal_errors(true);
+        $this->validateSchematron($document);
         $dom = new DomDocument();
         $dom->loadXML($document);
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
@@ -195,7 +215,7 @@ class CdaTemplateParse
         } else {
             $errors = libxml_get_errors();
             foreach ($errors as $error) {
-                 error_log($this->formatXsdError($error));
+                error_log(errorLogEscape($this->formatXsdError($error)));
             }
             libxml_clear_errors();
 
