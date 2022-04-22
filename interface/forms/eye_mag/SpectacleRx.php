@@ -66,12 +66,12 @@ $query = "select  *,form_encounter.date as encounter_date
     $data = sqlQuery($query, array($_REQUEST['encounter'], $_REQUEST['pid']));
     $data['ODMPDD'] = $data['ODPDMeasured'];
     $data['OSMPDD'] = $data['OSPDMeasured'];
-    $data['BPDD']   = $data['ODMPDD'] + $data['OSMPDD'];
+    $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
     @extract($data);
 
     $ODMPDD     = $ODPDMeasured;
     $OSMPDD     = $OSPDMeasured;
-    $BPDD       = $ODMPDD + $OSMPDD;
+    $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
 
     $query      = "SELECT * FROM users where id = ?";
     $prov_data  = sqlQuery($query, array($data['provider_id']));
