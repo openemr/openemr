@@ -490,8 +490,8 @@ $current_checksum = $fs->visitChecksum();
 // this is for a save before we open justify dialog.
 // otherwise current form state is over written in justify process.
 if (!empty($_POST['running_as_ajax']) && !empty($_POST['dx_update'])) {
-    $main_provid = 0 + $_POST['ProviderID'];
-    $main_supid = 0 + (int)$_POST['SupervisorID'];
+    $main_provid = (int) $_POST['ProviderID'];
+    $main_supid  = (int) $_POST['SupervisorID'];
     $fs->save(
         $_POST['bill'],
         $_POST['prod'],
@@ -524,7 +524,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))
 // lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
 if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
-    $main_provid = 0 + ($_POST['ProviderID'] ?? 0);
+    $main_provid = (int) ($_POST['ProviderID'] ?? 0);
     $main_supid  = 0 + (int)($_POST['SupervisorID'] ?? 0);
 
     $fs->save(
@@ -1281,7 +1281,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             $justify    = $bline['justify'] ?? null;
                                             $notecodes  = trim($bline['notecodes'] ?? null);
-                                            $provider_id = 0 + (int) ($bline['provid'] ?? null);
+                                            $provider_id = (int) ($bline['provid'] ?? null);
                                         }
 
                                         if ($iter['code_type'] == 'COPAY') { // moved copay display to below

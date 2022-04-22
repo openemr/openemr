@@ -29,7 +29,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\ClinicalNotesService;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + ($_GET['id'] ?? 0);
+$formid = (int) ($_GET['id'] ?? 0);
 
 $clinicalNotesService = new ClinicalNotesService();
 
