@@ -14,7 +14,10 @@ use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Qdm\Identifier;
+use OpenEMR\Cqm\Qdm\MedicationOrder;
+use OpenEMR\Cqm\Qdm\SubstanceOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
+use OpenEMR\Services\Qrda\Util\DateHelper;
 
 class CqmCalculator
 {
@@ -33,26 +36,51 @@ class CqmCalculator
 
     /**
      * @param  QdmRequestInterface $request
-     * @param  $measure
+     * @param  Measure $measure
      * @param  $effectiveDate
      * @param  $effectiveEndDate
      * @return \Psr\Http\Message\StreamInterface|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function calculateMeasure($patients, $measure, $effectiveDate, $effectiveEndDate)
+    public function calculateMeasure($patients, Measure $measure, $effectiveDate, $effectiveEndDate)
     {
+        foreach ($patients as $patient) {
+            $to_add = [];
+            foreach ($patient->dataElements as $dataElement) {
+                if ($dataElement instanceof MedicationOrder) {
+                    $substanceOrder = new SubstanceOrder([
+                        'dataElementCodes' => $dataElement->dataElementCodes,
+                        'relevantPeriod' => $dataElement->relevantPeriod,
+                        'frequency' => $dataElement->frequency
+                    ]);
+                    $to_add[] = $substanceOrder;
+                }
+                $id = substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(24/strlen($x)) )),1,24);
+                $dataElement->id = $dataElement->_id = $id;
+            }
+
+            foreach ($to_add as $item) {
+                $patient->dataElements[] = $item;
+            }
+
+            $patient->birthDatetime = DateHelper::format_datetime_cqm($patient->birthDatetime);
+        }
+
         $json_models = json_encode($patients);
+        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Adam Massey/Cypress.patients.out.json');
         $patientStream = Psr7\Utils::streamFor($json_models);
-        $measureFiles = MeasureService::fetchMeasureFiles($measure);
-        $this->measure = $measureFiles['measure'];
-        $measureFileStream = new LazyOpenStream($measureFiles['measure'], 'r');
+        $this->measure = $measure;
+        $measureFiles = MeasureService::fetchMeasureFiles($measure->measure_path);
+        // Convert to assoc array before converting back to json to send
+        $json_measure = json_decode(json_encode($measure), true);
+        $measureFileStream = Psr7\Utils::streamFor(json_encode($json_measure));
         $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
         $options = [
             'doPretty' => true,
             'includeClauseResults' => true,
             'requestDocument' => true,
-            'effectiveDate' => $effectiveDate,
-            'effectiveDateEnd' => $effectiveEndDate
+            'effectiveDate' => date('YmdHi', strtotime($effectiveDate)) . '00',
+            'effectiveDateEnd' => null // !empty($effectiveEndDate) ? date('YmdHi', strtotime($effectiveEndDate)) . '00' : null
         ];
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));
 

@@ -1,11 +1,4 @@
 <?php
-/**
- * @package OpenEMR
- * @link      http://www.open-emr.org
- * @author    Ken Chapple <ken@mi-squared.com>
- * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
- */
 
 namespace OpenEMR\Cqm\Qdm;
 
@@ -14,7 +7,7 @@ namespace OpenEMR\Cqm\Qdm;
  *
  * This is a class generated with Laminas\Code\Generator.
  *
- * @QDM Version 5.6
+ * @QDM Version 5.5
  * @author Ken Chapple <ken@mi-squared.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
@@ -60,13 +53,6 @@ class InterventionPerformed extends QDMBaseType
      * @property BaseTypes\Any $performer
      */
     public $performer = null;
-
-    /**
-     * @property array $relatedTo
-     */
-    public $relatedTo = [
-
-    ];
 
     /**
      * @property string $qdmTitle

@@ -10,6 +10,7 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
@@ -40,7 +41,16 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
                 'date' => $record['date_end']
             ]),
             'lowClosed' => $record['date'] ? true : false,
-            'highClosed' => $record['date_end'] ? true : false
+            'highClosed' => $record['date_end'] ? true : false,
+        ]);
+
+        $model->authorDatetime = new DateTime([
+            'date' => $record['date']
+        ]);
+
+        $model->frequency = new Code([
+            "code" => "396125000",
+            "system"=> "2.16.840.1.113883.6.96",
         ]);
 
         return $model;

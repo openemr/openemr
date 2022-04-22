@@ -81,7 +81,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
             'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,
             'facilityLocations' => [],
             'lengthOfStay' => new Quantity([
-                'value' => $days,
+                'value' => (int)$days,
                 'unit' => 'd'
                 ]),
             'negationRationale' => null,

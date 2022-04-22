@@ -12,6 +12,7 @@ namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
@@ -45,7 +46,9 @@ abstract class AbstractQdmService
         if ($date == '0000-00-00') {
             return null;
         }
-        return $date;
+        return new DateTime([
+            'date' => $date
+        ]);
     }
 
     public function getPatientIdColumn()

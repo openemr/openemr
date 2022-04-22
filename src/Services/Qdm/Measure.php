@@ -30,8 +30,6 @@ class Measure extends AbstractType
      */
     public $description;
 
-    protected $_measure;
-
     /**
      * @var string
      */
@@ -73,6 +71,8 @@ class Measure extends AbstractType
      */
     public $measure_path;
 
+    public $calculation_method;
+
     /**
      * Measure constructor.
      *
@@ -83,9 +83,11 @@ class Measure extends AbstractType
     public function __construct($measure)
     {
         parent::__construct($measure);
-        $this->id = ($measure['_id'] ?? [])['oid'] ?? '';
+        //$this->id = ($measure['_id'] ?? [])['oid'] ?? '';
 
-        $this->_measure = $measure;
+        //$this->calculation_method = 'EPISODE_OF_CARE';
+
+        //$this->_measure = $measure;
         $this->population_sets  = [];
         if ($measure['population_sets']) {
             foreach ($measure['population_sets'] as $population_set) {

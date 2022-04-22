@@ -1,11 +1,4 @@
 <?php
-/**
- * @package OpenEMR
- * @link      http://www.open-emr.org
- * @author    Ken Chapple <ken@mi-squared.com>
- * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
- */
 
 namespace OpenEMR\Cqm\Qdm;
 
@@ -21,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeDeviceApplied extends DeviceApplied
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -34,3 +26,4 @@ class NegativeDeviceApplied extends DeviceApplied
 
     public $_type = 'QDM::NegativeDeviceApplied';
 }
+

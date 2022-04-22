@@ -1,11 +1,4 @@
 <?php
-/**
- * @package OpenEMR
- * @link      http://www.open-emr.org
- * @author    Ken Chapple <ken@mi-squared.com>
- * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
- */
 
 namespace OpenEMR\Cqm\Qdm;
 
@@ -21,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class DeviceApplied extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -58,6 +50,11 @@ class DeviceApplied extends QDMBaseType
     public $performer = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Device, Applied';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.13';
@@ -79,3 +76,4 @@ class DeviceApplied extends QDMBaseType
 
     public $_type = 'QDM::DeviceApplied';
 }
+

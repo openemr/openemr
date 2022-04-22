@@ -133,7 +133,7 @@ class ExportCat3Service
     private function request_for($patients, Measure $measure, $effectiveDate, $effectiveDateEnd)
     {
 
-        $results = $this->calculator->calculateMeasure($patients, $measure->measure_path, $effectiveDate, $effectiveDateEnd);
+        $results = $this->calculator->calculateMeasure($patients, $measure, $effectiveDate, $effectiveDateEnd);
         $final_results = [];
         foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient
