@@ -1,4 +1,5 @@
 <?php
+
 /**
  * trusted-messages.php displays the GUI and handles the interactions with the backend ajax processor for sending
  * messages and file attachments to Trusted email addresses using the Direct protocol.

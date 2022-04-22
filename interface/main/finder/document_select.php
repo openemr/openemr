@@ -1,4 +1,5 @@
 <?php
+
 /**
  * document_select.php is intended to be used in a dialog finder window for searching and selecting an individual
  * document from the calling window.

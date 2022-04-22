@@ -1,4 +1,5 @@
 <?php
+
 /**
  * trusted-messages-ajax.php takes data from the POST/GET request, validates the data and then sends a message via the
  * Direct protocol to the trusted email address.  Results / errors are returned via JSON
