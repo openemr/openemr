@@ -45,24 +45,6 @@ class CqmCalculator
     public function calculateMeasure($patients, Measure $measure, $effectiveDate, $effectiveEndDate)
     {
         foreach ($patients as $patient) {
-            $to_add = [];
-            foreach ($patient->dataElements as $dataElement) {
-                if ($dataElement instanceof MedicationOrder) {
-                    $substanceOrder = new SubstanceOrder([
-                        'dataElementCodes' => $dataElement->dataElementCodes,
-                        'relevantPeriod' => $dataElement->relevantPeriod,
-                        'frequency' => $dataElement->frequency
-                    ]);
-                    $to_add[] = $substanceOrder;
-                }
-                $id = substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(24/strlen($x)) )),1,24);
-                $dataElement->id = $dataElement->_id = $id;
-            }
-
-            foreach ($to_add as $item) {
-                $patient->dataElements[] = $item;
-            }
-
             $patient->birthDatetime = DateHelper::format_datetime_cqm($patient->birthDatetime);
         }
 

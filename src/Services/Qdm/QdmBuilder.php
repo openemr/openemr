@@ -28,7 +28,7 @@ use OpenEMR\Services\Qdm\Services\InterventionService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestOrderedService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestService;
 use OpenEMR\Services\Qdm\Services\MedicationActiveService;
-use OpenEMR\Services\Qdm\Services\MedicationOrderService;
+use OpenEMR\Services\Qdm\Services\SubstanceOrderService;
 use OpenEMR\Services\Qdm\Services\PatientService;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
 use OpenEMR\Services\Qdm\Services\ProcedureRecommendedService;
@@ -54,10 +54,11 @@ class QdmBuilder
         LaboratoryTestService::class,
         LaboratoryTestOrderedService::class,
         MedicationActiveService::class,
-        MedicationOrderService::class,
+        SubstanceOrderService::class,
         PhysicalExamService::class,
         ProcedureService::class,
         ProcedureRecommendedService::class,
+        SubstanceOrderService::class,
         SubstanceRecommendedService::class,
         SymptomService::class,
     ];

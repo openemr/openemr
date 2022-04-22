@@ -13,10 +13,10 @@ namespace OpenEMR\Services\Qdm\Services;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
-use OpenEMR\Cqm\Qdm\MedicationOrder;
+use OpenEMR\Cqm\Qdm\SubstanceOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
-class MedicationOrderService extends AbstractCarePlanService implements QdmServiceInterface
+class SubstanceOrderService extends AbstractCarePlanService implements QdmServiceInterface
 {
     public function getCarePlanType()
     {
@@ -25,7 +25,7 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
 
     public function getModelClass()
     {
-        return MedicationOrder::class;
+        return SubstanceOrder::class;
     }
 
     public function makeQdmModel(array $record)
