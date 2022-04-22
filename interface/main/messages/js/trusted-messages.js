@@ -112,7 +112,7 @@
         if (!validateForm(formData)) {
             return;
         }
-
+        toggleSubmitSpinner(true);
 
         window.fetch("trusted-messages-ajax.php", {method: 'POST', body: formData})
             .then(result => {
@@ -123,13 +123,38 @@
                 }
             })
             .then(json => {
+                toggleSubmitSpinner(false);
                 processTrustedMessageResponse(json);
             })
             .catch(error => {
                 console.error(error);
+                toggleSubmitSpinner(false);
                 processTrustedMessageResponse({errorCode: "networkError"});
             });
         return false;
+    }
+
+    function toggleSubmitSpinner(display) {
+
+        let spinner = document.getElementById('message-spinner');
+        let submitButton = document.getElementById('message-submit');
+
+        if (spinner) {
+            if (display) {
+                spinner.classList.remove('d-none');
+            } else {
+                spinner.classList.add('d-none');
+            }
+        }
+
+        if (submitButton) {
+            if (display) {
+                submitButton.disabled = true;
+            } else {
+                submitButton.disabled = false;
+            }
+        }
+
     }
 
     // This is for callback by the find-patient popup.

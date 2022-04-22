@@ -132,6 +132,21 @@ if ($GLOBALS['medex_enable'] == '1') {
                                 <p id="directErrorMessage">
                                 </p>
                             </div>
+                            <div id="error-invalidDocumentFormat" class="col-12 d-none alert alert-danger">
+                                <p>
+                                    <?php echo xlt("The system received a document it does not know how to process through the Direct protocol"); ?>.
+                                    <?php echo xlt("Supported document mime types are the following"); ?>.
+                                </p>
+                                <ul>
+                                    <?php /* We don't translate these as they don't change across languages */ ?>
+                                    <li>application/pdf</li>
+                                    <li>application/xml</li>
+                                    <li>text/xml</li>
+                                </ul>
+
+                                <p id="directErrorMessage">
+                                </p>
+                            </div>
                             <div id='success' class="col-12 d-none alert alert-success">
                                 <p>
                                     <?php echo xlt("Your message was successfully sent"); ?>.
@@ -176,7 +191,7 @@ if ($GLOBALS['medex_enable'] == '1') {
                                         <label for="documentName"><?php echo xlt("Attachment"); ?></label>
                                         <input id="documentId" type="hidden" name="documentId" value="" />
                                         <input id="documentName" class="form-control" type="textbox" name="documentName" value="" placeholder="<?php echo xla('Choose a document to attach'); ?>" />
-                                        <p class="alert alert-info mt-2"><?php echo xlt("CCD/CCR/CCDA Documents must be in a xml,html, or pdf format in order to send via Direct"); ?></p>
+                                        <p class="alert alert-info mt-2"><?php echo xlt("CCD/CCR/CCDA Documents must be in a xml or pdf format in order to send via Direct"); ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -186,7 +201,8 @@ if ($GLOBALS['medex_enable'] == '1') {
                                 <div class="row">
                                     <div class="col-12">
                                         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(); ?>" />
-                                        <input type="submit" class="btn-transmit btn btn-primary" name="submit" value="<?php echo xla("Send"); ?>" />
+                                        <input id='message-submit' type="submit" class="btn-transmit btn btn-primary" name="submit" value="<?php echo xla("Send"); ?>" />
+                                        <i id='message-spinner' class="fa fa-spinner d-none"></i>
                                     </div>
                                 </div>
                             </div>

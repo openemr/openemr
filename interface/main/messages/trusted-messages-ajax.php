@@ -20,6 +20,13 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 
 $result = ['success' => false];
 
+// TODO: should we put these mappings into list options so people can configure them?  More versatile, but could fail
+$mimeTypeMappings = [
+    'application/pdf' => 'pdf'
+    ,'text/xml' => 'xml'
+    ,'application/xml' => 'xml'
+];
+
 $csrf = $_REQUEST['csrf_token_form'] ?? null;
 if (!CsrfUtils::verifyCsrfToken($csrf)) {
     $result['errorCode'] = 'invalidCsrf';
@@ -80,8 +87,19 @@ if ($isValid) {
         if (empty($document)) {
             $transmitResult = transmitMessage($message, $recipient);
         } else {
+            $mimeType = $document->get_mimetype();
+            $formatType = 'xml';
+            $xmlType = "CDA";
+
+            if (isset($mimeTypeMappings[$mimeType])) {
+                $formatType = $mimeTypeMappings[$mimeType];
+            } else {
+                throw new \InvalidArgumentException("Invalid mime type " . $mimeType);
+            }
+
             $dataToSend = $document->get_data();
-            $transmitResult = transmitCCD($pid, $dataToSend, $recipient, $requested_by, $xml_type = "CCD", 'xml', $message);
+
+            $transmitResult = transmitCCD($pid, $dataToSend, $recipient, $requested_by, $xmlType, $formatType, $message);
         }
         if ($transmitResult !== "SUCCESS") {
             $result['errorCode'] = 'directError';
@@ -89,9 +107,17 @@ if ($isValid) {
         } else {
             $result['success'] = true;
         }
+    } catch (\InvalidArgumentException $error) {
+        (new SystemLogger())->error(
+            "trusted-messages-ajax.php received an invalid document mime type",
+            ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
+                , 'document' => $documentId, 'requestor' => $requested_by, 'recipient' => $recipient
+            ]
+        );
+        $result['errorCode'] = 'invalidDocumentFormat';
     } catch (\Exception $error) {
         (new SystemLogger())->error(
-            "transmitCCD threw an exception when attempting to send",
+            "trusted-messages-ajax.php threw an exception when attempting to send",
             ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
                 , 'document' => $documentId, 'requestor' => $requested_by, 'recipient' => $recipient
             ]
