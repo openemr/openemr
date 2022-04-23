@@ -20,6 +20,7 @@ use Document;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -159,7 +160,18 @@ class DocumentService extends BaseService
         return ['filename' => $filename, 'mimetype' => $filenameSql['mimetype'], 'file' => $document];
     }
 
-    public function search($search, $isAndCondition = true)
+    /**
+     * Returns a list of documents matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param ISearchField[] $search  $search         search array parameters
+     * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @param array  $options        - Optional array of sql clauses like LIMIT, ORDER, etc
+     * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
+     *                               payload.
+     */
+    public function search($search, $isAndCondition = true, $options = array())
     {
         $processingResult = new ProcessingResult();
 
@@ -169,6 +181,7 @@ class DocumentService extends BaseService
                 docs.id
                 ,docs.uuid
                 ,docs.url
+                ,docs.name
                 ,docs.mimetype
                 ,docs.foreign_id
                 ,docs.encounter_id
@@ -177,6 +190,8 @@ class DocumentService extends BaseService
                 ,docs.deleted
                 ,docs.drive_uuid
                 ,docs.`date`
+                ,category.category_id
+                ,category.category_name
                 ,doc_categories.category_codes
                 ,patients.puuid
                 ,encounters.euuid
@@ -222,11 +237,29 @@ class DocumentService extends BaseService
                 FROM categories
                 JOIN categories_to_documents ON categories.id = categories_to_documents.category_id
             ) doc_categories ON doc_categories.document_id = docs.id
+            LEFT JOIN
+            (
+                select 
+                   name AS category_name
+                    ,id AS category_id
+                FROM 
+                     categories
+            ) category ON category.category_id = doc_categories.category_id
         ";
             $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
             $sql .= $whereClause->getFragment();
             $sqlBindArray = $whereClause->getBoundValues();
+
+            if (!empty($options['order'])) {
+                $sql .= " ORDER BY " . $options['order'];
+            }
+
+
+            $limit = $options['limit'] ?? null;
+            if (is_int($limit) && $limit > 0) {
+                $sql .= " LIMIT " . $limit;
+            }
 
             $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
             while ($row = sqlFetchArray($statementResults)) {
