@@ -115,6 +115,7 @@
             return;
         }
         toggleSubmitSpinner(true);
+        window.top.restoreSession();
 
         window.fetch("trusted-messages-ajax.php", {method: 'POST', body: formData})
             .then(result => {
@@ -173,11 +174,11 @@
         } else {
             console.error("Could not find patientName node");
         }
-        window.top.restoreSession();
     }
 
 
     function selectPatient() {
+        window.top.restoreSession();
         dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 625, 400);
     }
 
@@ -196,9 +197,8 @@
             + encodeURIComponent(csrfValue);
         if (pidInput) {
             url += "&pid=" + encodeURIComponent(pidInput.value);
-        } else {
-
         }
+        window.top.restoreSession();
         window.dlgopen(url, '_blank', 700, 400);
     }
 

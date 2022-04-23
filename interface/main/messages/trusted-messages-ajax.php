@@ -12,7 +12,6 @@
 
 require_once("../../globals.php");
 require_once("../../../ccr/transmitCCD.php");
-require_once("../../../library/classes/Document.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;

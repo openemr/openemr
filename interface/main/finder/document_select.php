@@ -144,7 +144,7 @@ foreach ($searchResult as $docResult) {
                 <?php if (!empty($pid)) : ?>
                 <input type="hidden" name="pid" value="<?php echo attr($pid); ?>" />
                 <p>
-                    <?php echo xlt("Showing documents for patient"); ?>: <?php echo $patientName; ?>
+                    <?php echo xlt("Showing documents for patient"); ?>: <?php echo text($patientName); ?>
                 </p>
                 <?php endif; ?>
             </div>
@@ -227,7 +227,7 @@ foreach ($searchResult as $docResult) {
 
         function selectDocument(did, name, category, date) {
             if (opener.closed || ! opener.setSelectedDocument)
-                alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+                alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
             else
                 opener.setSelectedDocument(did, name, category, date);
             dlgclose();

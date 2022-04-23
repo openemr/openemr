@@ -502,7 +502,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     echo "<a href='javascript:void(0);' ";
                                                     if (empty($prow)) {
                                                         // when a direct message is received we can't open the document unless its linked to a patient.
-                                                        echo "onClick=\"previewDocument('" . attr(addslashes($d->get_id())) . "');\">";
+                                                        echo "onClick=\"previewDocument(" . attr_js($d->get_id()) . ");\">";
                                                     } else {
                                                         $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                                                             " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));

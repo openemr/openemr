@@ -10,12 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once("../../globals.php");
+
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
-
-require_once("../../globals.php");
 
 $message = '';
 if (isset($_REQUEST['message_code'])) {
@@ -38,17 +38,6 @@ if (!empty($_SESSION['pid'])) {
         // if things are empty this ends up being blank.
         $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
     }
-}
-
-if ($GLOBALS['medex_enable'] == '1') {
-    if ($_REQUEST['SMS_bot']) {
-        $result = $MedEx->login('');
-        $MedEx->display->SMS_bot($result);
-        exit();
-    }
-    $logged_in = $MedEx->login();
-} else {
-    $logged_in = null;
 }
 
 ?>
@@ -201,7 +190,7 @@ if ($GLOBALS['medex_enable'] == '1') {
                             <div class="col-12 oe-custom-line">
                                 <div class="row">
                                     <div class="col-12">
-                                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(); ?>" />
+                                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                         <input id='message-submit' type="submit" class="btn-transmit btn btn-primary" name="submit" value="<?php echo xla("Send"); ?>" />
                                         <i id='message-spinner' class="fa fa-spinner d-none"></i>
                                     </div>
