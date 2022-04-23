@@ -16,6 +16,7 @@ use OpenEMR\Services\Qrda\Helpers\Cat3View;
 use OpenEMR\Services\Qrda\Helpers\Date;
 use OpenEMR\Services\Qrda\Helpers\PatientView;
 use OpenEMR\Services\Qrda\Helpers\View;
+use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class Cat3 extends \Mustache_Engine
 {
@@ -40,6 +41,7 @@ class Cat3 extends \Mustache_Engine
     protected $provider;
     protected $submission_program;
     protected $ry2022_submission;
+    protected $_qrda_guid; // for extension in root template
 
     public function __construct($aggregate_results = array(), $measures = array(), $options = array())
     {
@@ -49,6 +51,8 @@ class Cat3 extends \Mustache_Engine
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
             )
         );
+
+        $this->_qrda_guid = UuidV4::uuid4();
 
         $this->aggregate_results = $aggregate_results;
         $this->measures = $measures;

@@ -139,7 +139,7 @@ class IndividualResult extends AbstractType
         $key = $agg_results ? $this->population_set_key : $this->patient_id->value;
         $this->setup_observation_hash($observation_hash, $key);
         // reset grabs first item.
-        $pop_sets =$this->measure->population_set_for_key($this->population_set_key);
+        $pop_sets = $this->measure->population_set_for_key($this->population_set_key);
         $population_set = reset($pop_sets);
         // collect the observation_statements for the population_set. There may be more than one. episode_results are recorded in the same order
         $observation_statements = array_map(
@@ -157,7 +157,7 @@ class IndividualResult extends AbstractType
             foreach ($observation_value as $observation => $index) {
                 $obs_pop = null;
                 foreach ($population_keys as $pop) {
-                    if ($population_set[$pop]['statement_name'] == $observation_statements[$index]) {
+                    if ($population_set->populations[$pop]['statement_name'] == $observation_statements[$index]) {
                         $obs_pop = $pop;
                         break;
                     }
