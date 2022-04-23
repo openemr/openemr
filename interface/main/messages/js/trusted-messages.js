@@ -108,6 +108,8 @@
     }
     function sendTrustedMessage(event) {
         event.preventDefault();
+        // reset any alerts back to what they were
+        hideAlerts();
         const formData = new FormData(event.target);
         if (!validateForm(formData)) {
             return;
