@@ -67,22 +67,6 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public static function convertToObjectIdBSONFormat($id)
-    {
-        // max bigint size will fit in 16 characters so we will always have enough space for this.
-        $padded_hex = sprintf("%024X", $id);
-        return $padded_hex;
-    }
-
-    public static function convertIdFromBSONObjectIdFormat($id)
-    {
-        // max bigint size is 8 bytes which will fit fine
-        // string ID should be prefixed with 0s so the converted data type should be far smaller
-        $trimmedId = ltrim($id, '\x0');
-        $decimal = hexdec($trimmedId);
-        return $decimal;
-    }
-
     public static function makeQdmIdentifier($namingSystem, $value)
     {
         return new Identifier(

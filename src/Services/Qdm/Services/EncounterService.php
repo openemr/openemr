@@ -62,8 +62,10 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
             $days = $end->diff($start)->format("%a");
             $end_date = $end->format('Y-m-d H:i:s');
         }
-
+        $enc_id = self::convertToObjectIdBSONFormat($record['encounter']);
         $qdmRecord = new EncounterPerformed([
+            '_id' => $enc_id,
+            'id' => $enc_id,
             'relevantPeriod' => new Interval([
                 'low' =>  new DateTime([
                     'date' => $start->format('Y-m-d H:i:s')
@@ -74,9 +76,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                 'lowClosed' => $record['date'] ? true : false,
                 'highClosed' => $record['date_end'] ? true : false
             ]),
-            'authorDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
+            'authorDatetime' => null,
             'admissionSource' => null,
             'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,
             'facilityLocations' => [],

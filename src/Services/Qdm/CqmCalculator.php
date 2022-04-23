@@ -13,6 +13,7 @@ namespace OpenEMR\Services\Qdm;
 use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
+use OpenEMR\Cqm\Qdm\Diagnosis;
 use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
@@ -49,13 +50,15 @@ class CqmCalculator
         }
 
         $json_models = json_encode($patients);
-        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Adam Massey/Cypress.patients.out.json');
+        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Andrew Rodriguez/Cypress.patients.out.json');
         $patientStream = Psr7\Utils::streamFor($json_models);
         $this->measure = $measure;
         $measureFiles = MeasureService::fetchMeasureFiles($measure->measure_path);
         // Convert to assoc array before converting back to json to send
-        $json_measure = json_decode(json_encode($measure), true);
-        $measureFileStream = Psr7\Utils::streamFor(json_encode($json_measure));
+        $measure_array = json_decode(json_encode($measure), true);
+        $json_measure = json_encode($measure_array);
+        //$json_measure = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Andrew Rodriguez/Cypress.measure.out.json');
+        $measureFileStream = Psr7\Utils::streamFor($json_measure);
         $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
         $options = [
             'doPretty' => true,
@@ -67,34 +70,7 @@ class CqmCalculator
         $optionsStream = Psr7\Utils::streamFor(json_encode($options));
 
         $results = $this->client->calculate($patientStream, $measureFileStream, $valueSetFileStream, $optionsStream);
-        return $results;//$this->convertResultsFromBSONObjectIdFormat($results);
-    }
-
-    public function convertResultsFromBSONObjectIdFormat($results)
-    {
-        $newResult = [];
-        if (!empty($results)) {
-            foreach ($results as $key => $result) {
-                $convertedKey = $this->convertIdFromBSONObjectIdFormat($key);
-                // go and update the inner patient_id
-                $newResult[$convertedKey] = [];
-
-                foreach ($result as $popKey => $popResult) {
-                    $popResult['patient_id'] = $convertedKey;
-                    $newResult[$convertedKey][$popKey] = $popResult;
-                }
-            }
-        }
-        return $newResult;
-    }
-
-    private function convertIdFromBSONObjectIdFormat($id)
-    {
-        // max bigint size is 8 bytes which will fit fine
-        // string ID should be prefixed with 0s so the converted data type should be far smaller
-        $trimmedId = ltrim($id, '\x0');
-        $decimal = hexdec($trimmedId);
-        return $decimal;
+        return $results;
     }
 
     public function getMeasure()

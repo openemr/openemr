@@ -11,6 +11,7 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\Diagnosis;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;

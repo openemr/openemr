@@ -85,7 +85,7 @@ class Measure extends AbstractType
         parent::__construct($measure);
         //$this->id = ($measure['_id'] ?? [])['oid'] ?? '';
 
-        //$this->calculation_method = 'EPISODE_OF_CARE';
+        $this->calculation_method = 'EPISODE_OF_CARE';
 
         //$this->_measure = $measure;
         $this->population_sets  = [];
