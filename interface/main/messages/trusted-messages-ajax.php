@@ -63,12 +63,14 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
             throw new InvalidArgumentException("document_id is required if no message is sent and must be a valid document id");
         }
 
-        // now we need to lookup the document
-        $document = new \Document($documentId);
+        if (!empty($documentId) && intval($documentId) > 0) {
+            // now we need to lookup the document
+            $document = new \Document($documentId);
 
-        // make sure the user can access this document
-        if (!$document->can_access($_SESSION['user_id'])) {
-            throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
+            // make sure the user can access this document
+            if (!$document->can_access($_SESSION['user_id'])) {
+                throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
+            }
         }
         $isValid = true;
     } catch (AccessDeniedException $exception) {
