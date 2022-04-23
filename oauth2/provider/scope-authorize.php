@@ -67,15 +67,15 @@ ksort($scopesByResource);
     <title><?php echo xlt("OpenEMR Authorization"); ?></title>
     <?php Header::setupHeader(); ?>
     <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
 </head>
-<body class="container-fluid bg-dark">
+<body class="container-fluid bg-dark mt-0 mt-sm-5 mt-lg-3">
 <form method="post" name="userLogin" id="userLogin" action="<?php echo $redirect ?>">
-    <div class="row h-100 w-100 justify-content-center align-items-center">
-        <div class="col-10 col-lg-7 bg-light text-dark mt-5">
+    <div class="row w-100">
+        <div class="col-12 col-sm-10 col-lg-7 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ml-auto mr-auto">
             <div class="text-md-center mt-2">
                 <h4 class="mb-4 mt-1"><?php echo xlt("Authorizing for Application"); ?> <strong><?php echo text($clientName); ?></strong></h4>
             </div>
-            <hr />
             <div class="row w-100 mb-3">
                 <div class="col-sm-8">
                     <div class="card">
@@ -118,7 +118,7 @@ ksort($scopesByResource);
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-4 mt-3 mt-sm-0">
                     <div class="card">
                         <div class="card-body pt-1">
                             <h5 class="card-title text-sm-center"><?php echo xlt("Identity Information Requested"); ?></h5>

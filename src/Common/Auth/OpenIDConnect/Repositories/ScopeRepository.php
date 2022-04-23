@@ -846,6 +846,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         $mergedScopes = array_merge($scopesFhir, $scopesApi);
         $scopes = [];
 
+        $scopes['nonce'] = ['description' => 'Nonce value used to detect replay attacks by third parties'];
+
         foreach ($mergedScopes as $scope) {
             $scopes[$scope] = ['description' => 'OpenId Connect'];
         }
