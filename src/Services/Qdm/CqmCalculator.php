@@ -108,7 +108,7 @@ class CqmCalculator
         }
 
         $json_models = json_encode($patients);
-        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug cms122 Amy Gray/Cypress.patients.out.json');
+        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug cms122 Sheila Burgess/Cypress.patients.out.json');
         $patientStream = Psr7\Utils::streamFor($json_models);
 
         // Convert to assoc array before converting back to json to send

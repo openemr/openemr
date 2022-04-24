@@ -13,6 +13,7 @@ namespace OpenEMR\Services\Qdm\Services;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
+use OpenEMR\Cqm\Qdm\DiagnosisComponent;
 use OpenEMR\Cqm\Qdm\EncounterPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
@@ -88,9 +89,15 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                 'value' => (int)$days,
                 'unit' => 'd'
                 ]),
-            'negationRationale' => null,
-            'diagnoses' => $this->makeQdmCode($record['diagnosis']) ?? null
+            'negationRationale' => null
         ]);
+
+        $encounter_diagnosis_codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
+        foreach ($encounter_diagnosis_codes as $encounter_diagnosis_code) {
+            $qdmRecord->diagnoses []= new DiagnosisComponent([
+                'code' => $encounter_diagnosis_code
+            ]);
+        }
 
         $codes = $this->explodeAndMakeCodeArray($record['encounter_type_code']);
         foreach ($codes as $code) {
