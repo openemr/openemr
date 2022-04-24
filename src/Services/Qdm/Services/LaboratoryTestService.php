@@ -53,29 +53,21 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
             !empty($record['result'])
             && $record['result'] != 'Negative'
         ) {
-            $result = new Quantity(
-                [
-                'value' => $record['result'],
+            $result = new Quantity([
+                'value' => (int)$record['result'],
                 'unit' => $record['units']
-                ]
-            );
+            ]);
         }
 
-        $qdmModel = new LaboratoryTestPerformed(
-            [
-            'relevantDatetime' => new DateTime(
-                [
+        $qdmModel = new LaboratoryTestPerformed([
+            'relevantDatetime' => new DateTime([
                 'date' => $record['date']
-                ]
-            ),
+            ]),
             'result' => $result,
-            'resultDatetime' => new DateTime(
-                [
+            'resultDatetime' => new DateTime([
                 'date' => $record['date']
-                ]
-            )
-            ]
-        );
+            ])
+        ]);
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {

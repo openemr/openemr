@@ -72,14 +72,14 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                     'date' => $end_date
                 ]),
                 'lowClosed' => $start_date ? true : false,
-                'highClosed' => $end_date ? true : false
+                'highClosed' => $this->validDateOrNull($end_date) ? true : false
             ]),
             'route' => null // In sample files, route was null, probably doesn't mater for eCQM
         ]);
 
         if ($record['dosage']) {
             $qdmModel->dosage = new Quantity([
-                'value' => $record['dosage'] ?? null,
+                'value' => (int)$record['dosage'] ?? null,
                 'unit' => $record['drug_unit'] ?? null,
             ]);
         }
@@ -94,12 +94,10 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
         }
 
         $qdmModel->addCode(
-            new Code(
-                [
+            new Code([
                 'code' => $record['rxnorm_drugcode'],
                 'system' => $this->getSystemForCodeType(CodeTypesService::CODE_TYPE_RXNORM)
-                ]
-            )
+            ])
         );
 
         return $qdmModel;

@@ -86,7 +86,8 @@ class Measure extends AbstractType
         //$this->id = ($measure['_id'] ?? [])['oid'] ?? '';
 
         $this->calculation_method = 'EPISODE_OF_CARE';
-        if ($measure['cms_id'] == 'CMS122v10') {
+        if ($measure['cms_id'] == 'CMS122v10' ||
+            $measure['cms_id'] == 'CMS69v10') {
             $this->calculation_method = 'PATIENT';
         }
 

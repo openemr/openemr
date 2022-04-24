@@ -64,7 +64,7 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 
         if (!empty($record['result_value']) && !empty($record['result_units'])) {
             $qdmModel->result = new Quantity([
-                'value' => $record['result_value'],
+                'value' => (int)$record['result_value'],
                 'unit' => $record['result_units']
             ]);
         }
