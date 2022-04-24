@@ -15,6 +15,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractQdmService
 {
@@ -74,7 +75,7 @@ abstract class AbstractQdmService
 
     abstract public function getSqlStatement();
 
-    abstract public function makeQdmModel(array $record);
+    abstract public function makeQdmModel(QdmRecord $recordObj);
 
     public function executeQuery()
     {
@@ -132,20 +133,6 @@ abstract class AbstractQdmService
         }
 
         return $system;
-    }
-
-    /**
-     * @param $openEmrCode
-     * @return bool
-     *
-     * Return true if the code begins with "OID:" which implies a negation (we made up this convention)
-     */
-    public function isNegationCode($openEmrCode)
-    {
-        if (!empty($openEmrCode) && str_starts_with($openEmrCode, 'OID:')) {
-            return true;
-        }
-        return false;
     }
 
     /**

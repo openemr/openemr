@@ -15,6 +15,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class SubstanceOrderService extends AbstractCarePlanService implements QdmServiceInterface
 {
@@ -28,9 +29,10 @@ class SubstanceOrderService extends AbstractCarePlanService implements QdmServic
         return SubstanceOrder::class;
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
-        $model = parent::makeQdmModel($record);
+        $model = parent::makeQdmModel($recordObj);
+        $record = $recordObj->getData();
 
         // The medication order has an additional field for relevantPeriod that is not in the parent
         $model->relevantPeriod = new Interval([

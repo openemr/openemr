@@ -26,6 +26,7 @@ use OpenEMR\Cqm\Qdm\PatientCharacteristicPayer;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicRace;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicSex;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -77,8 +78,9 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         );
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned so we can associate results with patients
         // This 'underscore' id is not part of QDM, but special for the cqm-execution calculator
         $_id = self::convertToObjectIdBSONFormat($record['pid']);

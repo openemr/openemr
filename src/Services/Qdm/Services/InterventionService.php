@@ -13,6 +13,7 @@ namespace OpenEMR\Services\Qdm\Services;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\InterventionPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class InterventionService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -39,9 +40,13 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
         $qdmModel = new InterventionPerformed([
+            '_id' => $id,
+            'id' => $id,
             'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
             ]),

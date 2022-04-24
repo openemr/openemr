@@ -11,6 +11,7 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 /**
  * Class AbstractCarePlanService
@@ -52,10 +53,14 @@ abstract class AbstractCarePlanService extends AbstractQdmService
      *
      * Since almost all the care plans contain the same data, we put the base code for making the model here.
      */
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         $modelClass = $this->getModelClass();
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
         $model = new $modelClass([
+            '_id' => $id,
+            'id' => $id,
             'authorDatetime' => new DateTime([
                 'date' => $record['date']
             ]),

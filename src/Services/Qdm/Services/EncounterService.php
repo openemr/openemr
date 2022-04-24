@@ -15,6 +15,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\EncounterPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class EncounterService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -46,8 +47,9 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         return 'FE.pid';
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         // Convert the encounter datetime into a DateTime Object so we can calculate end time based on encounter end date
         $start_tmp = \DateTime::createFromFormat('Y-m-d H:i:s', $record['date']);
         // DateTime->modify() modifies the calling object, so we need to copy our start date

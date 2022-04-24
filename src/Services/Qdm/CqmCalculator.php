@@ -13,6 +13,7 @@ namespace OpenEMR\Services\Qdm;
 use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\Diagnosis;
 use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
@@ -35,6 +36,23 @@ class CqmCalculator
         $this->client = CqmServiceManager::makeCqmClient();
     }
 
+    protected function findCodeByOid($valueSetArray, $oid_code)
+    {
+        $code = null;
+        foreach ($valueSetArray as $component) {
+            if ($component['oid'] == $oid_code) {
+                $first_concept = $component['concepts'][0];
+                $code = new Code([
+                    "code" => $first_concept['code'],
+                    "system" => $first_concept['code_system_oid']
+                ]);
+                break;
+            }
+        }
+
+        return $code;
+    }
+
     /**
      * @param  QdmRequestInterface $request
      * @param  Measure $measure
@@ -45,15 +63,54 @@ class CqmCalculator
      */
     public function calculateMeasure($patients, Measure $measure, $effectiveDate, $effectiveEndDate)
     {
+        $this->measure = $measure;
+        $measureFiles = MeasureService::fetchMeasureFiles($measure->measure_path);
+        $valueSetArray = json_decode(file_get_contents($measureFiles['valueSets']), true);
         foreach ($patients as $patient) {
             $patient->birthDatetime = DateHelper::format_datetime_cqm($patient->birthDatetime);
+            $data_elements_to_add = [];
+            foreach ($patient->dataElements as $dataElement) {
+
+                // The calculator seems to be confused whether it needs a substance order or medication order, so Cypress
+                // sends both... so we do too.
+                if ($dataElement instanceof SubstanceOrder) {
+                    $medOrder = new MedicationOrder([
+                        'authorDatetime' => $dataElement->authorDatetime,
+                        'dataElementCodes' => $dataElement->dataElementCodes,
+                        'relevantPeriod' => $dataElement->relevantPeriod,
+                        'frequency' => $dataElement->frequency
+                    ]);
+                    $data_elements_to_add[] = $medOrder;
+                }
+
+                if ($dataElement->negationRationale !== null) {
+                    $to_add = [];
+                    foreach ($dataElement->dataElementCodes as $dataElementCode) {
+                        if (empty($dataElementCode->system)) {
+                            // placeholder for "oid" codes that calculator likes
+                            $dataElementCode->system = "1.2.3.4.5.6.7.8.9.10";
+                            // Look up OID code in measure
+                            $code = $this->findCodeByOid($valueSetArray, $dataElementCode->code);
+                            if ($code !== null) {
+                                $to_add[] = $code;
+                            }
+                        }
+                    }
+                    foreach ($to_add as $item) {
+                        $dataElement->dataElementCodes []= $item;
+                    }
+                }
+            }
+
+            foreach ($data_elements_to_add as $data_elem) {
+                $patient->dataElements[] = $data_elem;
+            }
         }
 
         $json_models = json_encode($patients);
-        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Andrew Rodriguez/Cypress.patients.out.json');
+        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Carlos Roberts/patients.out.json');
         $patientStream = Psr7\Utils::streamFor($json_models);
-        $this->measure = $measure;
-        $measureFiles = MeasureService::fetchMeasureFiles($measure->measure_path);
+
         // Convert to assoc array before converting back to json to send
         $measure_array = json_decode(json_encode($measure), true);
         $json_measure = json_encode($measure_array);

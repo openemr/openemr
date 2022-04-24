@@ -12,6 +12,7 @@ namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractObservationService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -54,10 +55,14 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
      *
      * Map an OpenEMR record into a QDM model
      */
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         $modelClass = $this->getModelClass();
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
         $qdmModel = new $modelClass([
+            '_id' => $id,
+            'id' => $id,
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
             ]),

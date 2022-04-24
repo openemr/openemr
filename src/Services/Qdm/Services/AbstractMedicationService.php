@@ -16,6 +16,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractMedicationService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -50,8 +51,9 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
         return 'patient_id';
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         // If we don't have a start date, use date added
         // TODO no start date in QRDA Import
         $start_date = !empty($record['start_date']) ? $record['start_date'] : $record['date_added'];

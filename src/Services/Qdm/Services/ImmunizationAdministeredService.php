@@ -14,6 +14,7 @@ use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\ImmunizationAdministered;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class ImmunizationAdministeredService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -29,8 +30,9 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
         return $sql;
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         $model = new ImmunizationAdministered([
             'relevantDatetime' => new DateTime([
                 'date' => $record['administered_date']

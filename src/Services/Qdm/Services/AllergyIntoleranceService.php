@@ -14,6 +14,7 @@ use OpenEMR\Cqm\Qdm\AllergyIntolerance;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class AllergyIntoleranceService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -26,8 +27,9 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
         return $sql;
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         $qdmModel = new AllergyIntolerance(
             [
             'authorDatetime' => new DateTime(

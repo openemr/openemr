@@ -180,7 +180,6 @@ class ExportCat3Service
 
     private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure)
     {
-
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {
             $individual_result['population_set_key'] = $population_set_key;
