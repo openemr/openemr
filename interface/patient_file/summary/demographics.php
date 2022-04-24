@@ -1632,6 +1632,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['dayName'] = $dayname;
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
                             $row['uname'] = text($row['fname'] . " " . $row['lname']);
+                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
                             $past_appts[] = $row;
                         }
                     }

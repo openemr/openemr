@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
 
 formHeader("Form:Treatment Planning");
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
 $obj = $formid ? formFetch("form_treatment_plan", $formid) : array();
 
 // Get the providers list.

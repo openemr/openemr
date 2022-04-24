@@ -150,7 +150,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
         $tres = sqlStatement("SELECT procedure_report_id FROM procedure_report " .
         "WHERE procedure_order_id = ?", array($formid));
         while ($trow = sqlFetchArray($tres)) {
-            $reportid = 0 + $trow['procedure_report_id'];
+            $reportid = (int) $trow['procedure_report_id'];
             row_delete("procedure_result", "procedure_report_id = '" . add_escape_custom($reportid) . "'");
         }
 

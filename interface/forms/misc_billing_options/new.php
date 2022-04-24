@@ -56,14 +56,14 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 //only one misc billing form per encounter so grab if exists
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
 if (empty($formid)) {
     $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                           INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
                           `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
                           `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($encounter));
     if (!empty($mboquery['id'])) {
-        $formid = 0 + $mboquery['id'];
+        $formid = (int) $mboquery['id'];
     }
 }
 $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();

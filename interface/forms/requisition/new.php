@@ -24,7 +24,7 @@ formHeader("Form:Lab Requisition");
 
 $returnurl = 'encounter_top.php';
 
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
+$formid = (int) (isset($_GET['id']) ? $_GET['id'] : '');
 $obj = $formid ? formFetch("form_requisition", $formid) : array();
 
 global $pid ;
