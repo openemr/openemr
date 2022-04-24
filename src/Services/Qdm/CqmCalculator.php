@@ -108,13 +108,13 @@ class CqmCalculator
         }
 
         $json_models = json_encode($patients);
-        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Carlos Roberts/patients.out.json');
+        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug cms122 Amy Gray/Cypress.patients.out.json');
         $patientStream = Psr7\Utils::streamFor($json_models);
 
         // Convert to assoc array before converting back to json to send
         $measure_array = json_decode(json_encode($measure), true);
         $json_measure = json_encode($measure_array);
-        //$json_measure = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug Andrew Rodriguez/Cypress.measure.out.json');
+        //$json_measure = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug cms122 Amy Gray/Cypress.measure.out.json');
         $measureFileStream = Psr7\Utils::streamFor($json_measure);
         $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
         $options = [
