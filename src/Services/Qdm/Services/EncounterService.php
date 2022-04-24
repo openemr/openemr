@@ -77,7 +77,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     'date' => $end_date
                 ]),
                 'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $record['date_end'] ? true : false
+                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
             ]),
             'authorDatetime' => new DateTime([
                 'date' => $record['date']
