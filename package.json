@@ -47,7 +47,6 @@
     "gulp-watch": "5.0.1",
     "minimist": "1.2.5",
     "napa": "3.0.0",
-    "oe-cqm-parsers": "github:openemr/oe-cqm-parsers#main",
     "postcss": "8.4.5",
     "replace-in-file": "6.3.2",
     "stylelint": "14.3.0",
