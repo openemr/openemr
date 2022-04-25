@@ -13,8 +13,10 @@ namespace OpenEMR\Services\Qdm\Services;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
+use OpenEMR\Cqm\Qdm\DiagnosisComponent;
 use OpenEMR\Cqm\Qdm\EncounterPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class EncounterService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -46,8 +48,9 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         return 'FE.pid';
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         // Convert the encounter datetime into a DateTime Object so we can calculate end time based on encounter end date
         $start_tmp = \DateTime::createFromFormat('Y-m-d H:i:s', $record['date']);
         // DateTime->modify() modifies the calling object, so we need to copy our start date
@@ -62,8 +65,10 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
             $days = $end->diff($start)->format("%a");
             $end_date = $end->format('Y-m-d H:i:s');
         }
-
+        $enc_id = self::convertToObjectIdBSONFormat($record['encounter']);
         $qdmRecord = new EncounterPerformed([
+            '_id' => $enc_id,
+            'id' => $enc_id,
             'relevantPeriod' => new Interval([
                 'low' =>  new DateTime([
                     'date' => $start->format('Y-m-d H:i:s')
@@ -72,7 +77,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
                     'date' => $end_date
                 ]),
                 'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $record['date_end'] ? true : false
+                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
             ]),
             'authorDatetime' => new DateTime([
                 'date' => $record['date']
@@ -81,12 +86,18 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
             'dischargeDisposition' => $this->makeQdmCode($record['discharge_dispo_code']) ?? null,
             'facilityLocations' => [],
             'lengthOfStay' => new Quantity([
-                'value' => $days,
+                'value' => (int)$days,
                 'unit' => 'd'
                 ]),
-            'negationRationale' => null,
-            'diagnoses' => $this->makeQdmCode($record['diagnosis']) ?? null
+            'negationRationale' => null
         ]);
+
+        $encounter_diagnosis_codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
+        foreach ($encounter_diagnosis_codes as $encounter_diagnosis_code) {
+            $qdmRecord->diagnoses [] = new DiagnosisComponent([
+                'code' => $encounter_diagnosis_code
+            ]);
+        }
 
         $codes = $this->explodeAndMakeCodeArray($record['encounter_type_code']);
         foreach ($codes as $code) {

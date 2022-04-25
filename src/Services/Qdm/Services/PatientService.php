@@ -26,6 +26,7 @@ use OpenEMR\Cqm\Qdm\PatientCharacteristicPayer;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicRace;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicSex;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -67,22 +68,6 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public static function convertToObjectIdBSONFormat($id)
-    {
-        // max bigint size will fit in 16 characters so we will always have enough space for this.
-        $padded_hex = sprintf("%024X", $id);
-        return $padded_hex;
-    }
-
-    public static function convertIdFromBSONObjectIdFormat($id)
-    {
-        // max bigint size is 8 bytes which will fit fine
-        // string ID should be prefixed with 0s so the converted data type should be far smaller
-        $trimmedId = ltrim($id, '\x0');
-        $decimal = hexdec($trimmedId);
-        return $decimal;
-    }
-
     public static function makeQdmIdentifier($namingSystem, $value)
     {
         return new Identifier(
@@ -93,8 +78,9 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         );
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned so we can associate results with patients
         // This 'underscore' id is not part of QDM, but special for the cqm-execution calculator
         $_id = self::convertToObjectIdBSONFormat($record['pid']);
@@ -177,7 +163,9 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                 'low' => new DateTime([
                     'date' => $record['payer_eff_date']
                 ]),
-                'high' => null // TODO We don't have an end-date for insurance?
+                'high' => null, // TODO We don't have an end-date for insurance?,
+                'lowClosed' => $record['payer_eff_date'] ? true : false,
+                'highClosed' => false
             ]),
             'dataElementCodes' => [
                 new Code(

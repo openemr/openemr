@@ -133,12 +133,12 @@ class ExportCat3Service
     private function request_for($patients, Measure $measure, $effectiveDate, $effectiveDateEnd)
     {
 
-        $results = $this->calculator->calculateMeasure($patients, $measure->measure_path, $effectiveDate, $effectiveDateEnd);
+        $results = $this->calculator->calculateMeasure($patients, $measure, $effectiveDate, $effectiveDateEnd);
         $final_results = [];
         foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient
             // need to unconvert from our hex format here
-            $aggregated_results = $this->aggregate_population_results_from_individual_results($result, $patient_id);
+            $aggregated_results = $this->aggregate_population_results_from_individual_results($result, $patient_id, $measure);
             $final_results = array_merge($final_results, $aggregated_results);
         }
 
@@ -178,14 +178,13 @@ class ExportCat3Service
          */
     }
 
-    private function aggregate_population_results_from_individual_results($individual_results, $patient_id)
+    private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure)
     {
-
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {
             $individual_result['population_set_key'] = $population_set_key;
             $individual_result['patient_id'] = $patient_id;
-            $results[] = new IndividualResult($individual_result);
+            $results[] = new IndividualResult($individual_result, $measure);
         }
         return $results;
         /**

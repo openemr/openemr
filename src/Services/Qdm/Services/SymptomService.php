@@ -13,6 +13,7 @@ namespace OpenEMR\Services\Qdm\Services;
 use OpenEMR\Cqm\Qdm\Symptom;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class SymptomService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -25,8 +26,9 @@ class SymptomService extends AbstractQdmService implements QdmServiceInterface
         return $sql;
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         $qdmModel = new Symptom([
             'prevalencePeriod' => new Interval([
                 'low' => $this->validDateOrNull($record['begdate']),

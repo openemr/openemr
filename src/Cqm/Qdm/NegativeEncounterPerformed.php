@@ -3,7 +3,7 @@
 namespace OpenEMR\Cqm\Qdm;
 
 /**
- * OpenEMR\Cqm\Qdm\NegativeMedicationDischarge
+ * OpenEMR\Cqm\Qdm\NegativeEncounterPerformed
  *
  * This is a class generated with Laminas\Code\Generator.
  *
@@ -12,18 +12,18 @@ namespace OpenEMR\Cqm\Qdm;
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
  */
-class NegativeMedicationDischarge extends MedicationDischarge
+class NegativeEncounterPerformed extends EncounterPerformed
 {
     /**
      * @property string $qdmTitle
      */
-    public $qdmTitle = 'Medication, Not Discharged';
+    public $qdmTitle = 'Encounter, Not Performed';
 
     /**
      * @property string $qdmVersion
      */
     public $qdmVersion = '5.5';
 
-    public $_type = 'QDM::NegativeMedicationDischarge';
+    public $_type = 'QDM::NegativeEncounterPerformed';
 }
 

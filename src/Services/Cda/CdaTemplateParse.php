@@ -408,6 +408,10 @@ class CdaTemplateParse
             if (!empty($discharge)) {
                 $code = $this->codeService->getCodeWithType(($discharge['code'] ?? ''), ($discharge['codeSystemName'] ?? ''), true) ?? '';
                 $option = $this->codeService->dischargeOptionIdFromCode($code) ?? '';
+                if (empty($option)) {
+                    $code = str_replace(" ", "-", $code); // Because "SNOMED CT" is "SNOMED-CT" in list options
+                    $option = $this->codeService->dischargeOptionIdFromCode($code) ?? '';
+                }
             }
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_discharge_code'] = $option;
 

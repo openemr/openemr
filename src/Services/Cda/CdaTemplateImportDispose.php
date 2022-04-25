@@ -420,7 +420,7 @@ class CdaTemplateImportDispose
             $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_low'])) : null;
             $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_high'])) : null;
 
-            $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type) 
+            $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type)
                 VALUES (?,?,?,NULL,?,?,?,?,?,?)';
             $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $encounter_for_billing, $procedure_date_value, 'normal', ($value['status'] ?? 'completed'), 1, $pro_id, $value['procedure_type']));
             $po_id = $result_po->getGeneratedValue();
@@ -600,7 +600,7 @@ class CdaTemplateImportDispose
 
             $q_ins_forms = "INSERT INTO forms (date,encounter,form_name,form_id,pid,user,groupname,deleted,formdir) VALUES (?,?,?,?,?,?,?,?,?)";
             $appTable->zQuery($q_ins_forms, array($encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient'));
-            if (!empty($value['encounter_diagnosis_issue'])) {
+            if (!empty($value['encounter_diagnosis_code'])) {
                 $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
                 $result = $appTable->zQuery($query_select, array($diag_date, $value['encounter_diagnosis_issue'], $pid));
                 if ($result->count() > 0) {
@@ -1691,7 +1691,7 @@ class CdaTemplateImportDispose
                              ob_reason_status,
                              ob_reason_code,
                              ob_reason_text,
-                             date_end) 
+                             date_end)
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 array(
                     $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
