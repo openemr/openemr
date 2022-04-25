@@ -94,7 +94,7 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
 
         $encounter_diagnosis_codes = $this->explodeAndMakeCodeArray($record['diagnosis']);
         foreach ($encounter_diagnosis_codes as $encounter_diagnosis_code) {
-            $qdmRecord->diagnoses []= new DiagnosisComponent([
+            $qdmRecord->diagnoses [] = new DiagnosisComponent([
                 'code' => $encounter_diagnosis_code
             ]);
         }

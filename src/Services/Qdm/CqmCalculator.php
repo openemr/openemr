@@ -66,11 +66,11 @@ class CqmCalculator
         $this->measure = $measure;
         $measureFiles = MeasureService::fetchMeasureFiles($measure->measure_path);
         $valueSetArray = json_decode(file_get_contents($measureFiles['valueSets']), true);
+        // Fix somethings that the cqm calculator needs before we create JSON out of the patient models.
         foreach ($patients as $patient) {
             $patient->birthDatetime = DateHelper::format_datetime_cqm($patient->birthDatetime);
             $data_elements_to_add = [];
             foreach ($patient->dataElements as $dataElement) {
-
                 // We need to look up OIDs and add the first code concept from the value set.
                 // We do this first in case it's in a dataElement that we need to clone for the calculator below
                 if ($dataElement->negationRationale !== null) {
@@ -87,7 +87,7 @@ class CqmCalculator
                         }
                     }
                     foreach ($to_add as $item) {
-                        $dataElement->dataElementCodes []= $item;
+                        $dataElement->dataElementCodes [] = $item;
                     }
                 }
 
@@ -111,13 +111,11 @@ class CqmCalculator
         }
 
         $json_models = json_encode($patients);
-        //$json_models = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug cms69 Rhonda Sanchez/patients.out.json');
         $patientStream = Psr7\Utils::streamFor($json_models);
 
         // Convert to assoc array before converting back to json to send
         $measure_array = json_decode(json_encode($measure), true);
         $json_measure = json_encode($measure_array);
-        //$json_measure = file_get_contents('/Users/kchapple/Dev/QRDA_COMPARE/cat iii debug cms122 Amy Gray/Cypress.measure.out.json');
         $measureFileStream = Psr7\Utils::streamFor($json_measure);
         $valueSetFileStream = new LazyOpenStream($measureFiles['valueSets'], 'r');
         $options = [

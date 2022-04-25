@@ -52,7 +52,7 @@ class SubstanceOrderService extends AbstractCarePlanService implements QdmServic
 
         $model->frequency = new Code([
             "code" => "396125000",
-            "system"=> "2.16.840.1.113883.6.96",
+            "system" => "2.16.840.1.113883.6.96",
         ]);
 
         return $model;

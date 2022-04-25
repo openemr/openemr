@@ -152,7 +152,9 @@ class IndividualResult extends AbstractType
         // a scenario with multiple episodes and multiple observations would look like this [[2], [9, 1]]
         // remove any empty values
         $obs_values_array = $this->get_observ_values($this->episode_results) ?? [];
-        $observation_values = array_filter($obs_values_array, function($a){return isset($a);});
+        $observation_values = array_filter($obs_values_array, function ($a) {
+            return isset($a);
+        });
         foreach ($observation_values as $episode_index => $observation_value) {
             foreach ($observation_value as $observation => $index) {
                 $obs_pop = null;
