@@ -93,7 +93,8 @@ class Measure extends AbstractType
             $measure['cms_id'] == 'CMS125v10' ||
             $measure['cms_id'] == 'CMS127v10' ||
             $measure['cms_id'] == 'CMS130v10' ||
-            $measure['cms_id'] == 'CMS138v10'
+            $measure['cms_id'] == 'CMS138v10' ||
+            $measure['cms_id'] == 'CMS147v11'
         ) {
             $this->calculation_method = 'PATIENT';
         }

@@ -30,7 +30,10 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
     public function makeQdmModel(QdmRecord $recordObj)
     {
         $record = $recordObj->getData();
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
         $qdmModel = new AllergyIntolerance([
+            '_id' => $id,
+            'id' => $id,
             'authorDatetime' => new DateTime([
                 'date' => $record['begdate']
             ]),

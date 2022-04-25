@@ -41,7 +41,10 @@ class DeviceAppliedService extends AbstractQdmService implements QdmServiceInter
     public function makeQdmModel(QdmRecord $recordObj)
     {
         $record = $recordObj->getData();
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
         $qdmModel = new DeviceApplied([
+            '_id' => $id,
+            'id' => $id,
             'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
             ])
