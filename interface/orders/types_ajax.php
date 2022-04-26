@@ -20,7 +20,7 @@ $labid = (isset($_GET['labid']) ? $_GET['labid'] : '') + 0;
 
 $render = '';
 
-$render .= "'<table class=\"table\">";
+$render .= "<table class=\"table\">";
 // Determine indentation level for this container.
 for ($level = 0, $parentid = $id; $parentid; ++$level) {
     $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
@@ -112,7 +112,9 @@ while ($row = sqlFetchArray($res)) {
     if (($isOrder != 'grp' && $isOrder != 'fgp') &&  !empty($row['procedure_code'])) {
         $render .= "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
     } elseif (($isOrder != 'grp' && $isOrder != 'fgp') &&  empty($row['procedure_code'])) {
-        $render .= "<td class=\"col3\" style=\"padding-left: 15px\"><span class=\"required-tooltip\" title=\"" . xla("Missing Identifying Code") . "\"><i class=\"fa fa-exclamation-triangle text-center text-danger\" aria-hidden=\"true\" > </i></span></td>";
+        $render .= "<td class=\"col3\" style=\"padding-left: 15px\"><span class=\"required-tooltip\" title=\"" .
+            xla("Missing Identifying Code") .
+            "\"><i class=\"fa fa-exclamation-triangle text-center text-danger\" aria-hidden=\"true\" ></i></span></td>";
     } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
         $render .= "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
     }
@@ -126,17 +128,21 @@ while ($row = sqlFetchArray($res)) {
     $render .= "<td class=\"col6\">" . text($level + 1) . "</td>";
     $render .= "<td class=\"col4\">" . text($row['description']) . "</td>";
     $render .= "<td class=\"col5\">";
-    $render .= "<span onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"text-body haskids fa fa-pencil-alt fa-lg\" title=" . xla("Edit") . "></span>";
+    $render .= "<span onclick=\"handleNode(" . attr_js($chid) . "," .
+        attr_js($typeIs) . ",false," . attr_js($thislab) .
+        ")\" class=\"text-body haskids fa fa-pencil-alt fa-lg\" title=" . xla("Edit") . "></span>";
     $render .= "</td>";
     $render .= "<td class=\"col5\">";
     //if ($isOrder != 'for') {//RP_MODIFIED 2018-08-03 to allow for manual lab entry
-        $render .= "<span style=\"margin-left: 30px\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) . ")\" class=\"haskids text-body fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
+        $render .= "<span style=\"margin-left: 30px\" onclick=\"handleNode(" .
+        attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) .
+        ")\" class=\"haskids text-body fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
     //}//RP_MODIFIED 2018-08-03
     $render .= "</td>";
     $render .= "</tr>";
 }
 
-$render .= "</table>'\n";
+$render .= "</table>\n";
 $rendered = "$('#con" . attr($id) . "').html(";
 $rendered .= js_escape($render) . ");";
 $rendered .= "nextOpen();\n";
