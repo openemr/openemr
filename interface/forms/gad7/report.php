@@ -13,10 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* these are included in gad7.inc.php
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc");
-*/
 require_once("gad7.inc.php");
 
 $gad7_total = 0;
@@ -34,7 +30,7 @@ function gad7_report($pid, $encounter, $cols, $id)
 {
     global $str_test, $str_nervous,$gad7_total, $pdf_as_string, $str_values,$str_difficulty_values, $data, $exp, $file_path,$file_name, $str_generate_pdf;
 
-    $genpdf_file_path = '/interface/forms/gad7/report-as-pdf.php';
+    $genpdf_file_path = __DIR__.'report-as-pdf.php';
 
     $count = 0;
     $value = 0;
