@@ -18,8 +18,15 @@
 
 require_once('../interface/globals.php');
 
-use OpenEMR\Core\Header;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'docs')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dicom Viewer")]);
+    exit;
+}
 
 $web_path = $_REQUEST['web_path'] ?? null;
 if ($web_path) {
