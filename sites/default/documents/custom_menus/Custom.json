@@ -2015,7 +2015,7 @@
             "requirement": 0,
             "acl_req": [
               "admin",
-              "batchcom"
+              "super"
             ]
           },
           {
@@ -2024,13 +2024,17 @@
             "target": "rep",
             "url": "/interface/reports/direct_message_log.php",
             "children": [],
-            "requirement": 0
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0,
         "acl_req": [
           "admin",
-          "batchcom"
+          "super"
         ]
       }
     ],
