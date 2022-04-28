@@ -2,11 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\Export\ExportCannotEncodeException;
-use OpenEMR\FHIR\Export\ExportException;
-use OpenEMR\FHIR\Export\ExportJob;
-use OpenEMR\FHIR\Export\ExportStreamWriter;
-use OpenEMR\FHIR\Export\ExportWillShutdownException;
+use DateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterHospitalization;
@@ -19,7 +15,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -134,6 +129,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $participant = new FHIREncounterParticipant();
             $participant->setIndividual(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
             $period = new FHIRPeriod();
+            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
             $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
             $participant->setPeriod($period);
 
@@ -152,7 +148,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         // period - must support
         if (!empty($dataRecord['date'])) {
             $period = new FHIRPeriod();
-            $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
+            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
             $encounterResource->setPeriod($period);
         }
 
