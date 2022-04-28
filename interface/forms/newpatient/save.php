@@ -27,8 +27,8 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 $facilityService = new FacilityService();
 
-$date = isset($_POST['form_date']) ? DateToYYYYMMDD($_POST['form_date']) : null;
-$onset_date = isset($_POST['form_onset_date']) ? DateToYYYYMMDD($_POST['form_onset_date']) : null;
+$date = isset($_POST['form_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_date']) : null;
+$onset_date = isset($_POST['form_onset_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_onset_date']) : null;
 $sensitivity = $_POST['form_sensitivity'] ?? null;
 $pc_catid = $_POST['pc_catid'] ?? null;
 $facility_id = $_POST['facility_id'] ?? null;
