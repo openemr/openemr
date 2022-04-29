@@ -61,6 +61,31 @@ class CarecoordinationController extends AbstractActionController
         $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
     }
 
+    /**
+     * delete an audit record
+     *
+     * @return ViewModel
+     */
+    public function deleteAuditAction()
+    {
+        $request = $this->getRequest();
+        $amid = $request->getPost('am_id') ?? null;
+        if ($amid) {
+            $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $amid));
+        }
+        $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        $view = new ViewModel(array(
+            'records' => $records,
+            'category_id' => $category_details[0]['id'],
+            'file_location' => basename($_FILES['file']['name'] ?? ''),
+            'patient_id' => '00',
+            'listenerObject' => $this->listenerObject
+        ));
+
+        return $view;
+    }
+
     /*
     * Upload CCDA file
     */
@@ -121,6 +146,53 @@ class CarecoordinationController extends AbstractActionController
         }
 
         $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        foreach ($records as $key => $r) {
+            if (!empty($records[$key]['dupl_patient'])) {
+                continue;
+            }
+            $name = $r['pat_name'];
+            $dob = $r['dob_raw'];
+            //$records[$key]['dupl'] = '';
+            foreach ($records as $k => $r1) {
+                $f = false;
+                $why = '';
+                if (!empty($r1['dupl_patient']) || $key == $k) {
+                    continue;
+                }
+                $n = $r1['pat_name'];
+                $fn = $r1['ad_fname'] == $r['ad_fname'];
+                $ln = $r1['ad_lname'] == $r['ad_lname'];
+                $dob = $r1['dob_raw'] == $r['dob_raw'];
+                if ($dob) {
+                    $f = true;
+                    $why = xlt('Match DOB');
+                }
+                if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
+                    $why = xlt('Matched Demo');
+                    if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
+                        $why .= ' ' . xlt('with Mismatched Components');
+                    }
+                    $f = true;
+                }
+                if (
+                    (($ln && !$fn || $fn && !$ln) && $dob)
+                    && ($r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])
+                ) {
+                    $why = xlt('Name Misspelled');
+                    if (
+                        $r1['enc_count'] != $r['enc_count']
+                        || $r1['cp_count'] != $r['cp_count']
+                        || $r1['ob_count'] != $r['ob_count']
+                    ) {
+                        $why .= ' ' .  xlt('with Mismatched Components');
+                    }
+                    $f = true;
+                }
+                if ($f) {
+                    $records[$key]['dupl_patient'] = $records[$k]['dupl_patient'] = $why;
+                }
+            }
+        }
         $view = new ViewModel(array(
             'records' => $records,
             'category_id' => $category_details[0]['id'],
