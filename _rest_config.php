@@ -21,6 +21,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
@@ -502,6 +503,62 @@ class RestConfig
         }
 
         return false;
+    }
+
+    /**
+     * Grabs all of the context information for the request's access token and populates any context variables the
+     * request needs (such as patient binding information).  Returns the populated request
+     * @param HttpRestRequest $restRequest
+     * @return HttpRestRequest
+     */
+    public function populateTokenContextForRequest(HttpRestRequest $restRequest)
+    {
+
+        $context = $this->getTokenContextForRequest($restRequest);
+        // note that the context here is the SMART value that is returned in the response for an AccessToken in this
+        // case it is the patient value which is the logical id (ie uuid) of the patient.
+        $patientUuid = $context['patient'] ?? null;
+        if (!empty($patientUuid)) {
+            // we only set the bound patient access if the underlying user can still access the patient
+            if ($this->checkUserHasAccessToPatient($restRequest->getRequestUserId(), $patientUuid)) {
+                $restRequest->setPatientUuidString($patientUuid);
+            }
+        } else {
+            (new SystemLogger())->error(("OpenEMR Error: api had patient launch scope but no patient was set in the "
+            . " session cache.  Resources restricted with patient scopes will not return results"));
+        }
+        return $restRequest;
+    }
+
+    public function getTokenContextForRequest(HttpRestRequest $restRequest)
+    {
+        $accessTokenRepo = new AccessTokenRepository();
+        // note this is pretty confusing as getAccessTokenId comes from the oauth_access_id which is the token NOT
+        // the database id even though this is called accessTokenId....
+        $token = $accessTokenRepo->getTokenByToken($restRequest->getAccessTokenId());
+        $context = $token['context'] ?? "{}"; // if there is no populated context we just return an empty return
+        try {
+            return json_decode($context, true);
+        } catch (\Exception $exception) {
+            (new SystemLogger())->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
+                , 'tokenId' => $restRequest->getAccessTokenId()]);
+        }
+        return [];
+    }
+
+
+    /**
+     * Checks whether a user has access to the patient. Returns true if the user can access the given patient, false otherwise
+     * @param $userId The id from the users table that represents the user
+     * @param $patientUuid The uuid from the patient_data table that represents the patient
+     * @return bool True if has access, false otherwise
+     */
+    private function checkUserHasAccessToPatient($userId, $patientUuid)
+    {
+        // TODO: the session should never be populated with the pid from the access token unless the user had access to
+        // it.  However, if we wanted an additional check or if we anted to fire off any kind of event that does
+        // patient filtering by provider / clinic we would handle that here.
+        return true;
     }
 
 

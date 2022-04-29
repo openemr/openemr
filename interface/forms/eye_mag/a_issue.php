@@ -31,7 +31,7 @@ require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_function
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
-$pid = 0 + (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
+$pid = (int) (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
 
 // A nonempty thisenc means we are to link the issue to the encounter.

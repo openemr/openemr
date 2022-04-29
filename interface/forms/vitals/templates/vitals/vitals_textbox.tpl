@@ -9,10 +9,10 @@
     <td class='currentvalues p-2'>
         {if isset($vitalsStringFormat) }
         <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
-               value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|string_format:$vitalsStringFormat|attr}{/if}"/>
+               value="{if is_numeric($vitals->$vitalsValue()) }{$vitals->$vitalsValue()|string_format:$vitalsStringFormat|attr}{/if}"/>
         {else}
         <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
-               value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"/>
+               value="{if is_numeric($vitals->$vitalsValue())}{$vitals->$vitalsValue()|attr}{/if}"/>
         {/if}
 
     </td>

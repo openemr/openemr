@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\InterventionOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
@@ -21,22 +20,8 @@ class InterventionOrderedService extends AbstractCarePlanService implements QdmS
         return AbstractCarePlanService::CARE_PLAN_TYPE_INTERVENTION;
     }
 
-    public function makeQdmModel(array $record)
+    public function getModelClass()
     {
-        $model = new InterventionOrder([
-            'authorDatetime' => new DateTime(
-                [
-                    'date' => $record['date']
-                ]
-            ),
-        ]);
-
-        $model->addCode($this->makeQdmCode($record['code']));
-
-        if (!empty($record['reason_code'])) {
-            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
-        }
-
-        return $model;
+        return InterventionOrder::class;
     }
 }

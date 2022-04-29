@@ -16,7 +16,10 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Validators\ProcessingResult;
 
 class UserService
 {
@@ -134,6 +137,56 @@ class UserService
         return $user;
     }
 
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT  id,
+                        uuid,
+                        users.title as title,
+                        fname,
+                        lname,
+                        mname,
+                        federaltaxid,
+                        federaldrugid,
+                        upin,
+                        facility_id,
+                        facility,
+                        npi,
+                        email,
+                        active,
+                        specialty,
+                        billname,
+                        url,
+                        assistant,
+                        organization,
+                        valedictory,
+                        street,
+                        streetb,
+                        city,
+                        state,
+                        zip,
+                        phone,
+                        fax,
+                        phonew1,
+                        phonecell,
+                        users.notes,
+                        state_license_number,
+                        abook.title as abook_title
+                FROM  users
+                LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
+        }
+        return $processingResult;
+    }
+
     /**
      * Returns a list of users matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
@@ -178,7 +231,7 @@ class UserService
                         phonecell,
                         users.notes,
                         state_license_number,
-                        abook.title as abook_title,
+                        abook.title as abook_title
                 FROM  users
                 LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
 

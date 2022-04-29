@@ -216,7 +216,7 @@ if ($_POST['form_save']) {
             if (empty($_POST['form_copy_sn_visit'])) {
                 $info_msg .= "This patient has no visits! ";
             } else {
-                $encounter_id = 0 + $_POST['form_copy_sn_visit'];
+                $encounter_id = (int) $_POST['form_copy_sn_visit'];
             }
 
             if (!$info_msg) {

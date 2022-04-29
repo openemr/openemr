@@ -30,6 +30,7 @@ class CodeTypesService
     const CODE_TYPE_RXNORM = "RXNORM";
     const CODE_TYPE_RXCUI = "RXCUI";
     const CODE_TYPE_ICD10 = 'ICD10';
+    const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
     const CODE_TYPE_OID = array(
@@ -39,11 +40,11 @@ class CodeTypesService
         '2.16.840.1.113883.6.101' => self::CODE_TYPE_NUCC,
         '2.16.840.1.113883.6.88' => self::CODE_TYPE_RXNORM,
         '2.16.840.1.113883.6.90' => self::CODE_TYPE_ICD10,
-        '2.16.840.1.113883.6.103' =>  'ICD-9-CM',
-        '2.16.840.1.113883.6.104' =>  'ICD-9-PCS',
-        '2.16.840.1.113883.6.4' =>   'ICD-10-PCS',
-        '2.16.840.1.113883.6.14' =>   'HCP',
-        '2.16.840.1.113883.6.285' =>   'HCPCS',
+        '2.16.840.1.113883.6.103' => 'ICD9-CM',
+        '2.16.840.1.113883.6.104' => 'ICD9-PCS',
+        '2.16.840.1.113883.6.4' => 'ICD10-PCS',
+        '2.16.840.1.113883.6.14' => 'HCP',
+        '2.16.840.1.113883.6.285' => 'HCPCS',
         '2.16.840.1.113883.5.2' => "HL7 Marital Status",
         '2.16.840.1.113883.12.292' => 'CVX',
         '2.16.840.1.113883.5.83' => 'HITSP C80 Observation Status',
@@ -229,6 +230,8 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.12';
             } elseif (self::CODE_TYPE_CVX == $codeType) {
                 $system = '2.16.840.1.113883.12.292';
+            } elseif (self::CODE_TYPE_ICD10PCS == $codeType) {
+                $system = '2.16.840.1.113883.6.4';
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
@@ -241,6 +244,13 @@ class CodeTypesService
                 $system = FhirCodeSystemConstants::LOINC;
             } elseif (self::CODE_TYPE_RXNORM == $codeType || self::CODE_TYPE_RXCUI == $codeType) {
                 $system = FhirCodeSystemConstants::RXNORM;
+            }
+        }
+        if (empty($system)) {
+            foreach (self::CODE_TYPE_OID as $oid => $system_code) {
+                if ($system_code == $codeType) {
+                    return $oid;
+                }
             }
         }
         return $system;
@@ -362,10 +372,17 @@ class CodeTypesService
 
     public function lookupFromValueset($code, $codeType, $codeSystem)
     {
-        $value = sqlQuery(
-            "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
-            array($code, $codeType, "$codeType%", $codeSystem)
-        );
+        if (empty($codeSystem) && empty($codeType)) {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? LIMIT 1",
+                array($code)
+            );
+        } else {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
+                array($code, $codeType, "$codeType%", $codeSystem)
+            );
+        }
         return $value;
     }
 

@@ -47,7 +47,7 @@ if (!empty($_POST['form_save'])) {
     $thisenc = $_POST['thisenc'];
 } else {
     $issue = $_REQUEST['issue'] ?? null;
-    $thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
+    $thispid = (int) (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
     // A nonempty thisenc means we are to link the issue to the encounter.
     $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 }

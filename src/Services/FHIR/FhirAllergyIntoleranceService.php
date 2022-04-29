@@ -214,6 +214,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 $display = !empty($codeValues['description']) ? $codeValues['description'] : $dataRecord['title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $diagnosisCoding->setDisplay(trim($display));
+                $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
             $allergyIntoleranceResource->setCode($diagnosisCode);

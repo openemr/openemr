@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\DiagnosticStudyOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
@@ -21,21 +20,8 @@ class DiagnosticStudyOrderedService extends AbstractCarePlanService implements Q
         return AbstractCarePlanService::CARE_PLAN_TYPE_PLAN_OF_CARE;
     }
 
-    public function makeQdmModel(array $record)
+    public function getModelClass()
     {
-        $model = new DiagnosticStudyOrder([
-            'authorDatetime' => new DateTime([
-                'date' => $record['date']
-            ]),
-        ]);
-
-        $model->addCode($this->makeQdmCode($record['code']));
-
-        // If there is a reason noted why this plan was NOT done, add a negation
-        if (!empty($record['reason_code'])) {
-            $model->negationRationale = $this->makeQdmCode($record['reason_code']);
-        }
-
-        return $model;
+        return DiagnosticStudyOrder::class;
     }
 }
