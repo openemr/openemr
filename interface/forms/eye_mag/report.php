@@ -1536,7 +1536,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         padding: 2px 10px;
                                         width: 200px;"><?php echo text($OSIRIS); ?></td>
                                 </tr>
-                            <?php if ($ODGONIO || $OSDGONIO) { ?>
+                            <?php if ($ODGONIO || $OSGONIO) { ?>
                                     <tr>
                                         <td style="text-align:right; 
                                         flex-wrap: wrap;
@@ -1634,7 +1634,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
         <!-- start of Other exam -->
         <?php
-        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? '') || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
+        if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? null) || $NPC || $STEREOPSIS || $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
             ?>
                 <table>
                     <tr>
@@ -1792,7 +1792,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         <?php
                             }
 
-                            if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS) { ?>
+                            if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || $OSREDDESAT || $ODCOINS || $OSCOINS || $ODNPA || $OSNPA || ($NPA ?? null) || $NPC || $STEREOPSIS) { ?>
                                         <!-- start of NEURO exam -->
                                         <?php
                                         if ($ODCOLOR or $OSCOLOR) { ?>
