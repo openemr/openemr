@@ -382,9 +382,12 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Race'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Ethnic'); ?></th>
-                            <th><?php echo '# ' . $this->listenerObject->z_xlt('Enc'); ?></th>
-                            <th><?php echo '# ' . $this->listenerObject->z_xlt('CP'); ?></th>
-                            <th><?php echo '# ' . $this->listenerObject->z_xlt('OB'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Enc'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Prob'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('CP'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('OB'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Proc'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Med'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Duplicate'); ?></th>
@@ -409,8 +412,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                 <td><?php echo $this->escapeHtml($row['race']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['ethnicity']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['enc_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['prb_count']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['cp_count']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['ob_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['proc_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['med_count']); ?></td>
                                 <td>
                                     <?php
                                     if ($row['imported'] == 1) {
