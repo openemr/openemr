@@ -3841,10 +3841,6 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     echo "<tr>";
                 }
 
-                if ($item_count == 0 && $titlecols == 0) {
-                    $titlecols = 1;
-                }
-
                 // Handle starting of a new label cell.
                 if ($titlecols > 0) {
                     disp_end_cell();
@@ -3853,30 +3849,30 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
                     echo ">";
                     $cell_count += $titlecols;
-                }
 
-                ++$item_count;
+                    $field_id_label = 'label_' . $group_fields['field_id'];
+                    echo "<span id='" . attr($field_id_label) . "'>";
+                    if ($skip_this_field) {
+                        // No label because skipping
+                    } elseif ($group_fields['title']) {
+                        $tmp = xl_layout_label($group_fields['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
+                    }
+                    echo "</span>";
+
+                    ++$item_count;
+                }
 
                 if ($datacols == 0) {
                     // Data will be in the same cell, so prevent wrapping to a new line.
                     echo "<span class='text-nowrap mr-2'>";
                 }
-
-                $field_id_label = 'label_' . $group_fields['field_id'];
-                echo "<span id='" . attr($field_id_label) . "'>";
-                if ($skip_this_field) {
-                    // No label because skipping
-                } elseif ($group_fields['title']) {
-                    $tmp = xl_layout_label($group_fields['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
-                        echo ':';
-                    }
-                } else {
-                    echo "&nbsp;";
-                }
-                echo "</span>";
 
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
@@ -4134,10 +4130,6 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     echo "<div class='form-row'>";
                 }
 
-                if ($item_count == 0 && $titlecols == 0) {
-                    $titlecols = 1;
-                }
-
                 // Handle starting of a new label cell.
                 if ($titlecols > 0) {
                     bs_disp_end_cell();
@@ -4146,25 +4138,26 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     echo "id='label_id_" . attr($field_id) . "'";
                     echo ">";
                     $cell_count += $titlecols;
-                }
 
-                // $item_count is the number of title and data items in the current cell.
-                ++$item_count;
+                    if ($group_fields['title']) {
+                        $tmp = xl_layout_label($group_fields['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
+                    }
+    
+                    // $item_count is the number of title and data items in the current cell.
+                    ++$item_count;
+
+                }
 
                 if ($datacols == 0) {
                     // Data will be in the same cell, so prevent wrapping to a new line.
                     echo "<span class='text-nowrap mr-2'>";
-                }
-
-                if ($group_fields['title']) {
-                    $tmp = xl_layout_label($group_fields['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
-                        echo ':';
-                    }
-                } else {
-                    echo "&nbsp;";
                 }
 
                 // Handle starting of a new data cell.
