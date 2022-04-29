@@ -46,12 +46,25 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private $isAuthorizationGrant;
 
+    /**
+     * @var SMARTSessionTokenContextBuilder
+     */
+    private $contextBuilder;
+
+    /**
+     * The context values to use for issuing new tokens.  This is populated when a refresh grant is generating a new
+     * access token.  We have to use our existing values.
+     * @var array
+     */
+    private $contextForNewTokens;
+
     public function __construct(
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor
     ) {
         $this->isAuthorizationGrant = false;
         $this->logger = new SystemLogger();
+        $this->contextBuilder = new SMARTSessionTokenContextBuilder($_SESSION);
         parent::__construct($identityProvider, $claimExtractor);
     }
 
@@ -109,48 +122,8 @@ class IdTokenSMARTResponse extends IdTokenResponse
         $scopes = $accessToken->getScopes();
         $this->logger->debug("IdTokenSMARTResponse->getExtraParams() params from parent ", ["params" => $extraParams]);
 
-        if ($this->isStandaloneLaunchPatientRequest($scopes)) {
-            // patient id that is currently selected in the session.
-            if (!empty($_SESSION['pid'])) {
-                $extraParams['patient'] = $_SESSION['pid'];
-                $extraParams['need_patient_banner'] = true;
-                $extraParams['smart_style_url'] = $this->getSmartStyleURL();
-            } else {
-                throw new OAuthServerException("launch/patient scope requested but patient 'pid' was not present in session", 0, 'invalid_patient_context');
-            }
-        } else if ($this->isLaunchRequest($scopes)) {
-            $this->logger->debug("launch scope requested");
-            if (!empty($_SESSION['launch'])) {
-                $this->logger->debug("IdTokenSMARTResponse->getExtraParams() launch set in session", ['launch' => $_SESSION['launch']]);
-                // this is where the launch context is deserialized and we extract any SMART context state we wanted to
-                // pass on as part of the EHR request, we only have encounter and patient at this point
-                try {
-                    // TODO: adunsulag do we want any kind of hmac signature to verify the request hasn't been
-                    // tampered with?  Not sure that it matters as the ACL's will verify that the app only has access
-                    // to the data the currently authorized oauth2 user can access.
-                    $launchToken = SMARTLaunchToken::deserializeToken($_SESSION['launch']);
-                    $this->logger->debug("IdTokenSMARTResponse->getExtraParams() decoded launch context is", ['context' => $launchToken]);
-
-                    // we assume that if a patient is provided we are already displaying the patient
-                    // we may in the future need to adjust the need_patient_banner depending on the 'intent' chosen.
-                    if (!empty($launchToken->getPatient())) {
-                        $extraParams['patient'] = $launchToken->getPatient();
-                        $extraParams['need_patient_banner'] = false;
-                    }
-                    if (!empty($launchToken->getEncounter())) {
-                        $extraParams['encounter'] = $launchToken->getEncounter();
-                    }
-                    if (!empty($launchToken->getIntent())) {
-                        $extraParams['intent'] = $launchToken->getIntent();
-                    }
-                    $extraParams['smart_style_url'] = $this->getSmartStyleURL();
-                } catch (\Exception $ex) {
-                    $this->logger->error("IdTokenSMARTResponse->getExtraParams() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
-                    throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
-                }
-            }
-        }
-
+        $contextParams = $this->getContextForNewAccessTokens($scopes);
+        $extraParams = array_merge($extraParams, $contextParams);
         // response should return the scopes we authorized inside the accessToken to be smart compatible
         // I would think this would be better put in the id_token but to be spec compliant we have to have this here
         $extraParams['scope'] = $this->getScopeString($accessToken->getScopes());
@@ -159,44 +132,6 @@ class IdTokenSMARTResponse extends IdTokenResponse
         return $extraParams;
     }
 
-    /**
-     * Needed for OpenEMR\FHIR\SMART\Capability::CONTEXT_STYLE support
-     * TODO: adunsulag do we want to try and read from the scss files and generate some kind of styles...
-     * Reading the SMART FHIR spec author forums so few app writers are actually using this at all, it seems like we
-     * can just use defaults without getting trying to load up based upon which skin we have, or using node &
-     * gulp to auto generate a skin.
-     */
-    private function getSmartStyleURL()
-    {
-        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/public/smart-styles/smart-light.json";
-    }
-
-    /**
-     * @param ScopeEntityInterface[] $scopes
-     * @return bool
-     */
-    private function isLaunchRequest($scopes)
-    {
-        // if we are not in an authorization grant context we don't support SMART launch context params
-        if (!$this->isAuthorizationGrant) {
-            return false;
-        }
-
-        return $this->hasScope($scopes, 'launch');
-    }
-
-    /**
-     * @param ScopeEntityInterface[] $scopes
-     * @return bool
-     */
-    private function isStandaloneLaunchPatientRequest($scopes)
-    {
-        // if we are not in an authorization grant context we don't support SMART launch context params
-        if (!$this->isAuthorizationGrant) {
-            return false;
-        }
-        return $this->hasScope($scopes, 'launch/patient');
-    }
 
     private function hasScope($scopes, $searchScope)
     {
@@ -242,5 +177,30 @@ class IdTokenSMARTResponse extends IdTokenResponse
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
             ->relatedTo($userEntity->getIdentifier());
+    }
+
+    /**
+     * Sets the context array that will be saved to the database for new acess tokens.
+     * @param $context The array of context variables.  If this is not an array the context is set to null;
+     */
+    public function setContextForNewTokens($context)
+    {
+        $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
+    }
+
+    /**
+     * Retrieves the context to use for new access tokens based upon the passed in scopes.  It will use the existing
+     * context saved in the repositoryor will build a new context from the passed in scopes.
+     * @param $scopes The scopes in the access token that determines what context variables to use in the access token
+     * @return array The built context session.
+     */
+    private function getContextForNewAccessTokens($scopes)
+    {
+        if (!empty($this->contextForNewTokens)) {
+            $context = $this->contextBuilder->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
+        } else {
+            $context = $this->contextBuilder->getContextForScopes($scopes) ?? [];
+        }
+        return $context;
     }
 }

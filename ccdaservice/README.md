@@ -12,12 +12,12 @@ Whenever there are new versions or updates, be sure to navigate into the ccdaser
 
 This will ensure the lastest libraries are installed.
 ## Ubuntu Setup
-* Latest version tested is node v14.0
+* Latest version tested is node v16
 
 If node is not already installed then do the following:
 - cd ~
 - apt-get remove --purge nodejs npm // Ensures clean install and will allow chance to cleanup.
-- curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+- curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 - sudo apt-get install -y nodejs
 
 Navigate to: openemr/ccdaservice and run the following to install requires dependencies.

@@ -16,6 +16,16 @@ class CategoryTree extends Tree
         parent::__construct($root, $root_type);
     }
 
+    public function should_translate_name()
+    {
+        return true;
+    }
+
+    public function get_translated_name($name)
+    {
+        return xl_document_category($name);
+    }
+
     function _get_categories_array($patient_id, $user = '')
     {
         $categories = array();

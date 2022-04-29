@@ -108,13 +108,15 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 // provider can have more than facility matching... we are only going to grab the first facility for now
                 $dataRecordProvider = end($dataRecordProviderList);
 
-                if (!empty($dataRecordProvider['role_code'])) {
-                    $codes = $codeTypesService->parseCode($dataRecordProvider['role_code']);
-                    $codes['description'] = $codeTypesService->lookup_code_description($dataRecordProvider['role_code']) ?? xlt($dataRecordProvider['role_title']);
+                if (!empty($dataRecordProvider['physician_type_codes'])) {
+                    $codes = $codeTypesService->parseCode($dataRecordProvider['physician_type_codes']);
+                    $codes['description'] = $codeTypesService->lookup_code_description($dataRecordProvider['physician_type_title']) ?? xlt($dataRecordProvider['physician_type']);
                     if (empty($codes['description'])) {
                         $codes['description'] = xlt($dataRecordProvider['role_title']);
                     }
-                    $codes['system'] = FhirCodeSystemConstants::NUCC_PROVIDER;
+                    // The OID is the value set system but the larger system is SNOMED_CT so we will put that as the system.
+                    $codes['system'] = FhirCodeSystemConstants::SNOMED_CT;
+//                    $codes['system'] = FhirCodeSystemConstants::CARE_TEAM_MEMBER_FUNCTION_SNOMEDCT;
                     $role = UtilsService::createCodeableConcept([$codes['code'] => $codes]);
                 } else {
                     // need to provide the data absent reason
@@ -132,6 +134,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             }
         }
 
+        // facilities have to use SNOMED_CT for our code system since NUCC is no longer a valid code system for FHIR.
         if (!empty($dataRecord['facilities'])) {
             foreach ($dataRecord['facilities'] as $dataRecordFacility) {
                 $organization = new FHIRCareTeamParticipant();
@@ -143,10 +146,10 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 } else {
                     $codes = [
                         'code' => $dataRecordFacility['facility_taxonomy']
-                        ,'system' => FhirCodeSystemConstants::NUCC_PROVIDER
+                        ,'system' => FhirCodeSystemConstants::SNOMED_CT
                         ,'description' => null
                     ];
-                    $fullCode = $codeTypesService->getCodeWithType($codes['code'], CodeTypesService::CODE_TYPE_NUCC);
+                    $fullCode = $codeTypesService->getCodeWithType($codes['code'], CodeTypesService::CODE_TYPE_SNOMED_CT);
                     $codes['description'] = $codeTypesService->lookup_code_description($fullCode);
                     if (empty($codes['description'])) {
                         $codes['description'] = xlt('Healthcare facility');

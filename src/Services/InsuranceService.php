@@ -14,8 +14,10 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\AddressService;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\CoverageValidator;
 use Particle\Validator\Validator;
@@ -37,6 +39,11 @@ class InsuranceService extends BaseService
         $this->addressService = new AddressService();
         UuidRegistry::createMissingUuidsForTables([self::COVERAGE_TABLE, self::PATIENT_TABLE, self::INSURANCE_TABLE]);
         $this->coverageValidator = new CoverageValidator();
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'puuid'];
     }
 
     public function validate($data)
@@ -80,6 +87,31 @@ class InsuranceService extends BaseService
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
         return sqlQuery($sql, array($id, $type));
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT `insurance_data`.*,
+                       `puuid`
+                FROM `insurance_data`
+                LEFT JOIN (
+                    SELECT
+                    `pid` AS `patient_data_pid`,
+                    `uuid` as `puuid`
+                    FROM `patient_data`
+                ) `patient_data` ON `insurance_data`.`pid` = `patient_data`.`patient_data_pid` ";
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
+        }
+        return $processingResult;
     }
 
     public function getOne($uuid)

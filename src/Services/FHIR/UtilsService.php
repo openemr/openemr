@@ -63,12 +63,13 @@ class UtilsService
     public static function createCoding($code, $display, $system): FHIRCoding
     {
         if (!is_string($code)) {
-            $code = "$code"; // FHIR expects a string
+            $code = trim("$code"); // FHIR expects a string
         }
+        // make sure there are no whitespaces.
         $coding = new FHIRCoding();
         $coding->setCode($code);
-        $coding->setDisplay($display);
-        $coding->setSystem($system);
+        $coding->setDisplay(trim($display ?? ""));
+        $coding->setSystem(trim($system ?? ""));
         return $coding;
     }
 

@@ -12,11 +12,18 @@ namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractQdmService
 {
+    /**
+     * Value in ob_reason_status indicates negated observation (observation not done)
+     */
+    const NEGATED = 'negated';
+
     protected $request;
     protected $codeTypesService;
 
@@ -35,12 +42,30 @@ abstract class AbstractQdmService
         $this->codeTypesService = $codeTypesService;
     }
 
+    public static function convertToObjectIdBSONFormat($id)
+    {
+        // max bigint size will fit in 16 characters so we will always have enough space for this.
+        $padded_hex = sprintf("%024X", $id);
+        return $padded_hex;
+    }
+
+    public static function convertIdFromBSONObjectIdFormat($id)
+    {
+        // max bigint size is 8 bytes which will fit fine
+        // string ID should be prefixed with 0s so the converted data type should be far smaller
+        $trimmedId = ltrim($id, '\x0');
+        $decimal = hexdec($trimmedId);
+        return $decimal;
+    }
+
     public function validDateOrNull($date)
     {
         if ($date == '0000-00-00') {
             return null;
         }
-        return $date;
+        return new DateTime([
+            'date' => $date
+        ]);
     }
 
     public function getPatientIdColumn()
@@ -50,7 +75,7 @@ abstract class AbstractQdmService
 
     abstract public function getSqlStatement();
 
-    abstract public function makeQdmModel(array $record);
+    abstract public function makeQdmModel(QdmRecord $recordObj);
 
     public function executeQuery()
     {
@@ -99,7 +124,7 @@ abstract class AbstractQdmService
         $codeType = str_replace(" ", "-", $codeType);
 
         if ($codeType == 'OID') {
-            // When there is a negation, the code is an OID from a measure value set. In this case, we ...
+            // When there is a negation, the code is an OID from a measure value set. There is no official code system for this, as they are OIDs
             $system = '';
         } else if ($codeType == 'HCPCS-Level-II') {
             $system = '2.16.840.1.113883.6.285';

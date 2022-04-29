@@ -16,6 +16,7 @@ use OpenEMR\Services\Qrda\Helpers\Cat3View;
 use OpenEMR\Services\Qrda\Helpers\Date;
 use OpenEMR\Services\Qrda\Helpers\PatientView;
 use OpenEMR\Services\Qrda\Helpers\View;
+use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class Cat3 extends \Mustache_Engine
 {
@@ -38,10 +39,9 @@ class Cat3 extends \Mustache_Engine
     protected $aggregate_results = [];
     protected $measure_result_hash = [];
     protected $provider;
-    protected $performance_period_start;
-    protected $performance_period_end;
     protected $submission_program;
     protected $ry2022_submission;
+    protected $_qrda_guid; // for extension in root template
 
     public function __construct($aggregate_results = array(), $measures = array(), $options = array())
     {
@@ -51,6 +51,8 @@ class Cat3 extends \Mustache_Engine
                 'loader' => new \Mustache_Loader_FilesystemLoader($this->templatePath),
             )
         );
+
+        $this->_qrda_guid = UuidV4::uuid4();
 
         $this->aggregate_results = $aggregate_results;
         $this->measures = $measures;
@@ -83,8 +85,9 @@ class Cat3 extends \Mustache_Engine
         }
 
         $this->provider = $options['provider'];
-        $this->performance_period_start = $options['start_time'];
-        $this->performance_period_end = $options['end_time'];
+        // Start and end time properties are in Date helper
+        $this->_performance_period_start = $options['start_time'];
+        $this->_performance_period_end = $options['end_time'];
         $this->submission_program = $options['submission_program'];
         $this->ry2022_submission = $options['ry2022_submission'];
     }

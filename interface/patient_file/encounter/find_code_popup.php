@@ -30,6 +30,8 @@ $info_msg = "";
 $codetype = $_REQUEST['codetype'] ?? '';
 if (!empty($codetype)) {
     $allowed_codes = split_csv_line($codetype);
+} else {
+    $allowed_codes = array_keys($code_types);
 }
 
 $form_code_type = $_POST['form_code_type'] ?? '';
@@ -38,10 +40,13 @@ $form_code_type = $_POST['form_code_type'] ?? '';
 $default = '';
 if (!empty($form_code_type)) {
     $default = $form_code_type;
+    // if they've submitted a code type we only want to use those.
+    $allowed_codes = [$default];
 } elseif (!empty($allowed_codes) && count($allowed_codes) == 1) {
     $default = $allowed_codes[0];
 } elseif (!empty($_REQUEST['default'])) {
     $default = $_REQUEST['default'];
+    $codetype = $default;
 }
 
 // This variable is used to store the html element

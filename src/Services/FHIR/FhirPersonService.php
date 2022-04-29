@@ -22,6 +22,7 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -63,8 +64,9 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
 
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"])
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["users.title", "fname", "mname", "lname"]),
 
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)])
         ];
     }
 
@@ -260,15 +262,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        $records = $this->userService->getAll($openEMRSearchParameters, false);
-        $records = empty($records) ? [] : $records;
-        $processingResult = new ProcessingResult();
-        $processingResult->setData([]);
-        foreach ($records as $record) {
-            $processingResult->addData($this->parseOpenEMRRecord($record));
-        }
-
-        return $processingResult;
+        return $this->userService->search($openEMRSearchParameters);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
