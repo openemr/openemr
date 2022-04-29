@@ -177,7 +177,7 @@ function cron_getAlertpatientData($type)
             LEFT OUTER JOIN patient_tracker_element AS pte ON pte.pt_tracker_id = pt.id AND pte.seq = pt.lastseq
             LEFT OUTER JOIN patient_data AS pd ON pd.pid = ope.pc_pid
             LEFT OUTER JOIN users AS u ON u.id = ope.pc_aid
-            WHERE pd.pid = pd.pid $ssql
+            WHERE ope.pc_pid = pd.pid $ssql
             ORDER BY ope.pc_eventDate, ope.pc_startTime";
 	
     $db_patient = (sqlStatement($query));

@@ -87,7 +87,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         //set message
         $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
         
-                // send mail to patinet
+        // send mail to patinet
         cron_SendMail(
             $prow['email'],
             $prow['email_direct'],
