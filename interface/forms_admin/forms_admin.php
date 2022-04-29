@@ -12,9 +12,15 @@
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('admin', 'forms')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 
 if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
