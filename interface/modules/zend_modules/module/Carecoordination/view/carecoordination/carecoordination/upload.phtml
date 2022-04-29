@@ -131,6 +131,22 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
     });
 
+    function deleteAuditRecord(amid, name) {
+        let status = confirm('<?php echo $this->listenerObject->z_xlt("Do You Really Want to Remove Duplicate");?>' + ' ' + name + '?');
+        if (status !== true) {
+            return;
+        }
+        let url = "<?php echo $this->basePath();?>/carecoordination/deleteAudit";
+        let fd = new FormData();
+        fd.append('am_id', amid);
+        fetch(url, {
+            method: "POST",
+            body: fd
+        }).then((response) => {
+            $('#form_ccda_import').submit();
+        });
+    }
+
     function sendFileToServer(formData, status) {
         var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload"; //Upload URL
         var extraData = {}; //Extra Data.
@@ -338,7 +354,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 </div>
                 <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
                 <?php if (!empty($records)) { ?>
-                <span style="margin-left:10px;">
+                    <span style="margin-left:10px;">
                     <button type="submit" id="chart_all_imports" class="btn btn-secondary" name="chart_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Chart all pending imports"); ?>'>
                         <img style="margin-right: 5px;height:20px;width:auto;" src="<?php echo $this->basePath(); ?>/css/icons/import.png"><span><?php echo $this->listenerObject->z_xlt("Chart Pending"); ?></span>
                     </button>
@@ -364,8 +380,14 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Race'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Ethnic'); ?></th>
+                            <th><?php echo '# ' . $this->listenerObject->z_xlt('Enc'); ?></th>
+                            <th><?php echo '# ' . $this->listenerObject->z_xlt('CP'); ?></th>
+                            <th><?php echo '# ' . $this->listenerObject->z_xlt('OB'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Duplicate'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Type'); ?></th>
                             <th>
                                 <button type="submit" id="delete_all_imports" class="btn btn-secondary" name="delete_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Undo all pending imports"); ?>'>
@@ -380,10 +402,15 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <tr>
                                 <td id="expandAuditDetails_<?php echo $this->escapeHtml($row['amid']) . '-' . $this->escapeHtml($row['pid']); ?>" class="expandAuditDetails se_in_23"></td>
                                 <td style="height: 20px;"><?php echo ++$slno; ?></td>
-                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'], 'mm/dd/yyyy', 'yyyy-mm-dd'); ?></td>
                                 <td><?php echo $this->escapeHtml($row['fname'] . " " . $row['lname']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['pat_name']); ?></td>
-                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'], 'mm/dd/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td><?php echo $this->escapeHtml($row['race']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['ethnicity']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['enc_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['cp_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['ob_count']); ?></td>
                                 <td>
                                     <?php
                                     if ($row['imported'] == 1) {
@@ -396,7 +423,10 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                     ?>
                                 </td>
                                 <td>
-                                    <?php echo $this->escapeHtml($row['matched_patient']); ?>
+                                    <span><strong style="color: red;"><?php echo $this->escapeHtml($row['matched_patient']); ?></strong></span>
+                                </td>
+                                <td>
+                                    <a href="#" onclick="deleteAuditRecord(<?php echo js_escape($row['amid']); ?>,'<?php echo text($row['pat_name']); ?>')"><strong style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient']); ?></strong></a>
                                 </td>
                                 <td>
                                     <?php

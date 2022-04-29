@@ -110,9 +110,14 @@ class CarecoordinationTable extends AbstractTableGateway
                         d.url AS file_url,
                         d.id AS document_id,
                         am.is_qrda_document,
-                        ad.field_value,
-                        ad1.field_value,
-                        ad2.field_value,
+                        ad.field_value as ad_lname,
+                        ad1.field_value as ad_fname,
+                        ad2.field_value as dob_raw,
+                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'encounter' AND field_name = 'date') as enc_count,
+                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'form_care_plan' AND field_name = 'date') as cp_count,
+                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'observation_preformed' AND field_name = 'date') as ob_count,
+                        ad5.field_value as race,
+                        ad6.field_value as ethnicity,
                         pd.pid,
                         CONCAT(ad.field_value,' ',ad1.field_value) as pat_name,
                         DATE(ad2.field_value) as dob,
@@ -124,10 +129,12 @@ class CarecoordinationTable extends AbstractTableGateway
                      LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname'
                      LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname'
                      LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
+                     LEFT JOIN audit_details ad5 ON ad5.audit_master_id = am.id AND ad5.table_name = 'patient_data' AND ad5.field_name = 'race'
+                     LEFT JOIN audit_details ad6 ON ad6.audit_master_id = am.id AND ad6.table_name = 'patient_data' AND ad6.field_name = 'ethnicity'
                      LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
                      LEFT JOIN users AS u ON u.id = d.owner
                      WHERE d.audit_master_approval_status = 1 AND am.id > 0
-                     ORDER BY date DESC";
+                     ORDER BY date ASC";
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($data['cat_title'], $data['type']));
         $records = array();
@@ -182,7 +189,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->is_qrda_import = true;
             if (count($components[2]["section"]["entry"] ?? []) < 2) {
                 $name = $xml["recordTarget"]["patientRole"]["patient"]["name"]["given"] . ' ' .
-                $xml["recordTarget"]["patientRole"]["patient"]["name"]["family"];
+                    $xml["recordTarget"]["patientRole"]["patient"]["name"]["family"];
                 error_log("No QDMs for patient: " . $name);
                 return true;
             }
