@@ -1,3 +1,15 @@
+<?php
+
+/**
+ * observation_reason_row.php is a template file for the observation reason data elements.
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+?>
 <div class="form-row reasonCodeContainer reason_code <?php echo !empty($obj['ob_reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo attr($key); ?>">
     <div class="card mt-2 mb-4">
         <div class="card-header">
