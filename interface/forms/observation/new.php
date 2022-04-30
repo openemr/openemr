@@ -17,10 +17,10 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
@@ -39,138 +39,27 @@ if ($formid) {
 
 $check_res = $formid ? $check_res : array();
 
+$reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
+$reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status code");
+
 ?>
 <html>
 <head>
     <title><?php echo xlt("Observation"); ?></title>
 
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'reason-code-widget']); ?>
 
+    <!--Update the version (v flag) to cache bust if you modify this file -->
+    <script src="<?php echo attr($GLOBALS['webroot']); ?>/interface/forms/observation/observation.js?v=1" type="text/javascript"></script>
     <script>
-
-        function duplicateRow(e) {
-            var newRow = e.cloneNode(true);
-            e.parentNode.insertBefore(newRow, e.nextSibling);
-            changeIds('tb_row');
-            changeIds('comments');
-            changeIds('code');
-            changeIds('description');
-            changeIds('code_date');
-            changeIds('displaytext');
-            changeIds('code_type');
-            changeIds('table_code');
-            changeIds('ob_value');
-            changeIds('ob_unit');
-            changeIds('ob_value_phin');
-            changeIds('ob_value_head');
-            changeIds('ob_unit_head');
-            removeVal(newRow.id);
-        }
-
-        function removeVal(rowid) {
-            rowid1 = rowid.split('tb_row_');
-            document.getElementById("comments_" + rowid1[1]).value = '';
-            document.getElementById("code_" + rowid1[1]).value = '';
-            document.getElementById("description_" + rowid1[1]).value = '';
-            document.getElementById("code_date_" + rowid1[1]).value = '';
-            document.getElementById("displaytext_" + rowid1[1]).innerHTML = '';
-            document.getElementById("code_type_" + rowid1[1]).value = '';
-            document.getElementById("table_code_" + rowid1[1]).value = '';
-            document.getElementById("ob_value_" + rowid1[1]).value = '';
-            document.getElementById("ob_unit_" + rowid1[1]).value = '';
-            document.getElementById("ob_value_phin_" + rowid1[1]).value = '';
-            document.getElementById("ob_value_head_" + rowid1[1]).innerHTML = '';
-            document.getElementById("ob_unit_head_" + rowid1[1]).innerHTML = '';
-        }
-
-        function changeIds(class_val) {
-            var elem = document.getElementsByClassName(class_val);
-            for (let i = 0; i < elem.length; i++) {
-                if (elem[i].id) {
-                    index = i + 1;
-                    elem[i].id = class_val + "_" + index;
-                }
-            }
-        }
-
-        function deleteRow(rowId) {
-            if (rowId !== 'tb_row_1') {
-                var elem = document.getElementById(rowId);
-                elem.parentNode.removeChild(elem);
-            }
-        }
-
-        function sel_code(id) {
-            id = id.split('tb_row_');
-            var checkId = '_' + id[1];
-            document.getElementById('clickId').value = checkId;
-            dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?default=' + encodeURIComponent('LOINC'), '_blank', 700, 400);
-        }
-
-        function set_related(codetype, code, selector, codedesc) {
-            var checkId = document.getElementById('clickId').value;
-            document.getElementById("code" + checkId).value = code;
-            document.getElementById("description" + checkId).value = codedesc;
-            document.getElementById("displaytext" + checkId).innerHTML = codedesc;
-            document.getElementById("code_type" + checkId).value = codetype;
-            if (codetype === 'LOINC') {
-                document.getElementById("table_code" + checkId).value = 'LN';
-                if (code === '21612-7') {
-                    document.getElementById('ob_value_head' + checkId).style.display = '';
-                    document.getElementById('ob_unit_head' + checkId).style.display = '';
-                    document.getElementById('ob_value' + checkId).style.display = '';
-                    var sel_unit_age = document.getElementById('ob_unit' + checkId);
-                    if (document.getElementById('ob_unit' + checkId).value == '') {
-                        var opt = document.createElement("option");
-                        opt.value = 'd';
-                        opt.text = 'Day';
-                        sel_unit_age.appendChild(opt);
-                        var opt1 = document.createElement("option");
-                        opt1.value = 'mo';
-                        opt1.text = 'Month';
-                        sel_unit_age.appendChild(opt1);
-                        var opt2 = document.createElement("option");
-                        opt2.value = 'UNK';
-                        opt2.text = 'Unknown';
-                        sel_unit_age.appendChild(opt2);
-                        var opt3 = document.createElement("option");
-                        opt3.value = 'wk';
-                        opt3.text = 'Week';
-                        sel_unit_age.appendChild(opt3);
-                        var opt4 = document.createElement("option");
-                        opt4.value = 'a';
-                        opt4.text = 'Year';
-                        sel_unit_age.appendChild(opt4);
-                    }
-                    document.getElementById('ob_unit' + checkId).style.display = 'block';
-                    document.getElementById('ob_value_phin' + checkId).style.display = 'none';
-                } else if (code === '8661-1') {
-                    document.getElementById('ob_unit_head' + checkId).style.display = 'none';
-                    var select = document.getElementById('ob_unit' + checkId);
-                    select.innerHTML = "";
-                    document.getElementById('ob_unit' + checkId).style.display = 'none';
-                    document.getElementById('ob_value_phin' + checkId).style.display = 'none';
-                    document.getElementById('ob_value_head' + checkId).style.display = '';
-                    document.getElementById('ob_value' + checkId).style.display = '';
-                }
-            } else {
-                document.getElementById("table_code" + checkId).value = 'PHINQUESTION';
-                document.getElementById('ob_value_head' + checkId).style.display = '';
-                document.getElementById('ob_unit_head' + checkId).style.display = 'none';
-                var select_unit = document.getElementById('ob_unit' + checkId);
-                select_unit.innerHTML = "";
-                document.getElementById('ob_value' + checkId).value = '';
-                document.getElementById('ob_value' + checkId).style.display = 'none';
-                document.getElementById('ob_unit' + checkId).style.display = 'none';
-                document.getElementById('ob_value_phin' + checkId).style.display = '';
-            }
-        }
-
+        window.addEventListener('DOMContentLoaded', function() {
+           window.observationForm.init(<?php echo js_url($GLOBALS['webroot']); ?>);
+        });
         $(function () {
             // special case to deal with static and dynamic datepicker items
             $(document).on('mouseover', '.datepicker', function () {
                 $(this).datetimepicker({
-                    <?php $datetimepicker_timepicker = false; ?>
+                    <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = false; ?>
                     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
@@ -197,7 +86,7 @@ $check_res = $formid ? $check_res : array();
                                         <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>" onclick='sel_code(this.parentElement.parentElement.parentElement.id);' />
+                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>" onclick='sel_code(<?php echo js_url($GLOBALS['webroot']); ?>, this.parentElement.parentElement.parentElement.id);' />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>" class="displaytext help-block"></span>
                                                 <input type="hidden" id="description_<?php echo attr($key) + 1; ?>" name="description[]" class="description" value="<?php echo attr($obj["description"]); ?>" />
                                                 <input type="hidden" id="code_type_<?php echo attr($key) + 1; ?>" name="code_type[]" class="code_type" value="<?php echo attr($obj["code_type"]); ?>" />
@@ -243,30 +132,28 @@ $check_res = $formid ? $check_res : array();
                                             </div>
                                             <div class="forms col-md-2">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                                <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                                <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd HH:MM Date of service'); ?>' />
                                             </div>
                                             <div class=" forms col-md-2">
                                                 <label for="comments_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Comments'); ?>:</label>
                                                 <textarea name="comments[]" id="comments_<?php echo attr($key) + 1; ?>" class="form-control comments" rows="3"><?php echo text($obj["observation"]); ?></textarea>
                                             </div>
                                             <div class="forms col-md-2">
-                                                <button type="button" class="btn btn-primary btn-sm btn-add" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                                                    <?php echo xlt('Add'); ?>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm btn-delete" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
-                                                    <?php echo xlt('Delete'); ?>
-                                                </button>
+                                                <?php include "templates/observation_actions.php"; ?>
                                             </div>
                                         </div>
+                                        <?php include "templates/observation_reason_row.php"; ?>
                                     </div>
                                     <?php
                                 }
-                            } else { ?>
+                            } else {
+                                $key = 1;
+                                ?>
                                 <div class="tb_row" id="tb_row_1">
                                     <div class="form-row">
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(this.parentElement.parentElement.parentElement.id);' />
+                                            <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(<?php echo js_url($GLOBALS['webroot']); ?>, this.parentElement.parentElement.parentElement.id);' />
                                             <span id="displaytext_1" class="displaytext help-block"></span>
                                             <input type="hidden" id="description_1" name="description[]" class="description" value="<?php echo attr($obj["description"] ?? ''); ?>" />
                                             <input type="hidden" id="code_type_1" name="code_type[]" class="code_type" value="<?php echo attr($obj["code_type"] ?? ''); ?>" />
@@ -315,14 +202,10 @@ $check_res = $formid ? $check_res : array();
                                             <textarea name="comments[]" id="comments_1" class="form-control comments" rows="3"><?php echo text($obj["observation"] ?? ''); ?></textarea>
                                         </div>
                                         <div class="forms col-md-2">
-                                            <button type="button" class="btn btn-primary btn-sm btn-add" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
-                                                <?php echo xlt('Add'); ?>
-                                            </button>
-                                            <button type="button" class="btn btn-danger btn-sm btn-delete" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
-                                                <?php echo xlt('Delete'); ?>
-                                            </button>
+                                            <?php include "templates/observation_actions.php"; ?>
                                         </div>
                                     </div>
+                                    <?php include "templates/observation_reason_row.php"; ?>
                                 </div>
                                 <?php
                             }

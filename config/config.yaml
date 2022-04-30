@@ -247,3 +247,6 @@ assets:
         basePath: '%assets_static_relative%/hotkeys-js/'
         script:
             - dist/hotkeys.min.js
+    reason-code-widget:
+        basePath: '%webroot%/library/js/'
+        script: reasonCodeWidget.js

@@ -547,3 +547,7 @@ UPDATE categories SET codes='LOINC:LP173418-7' WHERE name='Advance Directive';
 UPDATE categories SET codes='LOINC:LP173421-1' WHERE name='FHIR Export Document';
 UPDATE categories SET codes='LOINC:LP173394-0' WHERE name='Reviewed';
 #EndIf
+
+#IfMissingColumn form_vital_details reason_code
+ALTER TABLE `form_vital_details` ADD `reason_code` VARCHAR(31) DEFAULT NULL, ADD `reason_description` TEXT, ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL;
+#EndIf
