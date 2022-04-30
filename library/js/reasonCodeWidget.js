@@ -114,7 +114,7 @@
             // we are going to replace our global function for the time, and it will get setback in the callback
             previousSelCodeFunction = window.set_related;
             window.set_related =  _this.handleCodeSelected;
-
+            window.top.restoreSession();
             window.dlgopen(webroot + "/interface/patient_file/encounter/find_code_popup.php?default=SNOMED-CT"
                 , '_blank', 700, 400, false, undefined, opts);
         };

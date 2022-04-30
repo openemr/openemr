@@ -25,11 +25,11 @@
                 <div class="col-md-6 form-group">
                     <label><?php echo xlt("Reason Code"); ?></label>
                     <input class="code-selector-popup form-control"
-                           name="reasonCode[]" type="text" value="<?php echo $obj['ob_reason_code'] ?? ""; ?>"
+                           name="reasonCode[]" type="text" value="<?php echo attr($obj['ob_reason_code'] ?? ""); ?>"
                            placeholder="<?php echo xlt("Select a reason code"); ?>"
                     />
-                    <p class="code-selector-text-display <?php echo empty($obj['ob_reason_text']) ? "d-none" : ''; ?>"><?php echo $obj['ob_reason_text'] ?? ""; ?></p>
-                    <input type="hidden" name="reasonCodeText[]" class="code-selector-text" value="<?php echo $obj['ob_reason_text'] ?? ""; ?>" />
+                    <p class="code-selector-text-display <?php echo empty($obj['ob_reason_text']) ? "d-none" : ''; ?>"><?php echo text($obj['ob_reason_text'] ?? ""); ?></p>
+                    <input type="hidden" name="reasonCodeText[]" class="code-selector-text" value="<?php echo attr($obj['ob_reason_text'] ?? ""); ?>" />
                 </div>
                 <div class="col-md-6 form-group">
                     <label><?php echo xlt("Reason Status"); ?></label>

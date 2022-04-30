@@ -720,7 +720,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                     console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
                     if (opts.callBack.call === 'reload') {
                         window.location.reload();
-                    } else if (typeof opts.callBack == 'string') {
+                    } else if (typeof opts.callBack.call == 'string') {
                         window[opts.callBack.call](opts.callBack.args);
                     } else {
                         opts.callBack.call(opts.callBack.args);

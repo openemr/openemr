@@ -16,15 +16,15 @@
                         <label>{xlt t="Reason Code"}</label>
                         {if isset($vitalDetails) && !empty($vitalDetails->get_reason_code())}
                         <input class="code-selector-popup form-control" placeholder="{xlt t="Select a reason code"}"
-                               name="reasonCode[{$input|attr}]" type="text" value="{$vitalDetails->get_reason_code()}" />
+                               name="reasonCode[{$input|attr}]" type="text" value="{$vitalDetails->get_reason_code()|attr}" />
                         {else}
                         <input class="code-selector-popup form-control" placeholder="{xlt t="Select a reason code"}"
                                name="reasonCode[{$input|attr}]" type="text" value="" />
                         {/if}
 
                         {if isset($vitalDetails) && !empty($vitalDetails->get_reason_description())}
-                            <p class="code-selector-text-display">{$vitalDetails->get_reason_description()}</p>
-                            <input type="hidden" name="reasonCodeText[{$input|attr}]" class="code-selector-text" value="{$vitalDetails->get_reason_description()}" />
+                            <p class="code-selector-text-display">{$vitalDetails->get_reason_description()|text}</p>
+                            <input type="hidden" name="reasonCodeText[{$input|attr}]" class="code-selector-text" value="{$vitalDetails->get_reason_description()|attr}" />
                         {else}
                             <p class="code-selector-text-display d-none"></p>
                             <input type="hidden" name="reasonCodeText[{$input|attr}]" class="code-selector-text" value="" />

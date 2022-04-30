@@ -98,6 +98,7 @@ function sel_code(webroot, id) {
     id = id.split('tb_row_');
     var checkId = '_' + id[1];
     document.getElementById('clickId').value = checkId;
+    window.top.restoreSession();
     dlgopen(webroot + '/interface/patient_file/encounter/find_code_popup.php?default=' + encodeURIComponent('LOINC'), '_blank', 700, 400);
 }
 

@@ -11,7 +11,7 @@
 <head>
 {headerTemplate assets='datetime-picker|reason-code-widget'}
 <!--Update the version (v flag) to cache bust if you modify this file -->
-<script src="{$webroot|attr}/interface/forms/vitals/vitals.js?v=1" type="text/javascript"></script>
+<script src="{$webroot|attr}/interface/forms/vitals/vitals.js?v={assetVersionNumber}" type="text/javascript"></script>
 {literal}
 <script>
     let vitalsTranslations = {
@@ -33,7 +33,7 @@
 {/literal}
 </script>
 <!--Update the version (v flag) to cache bust if you modify this file -->
-<link rel="stylesheet" href="{$webroot|attr}/interface/forms/vitals/vitals.css?v=1" />
+<link rel="stylesheet" href="{$webroot|attr}/interface/forms/vitals/vitals.css?v={assetVersionNumber}" />
 <title>{xlt t='Vitals'}</title>
 </head>
 <body>

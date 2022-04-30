@@ -50,7 +50,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
     <?php Header::setupHeader(['datetime-picker', 'reason-code-widget']); ?>
 
     <!--Update the version (v flag) to cache bust if you modify this file -->
-    <script src="<?php echo attr($GLOBALS['webroot']); ?>/interface/forms/observation/observation.js?v=1" type="text/javascript"></script>
+    <script src="<?php echo attr($GLOBALS['webroot']); ?>/interface/forms/observation/observation.js?v=<?php echo attr($GLOBALS['v_js_includes']); ?>" type="text/javascript"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
            window.observationForm.init(<?php echo js_url($GLOBALS['webroot']); ?>);
