@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Common\Forms;
 
-
 class ReasonStatusCodes
 {
     const COMPLETED = "completed";
@@ -20,13 +19,14 @@ class ReasonStatusCodes
     const PENDING = "pending";
     const EMPTY = "";
 
-    public static function getCodesWithDescriptions() {
+    public static function getCodesWithDescriptions()
+    {
         return [
-            self::EMPTY=> [
+            self::EMPTY => [
                 'code' => self::EMPTY
                 ,'description' => ""
             ]
-            ,self::PENDING=> [
+            ,self::PENDING => [
                 'code' => self::PENDING
                 ,'description' => xl("Pending")
             ]

@@ -287,10 +287,10 @@ class FormVitalDetails extends ORDataObject
     /**
      * Removes all of the reason code, status, and text data
      */
-    public function clear_reason() {
+    public function clear_reason()
+    {
         $this->reason_code = null;
         $this->reason_status = null;
         $this->reason_description = null;
     }
-
 }

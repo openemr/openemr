@@ -22,9 +22,10 @@
                 <div class="col-md-6 form-group">
                     <label><?php echo xlt("Reason Status"); ?></label>
                     <select name="reasonCodeStatus[]" class="form-control">
-                        <?php foreach($reasonCodeStatii as $code => $codeDesc) : ?>
+                        <?php foreach ($reasonCodeStatii as $code => $codeDesc) : ?>
                             <option value="<?php echo attr($code); ?>"
-                                <?php if(($obj['ob_reason_status'] ?? "") == $code) echo "selected"; ?> >
+                                <?php if (($obj['ob_reason_status'] ?? "") == $code) {
+                                    echo "selected";} ?> >
                                 <?php echo text($codeDesc['description']); ?>
                             </option>
                         <?php endforeach; ?>
