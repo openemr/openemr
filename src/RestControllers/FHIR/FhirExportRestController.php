@@ -633,7 +633,7 @@ class FhirExportRestController
     {
         $patientUuids = [];
         $fhirGroupService = new FhirGroupService();
-        $result = $fhirGroupService->getAll(['_id' => $groupId]);
+        $result = $fhirGroupService->getOne($groupId);
         if ($result->hasData()) {
             foreach ($result->getData() as $group) {
                 if ($group instanceof FHIRGroup && !empty($group->getMember())) {

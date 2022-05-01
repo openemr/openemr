@@ -416,7 +416,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $communication = new FHIRPatientCommunication();
             $languageConcept = new FHIRCodeableConcept();
             $language = new FHIRCoding();
-            $language->setSystem(new FHIRUri("http://hl7.org/fhir/us/core/ValueSet/simple-language"));
+            $language->setSystem(new FHIRUri(FhirCodeSystemConstants::LANGUAGE_BCP_47));
             $language->setCode(new FHIRCode($record['notes']));
             $language->setDisplay(xlt($record['title']));
             $languageConcept->addCoding($language);

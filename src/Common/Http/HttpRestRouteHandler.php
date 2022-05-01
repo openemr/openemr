@@ -72,6 +72,13 @@ class HttpRestRouteHandler
                         $dispatchRestRequest->setOperation($parsedRoute->getOperation());
                     }
 
+
+                    // if our requested resource is a patient context ie patient/<resource>.<permission> then
+                    // we want to mark the request as a patient request and make sure we restrict requests
+                    if ($dispatchRestRequest->getScopeContextForResource($parsedRoute->getResource()) == 'patient') {
+                        $dispatchRestRequest->setPatientRequest(true);
+                    }
+
                     // make sure our scopes pass the security checks
                     self::checkSecurity($dispatchRestRequest);
                     (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath,]);
@@ -238,13 +245,15 @@ class HttpRestRouteHandler
 
         if ($restRequest->isPatientRequest()) {
             (new SystemLogger())->debug("checkSecurity() - patient specific request, so only allowing access to records to that one patient");
-            if (empty($restRequest->getPatientUUIDString()) || ($restRequest->getRequestUserRole() !== 'patient') || ($scopeType !== 'patient')) {
+            if (empty($restRequest->getPatientUUIDString())) { // we MUST have a patient uuid string if its a patient request
                 // need to fail here since this means the downstream patient binding mechanism will be broken
                 (new SystemLogger())->error("checkSecurity() - exited since patient binding mechanism broken");
                 http_response_code(401);
                 $config::destroySession();
                 exit;
             }
+            // if we are a patient only request and we have a patient uuid populated (from session) then we set our scope type to be patient.
+            $scopeType = 'patient';
         }
 
         if ($restRequest->isFhir()) {
@@ -255,7 +264,9 @@ class HttpRestRouteHandler
             ) {
                 return;
             }
-            if ($restRequest->isPatientWriteRequest()) {
+            // we do NOT want logged in patients writing data at this point so we fail
+            // TODO: when we have better auditing and provider merge/verification mechanisms look at opening up patient write access to data.
+            if ($restRequest->isPatientWriteRequest() && $restRequest->getRequestUserRole() == 'patient') {
                 // not allowing patient userrole write for fhir
                 (new SystemLogger())->debug("checkSecurity() - not allowing patient role write for fhir");
                 http_response_code(401);

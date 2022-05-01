@@ -147,7 +147,7 @@ if ($popup && $_POST['form_save']) {
     echo $order > 0 ? $order : 0;
     for ($parentid = $order; $parentid > 0;) {
         $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
-        $parentid = $row['parent'] + 0;
+        $parentid = (int) $row['parent'];
         echo ", $parentid";
     }
 

@@ -12,7 +12,13 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 ?>
 
 <html>

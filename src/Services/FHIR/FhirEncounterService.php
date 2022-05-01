@@ -2,11 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\Export\ExportCannotEncodeException;
-use OpenEMR\FHIR\Export\ExportException;
-use OpenEMR\FHIR\Export\ExportJob;
-use OpenEMR\FHIR\Export\ExportStreamWriter;
-use OpenEMR\FHIR\Export\ExportWillShutdownException;
+use DateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterHospitalization;
@@ -19,7 +15,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -30,7 +25,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService
+class FhirEncounterService extends FhirServiceBase implements IFhirExportableResourceService, IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use PatientSearchTrait;
     use FhirServiceBaseEmptyTrait;
@@ -134,6 +129,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
             $participant = new FHIREncounterParticipant();
             $participant->setIndividual(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
             $period = new FHIRPeriod();
+            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
             $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
             $participant->setPeriod($period);
 
@@ -152,7 +148,7 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         // period - must support
         if (!empty($dataRecord['date'])) {
             $period = new FHIRPeriod();
-            $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
+            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
             $encounterResource->setPeriod($period);
         }
 
@@ -203,6 +199,22 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
         }
     }
 
+    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    {
+        if (!($dataRecord instanceof FHIREncounter)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $provenanceService = new FhirProvenanceService();
+        $author = null;
+        if (!empty($dataRecord->getParticipant())) {
+            // grab the first one for author
+            $participant = reset($dataRecord->getParticipant());
+            $author = $participant->getIndividual() ?? null;
+        }
+        $provenance = $provenanceService->createProvenanceForDomainResource($dataRecord, $author);
+        return $provenance;
+    }
+
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
@@ -213,5 +225,19 @@ class FhirEncounterService extends FhirServiceBase implements IFhirExportableRes
     protected function searchForOpenEMRRecords($searchParam, $puuidBind = null): ProcessingResult
     {
         return $this->encounterService->search($searchParam, true, $puuidBind);
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    function getProfileURIs(): array
+    {
+        return [
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter'
+        ];
     }
 }

@@ -13,11 +13,11 @@
 namespace OpenEMR\Services\Qrda\Helpers;
 
 use Mustache_Context;
-use Ramsey\Uuid\Rfc4122\UuidV4;
 
 trait View
 {
     protected $submission_program;
+    protected $_qrda_guid;
 
     public function measures()
     {
@@ -36,7 +36,7 @@ trait View
 
     public function random_id()
     {
-        return UuidV4::uuid4();
+        return $this->_qrda_guid;
     }
 
     public function as_id(Mustache_Context $context)

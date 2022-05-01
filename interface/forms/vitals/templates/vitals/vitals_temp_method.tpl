@@ -7,5 +7,10 @@
             <option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xlt t="Temporal Artery"}
         </select></td>
     <td class="editonly"></td>
+    <td class="editonly actions">
+        { include file='vitals_actions.tpl' }
+    </td>
 
     { include file='vitals_historical_values.tpl' useMetric=false vitalsValue="get_temp_method" results=$results }
+</tr>
+{ include file='vitals_reason_row.tpl' input=$input title=$title vitalDetails=$vitals->get_details_for_column($input)  }

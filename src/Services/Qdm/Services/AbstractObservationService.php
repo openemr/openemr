@@ -12,6 +12,7 @@ namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 abstract class AbstractObservationService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -54,10 +55,14 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
      *
      * Map an OpenEMR record into a QDM model
      */
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
+        $record = $recordObj->getData();
         $modelClass = $this->getModelClass();
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
         $qdmModel = new $modelClass([
+            '_id' => $id,
+            'id' => $id,
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
             ]),
@@ -69,10 +74,12 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
         $qdmModel->result = $this->makeResult($record);
 
         // If the reason status is "negated" then add the code to negation rationale, otherwise add to reason
-        if ($record['ob_reason_status'] == parent::NEGATED) {
-            $qdmModel->negationRationale = $this->makeQdmCode($record['ob_reason_code']);
-        } else {
-            $qdmModel->reason = $this->makeQdmCode($record['ob_reason_code']);
+        if (!empty($record['ob_reason_code'])) {
+            if ($record['ob_reason_status'] == parent::NEGATED) {
+                $qdmModel->negationRationale = $this->makeQdmCode($record['ob_reason_code']);
+            } else {
+                $qdmModel->reason = $this->makeQdmCode($record['ob_reason_code']);
+            }
         }
 
         $codes = $this->explodeAndMakeCodeArray($record['code']);

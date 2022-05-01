@@ -13,6 +13,11 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
+use OpenEMR\FHIR\Export\ExportCannotEncodeException;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\Export\ExportStreamWriter;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -39,7 +44,6 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
-    use FhirBulkExportDomainResourceTrait;
 
     // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
     // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
@@ -248,22 +252,13 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         // we only return provenances for
         $servicesByResource = $this->serviceLocator->findServices(IResourceUSCIGProfileService::class);
 
-        $searchParams = ['_revinclude' => 'Provenance:target'];
         foreach ($servicesByResource as $resource => $service) {
             // if it doesn't support the readable service we've got issues
             if ($resource == 'Provenance' || !($service instanceof IResourceReadableService)) {
                 continue;
             }
             try {
-                $serviceResult = $service->getAll($searchParams, $puuidBind);
-                // now loop through and grab all of our provenance resources
-                if ($serviceResult->hasData()) {
-                    foreach ($serviceResult->getData() as $record) {
-                        if ($record instanceof FHIRProvenance) {
-                            $processingResult->addData($record);
-                        }
-                    }
-                }
+                $this->addAllProvenanceRecordsForService($processingResult, $service, [], $puuidBind);
             } catch (SearchFieldException $ex) {
                 $systemLogger = new SystemLogger();
                 $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
@@ -280,6 +275,20 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             }
         }
         return $processingResult;
+    }
+
+    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, $service, array $searchParams, $puuidBind = null)
+    {
+        $searchParams['_revinclude'] = 'Provenance:target';
+        $serviceResult = $service->getAll($searchParams, $puuidBind);
+        // now loop through and grab all of our provenance resources
+        if ($serviceResult->hasData()) {
+            foreach ($serviceResult->getData() as $record) {
+                if ($record instanceof FHIRProvenance) {
+                    $processingResult->addData($record);
+                }
+            }
+        }
     }
 
     /**
@@ -435,5 +444,65 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             ,"id" => $parts[1] ?? ""
         ];
         return $key;
+    }
+    /**
+     * Grabs all the objects in my service that match the criteria specified in the ExportJob.  If a
+     * $lastResourceIdExported is provided, The service executes the same data collection query it used previously and
+     * startes processing at the resource that is immediately after (ordered by date) the resource that matches the id of
+     * $lastResourceIdExported.  This allows processing of the service to be resumed or paused.
+     * @param ExportStreamWriter $writer Object that writes out to a stream any object that extend the FhirResource object
+     * @param ExportJob $job The export job we are processing the request for.  Holds all of the context information needed for the export service.
+     * @return void
+     * @throws ExportWillShutdownException  Thrown if the export is about to be shutdown and all processing must be halted.
+     * @throws ExportException  If there is an error in processing the export
+     * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
+     */
+    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
+    {
+        if (!($this instanceof IResourceReadableService)) {
+            // we need to ensure we only get called in a method that implements the getAll method.
+            throw new \BadMethodCallException("Trait can only be used in classes that implement the " . IResourceReadableService::class . " interface");
+        }
+        $type = $job->getExportType();
+
+        // algorithm
+        // go through each resource and grab the related service
+        // check if the service is a PatientCompartment resource, if so, set the patient uuids to export
+        // if we are a Medication request since we are using RXCUI for our drug formulariesthere is no Provenance resource and we can just skip it
+
+        $servicesByResource = $this->serviceLocator->findServices(IResourceUSCIGProfileService::class);
+
+        $patientUuids = $job->getPatientUuidsToExport();
+
+        foreach ($job->getResources() as $resource) {
+            $searchParams = [];
+            $searchParams['_revinclude'] = 'Provenance:target';
+            if ($resource != "Provenance" && isset($servicesByResource[$resource]) && $servicesByResource[$resource] instanceof IResourceReadableService) {
+                $service = $servicesByResource[$resource];
+                if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
+                    // service supports filtering by patients so let's do that
+                    if ($service instanceof IPatientCompartmentResourceService) {
+                        $searchField = $service->getPatientContextSearchField();
+                        $searchParams[$searchField->getName()] = implode(",", $patientUuids);
+                    }
+                }
+
+                $serviceResult = $service->getAll($searchParams);
+                // now loop through and grab all of our provenance resources
+                if ($serviceResult->hasData()) {
+                    foreach ($serviceResult->getData() as $record) {
+                        if (!($record instanceof FHIRDomainResource)) {
+                            throw new ExportException(self::class . " returned records that are not a valid fhir resource type for this class", 0, $lastResourceIdExported);
+                        }
+                        // we only want to write out provenance records
+                        if (!($record instanceof FHIRProvenance)) {
+                            continue;
+                        }
+                        $writer->append($record);
+                        $lastResourceIdExported = $record->getId();
+                    }
+                }
+            }
+        }
     }
 }

@@ -30,6 +30,7 @@ class CodeTypesService
     const CODE_TYPE_RXNORM = "RXNORM";
     const CODE_TYPE_RXCUI = "RXCUI";
     const CODE_TYPE_ICD10 = 'ICD10';
+    const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
     const CODE_TYPE_OID = array(
@@ -229,6 +230,8 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.12';
             } elseif (self::CODE_TYPE_CVX == $codeType) {
                 $system = '2.16.840.1.113883.12.292';
+            } elseif (self::CODE_TYPE_ICD10PCS == $codeType) {
+                $system = '2.16.840.1.113883.6.4';
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
@@ -369,10 +372,17 @@ class CodeTypesService
 
     public function lookupFromValueset($code, $codeType, $codeSystem)
     {
-        $value = sqlQuery(
-            "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
-            array($code, $codeType, "$codeType%", $codeSystem)
-        );
+        if (empty($codeSystem) && empty($codeType)) {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? LIMIT 1",
+                array($code)
+            );
+        } else {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
+                array($code, $codeType, "$codeType%", $codeSystem)
+            );
+        }
         return $value;
     }
 

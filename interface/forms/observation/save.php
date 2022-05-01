@@ -37,6 +37,9 @@ $ob_value       = $_POST["ob_value"];
 $ob_value_phin  = $_POST["ob_value_phin"];
 $ob_unit        = $_POST["ob_unit"];
 $code_date      = $_POST["code_date"];
+$reasonCode     = $_POST['reasonCode'];
+$reasonStatusCode     = $_POST['reasonCodeStatus'];
+$reasonCodeText     = $_POST['reasonCodeText'];
 
 if ($id && $id != 0) {
     sqlStatement("DELETE FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?", array($id, $_SESSION["pid"], $_SESSION["encounter"]));
@@ -91,7 +94,10 @@ if (!empty($code_desc)) {
             table_code  = ?,
             ob_value    = ?,
             ob_unit     = ?,
-            date        = ?";
+            date        = ?,
+            ob_reason_code = ?,
+            ob_reason_status = ?,
+            ob_reason_text = ?";
         sqlStatement(
             "INSERT INTO form_observation SET $sets",
             [
@@ -108,7 +114,10 @@ if (!empty($code_desc)) {
                 $table_code[$key],
                 $ob_value[$key],
                 $ob_unit_value,
-                $code_date[$key]
+                $code_date[$key],
+                $reasonCode[$key],
+                $reasonStatusCode[$key],
+                $reasonCodeText[$key]
             ]
         );
     endforeach;

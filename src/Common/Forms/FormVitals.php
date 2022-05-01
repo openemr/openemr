@@ -479,6 +479,14 @@ class FormVitals extends ORDataObject
         $this->_vitals_details[$column] = $details;
     }
 
+    public function has_reason_for_column($column)
+    {
+        $details = $this->get_details_for_column($column);
+        if (isset($details)) {
+            return !empty($details->get_reason_code());
+        }
+    }
+
     public function persist()
     {
         if (empty($this->uuid)) {

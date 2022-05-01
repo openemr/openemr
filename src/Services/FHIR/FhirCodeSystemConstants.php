@@ -72,4 +72,12 @@ class FhirCodeSystemConstants
     const OID_RACE_AND_ETHNICITY = "urn:oid:2.16.840.1.113883.6.238";
 
     const HL7_US_CORE_RACE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race";
+
+    const LANGUAGE_BCP_47 = "urn:ietf:bcp:47";
+
+    /**
+     * Required for US Core CareTeam Role.  Requires UMLS subscription to view valueset
+     * available here: https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1099.27/expansion/Latest
+     */
+    const CARE_TEAM_MEMBER_FUNCTION_SNOMEDCT = "2.16.840.1.113762.1.4.1099.27";
 }

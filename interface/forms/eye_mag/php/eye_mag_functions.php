@@ -5279,7 +5279,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $hideme = "hideme_cups nodisplay";
                             }
 
-                            $cups .= "<tr><td class='GFS_td_1 " . $hideme . " '>" . text($visit['exam_date']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . text($visit['ODCUP']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;''>" . text($visit['OSCUP']) . "</td></tr>";
+                            if ($cups ?? null) {
+                                $cups .= "<tr><td class='GFS_td_1 " . $hideme . " '>" . text($visit['exam_date']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . text($visit['ODCUP']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;''>" . text($visit['OSCUP']) . "</td></tr>";
+                            } else {
+                                $cups = "<tr><td class='GFS_td_1 " . $hideme . " '>" . text($visit['exam_date']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . text($visit['ODCUP']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;''>" . text($visit['OSCUP']) . "</td></tr>";
+                            }
+
                             $DISCS_chart .= '"1",';
                             $count++;
                         } else {
@@ -5304,13 +5309,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
 
                     if ($count > '0') {
-                        echo "<td class='GFS_title center'>" . xlt('OD{{right eye}}') . "</td><td class='GFS_title center'>" . xlt('OS{{left eye}}') . "</td>" . $plus;
+                        echo "<td class='GFS_title center'>" . xlt('OD{{right eye}}') . "</td><td class='GFS_title center'>" . xlt('OS{{left eye}}') . "</td>" . ($plus ?? '');
                     } else {
                         echo "<td class='GFS_title center'></td><td class='GFS_title center'></td>";
                     }
                     ?>
                 </tr>
-                        <?php echo $cups; ?>
+                        <?php echo $cups ?? ''; ?>
 
             </table>
         </div>
@@ -5733,7 +5738,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     var ctx1 = document.getElementById("canvas_byday").getContext("2d");
                     var ctx2 = document.getElementById("canvas_byhour").getContext("2d");
 
-                    var myLine = new Chart.Bar(ctx1, config_byday);
+                    var myLine = new Chart(ctx1, config_byday);
                     var myLine2 = new Chart(ctx2, config_byhour);
                 </script>
                 <?php

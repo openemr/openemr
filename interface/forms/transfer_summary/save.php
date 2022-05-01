@@ -26,7 +26,7 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$id = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
+$id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
 
 $sets = "pid = ?,
   groupname = ?,
