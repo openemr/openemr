@@ -1,8 +1,7 @@
 <?php
 
 /**
- *
- * A CardModel which implements CardInterface.
+ * A CardModel which implements CardInterface
  *
  * Represents a Card which can be injected into a Section.
  *

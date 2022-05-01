@@ -1,8 +1,7 @@
 <?php
 
 /**
- *
- * Section Event.
+ * Section Event
  *
  * Event that can be used to render a block of Cards.
  *
@@ -29,16 +28,12 @@ class SectionEvent extends Event
     const EVENT_HANDLE = 'section.render';
 
     /**
-     * The section being rendered
-     *
-     * @var string
+     * @var string $section The section being rendered
      */
     private $section;
 
     /**
-     * Array of CardInterface objects
-     *
-     * @var string $section The section name
+     * @var array $cards Array of CardInterface objects
      */
     private $cards;
 
@@ -87,7 +82,7 @@ class SectionEvent extends Event
         //     throw new LogicException('Position parameter must be either null or an interger');
         // }
 
-        array_splice($this->cards, $position ?? -1, 0, $card);
+        array_splice($this->cards, $position ?? -1, 0, array($card));
     }
 
     /**

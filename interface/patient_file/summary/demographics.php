@@ -1334,6 +1334,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         $viewArgs = [
+                            'card' => $card,
                             'title' => $card->getTitle(),
                             'id' => $card->getIdentifier(),
                             'auth' => $auth,
@@ -1352,19 +1353,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($GLOBALS['erx_enable']) :
                         $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('demographics'));
                         echo $twig->getTwig()->render('patient/partials/erx.html.twig', [
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                        ]);
-                    endif;
-
-                    if ($GLOBALS['portal_onsite_two_enable']) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('portal'));
-                        echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
-                            'portalAuthorized' => portalAuthorized($pid),
-                            'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
-                            'title' => xl('Patient Portal') . ' / ' . xl('API Access'),
-                            'id' => 'patient_portal',
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ]);

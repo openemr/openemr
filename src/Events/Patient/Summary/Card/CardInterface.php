@@ -1,8 +1,7 @@
 <?php
 
 /**
- *
- * Patient Summary Card Interface.
+ * Patient Summary Card Interface
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

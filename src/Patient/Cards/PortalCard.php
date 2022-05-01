@@ -1,8 +1,7 @@
 <?php
 
 /**
- *
- * Portal Card.
+ * Portal Card
  *
  * A class representing the Patient Portal card displayed on the MRD.
  *
@@ -67,6 +66,8 @@ class PortalCard extends CardModel
 
     private function setOpts()
     {
+        global $GLOBALS;
+        global $pid;
         $this->opts = [
             'acl' => ['patients', 'dem'],
             'initiallyCollapsed' => (getUserSetting(self::CARD_ID) == 0) ? false : true,
@@ -75,10 +76,10 @@ class PortalCard extends CardModel
             'collapse' => true,
             'templateFile' => self::TEMPLATE_FILE,
             'identifier' => self::CARD_ID,
-            'title' => xl('Patient Portal'),
+            'title' => xl('Patient Portal') . ' / ' . xl('API Access'),
             'templateVariables' => [
                 'portalAuthorized' => portalAuthorized($pid),
-                'portalLoginHref' => $portal_login_href,
+                'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
             ],
         ];
     }

@@ -3,8 +3,14 @@
         <h6 class="card-title mb-0 d-flex p-1 justify-content-between">
             <a class="text-left font-weight-bolder" href="#" {% if forceAlwaysOpen != true %}data-toggle="collapse" data-target="#{{ id|attr }}"{% endif %} aria-expanded="true" aria-controls="{{ id|attr }}">{{ title|text }}</a>
             {% if auth %}
-                {% set btnIcon = (btnLabel == "Add") ? "fa-plus" : "fa-pencil-alt" %}
-                <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa {{ btnIcon }} fa-sm">&nbsp;</i></a>
+                <span>
+                {% if card.canAdd() or btnLabel == "Add" %}
+                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-add fa-sm">&nbsp;</i></a>
+                {% endif %}
+                {% if card.canEdit() or btnLabel == "Edit" %}
+                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-pencil-alt fa-sm">&nbsp;</i></a>
+                {% endif %}
+                </span>
             {% endif %}
         </h6>
         <div id="{{ id|attr }}" class="card-text collapse {{ initiallyCollapsed == 1 ? "show" : ""}}">
