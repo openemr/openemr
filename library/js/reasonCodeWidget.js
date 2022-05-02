@@ -29,6 +29,7 @@
     let widgetPtrs = [];
     let previousSelCodeFunction = window.set_related || null;
     let webroot = null;
+    let reasonCodeTypes = "";
     let currentWindowOpenWidget = null;
 
     function getNegationContainerFromWidget(widget) {
@@ -42,6 +43,9 @@
             return false;
         }
         let node = document.getElementById(containerId);
+        if (!node) {
+            console.error("Failed to find reason widget container node with id " + containerId);
+        }
         return node;
     }
 
@@ -115,7 +119,11 @@
             previousSelCodeFunction = window.set_related;
             window.set_related =  _this.handleCodeSelected;
             window.top.restoreSession();
-            window.dlgopen(webroot + "/interface/patient_file/encounter/find_code_popup.php?default=SNOMED-CT"
+            let urlFragment = "?default=SNOMED-CT";
+            if (reasonCodeTypes) {
+                urlFragment = "?codetype=" + reasonCodeTypes;
+            }
+            window.dlgopen(webroot + "/interface/patient_file/encounter/find_code_popup.php" + urlFragment
                 , '_blank', 700, 400, false, undefined, opts);
         };
 
@@ -192,6 +200,8 @@
                 _this.reasonCodeText = _this.reasonCodeContainer.querySelector('.code-selector-text-display');
                 _this.reasonCodeTextInput = _this.reasonCodeContainer.querySelector('.code-selector-text');
                 _this.reasonStatusNode = _this.reasonCodeContainer.querySelector('select');
+            } else {
+                window.console.error("Failed to find reasonCodeContainer ")
             }
 
             if (_this.btnToggle && btnToggleNode.addEventListener) {
@@ -227,7 +237,7 @@
         init(webroot); // make sure we keep the same webroot here.
     }
 
-    function init(webRootValue) {
+    function init(webRootValue, reasonCodeTypes) {
         widgetPtrs = [];
         // destroy if we have anything setup right now
         widgetPtrNodes = document.querySelectorAll('.reason-code-btn');

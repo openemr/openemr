@@ -11545,8 +11545,8 @@ CREATE TABLE `form_care_plan` (
   `date_end` datetime DEFAULT NULL,
   `reason_code` varchar(31) DEFAULT NULL,
   `reason_description` text,
-  `reason_date_low` datetime DEFAULT NULL,
-  `reason_date_high` datetime DEFAULT NULL,
+  `reason_date_low` datetime DEFAULT NULL COMMENT 'The date the reason was recorded',
+  `reason_date_high` datetime DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends',
   `reason_status` varchar(31) DEFAULT NULL
 ) ENGINE=InnoDB;
 
