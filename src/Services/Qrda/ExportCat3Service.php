@@ -25,6 +25,8 @@ class ExportCat3Service
     protected $request;
     protected $measures = [];
     protected $results = [];
+    protected $effectiveDate;
+    protected $effectiveDateEnd;
 
     /**
      * ExportCat3Service constructor.
@@ -37,9 +39,11 @@ class ExportCat3Service
         $this->builder = $builder;
         $this->calculator = $calculator;
         $this->request = $request;
+        $this->effectiveDate = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-01-01 00:00:00';
+        $this->effectiveDateEnd = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-12-31 23:59:59';
     }
 
-    public function export($measures, $effectiveDate, $effectiveDateEnd)
+    public function export($measures, $resultOnly = false)
     {
         // let's build our measures from our json
         $measureObjs = [];
@@ -52,16 +56,18 @@ class ExportCat3Service
         // note that much of this function is following the logic in the cypress test suite
         // @see projectcypress/cypress.git lib/cypress/api_measure_evaluator.rb
         $patients = $this->builder->build($this->request);
-        $calculationResults = $this->do_calculation($patients, $measureObjs, $effectiveDate, $effectiveDateEnd);
+        $calculationResults = $this->do_calculation($patients, $measureObjs);
 
+        if ($resultOnly) {
+            return $calculationResults;
+        }
         // TODO need to get correlation ID from calculator? Maybe bundleId
         $correlation_id = ''; // not sure we need the correlation id at all
 
         // now we have a hashmap of measure ids(hqmf_id) => IndividualResult[]
         // ResultsCalculator is going to take all of those results and turn them into aggregated population results
-        $resultCalculator = new ResultsCalculator($patients, $correlation_id, $effectiveDate);
+        $resultCalculator = new ResultsCalculator($patients, $correlation_id, $this->effectiveDate);
         $results = $resultCalculator->aggregate_results_for_measures($measureObjs, $calculationResults);
-
         $options = [
             /*
              * These are options: TODO what is required?
@@ -76,8 +82,8 @@ class ExportCat3Service
             $options['ry2022_submission'];
             */
             'submission_program' => 'MIPS_INDIV', // This is the value Cypress test doc had.
-            'start_time' => $effectiveDate,
-            'end_time' => $effectiveDateEnd,
+            'start_time' => $this->effectiveDate,
+            'end_time' => $this->effectiveDateEnd,
             'ry2022_submission' => true
         ];
 
@@ -91,9 +97,9 @@ class ExportCat3Service
     }
 
 
-    private function do_calculation($patients, $measures, $effectiveDate, $effectiveEndDate)
+    private function do_calculation($patients, $measures)
     {
-        return $this->CqmExecutionCalcExecute($patients, $measures, $effectiveDate, $effectiveEndDate);
+        return $this->CqmExecutionCalcExecute($patients, $measures);
         /**
          * measures = product_test.measures
         calc_job = Cypress::CqmExecutionCalc.new(patients.map(&:qdmPatient), measures, correlation_id,
@@ -102,11 +108,11 @@ class ExportCat3Service
          */
     }
 
-    private function CqmExecutionCalcExecute($patients, $measures, $effectiveDate, $effectiveEndDate)
+    private function CqmExecutionCalcExecute($patients, $measures)
     {
         $finalResults = [];
         foreach ($measures as $measure) {
-            $results = $this->request_for($patients, $measure, $effectiveDate, $effectiveEndDate);
+            $results = $this->request_for($patients, $measure);
             // we deviate from the ruby code so we can group these by measure id since we aren't using a database
             $finalResults[$measure->hqmf_id] = $results;
         }
@@ -130,10 +136,10 @@ class ExportCat3Service
          */
     }
 
-    private function request_for($patients, Measure $measure, $effectiveDate, $effectiveDateEnd)
+    private function request_for($patients, Measure $measure)
     {
 
-        $results = $this->calculator->calculateMeasure($patients, $measure, $effectiveDate, $effectiveDateEnd);
+        $results = $this->calculator->calculateMeasure($patients, $measure, $this->effectiveDate, $this->effectiveDateEnd);
         $final_results = [];
         foreach ($results as $patient_id => $result) {
             // we will deviate here as we don't need the patient as we aren't saving any data for cypress with the patient

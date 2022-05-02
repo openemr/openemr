@@ -21,6 +21,8 @@ use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
+use OpenEMR\Services\Qrda\QrdaReportService;
 use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
@@ -62,12 +64,19 @@ class EncountermanagerController extends AbstractActionController
         $start = ($end - $results);
         $new_search = $request->getPost('form_new_search', null);
         $form_sl_no = $request->getPost('form_sl_no', 0);
+        $form_measures = $request->getPost('form_measures', null);
 
         $downloadccda = $request->getPost('downloadccda') ?: $request->getQuery()->downloadccda;
         $downloadqrda = $request->getPost('downloadqrda') ?: $request->getQuery()->downloadqrda;
         $downloadqrda3 = $request->getPost('downloadqrda3') ?: $request->getQuery()->downloadqrda3;
         $latest_ccda = $request->getPost('latestccda') ?: $this->getRequest()->getQuery('latest_ccda');
-
+        $reportController = new QrdaReportController();
+        $reportService = new QrdaReportService();
+        $measures = $reportController->reportMeasures;
+        $m_resolved = $reportService->resolveMeasuresPath($measures);
+        foreach ($m_resolved as $k => $m) {
+            $measures[$k]['measure_path'] = $m;
+        }
         if (($downloadccda == 'download_ccda') || ($downloadqrda == 'download_qrda') || ($downloadqrda3 == 'download_qrda3')) {
             $pids = '';
             if ($request->getQuery('pid_ccda')) {
@@ -117,7 +126,7 @@ class EncountermanagerController extends AbstractActionController
             }
             $this->forward()->dispatch(EncounterccdadispatchController::class, $send_params);
         }
-
+        // view
         $params = array(
             'from_date' => $fromDate,
             'to_date' => $toDate,
@@ -131,6 +140,7 @@ class EncountermanagerController extends AbstractActionController
             'select_all' => $select_all,
             'expand_all' => $expand_all,
             'sl_no' => $form_sl_no,
+            'measures' => $form_measures,
         );
         if ($new_search) {
             $count = $this->getEncountermanagerTable()->getEncounters($params, 1);
@@ -152,6 +162,7 @@ class EncountermanagerController extends AbstractActionController
         $index = new ViewModel(array(
             'details' => $details,
             'form_data' => $params,
+            'current_measures' => $measures,
             'table_obj' => $this->getEncountermanagerTable(),
             'status_details' => $status_details,
             'listenerObject' => $this->listenerObject,
