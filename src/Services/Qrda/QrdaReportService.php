@@ -27,6 +27,8 @@ class QrdaReportService
     protected $builder;
     protected $calculator;
     protected $patientJson;
+    protected $effectiveDate;
+    protected $effectiveDateEnd;
     public $measuresPath;
 
     public function __construct()
@@ -35,15 +37,25 @@ class QrdaReportService
         $this->client = CqmServiceManager::makeCqmClient();
         $this->client->start();
         $this->builder = new QdmBuilder();
-        $this->calculator = new CqmCalculator($this->builder);
+        $this->calculator = new CqmCalculator();
         $this->measuresPath = MeasureService::fetchMeasuresPath();
         $this->patientJson = "";
+        $this->effectiveDate = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-01-01 00:00:00';
+        $this->effectiveDateEnd = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-12-31 23:59:59';
+        if (empty($this->client->getHealth()['uptime'] ?? null)) {
+            $msg = xlt("Can not complete report request. Node Service is not running.");
+            throw new \RuntimeException($msg);
+        }
     }
 
+    /**
+     * @param $scope
+     * @return array
+     */
     function fetchCurrentMeasures($scope = 'active'): array
     {
         $measures = [];
-        $year = trim($GLOBALS['cqm_performance_period'] ?? '2022');
+        $year = trim($GLOBALS['cqm_performance_period'] ?: '2022');
         $list = 'ecqm_' . $year . '_reporting';
         $active = $scope == 'active' ? 1 : 0;
         $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", array($list, $active));
@@ -86,23 +98,56 @@ class QrdaReportService
     /**
      * @param       $pid
      * @param array $measures
-     * @param array $options
      * @return string
      */
-    public function generateCategoryIXml($pid, $measures = [], $options = []): string
+    public function generateCategoryIXml($pid, $measures = []): string
     {
+        $options = [
+            'performance_period_start' => $this->effectiveDate,
+            'performance_period_end' => $this->effectiveDateEnd
+        ];
         if ($pid) {
             $request = new QdmRequestOne($pid);
         } else {
             $request = new QdmRequestAll();
         }
+
         $exportService = new ExportCat1Service($this->builder, $request);
         $xml = $exportService->export($measures, $options);
 
         return $xml;
     }
 
-    public function generateCategoryIIIXml($pid, $measures, $effectiveDate, $effectiveDateEnd): string
+    /**
+     * @param $pid
+     * @param $measures
+     * @return bool
+     */
+    public function qualifyPatientMeasure($pid, $measures): bool
+    {
+        if ($pid) {
+            $request = new QdmRequestOne($pid);
+        } else {
+            $request = new QdmRequestAll();
+        }
+
+        $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
+        $result = $exportService->export($measures, true);
+        $include = array_shift($result);
+        if ((int)$include[0]->IPP === 0) {
+            error_log(errorLogEscape(xlt('Patient did not qualify') . ' pid: ' . $pid . ' Measures: ' . text(basename($measures[0]))));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $pid
+     * @param $measures
+     * @return string
+     */
+    public function generateCategoryIIIXml($pid, $measures): string
     {
         if ($pid) {
             $request = new QdmRequestOne($pid);
@@ -112,7 +157,7 @@ class QrdaReportService
 
         if (!empty($this->client->getHealth()['uptime'] ?? null)) {
             $exportService = new ExportCat3Service($this->builder, $this->calculator, $request);
-            $xml = $exportService->export($measures, $effectiveDate, $effectiveDateEnd);
+            $xml = $exportService->export($measures);
         } else {
             $msg = xlt("Can not complete report request. Node Service is not running.");
             throw new \RuntimeException($msg);

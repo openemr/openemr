@@ -43,6 +43,9 @@ class QrdaReportController
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
         $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved, $options);
+        if (empty($document)) {
+            return '';
+        }
         if ($type === 'html') {
             $xml = simplexml_load_string($document);
             $xsl = new DOMDocument();
@@ -67,7 +70,7 @@ class QrdaReportController
         // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
-        $document = $this->reportService->generateCategoryIIIXml($pid, $measures_resolved, $options['performance_period_start'], $options['performance_period_end']);
+        $document = $this->reportService->generateCategoryIIIXml($pid, $measures_resolved);
 
         return $document;
     }
@@ -127,26 +130,41 @@ class QrdaReportController
                     }
                     chmod($local_directory, 0777);
                 }
+
+                // delete existing to make reporting easier with last exported reports, current.
+                $glob = glob("$local_directory/*.*");
+                array_map('unlink', $glob);
+                // create reports
                 foreach ($pids as $pid) {
                     $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                     $file = $measure_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                     $file_local = $local_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                     $content = $this->getCategoryIReport($pid, $measure, $type, $options);
+                    if (empty($content)) {
+                        continue;
+                    }
                     file_put_contents($file, $content);
                     file_put_contents($file_local, $content);
                     unset($content);
                     if ($type === 'xml') {
-                        //copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
+                        copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
                     }
                 }
             }
-            $zip_name = "qrda1_export_" . time() . ".zip";
+            $zip_measure = 'measures';
+            if (count($measures ?? []) === 1) {
+                $zip_measure = $measures[0];
+            }
+            $zip_name = "QRDA1_" . $zip_measure . "_" . time() . ".zip";
         } elseif ($bypid) {
             foreach ($pids as $pid) {
                 $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pid]);
                 $file = $zip_directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                 $file_local = $directory . "/{$meta['pid']}_{$meta['fname']}_{$meta['lname']}." . $type;
                 $content = $this->getCategoryIReport($pid, '', $type, $options);
+                if (empty($content)) {
+                    continue;
+                }
                 file_put_contents($file, $content);
                 file_put_contents($file_local, $content);
                 unset($content);
@@ -181,12 +199,14 @@ class QrdaReportController
         } elseif (!is_array($measures) && $measures === 'all') {
             $measures = $this->reportMeasures;
         }
+
         $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
         if (!is_dir($directory)) {
             if (!mkdir($directory, 775, true) && !is_dir($directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
             }
         }
+
         if (is_array($pids)) {
             if (count($pids) === 1) {
                 $pids = $pids[0];
@@ -204,7 +224,7 @@ class QrdaReportController
                 $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pids]);
                 $filename = $measure . '_' . $pids . '_' . $meta['fname'] . '_' . $meta['lname'] . ".xml";
             }
-            $file = $directory  . DIRECTORY_SEPARATOR . $filename;
+            $file = $directory . DIRECTORY_SEPARATOR . $filename;
             file_put_contents($file, $xml);
             unset($content);
         }

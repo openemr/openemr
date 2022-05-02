@@ -17,6 +17,7 @@ namespace Carecoordination\Model;
 require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
 require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
+use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
@@ -87,8 +88,9 @@ class EncountermanagerTable extends AbstractTableGateway
             return $resCount;
         }
 
-        $query .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($data['limit_start']) . "," . \Application\Plugin\CommonPlugin::escapeLimit($data['results']);
+        $query .= " LIMIT " . CommonPlugin::escapeLimit($data['limit_start']) . "," . CommonPlugin::escapeLimit($data['results']);
         $resDetails = $appTable->zQuery($query, $query_data);
+
         return $resDetails;
     }
 
