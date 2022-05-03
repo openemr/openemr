@@ -1025,7 +1025,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl("Demographics"),
                             'id' => "demographics_ps_expand",
-                            'btnText' => "Edit",
+                            'btnLabel' => "Edit",
                             'btnLink' => "demographics_full.php",
                             'linkMethod' => "html",
                             'auth' => ACLMain::aclCheckCore('patients', 'demo', '', 'write'),
@@ -1109,7 +1109,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl("Insurance"),
                             'id' => $id,
-                            'btnText' => "Edit",
+                            'btnLabel' => "Edit",
                             'btnLink' => "demographics_full.php",
                             'linkMethod' => 'html',
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
