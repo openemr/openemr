@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Purpose: to be run by cron every hour, look for appointments
  * in the pre-notification period and send an email reminder
  *
@@ -34,7 +33,7 @@ if ($argc > 1 && empty($_SESSION['site_id']) && empty($_GET['site'])) {
     $_GET['site'] = isset($args[1]) ? $args[1] : 'default';
 }
 if (php_sapi_name() === 'cli') {
-//    $_SERVER[‘HTTP_HOST’] = ‘localhost’;
+    // $_SERVER[‘HTTP_HOST’] = ‘localhost’;
     $_SERVER['HTTP_HOST'] = 'localhost';
 
     $ignoreAuth = true;
@@ -56,8 +55,6 @@ $CRON_TIME = 5;
 // set cron time (time to event ?) - todo extra tests
 $vectNotificationSettings = cron_GetNotificationSettings();
 $CRON_TIME = $vectNotificationSettings['Send_Email_Before_Hours'];
-
-$check_date = date("Y-m-d", mktime(date("h") + $EMAIL_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
 
 // get data from automatic_notification table
 $db_email_msg = cron_getNotificationData($TYPE);
@@ -93,7 +90,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
             $prow['email_direct'],
             $db_email_msg['email_subject'],
             $db_email_msg['message']
-        );
+            );
 
         // insert entry in notification_log table
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
