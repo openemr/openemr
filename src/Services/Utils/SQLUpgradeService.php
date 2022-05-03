@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Events\Core\SQLUpgradeEvent;
 
 class SQLUpgradeService
 {
@@ -209,6 +210,14 @@ class SQLUpgradeService
     function upgradeFromSqlFile($filename, $path = '')
     {
         global $webserver_root;
+
+        // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+        // or any manual processing that needs to occur.
+        if (!empty($GLOBALS['kernel'])) {
+            $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
+            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+        }
+
         $skip_msg = xlt("Skipping section");
 
         $this->flush();
@@ -680,6 +689,13 @@ class SQLUpgradeService
         }
 
         $this->flush();
+
+        // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+        // or any manual processing that needs to occur.
+        if (!empty($GLOBALS['kernel'])) {
+            $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
+            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+        }
     } // end function
 
     public function flush_echo($string = '')

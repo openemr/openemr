@@ -581,6 +581,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
                         </div>
                     </div>
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-sm-2">
+                            <label for='encounter_type' class="text-right"><?php echo xlt('Type'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <?php echo generate_select_list('encounter_type', 'encounter-types', $viewmode ? $result['encounter_type'] : '', '', ''); ?>
+                        </div>
+                    </div>
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                     <div class="form-row align-items-center mt-2">
                         <div class="col-sm-2">
