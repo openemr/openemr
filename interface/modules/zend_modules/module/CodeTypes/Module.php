@@ -1,14 +1,14 @@
 <?php
 
 /**
- * FHIR/Module  Handles the module instantiation for the FHIR module.  Note that because of the way laminas loads the
- * modules the namespace for this module is 'FHIR'.  However to avoid namespace clashes we have defined the namespace
- * to be under the OpenEMR namespace as seen in the getAutoloaderConfig method.
+ * CodeTypes/Module  Handles the mapping of code systems to our list options and any other code type processing that
+ * we need to take care of in the system based on system events.
  *
  * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

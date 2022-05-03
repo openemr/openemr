@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Events\Core;
 
-
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class SQLUpgradeEvent

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * SQLUpgradeEvent class is fired the SQLUpgradeService when a SQL upgrade file has completed upgrading.  Note if there
- * are multiple upgrade files that must be processed this event will fire multiple times.  Consumers of this event
- * need to handle this use case.
+ * CodeTypeInstalledEvent class is fired when a code type has been installed in the OpenEMR system. Currently it is fired
+ * during the External Data Load process for code types found in standard_tables_capture.inc  Consumers can hook into
+ * the pre install event and post install event.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -13,10 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Events\Core;
-
-
-use OpenEMR\Services\Utils\SQLUpgradeService;
+namespace OpenEMR\Events\Codes;
 
 class CodeTypeInstalledEvent
 {

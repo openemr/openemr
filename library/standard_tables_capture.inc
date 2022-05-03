@@ -17,7 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Events\Core\CodeTypeInstalledEvent;
+use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
