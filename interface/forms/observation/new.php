@@ -49,11 +49,10 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
 
     <?php Header::setupHeader(['datetime-picker', 'reason-code-widget']); ?>
 
-    <!--Update the version (v flag) to cache bust if you modify this file -->
     <script src="<?php echo attr($GLOBALS['webroot']); ?>/interface/forms/observation/observation.js?v=<?php echo attr($GLOBALS['v_js_includes']); ?>" type="text/javascript"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
-           window.observationForm.init(<?php echo js_url($GLOBALS['webroot']); ?>);
+           window.observationForm.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("problem", "csv")) ?>);
         });
         $(function () {
             // special case to deal with static and dynamic datepicker items

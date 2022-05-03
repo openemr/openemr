@@ -1,10 +1,10 @@
 
 (function(window, oeUI) {
 
-    function init(webroot) {
+    function init(webroot, reasonCodeTypes) {
         // we want to setup our reason code widgets
         if (oeUI.reasonCodeWidget) {
-            oeUI.reasonCodeWidget.init(webroot);
+            oeUI.reasonCodeWidget.init(webroot, reasonCodeTypes);
         } else {
             console.error("Missing required dependency reasonCodeWidget");
             return;
@@ -86,7 +86,7 @@ function changeIds(class_val) {
     }
 }
 
-function deleteRow(rowId) {
+function deleteRow(event, rowId) {
     if (rowId !== 'tb_row_1') {
         var elem = document.getElementById(rowId);
         elem.parentNode.removeChild(elem);

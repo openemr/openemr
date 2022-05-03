@@ -272,7 +272,7 @@ ALTER TABLE `ccda` ADD COLUMN `transaction_id` BIGINT(20) COMMENT 'fk to transac
 #EndIf
 
 #IfMissingColumn form_care_plan date_end
-ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_code` VARCHAR(31) DEFAULT NULL, ADD `reason_description` TEXT, ADD `reason_date_low` DATETIME DEFAULT NULL, ADD `reason_date_high` DATETIME DEFAULT NULL;
+ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_code` VARCHAR(31) DEFAULT NULL, ADD `reason_description` TEXT, ADD `reason_date_low` DATETIME DEFAULT NULL COMMENT 'The date the reason was recorded', ADD `reason_date_high` DATETIME DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends' ;
 #EndIf
 
 #IfNotColumnType insurance_companies ins_type_code int(11)
