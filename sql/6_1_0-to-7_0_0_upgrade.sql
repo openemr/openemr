@@ -551,3 +551,7 @@ UPDATE categories SET codes='LOINC:LP173394-0' WHERE name='Reviewed';
 #IfMissingColumn form_vital_details reason_code
 ALTER TABLE `form_vital_details` ADD `reason_code` VARCHAR(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;', ADD `reason_description` TEXT COMMENT 'Human readable text description of the reason_code column', ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL COMMENT 'The status of the reason ie completed, in progress, etc';
 #EndIf
+
+#IfNotIndex patient_data lname
+ALTER TABLE `patient_data` ADD FULLTEXT INDEX(`lname`);
+#EndIf
