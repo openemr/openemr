@@ -446,18 +446,13 @@ function match_patient($ptarr)
     $in_sex = strtoupper($ptarr['sex']) == 'M' ? 'Male' : 'Female'; // AND sex IS NOT NULL AND sex = ?
 
     $patient_id = 0;
+    //original query removed for this one where the lname column is indexed FULL TEXT for more accuracy
+    //We only match on first name, last name and sex
+    //We have a high number of hypenated name
     $res = sqlStatement(
-        "SELECT pid FROM patient_data WHERE " .
-        "((ss IS NULL OR ss = '' OR '' = ?) AND " .
-        "fname IS NOT NULL AND fname != '' AND fname = ? AND " .
-        "lname IS NOT NULL AND lname != '' AND lname = ? AND " .
-        "DOB IS NOT NULL AND DOB = ?) OR " .
-        "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ? AND (" .
-        "fname IS NOT NULL AND fname != '' AND fname = ? OR " .
-        "lname IS NOT NULL AND lname != '' AND lname = ? OR " .
-        "DOB IS NOT NULL AND DOB = ?)) " .
-        "ORDER BY ss DESC, pid DESC LIMIT 2",
-        array($in_ss, $in_fname, $in_lname, $in_dob, $in_ss, $in_fname, $in_lname, $in_dob)
+        "SELECT pid FROM patient_data WHERE MATCH(lname) " .
+        " AGAINST(? IN BOOLEAN MODE) AND fname = ? AND DOB = ? AND sex = ?",
+        array($in_lname, $in_fname, $in_dob, $in_sex)
     );
     if (sqlNumRows($res) > 1) {
         // Multiple matches, so ambiguous.
@@ -468,14 +463,9 @@ function match_patient($ptarr)
         $patient_id = intval($tmp['pid']);
     } else {
         // No match good enough, figure out if there's enough ambiguity to ask the user.
-        $tmp = sqlQuery(
-            "SELECT pid FROM patient_data WHERE " .
-            "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ?) OR " .
-            "(fname IS NOT NULL AND fname != '' AND fname = ? AND " .
-            "lname IS NOT NULL AND lname != '' AND lname = ?) OR " .
-            "(DOB IS NOT NULL AND DOB = ?) " .
-            "LIMIT 1",
-            array($in_ss, $in_fname, $in_lname, $in_dob)
+        $tmp = sqlQuery("SELECT pid FROM patient_data WHERE MATCH(lname) " .
+            " AGAINST(? IN BOOLEAN MODE) AND fname = ? AND DOB = ? AND sex = ?",
+            array($in_lname, $in_fname, $in_dob, $in_sex)
         );
         if (!empty($tmp['pid'])) {
             $patient_id = -1;
