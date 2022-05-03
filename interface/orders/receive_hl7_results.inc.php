@@ -463,7 +463,8 @@ function match_patient($ptarr)
         $patient_id = intval($tmp['pid']);
     } else {
         // No match good enough, figure out if there's enough ambiguity to ask the user.
-        $tmp = sqlQuery("SELECT pid FROM patient_data WHERE MATCH(lname) " .
+        $tmp = sqlQuery(
+            "SELECT pid FROM patient_data WHERE MATCH(lname) " .
             " AGAINST(? IN BOOLEAN MODE) AND fname = ? AND DOB = ? AND sex = ?",
             array($in_lname, $in_fname, $in_dob, $in_sex)
         );
