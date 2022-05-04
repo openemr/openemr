@@ -34,9 +34,9 @@ function cron_SendMail($to, $cc, $subject, $vBody)
         $mstatus = true;
         $mstatus = @mail($to, $cc, $subject, $vBody);
     } else {
-        $SenderName = $GLOBALS['patient_reminder_sender_name'];
-        $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
-        }   
+            $SenderName = $GLOBALS['patient_reminder_sender_name'];
+            $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
+    }   
         {
             $mail = new PHPMailer();
             $mail->SMTPDebug = 3;
@@ -64,9 +64,9 @@ function cron_SendMail($to, $cc, $subject, $vBody)
                 echo "Message sent to " . text($to) . " OK.\n";
                 $mstatus = true;
             }
-            unset($mail);
+        unset($mail);
         }
-        return $mstatus;    
+    return $mstatus;    
 }
 
 

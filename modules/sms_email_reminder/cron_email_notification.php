@@ -11,7 +11,9 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// comment below exit if plan to use this script
+if (php_sapi_name() !== 'cli') {
+    exit;
+}
 
 global $argc;
 global $data_info;
@@ -110,9 +112,8 @@ for ($p = 0; $p < count($db_patient); $p++) {
     $db_email_msg = cron_getNotificationData($TYPE);
 }
 
-if (php_sapi_name() !== 'cli') {
-    exit;
-}
+// sqlClose();
+
 ?>
 
 <html>
