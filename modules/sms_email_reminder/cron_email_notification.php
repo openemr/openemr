@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Purpose: to be run by cron every hour, look for appointments
  * in the pre-notification period and send an email reminder
@@ -65,7 +66,7 @@ $db_patient = cron_getAlertpatientData($TYPE);
 echo "<br />Total " . count($db_patient) . " Records Found\n";
 for ($p = 0; $p < count($db_patient); $p++) {
     $prow = $db_patient[$p];
-        
+
     $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
     $app_time = strtotime($app_date);
     $eid = $prow['pc_eid'];
@@ -81,21 +82,21 @@ for ($p = 0; $p < count($db_patient); $p++) {
     $strMsg .= "\nSEND NOTIFICATION BEFORE:" . $EMAIL_NOTIFICATION_HOUR . " || CRONJOB RUN EVERY:" . $CRON_TIME . " || APPDATETIME:" . $app_date . " || REMAINING APP HOUR:" . ($remaining_app_hour) . " || SEND ALERT AFTER:" . ($remain_hour);
 
     if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
-        
+
         //set message
         $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
-        
+
         // send mail to patinet
         cron_SendMail(
             $prow['email'],
             $prow['email_direct'],
             $db_email_msg['email_subject'],
             $db_email_msg['message']
-            );
+        );
 
         // insert entry in notification_log table
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
-    
+
         //update entry >> pc_sendalertemail='Yes'
         cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
 

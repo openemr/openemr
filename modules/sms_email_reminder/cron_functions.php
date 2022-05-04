@@ -36,40 +36,38 @@ function cron_SendMail($to, $cc, $subject, $vBody)
     } else {
             $SenderName = $GLOBALS['patient_reminder_sender_name'];
             $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
-    }   
-        {
-            $mail = new PHPMailer();
-            $mail->SMTPDebug = 3;
-            $mail->IsSMTP();
-            $mail->Host = $GLOBALS['SMTP_HOST'];
-            $mail->Port = $GLOBALS['SMTP_PORT'];
-            $mail->SMTPAuth = true;
-            $mail->Username = $GLOBALS['SMTP_USER'];
-            $cryptoGen = new CryptoGen();
-            $mail->Password = $cryptoGen->decryptStandard($GLOBALS['SMTP_PASS']);
-            $mail->SMTPSecure = $GLOBALS['SMTP_SECURE'];
-            $mail->CharSet = "UTF-8";
-            $mail->From = $SenderEmail;
-            $mail->FromName = $SenderName;
-            $mail->AddAddress($to);
-            // $mail->addCC($cc); //Remove comment to send, also to trusted mail
-            $mail->WordWrap = 50;
-            $mail->IsHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body = $vBody;
-            if (!$mail->send()) {
-                echo "Cound not send the message to " . text($to) . ".\nError: " . text($mail->ErrorInfo) . "\n";
-                $mstatus = false;
-            } else {
-                echo "Message sent to " . text($to) . " OK.\n";
-                $mstatus = true;
-            }
-        unset($mail);
         }
-    return $mstatus;    
+    {
+        $mail = new PHPMailer();
+        $mail->SMTPDebug = 3;
+        $mail->IsSMTP();
+        $mail->Host = $GLOBALS['SMTP_HOST'];
+        $mail->Port = $GLOBALS['SMTP_PORT'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $GLOBALS['SMTP_USER'];
+        $cryptoGen = new CryptoGen();
+        $mail->Password = $cryptoGen->decryptStandard($GLOBALS['SMTP_PASS']);
+        $mail->SMTPSecure = $GLOBALS['SMTP_SECURE'];
+        $mail->CharSet = "UTF-8";
+        $mail->From = $SenderEmail;
+        $mail->FromName = $SenderName;
+        $mail->AddAddress($to);
+        // $mail->addCC($cc); //Remove comment to send, also to trusted mail
+        $mail->WordWrap = 50;
+        $mail->IsHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $vBody;
+        if (!$mail->send()) {
+            echo "Cound not send the message to " . text($to) . ".\nError: " . text($mail->ErrorInfo) . "\n";
+            $mstatus = false;
+        } else {
+            echo "Message sent to " . text($to) . " OK.\n";
+            $mstatus = true;
+        }
+        unset($mail);
+    }
+    return $mstatus;
 }
-
-
 
 ////////////////////////////////////////////////////////////////////
 // Function:    WriteLog
@@ -85,7 +83,7 @@ function WriteLog($data)
     if (!$fp = fopen(__DIR__ . $filename, 'w+e')) {
         print "Cannot open file (" . text($filename) . ")";
         exit;
-}
+    }
     $sdata = "\n====================================================================\n";
     if (!fwrite($fp, $sdata . $data . $sdata)) {
         print "Cannot write to file (" . text($filename) . ")";
@@ -135,13 +133,12 @@ function cron_SendSMS($to, $subject, $vBody, $from)
 function cron_updateentry($type, $pid, $pc_eid)
 {
     $query = "UPDATE openemr_postcalendar_events SET ";
-    
     if ($type == 'SMS') {
         $query .= " openemr_postcalendar_events.pc_sendalertsms='YES' ,  openemr_postcalendar_events.pc_apptstatus='SMS' ";
     } else {
         $query .= " openemr_postcalendar_events.pc_sendalertemail='YES' ,  openemr_postcalendar_events.pc_apptstatus='EMAIL' ";
     }
-    $query .= " WHERE openemr_postcalendar_events.pc_pid=? 
+    $query .= " WHERE openemr_postcalendar_events.pc_pid=?
                 AND openemr_postcalendar_events.pc_eid=? ";
     $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
 }
@@ -153,7 +150,7 @@ function cron_updateentry($type, $pid, $pc_eid)
 function cron_getAlertpatientData($type)
 {
     global $SMS_NOTIFICATION_HOUR, $EMAIL_NOTIFICATION_HOUR;
-   
+
     if ($type == 'SMS') {
         $ssql = " AND pd.hipaa_allowsms='YES' AND pd.phone_cell<>'' AND ope.pc_sendalertsms='NO' ";
         $check_date = date("Y-m-d", mktime(date("h") + $SMS_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
