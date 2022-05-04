@@ -412,6 +412,7 @@ class DocumentTemplateService
 
     /**
      * Reserved to prevent duplicate templates across profiles. TBD.
+     *
      * @return array
      */
     public function getTemplateListUnique(): array
@@ -557,12 +558,18 @@ class DocumentTemplateService
      */
     public function insertTemplate($pid, $category, $template, $content, $mimetype = null, $profile = null): int
     {
+        // prevent template save if unsafe. Check for escaped and unescaped content.
+        if (stripos($content, text('<script')) !== false || stripos($content, '<script') !== false) {
+            throw new \RuntimeException(xlt("Template rejected. JavaScript not allowed"));
+        }
+
         $name = null;
         if (!empty($pid)) {
             $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", array($pid))['name'] ?? '';
         } elseif ($pid == -1) {
             $name = 'Repository';
         }
+
         $sql = "INSERT INTO `document_templates` 
             (`pid`, `provider`,`profile`, `category`, `template_name`, `location`, `status`, `template_content`, `size`, `mime`) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
@@ -676,6 +683,11 @@ class DocumentTemplateService
      */
     public function updateTemplateContent($id, $content)
     {
+        // prevent template save if unsafe. Check for escaped and unescaped content.
+        if (stripos($content, text('<script')) !== false || stripos($content, '<script') !== false) {
+            throw new \RuntimeException(xlt("Template rejected. JavaScript not allowed"));
+        }
+
         return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', array($content, $id));
     }
 
@@ -758,12 +770,12 @@ class DocumentTemplateService
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
         $category_list = array();
-        $category_list[''] = array (
+        $category_list[''] = array(
             'option_id' => '',
             'title' => '',
             'seq' => '',
         );
-        $category_list['General'] = array (
+        $category_list['General'] = array(
             'option_id' => '',
             'title' => '',
             'seq' => '',
