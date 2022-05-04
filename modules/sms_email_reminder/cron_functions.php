@@ -34,45 +34,42 @@ function cron_SendMail($to, $cc, $subject, $vBody)
         $mstatus = true;
         $mstatus = @mail($to, $cc, $subject, $vBody);
     } else {
-        if (!class_exists("SMTP")) {
-            $SenderName = $GLOBALS['patient_reminder_sender_name'];
-            $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
-            if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
-                require(__DIR__ . "/../../library/classes/PHPMailer/src/Exception.php");
-                require(__DIR__ . "/../../library/classes/PHPMailer/src/PHPMailer.php");
-                require(__DIR__ . "/../../library/classes/PHPMailer/src/SMTP.php");
+        $SenderName = $GLOBALS['patient_reminder_sender_name'];
+        $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
+        }   
+        {
+            $mail = new PHPMailer();
+            $mail->SMTPDebug = 3;
+            $mail->IsSMTP();
+            $mail->Host = $GLOBALS['SMTP_HOST'];
+            $mail->Port = $GLOBALS['SMTP_PORT'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $GLOBALS['SMTP_USER'];
+            $cryptoGen = new CryptoGen();
+            $mail->Password = $cryptoGen->decryptStandard($GLOBALS['SMTP_PASS']);
+            $mail->SMTPSecure = $GLOBALS['SMTP_SECURE'];
+            $mail->CharSet = "UTF-8";
+            $mail->From = $SenderEmail;
+            $mail->FromName = $SenderName;
+            $mail->AddAddress($to);
+            // $mail->addCC($cc); //Remove comment to send, also to trusted mail
+            $mail->WordWrap = 50;
+            $mail->IsHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = $vBody;
+            if (!$mail->send()) {
+                echo "Cound not send the message to " . text($to) . ".\nError: " . text($mail->ErrorInfo) . "\n";
+                $mstatus = false;
+            } else {
+                echo "Message sent to " . text($to) . " OK.\n";
+                $mstatus = true;
             }
+            unset($mail);
         }
-        $mail = new PHPMailer();
-        $mail->SMTPDebug = 3;
-        $mail->IsSMTP();
-        $mail->Host = $GLOBALS['SMTP_HOST'];
-        $mail->Port = $GLOBALS['SMTP_PORT'];
-        $mail->SMTPAuth = true;
-        $mail->Username = $GLOBALS['SMTP_USER'];
-        $cryptoGen = new CryptoGen();
-        $mail->Password = $cryptoGen->decryptStandard($GLOBALS['SMTP_PASS']);
-        $mail->SMTPSecure = $GLOBALS['SMTP_SECURE'];
-        $mail->CharSet = "UTF-8";
-        $mail->From = $SenderEmail;
-        $mail->FromName = $SenderName;
-        $mail->AddAddress($to);
-        // $mail->addCC($cc); //Remove comment to send, also to trusted mail
-        $mail->WordWrap = 50;
-        $mail->IsHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body = $vBody;
-        if (!$mail->send()) {
-            echo "Cound not send the message to " . text($to) . ".\nError: " . text($mail->ErrorInfo) . "\n";
-            $mstatus = false;
-        } else {
-            echo "Message sent to " . text($to) . " OK.\n";
-            $mstatus = true;
-        }
-        unset($mail);
-    }
-    return $mstatus;
+        return $mstatus;    
 }
+
+
 
 ////////////////////////////////////////////////////////////////////
 // Function:    WriteLog

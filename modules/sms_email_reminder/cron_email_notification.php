@@ -12,10 +12,9 @@
  */
 
 // comment below exit if plan to use this script
-//exit;
-// setlocale(LC_ALL, "es_ES.UTF8" );
 
 global $argc;
+global $data_info;
 
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
@@ -111,7 +110,9 @@ for ($p = 0; $p < count($db_patient); $p++) {
     $db_email_msg = cron_getNotificationData($TYPE);
 }
 
-//sqlClose();
+if (php_sapi_name() !== 'cli') {
+    exit;
+}
 ?>
 
 <html>
