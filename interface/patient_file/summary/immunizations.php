@@ -979,7 +979,7 @@ function del_related(s) {
 // This invokes the find-code popup.
 function sel_cvxcode(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_dynamic.php?codetype=CVX', '_blank', 900, 600);
+ dlgopen('../encounter/find_code_dynamic.php?codetype=CVX,VALUESET', '_blank', 900, 600);
 }
 
 // This ensures the cvx centric entry is filled.
