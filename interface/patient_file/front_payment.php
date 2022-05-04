@@ -23,10 +23,28 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
+
+if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
+    if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
+        exit;
+    }
+} else {
+    if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+        if (!empty($_POST['form_save'])) {
+            $pageTitle = xl("Receipt for Payment");
+        } else {
+            $pageTitle = xl("Record Payment");
+        }
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        exit;
+    }
+}
 
 $pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
 
