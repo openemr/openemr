@@ -89,11 +89,6 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onCodeTypeInstalledPreEvent(CodeTypeInstalledEvent $event)
-    {
-        error_log("Got here in pre installed event");
-    }
-
     public function onCodeTypeInstalledEvent(CodeTypeInstalledEvent $event)
     {
         if ($event->getCodeType() == "SNOMED") {
@@ -110,25 +105,25 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return in_array($codeType, [self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_CT, self::CODE_TYPE_SNOMED_PR]);
     }
 
-    private function exists_code_table($tableName)
+    private function is_code_type_active($codeType)
     {
         // make sure our table is installed
-        $table_records = QueryUtils::fetchRecords("SHOW TABLES LIKE ?", [$tableName]);
+        $table_records = QueryUtils::fetchRecords("select * from code_types WHERE `ct_active`=1 AND ct_key = ? ", [$codeType]);
         if (empty($table_records)) {
-            (new SystemLogger())->debug("table for code_type does not exist", ['tableName' => $tableName]);
+            (new SystemLogger())->debug("code_type is not active in system", ['codeType' => $codeType]);
         }
         return !empty($table_records);
     }
 
     private function shouldUpdateCPT4Mappings()
     {
-        if (!$this->exists_code_table('codes_cpt')) {
+        if (!$this->is_code_type_active('CPT4')) {
             // no codes installed so we aren't updating anything.
             return false;
         }
 
         foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $option_id => $code_text) {
-            $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes_cpt WHERE code_text =?", 'code', [$code_text]);
+            $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes WHERE code_text =?", 'code', [$code_text]);
             if (empty($code_id)) {
                 (new SystemLogger())->debug(
                     "Failed to find code in codes_cpt with code_text. Skipping option_id",
