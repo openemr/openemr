@@ -1,12 +1,14 @@
 <?php
 
 /**
- * Testing script for the local/internal use of the api
+ * Testing script for the local/internal use of the fhir api
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -94,7 +96,8 @@ $gbl = RestConfig::GetInstance();
 $gbl::setNotRestCall();
 $restRequest = new HttpRestRequest($gbl, $_SERVER);
 $restRequest->setRequestMethod("GET");
-$restRequest->setRequestURI("/api/facility");
+$restRequest->setRequestURI("/fhir/encounter");
+$getParams = $restRequest->getQueryParams();
 // below will return as json
 echo "<b>api via route handler call returning json:</b><br />";
 echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, $restRequest, 'direct-json');
@@ -107,18 +110,18 @@ echo "<br /><br />";
 
 
 // CALL the underlying service that is used by the api
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\FHIR\FhirEncounterService;
 
 echo "<b>service call:</b><br />";
-echo json_encode((new FacilityService())->getAllFacility());
+echo json_encode((new FhirEncounterService())->getProfileURIs());
 echo "<br /><br />";
 
 
 // CALL the underlying controller that is used by the api
-use OpenEMR\RestControllers\FacilityRestController;
+use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
 
 echo "<b>controller call:</b><br />";
-echo json_encode((new FacilityRestController())->getAll());
+echo json_encode((new FhirEncounterRestController())->getAll($getParams));
 echo "<br /><br />";
 ?>
 </html>
