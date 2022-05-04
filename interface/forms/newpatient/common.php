@@ -581,6 +581,29 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
                         </div>
                     </div>
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-sm-2">
+                            <label for='encounter_type' class="text-right"><?php echo xlt('Type'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <?php
+                            // we need to convert from our selected code if we have one to our list type
+                            $encounter_type_option = $result['encounter_type_code'] ?? '';
+                            if (!empty($encounter_type_option)) {
+                                $listService = new ListService();
+                                $codes = $listService->getOptionsByListName('encounter-types', ['codes' => $result['encounter_type_code']]);
+                                if (empty($codes[0])) {
+                                    // we may not have code types installed, in that case we will just use the option-id so we can remember the data
+                                    $option = $listService->getListOption('encounter-types', $encounter_type_option);
+                                    $encounter_type_option = $option['option_id'] ?? '';
+                                } else {
+                                    $encounter_type_option = $codes[0]['option_id'];
+                                }
+                            }
+                            ?>
+                            <?php echo generate_select_list('encounter_type', 'encounter-types', $viewmode ? $encounter_type_option : '', '', '--' . xl('Select One') . '--'); ?>
+                        </div>
+                    </div>
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                     <div class="form-row align-items-center mt-2">
                         <div class="col-sm-2">
