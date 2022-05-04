@@ -18,8 +18,15 @@ require_once(dirname(__FILE__) . "/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("CCR Approve")]);
+    exit;
+}
 
 if (isset($_GET['approve']) && $_GET['approve'] == 1) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {

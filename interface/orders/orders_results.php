@@ -17,6 +17,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Indicates if we are entering in batch mode.
@@ -26,15 +27,17 @@ $form_batch = empty($_GET['batch']) ? 0 : 1;
 $form_review = empty($_GET['review']) ? 0 : 1;
 
 // Check authorization.
-$thisauth = AclMain::aclCheckCore('patients', 'med');
+$thisauth = AclMain::aclCheckCore('patients', 'lab');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
+    exit;
 }
 
 // Check authorization for pending review.
 $reviewauth = AclMain::aclCheckCore('patients', 'sign');
 if ($form_review and !$reviewauth and !$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
+    exit;
 }
 
 // Set pid for pending review.
