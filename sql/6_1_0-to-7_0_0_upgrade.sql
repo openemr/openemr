@@ -536,7 +536,8 @@ ALTER TABLE `procedure_order` CHANGE `date_ordered` `date_ordered` DATETIME DEFA
 
 #IfMissingColumn immunizations reason_code
 ALTER TABLE `immunizations` CHANGE `cvx_code` `cvx_code` VARCHAR(64) DEFAULT NULL;
-ALTER TABLE `immunizations` ADD `reason_code` varchar(31) DEFAULT NULL;
+ALTER TABLE `immunizations` ADD `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;';
+ALTER TABLE `immunizations` ADD `reason_description` TEXT COMMENT 'Human readable text description of the reason_code column';
 #EndIf
 
 #IfMissingColumn categories codes
