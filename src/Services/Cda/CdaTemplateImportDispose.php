@@ -738,6 +738,7 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($q_insert_route, array($oid_unit, $value['amount_administered_unit']));
             }
 
+            $value['completion_status'] = $value['reason_status'] ?: $value['completion_status'];
             $q1_completion_status = "SELECT *
                        FROM list_options
                        WHERE list_id='Immunization_Completion_Status' AND title=?";
@@ -802,8 +803,7 @@ class CdaTemplateImportDispose
                     manufacturer,
                     completion_status,
                     external_id,
-                    reason_code,
-                    reason_status
+                    refusal_reason
                   )
                   VALUES
                   (
@@ -817,10 +817,11 @@ class CdaTemplateImportDispose
                    ?,
                    ?,
                    ?,
-                   ?,
                    ?
                   )";
-                $appTable->zQuery($query, array($pid,
+                $appTable->zQuery(
+                    $query,
+                    array($pid,
                     $immunization_date_value,
                     $value['cvx_code'],
                     $value['route_code_text'],
@@ -830,8 +831,8 @@ class CdaTemplateImportDispose
                     $value['manufacturer'],
                     $value['completion_status'],
                     $value['extension'],
-                    $value['reason_code'],
-                    $value['reason_status']));
+                    $value['reason_code'])
+                );
             } else {
                 $q_upd_imm = "UPDATE immunizations
                       SET patient_id=?,

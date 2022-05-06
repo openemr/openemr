@@ -49,6 +49,8 @@ class EncounterccdadispatchController extends AbstractActionController
 
     protected $latest_ccda;
 
+    protected $document_type;
+
     public function __construct(EncounterccdadispatchTable $encounterccdadispatchTable)
     {
         $this->listenerObject = new Listener();
@@ -88,6 +90,7 @@ class EncounterccdadispatchController extends AbstractActionController
         $downloadqrda3 = $this->params('downloadqrda3');
         $this->latest_ccda = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
         $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
+        $this->document_type = $this->getRequest()->getPost('downloadformat_type');
 
         // @TODO future use.
         $date_options = [
@@ -369,6 +372,7 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->data .= "<created_time>" . date('YmdHis') . "</created_time>";
         $this->data .= "<created_time_timezone>" . date('YmdHisO') . "</created_time_timezone>";
         $this->data .= "<send>" . htmlspecialchars($send, ENT_QUOTES) . "</send>";
+        $this->data .= "<doc_type>" . $this->document_type . "</doc_type>";
         $this->data .= "<assignedEntity>
                 <streetAddressLine>" . htmlspecialchars($assignedEntity['streetAddressLine'] ?? '', ENT_QUOTES) . "</streetAddressLine>
                 <city>" . htmlspecialchars($assignedEntity['city'] ?? '', ENT_QUOTES) . "</city>
