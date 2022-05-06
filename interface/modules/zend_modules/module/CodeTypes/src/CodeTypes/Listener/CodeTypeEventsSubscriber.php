@@ -37,34 +37,34 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         'religious_exemption' => '183945002',
         'patient_decision' => '105480006',
         'parental_decision' => '105480006', // patient and parental refuse are considered the same
-	    'financial_problem' => '160932005',
-	    'financial_circumstances_change' => '160934006',
-	    'alternative_treatment_requested' => '182890002',
-	    'patient_declined_procedure' => '105480006',
-	    'patient_declined_drug' => '182895007',
-	    'patient_declined_drug_effects' => '182897004',
-	    'patient_declined_drug_beliefs' => '182900006',
-	    'patient_declined_drug_cannot_pay' => '182902003',
-	    'patient_moved' => '184081006',
-	    'patient_dissatisfied_result' => '185479006',
-	    'patient_dissatisfied_doctor' => '185481008',
-	    'patient_variable_income' => '224187001',
-	    'patient_self_discharge' => '225928004',
-	    'drugs_not_completed' => '266710000',
-	    'family_illness' => '266966009',
-	    'follow_defaulted' => '275694009',
-	    'patient_noncompliance' => '275936005',
-	    'patient_noshow' => '281399006',
-	    'patient_further_opinion' => '310343007',
-	    'patient_treatment_delay' => '373787003',
-	    'patient_medication_declined' => '406149000',
-	    'patient_medication_forgot' => '408367005',
-	    'patient_non_compliant' => '413311005',
-	    'procedure_not_wanted' => '416432009',
-	    'income_insufficient' => '423656007',
-	    'income_necessities_only' => '424739004',
-	    'refused' => '443390004',
-	    'patient_procedure_discontinued' => '713247000'
+        'financial_problem' => '160932005',
+        'financial_circumstances_change' => '160934006',
+        'alternative_treatment_requested' => '182890002',
+        'patient_declined_procedure' => '105480006',
+        'patient_declined_drug' => '182895007',
+        'patient_declined_drug_effects' => '182897004',
+        'patient_declined_drug_beliefs' => '182900006',
+        'patient_declined_drug_cannot_pay' => '182902003',
+        'patient_moved' => '184081006',
+        'patient_dissatisfied_result' => '185479006',
+        'patient_dissatisfied_doctor' => '185481008',
+        'patient_variable_income' => '224187001',
+        'patient_self_discharge' => '225928004',
+        'drugs_not_completed' => '266710000',
+        'family_illness' => '266966009',
+        'follow_defaulted' => '275694009',
+        'patient_noncompliance' => '275936005',
+        'patient_noshow' => '281399006',
+        'patient_further_opinion' => '310343007',
+        'patient_treatment_delay' => '373787003',
+        'patient_medication_declined' => '406149000',
+        'patient_medication_forgot' => '408367005',
+        'patient_non_compliant' => '413311005',
+        'procedure_not_wanted' => '416432009',
+        'income_insufficient' => '423656007',
+        'income_necessities_only' => '424739004',
+        'refused' => '443390004',
+        'patient_procedure_discontinued' => '713247000'
     ];
 
     private const CODE_TYPE_SNOMED = "SNOMED";
@@ -185,15 +185,20 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
             return true;
         }
 
-        if ($this->shouldUpdateListWithSnomedCodes(self::SNOMED_IMMUNIZATION_REFUSAL_REASON_MAPPINGS
-                , self::LIST_ID_IMMUNIZATION_REFUSAL)) {
+        if (
+            $this->shouldUpdateListWithSnomedCodes(
+                self::SNOMED_IMMUNIZATION_REFUSAL_REASON_MAPPINGS,
+                self::LIST_ID_IMMUNIZATION_REFUSAL
+            )
+        ) {
             return true;
         }
         // no upgrade needed
         return false;
     }
 
-    private function shouldUpdateListWithSnomedCodes($mappings, $list_id) {
+    private function shouldUpdateListWithSnomedCodes($mappings, $list_id)
+    {
         foreach ($mappings as $option_id => $code_id) {
             $sql = "SELECT codes FROM list_options WHERE list_id=? AND option_id=?";
             $codes = QueryUtils::fetchSingleValue($sql, 'codes', [$list_id, $option_id]);
@@ -206,13 +211,20 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
 
     private function updateSNOMEDCTMappings($logger = null)
     {
-       $this->updateSNOMEDCTMappingsForList(self::SNOMED_ENCOUNTER_TYPE_MAPPINGS
-           , self::LIST_ID_ENCOUNTER_TYPES, $logger);
-       $this->updateSNOMEDCTMappingsForList(self::SNOMED_IMMUNIZATION_REFUSAL_REASON_MAPPINGS
-           , self::LIST_ID_IMMUNIZATION_REFUSAL, $logger);
+        $this->updateSNOMEDCTMappingsForList(
+            self::SNOMED_ENCOUNTER_TYPE_MAPPINGS,
+            self::LIST_ID_ENCOUNTER_TYPES,
+            $logger
+        );
+        $this->updateSNOMEDCTMappingsForList(
+            self::SNOMED_IMMUNIZATION_REFUSAL_REASON_MAPPINGS,
+            self::LIST_ID_IMMUNIZATION_REFUSAL,
+            $logger
+        );
     }
 
-    private function updateSNOMEDCTMappingsForList($mappings, $list_id, $logger = null) {
+    private function updateSNOMEDCTMappingsForList($mappings, $list_id, $logger = null)
+    {
         // update our list options
         try {
             \sqlBeginTrans();

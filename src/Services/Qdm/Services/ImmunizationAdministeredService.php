@@ -51,8 +51,7 @@ class ImmunizationAdministeredService extends AbstractQdmService implements QdmS
 
         // we add in a negation rationale if there is a refusal reason provided
         // @see https://ecqi.healthit.gov/mcw/2022/qdm-dataelement/immunizationadministered.html
-        if (!empty($record['refusal_reason']))
-        {
+        if (!empty($record['refusal_reason'])) {
             $listService = new ListService();
             $option = $listService->getListOption('immunization_refusal_reason', $record['refusal_reason']);
             if (!empty($option)) {
