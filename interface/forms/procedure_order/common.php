@@ -255,8 +255,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
         $reason_date_high = trim($_POST['form_proc_reason_date_high'][$i] ?? '');
         $reason_status = trim($_POST['form_proc_reason_status'][$i] ?? '');
 
-        if (empty($reason_code))
-        {
+        if (empty($reason_code)) {
             $reason_description = null;
             $reason_date_low = null;
             $reason_date_high = null;
