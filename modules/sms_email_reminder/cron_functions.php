@@ -34,10 +34,8 @@ function cron_SendMail($to, $cc, $subject, $vBody)
         $mstatus = true;
         $mstatus = @mail($to, $cc, $subject, $vBody);
     } else {
-            $SenderName = $GLOBALS['patient_reminder_sender_name'];
-            $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
-        }
-    {
+        $SenderName = $GLOBALS['patient_reminder_sender_name'];
+        $SenderEmail = $GLOBALS['patient_reminder_sender_email'];
         $mail = new PHPMailer();
         $mail->SMTPDebug = 3;
         $mail->IsSMTP();
@@ -173,7 +171,7 @@ function cron_getAlertpatientData($type)
             LEFT OUTER JOIN users AS u ON u.id = ope.pc_aid
             WHERE ope.pc_pid = pd.pid $ssql
             ORDER BY ope.pc_eventDate, ope.pc_startTime";
-	
+
     $db_patient = (sqlStatement($query));
     $patient_array = array();
     $cnt = 0;
@@ -212,23 +210,23 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
     $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `email_sender` , `email_subject` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES ";
     $sql_loginsert .= "(NULL , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $db_loginsert = (sqlStatement(
-            $sql_loginsert,
-            [
-                $prow['pid'],
-                $prow['pc_eid'],
-                $db_email_msg['sms_gateway_type'],
-                $db_email_msg['message'],
-                $db_email_msg['email_sender'],
-                $db_email_msg['email_subject'],
-                $db_email_msg['type'],
-                $patient_info,
-                $smsgateway_info,
-                $prow['pc_eventDate'],
-                $prow['pc_endDate'],
-                $prow['pc_startTime'],
-                $prow['pc_endTime'],
-                date("Y-m-d H:i:s")
-            ]
+        $sql_loginsert,
+        [
+            $prow['pid'],
+            $prow['pc_eid'],
+            $db_email_msg['sms_gateway_type'],
+            $db_email_msg['message'],
+            $db_email_msg['email_sender'],
+            $db_email_msg['email_subject'],
+            $db_email_msg['type'],
+            $patient_info,
+            $smsgateway_info,
+            $prow['pc_eventDate'],
+            $prow['pc_endDate'],
+            $prow['pc_startTime'],
+            $prow['pc_endTime'],
+            date("Y-m-d H:i:s")
+        ]
         )
     );
 }

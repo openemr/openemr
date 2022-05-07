@@ -82,10 +82,8 @@ for ($p = 0; $p < count($db_patient); $p++) {
     $strMsg .= "\nSEND NOTIFICATION BEFORE:" . $EMAIL_NOTIFICATION_HOUR . " || CRONJOB RUN EVERY:" . $CRON_TIME . " || APPDATETIME:" . $app_date . " || REMAINING APP HOUR:" . ($remaining_app_hour) . " || SEND ALERT AFTER:" . ($remain_hour);
 
     if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
-
         //set message
         $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
-
         // send mail to patinet
         cron_SendMail(
             $prow['email'],
@@ -93,22 +91,16 @@ for ($p = 0; $p < count($db_patient); $p++) {
             $db_email_msg['email_subject'],
             $db_email_msg['message']
         );
-
         // insert entry in notification_log table
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
-
         //update entry >> pc_sendalertemail='Yes'
         cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
-
         // Update patient_tracker table and insert a row in patient_tracker_element table
         manage_tracker_status($prow['pc_eventDate'], $prow['pc_startTime'], $eid, $pid, $user = 'System', $status = 'EMAIL', $room = '', $enc_id = '');
-
         $strMsg .= " || ALERT SENT SUCCESSFULLY TO " . $prow['email'];
         $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
     }
-
     WriteLog($strMsg);
-
     // larry :: get notification data again - since was updated by cron_updateentry
     $db_email_msg = cron_getNotificationData($TYPE);
 }
