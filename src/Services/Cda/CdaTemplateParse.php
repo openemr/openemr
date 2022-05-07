@@ -208,8 +208,8 @@ class CdaTemplateParse
     private function validateSchematron($xml, $type = 'ccda')
     {
         libxml_use_internal_errors(true);
-        $schema_IG = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/2022-CMS-QRDA-I-v1.0-April-2021.sch';
-        $schema_qrda = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/EH_CAT_I.sch';
+        $schema_qrda = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/2022_CMS_QRDA_I.sch';
+        $schema_qrda3 = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda3/2022_CMS_QRDA_III.sch';
         $schema = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/ccda/Consolidation.sch';
 
         if (!$type == 'qrda') {
@@ -280,6 +280,7 @@ class CdaTemplateParse
      */
     public function fetchObservationPerformedData($entry): void
     {
+        // was also called from fetchPhysicalExamPerformedData()
         if (
             !empty($entry['observation']['value']['code'] ?? null)
             || !empty($entry['observation']['code']['code'] ?? null)
@@ -1145,9 +1146,12 @@ class CdaTemplateParse
     public function fetchPhysicalExamPerformedData($entry)
     {
         // create an observation for this exam.
-        $this->fetchObservationPerformedData($entry);
+        //$this->fetchObservationPerformedData($entry);
         // and a vital in vital forms.
-        if (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value'])) {
+        if (
+            (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value']))
+            || (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null) && ($entry['observation']['entryRelationship']['typeCode'] ?? null) === 'RSON')
+        ) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['vital_sign'])) {
                 $cnt = count($this->templateData['field_name_value_array']['vital_sign'] ?? []);
@@ -1178,14 +1182,28 @@ class CdaTemplateParse
                 '29463-7' => 'weight', // with clothes
                 '39156-5' => 'BMI'
             );
-
+            $is_negated = !empty($entry['observation']['negationInd'] ?? false);
             $code = $entry['observation']['code']['code'] ?? null;
             if (array_key_exists($code, $vitals_array)) {
                 $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $entry['observation']['value']['value'] ?? null;
+                $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
             } else {
                 // log missed exam
                 error_log('Missed Physical Exam code (likely vital): ' . $code);
             }
+
+            if (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null)) {
+                // @todo inter to this moodcode RSON in full template!
+                $ob_code = $entry['observation']['entryRelationship']['observation']['value']['code'];
+                $ob_system = $entry['observation']['entryRelationship']['observation']['value']['codeSystemName'] ?: $entry['observation']['entryRelationship']['observation']['value']['codeSystem'] ?? '';
+                $ob_code_text = $entry['observation']['entryRelationship']['observation']['value']['displayName'] ?? '';
+                $reason_code = $this->codeService->resolveCode($ob_code, $ob_system, $ob_code_text);
+                $reason_status = $entry['observation']['entryRelationship']['observation']['statusCode']['code'] ?? '';
+            }
+
+            $this->templateData['field_name_value_array']['vital_sign'][$i]['reason_status'] = $is_negated ? 'negated' : ($reason_status ?? '');
+            $this->templateData['field_name_value_array']['vital_sign'][$i]['reason_code'] = $reason_code['formatted_code'] ?? '';
+            $this->templateData['field_name_value_array']['vital_sign'][$i]['reason_code_text'] = $reason_code['code_text'] ?? '';
 
             $this->templateData['entry_identification_array']['vital_sign'][$i] = $i;
         }

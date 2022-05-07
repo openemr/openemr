@@ -583,6 +583,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_vitals['vitals'][$q]['respiration'] = $newdata['vital_sign']['respiration'] ?? null;
                 $arr_vitals['vitals'][$q]['weight'] = $newdata['vital_sign']['weight'] ?? null;
                 $arr_vitals['vitals'][$q]['BMI'] = $newdata['vital_sign']['BMI'] ?? null;
+                $arr_vitals['vitals'][$q]['vital_column'] = $newdata['vital_sign']['vital_column'] ?? '';
+                $arr_vitals['vitals'][$q]['reason_code'] = $newdata['vital_sign']['reason_code'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_code_text'] = $newdata['vital_sign']['reason_code_text'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_description'] = $newdata['vital_sign']['reason_description'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_date_low'] = $newdata['vital_sign']['reason_date_low'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_date_high'] = $newdata['vital_sign']['reason_date_high'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_status'] = $newdata['vital_sign']['reason_status'] ?? null;
                 $q++;
             } elseif ($table == 'social_history') {
                 $tobacco_status = array(
