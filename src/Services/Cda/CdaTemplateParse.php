@@ -1,7 +1,7 @@
 <?php
 
 /**
- * QrdaParseService Class
+ * Qrda and Cda ParseService Class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -183,13 +183,15 @@ class CdaTemplateParse
         return $this->templateData ?? [];
     }
 
-    public function validateXmlXsd($document)
+    public function validateXmlXsd($document, $type)
     {
         libxml_use_internal_errors(true);
         $dom = new DomDocument();
         $dom->loadXML($document);
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
         $result = $dom->schemaValidate($xsd);
+        // TODO phase implementation for schematron
+        //$this->validateSchematron($document, $type);
         if ($result) {
             return true;
         } else {
@@ -200,6 +202,31 @@ class CdaTemplateParse
             libxml_clear_errors();
 
             return false;
+        }
+    }
+
+    private function validateSchematron($xml, $type = 'ccda')
+    {
+        libxml_use_internal_errors(true);
+        $schema_IG = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/2022-CMS-QRDA-I-v1.0-April-2021.sch';
+        $schema_qrda = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/EH_CAT_I.sch';
+        $schema = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/ccda/Consolidation.sch';
+
+        if (!$type == 'qrda') {
+            $schema = $schema_qrda;
+        }
+
+        try {
+            $schematron = new Schematron();
+            $schematron->setOptions(Schematron::ALLOW_MISSING_SCHEMA_ELEMENT);
+            $schematron->load($schema);
+            $document = new DOMDocument();
+            $document->loadXML($xml);
+            $result = $schematron->validate($document, Schematron::RESULT_SIMPLE);
+            return $result;
+        } catch (SchematronException $e) {
+            $e = $e->getMessage();
+            error_log($e);
         }
     }
 
@@ -460,7 +487,29 @@ class CdaTemplateParse
      */
     public function fetchAllergyIntoleranceObservation($entry)
     {
-        if (!empty($entry['observation']['participant']['participantRole']['playingEntity']['code']['code'])) {
+        if (!empty($entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'])) {
+            $i = 1;
+            // if there are already items here we want to add to them.
+            if (!empty($this->ccda_data_array['field_name_value_array']['lists2'])) {
+                $i += count($this->ccda_data_array['field_name_value_array']['lists2']);
+            }
+
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['type'] = 'allergy';
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $entry['act']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['begdate'] = $entry['act']['effectiveTime']['low']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['enddate'] = $entry['act']['effectiveTime']['high']['value'] ?? null;
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code'] = $entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] ?? '';
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code_text'] = $entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['outcome'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'] ?? '';
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al_code'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'] ?? '';
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'] ?? '';
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][0]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'] ?? '';
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['modified_time'] = $entry['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'] ?? null;
+            $this->ccda_data_array['entry_identification_array']['lists2'][$i] = $i;
+        } elseif (!empty($entry['observation']['participant']['participantRole']['playingEntity']['code']['code'])) {
             $i = 1;
             // if there are already items here we want to add to them.
             if (!empty($this->templateData['field_name_value_array']['lists2'])) {
