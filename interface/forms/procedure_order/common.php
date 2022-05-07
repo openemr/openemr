@@ -261,6 +261,13 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
             $reason_date_high = null;
             $reason_status = null;
         }
+        // set these values to null if they are empty as we don't want it to use 0000-00-00 00:00:00 for the datetime
+        if (empty($reason_date_low)) {
+            $reason_date_low = null;
+        }
+        if (empty($reason_date_high)) {
+            $reason_date_high = null;
+        }
 
         $poseq = sqlInsert(
             "INSERT INTO procedure_order_code SET " .
