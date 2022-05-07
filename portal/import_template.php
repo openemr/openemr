@@ -12,8 +12,17 @@
 
 require_once("../interface/globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+
+if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+    echo xlt('Patient Portal is turned off');
+    exit;
+}
+
+$authUploadTemplates = AclMain::aclCheckCore('admin', 'forms');
 
 $templateService = new DocumentTemplateService();
 
@@ -102,6 +111,12 @@ if (($_POST['mode'] ?? null) === 'send') {
 }
 
 if (($_POST['mode'] ?? null) === 'save') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-save')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        die(xlt('Not authorized to edit template'));
+    }
     if ($_POST['docid']) {
         if (stripos($_POST['content'], "<?php") === false) {
             $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
@@ -115,6 +130,12 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Invalid File'));
     }
 } elseif (($_POST['mode'] ?? null) === 'delete') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-delete')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        die(xlt('Not authorized to delete template'));
+    }
     if ($_POST['docid']) {
         $template = $templateService->deleteTemplate($_POST['docid'], ($_POST['template'] ?? null));
         exit($template);
@@ -128,6 +149,13 @@ if (($_POST['mode'] ?? null) === 'save') {
     }
     die(xlt('Invalid Request Parameters'));
 } elseif (!empty($_FILES["template_files"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        xlt("Not Authorized to Upload Templates");
+        exit;
+    }
     // so it is a template file import. create record(s).
     $import_files = $_FILES["template_files"];
     $total = count($_FILES['template_files']['name']);
@@ -183,6 +211,8 @@ if ($_REQUEST['mode'] === 'editor_render_html') {
  */
 function renderEditorHtml($template_id, $content)
 {
+    global $authUploadTemplates;
+
     $lists = [
         '{ParseAsHTML}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
     ];
@@ -213,13 +243,18 @@ function renderEditorHtml($template_id, $content)
             <div class="row">
                 <div class="col-10 px-1 sticky-top">
                     <form class="sticky-top" action='./import_template.php' method='post'>
+                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-save')); ?>" />
                         <input type="hidden" name="docid" value="<?php echo attr($template_id) ?>">
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>
                         <textarea cols='80' rows='10' id='templateContent' name='content'><?php echo text($content) ?></textarea>
                         <div class="row btn-group mt-1 float-right">
                             <div class='col btn-group mt-1 float-right'>
-                                <button type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
+                                <?php if ($authUploadTemplates) { ?>
+                                    <button type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
+                                <?php } else { ?>
+                                    <button disabled title="<?php echo xla("Not Authorized to Edit Templates") ?>" type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
+                                <?php } ?>
                                 <button type='button' class='btn btn-sm btn-secondary' onclick='parent.window.close() || parent.dlgclose()'><?php echo xlt('Cancel'); ?></button>
                             </div>
                         </div>
