@@ -22,7 +22,7 @@
                         <label><?php echo xlt("Reason Code"); ?></label>
                         <input class="code-selector-popup form-control"
                                name="form_proc_reason_code[<?php echo attr($i); ?>]" type="text" value="<?php echo attr($oprow['reason_code'] ?? ""); ?>"
-                               placeholder="<?php echo xlt("Select a reason code"); ?>"
+                               placeholder="<?php echo xla("Select a reason code"); ?>"
                         />
                         <p class="code-selector-text-display <?php echo empty($oprow['ob_reason_text']) ? "d-none" : ''; ?>"><?php echo text($oprow['reason_text'] ?? ""); ?></p>
                         <input type="hidden" name="form_proc_reason_code_text[<?php echo attr($i); ?>]" class="code-selector-text" value="<?php echo attr($oprow['reason_text'] ?? ""); ?>" />
