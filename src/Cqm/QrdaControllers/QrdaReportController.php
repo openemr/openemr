@@ -147,7 +147,8 @@ class QrdaReportController
                     file_put_contents($file_local, $content);
                     unset($content);
                     if ($type === 'xml') {
-                        copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
+                        // generally style sheets are shipped with raw xml. since we do html then don't need though spec requires!
+                        //copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
                     }
                 }
             }
