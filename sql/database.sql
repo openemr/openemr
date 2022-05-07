@@ -3048,8 +3048,8 @@ CREATE TABLE `immunizations` (
   `information_source` VARCHAR(31) DEFAULT NULL,
   `refusal_reason` VARCHAR(31) DEFAULT NULL,
   `ordering_provider` INT(11) DEFAULT NULL,
-  `reason_code` varchar(31) DEFAULT NULL,
-  `reason_description` text,
+  `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
+  `reason_description` text COMMENT 'Human readable text description of the reason_code column',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE KEY `uuid` (`uuid`)
