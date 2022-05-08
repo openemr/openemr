@@ -282,10 +282,10 @@ class Document extends ORDataObject
      * permissions for the categories the document is in.  If there are any categories that the document is tied to
      * that the owner does NOT have access rights to, the request is denied.  If there are no categories tied to the
      * document, default access is granted.
-     * @param int|null $user  The user we are checking.  If no user is provided it checks against the currently logged in user
+     * @param string|null $username The user (username) we are checking.  If no user is provided it checks against the currently logged in user
      * @return bool True if the passed in user or current user can access this document, false otherwise.
      */
-    public function can_access($user = null)
+    public function can_access($username = null)
     {
         $categories = $this->get_categories();
 
@@ -296,7 +296,7 @@ class Document extends ORDataObject
 
         // verify that we can access every single category this document is tied to
         foreach ($categories as $category) {
-            if (AclMain::aclCheckAcoSpec($category['aco_spec'], $user) === false) {
+            if (AclMain::aclCheckAcoSpec($category['aco_spec'], $username) === false) {
                 return false;
             }
         }
