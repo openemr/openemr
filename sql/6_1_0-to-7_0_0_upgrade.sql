@@ -607,3 +607,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'supply_order', 'Supply Order Act', '30', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'device_order', 'Device Order', '40', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 #EndIf
+
+-- below is missing in some demos and test databases
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id medication
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
+#EndIf
