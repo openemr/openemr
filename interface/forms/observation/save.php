@@ -40,6 +40,7 @@ $code_date      = $_POST["code_date"];
 $reasonCode     = $_POST['reasonCode'];
 $reasonStatusCode     = $_POST['reasonCodeStatus'];
 $reasonCodeText     = $_POST['reasonCodeText'];
+$ob_type        = $_POST["ob_type"];
 
 if ($id && $id != 0) {
     sqlStatement("DELETE FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?", array($id, $_SESSION["pid"], $_SESSION["encounter"]));
@@ -92,6 +93,7 @@ if (!empty($code_desc)) {
             code_type   = ?,
             description = ?,
             table_code  = ?,
+            ob_type     = ?,
             ob_value    = ?,
             ob_unit     = ?,
             date        = ?,
@@ -112,6 +114,7 @@ if (!empty($code_desc)) {
                 $code_type[$key],
                 $code_desc[$key],
                 $table_code[$key],
+                $ob_type[$key],
                 $ob_value[$key],
                 $ob_unit_value,
                 $code_date[$key],
