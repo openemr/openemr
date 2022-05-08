@@ -67,7 +67,7 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
             $document = new \Document($documentId);
 
             // make sure the user can access this document
-            if (!$document->can_access($_SESSION['user_id'])) {
+            if (!$document->can_access()) {
                 throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
             }
         }

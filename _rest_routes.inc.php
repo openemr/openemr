@@ -8596,7 +8596,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
         // Grab the document id
         $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
-        $response = $docController->downloadDocument($documentId, $request->getRequestUserId());
+        $response = $docController->downloadDocument($documentId);
         return $response;
     },
 
