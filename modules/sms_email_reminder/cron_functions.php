@@ -245,6 +245,5 @@ function cron_GetNotificationSettings()
 {
     $strQuery = "SELECT * FROM notification_settings WHERE type='SMS/Email Settings'";
     $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
     return ($vectNotificationSettings);
 }
