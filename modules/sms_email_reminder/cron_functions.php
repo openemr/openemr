@@ -17,15 +17,16 @@ global $patient_info;
 global $SMS_NOTIFICATION_HOUR;
 global $EMAIL_NOTIFICATION_HOUR;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use OpenEMR\Common\Crypto\CryptoGen;
+
 ////////////////////////////////////////////////////////////////////
 // Function:    cron_SendMail
 // Purpose: send mail
 // Input:   to, cc, subject and email body
 // Output:  status - if sent or not
 ////////////////////////////////////////////////////////////////////
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
 
 function cron_SendMail($to, $cc, $subject, $vBody)
 {
