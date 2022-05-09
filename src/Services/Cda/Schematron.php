@@ -786,11 +786,14 @@ class Schematron
         foreach ($this->xPath->query('sch:assert | sch:report | sch:extends', $rule) as $node) {
             if ($node->localName === 'extends') {
                 $idRule = Helpers::getAttribute($node, 'rule');
-                if (!isset($abstractRules[$idRule])) {
+                // bug fix where findStatements() is called from findRuleAbstracts() without the $abstractRules arguement.
+                // The findRuleAbstracts() is looking to populate abstractRules so there isn't any rules yet to test against.
+                // In the final schema pass however we do have a ruleset for abstract rule thus the count conditional.
+                if (!isset($abstractRules[$idRule]) && count($abstractRules ?? []) > 0) {
                     throw new SchematronException("<$node->nodeName> on line {$node->getLineNo()} references to undefined abstract rule by ID '$idRule'.");
                 }
 
-                $statements = array_merge($statements, $abstractRules[$idRule]->statements);
+                $statements = array_merge($statements, $abstractRules[$idRule]->statements ?? []);
             } else {
                 $statements[] = (object)array(
                     'test' => Helpers::getAttribute($node, 'test'),
