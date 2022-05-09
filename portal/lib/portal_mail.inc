@@ -133,7 +133,7 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 	p.reply_mail_chain
 	FROM
 	onsite_mail AS p
-	WHERE p.deleted != 1 AND p.owner = ? AND p.recipient_id = ? 
+	WHERE p.deleted != 1 AND p.owner = ? AND p.recipient_id = ?
 	$search
 	ORDER BY `date` desc
 	$limit
@@ -233,18 +233,18 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
     return $all;
 }
 
-function updatePortalMailMessageStatus($id, $message_status)
+function updatePortalMailMessageStatus($id, $message_status, $owner)
 {
     if ($message_status == "Done") {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ?", array($message_status, $id));
+        sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ? and `owner` = ?", array($message_status, $id, $owner));
     } elseif ($message_status == "Delete") {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where mail_chain = ? OR id = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id));
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where (mail_chain = ? OR id = ?) and `owner` = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id, $owner));
     } else {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ?", array($message_status, $id));
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ? and `owner` = ?", array($message_status, $id, $owner));
     }
 
     if ($message_status == "Delete") {
-        $stats = sqlQuery("Select * From onsite_mail Where id = ?", array($id));
+        $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", array($id, $owner));
         $by = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['ptName'];
         $loguser = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['portal_username'];
         $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];
@@ -298,20 +298,6 @@ function getMails($owner, $dotype, $nsrch, $nfsrch)
     }
 }
 
-function getMailDetails($id, $owner = '')
-{
-    if ($owner) {
-        $result = getMailById($id);
-        if ($result['owner'] == $owner && $result['message_status'] == 'New') {
-            updatePortalMailMessageStatus($id, 'Read');
-        }
-
-        return $result;
-    } else {
-        return 'failed';
-    }
-}
-
 function sendMail($owner, $note, string $title = null, $to, $noteid, $sid, $sn, $rid, $rn, $status = 'New', $replyid = '')
 {
     if (!$title) {
@@ -323,10 +309,4 @@ function sendMail($owner, $note, string $title = null, $to, $noteid, $sid, $sn, 
     } else {
         return 'failed';
     }
-}
-
-function updateStatus($id, $status)
-{
-        updatePortalMailMessageStatus($id, $status);
-        return 1;
 }
