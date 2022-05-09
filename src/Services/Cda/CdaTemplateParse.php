@@ -1146,7 +1146,7 @@ class CdaTemplateParse
     public function fetchPhysicalExamPerformedData($entry)
     {
         // create an observation for this exam.
-        //$this->fetchObservationPerformedData($entry);
+        $this->fetchObservationPerformedData($entry);
         // and a vital in vital forms.
         if (
             (!empty($entry['observation']['effectiveTime']['value']) && !empty($entry['observation']['value']['value']))
