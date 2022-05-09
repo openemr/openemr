@@ -200,7 +200,7 @@ foreach ($this->status_details as $row_status) {
                                                 $help = attr($measure['title']);
                                                 $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
                                                 $select = '';
-                                                if ($this->form_data['measures'][0] == $measure['measure_path']) {
+                                                if ($this->form_data['measures'][0] ?? null == $measure['measure_path']) {
                                                     $select = 'selected';
                                                 }
                                                 echo '<option ' . $select . ' value="' . attr($measure['measure_path']) . '" title="' . $help . '">' . $title . '</option>';
