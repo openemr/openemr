@@ -186,6 +186,19 @@ class QrdaReportController
                 if (is_file($filename_path)) {
                     $zip->addFile($filename_path, $filename);
                 }
+                if (
+                    is_dir($filename_path) &&
+                    (
+                        !($filename == "." || $filename == "..")
+                    )
+                ) {
+                    $dir_in_dir = opendir($filename_path);
+                    while ($filename_in_dir = readdir($dir_in_dir)) {
+                        if (!($filename_in_dir == "." || $filename_in_dir == "..")) {
+                            $zip->addFile($filename_path . "/" . $filename_in_dir, $filename_in_dir);
+                        }
+                    }
+                }
             }
             $zip->close();
         }
