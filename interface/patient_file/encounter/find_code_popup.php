@@ -112,14 +112,12 @@ $focus = "document.theform.search_term.select();";
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="form-group">
+                <div class="input-group mt-1">
                 <?php
-                if (!empty($allowed_codes)) {
-                    if (count($allowed_codes) === 1) {
-                        echo "<input class='form-control' type='text' name='form_code_type' value='" . attr($codetype) . "' readonly />\n";
-                    } else { ?>
+                if (!empty($allowed_codes)) { ?>
                     <select class='form-control' name='form_code_type'>
                         <?php
-                        foreach ($allowed_codes as $code) {
+                        foreach (array_keys($code_types) as $code) {
                             if (empty($code_types[$code]['label'])) {
                                 continue;
                             }
@@ -128,7 +126,7 @@ $focus = "document.theform.search_term.select();";
                         <option value='<?php echo attr($code) ?>'<?php echo $selected_attr ?>><?php echo xlt($code_types[$code]['label']) ?></option>
                         <?php } ?>
                     </select>
-                    <?php }
+                    <?php
                 } else {
                     // No allowed types were specified, so show all.
                     echo "<select class='form-control' name='form_code_type'";
@@ -151,6 +149,7 @@ $focus = "document.theform.search_term.select();";
                     echo "</select>\n";
                 }
                 ?>
+                </div>
                 <div class="input-group mt-1">
                     <input type='text' class='form-control' name='search_term' id="searchTerm"
                         value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
