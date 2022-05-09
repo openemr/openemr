@@ -265,7 +265,8 @@ if (!empty($_POST['form_save'])) {
         'reaction' => 'form_reaction',
         'verification' => 'form_verification',
         'severity_al' => 'form_severity_id',
-        'list_option_id' => 'form_title_id'
+        'list_option_id' => 'form_title_id',
+        'subtype' => 'form_subtype'
     ];
     foreach ($issue_form_fields as $field => $form_field) {
         if (isset($_POST[$form_field])) {
@@ -844,7 +845,7 @@ function getCodeText($code)
                             </div>
                             <input type='hidden' class="form-control" name='form_diagnosis' id='form_diagnosis'
                                    value='<?php echo attr($irow['diagnosis'] ?? '') ?>' onclick='onAddCode()'
-                                   title='<?php echo xla('Click to select or change coding'); ?>' readonly >
+                                   title='<?php echo xla('Click to select or change coding'); ?>' readonly />
                         </div>
                         <div class="form-group col-12">
                             <label class="col-form-label" for="form_begin"><?php echo xlt('Begin Date and Time'); ?>:</label>
@@ -865,6 +866,12 @@ function getCodeText($code)
                             <input type='hidden' name='form_return' id='form_return' />
                             <input type='hidden' name='row_reinjury_id' id='row_reinjury_id' />
                             <img id='img_return' />
+                        </div>
+                        <div class="form-group col-12" id='row_subtype'>
+                            <label class="col-form-label" for="form_subtype"><?php echo xlt('Classification Type'); ?>:</label>
+                            <?php
+                            echo generate_select_list('form_subtype', 'issue_subtypes', ($irow['subtype'] ?? null), '', 'NA', '', '');
+                            ?>
                         </div>
                         <div class="form-group col-12" id='row_occurrence'>
                             <label class="col-form-label" for="form_occur"><?php echo xlt('Occurrence'); ?>:</label>
