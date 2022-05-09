@@ -103,7 +103,7 @@ function sel_code(webroot, id) {
     }
     document.getElementById('clickId').value = checkId;
     window.top.restoreSession();
-    dlgopen(webroot + "/interface/patient_file/encounter/find_code_popup.php?default=VALUESET", '_blank', 700, 400);
+    dlgopen(webroot + "/interface/patient_file/encounter/find_code_popup.php?default=SNOMED-CT", '_blank', 700, 400);
 }
 
 function set_related(codetype, code, selector, codedesc) {
