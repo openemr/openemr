@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * CdaTemplateImportDispose Class
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Services\Cda;
 
 use Application\Model\ApplicationTable;
@@ -1472,10 +1482,9 @@ class CdaTemplateImportDispose
         }
         $appTable = new ApplicationTable();
         foreach ($vitals_array as $key => $value) {
-            if ($value['date'] != 0 && $revapprove == 0) {
-                $vitals_date = $carecoordinationTable->formatDate($value['date'], 1);
-                $vitals_date_value = fixDate($vitals_date);
-            } elseif ($value['date'] != 0 && $revapprove == 1) {
+            if (!empty($value['date']) && $revapprove == 0) {
+                $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
+            } elseif (!empty($value['date']) && $revapprove == 1) {
                 $vitals_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
                 $vitals_date = $value['date'];
@@ -1524,7 +1533,10 @@ class CdaTemplateImportDispose
                           1,
                           ?
                          )";
-                $res = $appTable->zQuery($query_insert, array($pid,
+                $res = $appTable->zQuery(
+                    $query_insert,
+                    array(
+                    $pid,
                     $vitals_date_value,
                     $value['bps'],
                     $value['bpd'],
@@ -1536,7 +1548,8 @@ class CdaTemplateImportDispose
                     $value['head_circ'],
                     $value['oxygen_saturation'],
                     $value['BMI'],
-                    $value['extension']));
+                    $value['extension'])
+                );
                 $vitals_id = $res->getGeneratedValue();
             } else {
                 $q_upd_vitals = "UPDATE form_vitals
@@ -1605,6 +1618,16 @@ class CdaTemplateImportDispose
                 }
             }
 
+            if (!empty($value['reason_code'] ?? null)) {
+                $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
+                $appTable->zQuery($detail_query, array(
+                    $vitals_id,
+                    $value['vital_column'] ?? '',
+                    $value['reason_code'] ?? '',
+                    $value['reason_code_text'] ?? null,
+                    $value['reason_status'] ?? null
+                ));
+            }
             $query = "INSERT INTO forms
                 (
                   date,

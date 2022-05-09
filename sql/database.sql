@@ -3048,9 +3048,8 @@ CREATE TABLE `immunizations` (
   `information_source` VARCHAR(31) DEFAULT NULL,
   `refusal_reason` VARCHAR(31) DEFAULT NULL,
   `ordering_provider` INT(11) DEFAULT NULL,
-  `reason_code` varchar(31) DEFAULT NULL,
-  `reason_description` text,
-  `reason_status` varchar(31) DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
+  `reason_description` text COMMENT 'Human readable text description of the reason_code column',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -4946,8 +4945,10 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_lis
 INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
 
 -- Issue Subtypes List
-INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','issue_subtypes','Issue Subtypes');
-INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists','issue_subtypes','Issue Subtypes');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','assessment','Assessment',20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','concern','Concern',30);
 
 -- Insurance Types List
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists','insurance_types','Insurance Types',1);
@@ -5272,6 +5273,34 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immuni
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','religious_exemption','Religious exemption','01', '20');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','other','Other','02', '30');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','patient_decision','Patient decision','03', '40');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_problem','Financial Problem',50,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_circumstances_change','Financial circumstances change',60,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','alternative_treatment_requested','Alternative Treatment Requested',70,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_procedure','Patient declined procedure',80,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug','Patient declined drug',90,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_effects','Patient declined drug - side effects',100,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_beliefs','Patient declined drug - patient beliefs',110,1, "01");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_cannot_pay','Patient declined drug - cannot pay script',120,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_moved','Patient moved',130,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_result','Patient dissatisfied with result',140,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_doctor','Patient dissatisfied with doctor',150,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_variable_income','Variable income',160,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_self_discharge','Patient self-discharge against medical advice',170,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','drugs_not_completed','Drugs not taken/completed',180,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','family_illness','Family illness',190,1, "02");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','follow_defaulted','Patient defaulted from follow-up',200,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noncompliance','Patient noncompliance - general',210,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noshow','Patient did not attend',220,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_further_opinion','Further opinion sought',230,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_treatment_delay','Treatment delay - patient choice',240,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_declined','Medication declined',250,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_forgot','Patient forgets to take medication',260,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_non_compliant','Patient non-compliant declined intervention/support',270,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','procedure_not_wanted','Procedure not wanted',280,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_insufficient','Income insufficient to buy necessities',290,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_necessities_only','Income sufficient to buy only necessities',300,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','refused','Refused',310,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_procedure_discontinued','Procedure discontinued by patient',320,1, "03");
 
 -- Immunization Information Source
 
@@ -6579,6 +6608,12 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,option_value) V
 INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'emedicine', 'eMedicine', 'http://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]', 10, 0, 1);
 INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'medline', 'Medline', 'http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15', 20, 0, 1);
 INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'webmd', 'WebMD', 'http://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined', 30, 0, 1);
+
+-- Observation Types
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('lists','Observation_Types','Observation Types',0,1,0,'',NULL,'',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','assessment','Assessment',10,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,1,'');
 -- --------------------------------------------------------
 
 --
@@ -11002,7 +11037,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','goal','Goal','6','0','0','','GOL','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '9', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'planned_medication_activity', 'Planned Medication Act', '9', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'supply_order', 'Supply Order Act', '10', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'device_order', 'Device Order', '11', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES

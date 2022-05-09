@@ -74,7 +74,7 @@ if (!empty($searchparm)) {
 $result = [];
 foreach ($searchResult as $docResult) {
     $document = new \Document($docResult['id']);
-    if ($document->can_access($_SESSION['user_id'])) {
+    if ($document->can_access()) {
         $result[] = $docResult;
     }
 }

@@ -31,6 +31,42 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         'postoperative-follow-up' => '439740005'
     ];
 
+    private const SNOMED_IMMUNIZATION_REFUSAL_REASON_MAPPINGS = [
+        // note only thing not mapped here is 'other' as we don't know what that goes here
+        // note valueset OID is: 2.16.840.1.113883.3.526.3.1008
+        'religious_exemption' => '183945002',
+        'patient_decision' => '105480006',
+        'parental_decision' => '105480006', // patient and parental refuse are considered the same
+        'financial_problem' => '160932005',
+        'financial_circumstances_change' => '160934006',
+        'alternative_treatment_requested' => '182890002',
+        'patient_declined_procedure' => '105480006',
+        'patient_declined_drug' => '182895007',
+        'patient_declined_drug_effects' => '182897004',
+        'patient_declined_drug_beliefs' => '182900006',
+        'patient_declined_drug_cannot_pay' => '182902003',
+        'patient_moved' => '184081006',
+        'patient_dissatisfied_result' => '185479006',
+        'patient_dissatisfied_doctor' => '185481008',
+        'patient_variable_income' => '224187001',
+        'patient_self_discharge' => '225928004',
+        'drugs_not_completed' => '266710000',
+        'family_illness' => '266966009',
+        'follow_defaulted' => '275694009',
+        'patient_noncompliance' => '275936005',
+        'patient_noshow' => '281399006',
+        'patient_further_opinion' => '310343007',
+        'patient_treatment_delay' => '373787003',
+        'patient_medication_declined' => '406149000',
+        'patient_medication_forgot' => '408367005',
+        'patient_non_compliant' => '413311005',
+        'procedure_not_wanted' => '416432009',
+        'income_insufficient' => '423656007',
+        'income_necessities_only' => '424739004',
+        'refused' => '443390004',
+        'patient_procedure_discontinued' => '713247000'
+    ];
+
     private const CODE_TYPE_SNOMED = "SNOMED";
     private const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
     private const CODE_TYPE_SNOMED_PR = "SNOMED-PR";
@@ -47,6 +83,9 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         , 'established-patient-30-39' => 'Established Patient (Extended)'
         , 'established-patient-40-54' => 'Established Patient (Comprehensive)'
     ];
+
+    private const LIST_ID_ENCOUNTER_TYPES = 'encounter-types';
+    private const LIST_ID_IMMUNIZATION_REFUSAL = 'immunization_refusal_reason';
 
     public static function getSubscribedEvents()
     {
@@ -130,8 +169,8 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                     ['code_text' => $code_text, 'option_id' => $option_id]
                 );
             }
-            $sql = "SELECT codes FROM list_options WHERE list_id='encounter-types' AND option_id=?";
-            $codes = QueryUtils::fetchSingleValue($sql, 'codes', [$option_id]);
+            $sql = "SELECT codes FROM list_options WHERE list_id=? AND option_id=?";
+            $codes = QueryUtils::fetchSingleValue($sql, 'codes', [self::LIST_ID_ENCOUNTER_TYPES, $option_id]);
             if ($codes != "CPT4:" . $code_id) {
                 return true;
             }
@@ -142,33 +181,67 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
 
     private function shouldUpdateSNOMEDMappings()
     {
-        foreach (self::SNOMED_ENCOUNTER_TYPE_MAPPINGS as $option_id => $code_id) {
-            $sql = "SELECT codes FROM list_options WHERE list_id='encounter-types' AND option_id=?";
-            $codes = QueryUtils::fetchSingleValue($sql, 'codes', [$option_id]);
-            if ($codes != self::CODE_TYPE_SNOMED_CT . ":" . $code_id) {
-                return true;
-            }
+        if ($this->shouldUpdateListWithSnomedCodes(self::SNOMED_ENCOUNTER_TYPE_MAPPINGS, self::LIST_ID_ENCOUNTER_TYPES)) {
+            return true;
+        }
+
+        if (
+            $this->shouldUpdateListWithSnomedCodes(
+                self::SNOMED_IMMUNIZATION_REFUSAL_REASON_MAPPINGS,
+                self::LIST_ID_IMMUNIZATION_REFUSAL
+            )
+        ) {
+            return true;
         }
         // no upgrade needed
         return false;
     }
 
+    private function shouldUpdateListWithSnomedCodes($mappings, $list_id)
+    {
+        foreach ($mappings as $option_id => $code_id) {
+            $sql = "SELECT codes FROM list_options WHERE list_id=? AND option_id=?";
+            $codes = QueryUtils::fetchSingleValue($sql, 'codes', [$list_id, $option_id]);
+            if ($codes != self::CODE_TYPE_SNOMED_CT . ":" . $code_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function updateSNOMEDCTMappings($logger = null)
+    {
+        $this->updateSNOMEDCTMappingsForList(
+            self::SNOMED_ENCOUNTER_TYPE_MAPPINGS,
+            self::LIST_ID_ENCOUNTER_TYPES,
+            $logger
+        );
+        $this->updateSNOMEDCTMappingsForList(
+            self::SNOMED_IMMUNIZATION_REFUSAL_REASON_MAPPINGS,
+            self::LIST_ID_IMMUNIZATION_REFUSAL,
+            $logger
+        );
+    }
+
+    private function updateSNOMEDCTMappingsForList($mappings, $list_id, $logger = null)
     {
         // update our list options
         try {
             \sqlBeginTrans();
-            foreach (self::SNOMED_ENCOUNTER_TYPE_MAPPINGS as $option_id => $code_id) {
-                $sql = "UPDATE list_options SET codes=CONCAT('SNOMED-CT:', ?) WHERE list_id='encounter-types' AND option_id=?";
-                $values = [$code_id, $option_id];
-                if (!empty($logger) && is_callable($logger)) {
-                    $logger('(sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
-                }
+            foreach ($mappings as $option_id => $code_id) {
+                $sql = "UPDATE list_options SET codes=CONCAT('SNOMED-CT:', ?) WHERE list_id=? AND option_id=?";
+                $values = [$code_id, $list_id, $option_id];
                 QueryUtils::sqlStatementThrowException($sql, $values);
+                if (!empty($logger) && is_callable($logger)) {
+                    $logger(xl('Success') . ' - (sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
+                }
             }
             \sqlCommitTrans();
         } catch (\Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            if (!empty($logger) && is_callable($logger)) {
+                $logger(xl('Failed') . ' - (sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
+            }
             \sqlRollbackTrans();
         }
     }
@@ -186,8 +259,8 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                         ['code_text' => $code_text, 'option_id' => $option_id]
                     );
                 }
-                $sql = "UPDATE list_options SET codes=CONCAT('CPT4:', ?) WHERE list_id='encounter-types' AND option_id=?";
-                $values = [$code_id, $option_id];
+                $sql = "UPDATE list_options SET codes=CONCAT('CPT4:', ?) WHERE list_id=? AND option_id=?";
+                $values = [$code_id, self::LIST_ID_ENCOUNTER_TYPES, $option_id];
                 if (!empty($logger) && is_callable($logger)) {
                     $logger('(sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
                 }

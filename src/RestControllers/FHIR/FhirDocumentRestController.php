@@ -46,9 +46,8 @@ class FhirDocumentRestController
      * Given a document and user, attempt to download the document to the calling agent.  Access rights and document
      * expiration are checked against the document.
      * @param $documentId  The document we are requesting to access
-     * @param $userId The user we are checking for access rights to this document.
      */
-    public function downloadDocument($documentId, $userId): ResponseInterface
+    public function downloadDocument($documentId): ResponseInterface
     {
         $document = new \Document($documentId);
 
@@ -60,7 +59,7 @@ class FhirDocumentRestController
             return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
         }
 
-        if (!$document->can_access($userId)) {
+        if (!$document->can_access()) {
             return (new Psr17Factory())->createResponse(StatusCode::UNAUTHORIZED);
         }
 
@@ -74,7 +73,7 @@ class FhirDocumentRestController
                 // we just continue as we still wanto to reject the response
                 $this->logger->error(
                     "FhirDocumentRestController->downloadDocument() Failed to delete document with id",
-                    ['document' => $documentId, 'user' => $userId, 'exception' => $exception->getMessage()]
+                    ['document' => $documentId, 'username' => $_SESSION['authUser'], 'exception' => $exception->getMessage()]
                 );
             }
             // need to return the fact that the document has expired
@@ -88,12 +87,12 @@ class FhirDocumentRestController
             }
             $this->logger->debug(
                 "FhirDocumentRestController->downloadDocument() Sending to default mime type handler",
-                ['document' => $documentId, 'user' => $userId]
+                ['document' => $documentId, 'username' => $_SESSION['authUser']]
             );
             $response = $this->defaultMimeTypeHandler->downloadDocument($document);
             $this->logger->debug(
                 "FhirDocumentRestController->downloadDocument() Response returned",
-                ['document' => $documentId, 'user' => $userId, 'contentLength' => $response->getHeader("Content-Length")]
+                ['document' => $documentId, 'username' => $_SESSION['authUser'], 'contentLength' => $response->getHeader("Content-Length")]
             );
             return $response;
         }
