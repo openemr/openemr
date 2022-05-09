@@ -136,7 +136,7 @@ class CarecoordinationTable extends AbstractTableGateway
                      LEFT JOIN audit_details ad6 ON ad6.audit_master_id = am.id AND ad6.table_name = 'patient_data' AND ad6.field_name = 'ethnicity'
                      LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
                      LEFT JOIN users AS u ON u.id = d.owner
-                     WHERE d.audit_master_approval_status = 1 AND am.id > 0
+                     WHERE d.audit_master_approval_status = 1 AND am.id >= 0
                      ORDER BY date ASC";
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($data['cat_title'], $data['type']));
@@ -196,15 +196,16 @@ class CarecoordinationTable extends AbstractTableGateway
                 error_log("No QDMs for patient: " . $name);
                 return true;
             }
-            $valid = $this->parseTemplates->validateXmlXsd((string)$xml_content_new);
+            $valid = $this->parseTemplates->validateXmlXsd((string)$xml_content_new, 'qrda');
             if ($valid) {
                 // Offset to Patient Data section
                 $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
             }
         } else {
-            // A CCDA document. Generally a CCD or ToC
-            // @todo add OID test for ToC, CCD or Referral document type then parse per OID
-            $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
+            $valid = $this->parseTemplates->validateXmlXsd((string)$xml_content_new, 'ccda');
+            if ($valid) {
+                $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
+            }
         }
 
         $this->documentData['approval_status'] = 1;
@@ -582,6 +583,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_vitals['vitals'][$q]['respiration'] = $newdata['vital_sign']['respiration'] ?? null;
                 $arr_vitals['vitals'][$q]['weight'] = $newdata['vital_sign']['weight'] ?? null;
                 $arr_vitals['vitals'][$q]['BMI'] = $newdata['vital_sign']['BMI'] ?? null;
+                $arr_vitals['vitals'][$q]['vital_column'] = $newdata['vital_sign']['vital_column'] ?? '';
+                $arr_vitals['vitals'][$q]['reason_code'] = $newdata['vital_sign']['reason_code'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_code_text'] = $newdata['vital_sign']['reason_code_text'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_description'] = $newdata['vital_sign']['reason_description'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_date_low'] = $newdata['vital_sign']['reason_date_low'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_date_high'] = $newdata['vital_sign']['reason_date_high'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_status'] = $newdata['vital_sign']['reason_status'] ?? null;
                 $q++;
             } elseif ($table == 'social_history') {
                 $tobacco_status = array(

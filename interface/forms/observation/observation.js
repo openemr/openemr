@@ -1,5 +1,4 @@
-
-(function(window, oeUI) {
+(function (window, oeUI) {
 
     function init(webroot, reasonCodeTypes) {
         // we want to setup our reason code widgets
@@ -20,7 +19,7 @@
 function clearReasonCode(newRow) {
     // make sure we clear everything out.
     let inputs = newRow.querySelectorAll(".reasonCodeContainer input");
-    inputs.forEach(function(input) {
+    inputs.forEach(function (input) {
         input.value = "";
     });
     // make sure we are hiding the thing.
@@ -64,18 +63,19 @@ function removeVal(rowid) {
     document.getElementById("ob_value_" + rowid1[1]).value = '';
     document.getElementById("ob_unit_" + rowid1[1]).value = '';
     document.getElementById("ob_value_phin_" + rowid1[1]).value = '';
-    document.getElementById("ob_value_head_" + rowid1[1]).innerHTML = '';
-    document.getElementById("ob_unit_head_" + rowid1[1]).innerHTML = '';
+    //document.getElementById("ob_value_head_" + rowid1[1]).innerHTML = '';
+    //document.getElementById("ob_unit_head_" + rowid1[1]).innerHTML = '';
 }
 
 function changeDatasetIds(propertySelector, dataSetProperty, keyPrefix) {
     var elements = document.querySelectorAll('[data-' + propertySelector + ']');
     if (elements) {
-        elements.forEach(function(element, index) {
-           element.dataset[dataSetProperty] = keyPrefix + "_" + (index + 1);
+        elements.forEach(function (element, index) {
+            element.dataset[dataSetProperty] = keyPrefix + "_" + (index + 1);
         });
     }
 }
+
 function changeIds(class_val) {
     var elem = document.getElementsByClassName(class_val);
     for (let i = 0; i < elem.length; i++) {
@@ -88,7 +88,7 @@ function changeIds(class_val) {
 
 function deleteRow(event, rowId) {
     if (rowId !== 'tb_row_1') {
-        var elem = document.getElementById(rowId);
+        let elem = document.getElementById(rowId);
         elem.parentNode.removeChild(elem);
     }
     window.oeUI.reasonCodeWidget.reload();
@@ -96,7 +96,7 @@ function deleteRow(event, rowId) {
 
 function sel_code(webroot, id) {
     id = id.split('tb_row_');
-    var checkId = '_' + id[1];
+    let checkId = '_' + id[1];
     document.getElementById('clickId').value = checkId;
     window.top.restoreSession();
     dlgopen(webroot + '/interface/patient_file/encounter/find_code_popup.php?default=' + encodeURIComponent('LOINC'), '_blank', 700, 400);
@@ -104,7 +104,7 @@ function sel_code(webroot, id) {
 
 function set_related(codetype, code, selector, codedesc) {
     var checkId = document.getElementById('clickId').value;
-    document.getElementById("code" + checkId).value = code;
+    document.getElementById("code" + checkId).value = codetype + ':' + code;
     document.getElementById("description" + checkId).value = codedesc;
     document.getElementById("displaytext" + checkId).innerHTML = codedesc;
     document.getElementById("code_type" + checkId).value = codetype;
@@ -151,12 +151,12 @@ function set_related(codetype, code, selector, codedesc) {
     } else {
         document.getElementById("table_code" + checkId).value = 'PHINQUESTION';
         document.getElementById('ob_value_head' + checkId).style.display = '';
-        document.getElementById('ob_unit_head' + checkId).style.display = 'none';
+        document.getElementById('ob_unit_head' + checkId).style.display = '';
         var select_unit = document.getElementById('ob_unit' + checkId);
         select_unit.innerHTML = "";
         document.getElementById('ob_value' + checkId).value = '';
-        document.getElementById('ob_value' + checkId).style.display = 'none';
-        document.getElementById('ob_unit' + checkId).style.display = 'none';
+        document.getElementById('ob_value' + checkId).style.display = '';
+        document.getElementById('ob_unit' + checkId).style.display = '';
         document.getElementById('ob_value_phin' + checkId).style.display = '';
     }
 }

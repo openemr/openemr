@@ -151,8 +151,6 @@ class CarecoordinationController extends AbstractActionController
                 continue;
             }
             $name = $r['pat_name'];
-            $dob = $r['dob_raw'];
-            //$records[$key]['dupl'] = '';
             foreach ($records as $k => $r1) {
                 $f = false;
                 $why = '';
