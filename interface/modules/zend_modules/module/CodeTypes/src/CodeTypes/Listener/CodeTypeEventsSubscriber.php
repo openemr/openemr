@@ -162,10 +162,11 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         }
 
         foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $option_id => $code_text) {
-            $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes WHERE code_text =?", 'code', [$code_text]);
+            $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes WHERE code_text =? "
+                . " AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')", 'code', [$code_text]);
             if (empty($code_id)) {
                 (new SystemLogger())->debug(
-                    "Failed to find code in codes_cpt with code_text. Skipping option_id",
+                    "Failed to find cpt4 code in codes with code_text. Skipping option_id",
                     ['code_text' => $code_text, 'option_id' => $option_id]
                 );
             }
@@ -252,10 +253,11 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         try {
             \sqlBeginTrans();
             foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $option_id => $code_text) {
-                $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes_cpt WHERE code_text =?", 'code', [$code_text]);
+                $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes WHERE code_text =? "
+                    . " AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')", 'code', [$code_text]);
                 if (empty($code_id)) {
                     (new SystemLogger())->debug(
-                        "Failed to find code in codes_cpt with code_text. Skipping option_id",
+                        "Failed to find cpt4 code in codes with code_text. Skipping option_id",
                         ['code_text' => $code_text, 'option_id' => $option_id]
                     );
                 }
