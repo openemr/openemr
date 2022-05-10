@@ -31,7 +31,9 @@ if ($viewmode == 'update') {
     <script>
         //var no_qs = 10; // number of questions in the form
         var phq9_score = 0; // total score
+
     </script>
+    <?php $qno = 0; ?> // question number
 
     <script src="<?php echo $rootdir; ?>/forms/phq9/phq9_javasrc.js"></script>
 
@@ -39,13 +41,13 @@ if ($viewmode == 'update') {
         // stuff that uses embedded php must go here, not in the include javascript file -
         // it must be executed on server side before page is sent to client. included
         // javascript is only executed on the client
-        function create_q10(question, menue) {
+        function create_q10(question, menue ) {
             // create the 10th question - the second part is italicised. Only displayed if score > 0
-            var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q10); ?>));
+            var text = document.createTextNode(jsAttr("10" + ". "+<?php echo js_escape($str_q10); ?>));
             question.appendChild(text);
-            var new_line = document.createElement("br"); // second part is in italics
+            var new_line = document.createElement("br");
             var ital = document.createElement("i"); // second part is in italics
-            var question_2 = document.createTextNode(jsAttr(<?php echo js_escape($str_q10_2); ?>));
+            var question_2 = document.createTextNode(jsAttr(<?php echo   js_escape($str_q10_2); ?>));
             ital.appendChild(question_2);
             question.name = "tenth";
             question.appendChild(new_line);
@@ -68,7 +70,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Little interest or pleasure in doing things'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Little interest or pleasure in doing things'); ?></span>
                         <select class="form-input" name="interest_score" onchange="update_score(0, my_form.interest_score.value);">
                             <?php if (!$obj) {
                                 ?><?php if (!$obj) {
@@ -92,7 +94,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Feeling down, depressed, or hopeless'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Feeling down, depressed, or hopeless'); ?></span>
                         <select class="input-sm my-1" name="hopeless_score" onchange="update_score(1, my_form.hopeless_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -115,7 +117,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Trouble falling or staying asleep, or sleeping too much'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Trouble falling or staying asleep, or sleeping too much'); ?></span>
                         <select class="input-sm my-1" name="sleep_score" onchange="update_score(2, my_form.sleep_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -138,7 +140,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Feeling tired or having little energy'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Feeling tired or having little energy'); ?></span>
                         <select class="input-sm my-1" name="fatigue_score" onchange="update_score(3, my_form.fatigue_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -161,7 +163,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Poor appetite or overeating'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Poor appetite or overeating'); ?></span>
                         <select class="input-sm my-1" name="appetite_score" onchange="update_score(4, my_form.appetite_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -184,7 +186,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Feeling bad about yourself - or that you are a failure or have let yourself or your family down'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Feeling bad about yourself - or that you are a failure or have let yourself or your family down'); ?></span>
                         <select class="input-sm my-1" name="failure_score" onchange="update_score(5, my_form.failure_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -207,7 +209,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Trouble concentrating on things, such as reading an article or watching videos'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Trouble concentrating on things, such as reading an article or watching videos'); ?></span>
                         <select class="input-sm my-1" name="focus_score" onchange="update_score(6, my_form.focus_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -230,7 +232,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Moving or speaking slowly noted by others or fidgety or restless more than usual'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Moving or speaking slowly noted by others or fidgety or restless more than usual'); ?></span>
                         <select class="input-sm my-1" name="psychomotor_score" onchange="update_score(7, my_form.psychomotor_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -253,7 +255,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
-                        <span class="label"><?php echo xlt('Thoughts that you would be better off dead, or of hurting yourself'); ?></span>
+                        <span class="label"><?php echo ++$qno . ". " . xlt('Thoughts that you would be better off dead, or of hurting yourself'); ?></span>
                         <select class="input-sm my-1" name="suicide_score" onchange="update_score(8, my_form.suicide_score.value);">
                             <?php if (!$obj) {
                                 ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?>
@@ -276,6 +278,7 @@ if ($viewmode == 'update') {
             <table>
                 <tr>
                     <td>
+                    <br>
                         <span id="q10_place" class="label"></span>
                     </td>
                 </tr>
