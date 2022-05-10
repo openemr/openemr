@@ -580,9 +580,7 @@ function code_set_search(
                     $active_query = " AND codes.active = 1 ";
                 } else {
                     // Search from external tables
-                    // some external tables like VALUESET are loaded through a dataload and are not in codes
-
-                        $active_query = " AND (codes.active = 1 || codes.active IS NULL) ";
+                    $active_query = " AND (codes.active = 1 || codes.active IS NULL) ";
                 }
             }
 
