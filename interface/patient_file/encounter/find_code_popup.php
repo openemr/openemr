@@ -90,6 +90,25 @@ $target_element = $_GET['target_element'] ?? null;
             return false;
         }
 
+        function form_code_type_change(e) {
+            let element = document.getElementById('div_value_neg');
+            if (e.value == 'VALUESET') {
+                element.classList.remove('d-none');
+            } else {
+                element.classList.add('d-none');
+            }
+        }
+
+        document.onreadystatechange = function () {
+            <?php echo "cb_value_neg = '" . ($_POST['cb_value_neg'] ?? '') . "';"; ?>
+            if (document.readyState == "complete") {
+                form_code_type_change(document.getElementsByName('form_code_type')[0])
+            }
+            if (cb_value_neg) {
+                document.getElementById('cb_value_neg').checked = true;
+            }
+        }
+
     </script>
 </head>
 <?php
@@ -115,7 +134,7 @@ $focus = "document.theform.search_term.select();";
                 <div class="input-group mt-1">
                 <?php
                 if (!empty($allowed_codes)) { ?>
-                    <select class='form-control' name='form_code_type'>
+                    <select class='form-control' name='form_code_type' onchange='form_code_type_change(this)'>
                         <?php
                         foreach (array_keys($code_types) as $code) {
                             if (empty($code_types[$code]['label'])) {
@@ -150,6 +169,14 @@ $focus = "document.theform.search_term.select();";
                 }
                 ?>
                 </div>
+                <div class="input-group p-1 d-none" id="div_value_neg">
+                    <div class="label-div">
+                        <label class="input" for="cb_value_neg"><?php echo xlt('Negated'); ?></label>
+                    </div>
+                    <div>
+                        <input type='checkbox' class="m-1" name='cb_value_neg' id='cb_value_neg'/>
+                    </div>
+                </div>
                 <div class="input-group mt-1">
                     <input type='text' class='form-control' name='search_term' id="searchTerm"
                         value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
@@ -181,7 +208,19 @@ $focus = "document.theform.search_term.select();";
                     <tbody>
                     <?php
                     $search_term = $_REQUEST['search_term'];
-                    $res = main_code_set_search($allowed_codes, $search_term);
+                    $res = main_code_set_search(
+                        $allowed_codes,
+                        $search_term, 
+                        null, 
+                        null, 
+                        true, 
+                        null,
+                        false,
+                        null,
+                        null,
+                        [],
+                        $negated_value = (bool) $_POST['cb_value_neg'] ?? null
+                    );
                     if ($form_code_type == 'PROD') {
                         // Special case that displays search for products/drugs
                         while ($row = sqlFetchArray($res)) {
@@ -202,6 +241,11 @@ $focus = "document.theform.search_term.select();";
                             $dynCodeType = $form_code_type ?: $codetype;
                             if (stripos($dynCodeType, 'VALUESET') !== false) {
                                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
+                                if (!empty($_POST['cb_value_neg'] ?? null)) {
+                                    $dynCodeType = 'OID';
+                                    $itercode = $row['valueset_valueset'];
+                                    $itertext = ucfirst(strtolower(trim($row['valueset_valueset_name'])));
+                                }
                             }
                             if (!empty($target_element)) {
                                 // add a 5th parameter to function to select the target element on the form for placing the code.

@@ -444,10 +444,22 @@ function return_code_information($form_code_type, $code, $active = true)
 * @param integer       $start            Query start limit (for pagination) (Note this setting will override the above $limit parameter)
 * @param integer       $number           Query number returned (for pagination) (Note this setting will override the above $limit parameter)
 * @param array         $filter_elements  Array that contains elements to filter
+* @param boolean       $negated_valueset Passed from find_code_popup to handle custom search of valueset table
 * @return mixed recordset/integer              - Will contain either a integer(if counting) or the results (recordset)
 */
-function main_code_set_search($form_code_type, $search_term, $limit = null, $category = null, $active = true, $modes = null, $count = false, $start = null, $number = null, $filter_elements = array())
-{
+function main_code_set_search(
+    $form_code_type,
+    $search_term,
+    $limit = null,
+    $category = null,
+    $active = true,
+    $modes = null,
+    $count = false,
+    $start = null,
+    $number = null,
+    $filter_elements = array(),
+    $negated_valueset = false
+) {
 
     // check for a category
     if (!empty($category)) {
@@ -467,7 +479,19 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
         }
 
         // run the non-multiple code set search
-        return sequential_code_set_search($form_code_type, $search_term, $limit, $modes, $count, $active, $start, $number, $filter_elements);
+        return sequential_code_set_search(
+            $form_code_type,
+            $search_term,
+            $limit,
+            $modes,
+            $count,
+            $active,
+            $start,
+            $number,
+            $filter_elements,
+            $is_hit_mode = false,
+            $negated_valueset
+        );
     }
 }
 
@@ -491,8 +515,20 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  * @param  array     $return_query    This is a mode that will only return the query (everything except for the LIMIT is included) (returned as an array to include the query string and binding array)
  * @return mixed recordset/integer/array
  */
-function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = array(), $limit = null, $mode = 'default', $return_query = false)
-{
+function code_set_search(
+    $form_code_type,
+    $search_term = "",
+    $count = false,
+    $active = true,
+    $return_only_one = false,
+    $start = null,
+    $number = null,
+    $filter_elements = array(),
+    $limit = null,
+    $mode = 'default',
+    $return_query = false,
+    $negated_valueset = false
+) {
     global $code_types, $code_external_tables;
 
   // Figure out the appropriate limit clause
@@ -527,6 +563,11 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
             $common_columns = " codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
                             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, " .
                             "codes.active, codes.reportable, codes.financial_reporting, codes.revenue_code, ";
+            
+            if ($form_code_type == 'VALUESET') {
+                $common_columns = '';
+            }
+            
             $columns = $common_columns . "'" . add_escape_custom($form_code_type) . "' as code_type_name ";
 
             $active_query = '';
@@ -543,7 +584,12 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                     $active_query = " AND codes.active = 1 ";
                 } else {
                     // Search from external tables
-                    $active_query = " AND (codes.active = 1 || codes.active IS NULL) ";
+                    // some external tables like VALUESET are loaded through a dataload and are not in codes
+                    if ($form_code_type == 'VALUESET') {
+                        $active_query = '';
+                    } else {
+                        $active_query = " AND (codes.active = 1 || codes.active IS NULL) ";
+                    }
                 }
             }
 
@@ -583,7 +629,11 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
             } else {
                 $substitute = '';
                 if ($table_dot === 'valueset.') {
-                    $substitute = 'valueset.code_type as valueset_code_type, ';
+                    $substitute = 'valueset.code_type as valueset_code_type, valueset.valueset as valueset_valueset,
+                        valueset.valueset_name as valueset_valueset_name,';
+                    if ($negated_valueset == true) {
+                        //$code_col = 
+                    }
                 }
                 $query = "SELECT '" . $code_external . "' as code_external, " .
                     $table_dot . $code_col . " as code, " .
@@ -597,10 +647,17 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                 $query .= " FROM " . $table . " ";
             } else {
                 // Search from external tables
-                $query .= " FROM " . $table .
-                          " LEFT OUTER JOIN `codes` " .
-                          " ON " . $table_dot . $code_col . " = codes.code AND codes.code_type = ? ";
-                $sql_bind_array[] = $code_types[$form_code_type]['id'];
+                if (
+                    $table_dot === 'valueset.' &&
+                    $negated_valueset == true
+                ) {
+                    $query .= " FROM " . $table . " ";
+                } else {
+                    $query .= " FROM " . $table .
+                            " LEFT OUTER JOIN `codes` " .
+                            " ON " . $table_dot . $code_col . " = codes.code AND codes.code_type = ? ";
+                    $sql_bind_array[] = $code_types[$form_code_type]['id'];
+                }
             }
 
             foreach ($table_info[EXT_JOINS] as $join_info) {
@@ -833,8 +890,19 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
 * @param string $is_hit_mode This is a mode that simply returns the name of the mode if results were found
 * @return mixed recordset/integer/string
 */
-function sequential_code_set_search($form_code_type, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array(), $is_hit_mode = false)
-{
+function sequential_code_set_search(
+    $form_code_type,
+    $search_term,
+    $limit = null,
+    $modes = null,
+    $count = false,
+    $active = true,
+    $start = null,
+    $number = null,
+    $filter_elements = array(),
+    $is_hit_mode = false,
+    $negated_valueset = false
+) {
   // Set the default behavior that is described in above function comments
     if (empty($modes)) {
         $modes = array('code','description');
@@ -842,7 +910,20 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 
   // Return the Search Results (loop through each mode in order)
     foreach ($modes as $mode) {
-        $res = code_set_search($form_code_type, $search_term, $count, $active, false, $start, $number, $filter_elements, $limit, $mode);
+        $res = code_set_search(
+            $form_code_type,
+            $search_term,
+            $count,
+            $active,
+            false,
+            $start,
+            $number,
+            $filter_elements,
+            $limit,
+            $mode,
+            false,
+            $negated_valueset
+        );
         if (($count && $res > 0) || (!$count && sqlNumRows($res) > 0)) {
             if ($is_hit_mode) {
                 // just return the mode
@@ -901,11 +982,35 @@ function multiple_code_set_search(array $form_code_types = null, $search_term, $
         // see if there is a hit
         $mode_hit = null;
         // only use the count method here, since it's much more efficient than doing the actual query
-        $mode_hit = sequential_code_set_search($form_code_type, $search_term, null, $modes, true, $active, null, null, $filter_elements, true);
+        $mode_hit = sequential_code_set_search(
+            $form_code_type,
+            $search_term,
+            null,
+            $modes,
+            true,
+            $active,
+            null,
+            null,
+            $filter_elements,
+            true,
+            $negated_valueset = false
+        );
         if ($mode_hit) {
             if ($count) {
                 // count the hits
-                $count_hits = code_set_search($form_code_type, $search_term, $count, $active, false, null, null, $filter_elements, null, $mode_hit);
+                $count_hits = code_set_search(
+                    $form_code_type,
+                    $search_term,
+                    $count,
+                    $active,
+                    false,
+                    null,
+                    null,
+                    $filter_elements,
+                    null,
+                    $mode_hit,
+                    false
+                );
                 // increment the counter
                 $counter += $count_hits;
             } else {
