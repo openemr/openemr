@@ -13,7 +13,6 @@
 namespace OpenEMR\Cqm\QrdaControllers;
 
 use DOMDocument;
-use Laminas\Filter\Compress\Zip;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use XSLTProcessor;
 
@@ -90,9 +89,8 @@ class QrdaReportController
             $bypid = true;
         }
 
-        $zip = new Zip();
         $zip_directory = sys_get_temp_dir() . ($bypid ? '/ep_measures_' : "/qrda_export_") . time();
-        ;
+
         if (!is_dir($zip_directory)) {
             if (!mkdir($zip_directory, true, true) && !is_dir($zip_directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $zip_directory));
@@ -147,7 +145,10 @@ class QrdaReportController
                     file_put_contents($file_local, $content);
                     unset($content);
                     if ($type === 'xml') {
-                        copy(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl', $measure_directory . "/qrda.xsl");
+                        copy(
+                            __DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl',
+                            $measure_directory . "/qrda.xsl"
+                        );
                     }
                 }
             }
@@ -174,8 +175,33 @@ class QrdaReportController
         }
 
         $save_path = sys_get_temp_dir() . "/" . $zip_name;
-        $zip->setArchive($save_path);
-        $zip->compress($zip_directory);
+        $zip = new \ZipArchive();
+        $ret = $zip->open($save_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        if ($ret !== true) {
+            throw new \RuntimeException(sprintf('Zip file "%s" was not created due to "%s"', $save_path, $ret));
+        } else {
+            $dir = opendir($zip_directory);
+            while ($filename = readdir($dir)) {
+                $filename_path = $zip_directory . "/" . $filename;
+                if (is_file($filename_path)) {
+                    $zip->addFile($filename_path, $filename);
+                }
+                if (
+                    is_dir($filename_path) &&
+                    (
+                        !($filename == "." || $filename == "..")
+                    )
+                ) {
+                    $dir_in_dir = opendir($filename_path);
+                    while ($filename_in_dir = readdir($dir_in_dir)) {
+                        if (!($filename_in_dir == "." || $filename_in_dir == "..")) {
+                            $zip->addFile($filename_path . "/" . $filename_in_dir, $filename_in_dir);
+                        }
+                    }
+                }
+            }
+            $zip->close();
+        }
 
         ob_clean();
         header("Pragma: public");
