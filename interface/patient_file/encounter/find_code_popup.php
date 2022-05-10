@@ -210,16 +210,16 @@ $focus = "document.theform.search_term.select();";
                     $search_term = $_REQUEST['search_term'];
                     $res = main_code_set_search(
                         $allowed_codes,
-                        $search_term, 
-                        null, 
-                        null, 
-                        true, 
+                        $search_term,
+                        null,
+                        null,
+                        true,
                         null,
                         false,
                         null,
                         null,
                         [],
-                        $negated_value = (bool) $_POST['cb_value_neg'] ?? null
+                        $negated_value = (bool) ($_POST['cb_value_neg'] ?? null)
                     );
                     if ($form_code_type == 'PROD') {
                         // Special case that displays search for products/drugs

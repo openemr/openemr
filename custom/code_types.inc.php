@@ -563,11 +563,7 @@ function code_set_search(
             $common_columns = " codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
                             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, " .
                             "codes.active, codes.reportable, codes.financial_reporting, codes.revenue_code, ";
-            
-            if ($form_code_type == 'VALUESET') {
-                $common_columns = '';
-            }
-            
+
             $columns = $common_columns . "'" . add_escape_custom($form_code_type) . "' as code_type_name ";
 
             $active_query = '';
@@ -585,11 +581,8 @@ function code_set_search(
                 } else {
                     // Search from external tables
                     // some external tables like VALUESET are loaded through a dataload and are not in codes
-                    if ($form_code_type == 'VALUESET') {
-                        $active_query = '';
-                    } else {
+
                         $active_query = " AND (codes.active = 1 || codes.active IS NULL) ";
-                    }
                 }
             }
 
@@ -632,7 +625,7 @@ function code_set_search(
                     $substitute = 'valueset.code_type as valueset_code_type, valueset.valueset as valueset_valueset,
                         valueset.valueset_name as valueset_valueset_name,';
                     if ($negated_valueset == true) {
-                        //$code_col = 
+                        $valueset_code_col = "valueset";
                     }
                 }
                 $query = "SELECT '" . $code_external . "' as code_external, " .
@@ -647,17 +640,11 @@ function code_set_search(
                 $query .= " FROM " . $table . " ";
             } else {
                 // Search from external tables
-                if (
-                    $table_dot === 'valueset.' &&
-                    $negated_valueset == true
-                ) {
-                    $query .= " FROM " . $table . " ";
-                } else {
-                    $query .= " FROM " . $table .
-                            " LEFT OUTER JOIN `codes` " .
-                            " ON " . $table_dot . $code_col . " = codes.code AND codes.code_type = ? ";
-                    $sql_bind_array[] = $code_types[$form_code_type]['id'];
-                }
+
+                $query .= " FROM " . $table .
+                        " LEFT OUTER JOIN `codes` " .
+                        " ON " . $table_dot . $code_col . " = codes.code AND codes.code_type = ? ";
+                $sql_bind_array[] = $code_types[$form_code_type]['id'];
             }
 
             foreach ($table_info[EXT_JOINS] as $join_info) {
@@ -686,7 +673,14 @@ function code_set_search(
                 $query .= $table_dot . $code_col . " = ? ";
                 $sql_bind_array[] = $search_term;
             } elseif ($mode == "code") {
-                $query .= $table_dot . $code_col . " like ? ";
+                if (
+                    $table_dot === 'valueset.' &&
+                    $negated_valueset == true
+                ) {
+                    $query .= $table_dot . $valueset_code_col . " like ? ";
+                } else {
+                    $query .= $table_dot . $code_col . " like ? ";
+                }
                 $sql_bind_array[] = $search_term . "%";
             } elseif ($mode == "description") {
                 $description_keywords = preg_split("/ /", $search_term, -1, PREG_SPLIT_NO_EMPTY);
