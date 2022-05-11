@@ -313,9 +313,9 @@ if ($supported_file === 1) {
         }
 
         // collect checksum (if a multiple file import, then can use any one)
-        $file_checksum = $value['checksum'];
+        $file_checksum = $value['checksum'] ?? '';
         // collect path (if a multiple file import, then can use any one)
-        $file_revision_path = $value['path'];
+        $file_revision_path = $value['path'] ?? '';
     }
 
     // Determine and enforce only a certain number of files to be staged

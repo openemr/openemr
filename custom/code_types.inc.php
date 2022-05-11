@@ -585,6 +585,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                 if ($table_dot === 'valueset.') {
                     $substitute = 'valueset.code_type as valueset_code_type, ';
                 }
+
                 $query = "SELECT '" . $code_external . "' as code_external, " .
                     $table_dot . $code_col . " as code, " .
                     $display_description . " as code_text, " .
