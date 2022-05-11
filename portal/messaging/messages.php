@@ -43,7 +43,13 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+
+if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+    echo xlt('Patient Portal is turned off');
+    exit;
+}
 
 $docid = empty($_REQUEST['docid']) ? 0 : (int)$_REQUEST['docid'];
 $orderid = empty($_REQUEST['orderid']) ? 0 : (int)$_REQUEST['orderid'];
@@ -130,6 +136,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Delete Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Delete Selected?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal')); ?>;
 
                 $scope.init = function () {
                     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
@@ -225,7 +232,7 @@ function getAuthPortalUsers()
                             itemToDelete.push($scope.items[i.indexOf(o)].id);
                         }
                     })
-                    $http.post('handle_note.php', $.param({'task': 'massdelete', 'notejson': JSON.stringify(itemToDelete)})).then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'massdelete', 'notejson': JSON.stringify(itemToDelete), 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         $window.location.reload();
                     }, function errorCallback(response) {
                         alert(response.data);
@@ -234,7 +241,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.deleteMessage = function (id) {
-                    $http.post('handle_note.php', $.param({'task': 'delete', 'noteid': id})).then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'delete', 'noteid': id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         return true;
                     }, function errorCallback(response) {
                         alert(response.data);
@@ -286,7 +293,7 @@ function getAuthPortalUsers()
 
                 $scope.readMessage = function (idx) {
                     if ($scope.items[idx].message_status == 'New') { // mark mail read else ignore
-                        $http.post('handle_note.php', $.param({'task': 'setread', 'noteid': $scope.items[idx].id})).then(function successCallback(response) {
+                        $http.post('handle_note.php', $.param({'task': 'setread', 'noteid': $scope.items[idx].id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                             $scope.items[idx].message_status = 'Read';
                             $scope.selected.message_status = 'Read';
                         }, function errorCallback(response) {
@@ -326,7 +333,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getInbox = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getinbox', 'owner': $scope.cUserId})).then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getinbox', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.inboxItems = angular.copy(response.data);
                         } else alert(response.data);
@@ -336,7 +343,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getAllMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getall', 'owner': $scope.cUserId})).then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getall', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.allItems = angular.copy(response.data);
                         } else alert(response.data);
@@ -346,7 +353,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getDeletedMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getdeleted', 'owner': $scope.cUserId})).then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getdeleted', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.deletedItems = [];
                             $scope.deletedItems = angular.copy(response.data);
@@ -357,7 +364,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getSentMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getsent', 'owner': $scope.cUserId})).then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getsent', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         $scope.sentItems = [];
                         $scope.sentItems = angular.copy(response.data);
                     }, function errorCallback(response) {
@@ -371,10 +378,10 @@ function getAuthPortalUsers()
                     $("#title").prop("disabled", false);
                     $("#selSendto").prop("disabled", false);
 
-                    compose.owner = $scope.cUserId;
+                    compose.csrf_token_form = $scope.csrf;
                     compose.sender_id = $scope.cUserId;
                     compose.sender_name = $scope.userproper;
-                    if ($scope.selrecip == compose.owner) {
+                    if ($scope.selrecip == $scope.cUserId) {
                         if (!confirm($scope.xLate.confirm.err))
                             return false;
                     }
@@ -727,9 +734,9 @@ function getAuthPortalUsers()
                                             <div class="col-12" id="inputBody" ng-hide="compose.task == 'forward'" ng-model="compose.inputBody"></div>
                                             <textarea class="col-12" id="finputBody" rows="8" ng-hide="compose.task != 'forward'" ng-model="compose.inputBody"></textarea>
                                         </fieldset>
+                                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" ng-value="compose.csrf_token_form" />
                                         <input type='hidden' name='noteid' id='noteid' ng-value="compose.noteid" />
                                         <input type='hidden' name='replyid' id='replyid' ng-value='selected.reply_mail_chain' />
-                                        <input type='hidden' name='owner' ng-value='compose.owner' />
                                         <input type='hidden' name='recipient_id' ng-value='compose.selrecip' />
                                         <input type='hidden' name='recipient_name' ng-value='compose.recipient_name' />
                                         <input type='hidden' name='sender_id' ng-value='compose.sender_id' />
