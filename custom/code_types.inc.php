@@ -624,6 +624,7 @@ function code_set_search(
                         valueset.valueset_name as valueset_valueset_name,';
                     if ($negated_valueset == true) {
                         $valueset_code_col = "valueset";
+                        $valueset_text_col = "valueset_name";
                     }
                 }
                 $query = "SELECT '" . $code_external . "' as code_external, " .
@@ -684,8 +685,15 @@ function code_set_search(
                 $description_keywords = preg_split("/ /", $search_term, -1, PREG_SPLIT_NO_EMPTY);
                 $query .= "(1=1 ";
                 foreach ($description_keywords as $keyword) {
-                    $query .= " AND " . $table_dot . $code_text_col . " LIKE ? ";
-                    $sql_bind_array[] = "%" . $keyword . "%";
+                    if (
+                        $table_dot === 'valueset.' &&
+                        $negated_valueset == true
+                    ) {
+                        $query .= " AND " . $table_dot . $valueset_text_col . " LIKE ? ";
+                    } else {
+                        $query .= " AND " . $table_dot . $code_text_col . " LIKE ? ";
+                    }
+                        $sql_bind_array[] = "%" . $keyword . "%";
                 }
 
                 $query .= ")";
