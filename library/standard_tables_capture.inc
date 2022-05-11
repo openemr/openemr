@@ -692,8 +692,10 @@ function valueset_import($type)
                                     )
                                 );
                                 sqlStatementNoLog(
-                                    "INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
-                                    code_system = 'OID'",
+                                    "INSERT INTO valueset_oid values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
+                                    code_system = values(code_system),
+                                    description = values(description),
+                                    valueset_name = values(valueset_name)",
                                     array(
                                          $nqf_code,
                                          $vset_attr->ID,
