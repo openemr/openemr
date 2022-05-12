@@ -191,7 +191,7 @@ class BaseService
             // for dates which should be saved as null
             if (
                 $value == "" &&
-                strpos($key, 'date') !== false
+                (strpos($key, 'date') !== false)
             ) {
                 $bind[] = null;
             } else {
