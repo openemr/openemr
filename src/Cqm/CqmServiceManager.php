@@ -16,7 +16,7 @@ class CqmServiceManager
         $client = new CqmClient(
             new System(),
             $servicePath,
-            'http://localhost', // should be 127.0.0.1 loopback
+            'http://127.0.0.1',
             '6660' // ccda service runs on 6661
         );
 
