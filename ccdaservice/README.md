@@ -1,6 +1,10 @@
 # About
 This module/service will provide the necessary template engine to create a Patient Summary CCD.
 CCD's can be generated from the Onsite Patient Portal or the Carecoordination Module.
+
+Beside installing the C-CDA service, also included in this install are two new services.
+- oe-schematron-service for validating QRDA and CDA type documents. Runs on port 6662.
+- oe-cqm-service is our CQM calculator service. Runs on port 6660
 ## Prepare
 * If not already completed, you must install/initialize the CCM features by going to the Modules->Manage Modules top menu then click Unregistered tab and install the necessary components.
 * Add any appropriate settings like granting Access Control for the appropriate users. Menu item: Modules->Manage Modules->Access Control->General->Care Coordination.
@@ -8,7 +12,7 @@ CCD's can be generated from the Onsite Patient Portal or the Carecoordination Mo
 * Ignore any errors that do not throw you back to command prompt when using npm install as some libs need to be compiled and is verbose about it.
 ## Updating
 Whenever there are new versions or updates, be sure to navigate into the ccdaservice directory and run:
-- npm i --production
+- npm i --only=production
 
 This will ensure the lastest libraries are installed.
 ## Ubuntu Setup
@@ -21,15 +25,15 @@ If node is not already installed then do the following:
 - sudo apt-get install -y nodejs
 
 Navigate to: openemr/ccdaservice and run the following to install requires dependencies.
-- sudo npm install --production
+- sudo npm install --only=production
 ## Windows Setup
 * Download and install nodejs for your windows version.
-  - Latest version tested is node v12.18.2
+  - Latest version tested is node v16.13.1
 * Ensure system variable NODE_PATH is set i.e %USERPROFILE%\AppData\Roaming\npm\node_modules.
 
 Navigate to: openemr/ccdaservice and run the following from an elevated PowerShell or CMD.exe (run as Administrator):
-- npm install --global --production windows-build-tools. (Deprecated) No longer required unless for some reason your environment doesn't have libxmljs binary available.
-- npm install --production
+- npm install --global --only=production windows-build-tools. (Deprecated) No longer required unless for some reason your environment doesn't have libxmljs binary available.
+- npm install --only=production
 ### Use
 * CCDA service must be enabled in OpenEMR's menu Globals->Connectors.
 * This service will automatically start on demand when required by OpenEMR.
@@ -39,5 +43,5 @@ Navigate to: openemr/ccdaservice and run the following from an elevated PowerShe
 ### Tools
 * The nodejs ccda service now starts on demand.
 #### License
-   	    Copyright 2018-2021 sjpadgett@gmail.com
+   	    Copyright 2018-2022 sjpadgett@gmail.com
         https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
