@@ -190,7 +190,7 @@ class BaseService
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
             // for dates which should be saved as null
             if (
-                $value == "" &&
+                empty($value) &&
                 (strpos($key, 'date') !== false)
             ) {
                 $bind[] = null;
