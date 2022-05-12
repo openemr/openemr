@@ -652,3 +652,10 @@ INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_
     ('OID', (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), '0', '', '', '1', '1', '0', '1', '1', 'OID Valueset', '14', '1', '1', '1', '1', '1');
 DROP TABLE `temp_table_one`;
 #EndIf
+
+#IfColumn patient_data deceased_date
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `patient_data` SET `deceased_date` = NULL WHERE `deceased_date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
