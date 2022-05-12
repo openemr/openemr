@@ -22,7 +22,6 @@ use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
-use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\CodeTypesService;
 
 class CarecoordinationTable extends AbstractTableGateway
@@ -35,7 +34,6 @@ class CarecoordinationTable extends AbstractTableGateway
     private $parseTemplates;
     private $codeService;
     private $importService;
-    protected $validateDocument;
 
     public function __construct()
     {
@@ -44,7 +42,6 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->parseTemplates = new CdaTemplateParse();
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
-        $this->validateDocument = new CdaValidateDocuments();
     }
 
     /*
@@ -199,13 +196,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 error_log("No QDMs for patient: " . $name);
                 return true;
             }
-            $valid = $this->validateDocument->validateXmlXsd((string)$xml_content_new, 'qrda1');
+            $valid = $this->parseTemplates->validateXmlXsd((string)$xml_content_new, 'qrda');
             if ($valid) {
                 // Offset to Patient Data section
                 $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
             }
         } else {
-            $valid = $this->validateDocument->validateXmlXsd((string)$xml_content_new, 'ccda');
+            $valid = $this->parseTemplates->validateXmlXsd((string)$xml_content_new, 'ccda');
             if ($valid) {
                 $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
             }
