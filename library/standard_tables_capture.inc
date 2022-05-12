@@ -676,7 +676,36 @@ function valueset_import($type)
                         foreach ($nqf as $nqf_code) {
                             foreach ($cp->Concept as $con) {
                                 $con_attr = $con->attributes();
-                                sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)", array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
+                                sqlStatementNoLog(
+                                    "INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
+                                    code_system = values(code_system),
+                                    description = values(description),
+                                    valueset_name = values(valueset_name)",
+                                    array(
+                                        $nqf_code,
+                                        $con_attr->code,
+                                        $con_attr->codeSystem,
+                                        $con_attr->codeSystemName,
+                                        $vset_attr->ID,
+                                        $con_attr->displayName,
+                                        $vset_attr->displayName
+                                    )
+                                );
+                                sqlStatementNoLog(
+                                    "INSERT INTO valueset_oid values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
+                                    code_system = values(code_system),
+                                    description = values(description),
+                                    valueset_name = values(valueset_name)",
+                                    array(
+                                         $nqf_code,
+                                         $vset_attr->ID,
+                                         $con_attr->codeSystem,
+                                         'OID',
+                                         $vset_attr->ID,
+                                         $vset_attr->displayName,
+                                         $vset_attr->displayName
+                                    )
+                                );
                             }
                         }
                     }
