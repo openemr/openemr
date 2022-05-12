@@ -178,7 +178,7 @@ class BaseService
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
                 $value = "";
-            } else if ($value === "NULL") {
+            } elseif ($value === "NULL") {
                 // make it consistent with our update columns... I really don't like this magic string constant, if someone
                 // intends to actually store the value NULL as a string this will break....
                 $value = $null_value;
@@ -186,8 +186,17 @@ class BaseService
             if ($value === null || $value === false) {
                 $value = $null_value;
             }
+
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            // for dates which should be saved as null
+            if (
+                $value == "" &&
+                strpos($key, 'date') !== false
+            ) {
+                $bind[] = null;
+            } else {
+                $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            }
         }
 
         $result['set'] = $keyset;
