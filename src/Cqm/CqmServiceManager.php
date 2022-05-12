@@ -10,7 +10,7 @@ class CqmServiceManager
     public static function makeCqmClient()
     {
         $servicePath = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR .
-            'node_modules' . DIRECTORY_SEPARATOR .
+            'ccdaservice/node_modules' . DIRECTORY_SEPARATOR .
             'oe-cqm-service' . DIRECTORY_SEPARATOR .
             'server.js';
         $client = new CqmClient(
