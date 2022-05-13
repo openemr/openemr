@@ -730,6 +730,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                 echo "  </select>\n";
+                                            } else if ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
+                                                include 'templates/field_multi_sorted_list_selector.php';
                                             }
 
                                             if ($userMode) {

@@ -7,7 +7,9 @@
  * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Riju K P <rijukp@zhservices.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>_
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,7 +23,9 @@ use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Matrix\Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\Export\ExportException;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
@@ -29,6 +33,7 @@ require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
 class EncounterccdadispatchTable extends AbstractTableGateway
 {
+    const CCDA_DOCUMENT_FOLDER = "CCDA";
     public $amc_num_result = [
             'medications' => 0,
             'allergies' => 0,
@@ -2192,62 +2197,88 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    integer     $status
     * @return   None
     */
-    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $view = 0, $transfer = 0, $emr_transfer = 0)
+    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
     {
         $content = base64_decode($content);
-        $file_path = '';
-        $docid = '';
-        $revid = '';
-        if ($GLOBALS['document_storage_method'] == 1) {
-            $couch = new CouchDB();
-            $docid = $couch->createDocId('ccda');
-            $binaryUuid = UuidRegistry::uuidToBytes($docid);
-            if ($GLOBALS['couchdb_encryption']) {
-                $encrypted = 1;
-                $cryptoGen = new CryptoGen();
-                $resp = $couch->save_doc(['_id' => $docid, 'data' => $cryptoGen->encryptStandard($content, null, 'database')]);
-            } else {
-                $encrypted = 0;
-                $resp = $couch->save_doc(['_id' => $docid, 'data' => base64_encode($content)]);
-            }
-            $docid = $resp->id;
-            $revid = $resp->rev;
-        } else {
-            $binaryUuid = (new UuidRegistry(['table_name' => 'ccda']))->createUuid();
-            $file_name = UuidRegistry::uuidToString($binaryUuid);
-            $file_path = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $pid . '/CCDA';
-            if (!is_dir($file_path)) {
-                if (!mkdir($file_path, 0777, true) && !is_dir($file_path)) {
-                    // php Exception extends RunTimeException
-                    throw new Exception(sprintf('Directory "%s" was not created', $file_path));
-                }
-            }
+        $document = new \Document();
 
-            $fccda = fopen($file_path . "/" . $file_name, "w");
-            if ($GLOBALS['drive_encryption']) {
-                $encrypted = 1;
-                $cryptoGen = new CryptoGen();
-                fwrite($fccda, $cryptoGen->encryptStandard($content, null, 'database'));
-            } else {
-                $encrypted = 0;
-                fwrite($fccda, $content);
-            }
-            fclose($fccda);
-            $file_path = $file_path . "/" . $file_name;
+        // we need to populate the category id based upon the document_type
+        // TOC -> CCDA folder
+        // CCD -> TOC
+        //
+        $categoryId = QueryUtils::fetchSingleValue(
+            'Select `id` FROM categories WHERE name=?',
+            'id',
+            [self::CCDA_DOCUMENT_FOLDER]
+        );
+
+        if ($categoryId === false) {
+            throw new RuntimeException("document category id does not exist in system");
         }
 
-        $referralId = $this->getMostRecentPatientReferral($pid);
+        $binaryUuid = (new UuidRegistry(['table_name' => 'ccda']))->createUuid();
+        $file_name = UuidRegistry::uuidToString($binaryUuid);
+        $mimeType = "text/xml";
 
-        $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $hash = hash('sha3-512', $content);
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId));
+        $higherLevelPath = "";
+        $pathDepth = 1;
+        $owner = $_SESSION['user_id'];  // userID of who is creating the document...
+        $tmpFile = null;
+        $expirationDate = null;
 
-        // now let's go ahead and log our amc actions for this behavior
-        if (!empty($emr_transfer)) {
-            $this->logAmc($pid, $referralId);
+        try {
+            \sqlBeginTrans();
+
+            // set the foreign key so we can track documents connected to a specific export
+            $result = $document->createDocument(
+                $pid,
+                $categoryId,
+                $file_name,
+                $mimeType,
+                $content,
+                $higherLevelPath,
+                $pathDepth,
+                $owner,
+                $tmpFile,
+                $expirationDate,
+            );
+            if (!empty($result)) {
+                throw new \RuntimeException("Failed to save document for ccda. Message: " . $result);
+            }
+
+            $file_path = $document->get_url();
+            $docid = $document->get_couch_docid();
+            $revid = $document->get_couch_revid();
+            $hash = $document->get_hash();
+            $encrypted = $document->is_encrypted();
+            $referralId = $this->getMostRecentPatientReferral($pid);
+
+            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $appTable = new ApplicationTable();
+            $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId));
+
+            // now let's go ahead and log our amc actions for this behavior
+            if (!empty($emr_transfer)) {
+                $this->logAmc($pid, $referralId);
+            }
+            $moduleInsertId = $result->getGeneratedValue();
+
+            // if we have an id, then let's update our document with the foreign key reference
+            $document->set_foreign_reference_id($moduleInsertId);
+            $document->set_foreign_reference_table('ccda');
+            // if we have encounter information we are going to populate it.
+            if (!empty($encounter)) {
+                $document->set_encounter_check(0);
+                $document->set_encounter_id($encounter);
+            }
+            $document->persist(); // save the updated references here.
+            \sqlCommitTrans();
+        } catch (\Exception $exception) {
+            \sqlRollbackTrans();
+            // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
+            throw $exception;
         }
-        return $moduleInsertId = $result->getGeneratedValue();
+        return new GeneratedCcdaResult($moduleInsertId, UuidRegistry::uuidToString($binaryUuid), $content);
     }
 
     /**

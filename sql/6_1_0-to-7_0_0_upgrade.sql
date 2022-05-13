@@ -675,3 +675,13 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 #IfNotColumnType procedure_type procedure_code varchar(64)
 ALTER TABLE `procedure_type` MODIFY `procedure_code` varchar(64) NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
 #EndIf
+
+#IfNotRow2D categories name CCD codes LOINC:34133-9
+Update categories SET codes='LOINC:34133-9' WHERE name='CCD';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id ccda-sections
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','ccda-sections','CCDA Sections',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','allergies','Allergies, Adverse Reactions, Alerts',10,0,1, 'oid:2.16.840.1.113883.10.20.22.2.6.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medications','History of Medication Use',10,0,1, 'oid:2.16.840.1.113883.10.20.22.2.1.1');
+#EndIf

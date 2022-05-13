@@ -53,6 +53,13 @@ class GlobalSetting
     // textbox
     const DATA_TYPE_TEXT = "text";
 
+    /**
+     * Multiple list box with a dropdown selector to add list items.  Items can be re-arranged in order.  Selected
+     * list items save the options property of the list into the globals setting.  Multiple values are separated by a
+     * semi-colon (;).
+     */
+    const DATA_TYPE_MULTI_SORTED_LIST_SELECTOR = "multi_sorted_list_selector";
+
     protected $label = null;
     /**
      * @var string The field type that this value can be.  Valid options include 'bool', 'color_code',

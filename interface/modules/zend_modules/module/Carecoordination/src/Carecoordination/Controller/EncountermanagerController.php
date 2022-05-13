@@ -7,7 +7,9 @@
  * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Riju K P <rijukp@zhservices.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>_
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -107,6 +109,8 @@ class EncountermanagerController extends AbstractActionController
                 'downloadccda' => $downloadccda,
                 'components' => $components,
                 'latest_ccda' => $latest_ccda,
+                'form_date_from' => $fromDate,
+                'form_date_to' => $toDate
             );
             if ($downloadqrda == 'download_qrda') {
                 $send_params = array(

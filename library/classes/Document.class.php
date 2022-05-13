@@ -26,6 +26,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class Document extends ORDataObject
 {
+    const TABLE_NAME = "documents";
+
     /**
      * Use the native filesystem to store files at
      */
@@ -220,7 +222,7 @@ class Document extends ORDataObject
 
         //shore up the most basic ORDataObject bits
         $this->id = $id;
-        $this->_table = "documents";
+        $this->_table = self::TABLE_NAME;
 
         //load the enum type from the db using the parent helper function, this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
@@ -253,7 +255,7 @@ class Document extends ORDataObject
             return [];
         }
 
-        $categories = "Select `id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec` FROM `categories` "
+        $categories = "Select `id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`,`codes` FROM `categories` "
         . "JOIN `categories_to_documents` `ctd` ON `ctd`.`category_id` = `categories`.`id` "
         . "WHERE `ctd`.`document_id` = ? ";
         $resultSet = sqlStatement($categories, [$this->get_id()]);
@@ -404,6 +406,16 @@ class Document extends ORDataObject
         }
 
         return $documents;
+    }
+    public static function getDocumentForUuid($uuid)
+    {
+        $sql = "SELECT id from " . escape_table_name(self::TABLE_NAME) . " WHERE uuid = ?";
+        $id = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue($sql, 'id', [UuidRegistry::uuidToBytes($uuid)]);
+        if (!empty($id)) {
+            return new Document($id);
+        } else {
+            return null;
+        }
     }
 
     /**

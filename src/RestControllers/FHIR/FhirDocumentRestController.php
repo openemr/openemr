@@ -15,13 +15,17 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use http\Exception\InvalidArgumentException;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
 use OpenEMR\Services\FHIR\Document\IDocumentDownloader;
+use OpenEMR\Services\Search\ReferenceSearchField;
 use Psr\Http\Message\ResponseInterface;
+use Ramsey\Uuid\Uuid;
 
 class FhirDocumentRestController
 {
@@ -49,7 +53,10 @@ class FhirDocumentRestController
      */
     public function downloadDocument($documentId): ResponseInterface
     {
-        $document = new \Document($documentId);
+        $document = $this->findDocumentForDocumentId($documentId);
+        if (empty($document)) {
+            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+        }
 
         // run file cleanup requests
         // grab all export db records w/ expired records & delete them
@@ -109,5 +116,16 @@ class FhirDocumentRestController
             throw new InvalidArgumentException("invalid mime type");
         }
         $this->mimeTypeHandlers[$mimeType] = $handler;
+    }
+
+    private function findDocumentForDocumentId(string $documentId)
+    {
+        if (Uuid::isValid($documentId)) {
+            $document = \Document::getDocumentForUuid($documentId);
+        } else {
+            // use our integer values
+            $document = new \Document($documentId);
+        }
+        return $document;
     }
 }

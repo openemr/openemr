@@ -92,6 +92,19 @@ class GlobalsService
     }
 
     /**
+     * Creates a section in the User Settings global pane.  If this section doesn't exist in the global panes it will
+     * add it at the end of the list.
+     * @param $tab The name of the tab
+     */
+    public function addUserSpecificTab($tab)
+    {
+        if (!isset($this->globalsMetadata[$tab])) {
+            $this->createSection($tab);
+        }
+        $this->userSpecificTabs[] = $tab;
+    }
+
+    /**
      * @param $section Section name
      * @param $key Global metadata key, must be unique in structure
      * @param GlobalSetting $global
