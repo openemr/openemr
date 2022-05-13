@@ -432,7 +432,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                     <span><strong style="color: red;"><?php echo $this->escapeHtml($row['matched_patient']); ?></strong></span>
                                 </td>
                                 <td>
-                                    <a href="#" onclick="deleteAuditRecord(<?php echo js_escape($row['amid']); ?>,'<?php echo text($row['pat_name']); ?>')"><strong style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient']); ?></strong></a>
+                                    <a href="#" onclick="deleteAuditRecord(<?php echo js_escape($row['amid']); ?>,'<?php echo text($row['pat_name']); ?>')"><strong style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient'] ?? ''); ?></strong></a>
                                 </td>
                                 <td>
                                     <?php

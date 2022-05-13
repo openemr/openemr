@@ -44,7 +44,7 @@
                         <input type='text' id="form_proc_reason_low_<?php echo attr($i) ?>"
                                name='form_proc_reason_date_low[<?php echo attr($i); ?>]'
                                class="form-control code_date datepicker"
-                               value='<?php echo attr($oprow["reason_date_low"]); ?>'
+                               value='<?php echo attr($oprow["reason_date_low"] ?? ''); ?>'
                                title='<?php echo xla('yyyy-mm-dd HH:MM Start date for reason'); ?>' />
                     </div>
                     <div class="col-md-6 form-group">
@@ -52,7 +52,7 @@
                         <input type='text' id="form_proc_reason_high_<?php echo attr($i); ?>"
                                name='form_proc_reason_date_high[<?php echo attr($i); ?>]'
                                class="form-control code_date datepicker"
-                               value='<?php echo attr($oprow["reason_date_high"]); ?>'
+                               value='<?php echo attr($oprow["reason_date_high"] ?? ''); ?>'
                                title='<?php echo xla('yyyy-mm-dd HH:MM End date for reason'); ?>' />
                     </div>
                 </div>
