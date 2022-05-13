@@ -185,7 +185,7 @@ while ($type = sqlFetchArray($res)) {
                                                 <option value=""><?php echo xlt('Select Type'); ?></option>
                                                 <?php foreach ($ob_types as $type) {
                                                     $selected = '';
-                                                    if ($obj["ob_type"] == $type['option_id']) {
+                                                    if ($obj["ob_type"] ?? null == $type['option_id']) {
                                                         $selected = 'selected';
                                                     }
                                                     ?>
@@ -196,10 +196,12 @@ while ($type = sqlFetchArray($res)) {
                                         <div class="forms col-md-1">
                                             <?php
                                             $style = 'display: block';
-                                            if ($obj["code"] == '21612-7' || $obj["code"] == '8661-1') {
-                                                $style = 'display: block;';
-                                            } elseif (!empty($obj["code"]) && $obj["code"] == 'SS003') {
-                                                $style = 'display: none;';
+                                            if (!empty($obj)) {
+                                                if ($obj["code"]  == '21612-7' || $obj["code"] == '8661-1') {
+                                                    $style = 'display: block;';
+                                                } elseif ($obj["code"] == 'SS003') {
+                                                    $style = 'display: none;';
+                                                }
                                             }
                                             ?>
                                             <label id="ob_value_head_1" class="ob_value_head h5"><?php echo xlt('Value'); ?>:</label>
@@ -214,10 +216,12 @@ while ($type = sqlFetchArray($res)) {
                                         <div class="forms col-md-1">
                                             <?php
                                             $style = 'display: block';
-                                            if ((!empty($obj["code"]) && ($obj["code"] == 'SS003') || $obj["code"] == '8661-1')) {
-                                                $style = 'display: none;';
-                                            } elseif (($obj["code"] == '21612-7')) {
-                                                $style = 'display: block';
+                                            if (!empty($obj)) {
+                                                if ((!empty($obj["code"]) && ($obj["code"] == 'SS003') || $obj["code"] == '8661-1')) {
+                                                    $style = 'display: none;';
+                                                } elseif (($obj["code"] == '21612-7')) {
+                                                    $style = 'display: block';
+                                                }
                                             }
                                             ?>
                                             <label id="ob_unit_head_1" class="ob_unit_head h5" style="<?php echo $style; ?>"><?php echo xlt('Units'); ?>:</label>

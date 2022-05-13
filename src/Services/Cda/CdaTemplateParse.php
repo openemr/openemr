@@ -316,7 +316,7 @@ class CdaTemplateParse
 
             $this->templateData['field_name_value_array']['encounter'][$i]['extension'] = $entry['encounter']['id']['extension'];
             $this->templateData['field_name_value_array']['encounter'][$i]['root'] = $entry['encounter']['id']['root'];
-            $this->templateData['field_name_value_array']['encounter'][$i]['date'] = $entry['encounter']['effectiveTime']['value'] ?: $entry['encounter']['effectiveTime']['low']['value'] ?? null;
+            $this->templateData['field_name_value_array']['encounter'][$i]['date'] = ($entry['encounter']['effectiveTime']['value'] ?? null) ?: $entry['encounter']['effectiveTime']['low']['value'] ?? null;
             $this->templateData['field_name_value_array']['encounter'][$i]['date_end'] = $entry['encounter']['effectiveTime']['high']['value'] ?? null;
 
             $code_type = $entry['encounter']['code']['codeSystemName'] ?: $entry['encounter']['code']['codeSystem'] ?? '';
@@ -325,7 +325,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['encounter'][$i]['code_text'] = $code['code_text'];
 
-            $this->templateData['field_name_value_array']['encounter'][$i]['provider_npi'] = $entry['encounter']['performer']['assignedEntity']['id']['extension'];
+            $this->templateData['field_name_value_array']['encounter'][$i]['provider_npi'] = $entry['encounter']['performer']['assignedEntity']['id']['extension'] ?? null;
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_name'] = $entry['encounter']['performer']['assignedEntity']['assignedPerson']['name']['given']; // first
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_family'] = $entry['encounter']['performer']['assignedEntity']['assignedPerson']['name']['family']; // last
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_address'] = $entry['encounter']['performer']['assignedEntity']['addr']['streetAddressLine'];

@@ -715,7 +715,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $y++;
             } elseif ($table == 'care_plan') {
                 $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'];
-                $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'];
+                $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'] ?? null;
                 $arr_care_plan['care_plan'][$e]['root'] = $newdata['care_plan']['root'];
                 $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'];
                 $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];
