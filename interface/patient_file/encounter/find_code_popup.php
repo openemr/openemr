@@ -106,9 +106,11 @@ $focus = "document.theform.search_term.select();";
         }
         ?>
         <?php if (!empty($allowed_codes)) { ?>
-        <form class="form-inline" method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr_url($codetype) ?>'>
+        <form class="form-inline" method='post' name='theform' 
+            action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr_url($codetype) ?>'>
         <?php } else { ?>
-        <form class="form-inline" method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>'>
+        <form class="form-inline" method='post' name='theform' 
+            action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="form-group">
@@ -123,7 +125,8 @@ $focus = "document.theform.search_term.select();";
                             }
                             $selected_attr = ($default == $code) ? " selected='selected'" : '';
                             ?>
-                        <option value='<?php echo attr($code) ?>'<?php echo $selected_attr ?>><?php echo xlt($code_types[$code]['label']) ?></option>
+                        <option value='<?php echo attr($code) ?>'<?php
+                            echo $selected_attr ?>><?php echo xlt($code_types[$code]['label']) ?></option>
                         <?php } ?>
                     </select>
                     <?php
@@ -156,12 +159,15 @@ $focus = "document.theform.search_term.select();";
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
                     <div class="input-group-append">
-                        <button type='submit' class='btn btn-primary btn-search' name='bn_search' value='Search'></button>
+                        <button type='submit' class='btn btn-primary btn-search' 
+                            name='bn_search' value='Search'></button>
                         <?php if (!empty($target_element)) { ?>
                         <button type='button' class='btn btn-primary btn-delete' value=''
-                            onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)"></button>
+                            onclick="selcode_target('', '', '', '', 
+                                <?php echo attr_js($target_element); ?>)"></button>
                         <?php } else { ?>
-                        <button type='button' class='btn btn-danger btn-delete' value='' onclick="selcode('', '', '', '')"></button>
+                        <button type='button' class='btn btn-danger btn-delete' value='' 
+                            onclick="selcode('', '', '', '')"></button>
                         <?php } ?>
                     </div>
                 </div>
@@ -189,7 +195,8 @@ $focus = "document.theform.search_term.select();";
                             $selector = $row['selector'];
                             $desc = $row['name'];
                             $anchor = "<a href='' " .
-                                "onclick='return selcode(\"PROD\", " . attr_js($drug_id) . ", " . attr_js($selector) . ", " . attr_js($desc) . ")'>";
+                                "onclick='return selcode(\"PROD\", " .
+                                attr_js($drug_id) . ", " . attr_js($selector) . ", " . attr_js($desc) . ")'>";
                             echo "<tr>";
                             echo "<td>$anchor" . text($drug_id . ":" . $selector) . "</a></td>\n";
                             echo "<td>$anchor" . text($desc) . "</a></td>\n";
@@ -200,16 +207,22 @@ $focus = "document.theform.search_term.select();";
                             $itercode = $row['code'];
                             $itertext = ucfirst(strtolower(trim($row['code_text'])));
                             $dynCodeType = $form_code_type ?: $codetype;
-                            if (stripos($dynCodeType, 'VALUESET') !== false) {
+                            if (stripos($dynCodeType, 'VALUESET-OID') !== false) {
+                                $dynCodeType = 'OID';
+                            } elseif (stripos($dynCodeType, 'VALUESET') !== false) {
                                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
                             }
                             if (!empty($target_element)) {
-                                // add a 5th parameter to function to select the target element on the form for placing the code.
+                                // add a 5th parameter to function to select the target element
+                                // on the form for placing the code.
                                 $anchor = "<a href='' " .
-                                    "onclick='return selcode_target(" . attr_js($dynCodeType) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ", " . attr_js($target_element) . ")'>";
+                                    "onclick='return selcode_target(" . attr_js($dynCodeType) .
+                                    ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) .
+                                    ", " . attr_js($target_element) . ")'>";
                             } else {
                                 $anchor = "<a href='' " .
-                                    "onclick='return selcode(" . attr_js($dynCodeType) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ")'>";
+                                    "onclick='return selcode(" . attr_js($dynCodeType) .
+                                    ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ")'>";
                             }
                             echo " <tr>";
                             echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
