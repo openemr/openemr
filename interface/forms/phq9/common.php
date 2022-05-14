@@ -33,7 +33,7 @@ if ($viewmode == 'update') {
         var phq9_score = 0; // total score
 
     </script>
-    <?php $qno = 0; ?> // question number
+    <?php $qno = 0; ?>
 
     <script src="<?php echo $rootdir; ?>/forms/phq9/phq9_javasrc.js"></script>
 
