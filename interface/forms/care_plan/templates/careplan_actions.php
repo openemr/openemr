@@ -10,12 +10,19 @@
  */
 
 ?>
-<button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'>
+<button type="button" class="btn btn-primary btn-add btn-sm" 
+    onclick="duplicateRow(this.parentElement.parentElement.parentElement.parentElement);" 
+    title='<?php echo xla('Click here to duplicate the row'); ?>'>
     <?php echo xlt('Add'); ?>
 </button>
-<button class="btn btn-danger btn-sm" onclick="deleteRow(event, this.parentElement.parentElement.parentElement.parentElement.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
+<button class="btn btn-danger btn-sm" onclick="
+    el=this.parentElement.parentElement.parentElement.parentElement;
+    deleteRow(event, el.id, el.parentElement.getElementsByClassName('tb_row').length);"
+    title='<?php echo xla('Click here to delete the row'); ?>'>
     <?php echo xlt('Delete'); ?>
 </button>
 <button class="btn btn-secondary reason-code-btn btn-sm"
         title='<?php echo xla('Click here to provide an explanation for the observation value (or lack of value)'); ?>'
-        data-toggle-container="reason_code_<?php echo attr($key); ?>"><i class="fa fa-asterisk"></i> <?php echo xlt("Add Reason"); ?></button>
+        data-toggle-container="reason_code_<?php echo attr($key); ?>"><i class="fa fa-asterisk"></i> 
+        <?php echo xlt("Add Reason"); ?>
+</button>

@@ -355,7 +355,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
 
     if (isset($_POST['bn_save_exit'])) {
         formHeader("Redirecting....");
-        if ($alertmsg) {
+        if ($alertmsg ?? '') {
             $msg = xl('Transmit failed') . ': ' . $alertmsg;
             echo "\n<script>alert(" . js_escape($msg) . ")</script>\n";
         }
@@ -1496,11 +1496,14 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                 <legend class="bg-dark text-light"><?php echo xlt("Order Documents"); ?></legend>
                                 <div class="btn-group" role="group">
                                     <?php
-                                    foreach ($req as $reqdoc) {
-                                        $title = $reqdoc['name'];
-                                        $rpath = $reqdoc['url']; ?>
-                                        <a class="btn btn-outline-primary" href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
-                                    <?php } ?>
+                                    if (!empty($req)) {
+                                        foreach ($req as $reqdoc) {
+                                            $title = $reqdoc['name'];
+                                            $rpath = $reqdoc['url']; ?>
+                                            <a class="btn btn-outline-primary" 
+                                            href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
+                                        <?php }
+                                    } ?>                                    
                                     <a class='btn btn-success ml-1' href='#'
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
                                     <?php

@@ -86,8 +86,8 @@ function changeIds(class_val) {
     }
 }
 
-function deleteRow(event, rowId) {
-    if (rowId !== 'tb_row_1') {
+function deleteRow(event, rowId, rowCount) {
+    if (rowCount > 1) {
         let elem = document.getElementById(rowId);
         elem.parentNode.removeChild(elem);
     }
