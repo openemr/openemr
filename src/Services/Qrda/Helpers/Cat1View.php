@@ -161,7 +161,7 @@ trait Cat1View
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
         // Not all results will have code
-        $oid = $result['system'] ?? $result['codeSystem'];
+        $oid = $result['system'] ?? $result['codeSystem'] ?? '';
         if (!empty($result['code']) && !empty($oid)) {
             $system = $this->get_code_system_for_oid($oid) ?: $result['codeSystem'];
             return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid

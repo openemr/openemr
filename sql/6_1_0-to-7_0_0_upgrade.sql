@@ -653,6 +653,10 @@ INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_
 DROP TABLE `temp_table_one`;
 #EndIf
 
+#IfNotRow2D list_options list_id issue_subtypes option_id diagnosis
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','diagnosis','Diagnosis',40);
+#EndIf
+
 #IfColumn patient_data deceased_date
 SET @currentSQLMode = (SELECT @@sql_mode);
 SET sql_mode = '';

@@ -22,6 +22,7 @@ use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
+use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\CodeTypesService;
 
 class CarecoordinationTable extends AbstractTableGateway
@@ -34,6 +35,7 @@ class CarecoordinationTable extends AbstractTableGateway
     private $parseTemplates;
     private $codeService;
     private $importService;
+    protected $validateDocument;
 
     public function __construct()
     {
@@ -42,6 +44,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->parseTemplates = new CdaTemplateParse();
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
+        $this->validateDocument = new CdaValidateDocuments();
     }
 
     /*
@@ -196,13 +199,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 error_log("No QDMs for patient: " . $name);
                 return true;
             }
-            $valid = $this->parseTemplates->validateXmlXsd((string)$xml_content_new, 'qrda');
+            $valid = $this->validateDocument->validateXmlXsd((string)$xml_content_new, 'qrda1');
             if ($valid) {
                 // Offset to Patient Data section
                 $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
             }
         } else {
-            $valid = $this->parseTemplates->validateXmlXsd((string)$xml_content_new, 'ccda');
+            $valid = $this->validateDocument->validateXmlXsd((string)$xml_content_new, 'ccda');
             if ($valid) {
                 $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
             }
@@ -712,7 +715,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $y++;
             } elseif ($table == 'care_plan') {
                 $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'];
-                $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'];
+                $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'] ?? null;
                 $arr_care_plan['care_plan'][$e]['root'] = $newdata['care_plan']['root'];
                 $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'];
                 $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];

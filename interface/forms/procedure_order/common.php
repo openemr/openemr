@@ -39,7 +39,7 @@ $row = array(
     //'date_collected' => date('Y-m-d H:i'),
 );
 
-if ($_POST['bn_save_ereq']) { //labcorp
+if ($_POST['bn_save_ereq'] ?? null) { //labcorp
     $_POST['bn_xmit'] = "transmit";
 }
 
@@ -51,11 +51,11 @@ function get_lab_name($id): string
 {
     global $gbl_lab_title, $gbl_lab, $gbl_client_acct, $gbl_use_codes;
     $tmp = sqlQuery("SELECT name, send_fac_id as clientid, npi FROM procedure_providers Where ppid = ?", array($id));
-    $gbl_lab = stripos($tmp['name'], 'quest') !== false ? 'quest' : 'ammon';
-    $gbl_lab = stripos($tmp['name'], 'labcorp') !== false ? 'labcorp' : $gbl_lab;
-    $gbl_lab = stripos($tmp['name'], 'clarity') !== false ? 'clarity' : $gbl_lab;
-    $gbl_lab_title = trim($tmp['name']);
-    $gbl_client_acct = trim($tmp['clientid']);
+    $gbl_lab = stripos($tmp['name'] ?? '', 'quest') !== false ? 'quest' : 'ammon';
+    $gbl_lab = stripos($tmp['name'] ?? '', 'labcorp') !== false ? 'labcorp' : $gbl_lab;
+    $gbl_lab = stripos($tmp['name'] ?? '', 'clarity') !== false ? 'clarity' : $gbl_lab;
+    $gbl_lab_title = trim($tmp['name'] ?? '');
+    $gbl_client_acct = trim($tmp['clientid'] ?? '');
 
     return $gbl_lab;
 }
@@ -124,7 +124,7 @@ $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 //
-if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
+if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -478,8 +478,8 @@ $enrow = sqlQuery(
     array($pid, $encounter)
 );
 
-$bill_type = $row['billing_type'];
-$gbl_lab = get_lab_name($row['lab_id']);
+$bill_type = $row['billing_type'] ?? '';
+$gbl_lab = get_lab_name($row['lab_id'] ?? '');
 
 if ($formid) {
     $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM facility as f " .
@@ -488,9 +488,9 @@ if ($formid) {
     $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM users as u " .
         "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($row['provider_id']));
 }
-$account = $location['facility_code'];
-$account_name = $location['name'];
-$account_facility = $location['id'];
+$account = $location['facility_code'] ?? '';
+$account_name = $location['name'] ?? '';
+$account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
     $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name(get_lab_name($row['lab_id'])) . "/logs/";
 
@@ -514,7 +514,7 @@ if (!empty($row['lab_id'])) {
     <script>
         // Some JS Globals that will be useful.
         var gbl_formseq;
-        var currentLabId = <?php echo js_escape($row['lab_id']); ?>;
+        var currentLabId = <?php echo js_escape($row['lab_id'] ?? ''); ?>;
         var currentLab = <?php echo js_escape($gbl_lab); ?>;
         var currentLabTitle = <?php echo js_escape($gbl_lab_title); ?>;
         var viewmode = <?php echo !empty($viewmode) ? 1 : 0 ?>;
@@ -900,7 +900,7 @@ if (!empty($row['lab_id'])) {
                 })
                 return false;
             });
-            <?php if ($row['date_transmitted']) { ?>
+            <?php if ($row['date_transmitted'] ?? '') { ?>
             $("#summary").collapse("toggle");
             <?php } ?>
         });
@@ -1068,7 +1068,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                     $ppres = sqlStatement("SELECT `ppid`, name FROM `procedure_providers` WHERE `active` = 1 ORDER BY name, ppid");
                                     while ($pprow = sqlFetchArray($ppres)) {
                                         echo "<option value='" . attr($pprow['ppid']) . "'";
-                                        if ($pprow['ppid'] == $row['lab_id']) {
+                                        if ($pprow['ppid'] == $row['lab_id'] ?? '') {
                                             echo " selected";
                                             $gbl_lab = get_lab_name($pprow['ppid']);
                                         }
@@ -1088,7 +1088,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                     'field_id' => 'order_psc',
                                     'list_id' => 'boolean'
                                 );
-                                generate_form_field($pscOrderOpts, $row['order_psc']);
+                                generate_form_field($pscOrderOpts, $row['order_psc'] ?? '');
                                 ?>
                             </div>
                             <label for="form_date_collected" class="col-form-label col-md-2"><?php echo xlt('Time Collected'); ?></label>
@@ -1097,7 +1097,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                     type='text'
                                     name='form_date_collected'
                                     id='form_date_collected'
-                                    value="<?php echo attr(substr($row['date_collected'], 0, 16)); ?>"
+                                    value="<?php echo attr(substr($row['date_collected'] ?? '', 0, 16)); ?>"
                                     title="<?php echo xla('Date and time that the sample was collected'); ?>" />
                             </div>
                             <label for="form_account_facility" class="col-form-label col-md-2 labcorp"><?php echo xlt('Sending From'); ?></label>
@@ -1133,19 +1133,19 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'specimen_fasting',
-                                    'list_id' => 'yesno'), $row['specimen_fasting']);
+                                    'list_id' => 'yesno'), $row['specimen_fasting'] ?? '');
                                 ?>
                             </div>
                             <label for="collector_id" class="col-form-label col-md-2"><?php echo xlt('Collected By'); ?></label>
                             <div class="col-md-2">
-                                <?php generate_form_field(array('data_type' => 10, 'field_id' => 'collector_id'), $row['collector_id']); ?>
+                                <?php generate_form_field(array('data_type' => 10, 'field_id' => 'collector_id'), $row['collector_id'] ?? ''); ?>
                             </div>
                             <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
                             <div class="col-md-2">
                                 <select name='form_order_abn' id='form_order_abn' class='form-control'>
-                                    <option value="not_required" <?php echo $row['order_abn'] === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
-                                    <option value="required" <?php echo $row['order_abn'] === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
-                                    <option value="signed" <?php echo $row['order_abn'] === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
+                                    <option value="not_required" <?php echo $row['order_abn'] ?? '' === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
+                                    <option value="required" <?php echo $row['order_abn'] ?? '' === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
+                                    <option value="signed" <?php echo $row['order_abn'] ?? '' === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
                                 </select>
                             </div>
                             <div class="clearfix"></div>
@@ -1156,7 +1156,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority',
-                                    'list_id' => 'ord_priority'), $row['order_priority']);
+                                    'list_id' => 'ord_priority'), $row['order_priority'] ?? '');
                                 ?>
                             </div>
                             <label for="form_order_status"
@@ -1164,7 +1164,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_status',
-                                    'list_id' => 'ord_status'), $row['order_status']);
+                                    'list_id' => 'ord_status'), $row['order_status'] ?? '');
                                 ?>
                             </div>
                             <label for="form_billing_type"
@@ -1172,7 +1172,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'billing_type',
-                                    'list_id' => 'procedure_billing'), $row['billing_type']);
+                                    'list_id' => 'procedure_billing'), $row['billing_type'] ?? '');
                                 ?>
                             </div>
                             <div class="clearfix"></div>
@@ -1187,7 +1187,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                     'field_id' => 'history_order',
                                     'list_id' => 'boolean'
                                 );
-                                generate_form_field($historyOrderOpts, $row['history_order']); ?>
+                                generate_form_field($historyOrderOpts, $row['history_order'] ?? ''); ?>
                             </div>
                             <div class="clearfix"></div>
                         </div>
@@ -1195,12 +1195,12 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                             <div class="col-md-6">
                                 <label for='form_clinical_hx' class='col-form-label'><?php echo xlt('Clinical History'); ?></label>
                                 <textarea class='form-control text' rows='2' cols='60' wrap='hard'
-                                    name="form_clinical_hx" id="form_clinical_hx"><?php echo text($row['clinical_hx']); ?></textarea>
+                                    name="form_clinical_hx" id="form_clinical_hx"><?php echo text($row['clinical_hx'] ?? ''); ?></textarea>
                             </div>
                             <div class="col-md-6">
                                 <label for='form_data_ordered' class='col-form-label'><?php echo xlt('Patient Instructions'); ?></label>
                                 <textarea class='form-control text' rows='2' cols="60" wrap="hard" id='form_patient_instructions'
-                                    name='form_patient_instructions'><?php echo text($row['patient_instructions']) ?></textarea>
+                                    name='form_patient_instructions'><?php echo text($row['patient_instructions'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -1210,7 +1210,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                             ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
                         echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . $t; ?>
                     </legend>
-                    <?php if ($order_data) { ?>
+                    <?php if ($order_data ?? null) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">
                             <button type="button" class="close" data-dismiss="alert"><span class="text-dark">&times;</span></button>
                             <p>
@@ -1239,7 +1239,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                     }
                                 } ?>
                                 <input class='form-control c-hand' type='text' name='form_order_diagnosis' id='form_order_diagnosis'
-                                    value='<?php echo $problem_diags ? attr($problem_diags) : attr($row['order_diagnosis']) ?>'
+                                    value='<?php echo $problem_diags ?? '' ? attr($problem_diags) : attr($row['order_diagnosis'] ?? '') ?>'
                                     onclick='sel_related(this.name)'
                                     title='<?php echo xla('Required Primary Diagnosis for Order. This will be automatically added to any missing test order diagnosis.'); ?>'
                                     readonly onfocus='this.blur()' />
@@ -1250,7 +1250,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                 <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
                                     <?php foreach ($procedure_order_type as $ordered_types) { ?>
                                         <option value="<?php echo attr($ordered_types['option_id']); ?>"
-                                            <?php echo $ordered_types['option_id'] == $row['procedure_order_type'] ? " selected" : ""; ?>><?php echo text(xl_list_label($ordered_types['title'])); ?>
+                                            <?php echo $ordered_types['option_id'] == ($row['procedure_order_type'] ?? '') ? " selected" : ""; ?>><?php echo text(xl_list_label($ordered_types['title'])); ?>
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -1370,7 +1370,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                         <div class="table-responsive qoe-table-sel-procedure" id='qoetable[<?php echo attr($i); ?>]'>
                                             <?php
                                             $qoe_init_javascript = '';
-                                            echo generate_qoe_html($ptid, $formid, null, $i);
+                                            echo generate_qoe_html($ptid ?? '', $formid, null, $i);
                                             if ($qoe_init_javascript) {
                                                 echo "<script>$qoe_init_javascript</script>";
                                             }
@@ -1410,13 +1410,13 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                 <?php } ?>
                                 <tbody>
                                 <tr>
-                                    <input type='hidden' name='form_proc_code[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_code']) ?>' />
+                                    <input type='hidden' name='form_proc_code[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_code'] ?? '') ?>' />
                                     <td class="itemDelete"><i class="fa fa-trash fa-lg"></i></td>
                                     <td class="itemTransport quest">
                                         <input class="itemTransport form-control" readonly
                                             name='form_transport[<?php echo $i; ?>]' onclick='getDetails(event, <?php echo $i; ?>)'
                                             placeholder='<?php echo xla('Click to review the Directory of Service for this test'); ?>'
-                                            value='<?php echo attr($oprow['transport']) ?>'>
+                                            value='<?php echo attr($oprow['transport'] ?? '') ?>'>
                                     </td>
                                     <td class="procedure-div">
                                         <?php if (empty($formid) || empty($oprow['procedure_order_title'])) : ?>
@@ -1429,7 +1429,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                         <div class='input-group-prepend'>
                                             <button type="button" class='btn btn-secondary btn-search' onclick='selectProcedureCode(<?php echo $i; ?>)' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
                                             </button>
-                                            <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_type']); ?>' />
+                                            <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_type'] ?? ''); ?>' />
                                             <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
                                                 value='<?php echo attr($oprow['procedure_name']) ?>'
                                                 onclick="sel_proc_type(<?php echo $i; ?>)"
@@ -1449,7 +1449,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                         </div>
                                         <input class='form-control c-hand' type='text'
                                             name='form_proc_type_diag[<?php echo $i; ?>]'
-                                            value='<?php echo attr($oprow['diagnoses']) ?>'
+                                            value='<?php echo attr($oprow['diagnoses'] ?? '') ?>'
                                             onclick='sel_related(this.name)'
                                             title='<?php echo xla('Click to add diagnosis for this test'); ?>'
                                             onfocus='this.blur()' readonly />
@@ -1523,7 +1523,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                 if (!empty($order_log)) {
                                     $alertmsg = $order_log;
                                 } else {
-                                    $order_log = $alertmsg;
+                                    $order_log = $alertmsg ?? '';
                                 }
                                 if (!empty($alertmsg)) {
                                     echo nl2br(text($alertmsg));

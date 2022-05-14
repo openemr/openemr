@@ -183,76 +183,6 @@ class CdaTemplateParse
         return $this->templateData ?? [];
     }
 
-    public function validateXmlXsd($document, $type)
-    {
-        libxml_use_internal_errors(true);
-        $dom = new DomDocument();
-        $dom->loadXML($document);
-        $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
-        $result = $dom->schemaValidate($xsd);
-        // TODO phase implementation for schematron
-        //$this->validateSchematron($document, $type);
-        if ($result) {
-            return true;
-        } else {
-            $errors = libxml_get_errors();
-            foreach ($errors as $error) {
-                 error_log($this->formatXsdError($error));
-            }
-            libxml_clear_errors();
-
-            return false;
-        }
-    }
-
-    private function validateSchematron($xml, $type = 'ccda')
-    {
-        libxml_use_internal_errors(true);
-        $schema_qrda = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda1/2022_CMS_QRDA_I.sch';
-        $schema_qrda3 = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/qrda3/2022_CMS_QRDA_III.sch';
-        $schema = __DIR__ . '/../../../interface/modules/zend_modules/public/schematrons/ccda/Consolidation.sch';
-
-        if (!$type == 'qrda') {
-            $schema = $schema_qrda;
-        }
-
-        try {
-            $schematron = new Schematron();
-            $schematron->setOptions(Schematron::ALLOW_MISSING_SCHEMA_ELEMENT);
-            $schematron->load($schema);
-            $document = new DOMDocument();
-            $document->loadXML($xml);
-            $result = $schematron->validate($document, Schematron::RESULT_SIMPLE);
-            return $result;
-        } catch (SchematronException $e) {
-            $e = $e->getMessage();
-            error_log($e);
-        }
-    }
-
-    private function formatXsdError($error): string
-    {
-        $error_str = "\n";
-        switch ($error->level) {
-            case LIBXML_ERR_WARNING:
-                $error_str .= "Warning $error->code: ";
-                break;
-            case LIBXML_ERR_ERROR:
-                $error_str .= "Error $error->code: ";
-                break;
-            case LIBXML_ERR_FATAL:
-                $error_str .= "Fatal Error $error->code: ";
-                break;
-        }
-        $error_str .= trim($error->message);
-        if ($error->file) {
-            $error_str .=    " in $error->file";
-        }
-        $error_str .= " on line $error->line\n";
-
-        return $error_str;
-    }
-
     public function fetchDeceasedObservationData($entry)
     {
         // handled in patient data parse.
@@ -386,7 +316,7 @@ class CdaTemplateParse
 
             $this->templateData['field_name_value_array']['encounter'][$i]['extension'] = $entry['encounter']['id']['extension'];
             $this->templateData['field_name_value_array']['encounter'][$i]['root'] = $entry['encounter']['id']['root'];
-            $this->templateData['field_name_value_array']['encounter'][$i]['date'] = $entry['encounter']['effectiveTime']['value'] ?: $entry['encounter']['effectiveTime']['low']['value'] ?? null;
+            $this->templateData['field_name_value_array']['encounter'][$i]['date'] = ($entry['encounter']['effectiveTime']['value'] ?? null) ?: $entry['encounter']['effectiveTime']['low']['value'] ?? null;
             $this->templateData['field_name_value_array']['encounter'][$i]['date_end'] = $entry['encounter']['effectiveTime']['high']['value'] ?? null;
 
             $code_type = $entry['encounter']['code']['codeSystemName'] ?: $entry['encounter']['code']['codeSystem'] ?? '';
@@ -395,7 +325,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['encounter'][$i]['code_text'] = $code['code_text'];
 
-            $this->templateData['field_name_value_array']['encounter'][$i]['provider_npi'] = $entry['encounter']['performer']['assignedEntity']['id']['extension'];
+            $this->templateData['field_name_value_array']['encounter'][$i]['provider_npi'] = $entry['encounter']['performer']['assignedEntity']['id']['extension'] ?? null;
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_name'] = $entry['encounter']['performer']['assignedEntity']['assignedPerson']['name']['given']; // first
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_family'] = $entry['encounter']['performer']['assignedEntity']['assignedPerson']['name']['family']; // last
             $this->templateData['field_name_value_array']['encounter'][$i]['provider_address'] = $entry['encounter']['performer']['assignedEntity']['addr']['streetAddressLine'];
