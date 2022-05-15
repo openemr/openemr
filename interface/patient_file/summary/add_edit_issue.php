@@ -185,13 +185,13 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
             foreach ($displayCodeSet as $code) {
                 $text = getCodeText($code);
                 echo "listBoxOptionSets[" .
-                 attr($akey) .
-                  "][listBoxOptionSets[" .
-                   attr($akey) .
-                    "].length] = new Option(" .
-                     js_escape($text) .
-                      ", " . js_escape($code) .
-                       ", false, false);\n";
+                attr($akey) .
+                "][listBoxOptionSets[" .
+                attr($akey) .
+                "].length] = new Option(" .
+                js_escape($text) .
+                ", " . js_escape($code) .
+                ", false, false);\n";
             }
         }
     }
