@@ -33,6 +33,11 @@ class MeasureResultsTest extends TestCase
         $serviceHealth = $this->client->getHealth();
         if ($serviceHealth['uptime'] <= 0) {
             $this->client->start();
+            sleep(2); // give cpu a rest
+        }
+        if ($serviceHealth['uptime'] <= 0) {
+            $msg = xlt("Can not complete measure results test. Node Service is not running.");
+            throw new \Exception($msg);
         }
 
         $this->measureOptions = MeasureService::fetchMeasureOptions();

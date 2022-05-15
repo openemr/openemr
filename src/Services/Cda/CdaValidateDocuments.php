@@ -61,7 +61,7 @@ class CdaValidateDocuments
                 $cmd = $system->escapeshellcmd("$command " . $path . "/app.js");
                 exec($cmd . " > /dev/null &");
             }
-
+            sleep(2); // give cpu a rest
             $serverActive = socket_connect($socket, "localhost", $port);
             if ($serverActive === false) {
                 error_log("Failed to start and connect to local schematron service server on port 6662");
