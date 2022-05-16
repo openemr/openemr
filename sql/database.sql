@@ -3155,7 +3155,7 @@ CREATE TABLE `insurance_type_codes` (
   `id` int(2) NOT NULL,
   `type` varchar(60) NOT NULL,
   `claim_type` text,
-  `cqm_sop` int(5) NOT NULL COMMENT 'HL7 Source of Payment for eCQMs'
+  `cqm_sop` int(5) NOT NULL COMMENT 'HL7 Source of Payment for eCQMs',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
