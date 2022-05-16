@@ -132,7 +132,10 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
 
     $codeList2 = array();
 
-    $issueCodes2 = sqlStatement("SELECT diagnosis FROM lists WHERE pid = ? AND enddate is NULL AND type IN ($qs2)", $sqlParameters2);
+    $issueCodes2 = sqlStatement(
+        "SELECT diagnosis FROM lists WHERE pid = ? AND enddate is NULL AND type IN ($qs2)",
+        $sqlParameters2
+    );
 
     while ($issueCodesRow2 = sqlFetchArray($issueCodes2)) {
         if ($issueCodesRow2['diagnosis'] != "") {
@@ -181,7 +184,14 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
         if ($displayCodeSet) {
             foreach ($displayCodeSet as $code) {
                 $text = getCodeText($code);
-                echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option(" . js_escape($text) . ", " . js_escape($code) . ", false, false);\n";
+                echo "listBoxOptionSets[" .
+                    attr($akey) .
+                    "][listBoxOptionSets[" .
+                    attr($akey) .
+                    "].length] = new Option(" .
+                    js_escape($text) .
+                    ", " . js_escape($code) .
+                    ", false, false);\n";
             }
         }
     }
@@ -240,15 +250,15 @@ if (!empty($_POST['form_save'])) {
 
     $issueRecord = [
         'type' => $text_type
-        // I don't like how these date columns use this quasi 'NULL' value but its how the underlying service works...
-        ,'begdate' => $form_begin ?? "NULL"
-        ,'enddate' => $form_end ?? "NULL"
-        ,'returndate' => $form_return ?? "NULL"
+        ,'begdate' => $form_begin ?? null
+        ,'enddate' => $form_end ?? null
+        ,'returndate' => $form_return ?? null
         ,'erx_uploaded' => '0'
         ,'id' => $issue ?? null
         ,'pid' => $thispid
     ];
-    // TODO: we could simplify this array by just adding 'form_' onto everything but not all of the fields precisely match so that would need to be fixed up
+    // TODO: we could simplify this array by just adding 'form_' onto everything
+    // but not all of the fields precisely match so that would need to be fixed up
     $issue_form_fields = [
         'title' => 'form_title',
         'udi' => 'form_udi',
@@ -400,9 +410,16 @@ function getCodeText($code)
         foreach ($ISSUE_TYPES as $key => $value) {
             echo " aitypes[" . attr($i) . "] = " . js_escape($value[3]) . ";\n";
             echo " aopts[" . attr($i) . "] = new Array();\n";
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1", array($key . "_issue_list"));
+            $qry = sqlStatement(
+                "SELECT * FROM list_options WHERE list_id = ? AND activity = 1",
+                array($key . "_issue_list")
+            );
             while ($res = sqlFetchArray($qry)) {
-                echo " opt = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
+                echo " opt = new Option(" .
+                    js_escape(xl_list_label(trim($res['title']))) .
+                    ", " .
+                    js_escape(trim($res['option_id'])) .
+                    ", false, false);\n";
                 echo " aopts[" . attr($i) . "][aopts[" . attr($i) . "].length] = opt\n";
                 if ($res['codes']) {
                     $codes = explode(";", $res['codes']);
