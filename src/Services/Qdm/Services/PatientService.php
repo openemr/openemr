@@ -57,13 +57,15 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     P.country_code,
                     P.deceased_date,
                     P.deceased_reason,
-                    INS.date AS payer_eff_date,
-                    INS.policy_number AS payer_code
+                    INSDATA.date AS payer_eff_date,
+                    INSTYPECODES.cqm_sop AS payer_code
             FROM patient_data P
             LEFT JOIN list_options RACE ON RACE.list_id = 'race' AND P.race = RACE.option_id
             LEFT JOIN list_options ETHN ON ETHN.list_id = 'ethnicity' AND P.ethnicity = ETHN.option_id
             LEFT JOIN list_options SEX ON SEX.list_id = 'sex' AND P.sex = SEX.option_id
-            LEFT JOIN insurance_data INS ON P.pid = INS.pid AND INS.type = 'primary'
+            LEFT JOIN insurance_data INSDATA ON P.pid = INSDATA.pid AND INSDATA.type = 'primary'
+            LEFT JOIN insurance_companies INSCO ON INSDATA.provider = INSCO.id
+            LEFT JOIN insurance_type_codes INSTYPECODES ON INSCO.ins_type_code = INSTYPECODES.id
             ";
         return $sql;
     }

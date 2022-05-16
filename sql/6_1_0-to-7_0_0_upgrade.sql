@@ -663,3 +663,34 @@ SET sql_mode = '';
 UPDATE `patient_data` SET `deceased_date` = NULL WHERE `deceased_date` = '0000-00-00 00:00:00';
 SET sql_mode = @currentSQLMode;
 #EndIf
+
+#IfMissingColumn insurance_type_codes cqm_sop
+ALTER TABLE insurance_type_codes ADD COLUMN `cqm_sop` INT NOT NULL COMMENT 'HL7 Source of Payment for eCQMs';
+ALTER TABLE insurance_companies MODIFY COLUMN `ins_type_code` INT COMMENT 'id of the insurance_type_codes table';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '9' WHERE `id` = '1';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '1' WHERE `id` = '2';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '2' WHERE `id` = '3';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '3221' WHERE `id` = '4';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '311' WHERE `id` = '5';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '6' WHERE `id` = '6';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '3' WHERE `id` = '7';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '81' WHERE `id` = '8';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '92' WHERE `id` = '9';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '92' WHERE `id` = '10';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '3712' WHERE `id` = '11';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '3713' WHERE `id` = '12';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '514' WHERE `id` = '13';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '52' WHERE `id` = '14';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '111' WHERE `id` = '15';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '96' WHERE `id` = '16';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '513' WHERE `id` = '17';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '93' WHERE `id` = '18';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '3711' WHERE `id` = '19';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '97' WHERE `id` = '20';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '97' WHERE `id` = '21';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '39' WHERE `id` = '22';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '341' WHERE `id` = '23';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '321' WHERE `id` = '24';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '95' WHERE `id` = '25';
+UPDATE `insurance_type_codes` SET `cqm_sop` = '98' WHERE `id` = '26';
+#EndIf

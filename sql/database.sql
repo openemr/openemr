@@ -3068,7 +3068,7 @@ CREATE TABLE `insurance_companies` (
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
-  `ins_type_code` int(11) default NULL,
+  `ins_type_code` int(11) default NULL COMMENT 'id of the insurance_type_codes table',
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) default NULL,
@@ -3155,6 +3155,7 @@ CREATE TABLE `insurance_type_codes` (
   `id` int(2) NOT NULL,
   `type` varchar(60) NOT NULL,
   `claim_type` text,
+  `cqm_sop` int(5) NOT NULL COMMENT 'HL7 Source of Payment for eCQMs'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
@@ -3162,32 +3163,32 @@ CREATE TABLE `insurance_type_codes` (
 -- Inserting data for table `insurance_type_codes`
 --
 
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('1','Other HCFA','16');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('2','Medicare Part B','MB');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('3','Medicaid','MC');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('4','ChampUSVA','CH');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('5','ChampUS','CH');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('6','Blue Cross Blue Shield','BL');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('7','FECA','16');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('8','Self Pay','09');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('9','Central Certification','10');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('10','Other Non-Federal Programs','11');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('11','Preferred Provider Organization (PPO)','12');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('12','Point of Service (POS)','13');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('13','Exclusive Provider Organization (EPO)','14');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('14','Indemnity Insurance','15');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('15','Health Maintenance Organization (HMO) Medicare Risk','16');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('16','Automobile Medical','AM');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('17','Commercial Insurance Co.','CI');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('18','Disability','DS');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('19','Health Maintenance Organization','HM');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('20','Liability','LI');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('21','Liability Medical','LM');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('22','Other Federal Program','OF');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V','TV');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
-INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('1','Other HCFA','16','9');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('2','Medicare Part B','MB','1');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('3','Medicaid','MC','2');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('4','ChampUSVA','CH','3221');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('5','ChampUS','CH','311');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('6','Blue Cross Blue Shield','BL','6');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('7','FECA','16','3');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('8','Self Pay','09','81');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('9','Central Certification','10','92');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('10','Other Non-Federal Programs','11','92');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('11','Preferred Provider Organization (PPO)','12','3712');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('12','Point of Service (POS)','13','3713');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('13','Exclusive Provider Organization (EPO)','14','514');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('14','Indemnity Insurance','15','52');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('15','Health Maintenance Organization (HMO) Medicare Risk','16','111');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('16','Automobile Medical','AM','96');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('17','Commercial Insurance Co.','CI','513');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('18','Disability','DS','93');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('19','Health Maintenance Organization','HM','3711');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('20','Liability','LI','97');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('21','Liability Medical','LM','97');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('22','Other Federal Program','OF','39');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('23','Title V','TV','341');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('24','Veterans Administration Plan','VA','321');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('25','Workers Compensation Health Plan','WC','95');
+INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`,`cqm_sop`) VALUES ('26','Mutually Defined','ZZ','98');
 
 -- --------------------------------------------------------
 
