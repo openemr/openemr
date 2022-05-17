@@ -1158,7 +1158,10 @@ $use_validate_js = $GLOBALS['new_validate'];
             var fval = $('#form_' + flds[i]).val();
             duplicateFieldsArray['#form_' + flds[i]] = fval;
         }
-
+        $(".sel2").select2({
+            <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+        });
+        
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
