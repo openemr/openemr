@@ -1588,14 +1588,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $temp_value = $convTempValue;
                 $temp_unit = 'Cel';
             } else {
+                // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
+                // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
                 $temp = US_weight($row['weight'], 1);
                 $tempArr = explode(" ", $temp);
                 $weight_value = (float)$tempArr[0];
-                $weight_unit = 'lb';
+                $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];
-                $height_unit = 'in';
+                $height_unit = '[in_i]'; // inches international
                 $temp_value = (float)$row['temperature'];
-                $temp_unit = 'degF';
+                $temp_unit = '[degF]'; // degrees fahrenheit
             }
 
             $vitals .= "<vitals>
@@ -2220,12 +2222,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $file_name = UuidRegistry::uuidToString($binaryUuid);
         $mimeType = "text/xml";
 
-        $higherLevelPath = "";
-        $pathDepth = 1;
-        $owner = $_SESSION['user_id'];  // userID of who is creating the document...
-        $tmpFile = null;
-        $expirationDate = null;
-
         try {
             \sqlBeginTrans();
 
@@ -2235,12 +2231,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $categoryId,
                 $file_name,
                 $mimeType,
-                $content,
-                $higherLevelPath,
-                $pathDepth,
-                $owner,
-                $tmpFile,
-                $expirationDate,
+                $content
             );
             if (!empty($result)) {
                 throw new \RuntimeException("Failed to save document for ccda. Message: " . $result);

@@ -13,8 +13,10 @@
 
 namespace Carecoordination\Model;
 
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\ListService;
 
 class CcdaGlobalsConfiguration
 {
@@ -43,6 +45,7 @@ class CcdaGlobalsConfiguration
             xl('The order of clinical information sections to display when viewing a CCD-A document'),
             true
         );
+        $setting->addFieldOption(GlobalSetting::DATA_TYPE_OPTION_LIST_ID, 'ccda-sections');
         $service->appendToSection(self::GLOBAL_SECTION_NAME, self::GLOBAL_KEY_CCDA_SORT_ORDER, $setting);
     }
 
@@ -53,10 +56,28 @@ class CcdaGlobalsConfiguration
 
     public function getSectionDisplayOrder(): array
     {
+        $codeService = new CodeTypesService();
         $sortOrder = array();
+        $sortOrderIndexesByKeys = [];
         if (!empty($GLOBALS[self::GLOBAL_KEY_CCDA_SORT_ORDER])) {
             $sortString = $GLOBALS[self::GLOBAL_KEY_CCDA_SORT_ORDER] ?? "";
             $sortOrder = explode(";", $sortString);
+            $sortOrderIndexesByKeys = array_combine($sortOrder, array_keys($sortOrder));
+        }
+        if (!empty($sortOrder)) {
+            // now we are going to grab our keys from the list service
+            $listService = new ListService();
+            // should be less than 50 items, better to just use memory than try to hit the db off a search
+            $sections = $listService->getOptionsByListName('ccda-sections');
+            foreach ($sections as $section) {
+                $option_id = $section['option_id'] ?? 'undefined';
+                if (isset($sortOrderIndexesByKeys[$option_id])) {
+                    $sortOrderIndex = $sortOrderIndexesByKeys[$option_id];
+                    $oid = $section['codes'];
+                    $parsedCode = $codeService->parseCode($oid);
+                    $sortOrder[$sortOrderIndex] = $parsedCode['code'];
+                }
+            }
         }
         return $sortOrder;
     }

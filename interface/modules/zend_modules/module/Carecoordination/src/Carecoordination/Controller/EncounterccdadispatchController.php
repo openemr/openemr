@@ -16,11 +16,15 @@ namespace Carecoordination\Controller;
 use Application\Listener\Listener;
 use Carecoordination\Controller\EncountermanagerController;
 use Carecoordination\Model\CcdaGenerator;
+use Carecoordination\Model\CcdaServiceConnectionException;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use DOMDocument;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Exception;
+use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Http\StatusCode;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
@@ -165,16 +169,65 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         }
 
-        $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
-        if (!empty($combination)) {
-            $arr = explode('|', $combination);
-            foreach ($arr as $row) {
-                $arr = explode('_', $row);
-                $this->patient_id = $arr[0];
-                $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
-                if ($this->latest_ccda) {
-                    $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+        try {
+            $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
+            if (!empty($combination)) {
+                $arr = explode('|', $combination);
+                foreach ($arr as $row) {
+                    $arr = explode('_', $row);
+                    $this->patient_id = $arr[0];
+                    $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
+                    if ($this->latest_ccda) {
+                        $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+                    }
+                    $result = $ccdaGenerator->generate(
+                        $this->patient_id,
+                        $this->encounter_id,
+                        $sent_by,
+                        $send,
+                        $view,
+                        $emr_transfer,
+                        $this->components,
+                        $this->sections,
+                        $this->recipients,
+                        $this->params,
+                        $this->document_type
+                    );
+                    $content = $result->getContent();
+                    unset($result); // clear out our memory here as $content is a big string
+                    if (!$view) {
+                        if ($hie_hook) {
+                            echo $content;
+                        } else {
+                            echo $this->listenerObject::z_xlt("Queued for Transfer");
+                        }
+                    }
                 }
+
+                if ($view && !$downloadccda) {
+                    $xml = simplexml_load_string($content);
+                    $xsl = new DOMDocument();
+                    // cda.xsl is self contained with bootstrap and jquery.
+                    // cda-web.xsl when used, is for referencing styles from internet.
+                    $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
+                    $proc = new XSLTProcessor();
+                    $proc->importStyleSheet($xsl); // attach the xsl rules
+                    $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
+                    $proc->transformToURI($xml, $outputFile);
+
+                    $htmlContent = file_get_contents($outputFile);
+                    echo $htmlContent;
+                }
+
+                if ($downloadccda) {
+                    $pids = $this->params('pids') ?? $combination;
+                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids));
+                } else {
+                    die;
+                }
+            } else {
+                // oddly we send an empty string for our components here if there is no combination,
+                // I don't know how this is even valid as the ccda node service fails if there is no encounters section in the component.
                 $result = $ccdaGenerator->generate(
                     $this->patient_id,
                     $this->encounter_id,
@@ -182,64 +235,23 @@ class EncounterccdadispatchController extends AbstractActionController
                     $send,
                     $view,
                     $emr_transfer,
-                    $this->components,
+                    '',
                     $this->sections,
                     $this->recipients,
                     $this->params,
                     $this->document_type
                 );
                 $content = $result->getContent();
-                unset($result); // clear out our memory here as $content is a big string
-                if (!$view) {
-                    if ($hie_hook) {
-                        echo $content;
-                    } else {
-                        echo $this->listenerObject::z_xlt("Queued for Transfer");
-                    }
-                }
-            }
-
-            if ($view && !$downloadccda) {
-                $xml = simplexml_load_string($content);
-                $xsl = new DOMDocument();
-                // cda.xsl is self contained with bootstrap and jquery.
-                // cda-web.xsl when used, is for referencing styles from internet.
-                $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
-                $proc = new XSLTProcessor();
-                $proc->importStyleSheet($xsl); // attach the xsl rules
-                $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
-                $proc->transformToURI($xml, $outputFile);
-
-                $htmlContent = file_get_contents($outputFile);
-                echo $htmlContent;
-            }
-
-            if ($downloadccda) {
-                $pids = $this->params('pids') ?? $combination;
-                $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids));
-            } else {
+                unset($result);
+                echo $content;
                 die;
             }
-        } else {
-            // oddly we send an empty string for our components here if there is no combination,
-            // I don't know how this is even valid as the ccda node service fails if there is no encounters section in the component.
-            $result = $ccdaGenerator->generate(
-                $this->patient_id,
-                $this->encounter_id,
-                $sent_by,
-                $send,
-                $view,
-                $emr_transfer,
-                '',
-                $this->sections,
-                $this->recipients,
-                $this->params,
-                $this->document_type
-            );
-            $content = $result->getContent();
-            unset($result);
-            echo $content;
-            die;
+        }
+        catch (CcdaServiceConnectionException $exception) {
+            http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
+            echo xlt("Failed to connect to ccdaservice.  Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
+            (new SystemLogger())->errorLogCaller("Connection error with ccda service", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+            die();
         }
 
         try {

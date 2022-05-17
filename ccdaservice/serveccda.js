@@ -966,7 +966,7 @@ function populateResult(pd) {
             icode = "";
             break;
     }
-    return {
+    let result = {
         "identifiers": [{
             "identifier": pd.subtest.root,
             "extension": pd.subtest.extension
@@ -990,13 +990,18 @@ function populateResult(pd) {
             "type": type,
             "range_type": range_type
         },
-        "interpretations": [icode],
         "value": value + "",
         "unit": pd.subtest.unit,
         "type": type,
         "range": pd.subtest.range,
         "range_type": range_type
     };
+    // interpretation cannot be an empty value so we skip it if it is
+    // empty as Observation.interpretationCode is [0..*]
+    if (icode !== "") {
+        result["interpretations"] = [icode];
+    }
+    return result;
 }
 
 function getResultSet(results) {

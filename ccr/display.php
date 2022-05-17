@@ -27,7 +27,8 @@ $d = new Document($document_id);
 
 try {
     $twig = new TwigContainer(null, $GLOBALS['kernel']);
-    if (!$d->can_access($_SESSION['user_id'])) {
+    // can_access will check session if no params are passed.
+    if (!$d->can_access()) {
         echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
         exit;
     } else if ($d->is_deleted()) {

@@ -1,9 +1,30 @@
 <?php
 
+/**
+ * field_multi_sorted_list_selector.php contains all of the html for the GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR
+ * data type.  The javascript that controls the adding / removing, and sorting of the list items is in the edit_globals.js
+ * file.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\Globals\GlobalSetting;
 
 $fldvalue = $fldvalue ?? '';
 $globalValue = $globalValue ?? '';
+$fldoptions = $fldoptions ?? [];
+
+// can't do anything if we have no list
+if (empty($fldoptions[GlobalSetting::DATA_TYPE_OPTION_LIST_ID])) {
+    echo "<p>" . xlt("Datatype is missing required key") . ": " . GlobalSetting::DATA_TYPE_OPTION_LIST_ID . "</p>";
+    return;
+}
+
 $i = $i ?? 0;
 
 if ($userMode) {
@@ -12,7 +33,7 @@ if ($userMode) {
 
 $listService = new ListService();
 
-$listOptions = $listService->getOptionsByListName('ccda-sections');
+$listOptions = $listService->getOptionsByListName($fldoptions[GlobalSetting::DATA_TYPE_OPTION_LIST_ID]);
 $listOptionsByOptionId = [];
 foreach ($listOptions as $option) {
     $listOptionsByOptionId[$option['option_id']] = $option;
@@ -24,87 +45,42 @@ $selectedOptions = [];
 if (!empty($fldvalue)) {
     // we have to retain our sort order here
     $fldValueOptions = explode(";", trim($fldvalue));
+
     foreach ($fldValueOptions as $option) {
         if (isset($listOptionsByOptionId[$option])) {
-            $selectedOptions = $listOptionsByOptionId;
+            $selectedOptions[] = $listOptionsByOptionId[$option];
         }
     }
 }
 ?>
-<script>
-    (function(window, oeUI) {
-
-        const WIDGET_NAME = "multiSortedListWidget";
-
-        var widgets = [];
-
-        function Widget(node) {
-            this.node = node;
-
-            this.init = function() {
-                // using our node go through and setup all of our event listeners
-            };
-            this.destory = function() {
-                // using our node go through and remove all of the event listeners
-                // set our references to be null
-            };
-        }
-
-        function addSelectedListOption(event) {
-            let target = event.currentTarget;
-            console.log("Selected option is ", target);
-            // algorithm is first, check if we already have the element...
-                // if we do remove it from its current position and append it to the end of the list
-
-            // if we don't, clone our template and re-init all of our events
-        }
-
-        function init() {
-            let select = document.querySelector('.gbl-field-multi-sorted-list-picker');
-            if (!select) {
-                console.error("Failed to find select node in DOM to initialize " + WIDGET_NAME);
-                return;
-            }
-            select.addEventListener('change', addSelectedListOption);
-        }
-        function destroy() {
-
-        }
-        let multiSortedListWidget = {
-            init: init
-        };
-        oeUI.multiSortedListWidget = multiSortedListWidget;
-    })(window, window.oeUI || {})
-    function initMultiSortedListSelector() {
-
-    }
-    window.document.addEventListener("DOMContentLoaded", oeUi.multiSortedListWidget.init);
-</script>
-<template>
-    <li>
-        <button class="btn-cancel"></button>
-        <button class="btn-m-downarrow"></button>
-        <button class="btn-m-uparrow"></button>
-    </li>
-</template>
-<div class="form-control mb-2">
-    <input class="gbl-field-multi-sorted-list-value" type="hidden" name="form_<?php echo attr($i); ?> value="<?php echo attr($fldvalue); ?>" />
-
-    <p class="gbl-field-multi-sorted-list-empty <?php echo empty($selectedOptions) ? "" : "d-none" ?>""><?php echo xlt("No sorted sections selected"); ?></p>
-    <ul class="gbl-field-multi-sorted-list-container <?php echo empty($selectedOptions) ? "d-none" : "" ?>">
-        <?php foreach ($selectedOptions as $option) : ?>
-        <li data-option-id="<?php echo attr($option['option_id']); ?>">
-            <?php echo xlt($option['title']); ?>
-            <button class="btn-cancel"></button>
-            <button class="btn-m-downarrow"></button>
-            <button class="btn-m-uparrow"></button>
+<div class="gbl-field-multi-sorted-list-widget">
+    <template class="gbl-field-multi-sorted-list-item-template">
+        <li class="gbl-field-multi-sorted-list-item mb-2" data-option-id="">
+            <span class="text-label"></span>
+            <button class="btn btn-uparrow btn-sm btn-secondary"><i class="fa fa-arrow-up"></i></button>
+            <button class="btn btn-downarrow btn-sm btn-secondary"><i class="fa fa-arrow-down"></i></button>
+            <button class="btn-delete btn btn-danger btn-sm"></button>
         </li>
+    </template>
+    <div class="mb-2">
+        <input class="gbl-field-multi-sorted-list-value" type="hidden" id='form_<?php echo attr($i); ?>' name="form_<?php echo attr($i); ?>" value="<?php echo attr($fldvalue); ?>" />
+
+        <p class="gbl-field-multi-sorted-list-empty <?php echo empty($selectedOptions) ? "" : "d-none" ?>""><?php echo xlt("No sorted sections selected"); ?></p>
+        <ul class="gbl-field-multi-sorted-list-container <?php echo empty($selectedOptions) ? "d-none" : "" ?>">
+            <?php foreach ($selectedOptions as $option) : ?>
+            <li class="gbl-field-multi-sorted-list-item mb-2" data-option-id="<?php echo attr($option['option_id']); ?>">
+                <span class="text-label"><?php echo xlt($option['title']); ?></span>
+                <button class="btn btn-uparrow btn-sm btn-secondary"><i class="fa fa-arrow-up"></i></button>
+                <button class="btn btn-downarrow btn-sm btn-secondary"><i class="fa fa-arrow-down"></i></button>
+                <button class="btn-delete btn btn-danger btn-sm"></button>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <select class="form-control gbl-field-multi-sorted-list-picker">
+        <option value=""><?php echo xlt("Select an item to add"); ?></option>
+        <?php foreach ($listOptions as $item) : ?>
+        <option value="<?php echo attr($item['option_id']); ?>"><?php echo xlt($item['title']); ?></option>
         <?php endforeach; ?>
-    </ul>
+    </select>
 </div>
-<select class="form-control gbl-field-multi-sorted-list-picker">
-    <option value=""><?php echo xlt("Select a section to add"); ?></option>
-    <?php foreach ($listOptions as $item) : ?>
-    <option value="<?php echo attr($item['option_id']); ?>"><?php echo xlt($item['title']); ?></option>
-    <?php endforeach; ?>
-</select>
