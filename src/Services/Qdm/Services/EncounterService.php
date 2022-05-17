@@ -55,6 +55,9 @@ class EncounterService extends AbstractQdmService implements QdmServiceInterface
         $start_tmp = \DateTime::createFromFormat('Y-m-d H:i:s', $record['date']);
         // DateTime->modify() modifies the calling object, so we need to copy our start date
         $start = clone $start_tmp;
+        if (empty($record['date_end'])) {
+            $record['date_end'] = date('Y-m-d H:i:s', strtotime($record['date']) + 3600);
+        }
         $end = \DateTime::createFromFormat('Y-m-d H:i:s', $record['date_end']);
 
         $days = '';
