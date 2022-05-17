@@ -663,3 +663,7 @@ SET sql_mode = '';
 UPDATE `patient_data` SET `deceased_date` = NULL WHERE `deceased_date` = '0000-00-00 00:00:00';
 SET sql_mode = @currentSQLMode;
 #EndIf
+
+#IfMissingColumn insurance_companies cqm_sop
+ALTER TABLE `insurance_companies` ADD `cqm_sop` int(5) NOT NULL COMMENT 'HL7 Source of Payment for eCQMs';
+#EndIf

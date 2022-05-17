@@ -217,6 +217,19 @@ class InsuranceCompanyService extends BaseService
         return $claim_types;
     }
 
+    public function getInsuranceCqmSop()
+    {
+        $cqm_sop = sqlStatement(
+            "SELECT distinct code, description FROM `valueset` WHERE `valueset` = '2.16.840.1.114222.4.11.3591';"
+        );
+
+        $cqm_sops = [];
+        while ($row = sqlFetchArray($cqm_sop)) {
+            $cqm_sops[$row['code']] = $row['description'];
+        }
+        return $cqm_sops;
+    }
+
     public function insert($data)
     {
         // insurance companies need to use sequences table since they share the

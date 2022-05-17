@@ -3075,6 +3075,7 @@ CREATE TABLE `insurance_companies` (
   `inactive` tinyint(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
+  `cqm_sop` int(5) NOT NULL COMMENT 'HL7 Source of Payment for eCQMs',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
