@@ -665,5 +665,5 @@ SET sql_mode = @currentSQLMode;
 #EndIf
 
 #IfMissingColumn insurance_companies cqm_sop
-ALTER TABLE `insurance_companies` ADD `cqm_sop` int(5) NOT NULL COMMENT 'HL7 Source of Payment for eCQMs';
+ALTER TABLE `insurance_companies` ADD `cqm_sop` int DEFAULT NULL COMMENT 'HL7 Source of Payment for eCQMs';
 #EndIf
