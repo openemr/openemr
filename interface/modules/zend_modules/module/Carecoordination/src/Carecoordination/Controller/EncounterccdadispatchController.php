@@ -246,8 +246,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $content;
                 die;
             }
-        }
-        catch (CcdaServiceConnectionException $exception) {
+        } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
             echo xlt("Failed to connect to ccdaservice.  Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
             (new SystemLogger())->errorLogCaller("Connection error with ccda service", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);

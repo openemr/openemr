@@ -127,25 +127,26 @@ class GlobalSetting
         return $this->fieldOptions;
     }
 
-    public function addFieldOption($key, $option) {
+    public function addFieldOption($key, $option)
+    {
         // here we can do any validation that we want.  For now we only support list_id with
         // the DATA_TYPE_MULTI_SORTED_LIST_SELECTOR
-        if (!$this->dataTypeSupportsOptions($this->dataType))
-        {
+        if (!$this->dataTypeSupportsOptions($this->dataType)) {
             throw new \InvalidArgumentException("Data type does not support field options");
         }
-        if (!$this->dataTypeSupportsOptionKey($this->dataType, $key))
-        {
+        if (!$this->dataTypeSupportsOptionKey($this->dataType, $key)) {
             throw new \InvalidArgumentException("Data type does not support field option key " . $key);
         }
         $this->fieldOptions[$key] = $option;
     }
 
-    public function dataTypeSupportsOptions($datatype) {
+    public function dataTypeSupportsOptions($datatype)
+    {
         return in_array($datatype, self::DATA_TYPES_WITH_OPTIONS);
     }
 
-    public function dataTypeSupportsOptionKey($datatype, $key) {
+    public function dataTypeSupportsOptionKey($datatype, $key)
+    {
         if ($this->dataTypeSupportsOptions($datatype)) {
             return in_array($key, self::DATA_TYPE_FIELD_OPTIONS_SUPPORTED[$datatype]);
         }
