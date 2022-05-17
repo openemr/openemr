@@ -656,3 +656,14 @@ DROP TABLE `temp_table_one`;
 #IfNotRow2D list_options list_id issue_subtypes option_id diagnosis
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','diagnosis','Diagnosis',40);
 #EndIf
+
+#IfColumn patient_data deceased_date
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `patient_data` SET `deceased_date` = NULL WHERE `deceased_date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfMissingColumn insurance_companies cqm_sop
+ALTER TABLE `insurance_companies` ADD `cqm_sop` int DEFAULT NULL COMMENT 'HL7 Source of Payment for eCQMs';
+#EndIf
