@@ -151,7 +151,7 @@ $(function () {
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         let title = <?php echo xlj('Insurance Search/Select/Add'); ?>;
-        dlgopen('', '', 700, 460, '', title, {
+        dlgopen('', '', 700, 600, '', title, {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
@@ -1158,9 +1158,7 @@ $use_validate_js = $GLOBALS['new_validate'];
             var fval = $('#form_' + flds[i]).val();
             duplicateFieldsArray['#form_' + flds[i]] = fval;
         }
-        $(".sel2").select2({
-            <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
-        });
+        
 
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(

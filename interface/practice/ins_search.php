@@ -157,7 +157,8 @@ if ($_POST['form_save'] ?? '') {
                 'state' => $_POST['form_state'],
                 'zip' => $_POST['form_zip'],
                 'country' => $_POST['form_country'],
-                'foreign_id' => $ins_id
+                'foreign_id' => $ins_id,
+                'cqm_sop' => $_POST['form_cqm_sop']
             )
         );
 
@@ -298,6 +299,22 @@ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
 while ($xrow = sqlFetchArray($xres)) {
     echo "   <option value='" . attr($xrow['id']) . "'";
     echo ">" . text($xrow['name']) . "</option>\n";
+}
+?>
+   </select>
+  </td>
+ </tr>
+
+ <tr>
+  <td class="font-weight-bold" nowrap><?php echo xlt('CQM Source of Payment'); ?>:</td>
+  <td>
+   <select name='form_cqm_sop' title='CQM Source of Payment' class="form-control form-control-sm">
+    <option value=""><?php echo '-- ' . xlt('None{{CQM SOP}}') . ' --'; ?></option>
+<?php
+$cqm_sop_array = $insuranceCompany->getInsuranceCqmSop();
+foreach ($cqm_sop_array as $key => $value) {
+    echo "   <option value='" . attr($key) . "'";
+    echo ">" . text($value) . "</option>\n";
 }
 ?>
    </select>

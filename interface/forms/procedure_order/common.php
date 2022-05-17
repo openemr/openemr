@@ -785,7 +785,7 @@ if (!empty($row['lab_id'])) {
             targetProcedure = f.elements['form_proc_code[' + offset + ']'];
             targetElement = f.elements['form_proc_type_desc[' + offset + ']'];
             let title = <?php echo xlj('Select Procedure Code'); ?>;
-            let url = top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=LOINC,SNOMED-CT,SNOMED,RXCUI,CPT4,VALUESET&singleCodeSelection=1';
+            let url = top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=LOINC,SNOMED-CT,SNOMED,RXCUI,CPT4,VALUESET,OID&singleCodeSelection=1';
             dlgopen(url, '_blank', 985, 750, '', title, {
                 resolvePromiseOn: 'close'
             }).then(dialogObject => {
