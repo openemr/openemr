@@ -1159,6 +1159,7 @@ $use_validate_js = $GLOBALS['new_validate'];
             duplicateFieldsArray['#form_' + flds[i]] = fval;
         }
         
+        
 
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
