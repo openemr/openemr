@@ -26,12 +26,7 @@ class CqmClient extends HttpClient
     {
         $port = $this->port;
 
-        // The default node binary is 'node', but if the user want's to override it in Globals, they can.
-        // We also set the node binary here to 'node' in case there is no globals option (which also defaults to 'node')
         $node = 'node';
-        if (!empty($GLOBALS['node_binary'])) {
-            $node = $GLOBALS['node_binary'];
-        }
         $cmd = $this->servicePath;
 
         if (IS_WINDOWS) {
@@ -40,14 +35,11 @@ class CqmClient extends HttpClient
         } else {
             $command = $node;
             $system = new System();
-            if (
-                !file_exists($node) &&
-                !$system->command_exists($node)
-            ) {
+            if (!$system->command_exists($node)) {
                 if ($system->command_exists('nodejs')) {
                     $command = 'nodejs';
                 } else {
-                    error_log("Connection failed. Node does not appear to be installed on the system or OpenEMR cannot find it. You may set the path in Globals > Miscellaneous.");
+                    error_log("Connection failed. Node does not appear to be installed on the system.");
                     throw new Exception('Connection Failed.');
                 }
             }

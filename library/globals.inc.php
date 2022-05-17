@@ -2888,13 +2888,6 @@ $GLOBALS_METADATA = array(
             xl('Full path to directory containing Perl executables.')
         ),
 
-        'node_binary' => array(
-            xl('Absolute path to node binary'),
-            'text',                           // data type
-            'node',                           // default
-            xl('Full path to your node executable for starting external node.js processes.')
-        ),
-
         'temporary_files_dir' => array(
             xl('Path to Temporary Files'),
             'text',                           // data type
