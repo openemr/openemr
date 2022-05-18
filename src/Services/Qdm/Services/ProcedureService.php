@@ -36,7 +36,7 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     LEFT JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
                     LEFT JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
                     LEFT JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
-                WHERE O.procedure_order_type = 'order'
+                WHERE O.procedure_order_type = 'order' AND O.activity != 0
                 ";
 
         return $sql;

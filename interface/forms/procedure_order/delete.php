@@ -1,19 +1,22 @@
 <?php
 
 /**
- * This script delete an Encounter form.
+ * This script deletes a procedure form and marks
+ * associated procedure_order_id as inactive.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
-require_once(dirname(__FILE__) . "/../../../library/forms.inc");
+require_once($GLOBALS['srcdir'] . "/forms.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -26,18 +29,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-// allow a custom 'delete' form
-$deleteform = $incdir . "/forms/" . $_REQUEST["formname"] . "/delete.php";
-
-check_file_dir_name($_REQUEST["formname"]);
-
-if (file_exists($deleteform)) {
-    include_once($deleteform);
-    exit;
-}
-
-// if no custom 'delete' form, then use a generic one
-
 // when the Cancel button is pressed, where do we go?
 $returnurl = 'forms.php';
 
@@ -49,6 +40,14 @@ if (!empty($_POST['confirm'])) {
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
         $sql = "update forms set deleted=1 where id=?";
+        sqlStatement($sql, array($_POST['id']));
+      // set the procedure order to deleted
+        $sql = "update procedure_order p
+                left join
+                       forms f
+                on f.form_id = p.procedure_order_id
+                set activity=0 
+                where f.id=?";
         sqlStatement($sql, array($_POST['id']));
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(
@@ -82,7 +81,8 @@ if (!empty($_POST['confirm'])) {
         <div class="row">
             <div class="col-12">
                 <h2><?php echo xlt('Delete Encounter Form'); ?></h2>
-                <form method="post" action="<?php echo $rootdir;?>/patient_file/encounter/delete_form.php" name="my_form" id="my_form">
+                <form method="post" action="<?php echo $rootdir; ?>/forms/procedure_order/delete.php"
+                    name="my_form" id="my_form">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <?php
                     // output each GET variable as a hidden form input
