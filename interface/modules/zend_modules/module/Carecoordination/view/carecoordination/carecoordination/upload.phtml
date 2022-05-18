@@ -129,7 +129,23 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             $('#patient_select').hide('scale', '', 500, '');
         });
         var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
+
+        $('.delete-audit-record-btn').click(deleteAuditRecordHandler);
     });
+
+    function deleteAuditRecordHandler(event) {
+        event.preventDefault();
+        let target = event.currentTarget;
+        if (!target) {
+            console.error("Failed to find event target");
+            return;
+        }
+        let amid = target.dataset.amid;
+        let name = target.dataset.name;
+        console.log("dataset is ", target.dataset);
+        console.log("amid ", amid, "name", name);
+        deleteAuditRecord(amid, name);
+    }
 
     function deleteAuditRecord(amid, name) {
         let status = confirm('<?php echo $this->listenerObject->z_xlt("Do You Really Want to Remove Duplicate");?>' + ' ' + name + '?');
@@ -432,7 +448,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                     <span><strong style="color: red;"><?php echo $this->escapeHtml($row['matched_patient']); ?></strong></span>
                                 </td>
                                 <td>
-                                    <a href="#" onclick="deleteAuditRecord(<?php echo js_escape($row['amid']); ?>,'<?php echo text($row['pat_name']); ?>')"><strong style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient'] ?? ''); ?></strong></a>
+                                    <a href="#" class="delete-audit-record-btn" data-amid="<?php echo attr($row['amid']); ?>"
+                                       data-name="<?php echo attr($row['pat_name']); ?>"><strong style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient'] ?? ''); ?></strong></a>
                                 </td>
                                 <td>
                                     <?php
