@@ -390,7 +390,7 @@ class CodeTypesService
     {
         $listService = new ListService();
         $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]) ?? '';
-        return $ret[0]['option_id'];
+        return $ret[0]['option_id'] ?? '';
     }
 
     public function dischargeCodeFromOptionId($option_id)
