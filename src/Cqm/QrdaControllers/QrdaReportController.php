@@ -233,23 +233,12 @@ class QrdaReportController
             }
         }
 
-        if (is_array($pids)) {
-            if (count($pids) === 1) {
-                $pids = $pids[0];
-            } else {
-                $pids = '';
-            }
-        }
         foreach ($measures as $measure) {
             if (is_array($measure)) {
                 $measure = $measure['measure_id'];
             }
             $xml = $this->getCategoryIIIReport($pids, $measure, $options);
             $filename = $measure . "_all_patients.xml";
-            if (!empty($pids)) {
-                $meta = sqlQuery("Select `fname`, `lname`, `pid` From `patient_data` Where `pid` = ?", [$pids]);
-                $filename = $measure . '_' . $pids . '_' . $meta['fname'] . '_' . $meta['lname'] . ".xml";
-            }
             $file = $directory . DIRECTORY_SEPARATOR . $filename;
             file_put_contents($file, $xml);
             unset($content);
