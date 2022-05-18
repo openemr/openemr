@@ -21,6 +21,7 @@ use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;
 use OpenEMR\Services\Qdm\QdmRequestAll;
 use OpenEMR\Services\Qdm\QdmRequestOne;
+use OpenEMR\Services\Qdm\QdmRequestSome;
 
 class QrdaReportService
 {
@@ -152,10 +153,13 @@ class QrdaReportService
      */
     public function generateCategoryIIIXml($pid, $measures): string
     {
-        if ($pid) {
-            $request = new QdmRequestOne($pid);
-        } else {
+        if (empty($pid)) {
             $request = new QdmRequestAll();
+        }
+        else if (is_array($pid)) {
+            $request = new QdmRequestSome();
+        } else {
+            $request = new QdmRequestOne($pid);
         }
 
         if (!empty($this->client->getHealth()['uptime'] ?? null)) {
