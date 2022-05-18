@@ -673,5 +673,5 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 #EndIf
 
 #IfNotColumnType procedure_type procedure_code varchar(63)
-ALTER TABLE `procedure_type` MODIFY `procedure_code` varchar(63) NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
+ALTER TABLE `procedure_type` MODIFY `procedure_code` varchar(64) NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
 #EndIf
