@@ -1068,7 +1068,7 @@ $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status
                                     $ppres = sqlStatement("SELECT `ppid`, name FROM `procedure_providers` WHERE `active` = 1 ORDER BY name, ppid");
                                     while ($pprow = sqlFetchArray($ppres)) {
                                         echo "<option value='" . attr($pprow['ppid']) . "'";
-                                        if ($pprow['ppid'] == $row['lab_id'] ?? '') {
+                                        if ($pprow['ppid'] == ($row['lab_id'] ?? '')) {
                                             echo " selected";
                                             $gbl_lab = get_lab_name($pprow['ppid']);
                                         }

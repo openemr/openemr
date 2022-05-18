@@ -1159,7 +1159,10 @@ $use_validate_js = $GLOBALS['new_validate'];
             duplicateFieldsArray['#form_' + flds[i]] = fval;
         }
         $(".sel2").select2({
-            <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            theme: "bootstrap4",
+            dropdownAutoWidth: true,
+            width: 'resolve',
+        <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
         });
         
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
