@@ -672,6 +672,6 @@ ALTER TABLE `insurance_companies` ADD `cqm_sop` int DEFAULT NULL COMMENT 'HL7 So
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','order','Order',90,0);
 #EndIf
 
-#IfNotColumnType procedure_type procedure_code varchar(63)
+#IfNotColumnType procedure_type procedure_code varchar(64)
 ALTER TABLE `procedure_type` MODIFY `procedure_code` varchar(64) NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
 #EndIf
