@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This script deletes a procedure form and marks 
+ * This script deletes a procedure form and marks
  * associated procedure_order_id as inactive.
  *
  * @package   OpenEMR
@@ -18,9 +18,16 @@
 require_once("../../globals.php");
 require_once($GLOBALS['srcdir'] . "/forms.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
+// Control access
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 
 // when the Cancel button is pressed, where do we go?
 $returnurl = 'forms.php';
@@ -109,7 +116,7 @@ if (!empty($_POST['confirm'])) {
 
 $(function () {
     $("#confirmbtn").on("click", function() { return ConfirmDelete(); });
-    $("#cancel").on("click", function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $("#cancel").on("click", function() { location.href=<?php echo js_escape("$rootdir/patient_file/encounter/$returnurl");?>; });
 });
 
 function ConfirmDelete() {

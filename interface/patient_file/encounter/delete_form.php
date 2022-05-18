@@ -15,9 +15,16 @@
 require_once("../../globals.php");
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
+// Control access
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 
 // allow a custom 'delete' form
 $deleteform = $incdir . "/forms/" . $_REQUEST["formname"] . "/delete.php";
@@ -109,7 +116,7 @@ if (!empty($_POST['confirm'])) {
 
 $(function () {
     $("#confirmbtn").on("click", function() { return ConfirmDelete(); });
-    $("#cancel").on("click", function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $("#cancel").on("click", function() { location.href=<?php echo js_escape("$rootdir/patient_file/encounter/$returnurl");?>; });
 });
 
 function ConfirmDelete() {
