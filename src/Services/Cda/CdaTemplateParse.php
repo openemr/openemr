@@ -341,11 +341,11 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['represented_organization_country'] = $entry['encounter']['participant']['participantRole']['addr']['country'] ?? '';
             $this->templateData['field_name_value_array']['encounter'][$i]['represented_organization_telecom'] = $entry['encounter']['participant']['participantRole']['telecom'] ?? '';
             // encounter diagnosis to issues list
-                $code = $this->codeService->resolveCode(
-                    $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['code'] ?? '',
-                    ($entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['codeSystemName'] ?? '') ?: $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
-                    $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['displayName'] ?? ''
-                );
+            $code = $this->codeService->resolveCode(
+                $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['code'] ?? '',
+                ($entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['codeSystemName'] ?? '') ?: $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
+                $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['value']['displayName'] ?? ''
+            );
             $this->templateData['field_name_value_array']['encounter'][$i]['encounter_diagnosis_date'] = $entry['encounter']['entryRelationship'][1]['act']['entryRelationship']['observation']['effectiveTime']['low']['value'] ?? $this->templateData['field_name_value_array']['encounter'][$i]['date'] ?? null;
             if (empty($code['code'])) {
                 $code = $this->codeService->resolveCode(
