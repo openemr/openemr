@@ -85,7 +85,7 @@ if (isset($_GET['mode'])) {
             trim($_GET['immunization_informationsource']),
             trim($_GET['immunization_refusal_reason']),
             trim($_GET['reason_code']),
-            trim($_GET['reason_description']),
+            trim($_GET['reason_description'] ?? ''),
             trim($_GET['ordered_by_id'])
         );
         $newid = sqlInsert($sql, $sqlBindArray);
@@ -498,10 +498,10 @@ tr.selected {
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Reason Code'); ?></label>
                         <input class="code-selector-popup form-control immunizationReasonCode"
-                               name="reason_code" type="text" value="<?php echo attr($reason_code); ?>"
+                               name="reason_code" type="text" value="<?php echo attr($reason_code ?? ''); ?>"
                                placeholder="<?php echo xla("Select a reason code"); ?>"
                         />
-                        <input type="hidden" name="reason_code_text" value="<?php echo attr($reason_code_text); ?>" />
+                        <input type="hidden" name="reason_code_text" value="<?php echo attr($reason_code_text ?? ''); ?>" />
                         <p class="reason_code_text d-inline float-right p-1 ml-2 <?php echo empty($reason_code_text) ? "" : "d-none"; ?>"></p>
                     </div>
                     <div class="form-group mt-3">

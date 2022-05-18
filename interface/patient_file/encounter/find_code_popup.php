@@ -207,9 +207,7 @@ $focus = "document.theform.search_term.select();";
                             $itercode = $row['code'];
                             $itertext = ucfirst(strtolower(trim($row['code_text'])));
                             $dynCodeType = $form_code_type ?: $codetype;
-                            if (stripos($dynCodeType, 'VALUESET-OID') !== false) {
-                                $dynCodeType = 'OID';
-                            } elseif (stripos($dynCodeType, 'VALUESET') !== false) {
+                            if (stripos($dynCodeType, 'VALUESET') !== false) {
                                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
                             }
                             if (!empty($target_element)) {

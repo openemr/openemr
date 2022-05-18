@@ -89,10 +89,18 @@ if (
 
 $query = "SELECT " .
     "i.id, i.name, i.attn, " .
-    "a.line1, a.line2, a.city, a.state, a.zip, " .
-    "p.area_code, p.prefix, p.number " .
-    "FROM insurance_companies AS i, addresses AS a, phone_numbers AS p " .
-    "WHERE a.foreign_id = i.id ";
+    "a.line1, a.line2, a.city, a.state, a.zip ";
+
+$any_phone_numbers = sqlQuery("SELECT COUNT(*) AS count FROM phone_numbers");
+if ($any_phone_numbers['count'] > 0) {
+    $query .= ", p.area_code, p.prefix, p.number " .
+        "FROM insurance_companies as i, addresses AS a " .
+        ", phone_numbers AS p ";
+} else {
+    $query .= "FROM insurance_companies AS i, addresses AS a ";
+}
+
+$query .= "WHERE a.foreign_id = i.id ";
 
 if (!empty($phone_parts)) {
     $query .= "AND p.foreign_id = i.id ";
@@ -146,7 +154,7 @@ while ($row = sqlFetchArray($res)) {
     $anchor = "<a href=\"\" onclick=\"return setins(" .
     attr_js($row['id']) . "," . attr_js($row['name']) . ")\">";
     $phone = '&nbsp';
-    if ($row['number']) {
+    if ($row['number'] ?? null) {
         $phone = text($row['area_code']) . '-' . text($row['prefix']) . '-' . text($row['number']);
     }
 

@@ -311,7 +311,7 @@ class CarecoordinationTable extends AbstractTableGateway
         // test if patient is deceased
         if ($this->is_qrda_import) {
             foreach ($components[2]["section"]["entry"] as $entry_search) {
-                if ($entry_search["observation"]["value"]["code"] == '419099009') {
+                if (($entry_search["observation"]["value"]["code"] ?? null) == '419099009') {
                     $deceased_date = $entry_search["observation"]["effectiveTime"]["low"]["value"];
                     $this->documentData['field_name_value_array']['patient_data'][1]['deceased_date'] = date('Y-m-d H:i:s', strtotime($deceased_date));
                     $this->documentData['field_name_value_array']['patient_data'][1]['deceased_reason'] = 'SNOMED-CT:419099009';

@@ -244,7 +244,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     ins_type_code=?,";
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
-        $sql .= "     alt_cms_id=?";
+        $sql .= "     alt_cms_id=?,";
+        $sql .= "     cqm_sop=?";
 
         $insuranceResults = sqlInsert(
             $sql,
@@ -256,7 +257,8 @@ class InsuranceCompanyService extends BaseService
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
                 $data["x12_default_partner_id"] ?? '',
-                $data["alt_cms_id"]
+                $data["alt_cms_id"],
+                $data["cqm_sop"] ?? null,
             )
         );
 
@@ -286,7 +288,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     ins_type_code=?,";
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
-        $sql .= "     alt_cms_id=?";
+        $sql .= "     alt_cms_id=?,";
+        $sql .= "     cqm_sop=?";
         $sql .= "     WHERE id = ?";
 
         $insuranceResults = sqlStatement(
@@ -299,6 +302,7 @@ class InsuranceCompanyService extends BaseService
                 $data["x12_receiver_id"],
                 $data["x12_default_partner_id"],
                 $data["alt_cms_id"],
+                $data["cqm_sop"],
                 $iid
             )
         );
