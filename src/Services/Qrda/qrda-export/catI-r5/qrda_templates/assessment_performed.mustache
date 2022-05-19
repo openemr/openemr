@@ -6,7 +6,10 @@
     {{> _codes}}
     <text>{{description}}</text>
     <statusCode code="completed"/>
-    {{{relevant_date_period_or_null_flavor}}}
+    {{#relevantPeriod}}
+      <!-- QDM Attribute: Relevant Period -->
+      {{{relevant_period}}}
+    {{/relevantPeriod}}
     {{#result}}
     <!-- QDM Attribute: Result -->
     {{{result_value}}}
