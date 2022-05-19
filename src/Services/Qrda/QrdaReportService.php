@@ -155,7 +155,7 @@ class QrdaReportService
     {
         if (empty($pid)) {
             $request = new QdmRequestAll();
-        } else if (is_array($pid)) {
+        } elseif (is_array($pid)) {
             $request = new QdmRequestSome($pid);
         } else {
             $request = new QdmRequestOne($pid);

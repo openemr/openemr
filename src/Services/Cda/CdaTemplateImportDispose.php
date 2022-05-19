@@ -1754,7 +1754,7 @@ class CdaTemplateImportDispose
         $insuranceData = new InsuranceService();
 
         $appTable = new ApplicationTable();
-        $res_ins = $appTable->zQuery("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `ins_type_code` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", array($payer['code'] ?? '1'));
+        $res_ins = $appTable->zQuery("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", array($payer['code'] ?? '1'));
         $res_ins_cur = $res_ins->current();
         if (empty($res_ins_cur['id'])) {
             $data["name"] = 'QRDA Insurance Company Payer ' . $payer['code'] ?? '1';
@@ -1762,6 +1762,7 @@ class CdaTemplateImportDispose
             $data["city"] = 'QRDA City';
             $data["state"] = 'QRDA State';
             $data["zip"] = '33333';
+            $data["cqm_sop"] = $payer['code'] ?? 1;
             $insuranceCompany = new InsuranceCompanyService();
             $ins_id = $insuranceCompany->insert($data);
         } else {

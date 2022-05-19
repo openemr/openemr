@@ -23,6 +23,21 @@ class CdaValidateDocuments
     }
 
     /**
+     * @param $document
+     * @param $type
+     * @return array|bool|null
+     * @throws Exception
+     */
+    public function validateDocument($document, $type)
+    {
+        $xsd = $this->validateXmlXsd($document, $type);
+        $schema_results = $this->validateSchematron($document, $type);
+        $totals = array_merge($xsd, $schema_results);
+
+        return $totals;
+    }
+
+    /**
      * @return bool
      * @throws Exception
      */
@@ -119,20 +134,19 @@ class CdaValidateDocuments
         $dom = new DomDocument();
         $dom->loadXML($document);
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
-        $result = $dom->schemaValidate($xsd);
-        // TODO phase implementation for schematron
-        $this->validateSchematron($document, $type);
-        if ($result) {
-            return true;
-        } else {
+
+        $xsd_log['xsd'] = [];
+        if (!$dom->schemaValidate($xsd)) {
             $errors = libxml_get_errors();
             foreach ($errors as $error) {
-                error_log($this->formatXsdError($error));
+                $detail = $this->formatXsdError($error);
+                $xsd_log['xsd'][] = $detail;
+                error_log($detail);
             }
             libxml_clear_errors();
-
-            return false;
         }
+
+        return $xsd_log;
     }
 
     /**
@@ -171,11 +185,29 @@ class CdaValidateDocuments
                 break;
         }
         $error_str .= trim($error->message);
-        if ($error->file) {
-            $error_str .= " in $error->file";
-        }
         $error_str .= " on line $error->line\n";
 
         return $error_str;
+    }
+
+    /**
+     * @param $docId
+     * @param $log
+     * @return void
+     */
+    public function saveValidationLog($docId, $log)
+    {
+        $content = json_encode($log ?? []);
+        sqlStatement("UPDATE `documents` SET `document_data` = ? WHERE `id` = ?", array($content, $docId));
+    }
+
+    /**
+     * @param $docId
+     * @return mixed
+     */
+    public function fetchValidationLog($docId)
+    {
+        $log = sqlQuery("SELECT `document_data` FROM `documents` WHERE `id` = ?", array($docId))['document_data'];
+        return json_decode($log ?? [], true);
     }
 }
