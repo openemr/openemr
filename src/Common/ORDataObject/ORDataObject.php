@@ -66,7 +66,8 @@ class ORDataObject
         $update = false;
         if (!empty($pkeys)) {
             // Find record with matching primary keys
-            $sql = sprintf('select * FROM `%s` WHERE %s=?',
+            $sql = sprintf(
+                'select * FROM `%s` WHERE %s=?',
                 $this_table,
                 implode("=?, ", $pkeys)
             );
@@ -86,7 +87,7 @@ class ORDataObject
             $sql = $db->getInsertSql($this_table, $this_rec);
             // Capture inserted autoincremented value
             $pkey = sqlInsert($sql);
-            call_user_func([$this,'set_'.$pkey_id], $pkey);
+            call_user_func([$this, 'set_'.$pkey_id], $pkey);
         }
 
         return true;
