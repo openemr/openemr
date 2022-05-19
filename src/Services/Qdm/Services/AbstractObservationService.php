@@ -40,11 +40,11 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
     public function getSqlStatement()
     {
         $observation_type = add_escape_custom($this->getObservationType());
-        $sql = "SELECT pid, encounter, `date`, code, code_type, ob_value, ob_unit,
-                `description`, ob_code, ob_type, ob_status,
-                ob_reason_status, ob_reason_code
-                FROM form_observation
-                WHERE ob_type = '$observation_type'
+        $sql = "SELECT `pid`, `encounter`, `date`, `code`, `code_type`, `ob_value`, `ob_unit`,
+                `description`, `ob_code`, `ob_type`, `ob_status`,
+                `ob_reason_status`, `ob_reason_code`
+                FROM `form_observation`
+                WHERE `ob_type` = '$observation_type'
                 ";
         return $sql;
     }
@@ -69,13 +69,18 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
         $qdmModel = new $modelClass([
             '_id' => $id,
             'id' => $id,
+            'relevantDatetime' => new DateTime([
+                'date' => $record['date']
+            ]),
             'relevantPeriod' => new Interval([
                 'low' => new DateTime([
                     'date' => $record['date']
                 ]),
-                'high' => null, // TODO We don't have an end-date for assessment?,
+                'high' => new DateTime([
+                    'date' => $record['date']
+                ]),
                 'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => false
+                'highClosed' => $record['date'] ? true : false
             ]),
             'authorDatetime' => new DateTime([
                 'date' => $record['date']
