@@ -24,7 +24,7 @@ class QdmRequestSome implements QdmRequestInterface
      */
     public function __construct(array $pids)
     {
-        $filterClause = str_replace("?,", count($pids));
+        $filterClause = str_repeat("?,", count($pids));
         $filterClause = rtrim($filterClause, ",");
         $this->filter = new BoundFilter();
         $this->filter->setFilterClause("pid IN ($filterClause)");
