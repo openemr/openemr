@@ -31,51 +31,64 @@ class ORDataObject
 
     public function persist()
     {
-        // NOTE: REPLACE INTO does a DELETE and then INSERT, if you have foreign keys setup the delete call will trigger
-        $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
-        //echo "<br /><br />";
+        $this_table = escape_table_name($this->_prefix . $this->_table);
         $db = get_db();
-        $fields = $db->metaColumns($this->_table);
+        $fields = $db->metaColumns($this_table);
 
+        $this_rec = [];
+        $pkeys = [];
+        $pkey_id = '';
         foreach ($fields as $field => $objAdoField) {
             $func = "get_" . $field;
-            //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
             if (is_callable(array($this,$func))) {
                 $val = call_user_func(array($this,$func));
-
-                // mdsupport - Maintaining legacy behavior that makes this blunt REPLACE worse
-                if (($objAdoField->primary_key)  && empty($val)) {
-                    // Uncomment the following block to limit use of generate_id only for keys that are not auto_incremented
-                    /**
-                    if ($objAdoField->auto_increment) {
+                if ($objAdoField->primary_key) {
+                    // Potential issue if multiple fields included as primary key
+                    $pkey_id = $field;
+                    if (empty($val) && ($objAdoField->auto_increment)) {
                         // Skip the field from sql statement.
                         continue;
+                    } else {
+                        $val = generate_id();
                     }
-                    **/
-                    $last_id = generate_id();
-                    call_user_func(array(&$this,"set_" . $field), $last_id);
-                    $val = $last_id;
+                    $pkeys[] = $field;
                 }
-
                 if (!empty($val)) {
-                    //echo "s: $field to: $val <br />";
-
-                                        //modified 01-2010 by BGM to centralize to formdata.inc.php
-                            // have place several debug statements to allow standardized testing over next several months
-                    $sql .= " `" . $field . "` = '" . add_escape_custom(strval($val)) . "',";
-                        //DEBUG LINE - error_log("ORDataObject persist after escape: ".add_escape_custom(strval($val)), 0);
-                        //DEBUG LINE - error_log("ORDataObject persist after escape and then stripslashes test: ".stripslashes(add_escape_custom(strval($val))), 0);
-                        //DEBUG LINE - error_log("ORDataObject original before the escape and then stripslashes test: ".strval($val), 0);
+                    $this_rec[$field] = $val;
                 }
             }
         }
-
-        if (strrpos($sql, ",") == (strlen($sql) - 1)) {
-                $sql = substr($sql, 0, (strlen($sql) - 1));
+        if (empty($this_rec)) {
+            // WTF?
+            return false;
         }
 
-        //echo "<br />sql is: " . $sql . "<br /><br />";
-        sqlQuery($sql);
+        $update = false;
+        if (!empty($pkeys)) {
+            // Find record with matching primary keys
+            $sql = sprintf('select * FROM `%s` WHERE %s=?',
+                $this_table,
+                implode("=?, ", $pkeys)
+            );
+            $rs = $db->execute($sql, array_values(array_intersect_key($this_rec, array_flip($pkeys))));
+            $update = ($rs->recordCount() > 0);
+        }
+
+        if ($update) {
+            $sql = $db->getUpdateSql($rs, $this_rec);
+            if (!$sql) {
+                // Nothing to update
+                return false;
+            } else {
+                sqlQuery($sql);
+            }
+        } else {
+            $sql = $db->getInsertSql($this_table, $this_rec);
+            // Capture inserted autoincremented value
+            $pkey = sqlInsert($sql);
+            call_user_func([$this,'set_'.$pkey_id], $pkey);
+        }
+
         return true;
     }
 
