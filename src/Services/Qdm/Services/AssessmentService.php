@@ -10,11 +10,11 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\AssessmentPerformed;
 use OpenEMR\Cqm\Qdm\BaseTypes\{
     DateTime,
     Interval
 };
-use OpenEMR\Cqm\Qdm\AssessmentPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
