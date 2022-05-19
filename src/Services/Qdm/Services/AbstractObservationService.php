@@ -12,10 +12,7 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\{
-    DateTime,
-    Interval
-};
+use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -71,16 +68,6 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
             'id' => $id,
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
-            ]),
-            'relevantPeriod' => new Interval([
-                'low' => new DateTime([
-                    'date' => $record['date']
-                ]),
-                'high' => new DateTime([
-                    'date' => $record['date']
-                ]),
-                'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $record['date'] ? true : false
             ]),
             'authorDatetime' => new DateTime([
                 'date' => $record['date']
