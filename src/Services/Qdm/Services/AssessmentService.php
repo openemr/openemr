@@ -49,7 +49,7 @@ class AssessmentService extends AbstractObservationService implements QdmService
                 'low' => new DateTime([
                     'date' => $record['date']
                 ]),
-                'high' => null, // TODO We don't have an end-date for insurance?,
+                'high' => null, // TODO We don't have an end-date for assessment?,
                 'lowClosed' => $record['date'] ? true : false,
                 'highClosed' => false
             ]),
