@@ -15,10 +15,6 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class QdmRequestSome implements QdmRequestInterface
 {
-    protected $pids = [];
-
-    protected $pidString = "";
-
     protected $filter = null;
 
     /**
@@ -28,39 +24,18 @@ class QdmRequestSome implements QdmRequestInterface
      */
     public function __construct(array $pids)
     {
-        $this->pids = $pids;
-
-        if (is_array($pids)) {
-            $this->pidString = implode(",", $pids);
-        }
-
+        $filterClause = str_repeat("?,", count($pids));
+        $filterClause = rtrim($filterClause, ",");
         $this->filter = new BoundFilter();
-        $this->filter->setFilterClause("pid IN (?)");
-        $this->filter->setBoundValues([$this->pidString]);
-    }
-
-    public function getPidString()
-    {
-        return $this->pidString;
+        $this->filter->setFilterClause("pid IN ($filterClause)");
+        $this->filter->setBoundValues($pids);
     }
 
     /**
-     * @return array
+     * @return BoundFilter|null
+     *
+     * Use the PIDs to create a BoundFilter
      */
-    public function getPids(): array
-    {
-        return $this->pids;
-    }
-
-    /**
-     * @param array $pids
-     */
-    public function setPids(array $pids): void
-    {
-        $this->pids = $pids;
-    }
-
-
     public function getFilter()
     {
         return $this->filter;
