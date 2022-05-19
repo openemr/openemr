@@ -16,6 +16,7 @@
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -99,7 +100,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
     <!-- validation library -->
     <?php
-    //Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
+    //Non LBF forms use the new validation, please make sure you have the corresponding values in the list Page validation
     $use_validate_js = 1;
     require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
@@ -156,7 +157,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             });
 
             $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
@@ -289,6 +290,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
         }
     }
     $user_facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+    $MBO = new OpenEMR\Billing\MiscBillingOptions();
     ?>
 </head>
 <body <?php echo $body_javascript; ?>>
@@ -421,13 +423,13 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
                         </div>
                         <div class="col-sm">
-                            <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>' />
+                            <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatDateTime($result['date'])) : attr(oeFormatDateTime(date('Y-m-d H:i:00'))); ?>' title='<?php echo xla('Date of service'); ?>' />
                         </div>
                         <div class="col-sm-2" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
                             <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                         </div>
                         <div class="col-sm" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
-                            <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
+                            <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatDateTime($result['onset_date'])) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                         </div>
                     </div>
                     <div class="form-row align-items-center mt-2"
@@ -488,10 +490,16 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </select>
                         </div>
                         <div class="col-sm-2">
-                            <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
+                            <label for='referring_provider_id' class="text-right"><?php echo xlt('Referring Provider'); ?>:</label>
                         </div>
                         <div class="col-sm">
-                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
+                            <?php
+                            if ($viewmode && !empty($result["referring_provider_id"])) {
+                                $MBO->genReferringProviderSelect('referring_provider_id', '-- ' . xl("Please Select") . ' --', $result["referring_provider_id"]);
+                            } else { // defalut to the patient's referring provider from Demographics->Choices
+                                $MBO->genReferringProviderSelect('referring_provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
+                            } ?>
+                            </select>
                         </div>
                     </div>
                     <div class="form-row align-items-center mt-2">
@@ -566,21 +574,48 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 <?php } ?>
                             </select>
                         </div>
-                        <div class="col-sm-2"></div>
-                        <div class="col-sm"></div>
+                        <div class="col-sm-2">
+                            <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-sm-2">
+                            <label for='encounter_type' class="text-right"><?php echo xlt('Type'); ?>:</label>
+                        </div>
+                        <div class="col-sm">
+                            <?php
+                            // we need to convert from our selected code if we have one to our list type
+                            $encounter_type_option = $result['encounter_type_code'] ?? '';
+                            if (!empty($encounter_type_option)) {
+                                $listService = new ListService();
+                                $codes = $listService->getOptionsByListName('encounter-types', ['codes' => $result['encounter_type_code']]);
+                                if (empty($codes[0])) {
+                                    // we may not have code types installed, in that case we will just use the option-id so we can remember the data
+                                    $option = $listService->getListOption('encounter-types', $encounter_type_option);
+                                    $encounter_type_option = $option['option_id'] ?? '';
+                                } else {
+                                    $encounter_type_option = $codes[0]['option_id'];
+                                }
+                            }
+                            ?>
+                            <?php echo generate_select_list('encounter_type', 'encounter-types', $viewmode ? $encounter_type_option : '', '', '--' . xl('Select One') . '--'); ?>
+                        </div>
                     </div>
                     <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
-                    <div class="form-row mt-2">
+                    <div class="form-row align-items-center mt-2">
                         <div class="col-sm-2">
                             <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
                         </div>
-                        <div class="col-sm-8">
+                        <div class="col-sm-6">
                             <select name="pos_code" id="pos_code" class='form-control'>
                                 <?php
                                 $pc = new POSRef();
                                 foreach ($pc->get_pos_ref() as $pos) {
                                     echo "<option value=\"" . attr($pos["code"]) . "\"";
-                                    if (($pos["code"] == $result['pos_code'] && $viewmode) || ($pos["code"] == $posCode && !$viewmode)) {
+                                    if (($pos["code"] == ($result['pos_code'] ?? '') && $viewmode) || ($pos["code"] == $posCode && !$viewmode)) {
                                         echo " selected";
                                     }
                                     echo ">" . text($pos['code']) . ": " . xlt($pos['title']);
@@ -589,7 +624,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 ?>
                             </select>
                         </div>
-                    </div>
                     <?php } ?>
                 </div>
             </fieldset>

@@ -102,6 +102,9 @@ class FeeSheet
 
         $this->pid = $pid;
         $this->encounter = $encounter;
+        // get provider field for pid's primary insurance from insurance_data to be added to billing row table as payer_id
+        $primary_insurance = getInsuranceData($this->pid);
+        $this->payer_id = $primary_insurance['provider'];
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
         $this->ALLOW_COPAYS = empty($GLOBALS['ippf_specific']);
@@ -449,7 +452,7 @@ class FeeSheet
         // If using line item billing and user wishes to default to a selected provider, then do so.
         if (!empty($GLOBALS['default_fee_sheet_line_item_provider']) && !empty($GLOBALS['support_fee_sheet_line_item_provider'])) {
             if ($provider_id == 0) {
-                $provider_id = 0 + $this->findProvider();
+                $provider_id = (int) $this->findProvider();
             }
         }
 
@@ -957,7 +960,7 @@ class FeeSheet
 
                 $fee = sprintf('%01.2f', $price * $units);
 
-                if (!$cod0 && $code_types[$code_type]['fee'] == 1) {
+                if (!$cod0 && ($code_types[$code_type]['fee'] ?? null) == 1) {
                     $mod0 = $modifier;
                     $cod0 = $code;
                     $ct0  = $code_type;
@@ -1143,7 +1146,8 @@ class FeeSheet
                         0,
                         $notecodes,
                         $pricelevel,
-                        $revenue_code
+                        $revenue_code,
+                        $this->payer_id
                     );
                 }
             } // end for
@@ -1208,7 +1212,7 @@ class FeeSheet
                         "WHERE ds.sale_id = ?",
                         array($sale_id)
                     );
-                    $rxid = 0 + $tmprow['prescription_id'];
+                    $rxid = (int) $tmprow['prescription_id'];
                     $logarr = null;
                     if (!empty($tmprow)) {
                         $logarr = array(
@@ -1383,7 +1387,7 @@ class FeeSheet
                             $rxobj->persist();
                             // Set drug_sales.prescription_id to $rxobj->get_id().
                             $oldrxid = $rxid;
-                            $rxid = 0 + $rxobj->get_id();
+                            $rxid = (int) $rxobj->get_id();
                         if ($rxid != $oldrxid) {
                             sqlStatement(
                                 "UPDATE drug_sales SET prescription_id = ? WHERE sale_id = ?",

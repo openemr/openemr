@@ -35,12 +35,18 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
+use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
+use OpenEMR\Events\Patient\Summary\Card\RenderModel;
+use OpenEMR\Events\Patient\Summary\Card\CardInterface;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Reminder\BirthdayReminder;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
@@ -59,6 +65,11 @@ if (isset($_GET['set_pid'])) {
 // want smart support in their system.
 $smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
 $smartLaunchController->registerContextEvents();
+
+/**
+ * @var EventDispatcher
+ */
+$ed = $GLOBALS['kernel']->getEventDispatcher();
 
 $active_reminders = false;
 $all_allergy_alerts = false;
@@ -154,19 +165,30 @@ function portalAuthorized($pid)
     }
 
     $return = [
-        'allowed' => false,
-        'created' => false,
+        'isAllowed' => false
+        ,'allowed' => [
+                'api' => false
+                ,'portal' => false
+        ],
+        'credentials' => [
+                'created' => false
+                ,'date' => null
+        ]
     ];
 
-    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
-    if ($portalStatus['allow_patient_portal'] == 'YES') {
-        $return['allowed'] = true;
-        $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
+    $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
+    $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
+    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps']) != 'YES';
+    if ($return['allowed']['portal'] || $return['allowed']['api']) {
+        $return['isAllowed'] = true;
+        $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
         if ($portalLogin) {
-            $return['created'] = true;
+            $return['credentials']['date'] = $portalLogin['date_created'];
+            $return['credentials']['created'] = true;
         }
         return $return;
     }
+    return $return;
 }
 
 function deceasedDays($days_deceased)
@@ -257,6 +279,7 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -265,6 +288,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     require_once("$srcdir/options.js.php");
     ?>
     <script>
+        // Process click on diagnosis for referential cds popup.
+        function referentialCdsClick(codetype, codevalue) {
+            top.restoreSession();
+            // Force a new window instead of iframe to address cross site scripting potential
+            dlgopen('../education.php?type=' + encodeURIComponent(codetype) + '&code=' + encodeURIComponent(codevalue), '_blank', 1024, 750,true);
+        }
+
         function oldEvt(apptdate, eventid) {
             let title = <?php echo xlj('Appointments'); ?>;
             dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 800, 500, '', title);
@@ -656,7 +686,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                dlgopen('', '', 380, 400, '', '', {
+                dlgopen('', '', 550, 550, '', '', {
                     buttons: [{
                         text: <?php echo xlj('Close'); ?>,
                         close: true,
@@ -815,6 +845,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </script>
 
     <style>
+        /* Bad practice to override here, will get moved to base style theme */
         .card {
             box-shadow: 1px 1px 1px hsl(0 0% 0% / .2);
             border-radius: 0;
@@ -868,7 +899,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
 </head>
 
-<body class="mt-3 patient-demographic bg-light">
+<body class="mt-1 patient-demographic bg-light">
 
     <?php
     // Create and fire the patient demographics view event
@@ -877,7 +908,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
-        echo $twig->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Medical Dashboard")]);
+        echo $twig->getTwig()->render('core/unauthorized-partial.html.twig', ['pageTitle' => xl("Medical Dashboard")]);
         exit();
     }
     ?>
@@ -919,12 +950,45 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     endif;
 
+                    $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('primary'));
+                    $sectionCards = $sectionRenderEvents->getCards();
+
+                    $t = $twig->getTwig();
+
+                    foreach ($sectionCards as $card) {
+                        $_auth = $card->getAcl();
+                        if (!AclMain::aclCheckCore($_auth[0], $_auth[1])) {
+                            continue;
+                        }
+
+                        $btnLabel = false;
+                        if ($card->canAdd()) {
+                            $btnLabel = 'Add';
+                        } elseif ($card->canEdit()) {
+                            $btnLabel = 'Edit';
+                        }
+
+                        $viewArgs = [
+                            'title' => $card->getTitle(),
+                            'id' => $card->getIdentifier(),
+                            'initiallyCollapsed' => !$card->isInitiallyCollapsed(),
+                            'card_bg_color' => $card->getBackgroundColorClass(),
+                            'card_text_color' => $card->getTextColorClass(),
+                            'forceAlwaysOpen' => !$card->canCollapse(),
+                            'btnLabel' => $btnLabel,
+                            'btnLink' => 'test',
+                        ];
+
+                        echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
+                    }
+
                     if (!$GLOBALS['hide_billing_widget']) :
                         $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
                         $patientbalance = get_patient_balance($pid, false);
                         $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
                         $totalbalance = $patientbalance + $insurancebalance;
                         $id = "billing_ps_expand";
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('billing'));
                         $viewArgs = [
                             'title' => xl('Billing'),
                             'id' => $id,
@@ -934,6 +998,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'insuranceBalance' => $insurancebalance,
                             'totalBalance' => $totalbalance,
                             'forceAlwaysOpen' => $forceBillingExpandAlways,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
 
                         if (!empty($result['billing_note'])) {
@@ -954,11 +1020,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, new RenderEvent($pid), 10);
 
                     if (AclMain::aclCheckCore('patients', 'demo')) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('demographic'));
                         // Render the Demographics box
                         $viewArgs = [
                             'title' => xl("Demographics"),
                             'id' => "demographics_ps_expand",
-                            'btnText' => "Edit",
+                            'btnLabel' => "Edit",
                             'btnLink' => "demographics_full.php",
                             'linkMethod' => "html",
                             'auth' => ACLMain::aclCheckCore('patients', 'demo', '', 'write'),
@@ -967,6 +1034,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'tabID' => "DEM",
                             'result' => $result,
                             'result2' => $result2,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/tab_base.html.twig', $viewArgs);
 
@@ -1010,7 +1079,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         if ($GLOBALS["enable_oa"]) {
-                            if ($_POST['status_update'] === 'true') {
+                            if (($_POST['status_update'] ?? '') === 'true') {
                                 unset($_POST['status_update']);
                                 $showEligibility = true;
                                 $ok = EDI270::requestEligibleTransaction($pid);
@@ -1036,10 +1105,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         $id = "insurance_ps_expand";
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('insurance'));
                         $viewArgs = [
                             'title' => xl("Insurance"),
                             'id' => $id,
-                            'btnText' => "Edit",
+                            'btnLabel' => "Edit",
                             'btnLink' => "demographics_full.php",
                             'linkMethod' => 'html',
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
@@ -1047,6 +1117,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'eligibility' => $output,
                             'enable_oa' => $GLOBALS['enable_oa'],
                             'auth' => AclMain::aclCheckCore('patients', 'demo', '', 'write'),
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
 
                         if (count($insArr) > 0) {
@@ -1055,6 +1127,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;  // end if demographics authorized
 
                     if (AclMain::aclCheckCore('patients', 'notes')) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('note'));
                         // Notes expand collapse widget
                         $id = "pnotes_ps_expand";
                         $viewArgs = [
@@ -1066,12 +1139,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => "html",
                             'bodyClass' => "notab",
                             'auth' => AclMain::aclCheckCore('patients', 'notes', '', 'write'),
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end if notes authorized
 
                     if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) :
                         // patient reminders collapse widget
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('reminder'));
                         $id = "patient_reminders_ps_expand";
                         $viewArgs = [
                             'title' => xl('Patient Reminders'),
@@ -1081,12 +1157,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => '../reminder/patient_reminders.php?mode=simple&patient_id=' . attr_url($pid),
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
-                            'auth' => AclMain::aclCheckCore('patients', 'reminder', '', 'write')
+                            'auth' => AclMain::aclCheckCore('patients', 'reminder', '', 'write'),
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; //end if prw is activated
 
                     if (AclMain::aclCheckCore('patients', 'disclosure')) :
+                        $authWriteDisclosure = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
+                        $authAddonlyDisclosure = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('disclosure'));
                         // disclosures expand collapse widget
                         $id = "disclosures_ps_expand";
                         $viewArgs = [
@@ -1097,12 +1178,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => 'disclosure_full.php',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
-                            'auth' => AclMain::aclCheckCore('patients', 'disclosure', '', 'write')
+                            'auth' => ($authWriteDisclosure || $authAddonlyDisclosure),
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end if disclosures authorized
 
                     if ($GLOBALS['amendments'] && AclMain::aclCheckCore('patients', 'amendment')) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('amendment'));
                         // Amendments widget
                         $sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
                         $result = sqlStatement($sql, [$pid]);
@@ -1123,11 +1207,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'bodyClass' => 'notab collapse show',
                             'auth' => AclMain::aclCheckCore('patients', 'amendment', '', 'write'),
                             'amendments' => $amendments,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/amendments.html.twig', $viewArgs);
                     endif; // end amendments authorized
 
                     if (AclMain::aclCheckCore('patients', 'lab')) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('lab'));
                         // labdata expand collapse widget
                         // check to see if any labdata exist
                         $spruch = "SELECT procedure_report.date_collected AS date
@@ -1148,11 +1235,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => 'html',
                             'bodyClass' => 'collapse show',
                             'auth' => $widgetAuth,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end labs authorized
 
                     if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('vital_sign'));
                         // vitals expand collapse widget
                         // check to see if any vitals exist
                         $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid));
@@ -1168,6 +1258,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => 'html',
                             'bodyClass' => 'collapse show',
                             'auth' => $widgetAuth,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end vitals
@@ -1200,6 +1292,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $widgetAuth = $existVitals;
                         }
 
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent($gfrow['title']));
                         $viewArgs = [
                             'title' => xl($gfrow['title']),
                             'id' => $vitals_form_id,
@@ -1209,6 +1302,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
                             'auth' => $widgetAuth,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endwhile; // end while
@@ -1217,18 +1312,51 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-
-                    if ($GLOBALS['erx_enable']) :
-                        echo $twig->getTwig()->render('patient/partials/erx.html.twig', []);
+                    if ($GLOBALS['portal_onsite_two_enable']) :
+                        $portalCard = new PortalCard($GLOBALS);
                     endif;
 
-                    if ($GLOBALS['portal_onsite_two_enable']) :
-                        echo $twig->getTwig()->render('patient/partials/portal.html.twig', [
-                            'portalAuthorized' => portalAuthorized($pid),
-                            'portalLoginHref' => $portal_login_href,
-                            'title' => xl('Patient Portal'),
-                            'id' => 'patient_portal',
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                    $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('secondary'));
+                    $sectionCards = $sectionRenderEvents->getCards();
+
+                    $t = $twig->getTwig();
+
+                    foreach ($sectionCards as $card) {
+                        $_auth = $card->getAcl();
+                        $auth = AclMain::aclCheckCore($_auth[0], $_auth[1]);
+                        if (!$auth) {
+                            continue;
+                        }
+
+                        $btnLabel = false;
+                        if ($card->canAdd()) {
+                            $btnLabel = 'Add';
+                        } elseif ($card->canEdit()) {
+                            $btnLabel = 'Edit';
+                        }
+
+                        $viewArgs = [
+                            'card' => $card,
+                            'title' => $card->getTitle(),
+                            'id' => $card->getIdentifier(),
+                            'auth' => $auth,
+                            'linkMethod' => 'html',
+                            'initiallyCollapsed' => !$card->isInitiallyCollapsed(),
+                            'card_bg_color' => $card->getBackgroundColorClass(),
+                            'card_text_color' => $card->getTextColorClass(),
+                            'forceAlwaysOpen' => !$card->canCollapse(),
+                            'btnLabel' => $btnLabel,
+                            'btnLink' => 'test',
+                        ];
+
+                        echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
+                    }
+
+                    if ($GLOBALS['erx_enable']) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('demographics'));
+                        echo $twig->getTwig()->render('patient/partials/erx.html.twig', [
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ]);
                     endif;
 
@@ -1236,6 +1364,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
                     if ($photos or $idcard_doc_id) {
                         $id = "photos_ps_expand";
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('patient_photo'));
                         $viewArgs = [
                             'title' => xl("ID Card / Photos"),
                             'id' => $id,
@@ -1248,6 +1377,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'patientPhotoCategoryName' => $GLOBALS['patient_photo_category_name'],
                             'photos' => $photos,
                             'idCardDocID' => $idcard_doc_id,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/photo.html.twig', $viewArgs);
                     }
@@ -1295,6 +1426,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $id = "adv_directives_ps_expand";
+
+                            $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('advance_directive'));
                             $viewArgs = [
                                 'title' => xl("Advance Directives"),
                                 'id' => $id,
@@ -1306,6 +1439,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 'auth' => true,
                                 'advDirArr' => $advDirArr,
                                 'counterFlag' => $counterFlag,
+                                'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                                'appendedInjection' => $dispatchResult->getAppendedInjection(),
                             ];
                             echo $twig->getTwig()->render('patient/card/adv_dir.html.twig', $viewArgs);
                         }
@@ -1318,6 +1453,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (!empty($clin_rem_check) && $cdr && $cdr_crw && AclMain::aclCheckCore('patients', 'alert')) {
                         // clinical summary expand collapse widget
                         $id = "clinical_reminders_ps_expand";
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('clinical_reminders'));
                         $viewArgs = [
                             'title' => xl("Clinical Reminders"),
                             'id' => $id,
@@ -1326,6 +1462,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => "../reminder/clinical_reminders.php?patient_id=" . attr_url($pid),
                             'linkMethod' => "html",
                             'auth' => AclMain::aclCheckCore('patients', 'alert', '', 'write'),
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     } // end if crw
@@ -1487,12 +1625,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $count2++;
                             }
                             $id = "recall_ps_expand";
+                            $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('recall'));
                             echo $twig->getTwig()->render('patient/card/recall.html.twig', [
                                 'title' => xl('Recall'),
                                 'id' => $id,
                                 'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                                 'recalls' => $recallArr,
                                 'recallsAvailable' => ($count < 1 && empty($count2)) ? false : true,
+                                'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                                'appendedInjection' => $dispatchResult->getAppendedInjection(),
                             ]);
                         }
                     } // End of Appointments Widget.
@@ -1570,6 +1711,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['dayName'] = $dayname;
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
                             $row['uname'] = text($row['fname'] . " " . $row['lname']);
+                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
                             $past_appts[] = $row;
                         }
                     }
@@ -1577,6 +1719,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Display the Appt card
                     $id = "appointments_ps_expand";
+                    $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('appointment'));
                     echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
                         'title' => xl("Appointments"),
                         'id' => $id,
@@ -1594,6 +1737,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'therapyGroupCategories' => $therapyGroupCategories,
                         'auth' => $resNotNull && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly')),
                         'resNotNull' => $resNotNull,
+                        'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                        'appendedInjection' => $dispatchResult->getAppendedInjection(),
                     ]);
 
                     echo "<div id=\"stats_div\"></div>";
@@ -1606,12 +1751,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $spruch = "SELECT id FROM forms WHERE pid = ? AND formdir = ?";
                         $existTracks = sqlQuery($spruch, array($pid, "track_anything"));
                         $id = "track_anything_ps_expand";
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('track_anything'));
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', [
                             'title' => xl("Tracks"),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLink' => "../../forms/track_anything/create.php",
-                            'linkMethod' => "html"
+                            'linkMethod' => "html",
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ]);
                     }  // end track_anything
 
@@ -1619,10 +1767,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
+                            'csrf' => CsrfUtils::collectCsrfToken(),
+                            'pid' => $pid
                         ]);
                     endif;
                     ?>
                 </div> <!-- end right column div -->
+                </div> <!-- end div.main > row:first  -->
             </div> <!-- end main content div -->
         </div><!-- end container div -->
         <?php $oemr_ui->oeBelowContainerDiv(); ?>

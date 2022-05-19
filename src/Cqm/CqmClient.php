@@ -25,20 +25,21 @@ class CqmClient extends HttpClient
     protected function getCommand(): string
     {
         $port = $this->port;
-        $node = "node"; //$GLOBALS['node_binary'];
+
+        $node = 'node';
         $cmd = $this->servicePath;
 
         if (IS_WINDOWS) {
             $cmd = "start /B $node $cmd";
             return $cmd;
         } else {
+            $command = $node;
             $system = new System();
-            $command = 'nodejs';
-            if (!$system->command_exists($command)) {
-                if ($system->command_exists('node')) {
-                    $command = 'node';
+            if (!$system->command_exists($node)) {
+                if ($system->command_exists('nodejs')) {
+                    $command = 'nodejs';
                 } else {
-                    error_log("Node is not installed on the system.  Connection failed");
+                    error_log("Connection failed. Node does not appear to be installed on the system.");
                     throw new Exception('Connection Failed.');
                 }
             }

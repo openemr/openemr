@@ -227,7 +227,7 @@ class PatientService extends BaseService
 
         if (
             $dataBeforeUpdate['care_team_provider'] != ($data['care_team_provider'] ?? '')
-            || $dataBeforeUpdate['care_team_facility'] != $data['care_team_facility']
+            || ($dataBeforeUpdate['care_team_facility'] ?? '') != ($data['care_team_facility'] ?? '')
         ) {
             // need to save off our care team
             $this->saveCareTeamHistory($data, $dataBeforeUpdate['care_team_provider'], $dataBeforeUpdate['care_team_facility']);
@@ -341,7 +341,7 @@ class PatientService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     patient_data.*
                     ,patient_history_type_key
                     ,previous_name_first
@@ -353,7 +353,7 @@ class PatientService extends BaseService
                     ,previous_name_enddate
                 FROM patient_data
                 LEFT JOIN (
-                    SELECT 
+                    SELECT
                     pid AS patient_history_pid
                     ,history_type_key AS patient_history_type_key
                     ,previous_name_prefix
@@ -734,7 +734,7 @@ class PatientService extends BaseService
             }
         } else // if patient has had birthday this calandar year
         {
-            $age_year = $yearnow - $dobyear;
+            $age_year = (int) $yearnow - (int) $dobyear;
             if ($daynow < $dobday) {
                 $months_since_birthday = $monthnow - $dobmonth - 1;
                 $days_since_dobday = $nd - $dobday + $daynow;
@@ -760,6 +760,10 @@ class PatientService extends BaseService
 
     private function parseSuffixForPatientRecord($patientRecord)
     {
+        // if we have a suffix populated (that wasn't entered into last name) let's use that.
+        if (!empty($patientRecord['suffix'])) {
+            return $patientRecord['suffix'];
+        }
         // parse suffix from last name. saves messing with LBF
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;
@@ -776,7 +780,7 @@ class PatientService extends BaseService
     private function getPatientSuffixKeys()
     {
         if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = array(xl('Jr.'), xl(' Jr'), xl('Sr.'), xl(' Sr'), xl('II'), xl('III'), xl('IV'));
+            $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
         }
         return $this->patientSuffixKeys;
     }

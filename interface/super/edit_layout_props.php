@@ -290,11 +290,16 @@ if ($layout_id) {
  </tr>
 
 <?php if (empty($group_id)) { ?>
+<tr>
+    <td></td>
+    <td><?php echo xlt('For transactions, change category to Transactions'); ?></td>
+</tr>
  <tr>
   <td valign='top' width='1%' nowrap>
     <?php echo xlt('Category'); ?>
   </td>
   <td>
+
    <input type='text' class='form-control' size='40' name='form_mapping' value='<?php echo attr($row['grp_mapping']); ?>' />
   </td>
  </tr>

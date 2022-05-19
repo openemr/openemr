@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientCharacteristicBirthdate extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $birthDatetime
      */
@@ -47,3 +46,4 @@ class PatientCharacteristicBirthdate extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicBirthdate';
 }
+

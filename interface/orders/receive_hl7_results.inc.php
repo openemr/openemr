@@ -796,7 +796,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
         if (empty($seg)) {
             continue;
         }
-
+        if ($seg == chr(28)) {
+            continue;
+        }
         // echo "<!-- $dryrun $seg -->\n"; // debugging
 
         ++$rhl7_segnum;
@@ -1470,7 +1472,7 @@ function poll_hl7_results(&$info, $labs = 0)
 
     $filecount = 0;
     $badcount = 0;
-    $maxdl = $_REQUEST['form_max_results'];
+    $maxdl = $_REQUEST['form_max_results'] ?? 9999; // in case to prevent not running report.
     if (!isset($info['match'])) {
         $info['match'] = array(); // match requests
     }
@@ -1482,7 +1484,7 @@ function poll_hl7_results(&$info, $labs = 0)
     $ppres = sqlStatement("SELECT * FROM procedure_providers ORDER BY name");
 
     while ($pprow = sqlFetchArray($ppres)) {
-        $ppid = 0 + $pprow['ppid'];
+        $ppid = (int)$pprow['ppid'];
         $protocol = $pprow['protocol'];
         $remote_host = $pprow['remote_host'];
         $send_account = $pprow['send_fac_id'];
@@ -1490,7 +1492,7 @@ function poll_hl7_results(&$info, $labs = 0)
         $lab_app = $pprow['recv_app_id'];
         $lab_name = $pprow['name'];
         $lab_npi = strtoupper(trim($pprow['npi']));
-        $debug = trim($pprow['DorP']) === 'D' ? true : false;
+        $debug = trim($pprow['DorP']) === 'D';
         $hl7 = '';
         $orphanLog = '';
         $log = '';
@@ -1511,7 +1513,7 @@ function poll_hl7_results(&$info, $labs = 0)
             $remote_port = 22;
             // Hostname may have ":port" appended to specify a nonstandard port number.
             if ($i = strrpos($remote_host, ':')) {
-                $remote_port = 0 + substr($remote_host, $i + 1);
+                $remote_port = (int)substr($remote_host, $i + 1);
                 $remote_host = substr($remote_host, 0, $i);
             }
 
@@ -1529,7 +1531,7 @@ function poll_hl7_results(&$info, $labs = 0)
 
             $files = $sftp->nlist($pathname);
             foreach ($files as $file) {
-                if (substr($file, 0, 1) === '.') {
+                if (str_starts_with($file, '.')) {
                     continue;
                 }
 
@@ -1647,13 +1649,14 @@ function poll_hl7_results(&$info, $labs = 0)
             // Sort by filename just because.
             $files = array();
             while (false !== ($file = readdir($dh))) {
-                if (substr($file, 0, 1) == '.') {
+                if (str_starts_with($file, '.')) {
                     continue;
                 }
-
+                if (is_dir($file)) {
+                    continue;
+                }
                 $files[$file] = $file;
             }
-
             closedir($dh);
             ksort($files);
             // For each file...
@@ -1676,6 +1679,10 @@ function poll_hl7_results(&$info, $labs = 0)
                 // Get file contents.
                 $hl7 = file_get_contents("$pathname/$file");
                 ++$filecount;
+                if (empty($hl7)) {
+                    $log .= "Result file empty for some reason. #$filecount: $file\n";
+                    continue;
+                }
                 $fh = fopen("$prpath/$file", 'w');
                 if ($fh) {
                     fwrite($fh, $hl7);

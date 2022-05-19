@@ -207,19 +207,14 @@ function doWait(e){
                     <select name='form_lab_id' id='form_lab_id' class='form-control'>
                         <option value="0"><?php echo xlt('All Labs'); ?></option>
                         <?php
-                        $qflag = false;
                         $ppres = sqlStatement("SELECT ppid, name, npi FROM procedure_providers ORDER BY name, ppid");
                         while ($pprow = sqlFetchArray($ppres)) {
-                            if ($qflag) {
-                                continue;
-                            }
                             echo "<option value='" . attr($pprow['ppid']) . "'";
                             if ($pprow['ppid'] == $processing_lab) {
                                 echo " selected";
                             }
                             if (stripos($pprow['npi'], 'QUEST') !== false) {
                                 $pprow['name'] = "Quest Diagnostics";
-                                $qflag = true;
                             }
                             echo ">" . text($pprow['name']) . "</option>";
                         }

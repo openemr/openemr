@@ -221,10 +221,10 @@ if (!empty($_POST['bn_upload'])) {
       </form>
       </div>
       <script>
-      //dislpay file name
+      //display file name
         $(".custom-file-input").on("change", function() {
         var fileName = $(this).val().split("\\").pop();
-        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        $(this).siblings(".custom-file-label").addClass("selected").html(jsText(fileName));
         });
         </script>
    </body>

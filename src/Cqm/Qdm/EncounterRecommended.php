@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class EncounterRecommended extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -41,6 +40,11 @@ class EncounterRecommended extends QDMBaseType
     public $requester = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Encounter, Recommended';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.28';
@@ -62,3 +66,4 @@ class EncounterRecommended extends QDMBaseType
 
     public $_type = 'QDM::EncounterRecommended';
 }
+

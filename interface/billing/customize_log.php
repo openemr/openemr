@@ -14,7 +14,14 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
+
+//ensure user has proper access
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+    echo xlt('Billing Log Not Authorized');
+    exit;
+}
 
 $filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
 

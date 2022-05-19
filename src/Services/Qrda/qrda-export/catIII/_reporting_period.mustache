@@ -1,0 +1,23 @@
+<component>
+  <section>
+    <!-- This is the templateId for Reporting Parameters section -->
+    <templateId root="2.16.840.1.113883.10.20.17.2.1"/>
+    <!-- This is the templateId for the QRDA III Reporting Parameters Section -->
+    <templateId root="2.16.840.1.113883.10.20.27.2.2"/>
+    <code code="55187-9" codeSystem="2.16.840.1.113883.6.1"/>
+    <title>Reporting Parameters</title>
+    <text></text>
+    <entry typeCode="DRIV">
+      <act classCode="ACT" moodCode="EVN">
+        <!-- This is the templateId for Reporting Parameteres Act -->
+        <templateId root="2.16.840.1.113883.10.20.17.3.8"/>
+        <id extension="{{random_id}}" root="1.3.6.1.4.1.115"/>
+        <code code="252116004" codeSystem="2.16.840.1.113883.6.96" displayName="Observation Parameters"/>
+        <effectiveTime>
+          <low value="{{{performance_period_start}}}"/>
+          <high value="{{{performance_period_end}}}"/>
+        </effectiveTime>
+      </act>
+    </entry>
+  </section>
+</component>

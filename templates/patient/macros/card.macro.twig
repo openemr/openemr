@@ -1,0 +1,20 @@
+{#
+Macros for rendering a patient card
+
+@author       Robert Down <robertdown@live.com>
+@copyright    Copyright (c) 2022 Robert Down <robertdown@live.com>
+@package      OpenEMR
+#}
+
+{#
+Render the prepended or appended content of a card.
+
+@var array Array of RenderInterface objects
+#}
+{% macro injectedContent(content) %}
+    {% if content is iterable %}
+        {% for row in content %}
+            {{ include(row.getTemplateFile, row.getVariables)}}
+        {% endfor %}
+    {% endif %}
+{% endmacro %}

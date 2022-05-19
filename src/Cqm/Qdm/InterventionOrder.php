@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class InterventionOrder extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -34,6 +33,11 @@ class InterventionOrder extends QDMBaseType
      * @property BaseTypes\Any $requester
      */
     public $requester = null;
+
+    /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Intervention, Order';
 
     /**
      * @property string $hqmfOid
@@ -57,3 +61,4 @@ class InterventionOrder extends QDMBaseType
 
     public $_type = 'QDM::InterventionOrder';
 }
+

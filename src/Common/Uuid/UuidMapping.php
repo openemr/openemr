@@ -91,6 +91,8 @@ class UuidMapping
                 sqlStatementNoLog($insertStatement, $bindValues, true);
                 $index++;
             }
+            // now insert the mapped uuids into the registry
+            $uuidRegistry->insertUuidsIntoRegistry($uuids);
         }
         return $uuids;
     }

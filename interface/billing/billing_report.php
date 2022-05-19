@@ -25,9 +25,16 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+//ensure user has proper access
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+    echo xlt('Billing Reporting Not Authorized');
+    exit;
+}
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 // echo $GLOBALS['daysheet_provider_totals'];
@@ -384,6 +391,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         function SubmitTheScreen() { //Action on Update List link
             if (!ProcessBeforeSubmitting()) return false;
+            if (!criteriaSelectHasValue('final_this_page_criteria')) return false;
             $("#update-tooltip").replaceWith("<i class='fa fa-sync fa-spin fa-1x' style=\"color:red\"></i>");
             top.restoreSession();
             document.the_form.mode.value = 'change';
@@ -487,6 +495,15 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         jsText(<?php echo xlj('Collapse'); ?>);
                 }
             }
+        }
+
+        function criteriaSelectHasValue(select) {
+            obj = document.getElementById(select);
+            if (obj.options.length == 0) {
+                var checkstr = confirm(<?php echo xlj("Do you really want to submit with no criteria selected?"); ?>);
+                return checkstr;
+            }
+            return true;
         }
     </script>
     <?php require_once "$srcdir/../interface/reports/report.script.php"; ?>
@@ -679,8 +696,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
                         $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::insuranceCompanyDisplay";
                         if (!isset($_REQUEST['mode'])) {// default case
-                            $_REQUEST['final_this_page_criteria'][0] = "billing.billed|=|0";
-                            $_REQUEST['final_this_page_criteria_text'][0] = xl("Billing Status = Unbilled");
+                            $_REQUEST['final_this_page_criteria'][0] = "form_encounter.date|between|" . date("Y-m-d 00:00:00") . "|" . date("Y-m-d 23:59:59");
+                            $_REQUEST['final_this_page_criteria_text'][0] = xl("Date of Service = Today");
+                            $_REQUEST['final_this_page_criteria'][1] = "billing.billed|=|0";
+                            $_REQUEST['final_this_page_criteria_text'][1] = xl("Billing Status = Unbilled");
                             $_REQUEST['date_master_criteria_form_encounter_date'] = "today";
                             $_REQUEST['master_from_date_form_encounter_date'] = date("Y-m-d");
                             $_REQUEST['master_to_date_form_encounter_date'] = date("Y-m-d");
@@ -828,59 +847,57 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             }
             $list = BillingReport::getBillsListBetween("%");
             // don't query the whole encounter table if no criteria selected
-            if (isset($_POST["mode"]) && !array_key_exists('final_this_page_criteria', $_POST)) {
-                $alertmsg = "Please select at least one criteria.";
+
+            if (!isset($_POST["mode"])) {
+                if (!isset($_POST["from_date"])) {
+                    $from_date = date("Y-m-d");
+                } else {
+                    $from_date = $_POST["from_date"];
+                }
+                if (empty($_POST["to_date"])) {
+                    $to_date = '';
+                } else {
+                    $to_date = $_POST["to_date"];
+                }
+                if (!isset($_POST["code_type"])) {
+                    $code_type = "all";
+                } else {
+                    $code_type = $_POST["code_type"];
+                }
+                if (!isset($_POST["unbilled"])) {
+                    $unbilled = "on";
+                } else {
+                    $unbilled = $_POST["unbilled"];
+                }
+                if (!isset($_POST["authorized"])) {
+                    $my_authorized = "on";
+                } else {
+                    $my_authorized = $_POST["authorized"];
+                }
             } else {
-                if (!isset($_POST["mode"])) {
-                    if (!isset($_POST["from_date"])) {
-                        $from_date = date("Y-m-d");
-                    } else {
-                        $from_date = $_POST["from_date"];
-                    }
-                    if (empty($_POST["to_date"])) {
-                        $to_date = '';
-                    } else {
-                        $to_date = $_POST["to_date"];
-                    }
-                    if (!isset($_POST["code_type"])) {
-                        $code_type = "all";
-                    } else {
-                        $code_type = $_POST["code_type"];
-                    }
-                    if (!isset($_POST["unbilled"])) {
-                        $unbilled = "on";
-                    } else {
-                        $unbilled = $_POST["unbilled"];
-                    }
-                    if (!isset($_POST["authorized"])) {
-                        $my_authorized = "on";
-                    } else {
-                        $my_authorized = $_POST["authorized"];
-                    }
-                } else {
-                    $from_date = $_POST["from_date"] ?? null;
-                    $to_date = $_POST["to_date"] ?? null;
-                    $code_type = $_POST["code_type"] ?? null;
-                    $unbilled = $_POST["unbilled"] ?? null;
-                    $my_authorized = $_POST["authorized"] ?? null;
-                }
+                $from_date = $_POST["from_date"] ?? null;
+                $to_date = $_POST["to_date"] ?? null;
+                $code_type = $_POST["code_type"] ?? null;
+                $unbilled = $_POST["unbilled"] ?? null;
+                $my_authorized = $_POST["authorized"] ?? null;
+            }
 
-                if ($my_authorized == "on") {
-                    $my_authorized = "1";
-                } else {
-                    $my_authorized = "%";
-                }
+            if ($my_authorized == "on") {
+                $my_authorized = "1";
+            } else {
+                $my_authorized = "%";
+            }
 
-                if ($unbilled == "on") {
-                    $unbilled = "0";
-                } else {
-                    $unbilled = "%";
-                }
+            if ($unbilled == "on") {
+                $unbilled = "0";
+            } else {
+                $unbilled = "%";
+            }
 
-                if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
-                    billCodesList($list);
-                }
-                ?>
+            if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
+                billCodesList($list);
+            }
+            ?>
             <div class="table-responsive">
                 <table class="table table-sm">
                     <?php
@@ -1406,7 +1423,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
     </div>
     <!--end of container div -->
-    <?php } // end if no criteria selected ?>
     <?php $oemr_ui->oeBelowContainerDiv(); ?>
     <script>
         set_button_states();

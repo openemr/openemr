@@ -56,9 +56,25 @@ class HttpRestRequest
     private $requestUserRole;
 
     /**
+     * @var string The uuid of the patient in the current EHR context.  Could be logged in patient,
+     * or patient that is in the EHR context session or was selected with a launch/patient context scope
+     */
+    private $patientUUIDString;
+
+    /**
      * @var array
      */
     private $accessTokenScopes;
+
+    /**
+     * @var hashmap of resource => scopeContext where scopeContext is patient,user, or system
+     */
+    private $resourceScopeContexts;
+
+    /*
+     * @var bool True if the current request is a patient context request, false if its not.
+     */
+    private $patientRequest;
 
     /**
      * @var string
@@ -135,6 +151,7 @@ class HttpRestRequest
         if ($this->getRequestMethod() == "POST" || $this->getRequestMethod() == "PUT") {
             $this->requestBody = file_get_contents("php://input") ?? null;
         }
+        $this->setPatientRequest(false); // default to false
     }
 
     /**
@@ -304,7 +321,12 @@ class HttpRestRequest
      */
     public function getAccessTokenScopes(): array
     {
-        return $this->accessTokenScopes;
+        return array_values($this->accessTokenScopes);
+    }
+
+    public function requestHasScope($scope)
+    {
+        return isset($this->accessTokenScopes[$scope]);
     }
 
     /**
@@ -312,7 +334,38 @@ class HttpRestRequest
      */
     public function setAccessTokenScopes(array $scopes): void
     {
-        $this->accessTokenScopes = $scopes;
+        // scopes are in format of <context>/<resource>.<permission>
+        $scopeDelimiters = "/.";
+        $validContext = ['patient', 'user','system'];
+        $this->accessTokenScopes = [];
+        $this->resourceScopeContexts = [];
+        foreach ($scopes as $scope) {
+            // make sure to populate our scopes
+            $this->accessTokenScopes[$scope] = $scope;
+
+            $scopeContext = "patient";
+            $context = strtok($scope, $scopeDelimiters) ?? null;
+            $resource = strtok($scopeDelimiters) ?? null;
+            if (empty($context) || empty($resource)) {
+                continue; // nothing to do here
+                // skip over any launch parameters, fhiruser, etc.
+            } else if (array_search($context, $validContext) === false) {
+                continue;
+            }
+            $currentContext = $this->resourceScopeContexts[$resource] ?? $scopeContext;
+            // user scope overwrites user and patient
+            if ($context == "user" && $currentContext != 'system') {
+                $scopeContext = "user";
+            // system scope for the resource overwrites everything
+            } else if ($context == "system") {
+                $scopeContext = "system";
+            } else if ($currentContext != "patient") {
+                // if what we have currently is not a patient context we want to use that value and not overwrite
+                // it with a patient context
+                $scopeContext = $currentContext;
+            }
+            $this->resourceScopeContexts[$resource] = $scopeContext;
+        }
     }
 
     /**
@@ -410,9 +463,32 @@ class HttpRestRequest
 
     public function getPatientUUIDString()
     {
-        // we may change how this is set, it will depend on if a 'user' role type can still have
+        // if the logged in account is a patient user this will match with requestUserUUID
+        // If the logged in account is a practitioner user this will be the user selected as part of the launch/patient
+        // EHR context session.
+        // This is used in
         // patient/<resource>.* requests.  IE patient/Patient.read
-        return $this->requestUserUUIDString;
+        return $this->patientUUIDString;
+    }
+
+    public function setPatientUuidString(?string $value)
+    {
+        $this->patientUUIDString = $value;
+    }
+
+    public function setPatientRequest($isPatientRequest)
+    {
+        $this->patientRequest = $isPatientRequest;
+    }
+
+    /**
+     * Returns the scope context (patient,user,system) that is used for the given resource as parsed from the request scopes
+     * @param $resource The resource to check (IE Patient, AllergyIntolerance, etc).
+     * @return string|null The context or null if the resource does not exist in the scopes.
+     */
+    public function getScopeContextForResource($resource)
+    {
+        return $this->resourceScopeContexts[$resource] ?? null;
     }
 
     /**
@@ -445,7 +521,7 @@ class HttpRestRequest
 
     public function isPatientRequest()
     {
-        return $this->requestUserRole === 'patient';
+        return $this->patientRequest === true;
     }
 
     public function isFhir()

@@ -24,7 +24,7 @@ session_regenerate_id(true);
 //
 
 // landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 //
 
 // checking whether the request comes from index.php

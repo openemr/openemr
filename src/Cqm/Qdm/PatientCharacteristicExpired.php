@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientCharacteristicExpired extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $expiredDatetime
      */
@@ -52,3 +51,4 @@ class PatientCharacteristicExpired extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicExpired';
 }
+

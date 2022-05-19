@@ -37,6 +37,10 @@ $ob_value       = $_POST["ob_value"];
 $ob_value_phin  = $_POST["ob_value_phin"];
 $ob_unit        = $_POST["ob_unit"];
 $code_date      = $_POST["code_date"];
+$reasonCode     = $_POST['reasonCode'];
+$reasonStatusCode     = $_POST['reasonCodeStatus'];
+$reasonCodeText     = $_POST['reasonCodeText'];
+$ob_type        = $_POST["ob_type"];
 
 if ($id && $id != 0) {
     sqlStatement("DELETE FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?", array($id, $_SESSION["pid"], $_SESSION["encounter"]));
@@ -57,13 +61,14 @@ if ($id && $id != 0) {
 $code_desc = array_filter($code_desc);
 if (!empty($code_desc)) {
     foreach ($code_desc as $key => $codeval) :
+        $ob_unit_value = $ob_unit[$key];
         if ($code[$key] == 'SS003') {
             $ob_value[$key] = $ob_value_phin[$key];
             $ob_unit_value = "";
         } elseif ($code[$key] == '8661-1') {
             $ob_unit_value = "";
         } elseif ($code[$key] == '21612-7') {
-            if (! empty($ob_unit)) {
+            if (!empty($ob_unit)) {
                 foreach ($ob_unit as $key1 => $val) :
                     if ($key1 == 0) {
                         $ob_unit_value = $ob_unit[$key1];
@@ -88,9 +93,13 @@ if (!empty($code_desc)) {
             code_type   = ?,
             description = ?,
             table_code  = ?,
+            ob_type     = ?,
             ob_value    = ?,
             ob_unit     = ?,
-            date        = ?";
+            date        = ?,
+            ob_reason_code = ?,
+            ob_reason_status = ?,
+            ob_reason_text = ?";
         sqlStatement(
             "INSERT INTO form_observation SET $sets",
             [
@@ -105,9 +114,13 @@ if (!empty($code_desc)) {
                 $code_type[$key],
                 $code_desc[$key],
                 $table_code[$key],
+                $ob_type[$key],
                 $ob_value[$key],
                 $ob_unit_value,
-                $code_date[$key]
+                $code_date[$key],
+                $reasonCode[$key],
+                $reasonStatusCode[$key],
+                $reasonCodeText[$key]
             ]
         );
     endforeach;

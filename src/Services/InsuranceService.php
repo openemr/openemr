@@ -14,8 +14,10 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\AddressService;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\CoverageValidator;
 use Particle\Validator\Validator;
@@ -37,6 +39,11 @@ class InsuranceService extends BaseService
         $this->addressService = new AddressService();
         UuidRegistry::createMissingUuidsForTables([self::COVERAGE_TABLE, self::PATIENT_TABLE, self::INSURANCE_TABLE]);
         $this->coverageValidator = new CoverageValidator();
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'puuid'];
     }
 
     public function validate($data)
@@ -79,7 +86,32 @@ class InsuranceService extends BaseService
     public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
-            return sqlQuery($sql, array($id, $type));
+        return sqlQuery($sql, array($id, $type));
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT `insurance_data`.*,
+                       `puuid`
+                FROM `insurance_data`
+                LEFT JOIN (
+                    SELECT
+                    `pid` AS `patient_data_pid`,
+                    `uuid` as `puuid`
+                    FROM `patient_data`
+                ) `patient_data` ON `insurance_data`.`pid` = `patient_data`.`patient_data_pid` ";
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
+        }
+        return $processingResult;
     }
 
     public function getOne($uuid)
@@ -179,14 +211,17 @@ class InsuranceService extends BaseService
         return $processingResult;
     }
 
-    public function doesInsuranceTypeHaveEntry($pid, $type)
+    public function doesInsuranceTypeHaveEntry($pid, $type = '')
     {
+        if (!empty($type)) {
+            return sqlQuery("Select `id` From `insurance_data` Where pid = ? And type = ?", [$pid, $type])['id'] ?? null;
+        }
         return $this->getOne($pid, $type) !== false;
     }
 
     public function update($pid, $type, $data)
     {
-        $sql  = " UPDATE insurance_data SET ";
+        $sql = " UPDATE insurance_data SET ";
         $sql .= "   provider=?,";
         $sql .= "   plan_name=?,";
         $sql .= "   policy_number=?,";
@@ -259,7 +294,7 @@ class InsuranceService extends BaseService
             return $this->update($pid, $type, $data);
         }
 
-        $sql  = " INSERT INTO insurance_data SET ";
+        $sql = " INSERT INTO insurance_data SET ";
         $sql .= "   type=?,";
         $sql .= "   provider=?,";
         $sql .= "   plan_name=?,";
@@ -295,33 +330,33 @@ class InsuranceService extends BaseService
             array(
                 $type,
                 $data["provider"],
-                $data["plan_name"],
-                $data["policy_number"],
-                $data["group_number"],
-                $data["subscriber_lname"],
-                $data["subscriber_mname"],
-                $data["subscriber_fname"],
-                $data["subscriber_relationship"],
-                $data["subscriber_ss"],
-                $data["subscriber_DOB"],
-                $data["subscriber_street"],
-                $data["subscriber_postal_code"],
-                $data["subscriber_city"],
-                $data["subscriber_state"],
-                $data["subscriber_country"],
-                $data["subscriber_phone"],
-                $data["subscriber_employer"],
-                $data["subscriber_employer_street"],
-                $data["subscriber_employer_postal_code"],
-                $data["subscriber_employer_state"],
-                $data["subscriber_employer_country"],
-                $data["subscriber_employer_city"],
-                $data["copay"],
-                $data["date"],
+                $data["plan_name"] ?? '',
+                $data["policy_number"] ?? '',
+                $data["group_number"] ?? '',
+                $data["subscriber_lname"] ?? '',
+                $data["subscriber_mname"] ?? '',
+                $data["subscriber_fname"] ?? '',
+                $data["subscriber_relationship"] ?? '',
+                $data["subscriber_ss"] ?? '',
+                $data["subscriber_DOB"] ?? '',
+                $data["subscriber_street"] ?? '',
+                $data["subscriber_postal_code"] ?? '',
+                $data["subscriber_city"] ?? '',
+                $data["subscriber_state"] ?? '',
+                $data["subscriber_country"] ?? '',
+                $data["subscriber_phone"] ?? '',
+                $data["subscriber_employer"] ?? '',
+                $data["subscriber_employer_street"] ?? '',
+                $data["subscriber_employer_postal_code"] ?? '',
+                $data["subscriber_employer_state"] ?? '',
+                $data["subscriber_employer_country"] ?? '',
+                $data["subscriber_employer_city"] ?? '',
+                $data["copay"] ?? '',
+                $data["date"] ?? '',
                 $pid,
-                $data["subscriber_sex"],
-                $data["accept_assignment"],
-                $data["policy_type"]
+                $data["subscriber_sex"] ?? '',
+                $data["accept_assignment"] ?? '',
+                $data["policy_type"] ?? ''
             )
         );
     }

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeMedicationDispensed extends MedicationDispensed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeMedicationDispensed extends MedicationDispensed
 
     public $_type = 'QDM::NegativeMedicationDispensed';
 }
+

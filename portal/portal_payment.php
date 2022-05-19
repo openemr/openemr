@@ -46,6 +46,7 @@ require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 $cryptoGen = new CryptoGen();
@@ -457,8 +458,8 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 url: formURL,
                 type: "POST",
                 data: {
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal')); ?>,
                     'task': 'add',
-                    'owner': owner,
                     'pid': pid,
                     'inputBody': note,
                     'title': 'Bill/Collect',

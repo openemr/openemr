@@ -46,6 +46,6 @@ $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 $activeMessages = getPnotesByUser("1", "no", $_SESSION['authUser'], true);
 
 $totalNumber = $dueReminders + $activeMessages;
-$portal_count['reminderText'] = ($totalNumber > 0 ? '(' . text((int)$totalNumber) . ')' : '');
+$portal_count['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
 
 echo json_encode($portal_count);

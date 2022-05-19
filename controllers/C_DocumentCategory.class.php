@@ -1,6 +1,10 @@
 <?php
 
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Services\CodeTypesService;
 
 class C_DocumentCategory extends Controller
 {
@@ -45,7 +49,11 @@ class C_DocumentCategory extends Controller
         $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $this->assign("tree_html", $treeMenu->toHTML());
 
-        return $this->fetch($GLOBALS['template_dir'] . "document_categories/" . $this->template_mod . "_list.html");
+        $this->_tpl_vars['add_node'] = ($this->_tpl_vars['add_node'] ?? false) == true;
+        $this->_tpl_vars['edit_node'] = ($this->_tpl_vars['edit_node'] ?? false) == true;
+
+        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->_tpl_vars);
     }
 
     function add_node_action($parent_is)
@@ -60,6 +68,8 @@ class C_DocumentCategory extends Controller
         $this->assign("VALUE", '');
     // Access control defaults to that of the parent.
         $this->assign("ACO_OPTIONS", "<option value=''></option>" . AclExtended::genAcoHtmlOptions($info['aco_spec']));
+        $this->assign("CODES", ""); // empty value here
+        $this->assign("CODE_TEXT", ""); // empty value here
         return $this->list_action();
     }
 
@@ -72,7 +82,7 @@ class C_DocumentCategory extends Controller
         $name = $_POST['name'];
         $parent_is = $_POST['parent_is'];
         $parent_name = $this->tree->get_node_name($parent_is);
-        $this->tree->add_node($parent_is, $name, $_POST['value'], $_POST['aco_spec']);
+        $this->tree->add_node($parent_is, $name, $_POST['value'], $_POST['aco_spec'], $_POST['codes']);
         $trans_message = xlt('Sub-category') . " '" . text(xl_document_category($name)) . "' " . xlt('successfully added to category,') . " '" . text($parent_name) . "'";
         $this->assign("message", $trans_message);
         $this->_state = false;
@@ -88,6 +98,15 @@ class C_DocumentCategory extends Controller
         $this->assign("ACO_OPTIONS", "<option value=''></option>" . AclExtended::genAcoHtmlOptions($info['aco_spec']));
         $this->assign("add_node", false);
         $this->assign("edit_node", true);
+        $this->assign("CODES", $info['codes'] ?? '');
+
+        if (!empty($info['codes'])) {
+            $codeTypeService = new CodeTypesService();
+            $description = $codeTypeService->lookup_code_description($info['codes']);
+            $this->assign('CODE_TEXT', $description ?? "");
+        } else {
+            $this->assign('CODE_TEXT', "");
+        }
         return $this->list_action();
     }
 
@@ -98,7 +117,7 @@ class C_DocumentCategory extends Controller
         }
 
         $parent_is = $_POST['parent_is'];
-        $this->tree->edit_node($parent_is, $_POST['name'], $_POST['value'], $_POST['aco_spec']);
+        $this->tree->edit_node($parent_is, $_POST['name'], $_POST['value'], $_POST['aco_spec'], $_POST['codes']);
         $trans_message = xlt('Category changed.');
         $this->assign("message", $trans_message);
         $this->_state = false;

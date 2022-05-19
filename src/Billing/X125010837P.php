@@ -89,7 +89,7 @@ class X125010837P
             $out .= "NM1" . // Loop 1000A Submitter
             "*" . "41" .
             "*";
-            // check for 3rd party
+            // check for 3rd party.  We should only use this if we are sending directly to ins. co.  Otherwise, ignore.
             if ($claim->x12_submitter_name()) {
                 // non-person entity
                 $out .= "2" .
@@ -114,16 +114,16 @@ class X125010837P
                 "*" . // Name Prefix not used
                 "*" . $suffixName .
                 "*" . "46" .
-                "*" . $claim->clearingHouseETIN();
+                "*" . $claim->billingFacilityETIN();
             }
         // non-person entity, use 2
         } else {
             $out .= "NM1" .
             "*" . "41" .
-            "*" . "2";
+            "*" . "2" . "*";
             // check for 3rd party
             if ($claim->x12_submitter_name()) {
-                $out .= "*" . $claim->x12_submitter_name() .
+                $out .= $claim->x12_submitter_name() .
                 "*" .
                 "*" .
                 "*" .
@@ -143,7 +143,7 @@ class X125010837P
                 "*" .
                 "*" .
                 "*" . "46" .
-                "*" . $claim->clearingHouseETIN();
+                "*" . $claim->billingFacilityETIN();
             }
         }
         // close the NM1 segment
@@ -151,7 +151,8 @@ class X125010837P
 
         ++$edicount;
         $out .= "PER" . // Loop 1000A, Submitter EDI contact information
-        // if 3rd party entered in practice x12 partners, the methods in the claim class will grab information from the address book, aka table `users`
+        // if 3rd party entered in practice x12 partners, the methods in the claim class will grab information
+        // from the address book, aka table `users`
         "*" . "IC" .
         "*" . $claim->billingContactName() .
         "*" . "TE" .
@@ -736,7 +737,7 @@ class X125010837P
 
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
         if ($claim->billing_options) {
-            if (strlen(trim($claim->billing_options['icn_resubmission_number'])) > 3) {
+            if (strlen(trim($claim->billing_options['icn_resubmission_number'] ?? null)) > 3) {
                 ++$edicount;
                 error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
                 $out .= "REF" .
@@ -895,7 +896,8 @@ class X125010837P
 
         if (!$claim->providerNPIValid()) {
             // If the loop was skipped because the provider NPI was invalid, generate a warning for the log.
-            $log .= "*** Skipping 2310B because " . $claim->providerLastName() . "," . $claim->providerFirstName() . " has invalid NPI.\n";
+            $log .= "*** Skipping 2310B because " . $claim->providerLastName() .
+                "," . $claim->providerFirstName() . " has invalid NPI.\n";
         }
 
         if (!$claim->providerNPI() && in_array($claim->providerNumberType(), array('0B', '1G', 'G2', 'LU'))) {
@@ -1544,8 +1546,16 @@ class X125010837P
      * @param  $HLBillingPayToProvider Place-holder for utilizing multiple billing providers
      * @return string|string[]|null
      */
-    public static function gen_x12_837_tr3($pid, $encounter, &$log, $encounter_claim, $SEFLAG, $HLcount, &$edicount, $HLBillingPayToProvider = 1)
-    {
+    public static function gen_x12_837_tr3(
+        $pid,
+        $encounter,
+        &$log,
+        $encounter_claim,
+        $SEFLAG,
+        $HLcount,
+        &$edicount,
+        $HLBillingPayToProvider = 1
+    ) {
         $today = time();
         $out = '';
         $claim = new Claim($pid, $encounter);
@@ -1639,16 +1649,16 @@ class X125010837P
                     "*" . // Name Prefix not used
                     "*" . $suffixName .
                     "*" . "46" .
-                    "*" . $claim->clearingHouseETIN();
+                    "*" . $claim->billingFacilityETIN();
                 }
             // non-person entity, use 2
             } else {
                 $out .= "NM1" .
                 "*" . "41" .
-                "*" . "2";
+                "*" . "2" . "*" ;
                 // check for 3rd party
                 if ($claim->x12_submitter_name()) {
-                    $out .= "*" . $claim->x12_submitter_name() .
+                    $out .=  $claim->x12_submitter_name() .
                     "*" .
                     "*" .
                     "*" .
@@ -1668,7 +1678,7 @@ class X125010837P
                     "*" .
                     "*" .
                     "*" . "46" .
-                    "*" . $claim->clearingHouseETIN();
+                    "*" . $claim->billingFacilityETIN();
                 }
             }
             // close the NM1 segment
@@ -2262,7 +2272,7 @@ class X125010837P
         }
 
         // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
-        if (strlen(trim($claim->billing_options['icn_resubmission_number'])) > 3) {
+        if (strlen(trim($claim->billing_options['icn_resubmission_number'] ?? null)) > 3) {
             ++$edicount;
             error_log("Method 1: " . errorLogEscape($claim->billing_options['icn_resubmission_number']), 0);
             $out .= "REF" .
@@ -2424,7 +2434,8 @@ class X125010837P
         }
         if (!$claim->providerNPIValid()) {
             // If the loop was skipped because the provider NPI was invalid, generate a warning for the log.
-            $log .= "*** Skipping 2310B because " . $claim->providerLastName() . "," . $claim->providerFirstName() . " has invalid NPI.\n";
+            $log .= "*** Skipping 2310B because " . $claim->providerLastName() .
+                "," . $claim->providerFirstName() . " has invalid NPI.\n";
         }
 
         if (!$claim->providerNPI() && in_array($claim->providerNumberType(), array('0B', '1G', 'G2', 'LU'))) {

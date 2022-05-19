@@ -202,14 +202,33 @@ class PatientController extends AppBasePortalController
             if ($_SESSION['pid'] !== true && $_SESSION['register'] !== true) {
                 throw new Exception('Unauthorized');
             }
+
+            if (empty($_SESSION['fnameRegistration']) || empty($_SESSION['lnameRegistration']) || empty($_SESSION['dobRegistration']) || empty($_SESSION['emailRegistration']) || empty($_SESSION['token_id_holder'])) {
+                throw new Exception('Something went wrong');
+            }
+
+            // get new pid
+            $result = sqlQueryNoLog("select max(`pid`)+1 as `pid` from `patient_data`");
+            if (empty($result['pid'])) {
+                $pidRegistration = 1;
+            } else {
+                $pidRegistration = $result['pid'];
+            }
+            // store the pid so can use for other registration elements inserted later (such as insurance)
+            sqlStatementNoLog("UPDATE `verify_email` SET `pid_holder` = ? WHERE `id` = ?", [$pidRegistration , $_SESSION['token_id_holder']]);
+
             $patient = new Patient($this->Phreezer);
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
             $patient->Financial = $this->SafeGetVal($json, 'financial', $patient->Financial);
-            $patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
-            $patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
-            $patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
-            $patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
+            //$patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
+            $patient->Fname = $_SESSION['fnameRegistration'];
+            //$patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
+            $patient->Lname = $_SESSION['lnameRegistration'];
+            //$patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
+            $patient->Mname = $_SESSION['mnameRegistration'];
+            //$patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
+            $patient->Dob = $_SESSION['dobRegistration'];
             $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
             $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
             $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
@@ -231,8 +250,9 @@ class PatientController extends AppBasePortalController
             $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
             $patient->Providerid = $this->SafeGetVal($json, 'providerid', $patient->Providerid);
             $patient->RefProviderid = $this->SafeGetVal($json, 'refProviderid', $patient->RefProviderid);
-            $patient->Email = $this->SafeGetVal($json, 'email', $patient->Email);
-            $patient->EmailDirect = $this->SafeGetVal($json, 'emailDirect', $patient->EmailDirect);
+            //$patient->Email = $this->SafeGetVal($json, 'email', $patient->Email);
+            $patient->Email = $_SESSION['emailRegistration'];
+            //$patient->EmailDirect = $this->SafeGetVal($json, 'emailDirect', $patient->EmailDirect);
             $patient->Ethnoracial = $this->SafeGetVal($json, 'ethnoracial', $patient->Ethnoracial);
             $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
             $patient->Ethnicity = $this->SafeGetVal($json, 'ethnicity', $patient->Ethnicity);
@@ -244,8 +264,10 @@ class PatientController extends AppBasePortalController
             //$patient->BillingNote = $this->SafeGetVal($json, 'billingNote', $patient->BillingNote);
             //$patient->Homeless = $this->SafeGetVal($json, 'homeless', $patient->Homeless);
             //$patient->FinancialReview = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'financialReview', $patient->FinancialReview)));
-            $patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
-            $patient->Pid = $this->SafeGetVal($json, 'pid', $patient->Pid);
+            //$patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
+            $patient->Pubpid = $pidRegistration;
+            //$patient->Pid = $this->SafeGetVal($json, 'pid', $patient->Pid);
+            $patient->Pid = $pidRegistration;
             //$patient->Genericname1 = $this->SafeGetVal($json, 'genericname1', $patient->Genericname1);
             //$patient->Genericval1 = $this->SafeGetVal($json, 'genericval1', $patient->Genericval1);
             //$patient->Genericname2 = $this->SafeGetVal($json, 'genericname2', $patient->Genericname2);

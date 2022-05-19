@@ -121,6 +121,14 @@
             </select>
         </div>
     </div>
+    <div class="form-row my-sm-2">
+        <label for="cqm_sop" class="col-form-label col-sm-2">{xlt t='CQM Source of Payment'}</label>
+        <div class="col-sm-8">
+            <select id="cqm_sop" name="cqm_sop" class="form-control">
+                {html_options options=$insurancecompany->cqm_sop_array selected=$insurancecompany->get_cqm_sop()}
+            </select>
+        </div>
+    </div>
     {if $SUPPORT_ELIGIBILITY_REQUESTS}
     <div class="form-row my-sm-2">
         <label for="x12_default_eligibility_id" class="col-form-label col-sm-2">{xlt t='Default Eligibility X12 Partner'}</label>

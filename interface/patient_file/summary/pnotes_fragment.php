@@ -96,7 +96,7 @@ if (isset($_GET['docUpdateId'])) {
                 echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
                 echo "</b></td>\n";
 
-                echo "  <td class='text'>" . text($body) . "</td>\n";
+                echo "  <td class='text'>" . pnoteConvertLinks(nl2br(text($body))) . "</td>\n";
                 echo "<td class='text'><button data-id='" . attr($iter['id']) . "' class='complete_btn btn btn-sm btn-secondary'>" . xlt('Completed') . "</button></td>\n";
                 echo " </tr>\n</tbody>\n";
 

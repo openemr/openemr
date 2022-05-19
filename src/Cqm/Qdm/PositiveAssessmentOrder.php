@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveAssessmentOrder extends AssessmentOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveAssessmentOrder extends AssessmentOrder
 
     public $_type = 'QDM::PositiveAssessmentOrder';
 }
+

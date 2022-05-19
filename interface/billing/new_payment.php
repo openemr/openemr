@@ -25,8 +25,15 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Billing\ParseERA;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("New Payment")]);
+    exit;
+}
 
 //===============================================================================
     $screen = 'new_payment';

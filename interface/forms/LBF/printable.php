@@ -31,7 +31,7 @@ $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
-    $patientid = 0 + $pid; // -1 means current pid
+    $patientid = (int) $pid; // -1 means current pid
 }
 // PDF header information
 $patientname = getPatientName($patientid);
@@ -40,7 +40,7 @@ $dateofservice = fetchDateService($encounter);
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
 if ($visitid < 0) {
-    $visitid = 0 + $encounter; // -1 means current encounter
+    $visitid = (int) $encounter; // -1 means current encounter
 }
 
 $formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);
@@ -97,10 +97,10 @@ if ($PDF_OUTPUT) {
         'default_font' => '',
         'margin_left' => $GLOBALS['pdf_left_margin'],
         'margin_right' => $GLOBALS['pdf_right_margin'],
-        'margin_top' => $GLOBALS['pdf_top_margin'],
-        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-        'margin_header' => '',
-        'margin_footer' => '',
+        'margin_top' => $GLOBALS['pdf_top_margin'] * 2,
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'] * 2,
+        'margin_header' => $GLOBALS['pdf_top_margin'],
+        'margin_footer' => $GLOBALS['pdf_bottom_margin'],
         'orientation' => $GLOBALS['pdf_layout'],
         'shrink_tables_to_fit' => 1,
         'use_kwt' => true,

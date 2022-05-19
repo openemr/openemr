@@ -28,9 +28,15 @@ require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
+
+if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipts Summary")]);
+    exit;
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -226,10 +232,6 @@ function payerCmp($a, $b)
     }
 
     return 0;
-}
-
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    die(xlt("Unauthorized access."));
 }
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');

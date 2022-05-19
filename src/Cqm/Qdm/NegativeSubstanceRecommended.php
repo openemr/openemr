@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeSubstanceRecommended extends SubstanceRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeSubstanceRecommended extends SubstanceRecommended
 
     public $_type = 'QDM::NegativeSubstanceRecommended';
 }
+

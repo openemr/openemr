@@ -47,7 +47,8 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements GeneratorInterf
         $this->appendToLog($log);
         $alines = explode("\014", $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {
-            if ($claim_count++) {
+            if ($claim_count ?? '') {
+                $claim_count++;
                 $this->pdf->ezNewPage();
             }
             $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);

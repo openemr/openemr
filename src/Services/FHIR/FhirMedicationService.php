@@ -10,6 +10,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
 
 /**
@@ -22,7 +25,7 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class FhirMedicationService extends FhirServiceBase
+class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     /**
      * @var MedicationService
@@ -42,7 +45,9 @@ class FhirMedicationService extends FhirServiceBase
      */
     protected function loadSearchParameters()
     {
-        return  [];
+        return  [
+            '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+        ];
     }
 
     /**
@@ -130,12 +135,12 @@ class FhirMedicationService extends FhirServiceBase
      * Searches for OpenEMR records using OpenEMR search parameters
      *
      * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param $puuidBind - Patient uuid to return drug resources that are only visible to the current patient
      * @return ProcessingResult
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->medicationService->getAll($openEMRSearchParameters, false, true);
+        return $this->medicationService->getAll($openEMRSearchParameters, true, $puuidBind);
     }
 
     public function parseFhirResource($fhirResource = array())
@@ -155,5 +160,19 @@ class FhirMedicationService extends FhirServiceBase
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         // TODO: If Required in Future
+    }
+
+    /**
+     * Returns the Canonical URIs for the FHIR resource for each of the US Core Implementation Guide Profiles that the
+     * resource implements.  Most resources have only one profile, but several like DiagnosticReport and Observation
+     * has multiple profiles that must be conformed to.
+     * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
+     * @return string[]
+     */
+    function getProfileURIs(): array
+    {
+        return [
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication'
+        ];
     }
 }

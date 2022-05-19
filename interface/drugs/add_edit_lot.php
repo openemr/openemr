@@ -75,7 +75,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 
     while ($lrow = sqlFetchArray($lres)) {
         $whid = $lrow['option_id'];
-        $facid = 0 + $lrow['option_value'];
+        $facid = (int) ($lrow['option_value'] ?? null);
         if ($whid != $currvalue) {
             if (!$allow_multiple && checkWarehouseUsed($whid)) {
                 continue;
@@ -684,7 +684,7 @@ $lres = sqlStatement(
 while ($lrow = sqlFetchArray($lres)) {
     // TBD: For transfer to an existing lot do we want to force the same lot number?
     // Check clinic/wh permissions.
-    $facid = 0 + $lrow['option_value'];
+    $facid = (int) ($lrow['option_value'] ?? null);
     if ($is_user_restricted && !isWarehouseAllowed($facid, $lrow['warehouse_id'])) {
         continue;
     }

@@ -73,6 +73,7 @@
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
 //   Urdu                           // xl('Urdu')
+//   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
 use OpenEMR\Services\Globals\GlobalsService;
@@ -449,6 +450,13 @@ $GLOBALS_METADATA = array(
             'OpenEMR',
             xl('Application name used throughout the user interface.')
         ),
+
+        'machine_name' => [
+            xl('Application Machine Name'),
+            'text',
+            'openemr',
+            xl('The machine name of the application. Used to identify the EMR in various messaging systems like HL7. Should not contain spaces'),
+        ],
 
         'display_main_menu_logo' => [
             xl('Display main menu logo'),
@@ -1222,6 +1230,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = true
             xl('Turn on to show all payment history in Patient Ledger')
+        ),
+
+        'void_checkout_reopen' => array(
+            xl('Void Checkout and Reopen in Fee Sheet'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Void Checkout and Reopen in Fee Sheet')
         ),
 
         'support_fee_sheet_line_item_provider' => array(
@@ -2012,6 +2027,12 @@ $GLOBALS_METADATA = array(
             '7200',                           // default
             xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
         ),
+        'portal_timeout' => array(
+            xl('Portal Idle Session Timeout Seconds'),
+            'num',                            // data type
+            '1800',                           // default
+            xl('Maximum idle time in seconds before logout. Default is 1800 (30 minutes).')
+        ),
         'secure_upload' => array(
             xl('Secure Upload Files with White List'),
             'bool',                           // data type
@@ -2571,6 +2592,13 @@ $GLOBALS_METADATA = array(
             xl('PQRI Registry ID')
         ),
 
+        'cqm_performance_period' => array(
+            xl('Eligible Clinician eCQM Performance Period'),
+            'text',                           // data type
+            '2022', // default set
+            xl('Enter the eCQM Performance Period year. For example 2022')
+        ),
+
         'enable_amc' => array(
             xl('Enable AMC Reporting'),
             'bool',                           // data type
@@ -3006,6 +3034,20 @@ $GLOBALS_METADATA = array(
             xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
         ),
 
+        'google_recaptcha_site_key' => array(
+            xl('Google reCAPTCHA V2 site key'),
+            'text',
+            '',
+            xl('Google reCAPTCHA V2 site key')
+        ),
+
+        'google_recaptcha_secret_key' => array(
+            xl('Google reCAPTCHA V2 secret key'),
+            'encrypted',
+            '',
+            xl('Google reCAPTCHA V2 secret key')
+        ),
+
         'portal_onsite_two_register' => array(
             xl('Allow New Patient Registration Widget'),
             'bool',                           // data type
@@ -3398,6 +3440,12 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable phiMail Direct Messaging Service')
         ),
+        'phimail_testmode_disabled' => array(
+            xl('Disable phiMail Test Mode'),
+            'bool',                           // data type
+            '0',
+            xl('When you are ready to run phiMail in production mode. Turn on this flag.')
+        ),
 
         'phimail_server_address' => array(
             xl('phiMail Server Address'),
@@ -3474,6 +3522,20 @@ $GLOBALS_METADATA = array(
             'encrypted',                      // data type
             '',
             xl('Easipro Server Password')
+        ),
+
+        'usps_webtools_enable' => array(
+            xl('Enable USPS Web Tools API'),
+            'bool',                           // data type
+            '0',
+            xl('Enable USPS Web Tools API')
+        ),
+
+        'usps_webtools_username' => array(
+            xl('USPS Web Tools API Username'),
+            'text',                           // data type
+            '',
+            xl('USPS Web Tools API Username')
         ),
     ),
 
@@ -3997,6 +4059,19 @@ $GLOBALS_METADATA = array(
         ),
 
     ),
+
+    'Patient Banner Bar' => [
+        'patient_name_display' => [
+            xl('Patient Name Display'),
+            [
+                'btn' => xl('As Button'),
+                'text' => xl('As Text Link'),
+                'text-large' => xl('As Large Text Link'),
+            ],
+            'text-large',
+            xl('How to display the patient name'),
+        ],
+    ],
 );
 
 if (!empty($GLOBALS['ippf_specific'])) {
@@ -4062,7 +4137,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Visits by Item Report'),
             'bool',                           // data type
             '0',                              // default
-            xl('Visits by Item Report.')
+            xl('Visits by Item Report')
         ),
 
         'gbl_menu_acct_trans' => array(
@@ -4111,7 +4186,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Service and Client Volume Report'),
             'bool', // data type
             '1', // default
-            xl('Service and client volume report')
+            xl('Service and Client Volume Report')
         ),
     );
 

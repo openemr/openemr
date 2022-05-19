@@ -11,10 +11,12 @@
  */
 
 require_once(__DIR__ . "/../library/forms.inc");
+require_once(__DIR__ . "/../library/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 
@@ -348,7 +350,7 @@ class C_Document extends Controller
             }
         }
 
-        $this->assign("error", nl2br($error));
+        $this->assign("error", $error);
         //$this->_state = false;
         $_POST['process'] = "";
         //return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
@@ -785,7 +787,7 @@ class C_Document extends Controller
                     }
                 }
                 if ($disable_exit == true) {
-                    return $filetext;
+                    return $filetext ?? '';
                 }
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');
@@ -1062,8 +1064,16 @@ class C_Document extends Controller
         $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
+            if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
+                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
+                exit;
+            }
             $cur_pid = '0';
             $is_new = 1;
+        }
+        if (!AclMain::aclCheckCore('patients', 'docs')) {
+            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
+            exit;
         }
         $this->assign('is_new', $is_new);
         $this->assign('place_hld', $place_hld);

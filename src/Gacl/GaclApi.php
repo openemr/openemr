@@ -404,8 +404,9 @@ class GaclApi extends Gacl {
 			return false;
 		}
 
-		//Grab ACL data.
-		$acl_array = &$this->get_acl($acl_id);
+        //Grab ACL data.
+        $get_acl = $this->get_acl($acl_id);
+        $acl_array = &$get_acl;
 
 		//Append each object type seperately.
 		if (is_array($aro_array) AND count($aro_array) > 0) {
@@ -524,8 +525,9 @@ class GaclApi extends Gacl {
 			return false;
 		}
 
-		//Grab ACL data.
-		$acl_array = &$this->get_acl($acl_id);
+        //Grab ACL data.
+        $get_acl = $this->get_acl($acl_id);
+        $acl_array = &$get_acl;
 
 		//showarray($acl_array);
 		//Remove each object type seperately.
@@ -612,7 +614,7 @@ class GaclApi extends Gacl {
 			foreach ($aco_array as $aco_section_value => $aco_value_array) {
 				foreach ($aco_value_array as $aco_value) {
 					$this->debug_text("shift_acl(): ACO Section Value: $aco_section_value ACO VALUE: $aco_value");
-					$aco_key = array_search($aco_value, $acl_array['aco'][$aco_section_value]);
+					$aco_key = array_search($aco_value, ($acl_array['aco'][$aco_section_value] ?? []));
 
 					if ($aco_key !== FALSE) {
 						$this->debug_text("shift_acl(): Removing ACO. ($aco_key)");
@@ -2867,7 +2869,7 @@ class GaclApi extends Gacl {
 			return false;
 		}
 
-		$query = 'SELECT section_value FROM '. $table .' WHERE id='. $object_id;
+		$query = 'SELECT section_value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
 		$rs = $this->db->Execute($query);
 
 		if (!is_object($rs)) {
@@ -3125,7 +3127,7 @@ class GaclApi extends Gacl {
 		$this->db->BeginTrans();
 
 		//Get old value incase it changed, before we do the update.
-		$query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $object_id;
+		$query = 'SELECT value, section_value FROM '. $table .' WHERE id='. $this->db->quote($object_id);
 		$old = $this->db->GetRow($query);
 
 		$query  = '

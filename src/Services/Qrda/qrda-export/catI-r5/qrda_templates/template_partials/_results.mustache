@@ -1,0 +1,19 @@
+<entryRelationship typeCode="REFR">
+ <observation classCode="OBS" moodCode="EVN">
+    <!-- Conforms to C-CDA R2 Result Observation (V2) -->
+    <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+    <!-- Conforms Result (V4) -->
+    <templateId root="2.16.840.1.113883.10.20.24.3.87" extension="2019-12-01"/>
+    <id root="1.3.6.1.4.1.115" extension="{{random_id}}"/>
+    {{> _codes}}
+    <statusCode code="completed"/>
+    {{#has_result_date_time}}
+      {{{result_date_time}}}
+    {{/has_result_date_time}}
+    {{^has_result_date_time}}
+      {{{author_effective_time}}}
+    {{/has_result_date_time}}
+    {{{result_value}}}
+ </observation>
+</entryRelationship>
+

@@ -16,7 +16,7 @@ namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
 
-class AddressService
+class AddressService extends BaseService
 {
     public function __construct()
     {
@@ -62,17 +62,9 @@ class AddressService
         return implode("", $address);
     }
 
-
-    public function getFreshId()
-    {
-        $id = sqlQuery("SELECT MAX(id)+1 AS id FROM addresses");
-
-        return $id['id'];
-    }
-
     public function insert($data, $foreignId)
     {
-        $freshId = $this->getFreshId();
+        $freshId = $this->getFreshId("id", "addresses");
 
         $addressesSql  = " INSERT INTO addresses SET";
         $addressesSql .= "     id=?,";

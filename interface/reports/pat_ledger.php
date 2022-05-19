@@ -69,6 +69,9 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
     $result = sqlStatement($sql, array($from_dt, $to_dt, $pat));
     $iter = 0;
     while ($row = sqlFetchArray($result)) {
+        if (!$row['applied']) {
+            continue;
+        }
         $all[$iter] = $row;
         $iter++;
     }

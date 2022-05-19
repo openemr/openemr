@@ -1,0 +1,44 @@
+<entry>
+  <act classCode="ACT" moodCode="RQO" {{{negation_ind}}}>
+    <templateId root="2.16.840.1.113883.10.20.24.3.132" extension="2019-12-01"/>
+    <code code="ENC" codeSystem="2.16.840.1.113883.5.6" displayName="Encounter" codeSystemName="ActClass"/>
+    <entryRelationship typeCode="SUBJ">
+      <encounter classCode="ENC" moodCode="RQO">
+        <!--  Plan of Care Activity Encounter template -->
+        <templateId root="2.16.840.1.113883.10.20.22.4.40" extension="2014-06-09"/>
+        <!-- Encounter order template -->
+        <templateId root="2.16.840.1.113883.10.20.24.3.22" extension="2019-12-01"/>
+        <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+        <!-- QDM Attribute: Code -->
+        {{> _codes}}
+        <text>{{description}}</text>
+        <statusCode code="active"/>
+        {{#priority}}
+          <priorityCode {{> _code}}/>
+        {{/priority}}
+        {{#authorDatetime}}
+          <!-- QDM Attribute: Author dateTime -->
+          {{> qrda_templates/template_partials/_author}}
+        {{/authorDatetime}}
+        {{#facilityLocation}}
+          <!-- QDM Attribute: Facility Location -->
+          {{> qrda_templates/template_partials/_facility_location}}
+        {{/facilityLocation}}
+        {{#requester}}
+          <!-- QDM Attribute: Requester -->
+          <participant typeCode="PRF">
+            {{> qrda_templates/template_partials/_entity}}
+          </participant>
+        {{/requester}}
+        {{#reason}}
+          <!-- QDM Attribute: Reason -->
+          {{> qrda_templates/template_partials/_reason}}
+        {{/reason}}
+      </encounter>
+    </entryRelationship>
+    {{#negationRationale}}
+      <!-- QDM Attribute: Negation Rationale -->
+      {{> qrda_templates/template_partials/_reason}}
+    {{/negationRationale}}
+  </act>
+</entry>

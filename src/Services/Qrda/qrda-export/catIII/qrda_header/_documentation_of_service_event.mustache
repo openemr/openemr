@@ -1,0 +1,88 @@
+<documentationOf typeCode="DOC">
+  <serviceEvent classCode="PCPR">
+    <!-- care provision -->
+    <effectiveTime>
+      <low nullFlavor="UNK"/>
+      <high nullFlavor="UNK"/>
+    </effectiveTime>
+    <!-- You can include multiple performers, each with an NPI, TIN, CCN. -->
+    <performer typeCode="PRF">
+      <time>
+        <low nullFlavor="UNK"/>
+        <high nullFlavor="UNK"/>
+      </time>
+      {{#provider}}
+      <assignedEntity>
+        {{#provider_npi}}
+          <id extension="{{value}}" root="2.16.840.1.113883.4.6"/>
+        {{/provider_npi}}
+        {{#provider_ccn}}
+          <id extension="{{value}}" root="2.16.840.1.113883.4.336"/>
+        {{/provider_ccn}}
+        {{#specialty}}
+        <code code="{{specialty}}" codeSystem="2.16.840.1.113883.6.101" codeSystemName="Healthcare Provider Taxonomy (HIPAA)"/>
+        {{/specialty}}
+        {{#addresses}}
+        <addr use="HP">
+          <streetAddressLine>{{{provider_street}}}</streetAddressLine>
+          <city>{{city}}</city>
+          <state>{{state}}</state>
+          <postalCode>{{zip}}</postalCode>
+          <country>{{country}}</country>
+        </addr>
+        {{/addresses}}
+        <assignedPerson>
+          <name>
+            <given>{{{given_name}}}</given>
+            <family>{{familyName}}</family>
+          </name>
+        </assignedPerson>
+        <representedOrganization>
+          {{#provider_tin}}
+          <id extension="{{value}}" root="2.16.840.1.113883.4.2"/>
+          {{/provider_tin}}
+          {{#addresses}}
+          <addr use="HP">
+            <streetAddressLine>{{{provider_street}}}</streetAddressLine>
+            <city>{{city}}</city>
+            <state>{{state}}</state>
+            <postalCode>{{zip}}</postalCode>
+            <country>{{country}}</country>
+          </addr>
+          {{/addresses}}
+        </representedOrganization>
+      </assignedEntity>
+      {{/provider}}
+      {{^provider}}
+      <assignedEntity>
+        <id extension="1982671962" root="2.16.840.1.113883.4.6"/>
+        <id extension="463132" root="2.16.840.1.113883.4.336"/>
+        <code code="282N00000X" codeSystem="2.16.840.1.113883.6.101" codeSystemName="Healthcare Provider Taxonomy (HIPAA)"/>
+        <addr use="HP">
+          <streetAddressLine>16432 Jayme Viaduct Manor</streetAddressLine>
+          <city>Clairland</city>
+          <state>MS</state>
+          <postalCode>38796</postalCode>
+          <country>US</country>
+        </addr>
+        <assignedPerson>
+          <name>
+            <given>Daryl</given>
+            <family>Carroll</family>
+          </name>
+        </assignedPerson>
+        <representedOrganization>
+          <id extension="695939209" root="2.16.840.1.113883.4.2"/>
+          <addr use="HP">
+            <streetAddressLine>16432 Jayme Viaduct Manor</streetAddressLine>
+            <city>Clairland</city>
+            <state>MS</state>
+            <postalCode>38796</postalCode>
+            <country>US</country>
+          </addr>
+        </representedOrganization>
+      </assignedEntity>
+      {{/provider}}
+    </performer>
+  </serviceEvent>
+</documentationOf>

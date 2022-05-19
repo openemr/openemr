@@ -62,6 +62,7 @@ This is a listing of scopes:
   - `patient/CarePlan.read`
   - `patient/CareTeam.read`
   - `patient/Condition.read`
+  - `patient/Coverage.read`
   - `patient/Device.read`
   - `patient/DiagnosticReport.read`
   - `patient/DocumentReference.read`
@@ -69,8 +70,8 @@ This is a listing of scopes:
   - `patient/Goal.read`
   - `patient/Immunization.read`
   - `patient/Location.read`
-  - `patient/Medication.read`
   - `patient/MedicationRequest.read`
+  - `patient/Medication.read`
   - `patient/Observation.read`
   - `patient/Organization.read`
   - `patient/Patient.read`
@@ -93,8 +94,8 @@ This is a listing of scopes:
   - `system/Group.$export` (???)
   - `system/Immunization.read`
   - `system/Location.read`
-  - `system/Medication.read`
   - `system/MedicationRequest.read`
+  - `system/Medication.read`
   - `system/Observation.read`
   - `system/Organization.read`
   - `system/Patient.read`
@@ -118,8 +119,8 @@ This is a listing of scopes:
   - `user/Goal.read`
   - `user/Immunization.read`
   - `user/Location.read`
-  - `user/Medication.read`
   - `user/MedicationRequest.read`
+  - `user/Medication.read`
   - `user/Observation.read`
   - `user/Organization.read`
   - `user/Organization.write`
@@ -167,6 +168,8 @@ This is a listing of scopes:
   - `user/soap_note.write`
   - `user/surgery.read`
   - `user/surgery.write`
+  - `user/transaction.read`
+  - `user/transaction.write`
   - `user/vital.read`
   - `user/vital.write`
 - `api:port` (patient api which are the /portal/ endpoints) (EXPERIMENTAL)
@@ -189,7 +192,7 @@ curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oa
    "client_name": "A Private App",
    "token_endpoint_auth_method": "client_secret_post",
    "contacts": ["me@example.org", "them@example.org"],
-   "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
+   "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/transaction.read user/transaction.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Coverage.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
   }'
 ```
 
@@ -207,7 +210,7 @@ Response:
     "client_name": "A Private App",
     "redirect_uris": ["https:\/\/client.example.org\/callback"],
     "token_endpoint_auth_method": "client_secret_post",
-    "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
+    "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write  user/transaction.read user/transaction.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Coverage.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
 }
 ```
 
@@ -225,10 +228,33 @@ See this github issue for an example of a Smart App installation: https://github
 
 ### Authorization Code Grant
 
-This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.
+This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.  Standard OAUTH2 clients will retrieve the authorize URL from the FHIR /metadata endpoint, but if you are building your own client you can access the metadata or go directly to the https://localhost:9300/oauth2/default/authorize endpoint.
 
 Note that a refresh token is only supplied if the `offline_access` scope is provided when requesting authorization grant.
 
+You will need to pass the scopes you are requesting, the redirect_uri (must be one that was registered at the time of your client registration), and a state parameter which can be any value.  Once authorization has finished the browser will be redirected to the URL specified in redirect_uri with an encrypted code value and the state value sent in the initial authorize request.
+
+Example GET (this must be done in a browser):
+```
+GET /oauth2/default/authorize?client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4&response_type=code&scope=launch%2Fpatient%20openid%20fhirUser%20offline_access%20patient%2FAllergyIntolerance.read%20patient%2FCarePlan.read%20patient%2FCareTeam.read%20patient%2FCondition.read%20patient%2FDevice.read%20patient%2FDiagnosticReport.read%20patient%2FDocumentReference.read%20patient%2FEncounter.read%20patient%2FGoal.read%20patient%2FImmunization.read%20patient%2FLocation.read%20patient%2FMedication.read%20patient%2FMedicationRequest.read%20patient%2FObservation.read%20patient%2FOrganization.read%20patient%2FPatient.read%20patient%2FPractitioner.read%20patient%2FProcedure.read%20patient%2FProvenance.read&redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&state=9512151b-e5ca-cb4b-1ddc-aaf4cd8c6ecc
+```
+
+The client application must then make a request for an access token by hitting the /token endpoint.  Note the redirect_uri MUST match what what was sent in /authorize endpoint.  If your application is registered as a public application you must include the client_id in the POST request.  If you are registered as a confidential app you must use HTTP Basic Authentication where the client_id is your username and the password is your client_secret.  HTTP Basic Authentication follows the algorithm of base64_encode(username:client_secret).  In PHP this would be base64_encode($client_id . ':' . $client_secret);  Note that this mechanism should ONLY be used over an encrypted protocol such as TLS to prevent leaking your client_secret.
+
+Example Public Application POST
+```
+curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
+'https://localhost:9300/oauth2/default/token'
+--data 'grant_type=authorization_code&client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&code=def50...'
+```
+    
+Example Private Application POST
+```
+curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded' \
+    -H 'Authorization: Basic c3Z2TThFX1hISEhYUmtoZzUyeWoyNjdIOEYwQnpmT09pRmE4aUZBT290WTptbzZpZEFPaEU0UVYxb0lacUR5YTFHR1JHVGU5VDQzNWpzeTlRbWYxV2NiVFQ4NXhuZW5VdUpaUFR0bUZGT1QxVkhmYjZiclVvWWZ2Znd2NTFQejFldw==' \
+    'https://localhost:9300/oauth2/default/token' \
+    --data 'grant_type=authorization_code&client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&code=def50...'
+```
 ### Refresh Token Grant
 
 Note that a refresh token is only supplied if the `offline_access` scope is provided when requesting authorization or password grant.
@@ -269,7 +295,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid%20offline_access%20api%3Aoemr%20api%3Afhir%20user%2Fallergy.read%20user%2Fallergy.write%20user%2Fappointment.read%20user%2Fappointment.write%20user%2Fdental_issue.read%20user%2Fdental_issue.write%20user%2Fdocument.read%20user%2Fdocument.write%20user%2Fdrug.read%20user%2Fencounter.read%20user%2Fencounter.write%20user%2Ffacility.read%20user%2Ffacility.write%20user%2Fimmunization.read%20user%2Finsurance.read%20user%2Finsurance.write%20user%2Finsurance_company.read%20user%2Finsurance_company.write%20user%2Finsurance_type.read%20user%2Flist.read%20user%2Fmedical_problem.read%20user%2Fmedical_problem.write%20user%2Fmedication.read%20user%2Fmedication.write%20user%2Fmessage.write%20user%2Fpatient.read%20user%2Fpatient.write%20user%2Fpractitioner.read%20user%2Fpractitioner.write%20user%2Fprescription.read%20user%2Fprocedure.read%20user%2Fsoap_note.read%20user%2Fsoap_note.write%20user%2Fsurgery.read%20user%2Fsurgery.write%20user%2Fvital.read%20user%2Fvital.write%20user%2FAllergyIntolerance.read%20user%2FCareTeam.read%20user%2FCondition.read%20user%2FCoverage.read%20user%2FEncounter.read%20user%2FImmunization.read%20user%2FLocation.read%20user%2FMedication.read%20user%2FMedicationRequest.read%20user%2FObservation.read%20user%2FOrganization.read%20user%2FOrganization.write%20user%2FPatient.read%20user%2FPatient.write%20user%2FPractitioner.read%20user%2FPractitioner.write%20user%2FPractitionerRole.read%20user%2FProcedure.read
+&scope=openid%20offline_access%20api%3Aoemr%20api%3Afhir%20user%2Fallergy.read%20user%2Fallergy.write%20user%2Fappointment.read%20user%2Fappointment.write%20user%2Fdental_issue.read%20user%2Fdental_issue.write%20user%2Fdocument.read%20user%2Fdocument.write%20user%2Fdrug.read%20user%2Fencounter.read%20user%2Fencounter.write%20user%2Ffacility.read%20user%2Ffacility.write%20user%2Fimmunization.read%20user%2Finsurance.read%20user%2Finsurance.write%20user%2Finsurance_company.read%20user%2Finsurance_company.write%20user%2Finsurance_type.read%20user%2Flist.read%20user%2Fmedical_problem.read%20user%2Fmedical_problem.write%20user%2Fmedication.read%20user%2Fmedication.write%20user%2Fmessage.write%20user%2Fpatient.read%20user%2Fpatient.write%20user%2Fpractitioner.read%20user%2Fpractitioner.write%20user%2Fprescription.read%20user%2Fprocedure.read%20user%2Fsoap_note.read%20user%2Fsoap_note.write%20user%2Fsurgery.read%20user%2Fsurgery.write%20user%2Ftransaction.read%20user%2Ftransaction.write%20user%2Fvital.read%20user%2Fvital.write%20user%2FAllergyIntolerance.read%20user%2FCareTeam.read%20user%2FCondition.read%20user%2FCoverage.read%20user%2FEncounter.read%20user%2FImmunization.read%20user%2FLocation.read%20user%2FMedication.read%20user%2FMedicationRequest.read%20user%2FObservation.read%20user%2FOrganization.read%20user%2FOrganization.write%20user%2FPatient.read%20user%2FPatient.write%20user%2FPractitioner.read%20user%2FPractitioner.write%20user%2FPractitionerRole.read%20user%2FProcedure.read
 &user_role=users
 &username=admin
 &password=pass'
@@ -281,7 +307,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 -i 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=password
 &client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid%20offline_access%20api%3Aport%20api%3Afhir%20patient%2Fencounter.read%20patient%2Fpatient.read%20patient%2FAllergyIntolerance.read%20patient%2FCareTeam.read%20patient%2FCondition.read%20patient%2FEncounter.read%20patient%2FImmunization.read%20patient%2FMedicationRequest.read%20patient%2FObservation.read%20patient%2FPatient.read%20patient%2FProcedure.read
+&scope=openid%20offline_access%20api%3Aport%20api%3Afhir%20patient%2Fencounter.read%20patient%2Fpatient.read%20patient%2FAllergyIntolerance.read%20patient%2FCareTeam.read%20patient%2FCondition.read%20patient%2FCoverage.read%20patient%2FEncounter.read%20patient%2FImmunization.read%20patient%2FMedication.read%20patient%2FMedicationRequest.read%20patient%2FObservation.read%20patient%2FPatient.read%20patient%2FProcedure.read
 &user_role=patient
 &username=Phil1
 &password=phil
@@ -320,7 +346,7 @@ More specific development api topics are discussed and described on the above fo
 
 ## Standard API Documentation
 
-The Standard API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Standard API is documented there in the `standard` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).
+The Standard API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Standard API is documented there in the `standard` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).  Make sure to set your client api registration's redirect_uris to be `<OpenEMR base URI>/swagger/oauth2-redirect.html`.
 
 OpenEMR standard endpoints Use `https://localhost:9300/apis/default/api as base URI.`
 
@@ -339,7 +365,7 @@ curl -X GET 'https://localhost:9300/apis/default/api/patient/1/medical_problem' 
 
 ## Patient Portal API Documentation
 
-The Patient Portal API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Patient Portal API is documented there in the `standard-patient` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).
+The Patient Portal API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Patient Portal API is documented there in the `standard-patient` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there). Make sure to set your client api registration's redirect_uris to be `<OpenEMR base URI>/swagger/oauth2-redirect.html`.
 
 This is under development and is considered EXPERIMENTAL.
 

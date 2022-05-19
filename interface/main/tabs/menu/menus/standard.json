@@ -16,7 +16,19 @@
     ]
   },
   {
-    "label": "Flow Board",
+    "label": "Finder",
+    "menu_id": "fin0",
+    "target": "fin",
+    "url": "/interface/main/finder/dynamic_finder.php",
+    "children": [],
+    "requirement": 0,
+    "acl_req": [
+      "patients",
+      "demo"
+    ]
+  },
+  {
+    "label": "Flow",
     "menu_id": "pfb0",
     "target": "flb",
     "url": "/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1",
@@ -32,7 +44,7 @@
     ]
   },
   {
-        "label": "Recall Board",
+        "label": "Recalls",
         "menu_id": "pfb0",
         "target": "rcb",
         "url": "/interface/main/messages/messages.php?go=Recalls",
@@ -61,21 +73,9 @@
     ]
   },
   {
-    "label": "Patient/Client",
+    "label": "Patient",
     "menu_id": "patimg",
     "children": [
-      {
-        "label": "Patients",
-        "menu_id": "fin0",
-        "target": "fin",
-        "url": "/interface/main/finder/dynamic_finder.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "patients",
-          "demo"
-        ]
-      },
       {
         "label": "New/Search",
         "menu_id": "new0",
@@ -753,7 +753,7 @@
     ]
   },
   {
-    "label": "Administration",
+    "label": "Admin",
     "menu_id": "admimg",
     "children": [
       {
@@ -1294,14 +1294,6 @@
           "admin",
           "super"
         ]
-      },
-      {
-        "label": "About",
-        "menu_id": "abo0",
-        "target": "msc",
-        "url": "/interface/main/about_page.php",
-        "children": [],
-        "requirement": 0
       }
     ],
     "requirement": 0,
@@ -1482,19 +1474,6 @@
             "global_req": "enable_cdr"
           },
           {
-            "label": "Quality Measures (CQM)",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/cqm.php?type=cqm",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "patients",
-              "med"
-            ],
-            "global_req": "enable_cqm"
-          },
-          {
             "label": "Automated Measures (AMC)",
             "menu_id": "rep0",
             "target": "rep",
@@ -1506,19 +1485,6 @@
               "med"
             ],
             "global_req": "enable_amc"
-          },
-          {
-            "label": "AMC Tracking",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/amc_tracking.php",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "patients",
-              "med"
-            ],
-            "global_req": "enable_amc_tracking"
           },
           {
             "label": "Alerts Log",
@@ -2023,7 +1989,7 @@
             "requirement": 0,
             "acl_req": [
               "admin",
-              "batchcom"
+              "super"
             ]
           },
           {
@@ -2032,13 +1998,17 @@
             "target": "rep",
             "url": "/interface/reports/direct_message_log.php",
             "children": [],
-            "requirement": 0
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0,
         "acl_req": [
           "admin",
-          "batchcom"
+          "super"
         ]
       }
     ],

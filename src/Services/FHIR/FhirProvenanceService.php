@@ -13,10 +13,16 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
+use OpenEMR\FHIR\Export\ExportCannotEncodeException;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\FHIR\Export\ExportJob;
+use OpenEMR\FHIR\Export\ExportStreamWriter;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
@@ -38,7 +44,23 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 {
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
-    use FhirBulkExportDomainResourceTrait;
+
+    // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
+    // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
+    // numerals, "-" and ".".  Logical ids are opaque to the resource server and should NOT be changed once they've
+    // been issued by the resource server
+    // Up to OpenEMR 6.1.0 patch 0 we used : as our separator for Provenance, and _ as our separator for resources such
+    // as CarePlan and Goals.
+    const SURROGATE_KEY_SEPARATOR_V1 = ":";
+    // use the abbreviation PSK for Provenance Surrogate key and hyphens.  Since Logical ids are opaque we can do this as long as
+    // our UUID NEVER generates a three digit hyphenated id which none of the standards currently do.
+    // our other resources use -SK- as a surrogate key
+    // the best approach would be to have a complete accessible provenance data table with its own uuids that's
+    // searchable but right now provenance is tracked so dispararately across the system we go to each resource
+    // in order to grab these ids.
+    const SURROGATE_KEY_SEPARATOR_V2 = "-PSK-";
+    const V2_TIMESTAMP = 1649476800; // strtotime("2022-04-09");
+
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance';
 
@@ -87,7 +109,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     {
 
         $fhirProvenance = new FHIRProvenance();
-        $fhirProvenance->setId($resource->get_fhirElementName() . ":" . $resource->getId());
+
+        $fhirProvenance->setId($this->getSurrogateKeyForResource($resource));
         /**
          * Attributes required/must support for US.Core
          */
@@ -107,9 +130,16 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         }
 
         $fhirOrganizationService = new FhirOrganizationService();
-        // TODO: adunsulag check with @sjpadgett or @brady.miller to see if we will always have a primary business entity.
         $primaryBusinessEntity = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         if (empty($primaryBusinessEntity)) {
+            if (!empty($userWHO)) {
+                (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() primary business entity not found, attempting to find user organization");
+                $primaryBusinessEntity = $fhirOrganizationService->getOrganizationReferenceFromUserReference($userWHO);
+            }
+        }
+
+        if (empty($primaryBusinessEntity)) {
+            // see if we can get this from the who if we
             (new SystemLogger())->debug(self::class . "->createProvenanceForDomainResource() could not find organization reference");
             return null;
         }
@@ -222,22 +252,13 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         // we only return provenances for
         $servicesByResource = $this->serviceLocator->findServices(IResourceUSCIGProfileService::class);
 
-        $searchParams = ['_revinclude' => 'Provenance:target'];
         foreach ($servicesByResource as $resource => $service) {
             // if it doesn't support the readable service we've got issues
             if ($resource == 'Provenance' || !($service instanceof IResourceReadableService)) {
                 continue;
             }
             try {
-                $serviceResult = $service->getAll($searchParams, $puuidBind);
-                // now loop through and grab all of our provenance resources
-                if ($serviceResult->hasData()) {
-                    foreach ($serviceResult->getData() as $record) {
-                        if ($record instanceof FHIRProvenance) {
-                            $processingResult->addData($record);
-                        }
-                    }
-                }
+                $this->addAllProvenanceRecordsForService($processingResult, $service, [], $puuidBind);
             } catch (SearchFieldException $ex) {
                 $systemLogger = new SystemLogger();
                 $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
@@ -256,6 +277,20 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $processingResult;
     }
 
+    private function addAllProvenanceRecordsForService(ProcessingResult $processingResult, $service, array $searchParams, $puuidBind = null)
+    {
+        $searchParams['_revinclude'] = 'Provenance:target';
+        $serviceResult = $service->getAll($searchParams, $puuidBind);
+        // now loop through and grab all of our provenance resources
+        if ($serviceResult->hasData()) {
+            foreach ($serviceResult->getData() as $record) {
+                if ($record instanceof FHIRProvenance) {
+                    $processingResult->addData($record);
+                }
+            }
+        }
+    }
+
     /**
      * Given a provenance record id retrieve the provenance record for the given resource and its uuid
      * @param $id string in the format of <resource>:<uuid>
@@ -265,10 +300,10 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     private function getProvenanceRecordsForId($id, $puuidBind)
     {
         $processingResult = new ProcessingResult();
-        $idParts = explode(":", $id);
-        $resourceName = array_shift($idParts);
+        $idParts = $this->splitSurrogateKeyIntoParts($id);
+        $resourceName = $idParts['resource'];
+        $innerId = $idParts['id'];
 
-        $innerId = implode(":", $idParts);
         $className = RestControllerHelper::FHIR_SERVICES_NAMESPACE . $resourceName . "Service";
         if (!class_exists($className)) {
             throw new SearchFieldException("_id", "Provenance _id was invalid");
@@ -359,5 +394,115 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
+    }
+
+    /**
+     * Given a FHIRDomainResource resource generate the surrogate key.  If either column is empty it uses an empty string as the value.
+     * @param array $resource The domain resource
+     * @return string The surrogate key.
+     */
+    public function getSurrogateKeyForResource(FHIRDomainResource $resource)
+    {
+        $separator = self::SURROGATE_KEY_SEPARATOR_V2;
+
+        // lastUpdated is a timesecond instant so we are going to get int value for comparison
+        if (empty($resource->getMeta())) {
+            (new SystemLogger())->errorLogCaller(
+                "Resource missing required Meta field",
+                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
+            );
+        } else if (empty($resource->getMeta()->getLastUpdated())) {
+            (new SystemLogger())->errorLogCaller(
+                "Resource missing required Meta->lastUpdated field",
+                ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
+            );
+        } else {
+            $lastUpdated = \DateTime::createFromFormat(DATE_ISO8601, $resource->getMeta()->getLastUpdated());
+
+            if ($lastUpdated !== false && $lastUpdated->getTimestamp() < self::V2_TIMESTAMP) {
+                $separator = self::SURROGATE_KEY_SEPARATOR_V1;
+            }
+        }
+
+        return $resource->get_fhirElementName() . $separator . $resource->getId();
+    }
+
+    /**
+     * Given the surrogate key representing a Provenance, split the key into its component parts.
+     * @param $key string the key to parse
+     * @return array The broken up key parts.
+     */
+    public function splitSurrogateKeyIntoParts($key)
+    {
+        $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
+        if (strpos($key, self::SURROGATE_KEY_SEPARATOR_V1) !== false) {
+            $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
+        }
+        $parts = explode($delimiter, $key);
+        $key = [
+            "resource" => $parts[0] ?? ""
+            ,"id" => $parts[1] ?? ""
+        ];
+        return $key;
+    }
+    /**
+     * Grabs all the objects in my service that match the criteria specified in the ExportJob.  If a
+     * $lastResourceIdExported is provided, The service executes the same data collection query it used previously and
+     * startes processing at the resource that is immediately after (ordered by date) the resource that matches the id of
+     * $lastResourceIdExported.  This allows processing of the service to be resumed or paused.
+     * @param ExportStreamWriter $writer Object that writes out to a stream any object that extend the FhirResource object
+     * @param ExportJob $job The export job we are processing the request for.  Holds all of the context information needed for the export service.
+     * @return void
+     * @throws ExportWillShutdownException  Thrown if the export is about to be shutdown and all processing must be halted.
+     * @throws ExportException  If there is an error in processing the export
+     * @throws ExportCannotEncodeException Thrown if the resource cannot be properly converted into the right format (ie JSON).
+     */
+    public function export(ExportStreamWriter $writer, ExportJob $job, $lastResourceIdExported = null): void
+    {
+        if (!($this instanceof IResourceReadableService)) {
+            // we need to ensure we only get called in a method that implements the getAll method.
+            throw new \BadMethodCallException("Trait can only be used in classes that implement the " . IResourceReadableService::class . " interface");
+        }
+        $type = $job->getExportType();
+
+        // algorithm
+        // go through each resource and grab the related service
+        // check if the service is a PatientCompartment resource, if so, set the patient uuids to export
+        // if we are a Medication request since we are using RXCUI for our drug formulariesthere is no Provenance resource and we can just skip it
+
+        $servicesByResource = $this->serviceLocator->findServices(IResourceUSCIGProfileService::class);
+
+        $patientUuids = $job->getPatientUuidsToExport();
+
+        foreach ($job->getResources() as $resource) {
+            $searchParams = [];
+            $searchParams['_revinclude'] = 'Provenance:target';
+            if ($resource != "Provenance" && isset($servicesByResource[$resource]) && $servicesByResource[$resource] instanceof IResourceReadableService) {
+                $service = $servicesByResource[$resource];
+                if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
+                    // service supports filtering by patients so let's do that
+                    if ($service instanceof IPatientCompartmentResourceService) {
+                        $searchField = $service->getPatientContextSearchField();
+                        $searchParams[$searchField->getName()] = implode(",", $patientUuids);
+                    }
+                }
+
+                $serviceResult = $service->getAll($searchParams);
+                // now loop through and grab all of our provenance resources
+                if ($serviceResult->hasData()) {
+                    foreach ($serviceResult->getData() as $record) {
+                        if (!($record instanceof FHIRDomainResource)) {
+                            throw new ExportException(self::class . " returned records that are not a valid fhir resource type for this class", 0, $lastResourceIdExported);
+                        }
+                        // we only want to write out provenance records
+                        if (!($record instanceof FHIRProvenance)) {
+                            continue;
+                        }
+                        $writer->append($record);
+                        $lastResourceIdExported = $record->getId();
+                    }
+                }
+            }
+        }
     }
 }

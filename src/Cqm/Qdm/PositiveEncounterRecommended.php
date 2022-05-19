@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveEncounterRecommended extends EncounterRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveEncounterRecommended extends EncounterRecommended
 
     public $_type = 'QDM::PositiveEncounterRecommended';
 }
+

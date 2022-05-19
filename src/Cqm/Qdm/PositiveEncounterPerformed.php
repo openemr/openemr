@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveEncounterPerformed extends EncounterPerformed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveEncounterPerformed extends EncounterPerformed
 
     public $_type = 'QDM::PositiveEncounterPerformed';
 }
+

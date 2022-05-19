@@ -30,6 +30,9 @@ var page = {
     lbfFormName: "",
     formOrigin: 0, // default portal
     presentPatientSignature: false,
+    presentAdminSignature: false,
+    presentWitnessSignature: false,
+    signaturesRequired: false,
 
     init: function () {
         // ensure initialization only occurs once
@@ -81,13 +84,13 @@ var page = {
                 $("html, body").animate({
                     scrollTop: 0
                 }, "slow");
-                var m = page.onsiteDocuments.get(this.id);
+                let m = page.onsiteDocuments.get(this.id);
                 page.showDetailDialog(m);
             });
             // make the headers clickable for sorting
             $('table.collection thead tr th').unbind().on('click', function (e) {
                 e.preventDefault();
-                var prop = this.id.replace('header_', '');
+                let prop = this.id.replace('header_', '');
                 // toggle the ascending/descending before we change the sort prop
                 page.fetchParams.orderDesc = (prop == page.fetchParams.orderBy && !page.fetchParams.orderDesc) ? '1' : '';
                 page.fetchParams.orderBy = prop;
@@ -454,6 +457,26 @@ var page = {
         page.formOrigin = isPortal ? 0 : isModule ? 2 : 1;
     },
 // page scoped functions
+    handleHistoryView: function () {
+        let historyHide = $('.historyHide');
+        historyHide.toggleClass('d-none');
+        if (historyHide.hasClass('d-none')) {
+            $('.modelContainer').removeClass("d-none");
+            //document.getElementById('verytop').scrollIntoView({behavior: 'smooth'})
+        } else {
+            $('.modelContainer').addClass("d-none");
+        }
+        $('.history-direction').toggleClass("fa-arrow-down").toggleClass("fa-arrow-up");
+    },
+    /**
+     * Fetch the passed in document id in editing status
+     * @param id the document id in edit mode from history
+     */
+    editHistoryDocument: function (id) {
+        event.preventDefault();
+        let m = page.onsiteDocuments.get(id);
+        page.showDetailDialog(m);
+    },
     chartHistory: function () {
         let formFrame = document.getElementById('lbfForm');
         formFrame.contentWindow.postMessage({submitForm: 'history'}, window.location.origin);
@@ -467,8 +490,9 @@ var page = {
         $("#handler").val('chart');
         $("#status").val('charted');
 
-        signerAlertMsg(alertMsg1, 4000, "warning");
+        signerAlertMsg(alertMsg1, 3000, "warning");
         let posting = $.post("./../lib/doc_lib.php", {
+            csrf_token_form: csrfTokenDoclib,
             cpid: cpid,
             docid: docid,
             catid: catid,
@@ -504,7 +528,7 @@ var page = {
         page.fetchParams = params;
         if (page.fetchInProgress) {
             if (console) {
-                console.log('supressing fetch because it is already in progress');
+                console.log('suppressing fetch because it is already in progress');
             }
         }
         page.fetchInProgress = true;
@@ -545,10 +569,16 @@ var page = {
 
     getDocument: function (templateName, pid, template_id) {
         $(".helpHide").removeClass("d-none");
+        $('.modelContainer').removeClass("d-none");
         $("#editorContainer").removeClass('w-auto').addClass('w-100');
         let currentName = page.onsiteDocument.get('docType');
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        if (currentName === 'Help') {
+            $("#dismissOnsiteDocumentButton").addClass("d-none");
+        } else {
+            $("#dismissOnsiteDocumentButton").removeClass("d-none");
+        }
         page.isFrameForm = 0;
         page.lbfFormId = 0;
         page.lbfFormName = '';
@@ -648,15 +678,11 @@ var page = {
         }
         $('#docPanelHeader').append('&nbsp;<span class="bg-light text-dark px-2">' + jsText(currentNameStyled) + '</span>&nbsp;' +
             jsText(' Dated: ' + cdate + ' Status: ' + status));
-
-        /*$("html, body").animate({
-            scrollTop: 0
-        }, "slow");*/
     }
     ,
     /**
      * show the doc for editing
-     * @param model
+     * @param m doc id
      */
     showDetailDialog: function (m) {
         page.onsiteDocument = m ? m : new model.OnsiteDocumentModel();
@@ -711,7 +737,6 @@ var page = {
             // no point in initializing the click handlers if we don't show the button
             $('#deleteOnsiteDocumentButtonContainer').hide();
         }
-
     },
 
     /**
@@ -743,6 +768,10 @@ var page = {
         }
         var ptsignature = $('#patientSignature').attr('src');
         if (ptsignature == signhere) {
+            if (page.signaturesRequired && page.presentPatientSignature) {
+                signerAlertMsg(signMsg, 6000, 'danger');
+                return false;
+            }
             ptsignature = "";
         }
         var wtsignature = $('#witnessSignature').attr('src');
@@ -763,7 +792,7 @@ var page = {
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
             'provider': page.onsiteDocument.get('provider'),
             'encounter': page.onsiteDocument.get('encounter'),
-            'createDate': new Date(), //page.onsiteDocument.get('createDate'),
+            'createDate': new Date(),
             'docType': page.onsiteDocument.get('docType'),
             'patientSignedStatus': ptsignature ? '1' : '0',
             'patientSignedTime': ptsignature ? new Date() : '0000-00-00',
@@ -818,7 +847,7 @@ var page = {
                     return;
                 }
                 if (reload) {
-                    setTimeout("location.reload(true);", 4000);
+                    setTimeout("location.reload(true);", 3000);
                 }
             },
             error: function (model, response, scope) {
@@ -839,7 +868,7 @@ var page = {
         page.onsiteDocument.destroy({
             wait: true,
             success: function () {
-                signerAlertMsg(msgDelete, 4000, 'success');
+                signerAlertMsg(msgDelete, 3000, 'success');
                 app.hideProgress('modelLoader');
                 pageAudit.onsitePortalActivity.set('status', 'deleted');
                 pageAudit.onsitePortalActivity.set('pendingAction', 'none');

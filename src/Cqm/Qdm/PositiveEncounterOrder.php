@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveEncounterOrder extends EncounterOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveEncounterOrder extends EncounterOrder
 
     public $_type = 'QDM::PositiveEncounterOrder';
 }
+

@@ -315,10 +315,10 @@ class ApplicationTable extends AbstractTableGateway
 
                                       ));
         } elseif (strtolower($searchType) == 'emrdirect') {
-            $sql = "SELECT fname, mname, lname,email,id FROM users
+            $sql = "SELECT fname, mname, lname,email_direct AS 'email',id FROM users
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?
                 OR  CONCAT(lname, ' ', fname) LIKE ?
-                OR email LIKE ?)
+                OR email_direct LIKE ?)
                 AND abook_type = 'emr_direct'
                 AND active = 1
                 ORDER BY fname ";

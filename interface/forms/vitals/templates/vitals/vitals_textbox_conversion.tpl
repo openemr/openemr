@@ -24,11 +24,14 @@
         <td class='currentvalues p-2'>
     {/if}
             <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
-                   value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValue()|attr}{/if}"
+                   value="{if is_numeric($vitals->$vitalsValue()) }{$vitals->$vitalsValue()|attr}{/if}"
                    onChange="convUnit('usa', {$unit|attr_js}, '{$input|attr}_input')" title='{$vitalsValueUSAHelpTitle|default:''|xlt}'/>
         </td>
     <td class="editonly">
         { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
+    </td>
+    <td class="editonly actions">
+        { include file='vitals_actions.tpl' }
     </td>
     { include file='vitals_historical_values.tpl' useMetric=false vitalsValue=$vitalsValue vitalsValueMetric=$vitalsValueMetric
             results=$results }
@@ -61,7 +64,7 @@
     {/if}
             <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
             <input type="text" class="form-control" size='5' id='{$input|attr}_input_metric'
-                   value="{if $vitals->$vitalsValue() != 0}{$vitals->$vitalsValueMetric()|attr}{/if}"
+                   value="{if is_numeric($vitals->$vitalsValue()) }{$vitals->$vitalsValueMetric()|attr}{/if}"
                    onChange="convUnit('metric', {$unit|attr_js}, '{$input|attr}_input')"/>
         </td>
         <td class="editonly">
@@ -70,6 +73,13 @@
                 { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
             {/if}
         </td>
+        <td class="editonly actions">
+            {if $units_of_measurement == $MEASUREMENT_METRIC_ONLY }
+                { include file='vitals_actions.tpl' }
+            {/if}
+        </td>
         { include file='vitals_historical_values.tpl' useMetric=true vitalsValue=$vitalsValue vitalsValueMetric=$vitalsValueMetric
         results=$results }
     </tr>
+
+{ include file='vitals_reason_row.tpl' input=$input title=$title vitalDetails=$vitals->get_details_for_column($input) }

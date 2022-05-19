@@ -31,6 +31,8 @@ class AMC_304i_STG2_Denominator implements AmcFilterIF
 
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
+        // this filtering is done in AbstractAmcReport::collectObjects().  See the transitions-out option
+
         //  (basically needs a referral within the report dates,
         //   which are already filtered for, so all the objects are a positive)
         return true;

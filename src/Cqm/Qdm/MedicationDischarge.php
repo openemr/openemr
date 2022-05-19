@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class MedicationDischarge extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -66,6 +65,11 @@ class MedicationDischarge extends QDMBaseType
     public $recorder = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Medication, Discharge';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.48';
@@ -87,3 +91,4 @@ class MedicationDischarge extends QDMBaseType
 
     public $_type = 'QDM::MedicationDischarge';
 }
+

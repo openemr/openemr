@@ -1,0 +1,21 @@
+{% for row in datasheet %}
+    {% if row.is_main or row.is_sub %}
+        {% if row.is_main %}
+            <b>{{ row.display_field|text }}</b>
+        {% else %}
+            {{ row.display_field|text }}
+        {% endif %}{% if row.display_field_sub %}{{ row.display_field_sub|text }}{% endif %}{% if row.concatenated_label %},{{ row.concatenated_label|xlt }}{% endif %}
+        <span>{{ row.pass_target|text }} / {{ row.pass_filter|text }}</span> - <span>{{ row.percentage|text }}</span>
+
+        {# Now include the patient details results #}
+        {% include "reports/cqm/_results-table-patient-details.html.twig" with {title: "Patients"|xl, details: row.itemized_patients, cardClass:'info'} %}
+    {% endif %}
+
+    {% if row.is_provider %}
+        {% include 'reports/cqm/_row-provider-display-name.html.twig' with {row: row} %}
+    {% endif %}
+
+    {% if row.is_provider_group %}
+        {% include 'reports/cqm/_row-provider-group-display-name.html.twig' with {row: row} %}
+    {% endif %}
+{% endfor %}

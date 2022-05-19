@@ -72,9 +72,9 @@ var precisionToFormat = {
 
 exports.time = function (input) {
     var m = moment.parseZone(input.date);
-    /*if (m._isValid !== true) {
-        return "";
-    }*/
+    if (m._isValid !== true) {
+        m = moment(input.date, "YYYYMMDD HH:mm:ss")
+    }
     var formatSpec = precisionToFormat[input.precision];
     var result = m.format(formatSpec);
     return result;
@@ -153,19 +153,24 @@ exports.telecom = function (input) {
 };
 
 var nameSingle = function (input) {
-    var given = null;
+    let given = null;
     if (input.first) {
         given = [input.first];
         if (input.middle && input.middle[0]) {
             given.push(input.middle[0]);
         }
     }
-    return {
-        prefix: input.prefix,
+    let name = {
         given: given,
-        family: input.last,
-        suffix: input.suffix
+        family: input.last
     };
+    if (input.suffix) {
+        name.suffix = input.suffix
+    }
+    if (input.prefix) {
+        name.prefix = input.prefix
+    }
+    return name;
 };
 
 exports.name = function (input) {

@@ -1,0 +1,28 @@
+<!-- QRDA Header -->
+<realmCode code="US"/>
+<typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+<!-- US Realm Header Template Id -->
+<templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+<!-- QRDA templateId -->
+<templateId root="2.16.840.1.113883.10.20.24.1.1" extension="2017-08-01"/>
+<!-- QDM-based QRDA templateId -->
+<templateId root="2.16.840.1.113883.10.20.24.1.2" extension="2019-12-01"/>
+<!-- CMS QRDA templateId -->
+<templateId root="2.16.840.1.113883.10.20.24.1.3" extension="2020-02-01"/>
+<!-- This is the globally unique identifier for this QRDA document -->
+<id root="{{random_id}}"/>
+<!-- QRDA document type code -->
+<code code="55182-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Quality Measure Report"/>
+<title>QRDA Incidence Report</title>
+<!-- This is the document creation time -->
+<effectiveTime value="{{{current_time}}}"/>
+<confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+<languageCode code="en"/>
+<!-- reported patient -->
+{{> qrda_header/_record_target}}
+{{> qrda_header/_author}}
+{{> qrda_header/_custodian}}
+{{> qrda_header/_information_recipient}}
+{{> qrda_header/_legal_authenticator}}
+{{> qrda_header/_participant}}
+{{> qrda_header/_documentation_of_service_event}}

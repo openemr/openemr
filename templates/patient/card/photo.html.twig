@@ -2,10 +2,10 @@
 
 {% block content %}
 {% if patientIDCategoryID %}
-    {{ imageWidget(patientIDCategoryID, patientPhotoCategoryName)}}
 
     {% for p in photos %}
         {{ imageWidget(p, patientPhotoCategoryName)}}
     {% endfor %}
+
 {% endif %}
 {% endblock %}

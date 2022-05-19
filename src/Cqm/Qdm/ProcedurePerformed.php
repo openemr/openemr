@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class ProcedurePerformed extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -88,6 +87,11 @@ class ProcedurePerformed extends QDMBaseType
     public $performer = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Procedure, Performed';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.67';
@@ -109,3 +113,4 @@ class ProcedurePerformed extends QDMBaseType
 
     public $_type = 'QDM::ProcedurePerformed';
 }
+
