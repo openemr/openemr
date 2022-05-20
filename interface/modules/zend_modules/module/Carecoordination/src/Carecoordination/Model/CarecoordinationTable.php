@@ -197,7 +197,9 @@ class CarecoordinationTable extends AbstractTableGateway
         if ($qrda === '2.16.840.1.113883.10.20.24.1.2') {
             $this->is_qrda_import = true;
             $this->documentData['empty_qrda'] = 0;
-            $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'qrda1', $doc_id);
+            if (!empty($doc_id)) {
+                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'qrda1');
+            }
             if (count($components[2]["section"]["entry"] ?? []) < 2) {
                 $name = $xml["recordTarget"]["patientRole"]["patient"]["name"]["given"] . ' ' .
                     $xml["recordTarget"]["patientRole"]["patient"]["name"]["family"];
@@ -208,7 +210,9 @@ class CarecoordinationTable extends AbstractTableGateway
             // Offset to Patient Data section
             $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
         } else {
-            $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'ccda', $doc_id);
+            if (!empty($doc_id)) {
+                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'ccda');
+            }
             $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
         }
 
@@ -320,7 +324,9 @@ class CarecoordinationTable extends AbstractTableGateway
                 }
             }
         }
-        $this->validateDocument->saveValidationLog($doc_id, $validation_log);
+        if (!empty($doc_id)) {
+            $this->validateDocument->saveValidationLog($doc_id, $validation_log);
+        }
     }
 
     /*
