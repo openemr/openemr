@@ -26,6 +26,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use C_Document;
 use Document;
 use CouchDB;
+use OpenEMR\Services\Cda\CdaValidateDocuments;
 use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
@@ -445,6 +446,10 @@ class CarecoordinationController extends AbstractActionController
         $temp = '';
 
         switch ($component) {
+            case 'schematron':
+                $validate = new CdaValidateDocuments();
+                $temp .= $validate->createSchematronHtml($amid);
+                break;
             case 'allergies':
                 $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');
                 if (count($allergies_audit) > 0) {

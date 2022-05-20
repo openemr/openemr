@@ -1912,7 +1912,7 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getCCDAComponents($type)
     {
-        $components = array();
+        $components = array('schematron' => 'Errors');
         $query = "select * from ccda_components where ccda_type = ?";
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($type));

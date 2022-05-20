@@ -190,6 +190,40 @@ class CdaValidateDocuments
         return $error_str;
     }
 
+    public function createSchematronHtml($amid)
+    {
+        $errors = $this->fetchValidationLog($amid);
+        $xsd = $errors['xsd'];
+        $schema = $errors['errors'];
+
+        $html = "<div class='control-group'>\n" .
+            "<h5 class='text-info' style='padding: 0 0;'>" . xlt('Schema Definition Errors') . "</h5><hr style='margin: 0 0 10px;' />\n";
+        if (empty($xsd)) {
+            $html .= "<p class='text-success'>" . xlt("Passed XSD testing.") . "</p><hr style='margin: 0 0 10px;' />\n";
+        }
+        foreach ($xsd as $error) {
+            $html .= "<blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>" .
+                "<p class='text-error' style='font-size:12px;'>" . text($error) . "</p>" .
+                "</blockquote><hr style='margin: 0 0 10px;' />\n";
+        }
+        $html .= "<h5 class='text-info'>" . xlt('Schematron Errors') . "</h5><hr style='margin: 0 0 10px;' />\n";
+        if (empty($errors['errorCount'])) {
+            $html .= "<p class='text-success'>" . xlt("Passed Schematron testing.") . "</p><hr style='margin: 0 0 10px;' />\n";
+        }
+        foreach ($schema as $error) {
+            $html .= "<blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>" .
+                "<p class='text-error' style='font-size:12px;'>" .
+                "<span style='color: red;padding-right: 2px;'>" . xlt('Error') . ": </span>" . text($error['description']) .
+                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Error Context') . ": </span>" . text($error['context']) .
+                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Where') . ": </span>" . text($error['path']) .
+                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Line') . "# " . "</span>" . text($error['line']) .
+                "</p></blockquote><hr style='margin: 0 0 10px;' />\n";
+        }
+        $html .= "</div>\n";
+
+        return $html;
+    }
+
     /**
      * @param $docId
      * @param $log
@@ -205,9 +239,9 @@ class CdaValidateDocuments
      * @param $docId
      * @return mixed
      */
-    public function fetchValidationLog($docId)
+    public function fetchValidationLog($audit_id)
     {
-        $log = sqlQuery("SELECT `document_data` FROM `documents` WHERE `id` = ?", array($docId))['document_data'];
+        $log = sqlQuery("SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?", array($audit_id))['document_data'];
         return json_decode($log ?? [], true);
     }
 }
