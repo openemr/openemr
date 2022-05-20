@@ -22,7 +22,7 @@ abstract class AbstractQdmService
     /**
      * Value in ob_reason_status indicates negated observation (observation not done)
      */
-    const NEGATED = 'negated';
+    public const NEGATED = 'negated';
 
     protected $request;
     protected $codeTypesService;
@@ -60,7 +60,7 @@ abstract class AbstractQdmService
 
     public function validDateOrNull($date)
     {
-        if ($date == '0000-00-00') {
+        if (strpos($date, '0000-00-00') !== false) {
             return null;
         }
         return new DateTime([
@@ -104,7 +104,8 @@ abstract class AbstractQdmService
             $result = sqlStatementThrowException($sql, $binds);
         } catch (SqlQueryException $exception) {
             error_log($exception->getMessage());
-            throw new \Exception("There is likely an error in Service query, must contain a patient ID. 'pid' not found and getPatientIdColumn() not implemented.");
+            throw new \Exception("There is likely an error in Service query, must contain a patient ID. " .
+                " 'pid' not found and getPatientIdColumn() not implemented.");
         }
 
         return $result;
@@ -120,13 +121,15 @@ abstract class AbstractQdmService
 
     public function getSystemForCodeType($codeType)
     {
-        // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT" because that's what we have in our lookup table
+        // If there is a space in the name, replace with a dash, for example "SNOMED CT" becomes "SNOMED-CT"
+        // because that's what we have in our lookup table
         $codeType = str_replace(" ", "-", $codeType);
 
         if ($codeType == 'OID') {
-            // When there is a negation, the code is an OID from a measure value set. There is no official code system for this, as they are OIDs
+            // When there is a negation, the code is an OID from a measure value set.
+            // There is no official code system for this, as they are OIDs
             $system = '';
-        } else if ($codeType == 'HCPCS-Level-II') {
+        } elseif ($codeType == 'HCPCS-Level-II') {
             $system = '2.16.840.1.113883.6.285';
         } else {
             $system = $this->codeTypesService->getSystemForCodeType($codeType, true);
@@ -150,12 +153,12 @@ abstract class AbstractQdmService
         $system = null;
         $res = explode(":", $openEmrCode); //split diagnosis type and code
 
-        // TODO For some reason, the import imports allergy codes like this: 'RXNORM:CVX:135' OR 'RXNORM:CVX:135' so we have
-        // to account for the case where there are three parts to our exploded code
+        // TODO For some reason, the import imports allergy codes like this: 'RXNORM:CVX:135' OR 'RXNORM:CVX:135'
+        // so we have to account for the case where there are three parts to our exploded code
         if (count($res) == 3) {
             $code = $res[2];
             $system = $res[1];
-        } else if (count($res) == 2) {
+        } elseif (count($res) == 2) {
             $code = $res[1];
             $system = $res[0];
         }

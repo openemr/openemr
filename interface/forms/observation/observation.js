@@ -44,6 +44,7 @@ function duplicateRow(e) {
     changeIds('ob_value_head');
     changeIds('ob_unit_head');
     changeIds('reason_code');
+    changeIds('code_date_end');
     changeDatasetIds('toggle-container', 'toggleContainer', 'reason_code');
     clearReasonCode(newRow);
     removeVal(newRow.id);
@@ -63,6 +64,7 @@ function removeVal(rowid) {
     document.getElementById("ob_value_" + rowid1[1]).value = '';
     document.getElementById("ob_unit_" + rowid1[1]).value = '';
     document.getElementById("ob_value_phin_" + rowid1[1]).value = '';
+    document.getElementById("code_date_end_" + rowid1[1]).value = '';
     //document.getElementById("ob_value_head_" + rowid1[1]).innerHTML = '';
     //document.getElementById("ob_unit_head_" + rowid1[1]).innerHTML = '';
 }

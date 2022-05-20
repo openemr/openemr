@@ -12,7 +12,10 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
+use OpenEMR\Cqm\Qdm\BaseTypes\{
+    DateTime,
+    Interval
+};
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 
@@ -39,7 +42,7 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
         $observation_type = add_escape_custom($this->getObservationType());
         $sql = "SELECT `pid`, `encounter`, `date`, `code`, `code_type`, `ob_value`, `ob_unit`,
                 `description`, `ob_code`, `ob_type`, `ob_status`,
-                `ob_reason_status`, `ob_reason_code`
+                `ob_reason_status`, `ob_reason_code`, `date_end`
                 FROM `form_observation`
                 WHERE `ob_type` = '$observation_type'
                 ";
@@ -68,6 +71,16 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
             'id' => $id,
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
+            ]),
+            'relevantPeriod' => new Interval([
+                'low' => new DateTime([
+                    'date' => $record['date']
+                ]),
+                'high' => new DateTime([
+                    'date' => $this->validDateOrNull($record['date_end']) ? true : false
+                ]),
+                'lowClosed' => $record['date'] ? true : false,
+                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
             ]),
             'authorDatetime' => new DateTime([
                 'date' => $record['date']

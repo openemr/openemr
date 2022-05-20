@@ -150,7 +150,7 @@ trait Date
     }
 
     /**
-     * Returns the helper function to call for the relevent date period or returns null flavor
+     * Returns the helper function to call for the relevant date period or returns null flavor
      * if there is no date period.
      * If the current context has a period we return the period helpfunction,
      * otherwise if we have a dateTime we return the date time helper function
@@ -161,7 +161,12 @@ trait Date
     public function relevant_date_period_or_null_flavor(Mustache_Context $context)
     {
         $relevantPeriod = $context->find('relevantPeriod');
-        if (!empty($relevantPeriod) && (isset($relevantPeriod['low']) || isset($relevantPeriod['high']))) {
+        if (
+            !empty($relevantPeriod) &&
+            (
+                isset($relevantPeriod['high'])
+            )
+        ) {
             return $this->relevant_period($context);
         } elseif (!empty($context->find('relevantDatetime'))) {
             return $this->relevant_date_time_value($context);
