@@ -133,7 +133,7 @@ function transmitMessage($message, $recipient)
  * @param string The filename to use as the name of the attachment (must included file extension as part of filename)
  * @return string result of operation
  */
-function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename='') : string
+function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = ''): string
 {
     //get patient name in Last_First format (used for CCDA filename) and
     //First Last for the message text.
