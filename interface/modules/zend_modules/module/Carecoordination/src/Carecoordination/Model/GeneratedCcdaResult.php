@@ -28,11 +28,17 @@ class GeneratedCcdaResult
      */
     private $content;
 
-    public function __construct(int $id, string $uuid, string $content)
+    /**
+     * @var string The human readable file name for the generated ccda
+     */
+    private $filename;
+
+    public function __construct(int $id, string $uuid, string $filename, string $content)
     {
         $this->id = $id;
         $this->uuid = $uuid;
         $this->content = $content;
+        $this->filename = $filename;
     }
 
     /**
@@ -86,6 +92,24 @@ class GeneratedCcdaResult
     public function setContent(string $content): GeneratedCcdaResult
     {
         $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename(): string
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     * @return GeneratedCcdaResult
+     */
+    public function setFilename(string $filename): GeneratedCcdaResult
+    {
+        $this->filename = $filename;
         return $this;
     }
 }

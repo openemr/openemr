@@ -24,8 +24,10 @@ use Laminas\Db\TableGateway\AbstractTableGateway;
 use Matrix\Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\Services\PatientService;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
@@ -2203,6 +2205,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $content = base64_decode($content);
         $document = new \Document();
+        $document_type = $document_type ?? '';
 
         // we need to populate the category id based upon the document_type
         // TOC -> CCDA folder
@@ -2218,8 +2221,24 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             throw new RuntimeException("document category id does not exist in system");
         }
 
+        // we want to grab the patient name here so we can provide a human readable document name
         $binaryUuid = (new UuidRegistry(['table_name' => 'ccda']))->createUuid();
-        $file_name = UuidRegistry::uuidToString($binaryUuid);
+        $patientService = new PatientService();
+        $patient = $patientService->findByPid($pid);
+        if (!empty($patient)) {
+            // should always be populated...
+            // we are only supporting xml for now
+            $file_name = "CCDA_" . $patient['lname'] . '_' . $patient['fname'];
+            if (!empty($document_type)) {
+                $file_name .= '_' . $document_type;
+            }
+            $file_name .= '_' . date("Y-m-d") . ".xml";
+        } else {
+            $file_name = UuidRegistry::uuidToString($binaryUuid) . ".xml";
+        }
+
+
+
         $mimeType = "text/xml";
 
         try {
@@ -2269,7 +2288,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
             throw $exception;
         }
-        return new GeneratedCcdaResult($moduleInsertId, UuidRegistry::uuidToString($binaryUuid), $content);
+        return new GeneratedCcdaResult($moduleInsertId, UuidRegistry::uuidToString($binaryUuid), $file_name, $content);
     }
 
     /**
@@ -2308,6 +2327,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     private function logAmc($pid, $referralId)
     {
+        if (empty($referralId)) {
+            // user is sending a CCDA w/o any kind of connecting referral... we will log the error and continue
+            (new SystemLogger())->errorLogCaller("Failed to log amc information due to missing referral id.  User is sending CCDA w/o any connecting referral record", ['pid' => $pid]);
+            return;
+        }
+
         $amc_num_result = $this->amc_num_result;
         // either has the issue in the CCDA
         if ($amc_num_result['problems'] > 0 && $amc_num_result['medications'] > 0 && $amc_num_result['allergies'] > 0) {

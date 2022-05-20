@@ -100,8 +100,10 @@ if ($isValid) {
             }
 
             $dataToSend = $document->get_data();
+            // use the filename that exists in the document for what is sent
+            $fileName = $document->get_name();
 
-            $transmitResult = transmitCCD($pid, $dataToSend, $recipient, $requested_by, $xmlType, $formatType, $message);
+            $transmitResult = transmitCCD($pid, $dataToSend, $recipient, $requested_by, $xmlType, $formatType, $message, $fileName);
         }
         if ($transmitResult !== "SUCCESS") {
             $result['errorCode'] = 'directError';

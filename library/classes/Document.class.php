@@ -707,6 +707,11 @@ class Document extends ORDataObject
     {
         $this->name = $name;
     }
+
+    /**
+     * Returns the database human readable filename of the document
+     * @return string|null
+     */
     function get_name()
     {
         return $this->name;

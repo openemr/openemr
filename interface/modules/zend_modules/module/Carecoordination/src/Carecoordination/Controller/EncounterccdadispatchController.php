@@ -76,24 +76,24 @@ class EncounterccdadispatchController extends AbstractActionController
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
         $request = $this->getRequest();
-        $this->patient_id = $this->getRequest()->getQuery('pid');
-        $this->encounter_id = $this->getRequest()->getQuery('encounter');
-        $combination = $this->getRequest()->getQuery('combination');
-        $this->sections = $this->getRequest()->getQuery('sections');
-        $sent_by = $this->getRequest()->getQuery('sent_by');
-        $send = $this->getRequest()->getQuery('send') ?: 0;
-        $view = $this->getRequest()->getQuery('view') ?: 0;
-        $emr_transfer = $this->getRequest()->getQuery('emr_transfer') ?: 0;
-        $this->recipients = $this->getRequest()->getQuery('recipient');
-        $this->params = $this->getRequest()->getQuery('param');
-        $this->referral_reason = $this->getRequest()->getQuery('referral_reason');
-        $this->components = $this->getRequest()->getQuery('components') ?: $this->params('components');
+        $this->patient_id = $request->getQuery('pid');
+        $this->encounter_id = $request->getQuery('encounter');
+        $combination = $request->getQuery('combination');
+        $this->sections = $request->getQuery('sections');
+        $sent_by = $request->getQuery('sent_by');
+        $send = $request->getQuery('send') ?: 0;
+        $view = $request->getQuery('view') ?: 0;
+        $emr_transfer = $request->getQuery('emr_transfer') ?: 0;
+        $this->recipients = $request->getQuery('recipient');
+        $this->params = $request->getQuery('param');
+        $this->referral_reason = $request->getQuery('referral_reason');
+        $this->components = $request->getQuery('components') ?: $this->params('components');
         $downloadccda = $this->params('downloadccda');
         $downloadqrda = $this->params('downloadqrda');
         $downloadqrda3 = $this->params('downloadqrda3');
-        $this->latest_ccda = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
-        $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
-        $this->document_type = $this->getRequest()->getPost('downloadformat_type');
+        $this->latest_ccda = $request->getQuery('latest_ccda') ?: $this->params('latest_ccda');
+        $hie_hook = $request->getQuery('hiehook') || 0;
+        $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
         // @TODO future use.
         $date_options = [
@@ -221,7 +221,10 @@ class EncounterccdadispatchController extends AbstractActionController
 
                 if ($downloadccda) {
                     $pids = $this->params('pids') ?? $combination;
-                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids));
+                    // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
+                    // no sense in having this forward piece at all...
+                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids
+                    , 'document_type' => $this->document_type));
                 } else {
                     die;
                 }
