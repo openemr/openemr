@@ -151,7 +151,7 @@ class DocumentsController extends AbstractActionController
                     $style = "ccr.xsl";
                     break;
                 case $categoryIds['CCDA']:
-                    $style = "ccda.xsl";
+                    $style = "cda.xsl";
                     break;
             }
 

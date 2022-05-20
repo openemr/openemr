@@ -23,6 +23,21 @@ class CdaValidateDocuments
     }
 
     /**
+     * @param $document
+     * @param $type
+     * @return array|bool|null
+     * @throws Exception
+     */
+    public function validateDocument($document, $type)
+    {
+        $xsd = $this->validateXmlXsd($document, $type);
+        $schema_results = $this->validateSchematron($document, $type);
+        $totals = array_merge($xsd, $schema_results);
+
+        return $totals;
+    }
+
+    /**
      * @return bool
      * @throws Exception
      */
@@ -119,20 +134,19 @@ class CdaValidateDocuments
         $dom = new DomDocument();
         $dom->loadXML($document);
         $xsd = __DIR__ . '/../../../interface/modules/zend_modules/public/xsd/Schema/CDA2/infrastructure/cda/CDA_SDTC.xsd';
-        $result = $dom->schemaValidate($xsd);
-        // TODO phase implementation for schematron
-        $this->validateSchematron($document, $type);
-        if ($result) {
-            return true;
-        } else {
+
+        $xsd_log['xsd'] = [];
+        if (!$dom->schemaValidate($xsd)) {
             $errors = libxml_get_errors();
             foreach ($errors as $error) {
-                error_log($this->formatXsdError($error));
+                $detail = $this->formatXsdError($error);
+                $xsd_log['xsd'][] = $detail;
+                error_log($detail);
             }
             libxml_clear_errors();
-
-            return false;
         }
+
+        return $xsd_log;
     }
 
     /**
@@ -171,11 +185,63 @@ class CdaValidateDocuments
                 break;
         }
         $error_str .= trim($error->message);
-        if ($error->file) {
-            $error_str .= " in $error->file";
-        }
         $error_str .= " on line $error->line\n";
 
         return $error_str;
+    }
+
+    public function createSchematronHtml($amid)
+    {
+        $errors = $this->fetchValidationLog($amid);
+        $xsd = $errors['xsd'];
+        $schema = $errors['errors'];
+
+        $html = "<div class='control-group'>\n" .
+            "<h5 class='text-info' style='padding: 0 0;'>" . xlt('Schema Definition Errors') . "</h5><hr style='margin: 0 0 10px;' />\n";
+        if (empty($xsd)) {
+            $html .= "<p class='text-success'>" . xlt("Passed XSD testing.") . "</p><hr style='margin: 0 0 10px;' />\n";
+        }
+        foreach ($xsd as $error) {
+            $html .= "<blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>" .
+                "<p class='text-error' style='font-size:12px;'>" . text($error) . "</p>" .
+                "</blockquote><hr style='margin: 0 0 10px;' />\n";
+        }
+        $html .= "<h5 class='text-info'>" . xlt('Schematron Errors') . "</h5><hr style='margin: 0 0 10px;' />\n";
+        if (empty($errors['errorCount'])) {
+            $html .= "<p class='text-success'>" . xlt("Passed Schematron testing.") . "</p><hr style='margin: 0 0 10px;' />\n";
+        }
+        foreach ($schema as $error) {
+            $html .= "<blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>" .
+                "<p class='text-error' style='font-size:12px;'>" .
+                "<span style='color: red;padding-right: 2px;'>" . xlt('Error') . ": </span>" . text($error['description']) .
+                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Error Context') . ": </span>" . text($error['context']) .
+                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Where') . ": </span>" . text($error['path']) .
+                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Line') . "# " . "</span>" . text($error['line']) .
+                "</p></blockquote><hr style='margin: 0 0 10px;' />\n";
+        }
+        $html .= "</div>\n";
+
+        return $html;
+    }
+
+    /**
+     * @param $docId
+     * @param $log
+     * @return void
+     */
+    public function saveValidationLog($docId, $log)
+    {
+        $content = json_encode($log ?? []);
+        sqlStatement("UPDATE `documents` SET `document_data` = ? WHERE `id` = ?", array($content, $docId));
+    }
+
+    /**
+     * @param $docId
+     * @return mixed
+     */
+    public function fetchValidationLog($audit_id)
+    {
+        $log = sqlQuery("SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?", array($audit_id))['document_data'];
+        return json_decode($log ?? [], true);
     }
 }

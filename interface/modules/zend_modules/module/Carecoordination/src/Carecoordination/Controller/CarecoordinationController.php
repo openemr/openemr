@@ -26,6 +26,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use C_Document;
 use Document;
 use CouchDB;
+use OpenEMR\Services\Cda\CdaValidateDocuments;
 use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
@@ -131,7 +132,6 @@ class CarecoordinationController extends AbstractActionController
             if ($uploaded_documents[0]['id'] > 0) {
                 $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
                 $_REQUEST["batch_import"] = 'YES';
-                // TODO validate error true then remove uploaded doc
                 $this->importAction();
             }
         } else {
@@ -161,6 +161,10 @@ class CarecoordinationController extends AbstractActionController
                 $fn = $r1['ad_fname'] == $r['ad_fname'];
                 $ln = $r1['ad_lname'] == $r['ad_lname'];
                 $dob = $r1['dob_raw'] == $r['dob_raw'];
+                if (!empty($r1['empty_qrda'] ?? 0)) {
+                    $f = true;
+                    $why = xlt('No QDM content.');
+                }
                 if ($dob) {
                     $f = true;
                     $why = xlt('Match DOB');
@@ -191,6 +195,7 @@ class CarecoordinationController extends AbstractActionController
                 }
             }
         }
+
         $view = new ViewModel(array(
             'records' => $records,
             'category_id' => $category_details[0]['id'],
@@ -199,7 +204,9 @@ class CarecoordinationController extends AbstractActionController
             'listenerObject' => $this->listenerObject
         ));
         // I haven't a clue why this delay is needed to allow batch to work from fetch.
-        sleep(1);
+        if (!empty($upload)) {
+            sleep(1);
+        }
         return $view;
     }
 
@@ -256,10 +263,8 @@ class CarecoordinationController extends AbstractActionController
         }
 
         $document_id = $_REQUEST["document_id"];
-        $error = $this->getCarecoordinationTable()->import($document_id);
-        if ($error) {
-            return $error;
-        }
+        $this->getCarecoordinationTable()->import($document_id);
+
         $view = new JsonModel();
         $view->setTerminal(true);
         return $view;
@@ -441,6 +446,10 @@ class CarecoordinationController extends AbstractActionController
         $temp = '';
 
         switch ($component) {
+            case 'schematron':
+                $validate = new CdaValidateDocuments();
+                $temp .= $validate->createSchematronHtml($amid);
+                break;
             case 'allergies':
                 $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');
                 if (count($allergies_audit) > 0) {
