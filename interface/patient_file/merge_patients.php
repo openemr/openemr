@@ -335,7 +335,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                         if ($PRODUCTION) {
                             sqlStatement($sql, array($target, $source['encounter']));
                             if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
-                                echo "<br />$sql ($target)" . ($source['encounter']);
+                                echo "<br />$sql (" . text($target) . ")" . " : (" . text($source['encounter']) . ")";
                                 logMergeEvent(
                                     $target_pid,
                                     "update",
@@ -595,7 +595,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     </tr>
                 </table>
                 <span><button type='submit' class="btn btn-primary" name='form_submit'
-                        value='' merge'><?php echo xla('Merge'); ?></button></span>
+                        value='merge'><?php echo xla('Merge'); ?></button></span>
                 <span><button type='submit' class="btn btn-primary" name='form_submit'
                         value='dedupe'><?php echo xla('Merge with Encounter Deduplication'); ?></button></span>
             </div>
