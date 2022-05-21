@@ -336,13 +336,13 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                             sqlStatement($sql, array($target, $source['encounter']));
                             if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
                                 echo "<br />$sql ($target)" . ($source['encounter']);
+                                logMergeEvent(
+                                    $target_pid,
+                                    "update",
+                                    "Updated for duplicate encounters with " .
+                                    $table['encounter_table'] . '.' . $table['encounter_column'] . " = " . $target
+                                );
                             }
-                            logMergeEvent(
-                                $target_pid,
-                                "update",
-                                "Updated for duplicate encounters with " .
-                                $table['encounter_table'] . '.' . $table['encounter_column'] . " = " . $target
-                            );
                         }
                     }
                     $sql = "UPDATE " . escape_table_name('forms') . " SET " .
