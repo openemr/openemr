@@ -128,7 +128,7 @@ var page = {
                                     value = 'Unassigned';
                                 }
                                 $('#' + key + 'InputContainer span.help-inline').html(
-                                '<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="'+key+'">'+value+'</a>');
+                                '<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="' + _.escape(key) + '">' + _.escape(value) + '</a>');
                                 $('#' + key + 'InputContainer span.help-inline').show();
                             }
                         });
