@@ -354,13 +354,15 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                         $sql = "DELETE FROM `forms` WHERE `encounter` = ? AND `formdir` = 'newpatient'";
                         sqlStatement($sql, array($source['encounter']));
                         $sql = "DELETE FROM `form_encounter` WHERE `encounter` = ?";
-                        echo "<br />$sql" . text($source['encounter']);
                         sqlStatement($sql, array($source['encounter']));
-                        logMergeEvent(
-                            $target_pid,
-                            "delete",
-                            "deleted duplicate form encounter " . " = " . $source['encounter'] . " after move."
-                        );
+                        if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                            echo "<br />$sql" . text($source['encounter']);
+                            logMergeEvent(
+                                $target_pid,
+                                "delete",
+                                "deleted duplicate form encounter " . " = " . $source['encounter'] . " after move."
+                            );
+                        }
                     }
                 }
             }
