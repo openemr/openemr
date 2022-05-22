@@ -117,9 +117,9 @@ trait Date
     public function prevalence_period(Mustache_Context $context)
     {
         $prevalencePeriod = json_decode(
-                json_encode($context->find('prevalencePeriod')),
-                true
-            ) ?? ['low' => null, 'high' => null];
+            json_encode($context->find('prevalencePeriod')),
+            true
+        ) ?? ['low' => null, 'high' => null];
         return "<effectiveTime>"
             . "<low " . $this->value_or_null_flavor($prevalencePeriod['low'] ?? '') . "/>"
             . "<high " . $this->value_or_null_flavor($prevalencePeriod['high'] ?? '') . "/>"
