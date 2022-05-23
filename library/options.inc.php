@@ -5,6 +5,7 @@
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 // Copyright (c) 2017 - 2021 Jerry Padgett <sjpadgett@gmail.com>
 // Copyright (c) 2021 Robert Down <robertdown@live.com>
+// Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -1691,6 +1692,8 @@ function generate_form_field($frow, $currvalue)
             }
         }
         echo "</select>";
+    } elseif ($data_type == 54) {
+        include "templates/address_list_form.php";
     }
 }
 
@@ -2894,6 +2897,8 @@ function generate_display_field($frow, $currvalue)
                 $s = text($encounter['date'] ?? '');
             }
         }
+    } elseif ($data_type == 54) {
+        include "templates/address_list_display.php";
     }
 
     return $s;
@@ -4357,7 +4362,11 @@ function get_layout_form_value($frow, $prefix = 'form_')
         ":<br />&nbsp;<br />" . htmlspecialchars($value, ENT_NOQUOTES));
     }
 
-    return trim($value);
+    if (is_string($value)) {
+        return trim($value);
+    } else {
+        return $value;
+    }
 }
 
 // Generate JavaScript validation logic for the required fields.

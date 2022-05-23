@@ -675,3 +675,36 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 #IfNotColumnType procedure_type procedure_code varchar(64)
 ALTER TABLE `procedure_type` MODIFY `procedure_code` varchar(64) NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
 #EndIf
+
+
+
+#IfNotTable contact
+CREATE TABLE `contact` (
+   `id` BIGINT(20) NOT NULL auto_increment,
+   `type_table_name` VARCHAR(255) NOT NULL DEFAULT '',
+   `type_table_id` BIGINT(20) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+#EndIf
+
+
+
+#IfNotTable contact_address
+CREATE TABLE `contact_address` (
+    `id` BIGINT(20) NOT NULL auto_increment,
+    `contact_id` BIGINT(20) NOT NULL,
+    `address_id` BIGINT(20) NOT NULL,
+    `priority` INT(11) NULL,
+    `type` VARCHAR(255) NULL COMMENT '[Values: Home, Work, Physical, Mailing, Shipping]',
+    `notes` TEXT(255) NULL,
+    `status` BINARY(1) NULL COMMENT '[Values: Active, Inactive, etc]',
+    `is_primary` BINARY(1) NULL,
+    `created_date` DATETIME NULL,
+    `period_start` DATETIME NULL COMMENT 'Date the address became active',
+    `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
+    `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
+    PRIMARY KEY (`contact_id`),
+    KEY (`contact_id`),
+    KEY (`address_id`)
+) ENGINE = InnoDB ;
+#EndIf
