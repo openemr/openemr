@@ -9,10 +9,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -363,6 +365,7 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
+<script src="edit_globals.js" type="text/javascript"></script>
 </head>
 
 <body <?php if ($userMode) {
@@ -440,6 +443,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     foreach ($grparr as $fldid => $fldarr) {
                                         if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
                                             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+
+                                            // if the setting defines field options for our global setting we grab it, otherwise we default empty
+                                            $fldoptions = $fldarr[4] ?? [];
+
                                             // mdsupport - Check for matches
                                             $srch_cl = '';
                                             $highlight_search = false;
@@ -730,6 +737,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                 echo "  </select>\n";
+                                            } else if ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
+                                                include 'templates/field_multi_sorted_list_selector.php';
                                             }
 
                                             if ($userMode) {

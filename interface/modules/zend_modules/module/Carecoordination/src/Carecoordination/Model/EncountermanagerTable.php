@@ -228,7 +228,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $ccda_combination = $data['ccda_combination'];
         $recipients = $data['recipients'];
-        $xml_type = $data['xml_type'];
+        $xml_type = strtolower($data['xml_type'] ?? '');
         $rec_arr = explode(";", $recipients);
         $d_Address = '';
         // no point in continuing if we are not setup here
@@ -253,7 +253,18 @@ class EncountermanagerTable extends AbstractTableGateway
 
                     $elec_sent[] = array('pid' => $value, 'map_id' => $trans_id);
 
-                    $ccda = $this->getFile($ccda_id);
+                    $documents = \Document::getDocumentsForForeignReferenceId('ccda', $ccda_id);
+                    if (empty($documents[0])) {
+                        throw new \RuntimeException("Cannot send document as document was not generated for ccda with ccda id " . $ccda_id);
+                    }
+                    $document = $documents[0];
+                    $ccda = $document->get_data();
+                    // use the filename that exists in the document for what is sent
+                    $fileName = $document->get_name();
+                    if (empty($ccda) || empty($fileName)) {
+                        throw new \RuntimeException("Cannot send document as document data was empty or filename was empty for document with id "
+                            . $document->get_id());
+                    }
 
                     if ($xml_type == 'html') {
                         $ccda_file = $this->getCcdaAsHTML($ccda);
@@ -263,9 +274,15 @@ class EncountermanagerTable extends AbstractTableGateway
                         $xml = simplexml_load_string($ccda);
                         $ccda_file = $xml->saveXML();
                     }
+                    $replaceExt = "." . $xml_type;
+                    $extpos = strrpos($fileName, ".xml");
+                    if ($extpos !== false) {
+                        $fileName = substr_replace($fileName, $replaceExt, $extpos, strlen($replaceExt));
+                    }
+
                     // there is no way currently to specify this came from the patient so we force to clinician.
                     // Default xml type is CCD  (ie Continuity of Care Document)
-                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", strtolower($xml_type));
+                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", $xml_type, '', $fileName);
                     if ($result !== "SUCCESS") {
                         $d_Address .= ' ' . $recipient . "(" . $result . ")";
                     }

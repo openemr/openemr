@@ -343,7 +343,9 @@ class ScopeRepository implements ScopeRepositoryInterface
 //            "patient/Coverage.write",
             "patient/DiagnosticReport.read",
             "patient/Device.read",
+            "patient/Document.read",
             "patient/DocumentReference.read",
+            'patient/DocumentReference.$docref', // generate or view most recent CCD for the selected patient
 //            "patient/DocumentReference.write",
             "patient/Encounter.read",
 //            "patient/Encounter.write",
@@ -388,8 +390,10 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/Coverage.write",
             "user/Device.read",
             "user/DiagnosticReport.read",
+            "user/Document.read",
             "user/DocumentReference.read",
             "user/DocumentReference.write",
+            'user/DocumentReference.$docref', // export CCD for any patient user has access to
             "user/Encounter.read",
             "user/Encounter.write",
             "user/Goal.read",
@@ -418,7 +422,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/RelatedPerson.read",
             "user/RelatedPerson.write",
             "user/Schedule.read",
-            "user/ServiceRequest.read"
+            "user/ServiceRequest.read",
         ];
 
         if ($this->restConfig->areSystemScopesEnabled()) {
@@ -445,6 +449,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/Device.read",
             "system/Document.read", // used for Bulk FHIR export downloads
             "system/DocumentReference.read",
+            'system/DocumentReference.$docref', // generate / view CCD for any patient in the system
             "system/DiagnosticReport.read",
 //            "system/DocumentReference.write",
             "system/Encounter.read",
@@ -476,7 +481,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/RelatedPerson.read",
 //            "system/RelatedPerson.write",
             "system/Schedule.read",
-            "system/ServiceRequest.read"
+            "system/ServiceRequest.read",
         ];
     }
 
@@ -666,6 +671,12 @@ class ScopeRepository implements ScopeRepositoryInterface
                         $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                         break;
                 }
+            }
+            foreach ($resource->getOperation() as $operation) {
+                $operationCall = $resourceType . '.' . $operation->getName();
+                $scopes_api['patient/' . $operationCall]  = 'patient/' . $operationCall;
+                $scopes_api['user/' . $operationCall]  = 'user/' . $operationCall;
+                $scopes_api['system/' . $operationCall]  = 'system/' . $operationCall;
             }
 
             // if we needed to define scopes based on operations rather than the predefined Bulk-FHIR operations
@@ -886,10 +897,28 @@ class ScopeRepository implements ScopeRepositoryInterface
 
         if (!empty($resource)) {
             $isReadPermission = $permission == "read";
-            return $this->lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission);
+            if (strpos($permission, "$") !== false) {
+                return $this->lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission);
+            } else {
+                return $this->lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission);
+            }
         } else {
             return null;
         }
+    }
+
+    private function lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission)
+    {
+        $description = null;
+        if ($resource == "DocumentReference" && $permission == '$docref') {
+            $description = xl("Create a Clinical Summary of Care Document (CCD) or retrieve the most current CCD");
+            if ($context == 'user') {
+                $description .= " " . xl("for a patient that the user has access to");
+            } else if ($context == "system") {
+                $description .= " " . xl("for a patient that exists in the system");
+            };
+        }
+        return $description;
     }
 
     private function lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission)
@@ -964,7 +993,6 @@ class ScopeRepository implements ScopeRepositoryInterface
                 $description .= xl("medical records for this resource type");
                 break;
         }
-
         if ($context == "user") {
             $description .= ". " . xl("Application is requesting access to all patient data for this resource you have access to");
         } else if ($context == "system") {

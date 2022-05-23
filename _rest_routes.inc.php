@@ -39,7 +39,9 @@
  *              "patient/Coverage.read": "Read coverage resources for the current patient (api:fhir)",
  *              "patient/Device.read": "Read device resources for the current patient (api:fhir)",
  *              "patient/DiagnosticReport.read": "Read diagnostic report resources for the current patient (api:fhir)",
+ *              "patient/Document.read": "Read document resources for the current patient (api:fhir)",
  *              "patient/DocumentReference.read": "Read document reference resources for the current patient (api:fhir)",
+ *              "patient/DocumentReference.$docref" : "Generate a document for the current patient or returns the most current Clinical Summary of Care Document (CCD)",
  *              "patient/Encounter.read": "Read encounter resources for the current patient (api:fhir)",
  *              "patient/Goal.read": "Read goal resources for the current patient (api:fhir)",
  *              "patient/Immunization.read": "Read immunization resources for the current patient (api:fhir)",
@@ -62,6 +64,7 @@
  *              "system/DiagnosticReport.read": "Read all diagnostic report resources in the system (api:fhir)",
  *              "system/Document.read": "Read all document resources in the system (api:fhir)",
  *              "system/DocumentReference.read": "Read all document reference resources in the system (api:fhir)",
+ *              "system/DocumentReference.$docref" : "Generate a document for any patient in the system or returns the most current Clinical Summary of Care Document (CCD)",
  *              "system/Encounter.read": "Read all encounter resources in the system (api:fhir)",
  *              "system/Goal.read": "Read all goal resources in the system (api:fhir)",
  *              "system/Group.read": "Read all group resources in the system (api:fhir)",
@@ -84,7 +87,9 @@
  *              "user/Coverage.read": "Read all coverage resources the user has access to (api:fhir)",
  *              "user/Device.read": "Read all device resources the user has access to (api:fhir)",
  *              "user/DiagnosticReport.read": "Read all diagnostic report resources the user has access to (api:fhir)",
+ *              "user/Document.read" : "Read all documents the user has access to (api:fhir)",
  *              "user/DocumentReference.read": "Read all document reference resources the user has access to (api:fhir)",
+ *              "user/DocumentReference.$docref" : "Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)",
  *              "user/Encounter.read": "Read all encounter resources the user has access to (api:fhir)",
  *              "user/Goal.read": "Read all goal resources the user has access to (api:fhir)",
  *              "user/Immunization.read": "Read all immunization resources the user has access to (api:fhir)",
@@ -7068,7 +7073,6 @@ use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
-use OpenEMR\RestControllers\FHIR\FhirExportRestController;
 use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
@@ -7084,6 +7088,8 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -8451,6 +8457,77 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
+     *      path="/fhir/DocumentReference/$docref",
+     *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="start",
+     *          in="query",
+     *          description="The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no start date is provided then all documents prior to the end date are in scope.  If no start and end date are provided, the most recent or current document is in scope.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="end",
+     *          in="query",
+     *          description="The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no end date is provided then all documents subsequent to the start date are in scope.  If no start and end date are provided, the most recent or current document is in scope.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="The type refers to the document type.  This is a LOINC code from the valueset of <a href='http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html' target='_blank' rel='noopener'>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node).",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="A search bundle of DocumentReferences is returned"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    'GET /fhir/DocumentReference/$docref' => function (HttpRestRequest $request) {
+
+        // NOTE: The order of this route is IMPORTANT as it needs to come before the DocumentReference single request.
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            // TODO: it seems like regular users should be able to grab authorship / provenance information
+            RestConfig::authorization_check("patients", "demo");
+            $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams());
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
      *      path="/fhir/DocumentReference/{uuid}",
      *      description="Returns a single DocumentReference resource.",
      *      tags={"fhir"},
@@ -8590,6 +8667,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *  )
      */
     'GET /fhir/Document/:id/Binary' => function ($documentId, HttpRestRequest $request) {
+        // TODO: @adunsulag we need to be able to retrieve our CCDA documents this way...
         // currently only allow users with the same permissions as export to take a file out
         // this could be relaxed to allow other types of files ie such as patient access etc.
         RestConfig::authorization_check("admin", "users");
@@ -9101,7 +9179,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      */
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $exportParams = $request->getQueryParams();
         $exportParams['groupId'] = $groupId;
         $return = $fhirExportService->processExport(
@@ -10953,7 +11031,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
     'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'Patient',
@@ -12351,7 +12429,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      */
     'GET /fhir/$export' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'System',
@@ -12391,7 +12469,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $jobUuidString = $request->getQueryParam('job');
         // if we were truly async we would return 202 here to say we are in progress with a JSON response
         // since OpenEMR data is so small we just return the JSON from the database
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExportStatusRequestForJob($jobUuidString);
         RestConfig::apiLog($return);
         return $return;
@@ -12420,11 +12498,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $job = $request->getQueryParam('job');
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processDeleteExportForJob($job);
         RestConfig::apiLog($return);
         return $return;
-    }
+    },
 );
 
 // Note that the portal (api) route is only for patient role

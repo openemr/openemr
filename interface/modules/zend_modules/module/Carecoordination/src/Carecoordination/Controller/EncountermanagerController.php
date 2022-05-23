@@ -7,7 +7,9 @@
  * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Riju K P <rijukp@zhservices.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>_
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,6 +29,9 @@ use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
 {
+    // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for
+    // the document types.  We should probably extract these into a model somewhere...
+    const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan'];
     /**
      * @var EncountermanagerTable
      */
@@ -107,6 +112,8 @@ class EncountermanagerController extends AbstractActionController
                 'downloadccda' => $downloadccda,
                 'components' => $components,
                 'latest_ccda' => $latest_ccda,
+                'form_date_from' => $fromDate,
+                'form_date_to' => $toDate
             );
             if ($downloadqrda == 'download_qrda') {
                 $send_params = array(
@@ -225,6 +232,7 @@ class EncountermanagerController extends AbstractActionController
     public function downloadallAction()
     {
         $pids = $this->params('pids');
+        $document_type = $this->params('document_type') ?? '';
         if ($pids != '') {
             $zip = new Zip();
             $parent_dir = sys_get_temp_dir() . "/CCDA_" . time();
@@ -241,8 +249,13 @@ class EncountermanagerController extends AbstractActionController
                 $row = $this->getEncountermanagerTable()->getFileID($pid);
                 $id = $row['id'];
                 $dir = $parent_dir . "/CCDA_{$row['lname']}_{$row['fname']}/";
-                $filename = "CCDA_{$row['lname']}_{$row['fname']}.xml";
-                $filename_html = "CCDA_{$row['lname']}_{$row['fname']}.html";
+                $filename = "CCDA_{$row['lname']}_{$row['fname']}";
+                if (!empty($document_type) && in_array($document_type, self::VALID_CCDA_DOCUMENT_TYPES)) {
+                    $filename .= "_" . $document_type;
+                }
+                $filename .= "_" . date("Y_m_d_H_i");
+                $filename_html = $filename . ".html";
+                $filename .= ".xml";
                 if (!is_dir($dir)) {
                     if (!mkdir($dir, true) && !is_dir($dir)) {
                         throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
@@ -263,7 +276,13 @@ class EncountermanagerController extends AbstractActionController
             }
 
             $zip_dir = sys_get_temp_dir() . "/";
-            $zip_name = "CCDA.zip";
+            $zip_name = "CCDA";
+            // since we are sending this out to the filesystem we need to whitelist these document types so that we don't
+            // get any kind of filesystem injection attack here.
+            if (!empty($document_type) && in_array($document_type, self::VALID_CCDA_DOCUMENT_TYPES)) {
+                $zip_name .= "_" . $document_type;
+            }
+            $zip_name .= "_" . date("Y_m_d_H_i") . ".zip";
             $zip->setArchive($zip_dir . $zip_name);
             $zip->compress($parent_dir);
 
