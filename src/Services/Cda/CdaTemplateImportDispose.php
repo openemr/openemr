@@ -17,6 +17,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\ListService;
 
 class CdaTemplateImportDispose
 {
@@ -794,6 +795,11 @@ class CdaTemplateImportDispose
                            )";
                 $appTable->zQuery($q_insert_completion_status, array($value['manufacturer'], $value['manufacturer']));
             }
+            $option = '';
+            if (!empty($value['reason_code'])) {
+                $listService = new ListService();
+                $option = $listService->getOptionsByListName('immunization_refusal_reason', ['codes' => $value['reason_code']])[0];
+            }
 
             if (!empty($value['extension'])) {
                 $q_sel_imm = "SELECT *
@@ -832,16 +838,16 @@ class CdaTemplateImportDispose
                 $appTable->zQuery(
                     $query,
                     array($pid,
-                    $immunization_date_value,
-                    $value['cvx_code'],
-                    $value['route_code_text'],
-                    $provider_id,
-                    $value['amount_administered'],
-                    $oid_unit,
-                    $value['manufacturer'],
-                    $value['completion_status'],
-                    $value['extension'],
-                    $value['reason_code'])
+                        $immunization_date_value,
+                        $value['cvx_code'],
+                        $value['route_code_text'],
+                        $provider_id,
+                        $value['amount_administered'],
+                        $oid_unit,
+                        $value['manufacturer'],
+                        $value['completion_status'],
+                        $value['extension'],
+                        $option['option_id'] ?? '')
                 );
             } else {
                 $q_upd_imm = "UPDATE immunizations
@@ -1536,19 +1542,19 @@ class CdaTemplateImportDispose
                 $res = $appTable->zQuery(
                     $query_insert,
                     array(
-                    $pid,
-                    $vitals_date_value,
-                    $value['bps'],
-                    $value['bpd'],
-                    $value['height'],
-                    $value['weight'],
-                    $value['temperature'],
-                    $value['pulse'],
-                    $value['respiration'],
-                    $value['head_circ'],
-                    $value['oxygen_saturation'],
-                    $value['BMI'],
-                    $value['extension'])
+                        $pid,
+                        $vitals_date_value,
+                        $value['bps'],
+                        $value['bpd'],
+                        $value['height'],
+                        $value['weight'],
+                        $value['temperature'],
+                        $value['pulse'],
+                        $value['respiration'],
+                        $value['head_circ'],
+                        $value['oxygen_saturation'],
+                        $value['BMI'],
+                        $value['extension'])
                 );
                 $vitals_id = $res->getGeneratedValue();
             } else {
