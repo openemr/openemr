@@ -26,7 +26,7 @@ trait Date
 
     public function value_or_null_flavor($time)
     {
-        if (!empty($time)) {
+        if (!empty($time) && strpos($time, "0000-00-00") === false) {
             $time = DateHelper::format_datetime($time);
             $v = "value='{$time}'";
         } else {
@@ -164,7 +164,7 @@ trait Date
         if (
             !empty($relevantPeriod) &&
             (
-                isset($relevantPeriod['high'])
+            isset($relevantPeriod['high'])
             )
         ) {
             return $this->relevant_period($context);
