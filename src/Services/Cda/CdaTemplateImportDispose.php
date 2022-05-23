@@ -17,6 +17,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\ListService;
 
 class CdaTemplateImportDispose
 {
@@ -795,6 +796,9 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($q_insert_completion_status, array($value['manufacturer'], $value['manufacturer']));
             }
 
+            $listService = new ListService();
+            $option = $listService->getOptionsByListName('immunization_refusal_reason', ['codes' => $value['reason_code']])[0];
+
             if (!empty($value['extension'])) {
                 $q_sel_imm = "SELECT *
                         FROM immunizations
@@ -841,7 +845,7 @@ class CdaTemplateImportDispose
                     $value['manufacturer'],
                     $value['completion_status'],
                     $value['extension'],
-                    $value['reason_code'])
+                    $option['option_id'] ?? '')
                 );
             } else {
                 $q_upd_imm = "UPDATE immunizations
