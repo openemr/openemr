@@ -142,7 +142,7 @@ class CarecoordinationTable extends AbstractTableGateway
                      LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
                      LEFT JOIN users AS u ON u.id = d.owner
                      WHERE d.audit_master_approval_status = 1 AND am.id >= 0
-                     ORDER BY date ASC";
+                     ORDER BY date DESC"; // do not change DESC
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($data['cat_title'], $data['type']));
         $records = array();
