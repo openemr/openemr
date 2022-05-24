@@ -265,7 +265,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $details['lname'] = '';
             $details['organization'] = '';
         } elseif ($recipients == 'emr_direct') {
-            $query = "select fname, lname, organization, street, city, state, zip, phonew1 from users where email_direct = ?";
+            $query = "select fname, lname, organization, street, city, state, zip, phonew1, facility from users where email_direct = ?";
             $field_name[] = $params;
         } elseif ($recipients == 'patient') {
             $query = "select fname, lname from patient_data WHERE pid = ?";
@@ -274,14 +274,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (!$params) {
                 $params = $_SESSION['authUserID'];
             }
-
-            $query = "select fname, lname, organization, street, city, state, zip, phonew1 from users where id = ?";
+            $query = "select fname, lname, organization, street, city, state, zip, phonew1, facility from users where id = ?";
             $field_name[] = $params;
         }
 
         if ($recipients != 'hie') {
             $res = $appTable->zQuery($query, $field_name);
             $result = $res->current();
+            if (empty($result['organization'])) {
+                $result['organization'] = $result['facility'];
+            }
             $details['fname'] = $result['fname'];
             $details['lname'] = $result['lname'];
             $details['organization'] = $result['organization'];
