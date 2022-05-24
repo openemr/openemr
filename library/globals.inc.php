@@ -3103,17 +3103,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address Override (if needed for OAuth2, FHIR or CCDA)'),
+            xl('Site Address Override (if needed for OAuth2, FHIR, CCDA, or Payment Processing)'),
             'text',
             '',
-            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR or CCDA. Example is') . ' https://localhost:8300 .'
-        ),
-
-        'rest_api' => array(
-            xl('Enable OpenEMR Standard REST API'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR Standard RESTful API.')
+            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR, CCDA, or Payment Processing. Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_fhir_api' => array(
@@ -3123,18 +3116,25 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ),
 
+        'rest_system_scopes_api' => array(
+            xl('Enable OpenEMR FHIR System Scopes (Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR FHIR System Scopes.')
+        ),
+
+        'rest_api' => array(
+            xl('Enable OpenEMR Standard REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard RESTful API.')
+        ),
+
         'rest_portal_api' => array(
             xl('Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)'),
             'bool',
             '0',
             xl('Enable OpenEMR Patient Portal RESTful API.')
-        ),
-
-        'rest_system_scopes_api' => array(
-            xl('Enable OpenEMR FHIR System Scopes (Recommended Off, Turn on only if you know what you are doing)'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR FHIR System Scopes.')
         ),
 
         'oauth_password_grant' => array(
