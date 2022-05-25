@@ -56,7 +56,7 @@ class EncountermanagerController extends AbstractActionController
         $status = $request->getPost('form_status', null);
 
         if (!$pid && !$encounter && !$status) {
-            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7 * 52 * 3));
+            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7 * 52 * 8)); // TODO give wide 8 year range for testing
             $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime('2022-12-31')); // TODO remove date adjustment production
         }
 
