@@ -291,9 +291,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             }).then((response) => {
                 response.text();
             }).then(function (data) {
+                $("html, body").animate({
+                    scrollTop: $('html, body').get(0).scrollHeight
+                }, 500);
                 status.setProgress(100);
                 $('#status1').show('clip', '', 500, '');
-                $(document).scrollTop($(document).height());
             });
         }
         if (fnames != '') {
