@@ -709,3 +709,8 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','WK','Weekly',19,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','MO','Monthly',20,0,1);
 #EndIf
+
+#IfRow3D list_options list_id immunization_refusal_reason option_id parental_decision seq 10
+UPDATE list_options SET seq=40 WHERE list_id="immunization_refusal_reason" AND option_id="parental_decision";
+UPDATE list_options SET seq=10 WHERE list_id="immunization_refusal_reason" AND option_id="patient_decision";
+#EndIf

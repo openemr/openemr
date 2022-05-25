@@ -73,7 +73,7 @@ class CqmCalculator
             foreach ($patient->dataElements as $dataElement) {
                 // We need to look up OIDs and add the first code concept from the value set.
                 // We do this first in case it's in a dataElement that we need to clone for the calculator below
-                if ($dataElement->negationRationale !== null) {
+                if (isset($dataElement->negationRationale) && $dataElement->negationRationale !== null) {
                     $to_add = [];
                     foreach ($dataElement->dataElementCodes as $dataElementCode) {
                         if (empty($dataElementCode->system)) {

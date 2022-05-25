@@ -797,8 +797,11 @@ class CdaTemplateImportDispose
             }
             $option = '';
             if (!empty($value['reason_code'])) {
+                // TODO: check with @sjpadgett why the codes are "SNOMED CT:<number>" instead of "SNOMED-CT" for the immunization reason code
+                $reason_code = str_replace("SNOMED CT", "SNOMED-CT", $value['reason_code']);
+
                 $listService = new ListService();
-                $option = $listService->getOptionsByListName('immunization_refusal_reason', ['codes' => $value['reason_code']])[0];
+                $option = $listService->getOptionsByListName('immunization_refusal_reason', ['codes' => $reason_code])[0];
             }
 
             if (!empty($value['extension'])) {

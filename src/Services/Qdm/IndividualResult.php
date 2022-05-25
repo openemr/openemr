@@ -48,6 +48,11 @@ class IndividualResult extends AbstractType
         $this->measure = $measure;
     }
 
+    public function getInnerResult()
+    {
+        return $this->_result;
+    }
+
     public function observed_values()
     {
         /*

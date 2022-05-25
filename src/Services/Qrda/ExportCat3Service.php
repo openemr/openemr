@@ -10,6 +10,8 @@
 
 namespace OpenEMR\Services\Qrda;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Services\Qdm\CqmCalculator;
 use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
@@ -27,6 +29,8 @@ class ExportCat3Service
     protected $results = [];
     protected $effectiveDate;
     protected $effectiveDateEnd;
+
+    const DEBUG = false;
 
     /**
      * ExportCat3Service constructor.
@@ -57,6 +61,10 @@ class ExportCat3Service
         // @see projectcypress/cypress.git lib/cypress/api_measure_evaluator.rb
         $patients = $this->builder->build($this->request);
         $calculationResults = $this->do_calculation($patients, $measureObjs);
+
+        if (self::DEBUG) {
+            $this->logCalculationResults($patients, $calculationResults);
+        }
 
         if ($resultOnly) {
             return $calculationResults;
@@ -208,5 +216,35 @@ class ExportCat3Service
         patient.save if save
         end
          */
+    }
+
+    /**
+     * Used for logging out the IPP, DENOM, NUMER, DENEXCEP commands to the error log if debug logging is turned on
+     * This can be quickly seen in a grid format by running the following command from inside a docker container
+     * tail -f /var/log/apache2/error.log | cut -c 100-
+     *
+     * Future debugging could store these in a database file or something else for easier debugging.
+     * @param $patients
+     * @param $results
+     * @throws \Exception
+     */
+    private function logCalculationResults($patients, $results)
+    {
+        $logger = new SystemLogger();
+        $patientsById = [];
+        foreach ($patients as $patient) {
+            $patientsById[$patient->id->value] = $patient;
+        }
+        foreach ($results as $key => $result) {
+            $resultPatient = $patientsById[$result[0]->patient_id->value] ?? new Patient();
+            $innerResult = $result[0]->getInnerResult();
+
+            $resultString = [str_pad("Patient: " . implode(" ", $resultPatient->patientName), 30)];
+            $resultString[] = str_pad("IPP: " . ($innerResult['IPP'] ?? 0), 10);
+            $resultString[] = str_pad("DENOM: " . ($innerResult['DENOM'] ?? 0), 10);
+            $resultString[] = str_pad("NUMER: " . ($innerResult['NUMER'] ?? 0), 10);
+            $resultString[] = str_pad("DENEXCEP: " . ($innerResult['DENEXCEP'] ?? 0), 10);
+            $logger->debug(implode(" ", $resultString));
+        }
     }
 }
