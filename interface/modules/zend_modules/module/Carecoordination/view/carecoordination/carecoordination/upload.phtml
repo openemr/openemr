@@ -131,6 +131,15 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
 
         $('.delete-audit-record-btn').click(deleteAuditRecordHandler);
+
+        $('#sort_direction_check').click(function (e) {
+            let current = document.getElementById('sort_direction').value;
+            if (current.length > 0) {
+                document.getElementById('sort_direction').value = '';
+            } else {
+                document.getElementById('sort_direction').value = 'DESC';
+            }
+        });
     });
 
     function deleteAuditRecordHandler(event) {
@@ -196,8 +205,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     $('#status1').hide('clip', '', 500, '');
                     $('#form_ccda_import').submit();
                 }
-            }
-            , error: function (data) {
+            },
+            error: function (data) {
                 console.error("Error uploading one or more files. Data returned ", data);
                 $('#status1').hide('clip', '', 500, '');
                 alert("There was an error in uploading one or more of your files.  Please check your server logs")
@@ -284,6 +293,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             }).then(function (data) {
                 status.setProgress(100);
                 $('#status1').show('clip', '', 500, '');
+                $(document).scrollTop($(document).height());
             });
         }
         if (fnames != '') {
@@ -331,7 +341,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     }
 </script>
 <body id="dragandrophandler" style="min-height: 600px">
-    <form method="post" enctype="multipart/form-data" id="form_ccda_import">
+    <form class="form-inline" method="post" enctype="multipart/form-data" id="form_ccda_import">
         <input type="hidden" name="action" id="action">
         <input type="hidden" name="am_id" id="am_id">
         <input type="hidden" name="document_id" id="document_id">
@@ -368,14 +378,18 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 <div id="uploader">
                     <input type="file" id="file_uploader" multiple>
                 </div>
-                <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
+                <div id="refresh" onclick="document.getElementById('form_ccda_import').submit();">&nbsp;</div>
                 <?php if (!empty($records)) { ?>
-                    <span style="margin-left:10px;">
+                <span style="margin-left:10px;">
                     <button type="submit" id="chart_all_imports" class="btn btn-secondary" name="chart_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Chart all pending imports"); ?>'>
                         <img style="margin-right: 5px;height:20px;width:auto;" src="<?php echo $this->basePath(); ?>/css/icons/import.png"><span><?php echo $this->listenerObject->z_xlt("Chart Pending"); ?></span>
                     </button>
                 </span>
                 <?php } ?>
+                <label for="sort_direction_check" class="checkbox" style="margin-left: 1rem;"><?php echo xlt('Ascending Order'); ?>
+                    <input class="checkbox" type="checkbox" id="sort_direction_check" <?php echo empty($_REQUEST['sort_direction'] ?? 'DESC') ? text('checked') : ''; ?> />
+                </label>
+                <input type="hidden" id="sort_direction" name="sort_direction" value="<?php echo attr($_REQUEST['sort_direction'] ?? 'DESC'); ?>" />
             </div>
             <div class="clear"></div>
 
@@ -399,10 +413,10 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <th><?php echo $this->listenerObject->z_xlt('Race'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Ethnic'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Enc'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Prob'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('CP'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('OB'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Proc'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Prob'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Med'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
@@ -428,10 +442,10 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                 <td><?php echo $this->escapeHtml($row['race']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['ethnicity']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['enc_count']); ?></td>
-                                <td><?php echo $this->escapeHtml($row['prb_count']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['cp_count']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['ob_count']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['proc_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['prb_count']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['med_count']); ?></td>
                                 <td>
                                     <?php
@@ -449,7 +463,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                 </td>
                                 <td>
                                     <a href="#" class="delete-audit-record-btn" data-amid="<?php echo attr($row['amid']); ?>"
-                                       data-name="<?php echo attr($row['pat_name']); ?>"><strong style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient'] ?? ''); ?></strong></a>
+                                        data-name="<?php echo attr($row['pat_name']); ?>"><span style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient'] ?? ''); ?></span></a>
                                 </td>
                                 <td>
                                     <?php

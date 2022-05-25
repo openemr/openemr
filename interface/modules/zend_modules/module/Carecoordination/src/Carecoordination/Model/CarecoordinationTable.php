@@ -101,48 +101,48 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function document_fetch($data): array
     {
+        $direction = $_REQUEST['sort_direction'] ?? 'DESC';
         $query = "SELECT am.id as amid,
-                        cat.name,
-                        u.fname,
-                        u.lname,
-                        d.imported,
-                        d.size,
-                        d.date,
-                        d.couch_docid,
-                        d.couch_revid,
-                        d.url AS file_url,
-                        d.id AS document_id,
-                        d.document_data,
-                        am.is_qrda_document,
-                        ad.field_value as ad_lname,
-                        ad1.field_value as ad_fname,
-                        ad2.field_value as dob_raw,
-                        (Select field_value From `audit_details` Where audit_master_id = am.id AND table_name = 'patient_data' AND field_name = 'qrda_empty') as qrda_empty,
-                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'encounter' AND field_name = 'date') as enc_count,
-                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'lists1' AND field_name = 'type' AND field_value = 'medical_problem') as prb_count,
-                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'form_care_plan' AND field_name = 'date') as cp_count,
-                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'observation_preformed' AND field_name = 'date') as ob_count,
-                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'procedure' AND field_name = 'date') as proc_count,
-                        (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'lists3' AND field_name = 'type' AND field_value = 'medication') as med_count,
-                        ad5.field_value as race,
-                        ad6.field_value as ethnicity,
-                        pd.pid,
-                        CONCAT(ad.field_value,' ',ad1.field_value) as pat_name,
-                        DATE(ad2.field_value) as dob,
-                        CONCAT_WS(' ',pd.lname, pd.fname) as matched_patient
-                     FROM documents AS d
-                     JOIN categories AS cat ON cat.name = ?
-                     JOIN categories_to_documents AS cd ON cd.document_id = d.id AND cd.category_id = cat.id
-                     LEFT JOIN audit_master AS am ON am.type = ? AND am.approval_status = '1' AND d.audit_master_id = am.id
-                     LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname'
-                     LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname'
-                     LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
-                     LEFT JOIN audit_details ad5 ON ad5.audit_master_id = am.id AND ad5.table_name = 'patient_data' AND ad5.field_name = 'race'
-                     LEFT JOIN audit_details ad6 ON ad6.audit_master_id = am.id AND ad6.table_name = 'patient_data' AND ad6.field_name = 'ethnicity'
-                     LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
-                     LEFT JOIN users AS u ON u.id = d.owner
-                     WHERE d.audit_master_approval_status = 1 AND am.id >= 0
-                     ORDER BY date DESC"; // do not change DESC
+            cat.name,
+            u.fname,
+            u.lname,
+            d.imported,
+            d.size,
+            d.date,
+            d.couch_docid,
+            d.couch_revid,
+            d.url AS file_url,
+            d.id AS document_id,
+            d.document_data,
+            am.is_qrda_document,
+            ad.field_value as ad_lname,
+            ad1.field_value as ad_fname,
+            ad2.field_value as dob_raw,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'encounter' AND field_name = 'date') as enc_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'lists1' AND field_name = 'type' AND field_value = 'medical_problem') as prb_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'form_care_plan' AND field_name = 'date') as cp_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'observation_preformed' AND field_name = 'date') as ob_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'procedure' AND field_name = 'date') as proc_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'lists3' AND field_name = 'type' AND field_value = 'medication') as med_count,
+            ad5.field_value as race,
+            ad6.field_value as ethnicity,
+            pd.pid,
+            CONCAT(ad.field_value,' ',ad1.field_value) as pat_name,
+            DATE(ad2.field_value) as dob,
+            CONCAT_WS(' ',pd.lname, pd.fname) as matched_patient
+        FROM documents AS d
+        JOIN categories AS cat ON cat.name = ?
+        JOIN categories_to_documents AS cd ON cd.document_id = d.id AND cd.category_id = cat.id
+        LEFT JOIN audit_master AS am ON am.type = ? AND am.approval_status = '1' AND d.audit_master_id = am.id
+        LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname'
+        LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname'
+        LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
+        LEFT JOIN audit_details ad5 ON ad5.audit_master_id = am.id AND ad5.table_name = 'patient_data' AND ad5.field_name = 'race'
+        LEFT JOIN audit_details ad6 ON ad6.audit_master_id = am.id AND ad6.table_name = 'patient_data' AND ad6.field_name = 'ethnicity'
+        LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
+        LEFT JOIN users AS u ON u.id = d.owner
+        WHERE d.audit_master_approval_status = 1 AND am.id >= 0
+        ORDER BY date $direction"; // DESC is default
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($data['cat_title'], $data['type']));
         $records = array();
@@ -195,8 +195,7 @@ class CarecoordinationTable extends AbstractTableGateway
         // test if a QRDA QDM CAT I document type from header OIDs
         $qrda = $xml['templateId'][2]['root'] ?? null;
         if ($qrda === '2.16.840.1.113883.10.20.24.1.2') {
-            $this->is_qrda_import = true;
-            $this->documentData['empty_qrda'] = 0;
+            $this->is_qrda_import = 1;
             if (!empty($doc_id)) {
                 $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'qrda1');
             }
@@ -205,7 +204,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $xml["recordTarget"]["patientRole"]["patient"]["name"]["family"];
                 error_log("No QDMs for patient: " . $name);
                 $validation_log['xsd'][] = xl("QRDA is empty of content.") . ' ' . text($name);
-                $this->documentData['empty_qrda'] = 1;
+                $this->is_qrda_import = 2;
             }
             // Offset to Patient Data section
             $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);

@@ -147,30 +147,30 @@ class CarecoordinationController extends AbstractActionController
 
         $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
         foreach ($records as $key => $r) {
-            if (!empty($records[$key]['dupl_patient'])) {
+            if (!empty($records[$key]['dupl_patient'] ?? null)) {
                 continue;
             }
             $name = $r['pat_name'];
             foreach ($records as $k => $r1) {
                 $f = false;
                 $why = '';
-                if (!empty($r1['dupl_patient']) || $key == $k) {
+                if (!empty($r1['dupl_patient'] ?? null) || $key == $k) {
                     continue;
                 }
                 $n = $r1['pat_name'];
                 $fn = $r1['ad_fname'] == $r['ad_fname'];
                 $ln = $r1['ad_lname'] == $r['ad_lname'];
                 $dob = $r1['dob_raw'] == $r['dob_raw'];
-                if (!empty($r1['empty_qrda'] ?? 0)) {
-                    $f = true;
-                    $why = xlt('No QDM content.');
-                }
                 if ($dob) {
                     $f = true;
                     $why = xlt('Match DOB');
                 }
                 if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
-                    $why = xlt('Matched Demo');
+                    if ($f) {
+                        $why = xlt('Matched Demo and DOB');
+                    } else {
+                        $why = xlt('Matched Demo');
+                    }
                     if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
                         $why .= ' ' . xlt('with Mismatched Components');
                     }
@@ -189,6 +189,10 @@ class CarecoordinationController extends AbstractActionController
                         $why .= ' ' .  xlt('with Mismatched Components');
                     }
                     $f = true;
+                }
+                if (($r1['is_qrda_document'] ?? 0) === 2) {
+                    $f = false;
+                    $records[$k]['dupl_patient'] = xlt('Empty Report. No QDM content.');
                 }
                 if ($f) {
                     $records[$key]['dupl_patient'] = $records[$k]['dupl_patient'] = $why;
