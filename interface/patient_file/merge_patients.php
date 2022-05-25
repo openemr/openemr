@@ -303,15 +303,21 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         function resolveDuplicateEncounters($target_pid): void
         {
             global $PRODUCTION;
-            $sql = "SELECT e1.date, e1.encounter FROM `form_encounter` AS e1
-                    INNER JOIN(SELECT `date`, `encounter` FROM `form_encounter`) AS e2 
-                    ON e1.date = e2.date AND e1.encounter != e2.encounter AND e1.pid = ? ORDER BY e1.encounter";
+            $sql = "SELECT e1.date, e1.encounter, e1.reason, e1.encounter_type_code FROM `form_encounter` AS e1
+                    INNER JOIN(SELECT `date`, `encounter`, reason, encounter_type_code FROM `form_encounter`) AS e2 
+                    ON e1.date = e2.date AND e1.encounter != e2.encounter AND e1.pid = ? ORDER BY e1.encounter_type_code DESC";
             $res = sqlStatement($sql, array($target_pid));
             while ($dupe = sqlFetchArray($res)) {
                 $targeted[] = $dupe;
             }
 
-            if (count($targeted ?? []) > 1) {
+            if (count($targeted ?? []) === 2) {
+                $target = $targeted[0]['encounter'];
+                if (!empty($targeted[0]['encounter_type_code'])) {
+                    $target = $targeted[0]['encounter'];
+                } elseif (!empty($targeted[1]['encounter_type_code'])) {
+                    $target = $targeted[1]['encounter'];
+                }
                 $sql = "SELECT DISTINCT TABLE_NAME as encounter_table, COLUMN_NAME as encounter_column " .
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
@@ -319,9 +325,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
-                $target = $targeted[0]['encounter'];
                 foreach ($targeted as $source) {
-                    if ($target === $source['encounter']) {
+                    if ((int)$target === (int)$source['encounter']) {
                         continue;
                     }
                     foreach ($tables as $table) {
