@@ -228,7 +228,8 @@ class ExportCat3Service
      * @param $results
      * @throws \Exception
      */
-    private function logCalculationResults($patients, $results) {
+    private function logCalculationResults($patients, $results)
+    {
         $logger = new SystemLogger();
         $patientsById = [];
         foreach ($patients as $patient) {
