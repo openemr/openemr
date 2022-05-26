@@ -34,7 +34,7 @@ class EncountermanagerTable extends AbstractTableGateway
     public function getEncounters($data, $getCount = null)
     {
         $query_data = array();
-        $query = "SELECT pd.fname, pd.lname, pd.mname, date(fe.date) as date, fe.pid, fe.encounter,
+        $query = "SELECT pd.fname, pd.lname, pd.mname, date(fe.date) as date, fe.pid, fe.encounter, pd.date AS 'patient_creation_date',
                         u.fname as doc_fname, u.mname as doc_mname, u.lname as doc_lname, (select count(encounter) from form_encounter where pid=fe.pid) as enc_count,
                         (SELECT DATE(date) FROM form_encounter WHERE pid=fe.pid ORDER BY date DESC LIMIT 1) as last_visit_date,
 						(select count(*) from ccda where pid=fe.pid and transfer=1) as ccda_transfer_count,
@@ -55,11 +55,25 @@ class EncountermanagerTable extends AbstractTableGateway
         if ($data['status'] == "unsigned") {
             $query .= " AND (cf.encounter IS  NULL OR cf.encounter ='')";
         }
-
         if ($data['from_date'] && $data['to_date']) {
-            $query .= " AND fe.date BETWEEN ? AND ? ";
+            if ($data['search_type_date'] == 'date_patient_creation') {
+                $query .= " AND pd.date BETWEEN ? AND ? ";
+            } else {
+                // default is encounter date
+                $query .= " AND fe.date BETWEEN ? AND ? ";
+            }
             $query_data[] = $data['from_date'];
             $query_data[] = $data['to_date'];
+        }
+        if (!empty($data['provider_id'])) {
+            $query .= " AND (`fe`.`provider_id` = ? OR `fe`.`supervisor_id` = ?) ";
+            $query_data[] = $data['provider_id'];
+            $query_data[] = $data['provider_id'];
+        }
+
+        if (!empty($data['billing_facility_id'])) {
+            $query .= " AND `fe`.`billing_facility` = ? ";
+            $query_data[] = $data['billing_facility_id'];
         }
 
         if ($data['pid']) {

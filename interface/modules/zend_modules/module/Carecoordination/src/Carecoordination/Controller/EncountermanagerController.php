@@ -24,7 +24,11 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
+use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
+use OpenEMR\Services\UserService;
+use OpenEMR\Validators\ProcessingResult;
 use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
@@ -32,6 +36,9 @@ class EncountermanagerController extends AbstractActionController
     // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for
     // the document types.  We should probably extract these into a model somewhere...
     const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan'];
+
+    const DEFAULT_DATE_SEARCH_TYPE = "encounter";
+    const DATE_SEARCH_TYPE_PATIENT_CREATION = "patient_date_created";
     /**
      * @var EncountermanagerTable
      */
@@ -51,6 +58,12 @@ class EncountermanagerController extends AbstractActionController
         $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
         $toDate = $request->getPost('form_date_to', null);
         $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        // encounter_date
+        // patient_date_created
+
+        $form_search_type_date = $request->getPost('form_search_type_date', "encounter");
+        $form_provider_id = $request->getPost("form_provider_id", null);
+        $form_billing_facility_id = $request->getPost("form_billing_facility_id", null);
         $pid = $request->getPost('form_pid', null);
         $encounter = $request->getPost('form_encounter', null);
         $status = $request->getPost('form_status', null);
@@ -148,6 +161,9 @@ class EncountermanagerController extends AbstractActionController
             'expand_all' => $expand_all,
             'sl_no' => $form_sl_no,
             'measures' => $form_measures,
+            'search_type_date' => $form_search_type_date,
+            'provider_id' => $form_provider_id,
+            "billing_facility_id" => $form_billing_facility_id
         );
         if ($new_search) {
             $count = $this->getEncountermanagerTable()->getEncounters($params, 1);
@@ -166,6 +182,12 @@ class EncountermanagerController extends AbstractActionController
         $layout = $this->layout();
         $layout->setTemplate('carecoordination/layout/encountermanager');
 
+        $practitionerService = new PractitionerService();
+        $practitioners = ProcessingResult::extractDataArray($practitionerService->getAll()) ?? [];
+
+        $facilityService = new FacilityService();
+        $billingLocations = $facilityService->getAllBillingLocations();
+
         $index = new ViewModel(array(
             'details' => $details,
             'form_data' => $params,
@@ -174,6 +196,8 @@ class EncountermanagerController extends AbstractActionController
             'status_details' => $status_details,
             'listenerObject' => $this->listenerObject,
             'commonplugin' => $this->CommonPlugin(),
+            'providers' => $practitioners,
+            'billing_facilities' => $billingLocations
         ));
         return $index;
     }
