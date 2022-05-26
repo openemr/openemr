@@ -295,29 +295,49 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             );
         }
 
+        function resolveTargets($target_pid, $source_pid): array
+        {
+            // look for an anonymous encounter in a pid target/source set
+            // this is where we source components to merge with target encounter.
+            $sql = "SELECT e1.date, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
+                    FROM `form_encounter` e1 WHERE e1.pid IN(?,?) AND e1.reason IS NULL AND e1.encounter_type_code IS NULL LIMIT 1";
+            $source = sqlQuery($sql, array($target_pid, $source_pid));
+            // will we need to deduplicate?
+            if (empty($source)) {
+                return [];
+            }
+
+            $test = ((int)$source['pid'] === (int)$source_pid) ? $source_pid : null;
+            $targetPid = $test ? $target_pid : $source_pid;
+
+            $sql = "SELECT e1.date, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
+                    FROM `form_encounter` e1 WHERE e1.pid = ? AND e1.date = ? LIMIT 1";
+            $target = sqlQuery($sql, array($targetPid, $source['date']));
+            if (empty($target)) {
+                // there wasn't a target encounter date match to merge components
+                // so grab an encounter that is within the date period of source encounter.
+                $src_date = date("Ymd", strtotime($source['date']));
+                $sql = "SELECT e1.date, e1.date_end, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
+                    FROM `form_encounter` e1 WHERE e1.pid = ? AND ? BETWEEN e1.date and e1.date_end LIMIT 1";
+                $target = sqlQuery($sql, array($targetPid, $src_date));
+            }
+            return [$target ?? null, $source ?? null];
+        }
+
         /**
          * @param $source_pid
          * @param $target_pid
          * @return void
          */
-        function resolveDuplicateEncounters($target_pid): void
+        function resolveDuplicateEncounters($targets): void
         {
             global $PRODUCTION;
-            $sql = "SELECT e1.date, e1.encounter, e1.reason, e1.encounter_type_code FROM `form_encounter` AS e1
-                    INNER JOIN(SELECT `date`, `encounter`, reason, encounter_type_code FROM `form_encounter`) AS e2 
-                    ON e1.date = e2.date AND e1.encounter != e2.encounter AND e1.pid = ? ORDER BY e1.encounter_type_code DESC";
-            $res = sqlStatement($sql, array($target_pid));
-            while ($dupe = sqlFetchArray($res)) {
-                $targeted[] = $dupe;
-            }
 
-            if (count($targeted ?? []) === 2) {
-                $target = $targeted[0]['encounter'];
-                if (!empty($targeted[0]['encounter_type_code'])) {
-                    $target = $targeted[0]['encounter'];
-                } elseif (!empty($targeted[1]['encounter_type_code'])) {
-                    $target = $targeted[1]['encounter'];
-                }
+            $target_pid = $targets[0]['pid'];
+            $target = $targets[0]['encounter'];
+            $source = $targets[1];
+
+            if (!empty($target)) {
                 $sql = "SELECT DISTINCT TABLE_NAME as encounter_table, COLUMN_NAME as encounter_column " .
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
@@ -325,49 +345,44 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
-                foreach ($targeted as $source) {
-                    if ((int)$target === (int)$source['encounter']) {
+                foreach ($tables as $table) {
+                    if ($table['encounter_table'] === 'form_encounter' || $table['encounter_table'] === 'forms') {
                         continue;
                     }
-                    foreach ($tables as $table) {
-                        if ($table['encounter_table'] === 'form_encounter' || $table['encounter_table'] === 'forms') {
-                            continue;
-                        }
-                        $sql = "UPDATE " . escape_table_name($table['encounter_table']) . " SET " .
-                            escape_sql_column_name($table['encounter_column'], array($table['encounter_table'])) . " = ? WHERE " .
-                            escape_sql_column_name($table['encounter_column'], array($table['encounter_table'])) . " = ?";
+                    $sql = "UPDATE " . escape_table_name($table['encounter_table']) . " SET " .
+                        escape_sql_column_name($table['encounter_column'], array($table['encounter_table'])) . " = ? WHERE " .
+                        escape_sql_column_name($table['encounter_column'], array($table['encounter_table'])) . " = ?";
 
-                        if ($PRODUCTION) {
-                            sqlStatement($sql, array($target, $source['encounter']));
-                            if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
-                                echo "<br />$sql (" . text($target) . ")" . " : (" . text($source['encounter']) . ")";
-                                logMergeEvent(
-                                    $target_pid,
-                                    "update",
-                                    "Updated for duplicate encounters with " .
-                                    $table['encounter_table'] . '.' . $table['encounter_column'] . " = " . $target
-                                );
-                            }
-                        }
-                    }
-                    $sql = "UPDATE " . escape_table_name('forms') . " SET " .
-                        escape_sql_column_name('encounter', array('forms')) . " = ? WHERE " .
-                        escape_sql_column_name('encounter', array('forms')) . " = ? AND " .
-                        escape_sql_column_name('formdir', array('forms')) . " != 'newpatient'";
-                    $true = sqlStatement($sql, array($target, $source['encounter']));
                     if ($PRODUCTION) {
-                        $sql = "DELETE FROM `forms` WHERE `encounter` = ? AND `formdir` = 'newpatient'";
-                        sqlStatement($sql, array($source['encounter']));
-                        $sql = "DELETE FROM `form_encounter` WHERE `encounter` = ?";
-                        sqlStatement($sql, array($source['encounter']));
+                        sqlStatement($sql, array($target, $source['encounter']));
                         if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
-                            echo "<br />$sql" . text($source['encounter']);
+                            echo "<br />$sql (" . text($target) . ")" . " : (" . text($source['encounter']) . ")";
                             logMergeEvent(
                                 $target_pid,
-                                "delete",
-                                "deleted duplicate form encounter " . " = " . $source['encounter'] . " after move."
+                                "update",
+                                "Updated for duplicate encounters with " .
+                                $table['encounter_table'] . '.' . $table['encounter_column'] . " = " . $target
                             );
                         }
+                    }
+                }
+                $sql = "UPDATE " . escape_table_name('forms') . " SET " .
+                    escape_sql_column_name('encounter', array('forms')) . " = ? WHERE " .
+                    escape_sql_column_name('encounter', array('forms')) . " = ? AND " .
+                    escape_sql_column_name('formdir', array('forms')) . " != 'newpatient'";
+                sqlStatement($sql, array($target, $source['encounter']));
+                if ($PRODUCTION) {
+                    $sql = "DELETE FROM `forms` WHERE `encounter` = ? AND `formdir` = 'newpatient'";
+                    sqlStatement($sql, array($source['encounter']));
+                    $sql = "DELETE FROM `form_encounter` WHERE `encounter` = ?";
+                    sqlStatement($sql, array($source['encounter']));
+                    if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                        echo "<br />$sql" . text($source['encounter']);
+                        logMergeEvent(
+                            $target_pid,
+                            "delete",
+                            "deleted duplicate form encounter " . " = " . $source['encounter'] . " after move."
+                        );
                     }
                 }
             }
@@ -378,11 +393,27 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 CsrfUtils::csrfNotVerified();
             }
 
+            $targets = null;
             $target_pid = intval($_POST['form_target_pid']);
             $source_pid = intval($_POST['form_source_pid']);
-            echo "<div class='jumbotron jumbotron-fluid'>";
+            echo "<div class='jumbotron jumbotron-fluid m-0 p-0 px-2'>";
             if ($target_pid == $source_pid) {
                 die(xlt('Target and source pid may not be the same!'));
+            }
+
+            // we want to adjust target and source pid so we can remove the anonymous encounter
+            // created by import to house independent components.
+            // test if merge or dedupe action is needed.
+            if (!empty($_POST['form_submit'])) {
+                $targets = resolveTargets($target_pid, $source_pid);
+                $_POST['form_submit'] = !empty($targets) ? 'dedupe' : 'merge';
+                if ($_POST['form_submit'] == "dedupe" && (empty($targets[0]['pid']) || empty($targets[1]['pid']))) {
+                    throw new \RuntimeException("Failed to resolve deduplication target");
+                }
+                if ($_POST['form_submit'] == "dedupe") {
+                    $target_pid = $targets[0]['pid'] ?? null;
+                    $source_pid = $targets[1]['pid'] ?? null;
+                }
             }
 
             $tprow = sqlQuery(
@@ -524,10 +555,16 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 }
             }
 
-            // De-duplicate encounters
+            // Deduplicate encounters
+            // at this point the pids of merge/dedupe action has been merged whereas now
+            // we'll resolve the encounters components to the appropriate target encounter.
             if ($_POST['form_submit'] == 'dedupe') {
-                resolveDuplicateEncounters($target_pid);
+                if (empty($targets)) {
+                    throw new \RuntimeException("Failed to resolve targets for deduplication. Go back.");
+                }
+                resolveDuplicateEncounters($targets);
             }
+
             // Recompute dupscore for target patient.
             updateDupScore($target_pid);
 
@@ -607,7 +644,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                         value='dedupe'><?php echo xla('Merge with Encounter Deduplication'); ?></button></span>
             </div>
         </form>
-        <div class="jumbotron mt-2">
+        <div class="jumbotron p-2 m-0 mt-2">
             <p class="font-weight-bold"><?php echo xlt('Be careful with this feature. Back up your database and documents before using it!'); ?></p>
             <?php if (!$PRODUCTION) { ?>
                 <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
