@@ -26,6 +26,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class Document extends ORDataObject
 {
+    const TABLE_NAME = "documents";
+
     /**
      * Use the native filesystem to store files at
      */
@@ -220,7 +222,7 @@ class Document extends ORDataObject
 
         //shore up the most basic ORDataObject bits
         $this->id = $id;
-        $this->_table = "documents";
+        $this->_table = self::TABLE_NAME;
 
         //load the enum type from the db using the parent helper function, this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
@@ -253,7 +255,7 @@ class Document extends ORDataObject
             return [];
         }
 
-        $categories = "Select `id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec` FROM `categories` "
+        $categories = "Select `id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`,`codes` FROM `categories` "
         . "JOIN `categories_to_documents` `ctd` ON `ctd`.`category_id` = `categories`.`id` "
         . "WHERE `ctd`.`document_id` = ? ";
         $resultSet = sqlStatement($categories, [$this->get_id()]);
@@ -282,10 +284,10 @@ class Document extends ORDataObject
      * permissions for the categories the document is in.  If there are any categories that the document is tied to
      * that the owner does NOT have access rights to, the request is denied.  If there are no categories tied to the
      * document, default access is granted.
-     * @param int|null $user  The user we are checking.  If no user is provided it checks against the currently logged in user
+     * @param string|null $username The user (username) we are checking.  If no user is provided it checks against the currently logged in user
      * @return bool True if the passed in user or current user can access this document, false otherwise.
      */
-    public function can_access($user = null)
+    public function can_access($username = null)
     {
         $categories = $this->get_categories();
 
@@ -296,7 +298,7 @@ class Document extends ORDataObject
 
         // verify that we can access every single category this document is tied to
         foreach ($categories as $category) {
-            if (AclMain::aclCheckAcoSpec($category['aco_spec'], $user) === false) {
+            if (AclMain::aclCheckAcoSpec($category['aco_spec'], $username) === false) {
                 return false;
             }
         }
@@ -404,6 +406,16 @@ class Document extends ORDataObject
         }
 
         return $documents;
+    }
+    public static function getDocumentForUuid($uuid)
+    {
+        $sql = "SELECT id from " . escape_table_name(self::TABLE_NAME) . " WHERE uuid = ?";
+        $id = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue($sql, 'id', [UuidRegistry::uuidToBytes($uuid)]);
+        if (!empty($id)) {
+            return new Document($id);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -695,6 +707,11 @@ class Document extends ORDataObject
     {
         $this->name = $name;
     }
+
+    /**
+     * Returns the database human readable filename of the document
+     * @return string|null
+     */
     function get_name()
     {
         return $this->name;

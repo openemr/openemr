@@ -8,10 +8,17 @@
  // of the License, or (at your option) any later version.
 
 
-require("../../globals.php");
-
+require_once("../../globals.php");
 require_once("ui.php");
 require_once("common.php");
+
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);
+    exit;
+}
 
 // recursively require all .php files in the base library folder
 foreach (glob(base_dir() . "base/library/*.php") as $filename) {

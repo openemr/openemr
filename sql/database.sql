@@ -284,6 +284,7 @@ CREATE TABLE `categories` (
   `lft` int(11) NOT NULL default '0',
   `rght` int(11) NOT NULL default '0',
   `aco_spec` varchar(63) NOT NULL DEFAULT 'patients|docs',
+  `codes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Category codes for documents stored in this category',
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
@@ -293,37 +294,36 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs');
-INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs');
-INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs');
-INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|docs');
-INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7, 'patients|docs');
-INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 11, 18, 'patients|docs');
-INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 12, 13, 'patients|docs');
-INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 14, 15, 'patients|docs');
-INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 16, 17, 'patients|docs');
-INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patients|docs');
-INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs');
-INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs');
-INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs');
-INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs');
-INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs');
-INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs');
-INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs');
-INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32, 'patients|docs');
-INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs');
-INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36, 'patients|docs');
-INSERT INTO `categories` VALUES (21, 'AntSeg Photos - Eye', 'ANTSEG', 17, 37, 38, 'patients|docs');
-INSERT INTO `categories` VALUES (22, 'Optic Disc - Eye', 'POSTSEG', 17, 39, 40, 'patients|docs');
-INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'patients|docs');
-INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs');
-INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs');
-INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs');
-INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
-INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
-INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
--- @bradymiller is this the right aco for this?  We really don't want people with patient stuff to have access to this doc
-INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs', '');
+INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs', '');
+INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs', '');
+INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|docs', '');
+INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7, 'patients|docs', '');
+INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 11, 18, 'patients|docs','LOINC:LP173418-7');
+INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 12, 13, 'patients|docs', '');
+INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 14, 15, 'patients|docs', '');
+INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 16, 17, 'patients|docs', '');
+INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patients|docs', '');
+INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs', '');
+INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs', 'LOINC:34133-9');
+INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs', '');
+INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs', '');
+INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs', '');
+INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs','');
+INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs','');
+INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32, 'patients|docs','');
+INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs','');
+INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36, 'patients|docs','');
+INSERT INTO `categories` VALUES (21, 'AntSeg Photos - Eye', 'ANTSEG', 17, 37, 38, 'patients|docs','');
+INSERT INTO `categories` VALUES (22, 'Optic Disc - Eye', 'POSTSEG', 17, 39, 40, 'patients|docs','');
+INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'patients|docs','');
+INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs','');
+INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs','');
+INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs','');
+INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs','');
+INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs','');
+INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs','LOINC:LP173394-0');
+INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super','LOINC:LP173421-1');
 
 -- --------------------------------------------------------
 
@@ -1845,6 +1845,7 @@ CREATE TABLE `form_encounter` (
   `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'not all types are categories',
   `encounter_type_description` TEXT,
   `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit',
+  `date_end` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -3024,7 +3025,7 @@ CREATE TABLE `immunizations` (
   `patient_id` bigint(20) default NULL,
   `administered_date` datetime default NULL,
   `immunization_id` int(11) default NULL,
-  `cvx_code` varchar(10) default NULL,
+  `cvx_code` varchar(64) default NULL,
   `manufacturer` varchar(100) default NULL,
   `lot_number` varchar(50) default NULL,
   `administered_by_id` bigint(20) default NULL,
@@ -3047,6 +3048,8 @@ CREATE TABLE `immunizations` (
   `information_source` VARCHAR(31) DEFAULT NULL,
   `refusal_reason` VARCHAR(31) DEFAULT NULL,
   `ordering_provider` INT(11) DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
+  `reason_description` text COMMENT 'Human readable text description of the reason_code column',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -3072,6 +3075,7 @@ CREATE TABLE `insurance_companies` (
   `inactive` tinyint(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
+  `cqm_sop` int DEFAULT NULL COMMENT 'HL7 Source of Payment for eCQMs',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
@@ -3648,190 +3652,190 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'domestic partner', 'Domestic Partner', 6, 0, 'T');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('language', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'abkhazian', 'Abkhazian', 10, 0, 0, 'abk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afar', 'Afar', 20, 0, 0, 'aar');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afrikaans', 'Afrikaans', 30, 0, 0, 'afr');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'akan', 'Akan', 40, 0, 0, 'aka');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'albanian', 'Albanian', 50, 0, 0, 'alb(B)|sqi(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'amharic', 'Amharic', 60, 0, 0, 'amh');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'arabic', 'Arabic', 70, 0, 0, 'ara');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aragonese', 'Aragonese', 80, 0, 0, 'arg');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'armenian', 'Armenian', 90, 0, 0, 'arm(B)|hye(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'assamese', 'Assamese', 100, 0, 0, 'asm');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avaric', 'Avaric', 110, 0, 0, 'ava');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avestan', 'Avestan', 120, 0, 0, 'ave');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aymara', 'Aymara', 130, 0, 0, 'aym');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'azerbaijani', 'Azerbaijani', 140, 0, 0, 'aze');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bambara', 'Bambara', 150, 0, 0, 'bam');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bashkir', 'Bashkir', 160, 0, 0, 'bak');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'basque', 'Basque', 170, 0, 0, 'baq(B)|eus(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'belarusian', 'Belarusian', 180, 0, 0, 'bel');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bengali', 'Bengali', 190, 0, 0, 'ben');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bihari_languages', 'Bihari languages', 200, 0, 0, 'bih');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bislama', 'Bislama', 210, 0, 0, 'bis');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bokmal_norwegian_norwegian_bok', 'Bokmål, Norwegian; Norwegian Bokmål', 220, 0, 0, 'nob');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bosnian', 'Bosnian', 230, 0, 0, 'bos');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'breton', 'Breton', 240, 0, 0, 'bre');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bulgarian', 'Bulgarian', 250, 0, 0, 'bul');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'burmese', 'Burmese', 260, 0, 0, 'bur(B)|mya(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'catalan_valencian', 'Catalan; Valencian', 270, 0, 0, 'cat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'central_khmer', 'Central Khmer', 280, 0, 0, 'khm');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chamorro', 'Chamorro', 290, 0, 0, 'cha');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chechen', 'Chechen', 300, 0, 0, 'che');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chichewa_chewa_nyanja', 'Chichewa; Chewa; Nyanja', 310, 0, 0, 'nya');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chinese', 'Chinese', 320, 0, 0, 'chi(B)|zho(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'church_slavic_old_slavonic_chu', 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic', 330, 0, 0, 'chu');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chuvash', 'Chuvash', 340, 0, 0, 'chv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cornish', 'Cornish', 350, 0, 0, 'cor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'corsican', 'Corsican', 360, 0, 0, 'cos');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cree', 'Cree', 370, 0, 0, 'cre');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'croatian', 'Croatian', 380, 0, 0, 'hrv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'czech', 'Czech', 390, 0, 0, 'cze(B)|ces(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'danish', 'Danish', 400, 0, 0, 'dan');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'divehi_dhivehi_maldivian', 'Divehi; Dhivehi; Maldivian', 410, 0, 0, 'div');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dutch_flemish', 'Dutch; Flemish', 420, 0, 0, 'dut(B)|nld(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dzongkha', 'Dzongkha', 430, 0, 0, 'dzo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'English', 'English', 440, 0, 0, 'eng');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'esperanto', 'Esperanto', 450, 0, 0, 'epo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'estonian', 'Estonian', 460, 0, 0, 'est');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ewe', 'Ewe', 470, 0, 0, 'ewe');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'faroese', 'Faroese', 480, 0, 0, 'fao');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fijian', 'Fijian', 490, 0, 0, 'fij');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'finnish', 'Finnish', 500, 0, 0, 'fin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'french', 'French', 510, 0, 0, 'fre(B)|fra(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fulah', 'Fulah', 520, 0, 0, 'ful');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gaelic_scottish_gaelic', 'Gaelic; Scottish Gaelic', 530, 0, 0, 'gla');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'galician', 'Galician', 540, 0, 0, 'glg');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ganda', 'Ganda', 550, 0, 0, 'lug');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'georgian', 'Georgian', 560, 0, 0, 'geo(B)|kat(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'german', 'German', 570, 0, 0, 'ger(B)|deu(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'greek', 'Greek, Modern (1453-)', 580, 0, 0, 'gre(B)|ell(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'guarani', 'Guarani', 590, 0, 0, 'grn');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gujarati', 'Gujarati', 600, 0, 0, 'guj');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'haitian_haitian_creole', 'Haitian; Haitian Creole', 610, 0, 0, 'hat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hausa', 'Hausa', 620, 0, 0, 'hau');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hebrew', 'Hebrew', 630, 0, 0, 'heb');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'herero', 'Herero', 640, 0, 0, 'her');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hindi', 'Hindi', 650, 0, 0, 'hin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hiri_motu', 'Hiri Motu', 660, 0, 0, 'hmo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hungarian', 'Hungarian', 670, 0, 0, 'hun');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'icelandic', 'Icelandic', 680, 0, 0, 'ice(B)|isl(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ido', 'Ido', 690, 0, 0, 'ido');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'igbo', 'Igbo', 700, 0, 0, 'ibo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'indonesian', 'Indonesian', 710, 0, 0, 'ind');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingua_international_auxi', 'Interlingua (International Auxiliary Language Association)', 720, 0, 0, 'ina');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingue_occidental', 'Interlingue; Occidental', 730, 0, 0, 'ile');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inuktitut', 'Inuktitut', 740, 0, 0, 'iku');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inupiaq', 'Inupiaq', 750, 0, 0, 'ipk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'irish', 'Irish', 760, 0, 0, 'gle');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'italian', 'Italian', 770, 0, 0, 'ita');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'japanese', 'Japanese', 780, 0, 0, 'jpn');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'javanese', 'Javanese', 790, 0, 0, 'jav');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kalaallisut_greenlandic', 'Kalaallisut; Greenlandic', 800, 0, 0, 'kal');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kannada', 'Kannada', 810, 0, 0, 'kan');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kanuri', 'Kanuri', 820, 0, 0, 'kau');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kashmiri', 'Kashmiri', 830, 0, 0, 'kas');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kazakh', 'Kazakh', 840, 0, 0, 'kaz');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kikuyu_gikuyu', 'Kikuyu; Gikuyu', 850, 0, 0, 'kik');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kinyarwanda', 'Kinyarwanda', 860, 0, 0, 'kin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kirghiz_kyrgyz', 'Kirghiz; Kyrgyz', 870, 0, 0, 'kir');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'komi', 'Komi', 880, 0, 0, 'kom');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kongo', 'Kongo', 890, 0, 0, 'kon');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'korean', 'Korean', 900, 0, 0, 'kor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kuanyama_kwanyama', 'Kuanyama; Kwanyama', 910, 0, 0, 'kua');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kurdish', 'Kurdish', 920, 0, 0, 'kur');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'laotian', 'Lao', 930, 0, 0, 'lao');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latin', 'Latin', 940, 0, 0, 'lat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latvian', 'Latvian', 950, 0, 0, 'lav');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'limburgan_limburger_limburgish', 'Limburgan; Limburger; Limburgish', 960, 0, 0, 'lim');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lingala', 'Lingala', 970, 0, 0, 'lin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lithuanian', 'Lithuanian', 980, 0, 0, 'lit');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luba-katanga', 'Luba-Katanga', 990, 0, 0, 'lub');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luxembourgish_letzeburgesch', 'Luxembourgish; Letzeburgesch', 1000, 0, 0, 'ltz');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'macedonian', 'Macedonian', 1010, 0, 0, 'mac(B)|mkd(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malagasy', 'Malagasy', 1020, 0, 0, 'mlg');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malay', 'Malay', 1030, 0, 0, 'may(B)|msa(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malayalam', 'Malayalam', 1040, 0, 0, 'mal');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maltese', 'Maltese', 1050, 0, 0, 'mlt');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'manx', 'Manx', 1060, 0, 0, 'glv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maori', 'Maori', 1070, 0, 0, 'mao(B)|mri(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marathi', 'Marathi', 1080, 0, 0, 'mar');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marshallese', 'Marshallese', 1090, 0, 0, 'mah');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'mongolian', 'Mongolian', 1100, 0, 0, 'mon');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nauru', 'Nauru', 1110, 0, 0, 'nau');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'navajo_navaho', 'Navajo; Navaho', 1120, 0, 0, 'nav');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_north_north_ndebele', 'Ndebele, North; North Ndebele', 1130, 0, 0, 'nde');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_south_south_ndebele', 'Ndebele, South; South Ndebele', 1140, 0, 0, 'nbl');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndonga', 'Ndonga', 1150, 0, 0, 'ndo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nepali', 'Nepali', 1160, 0, 0, 'nep');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'northern_sami', 'Northern Sami', 1170, 0, 0, 'sme');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian', 'Norwegian', 1180, 0, 0, 'nor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian_nynorsk_nynorsk_norw', 'Norwegian Nynorsk; Nynorsk, Norwegian', 1190, 0, 0, 'nno');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'occitan_post_1500', 'Occitan (post 1500)', 1200, 0, 0, 'oci');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ojibwa', 'Ojibwa', 1210, 0, 0, 'oji');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oriya', 'Oriya', 1220, 0, 0, 'ori');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oromo', 'Oromo', 1230, 0, 0, 'orm');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ossetian_ossetic', 'Ossetian; Ossetic', 1240, 0, 0, 'oss');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pali', 'Pali', 1250, 0, 0, 'pli');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'persian', 'Persian', 1260, 0, 0, 'per(B)|fas(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'polish', 'Polish', 1270, 0, 0, 'pol');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'portuguese', 'Portuguese', 1280, 0, 0, 'por');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'punjabi', 'Punjabi', 1290, 0, 0, 'pan');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pushto_pashto', 'Pushto; Pashto', 1300, 0, 0, 'pus');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'quechua', 'Quechua', 1310, 0, 0, 'que');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romanian_moldavian_moldovan', 'Romanian; Moldavian; Moldovan', 1320, 0, 0, 'rum(B)|ron(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romansh', 'Romansh', 1330, 0, 0, 'roh');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'rundi', 'Rundi', 1340, 0, 0, 'run');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'russian', 'Russian', 1350, 0, 0, 'rus');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'samoan', 'Samoan', 1360, 0, 0, 'smo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sango', 'Sango', 1370, 0, 0, 'sag');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sanskrit', 'Sanskrit', 1380, 0, 0, 'san');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sardinian', 'Sardinian', 1390, 0, 0, 'srd');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'serbian', 'Serbian', 1400, 0, 0, 'srp');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'shona', 'Shona', 1410, 0, 0, 'sna');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sichuan_yi_nuosu', 'Sichuan Yi; Nuosu', 1420, 0, 0, 'iii');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sindhi', 'Sindhi', 1430, 0, 0, 'snd');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sinhala_sinhalese', 'Sinhala; Sinhalese', 1440, 0, 0, 'sin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovak', 'Slovak', 1450, 0, 0, 'slo(B)|slk(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovenian', 'Slovenian', 1460, 0, 0, 'slv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'somali', 'Somali', 1470, 0, 0, 'som');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sotho_southern', 'Sotho, Southern', 1480, 0, 0, 'sot');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'Spanish', 'Spanish', 1490, 0, 0, 'spa');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sundanese', 'Sundanese', 1500, 0, 0, 'sun');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swahili', 'Swahili', 1510, 0, 0, 'swa');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swati', 'Swati', 1520, 0, 0, 'ssw');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swedish', 'Swedish', 1530, 0, 0, 'swe');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tagalog', 'Tagalog', 1540, 0, 0, 'tgl');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tahitian', 'Tahitian', 1550, 0, 0, 'tah');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tajik', 'Tajik', 1560, 0, 0, 'tgk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tamil', 'Tamil', 1570, 0, 0, 'tam');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tatar', 'Tatar', 1580, 0, 0, 'tat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'telugu', 'Telugu', 1590, 0, 0, 'tel');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'thai', 'Thai', 1600, 0, 0, 'tha');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tibetan', 'Tibetan', 1610, 0, 0, 'tib(B)|bod(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tigrinya', 'Tigrinya', 1620, 0, 0, 'tir');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tonga_tonga_islands', 'Tonga (Tonga Islands)', 1630, 0, 0, 'ton');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tsonga', 'Tsonga', 1640, 0, 0, 'tso');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tswana', 'Tswana', 1650, 0, 0, 'tsn');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkish', 'Turkish', 1660, 0, 0, 'tur');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkmen', 'Turkmen', 1670, 0, 0, 'tuk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'twi', 'Twi', 1680, 0, 0, 'twi');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uighur_uyghur', 'Uighur; Uyghur', 1690, 0, 0, 'uig');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ukrainian', 'Ukrainian', 1700, 0, 0, 'ukr');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'urdu', 'Urdu', 1710, 0, 0, 'urd');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uzbek', 'Uzbek', 1720, 0, 0, 'uzb');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'venda', 'Venda', 1730, 0, 0, 'ven');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'vietnamese', 'Vietnamese', 1740, 0, 0, 'vie');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'volapuk', 'Volapük', 1750, 0, 0, 'vol');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'walloon', 'Walloon', 1760, 0, 0, 'wln');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'welsh', 'Welsh', 1770, 0, 0, 'wel(B)|cym(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'western_frisian', 'Western Frisian', 1780, 0, 0, 'fry');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'wolof', 'Wolof', 1790, 0, 0, 'wol');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'xhosa', 'Xhosa', 1800, 0, 0, 'xho');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yiddish', 'Yiddish', 1810, 0, 0, 'yid');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yoruba', 'Yoruba', 1820, 0, 0, 'yor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zhuang_chuang', 'Zhuang; Chuang', 1830, 0, 0, 'zha');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zulu', 'Zulu', 1840, 0, 0, 'zul');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'abkhazian', 'Abkhazian', 10, 0, 0, 'ab');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afar', 'Afar', 20, 0, 0, 'aa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afrikaans', 'Afrikaans', 30, 0, 0, 'af');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'akan', 'Akan', 40, 0, 0, 'ak');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'albanian', 'Albanian', 50, 0, 0, 'sq');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'amharic', 'Amharic', 60, 0, 0, 'am');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'arabic', 'Arabic', 70, 0, 0, 'ar');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aragonese', 'Aragonese', 80, 0, 0, 'an');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'armenian', 'Armenian', 90, 0, 0, 'hy');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'assamese', 'Assamese', 100, 0, 0, 'as');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avaric', 'Avaric', 110, 0, 0, 'av');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avestan', 'Avestan', 120, 0, 0, 'ae');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aymara', 'Aymara', 130, 0, 0, 'ay');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'azerbaijani', 'Azerbaijani', 140, 0, 0, 'az');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bambara', 'Bambara', 150, 0, 0, 'bm');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bashkir', 'Bashkir', 160, 0, 0, 'ba');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'basque', 'Basque', 170, 0, 0, 'eu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'belarusian', 'Belarusian', 180, 0, 0, 'be');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bengali', 'Bengali', 190, 0, 0, 'bn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bihari_languages', 'Bihari languages', 200, 0, 0, 'bh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bislama', 'Bislama', 210, 0, 0, 'bi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bokmal_norwegian_norwegian_bok', 'Bokmål, Norwegian; Norwegian Bokmål', 220, 0, 0, 'nb');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bosnian', 'Bosnian', 230, 0, 0, 'bs');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'breton', 'Breton', 240, 0, 0, 'br');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bulgarian', 'Bulgarian', 250, 0, 0, 'bg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'burmese', 'Burmese', 260, 0, 0, 'my');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'catalan_valencian', 'Catalan; Valencian', 270, 0, 0, 'ca');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'central_khmer', 'Central Khmer', 280, 0, 0, 'km');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chamorro', 'Chamorro', 290, 0, 0, 'ch');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chechen', 'Chechen', 300, 0, 0, 'ce');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chichewa_chewa_nyanja', 'Chichewa; Chewa; Nyanja', 310, 0, 0, 'ny');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chinese', 'Chinese', 320, 0, 0, 'zh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'church_slavic_old_slavonic_chu', 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic', 330, 0, 0, 'cu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chuvash', 'Chuvash', 340, 0, 0, 'cv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cornish', 'Cornish', 350, 0, 0, 'kw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'corsican', 'Corsican', 360, 0, 0, 'co');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cree', 'Cree', 370, 0, 0, 'cr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'croatian', 'Croatian', 380, 0, 0, 'hr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'czech', 'Czech', 390, 0, 0, 'cs');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'danish', 'Danish', 400, 0, 0, 'da');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'divehi_dhivehi_maldivian', 'Divehi; Dhivehi; Maldivian', 410, 0, 0, 'dv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dutch_flemish', 'Dutch; Flemish', 420, 0, 0, 'nl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dzongkha', 'Dzongkha', 430, 0, 0, 'dz');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'English', 'English', 440, 0, 0, 'en');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'esperanto', 'Esperanto', 450, 0, 0, 'eo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'estonian', 'Estonian', 460, 0, 0, 'et');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ewe', 'Ewe', 470, 0, 0, 'ee');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'faroese', 'Faroese', 480, 0, 0, 'fo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fijian', 'Fijian', 490, 0, 0, 'fj');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'finnish', 'Finnish', 500, 0, 0, 'fi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'french', 'French', 510, 0, 0, 'fr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fulah', 'Fulah', 520, 0, 0, 'ff');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gaelic_scottish_gaelic', 'Gaelic; Scottish Gaelic', 530, 0, 0, 'gd');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'galician', 'Galician', 540, 0, 0, 'gl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ganda', 'Ganda', 550, 0, 0, 'lg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'georgian', 'Georgian', 560, 0, 0, 'ka');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'german', 'German', 570, 0, 0, 'de');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'greek', 'Greek, Modern (1453-)', 580, 0, 0, 'el');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'guarani', 'Guarani', 590, 0, 0, 'gn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gujarati', 'Gujarati', 600, 0, 0, 'gu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'haitian_haitian_creole', 'Haitian; Haitian Creole', 610, 0, 0, 'ht');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hausa', 'Hausa', 620, 0, 0, 'ha');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hebrew', 'Hebrew', 630, 0, 0, 'he');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'herero', 'Herero', 640, 0, 0, 'hz');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hindi', 'Hindi', 650, 0, 0, 'hi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hiri_motu', 'Hiri Motu', 660, 0, 0, 'ho');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hungarian', 'Hungarian', 670, 0, 0, 'hu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'icelandic', 'Icelandic', 680, 0, 0, 'is');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ido', 'Ido', 690, 0, 0, 'io');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'igbo', 'Igbo', 700, 0, 0, 'ig');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'indonesian', 'Indonesian', 710, 0, 0, 'in');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingua_international_auxi', 'Interlingua (International Auxiliary Language Association)', 720, 0, 0, 'ia');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingue_occidental', 'Interlingue; Occidental', 730, 0, 0, 'ie');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inuktitut', 'Inuktitut', 740, 0, 0, 'iu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inupiaq', 'Inupiaq', 750, 0, 0, 'ik');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'irish', 'Irish', 760, 0, 0, 'ga');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'italian', 'Italian', 770, 0, 0, 'it');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'japanese', 'Japanese', 780, 0, 0, 'ja');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'javanese', 'Javanese', 790, 0, 0, 'jv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kalaallisut_greenlandic', 'Kalaallisut; Greenlandic', 800, 0, 0, 'kl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kannada', 'Kannada', 810, 0, 0, 'kn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kanuri', 'Kanuri', 820, 0, 0, 'kr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kashmiri', 'Kashmiri', 830, 0, 0, 'ks');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kazakh', 'Kazakh', 840, 0, 0, 'kk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kikuyu_gikuyu', 'Kikuyu; Gikuyu', 850, 0, 0, 'ki');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kinyarwanda', 'Kinyarwanda', 860, 0, 0, 'rw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kirghiz_kyrgyz', 'Kirghiz; Kyrgyz', 870, 0, 0, 'ky');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'komi', 'Komi', 880, 0, 0, 'kv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kongo', 'Kongo', 890, 0, 0, 'kg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'korean', 'Korean', 900, 0, 0, 'ko');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kuanyama_kwanyama', 'Kuanyama; Kwanyama', 910, 0, 0, 'kj');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kurdish', 'Kurdish', 920, 0, 0, 'ku');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'laotian', 'Lao', 930, 0, 0, 'lo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latin', 'Latin', 940, 0, 0, 'la');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latvian', 'Latvian', 950, 0, 0, 'lv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'limburgan_limburger_limburgish', 'Limburgan; Limburger; Limburgish', 960, 0, 0, 'li');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lingala', 'Lingala', 970, 0, 0, 'ln');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lithuanian', 'Lithuanian', 980, 0, 0, 'lt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luba-katanga', 'Luba-Katanga', 990, 0, 0, 'lu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luxembourgish_letzeburgesch', 'Luxembourgish; Letzeburgesch', 1000, 0, 0, 'lb');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'macedonian', 'Macedonian', 1010, 0, 0, 'mk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malagasy', 'Malagasy', 1020, 0, 0, 'mg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malay', 'Malay', 1030, 0, 0, 'ms');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malayalam', 'Malayalam', 1040, 0, 0, 'ml');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maltese', 'Maltese', 1050, 0, 0, 'mt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'manx', 'Manx', 1060, 0, 0, 'gv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maori', 'Maori', 1070, 0, 0, 'mi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marathi', 'Marathi', 1080, 0, 0, 'mr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marshallese', 'Marshallese', 1090, 0, 0, 'mh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'mongolian', 'Mongolian', 1100, 0, 0, 'mn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nauru', 'Nauru', 1110, 0, 0, 'na');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'navajo_navaho', 'Navajo; Navaho', 1120, 0, 0, 'nv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_north_north_ndebele', 'Ndebele, North; North Ndebele', 1130, 0, 0, 'nd');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_south_south_ndebele', 'Ndebele, South; South Ndebele', 1140, 0, 0, 'nr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndonga', 'Ndonga', 1150, 0, 0, 'ng');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nepali', 'Nepali', 1160, 0, 0, 'ne');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'northern_sami', 'Northern Sami', 1170, 0, 0, 'se');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian', 'Norwegian', 1180, 0, 0, 'no');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian_nynorsk_nynorsk_norw', 'Norwegian Nynorsk; Nynorsk, Norwegian', 1190, 0, 0, 'nn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'occitan_post_1500', 'Occitan (post 1500)', 1200, 0, 0, 'oc');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ojibwa', 'Ojibwa', 1210, 0, 0, 'oj');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oriya', 'Oriya', 1220, 0, 0, 'or');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oromo', 'Oromo', 1230, 0, 0, 'om');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ossetian_ossetic', 'Ossetian; Ossetic', 1240, 0, 0, 'os');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pali', 'Pali', 1250, 0, 0, 'pi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'persian', 'Persian', 1260, 0, 0, 'fa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'polish', 'Polish', 1270, 0, 0, 'pl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'portuguese', 'Portuguese', 1280, 0, 0, 'pt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'punjabi', 'Punjabi', 1290, 0, 0, 'pa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pushto_pashto', 'Pushto; Pashto', 1300, 0, 0, 'ps');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'quechua', 'Quechua', 1310, 0, 0, 'qu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romanian_moldavian_moldovan', 'Romanian; Moldavian; Moldovan', 1320, 0, 0, 'ro');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romansh', 'Romansh', 1330, 0, 0, 'rm');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'rundi', 'Rundi', 1340, 0, 0, 'rn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'russian', 'Russian', 1350, 0, 0, 'ru');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'samoan', 'Samoan', 1360, 0, 0, 'sm');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sango', 'Sango', 1370, 0, 0, 'sg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sanskrit', 'Sanskrit', 1380, 0, 0, 'sa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sardinian', 'Sardinian', 1390, 0, 0, 'sc');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'serbian', 'Serbian', 1400, 0, 0, 'sr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'shona', 'Shona', 1410, 0, 0, 'sn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sichuan_yi_nuosu', 'Sichuan Yi; Nuosu', 1420, 0, 0, 'ii');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sindhi', 'Sindhi', 1430, 0, 0, 'sd');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sinhala_sinhalese', 'Sinhala; Sinhalese', 1440, 0, 0, 'si');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovak', 'Slovak', 1450, 0, 0, 'sk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovenian', 'Slovenian', 1460, 0, 0, 'sl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'somali', 'Somali', 1470, 0, 0, 'so');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sotho_southern', 'Sotho, Southern', 1480, 0, 0, 'st');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'Spanish', 'Spanish', 1490, 0, 0, 'es');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sundanese', 'Sundanese', 1500, 0, 0, 'su');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swahili', 'Swahili', 1510, 0, 0, 'sw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swati', 'Swati', 1520, 0, 0, 'ss');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swedish', 'Swedish', 1530, 0, 0, 'sv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tagalog', 'Tagalog', 1540, 0, 0, 'tl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tahitian', 'Tahitian', 1550, 0, 0, 'ty');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tajik', 'Tajik', 1560, 0, 0, 'tg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tamil', 'Tamil', 1570, 0, 0, 'ta');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tatar', 'Tatar', 1580, 0, 0, 'tt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'telugu', 'Telugu', 1590, 0, 0, 'te');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'thai', 'Thai', 1600, 0, 0, 'th');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tibetan', 'Tibetan', 1610, 0, 0, 'bo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tigrinya', 'Tigrinya', 1620, 0, 0, 'ti');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tonga_tonga_islands', 'Tonga (Tonga Islands)', 1630, 0, 0, 'to');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tsonga', 'Tsonga', 1640, 0, 0, 'ts');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tswana', 'Tswana', 1650, 0, 0, 'tn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkish', 'Turkish', 1660, 0, 0, 'tr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkmen', 'Turkmen', 1670, 0, 0, 'tk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'twi', 'Twi', 1680, 0, 0, 'tw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uighur_uyghur', 'Uighur; Uyghur', 1690, 0, 0, 'ug');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ukrainian', 'Ukrainian', 1700, 0, 0, 'uk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'urdu', 'Urdu', 1710, 0, 0, 'ur');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uzbek', 'Uzbek', 1720, 0, 0, 'uz');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'venda', 'Venda', 1730, 0, 0, 've');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'vietnamese', 'Vietnamese', 1740, 0, 0, 'vi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'volapuk', 'Volapük', 1750, 0, 0, 'vo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'walloon', 'Walloon', 1760, 0, 0, 'wa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'welsh', 'Welsh', 1770, 0, 0, 'cy');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'western_frisian', 'Western Frisian', 1780, 0, 0, 'fy');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'wolof', 'Wolof', 1790, 0, 0, 'wo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'xhosa', 'Xhosa', 1800, 0, 0, 'xh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yiddish', 'Yiddish', 1810, 0, 0, 'yi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yoruba', 'Yoruba', 1820, 0, 0, 'yo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zhuang_chuang', 'Zhuang; Chuang', 1830, 0, 0, 'za');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zulu', 'Zulu', 1840, 0, 0, 'zu');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethrace', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'aleut', 'ALEUT', 10,  0);
@@ -4047,6 +4051,8 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','16','h.s.'  ,16,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','17','p.r.n.',17,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','18','stat'  ,18,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','WK','Weekly',19,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','MO','Monthly',20,0,1);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('chartloc','fileroom','File Room'              ,1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'boolean'      ,'Boolean'            , 1,0);
@@ -4514,6 +4520,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','patient_characteristics','Patient Characteristics',60,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','imaging','Imaging',70,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','enc_checkup_procedure','Encounter Checkup Procedure',80,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','order','Order',90,0);
 
 --
 -- Clinical Rule Target Methods
@@ -4942,8 +4949,11 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_lis
 INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
 
 -- Issue Subtypes List
-INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','issue_subtypes','Issue Subtypes');
-INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists','issue_subtypes','Issue Subtypes');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','assessment','Assessment',20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','concern','Concern',30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','diagnosis','Diagnosis',40);
 
 -- Insurance Types List
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists','insurance_types','Insurance Types',1);
@@ -5264,10 +5274,38 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('public
 -- Immunization Refusal Reason
 
 INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','immunization_refusal_reason','Immunization Refusal Reason');
-INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','parental_decision','Parental decision','00', '10');
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','patient_decision','Patient decision','03', '10');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','religious_exemption','Religious exemption','01', '20');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','other','Other','02', '30');
-INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','patient_decision','Patient decision','03', '40');
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','parental_decision','Parental decision','00', '40');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_problem','Financial Problem',50,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_circumstances_change','Financial circumstances change',60,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','alternative_treatment_requested','Alternative Treatment Requested',70,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_procedure','Patient declined procedure',80,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug','Patient declined drug',90,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_effects','Patient declined drug - side effects',100,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_beliefs','Patient declined drug - patient beliefs',110,1, "01");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_cannot_pay','Patient declined drug - cannot pay script',120,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_moved','Patient moved',130,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_result','Patient dissatisfied with result',140,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_doctor','Patient dissatisfied with doctor',150,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_variable_income','Variable income',160,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_self_discharge','Patient self-discharge against medical advice',170,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','drugs_not_completed','Drugs not taken/completed',180,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','family_illness','Family illness',190,1, "02");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','follow_defaulted','Patient defaulted from follow-up',200,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noncompliance','Patient noncompliance - general',210,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noshow','Patient did not attend',220,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_further_opinion','Further opinion sought',230,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_treatment_delay','Treatment delay - patient choice',240,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_declined','Medication declined',250,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_forgot','Patient forgets to take medication',260,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_non_compliant','Patient non-compliant declined intervention/support',270,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','procedure_not_wanted','Procedure not wanted',280,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_insufficient','Income insufficient to buy necessities',290,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_necessities_only','Income sufficient to buy only necessities',300,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','refused','Refused',310,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_procedure_discontinued','Procedure discontinued by patient',320,1, "03");
 
 -- Immunization Information Source
 
@@ -6575,7 +6613,36 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,option_value) V
 INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'emedicine', 'eMedicine', 'http://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]', 10, 0, 1);
 INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'medline', 'Medline', 'http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15', 20, 0, 1);
 INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'webmd', 'WebMD', 'http://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined', 30, 0, 1);
+
+-- Observation Types
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('lists','Observation_Types','Observation Types',0,1,0,'',NULL,'',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','assessment','Assessment',10,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,1,'');
 -- --------------------------------------------------------
+
+-- CCDA Sections for sort orders
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','ccda-sections','CCDA Sections',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','allergies_required','Allergies and Intollerances (entries required)',10,0,1, 'oid:2.16.840.1.113883.10.20.22.2.6.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medications','History of medication use',20,0,1, 'oid:2.16.840.1.113883.10.20.22.2.1.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','problems','Problem list',30,0,1, 'oid:2.16.840.1.113883.10.20.22.2.5.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','procedures','History of procedures',40,0,1, 'oid:2.16.840.1.113883.10.20.22.2.7.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','dx_tests_labdata','Relevant Dx tests/lab data',50,0,1, 'oid:2.16.840.1.113883.10.20.22.2.3.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','functional_status','Functional Status',60,0,1, 'oid:2.16.840.1.113883.10.20.22.2.14');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','progress_note','Clinical Notes (History & Physical,Procedure,Discharge,Imaging)',70,0,1, 'oid:2.16.840.1.113883.10.20.22.2.65');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','procedures_section','Procedures Section',80,0,1, 'oid:2.16.840.1.113883.10.20.22.2.7.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','encounters','Encounters',110,0,1, 'oid:2.16.840.1.113883.10.20.22.2.22.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','immunizations','Immunizations',120,0,1, 'oid:2.16.840.1.113883.10.20.22.2.2');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','assessments','Assessments',130,0,1, 'oid:2.16.840.1.113883.10.20.22.2.8');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','treatment_plan','Treatment Plan',140,0,1, 'oid:2.16.840.1.113883.10.20.22.2.10');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','goals','Goals',150,0,1, 'oid:2.16.840.1.113883.10.20.22.2.60');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','health_concerns','Health Concerns',160,0,1, 'oid:2.16.840.1.113883.10.20.22.2.58');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','reason_of_visit','Reason for Referral',170,0,1, 'oid:1.3.6.1.4.1.19376.1.5.3.1.3.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','mental_status','Mental Status',180,0,1, 'oid:2.16.840.1.113883.10.20.22.2.56');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','social_history','Social History',190,0,1, 'oid:2.16.840.1.113883.10.20.22.2.17');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','vital_signs','Vital Signs',200,0,1, 'oid:2.16.840.1.113883.10.20.22.2.4.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medical_equipment','Medical Equipment',210,0,1, 'oid:2.16.840.1.113883.10.20.22.2.23');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','us_realm_person_name','US Realm Person Name',220,0,1, 'oid:2.16.840.1.113883.10.20.22.5.1.1');
 
 --
 -- Table structure for table `lists`
@@ -9139,7 +9206,7 @@ CREATE TABLE `procedure_type` (
   `parent`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_type.procedure_type_id',
   `name`                varchar(63)  NOT NULL DEFAULT '' COMMENT 'name for this category, procedure or result type',
   `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid, 0 means default to parent',
-  `procedure_code`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
+  `procedure_code`      varchar(64)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
   `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'see list proc_type',
   `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttock',
   `specimen`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'blood, urine, saliva, etc.',
@@ -9196,7 +9263,7 @@ CREATE TABLE `procedure_order` (
   `patient_id`             bigint(20)       NOT NULL            COMMENT 'references patient_data.pid',
   `encounter_id`           bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
   `date_collected`         datetime         DEFAULT NULL        COMMENT 'time specimen collected',
-  `date_ordered`           date             DEFAULT NULL,
+  `date_ordered`           datetime         DEFAULT NULL,
   `order_priority`         varchar(31)      NOT NULL DEFAULT '',
   `order_status`           varchar(31)      NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
   `patient_instructions`   text,
@@ -9236,7 +9303,7 @@ DROP TABLE IF EXISTS `procedure_order_code`;
 CREATE TABLE `procedure_order_code` (
   `procedure_order_id`      bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq`     int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
-  `procedure_code`          varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
+  `procedure_code`          varchar(64) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
   `procedure_name`          varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
   `procedure_source`        char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
   `diagnoses`               text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
@@ -9244,6 +9311,12 @@ CREATE TABLE `procedure_order_code` (
   `procedure_order_title`   varchar( 255 ) NULL DEFAULT NULL,
   `procedure_type`          varchar(31) DEFAULT NULL,
   `transport`               varchar(31) DEFAULT NULL,
+  `date_end` datetime DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL,
+  `reason_description` text,
+  `reason_date_low` datetime DEFAULT NULL,
+  `reason_date_high` datetime DEFAULT NULL,
+  `reason_status` varchar(31) DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 
@@ -9378,6 +9451,7 @@ INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, 
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('PHIN Questions', 111, 111, 0, '', 0, 0, 1, 0, 1, 'PHIN Questions', 0, 0, 0, 0, 0);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('NCI-CONCEPT-ID', 112, 112, 0, '', 0, 0, 1, 0, 1, 'NCI CONCEPT ID', 0, 0, 0, 0, 0);
 INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_mask`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag`, `ct_active`, `ct_label`, `ct_external`, `ct_claim`, `ct_proc`, `ct_term`, `ct_problem`, `ct_drug`) VALUES ('VALUESET', '113', '113', '0', '', '', '1', '1', '0', '1', '1', 'CQM Valueset', '13', '1', '1', '1', '1', '1');
+INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_mask`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag`, `ct_active`, `ct_label`, `ct_external`, `ct_claim`, `ct_proc`, `ct_term`, `ct_problem`, `ct_drug`) VALUES ('OID', '114', '114', '0', '', '', '1', '1', '0', '1', '1', 'OID Valueset', '14', '1', '1', '1', '1', '1');
 
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'code_types', 'Code Types', 1);
 
@@ -10993,6 +11067,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '9', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'planned_medication_activity', 'Planned Medication Act', '20', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'supply_order', 'Supply Order Act', '30', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'device_order', 'Device Order', '40', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
@@ -11119,6 +11196,25 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS75v10','Children Who Have Dental Decay or Cavities',450,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS771v3','Urinary Symptom Score Change 6-12 Months After Diagnosis of Benign Prostatic Hyperplasia',460,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS90v11','Functional Status Assessments for Congestive Heart Failure',470,0);
+
+-- Insert encounter_type list
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','encounter-types','Encounter Types',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','visit-after-hours','Visit out of hours',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','visit-after-hours-not-night','Out of Hours visit (Not Night)',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','weekend-visit','Weekend Visit',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','office-visit','Office visit for pediatric care and assessment',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient','Evaluation and management of established patient in office or outpatient facility',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient','Evaluation and management of new patient in office or outpatient facility',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','postoperative-follow-up','Postoperative follow-up visit',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-10','New Patient - 10 Minutes',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-15-29','New Patient - 15-29 Minutes',90,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-30-44','New Patient - 30-44 Minutes',100,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-45-59','New Patient - 45-59 Minutes',110,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-60-74','New Patient - 60-74 Minutes',120,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-10-19','Established Patient - 10-19 Minutes',130,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-20-29','Established Patient - 20-29 Minutes',140,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-30-39','Established Patient - 30-39 Minutes',140,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-40-54','Established Patient - 40-54 Minutes',150,0,1);
 -- --------------------------------------------------------
 
 --
@@ -11535,8 +11631,8 @@ CREATE TABLE `form_care_plan` (
   `date_end` datetime DEFAULT NULL,
   `reason_code` varchar(31) DEFAULT NULL,
   `reason_description` text,
-  `reason_date_low` datetime DEFAULT NULL,
-  `reason_date_high` datetime DEFAULT NULL,
+  `reason_date_low` datetime DEFAULT NULL COMMENT 'The date the reason was recorded',
+  `reason_date_high` datetime DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends',
   `reason_status` varchar(31) DEFAULT NULL
 ) ENGINE=InnoDB;
 
@@ -12899,6 +12995,9 @@ CREATE TABLE `form_vital_details` (
 `interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
 `interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
 `interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
+`reason_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
+`reason_description` TEXT COMMENT 'Human readable text description of the reason_code column',
+`reason_status` VARCHAR(31) NULL DEFAULT NULL COMMENT 'The status of the reason ie completed, in progress, etc',
 PRIMARY KEY (`id`),
 KEY `fk_form_id` (`form_id`),
 KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
@@ -12970,3 +13069,15 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2021-10-01', 'Zip File 3 2022 ICD-10-PCS Codes File.zip', 'a432177acbdaf9908aa528078ae72176');
+
+DROP TABLE IF EXISTS `valueset_oid`;
+CREATE TABLE `valueset_oid` (
+  `nqf_code` varchar(255) NOT NULL DEFAULT '',
+  `code` varchar(255) NOT NULL DEFAULT '',
+  `code_system` varchar(255) NOT NULL DEFAULT '',
+  `code_type` varchar(255) DEFAULT NULL,
+  `valueset` varchar(255) NOT NULL DEFAULT '',
+  `description` varchar(255) DEFAULT NULL,
+  `valueset_name` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`nqf_code`,`code`,`valueset`)
+) ENGINE=InnoDB;

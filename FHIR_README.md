@@ -23,6 +23,7 @@
         - [Patient Export](FHIR_README.md#bulk-fhir-exports)
         - [Group Export](FHIR_README.md#bulk-fhir-exports)
 - [3rd Party SMART Apps](FHIR_README.md#3rd-party-smart-apps)
+- [Native Applications](FHIR_README.md#native-applications)
 - [For Developers](FHIR_README.md#for-developers)
 
 ## Overview
@@ -175,6 +176,18 @@ From there you can find the user that is listed and hit the Revoke User button (
 You can revoke an access token two ways.  One from the API Client edit screen, finding the client and then the access token's identifier you wish to revoke.  
 
 The second way is if you have the fully encoded access token using the API Client Tools screen.  Go to Admin->System->API Clients and then click on the Token Tools button.  Paste in the entire encoded token and then select Parse Token.  Information about the token will be displayed including the authenticated user that authorized the token.  Now select the Revoke Token button to revoke the token.  A success message will be displayed when the revocation completes.  You can parse the token again to see that the token has been revoked. 
+
+## Native Applications
+Interoperability requirements with OpenEMR for Native Applications
+
+- Native applications wishing to use the OpenEMR FHIR API with refresh tokens MUST be capable of storing the refresh token in a secure manner similar to the requirements of storing a secret for confidential apps.  
+- Native applications must register their application as a confidential app
+- Native applications must request the offline_scope in their initial API request in order to receive a refresh token
+- Native application refresh tokens are valid for 3 months before they must be renewed.
+- Native applications can only communicate with OpenEMR over a TLS secured channel in order to ensure the safe transmission of the refresh token.
+- Native applications must use the Authorization Code grant flow in order to receive a refresh token.  
+
+It is recommended that native applications follow best practices for native client applications as outlined in RFC 8252 OAuth 2.0 for Native Apps.
 
 ## For Developers
 

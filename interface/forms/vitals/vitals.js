@@ -1,5 +1,3 @@
-{literal}
-<script>
 /*
  * vitals_functions.js
  * @package openemr
@@ -9,6 +7,67 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+(function(window, oeUI) {
+
+    let translations = {};
+    let webroot = null;
+
+    function vitalsFormSubmitted() {
+        var invalid = "";
+
+        var elementsToValidate = ['weight_input', 'weight_input_metric', 'height_input', 'height_input_metric', 'bps_input', 'bpd_input'];
+
+        for (var i = 0; i < elementsToValidate.length; i++) {
+            var current_elem_id = elementsToValidate[i];
+            var tag_name = vitalsTranslations[current_elem_id] || "<unknown_tag_name>";
+
+            document.getElementById(current_elem_id).classList.remove('error');
+
+            if (isNaN(document.getElementById(current_elem_id).value)) {
+                invalid += vitalsTranslations['invalidField'] + ":" + vitalsTranslations[current_elem_id] + "\n";
+                document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
+                document.getElementById(current_elem_id).focus();
+            }
+
+            if (invalid.length > 0) {
+                invalid += "\n" + vitalsTranslations['validateFailed'];
+                alert(invalid);
+                return false;
+            } else {
+                return top.restoreSession();
+            }
+        }
+    }
+
+    function initDOMEvents() {
+        let vitalsForm = document.getElementById('vitalsForm');
+        if (!vitalsForm) {
+            console.error("Failed to find vitalsForm DOM Node");
+            return;
+        }
+        vitalsForm.addEventListener('submit', vitalsFormSubmitted);
+
+        // we want to setup our reason code widgets
+        if (oeUI.reasonCodeWidget) {
+            oeUI.reasonCodeWidget.init(webroot);
+        } else {
+            console.error("Missing required dependency reason-code-widget");
+            return;
+        }
+    }
+    function init(webRootParam, vitalsTranslations) {
+        webroot = webRootParam;
+        translations = vitalsTranslations;
+        window.document.addEventListener("DOMContentLoaded", initDOMEvents);
+    }
+
+    let vitalsForm = {
+        "init": init
+    };
+    window.vitalsForm = vitalsForm;
+})(window, window.oeUI || {});
+
+// TODO: we need to move all of these functions into the anonymous function and connect the events via event listeners
 function convUnit(system, unit, name)
 {
     if (unit == 'kg' || unit == 'lbs')
@@ -182,5 +241,3 @@ function calculateBMI() {
         $("#BMI_input").val("");
     }
 }
-</script>
-{/literal}

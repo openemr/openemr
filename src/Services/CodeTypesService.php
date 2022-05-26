@@ -30,6 +30,7 @@ class CodeTypesService
     const CODE_TYPE_RXNORM = "RXNORM";
     const CODE_TYPE_RXCUI = "RXCUI";
     const CODE_TYPE_ICD10 = 'ICD10';
+    const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
     const CODE_TYPE_OID = array(
@@ -229,6 +230,8 @@ class CodeTypesService
                 $system = '2.16.840.1.113883.6.12';
             } elseif (self::CODE_TYPE_CVX == $codeType) {
                 $system = '2.16.840.1.113883.12.292';
+            } elseif (self::CODE_TYPE_ICD10PCS == $codeType) {
+                $system = '2.16.840.1.113883.6.4';
             }
         } else {
             if (self::CODE_TYPE_SNOMED_CT == $codeType) {
@@ -341,14 +344,14 @@ class CodeTypesService
                 $codeType = "";
             }
             $value = $this->lookupFromValueset($code, $formatted_type, $oid);
-            $formatted_type = $value['code_type'] ?: $formatted_type;
+            $formatted_type = ($value['code_type'] ?? null) ?: $formatted_type;
             if (!empty($code) && !empty($formatted_type)) {
                 $formatted_code = $formatted_type . ':' . $code;
             }
-            $oid = $value['code_system'];
-            $currentCodeText = $value['description'];
-            $valueset_name = $value['valueset_name'];
-            $valueset = $value['valueset'];
+            $oid = $value['code_system'] ?? '';
+            $currentCodeText = $value['description'] ?? '';
+            $valueset_name = $value['valueset_name'] ?? '';
+            $valueset = $value['valueset'] ?? '';
         }
 
         return array(
@@ -369,10 +372,17 @@ class CodeTypesService
 
     public function lookupFromValueset($code, $codeType, $codeSystem)
     {
-        $value = sqlQuery(
-            "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
-            array($code, $codeType, "$codeType%", $codeSystem)
-        );
+        if (empty($codeSystem) && empty($codeType)) {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? LIMIT 1",
+                array($code)
+            );
+        } else {
+            $value = sqlQuery(
+                "Select * From valueset Where code = ? And (code_type = ? Or code_type LIKE ? Or code_system = ?)",
+                array($code, $codeType, "$codeType%", $codeSystem)
+            );
+        }
         return $value;
     }
 
@@ -380,12 +390,32 @@ class CodeTypesService
     {
         $listService = new ListService();
         $ret = $listService->getOptionsByListName('discharge-disposition', ['codes' => $formatted_code]) ?? '';
-        return $ret[0]['option_id'];
+        return $ret[0]['option_id'] ?? '';
     }
 
     public function dischargeCodeFromOptionId($option_id)
     {
         $listService = new ListService();
         return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
+    }
+
+    public function parseCodesIntoCodeableConcepts($codes)
+    {
+        $codes = explode(";", $codes);
+        $codeableConcepts = array();
+        foreach ($codes as $codeItem) {
+            $parsedCode = $this->parseCode($codeItem);
+            $codeType = $parsedCode['code_type'];
+            $code = $parsedCode['code'];
+            $system = $this->getSystemForCodeType($codeType);
+            $codedesc = $this->lookup_code_description($codeItem);
+            $codeableConcepts[$code] = [
+                'code' => $code
+                , 'description' => $codedesc
+                , 'code_type' => $codeType
+                , 'system' => $system
+            ];
+        }
+        return $codeableConcepts;
     }
 }

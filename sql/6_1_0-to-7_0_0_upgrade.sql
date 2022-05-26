@@ -272,7 +272,7 @@ ALTER TABLE `ccda` ADD COLUMN `transaction_id` BIGINT(20) COMMENT 'fk to transac
 #EndIf
 
 #IfMissingColumn form_care_plan date_end
-ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_code` VARCHAR(31) DEFAULT NULL, ADD `reason_description` TEXT, ADD `reason_date_low` DATETIME DEFAULT NULL, ADD `reason_date_high` DATETIME DEFAULT NULL;
+ALTER TABLE `form_care_plan` ADD `date_end` DATETIME DEFAULT NULL, ADD `reason_code` VARCHAR(31) DEFAULT NULL, ADD `reason_description` TEXT, ADD `reason_date_low` DATETIME DEFAULT NULL COMMENT 'The date the reason was recorded', ADD `reason_date_high` DATETIME DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends' ;
 #EndIf
 
 #IfNotColumnType insurance_companies ins_type_code int(11)
@@ -314,4 +314,403 @@ ALTER TABLE `form_care_plan` CHANGE `date` `date` DATETIME NULL DEFAULT NULL;
 
 #IfMissingColumn api_token context
 ALTER TABLE api_token ADD COLUMN `context` TEXT COMMENT 'context values that change/govern how access token are used';
+#EndIf
+
+#IfRow2D list_options list_id language notes eng
+CREATE TEMPORARY TABLE lang_updates_610 (notes char(15), twodigit_notes char(2));
+START TRANSACTION;
+INSERT INTO lang_updates_610 VALUES
+('abk','ab'),
+('aar','aa'),
+('afr','af'),
+('aka','ak'),
+('alb(B)|sqi(T)','sq'),
+('amh','am'),
+('ara','ar'),
+('arg','an'),
+('arm(B)|hye(T)','hy'),
+('asm','as'),
+('ava','av'),
+('ave','ae'),
+('aym','ay'),
+('aze','az'),
+('bam','bm'),
+('bak','ba'),
+('baq(B)|eus(T)','eu'),
+('bel','be'),
+('ben','bn'),
+('bih','bh'),
+('bis','bi'),
+('nob','nb'),
+('bos','bs'),
+('bre','br'),
+('bul','bg'),
+('bur(B)|mya(T)','my'),
+('cat','ca'),
+('khm','km'),
+('cha','ch'),
+('che','ce'),
+('nya','ny'),
+('chi(B)|zho(T)','zh'),
+('chu','cu'),
+('chv','cv'),
+('cor','kw'),
+('cos','co'),
+('cre','cr'),
+('hrv','hr'),
+('cze(B)|ces(T)','cs'),
+('dan','da'),
+('div','dv'),
+('dut(B)|nld(T)','nl'),
+('dzo','dz'),
+('eng','en'),
+('epo','eo'),
+('est','et'),
+('ewe','ee'),
+('fao','fo'),
+('fij','fj'),
+('fin','fi'),
+('fre(B)|fra(T)','fr'),
+('ful','ff'),
+('gla','gd'),
+('glg','gl'),
+('lug','lg'),
+('geo(B)|kat(T)','ka'),
+('ger(B)|deu(T)','de'),
+('gre(B)|ell(T)','el'),
+('grn','gn'),
+('guj','gu'),
+('hat','ht'),
+('hau','ha'),
+('heb','he'),
+('her','hz'),
+('hin','hi'),
+('hmo','ho'),
+('hun','hu'),
+('ice(B)|isl(T)','is'),
+('ido','io'),
+('ibo','ig'),
+('ind','in'),
+('ina','ia'),
+('ile','ie'),
+('iku','iu'),
+('ipk','ik'),
+('gle','ga'),
+('ita','it'),
+('jpn','ja'),
+('jav','jv'),
+('kal','kl'),
+('kan','kn'),
+('kau','kr'),
+('kas','ks'),
+('kaz','kk'),
+('kik','ki'),
+('kin','rw'),
+('kir','ky'),
+('kom','kv'),
+('kon','kg'),
+('kor','ko'),
+('kua','kj'),
+('kur','ku'),
+('lao','lo'),
+('lat','la'),
+('lav','lv'),
+('lim','li'),
+('lin','ln'),
+('lit','lt'),
+('lub','lu'),
+('ltz','lb'),
+('mac(B)|mkd(T)','mk'),
+('mlg','mg'),
+('may(B)|msa(T)','ms'),
+('mal','ml'),
+('mlt','mt'),
+('glv','gv'),
+('mao(B)|mri(T)','mi'),
+('mar','mr'),
+('mah','mh'),
+('mon','mn'),
+('nau','na'),
+('nav','nv'),
+('nde','nd'),
+('nbl','nr'),
+('ndo','ng'),
+('nep','ne'),
+('sme','se'),
+('nor','no'),
+('nno','nn'),
+('oci','oc'),
+('oji','oj'),
+('ori','or'),
+('orm','om'),
+('oss','os'),
+('pli','pi'),
+('per(B)|fas(T)','fa'),
+('pol','pl'),
+('por','pt'),
+('pan','pa'),
+('pus','ps'),
+('que','qu'),
+('rum(B)|ron(T)','ro'),
+('roh','rm'),
+('run','rn'),
+('rus','ru'),
+('smo','sm'),
+('sag','sg'),
+('san','sa'),
+('srd','sc'),
+('srp','sr'),
+('sna','sn'),
+('iii','ii'),
+('snd','sd'),
+('sin','si'),
+('slo(B)|slk(T)','sk'),
+('slv','sl'),
+('som','so'),
+('sot','st'),
+('spa','es'),
+('sun','su'),
+('swa','sw'),
+('ssw','ss'),
+('swe','sv'),
+('tgl','tl'),
+('tah','ty'),
+('tgk','tg'),
+('tam','ta'),
+('tat','tt'),
+('tel','te'),
+('tha','th'),
+('tib(B)|bod(T)','bo'),
+('tir','ti'),
+('ton','to'),
+('tso','ts'),
+('tsn','tn'),
+('tur','tr'),
+('tuk','tk'),
+('twi','tw'),
+('uig','ug'),
+('ukr','uk'),
+('urd','ur'),
+('uzb','uz'),
+('ven','ve'),
+('vie','vi'),
+('vol','vo'),
+('wln','wa'),
+('wel(B)|cym(T)','cy'),
+('fry','fy'),
+('wol','wo'),
+('xho','xh'),
+('yid','yi'),
+('yor','yo'),
+('zha','za'),
+('zul','zu');
+
+UPDATE list_options JOIN lang_updates_610 ON list_options.list_id='language' AND list_options.notes = lang_updates_610.notes SET list_options.notes = lang_updates_610.twodigit_notes;
+DROP TABLE lang_updates_610;
+#EndIf;
+
+#IfNotRow3D list_options list_id language option_id malay notes ms
+UPDATE list_options SET notes='ms' WHERE list_id='language' AND option_id='malay';
+#EndIf
+
+#IfMissingColumn form_encounter date_end
+ALTER TABLE `form_encounter` ADD `date_end` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn procedure_order_code date_end
+ALTER TABLE `procedure_order_code` ADD `date_end` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_code` varchar(31) DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_description` text;
+ALTER TABLE `procedure_order_code` ADD `reason_date_low` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_date_high` datetime DEFAULT NULL;
+ALTER TABLE `procedure_order_code` ADD `reason_status` varchar(31) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType procedure_order_code procedure_code VARCHAR(64)
+ALTER TABLE `procedure_order_code` CHANGE `procedure_code` `procedure_code` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'like procedure_type.procedure_code';
+#EndIf
+
+#IfNotColumnType procedure_order date_ordered DATETIME
+ALTER TABLE `procedure_order` CHANGE `date_ordered` `date_ordered` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn immunizations reason_code
+ALTER TABLE `immunizations` CHANGE `cvx_code` `cvx_code` VARCHAR(64) DEFAULT NULL;
+ALTER TABLE `immunizations` ADD `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;';
+ALTER TABLE `immunizations` ADD `reason_description` TEXT COMMENT 'Human readable text description of the reason_code column';
+#EndIf
+
+#IfMissingColumn categories codes
+ALTER TABLE categories ADD COLUMN `codes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Category codes for documents stored in this category';
+UPDATE categories SET codes='LOINC:LP173418-7' WHERE name='Advance Directive';
+UPDATE categories SET codes='LOINC:LP173421-1' WHERE name='FHIR Export Document';
+UPDATE categories SET codes='LOINC:LP173394-0' WHERE name='Reviewed';
+#EndIf
+
+#IfMissingColumn form_vital_details reason_code
+ALTER TABLE `form_vital_details` ADD `reason_code` VARCHAR(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;', ADD `reason_description` TEXT COMMENT 'Human readable text description of the reason_code column', ADD `reason_status` VARCHAR(31) NULL DEFAULT NULL COMMENT 'The status of the reason ie completed, in progress, etc';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id encounter-types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','encounter-types','Encounter Types',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','visit-after-hours','Visit out of hours',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','visit-after-hours-not-night','Out of Hours visit (Not Night)',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','weekend-visit','Weekend Visit',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','office-visit','Office visit for pediatric care and assessment',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient','Evaluation and management of established patient in office or outpatient facility',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient','Evaluation and management of new patient in office or outpatient facility',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','postoperative-follow-up','Postoperative follow-up visit',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-10','New Patient - 10 Minutes',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-15-29','New Patient - 15-29 Minutes',90,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-30-44','New Patient - 30-44 Minutes',100,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-45-59','New Patient - 45-59 Minutes',110,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-60-74','New Patient - 60-74 Minutes',120,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-10-19','Established Patient - 10-19 Minutes',130,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-20-29','Established Patient - 20-29 Minutes',140,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-30-39','Established Patient - 30-39 Minutes',140,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-40-54','Established Patient - 40-54 Minutes',150,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id immunization_refusal_reason option_id financial_problem
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_problem','Financial Problem',50,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_circumstances_change','Financial circumstances change',60,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','alternative_treatment_requested','Alternative Treatment Requested',70,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_procedure','Patient declined procedure',80,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug','Patient declined drug',90,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_effects','Patient declined drug - side effects',100,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_beliefs','Patient declined drug - patient beliefs',110,1, "01");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_cannot_pay','Patient declined drug - cannot pay script',120,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_moved','Patient moved',130,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_result','Patient dissatisfied with result',140,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_doctor','Patient dissatisfied with doctor',150,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_variable_income','Variable income',160,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_self_discharge','Patient self-discharge against medical advice',170,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','drugs_not_completed','Drugs not taken/completed',180,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','family_illness','Family illness',190,1, "02");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','follow_defaulted','Patient defaulted from follow-up',200,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noncompliance','Patient noncompliance - general',210,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noshow','Patient did not attend',220,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_further_opinion','Further opinion sought',230,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_treatment_delay','Treatment delay - patient choice',240,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_declined','Medication declined',250,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_forgot','Patient forgets to take medication',260,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_non_compliant','Patient non-compliant declined intervention/support',270,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','procedure_not_wanted','Procedure not wanted',280,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_insufficient','Income insufficient to buy necessities',290,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_necessities_only','Income sufficient to buy only necessities',300,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','refused','Refused',310,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_procedure_discontinued','Procedure discontinued by patient',320,1, "03");
+#EndIf
+
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id planned_medication_activity
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'planned_medication_activity', 'Planned Medication Act', '20', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'supply_order', 'Supply Order Act', '30', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'device_order', 'Device Order', '40', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+#EndIf
+
+-- below is missing in some demos and test databases
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id medication
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
+#EndIf
+
+#IfNotRow2D list_options list_id issue_subtypes option_id assessment
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','assessment','Assessment',20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','concern','Concern',30);
+#EndIf
+
+#IfNotRow2D list_options list_id Observation_Types option_id assessment
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('lists','Observation_Types','Observation Types',0,1,0,'',NULL,'',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','assessment','Assessment',10,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,1,'');
+#EndIf
+
+#IfNotRow2D list_options list_id Plan_of_Care_Type option_id intervention
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '9', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+#EndIf
+
+#IfNotTable valueset_oid
+CREATE TABLE `valueset_oid` (
+  `nqf_code` varchar(255) NOT NULL DEFAULT '',
+  `code` varchar(255) NOT NULL DEFAULT '',
+  `code_system` varchar(255) NOT NULL DEFAULT '',
+  `code_type` varchar(255) DEFAULT NULL,
+  `valueset` varchar(255) NOT NULL DEFAULT '',
+  `description` varchar(255) DEFAULT NULL,
+  `valueset_name` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`nqf_code`,`code`,`valueset`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow code_types ct_key OID
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (`id` int(11) NOT NULL DEFAULT '0',`seq` int(11) NOT NULL DEFAULT '0') ENGINE=InnoDB;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES (
+  IF(((SELECT MAX(`ct_id` ) FROM `code_types`) >= 100), ((SELECT MAX(`ct_id` ) FROM `code_types`) + 1), 100),
+  IF(((SELECT MAX(`ct_seq`) FROM `code_types`) >= 100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100));
+INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_mask`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag`, `ct_active`, `ct_label`, `ct_external`, `ct_claim`, `ct_proc`, `ct_term`, `ct_problem`, `ct_drug`) VALUES
+    ('OID', (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), '0', '', '', '1', '1', '0', '1', '1', 'OID Valueset', '14', '1', '1', '1', '1', '1');
+DROP TABLE `temp_table_one`;
+#EndIf
+
+#IfNotRow2D list_options list_id issue_subtypes option_id diagnosis
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','diagnosis','Diagnosis',40);
+#EndIf
+
+#IfColumn patient_data deceased_date
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `patient_data` SET `deceased_date` = NULL WHERE `deceased_date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfMissingColumn insurance_companies cqm_sop
+ALTER TABLE `insurance_companies` ADD `cqm_sop` int DEFAULT NULL COMMENT 'HL7 Source of Payment for eCQMs';
+#EndIf
+
+#IfNotRow2D list_options list_id order_type option_id order
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','order','Order',90,0);
+#EndIf
+
+#IfNotColumnType procedure_type procedure_code varchar(64)
+ALTER TABLE `procedure_type` MODIFY `procedure_code` varchar(64) NOT NULL DEFAULT '' COMMENT 'code identifying this procedure';
+#EndIf
+
+#IfNotRow2D categories name CCD codes LOINC:34133-9
+Update categories SET codes='LOINC:34133-9' WHERE name='CCD';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id ccda-sections
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','ccda-sections','CCDA Sections',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','allergies_required','Allergies and Intollerances (entries required)',10,0,1, 'oid:2.16.840.1.113883.10.20.22.2.6.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medications','History of medication use',20,0,1, 'oid:2.16.840.1.113883.10.20.22.2.1.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','problems','Problem list',30,0,1, 'oid:2.16.840.1.113883.10.20.22.2.5.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','procedures','History of procedures',40,0,1, 'oid:2.16.840.1.113883.10.20.22.2.7.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','dx_tests_labdata','Relevant Dx tests/lab data',50,0,1, 'oid:2.16.840.1.113883.10.20.22.2.3.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','functional_status','Functional Status',60,0,1, 'oid:2.16.840.1.113883.10.20.22.2.14');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','progress_note','Clinical Notes (History & Physical,Procedure,Discharge,Imaging)',70,0,1, 'oid:2.16.840.1.113883.10.20.22.2.65');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','procedures_section','Procedures Section',80,0,1, 'oid:2.16.840.1.113883.10.20.22.2.7.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','encounters','Encounters',110,0,1, 'oid:2.16.840.1.113883.10.20.22.2.22.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','immunizations','Immunizations',120,0,1, 'oid:2.16.840.1.113883.10.20.22.2.2');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','assessments','Assessments',130,0,1, 'oid:2.16.840.1.113883.10.20.22.2.8');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','treatment_plan','Treatment Plan',140,0,1, 'oid:2.16.840.1.113883.10.20.22.2.10');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','goals','Goals',150,0,1, 'oid:2.16.840.1.113883.10.20.22.2.60');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','health_concerns','Health Concerns',160,0,1, 'oid:2.16.840.1.113883.10.20.22.2.58');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','reason_of_visit','Reason for Referral',170,0,1, 'oid:1.3.6.1.4.1.19376.1.5.3.1.3.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','mental_status','Mental Status',180,0,1, 'oid:2.16.840.1.113883.10.20.22.2.56');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','social_history','Social History',190,0,1, 'oid:2.16.840.1.113883.10.20.22.2.17');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','vital_signs','Vital Signs',200,0,1, 'oid:2.16.840.1.113883.10.20.22.2.4.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medical_equipment','Medical Equipment',210,0,1, 'oid:2.16.840.1.113883.10.20.22.2.23');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','us_realm_person_name','US Realm Person Name',220,0,1, 'oid:2.16.840.1.113883.10.20.22.5.1.1');
+#EndIf
+
+
+#IfNotRow2D list_options list_id drug_interval option_id WK
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','WK','Weekly',19,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','MO','Monthly',20,0,1);
+#EndIf
+
+#IfRow3D list_options list_id immunization_refusal_reason option_id parental_decision seq 10
+UPDATE list_options SET seq=40 WHERE list_id="immunization_refusal_reason" AND option_id="parental_decision";
+UPDATE list_options SET seq=10 WHERE list_id="immunization_refusal_reason" AND option_id="patient_decision";
 #EndIf

@@ -492,6 +492,7 @@ var page = {
 
         signerAlertMsg(alertMsg1, 3000, "warning");
         let posting = $.post("./../lib/doc_lib.php", {
+            csrf_token_form: csrfTokenDoclib,
             cpid: cpid,
             docid: docid,
             catid: catid,

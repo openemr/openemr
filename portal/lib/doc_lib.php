@@ -17,9 +17,23 @@ require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+    // ensure patient is bootstrapped (if sent)
+    if (!empty($_POST['cpid'])) {
+        if ($_POST['cpid'] != $_SESSION['pid']) {
+            echo "illegal Action";
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            exit;
+        }
+    }
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
+    // only support download handler from patient portal
+    if ($_POST['handler'] != 'download') {
+        echo xlt("Not authorized");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
+    }
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
@@ -36,6 +50,16 @@ require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/appsql.class.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+    echo xlt('Patient Portal is turned off');
+    exit;
+}
+// confirm csrf (from both portal and core)
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib')) {
+    CsrfUtils::csrfNotVerified();
+}
 
 $logit = new ApplicationTable();
 $htmlin = $_POST['content'];
@@ -49,9 +73,6 @@ try {
         $category = $result['id'] ?: 3;
     }
     $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
-    $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
-    $templatepath = "$templatedir/$form_filename";
-    $htmlout = '';
     $config_mpdf = array(
         'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => $GLOBALS['pdf_language'],
@@ -100,6 +121,8 @@ try {
         $pdf->SetDirectionality('rtl');
     }
 
+    // purify html
+    $htmlin = (new \HTMLPurifier(\HTMLPurifier_Config::createDefault()))->purify($htmlin);
     $htmlin = "<html><body>$htmlin</body></html>";
     // need custom stylesheet for templates
     $pdf->writeHtml($htmlin);
@@ -109,12 +132,6 @@ try {
         header("Content-Disposition: attachment; filename=$form_filename");
         $pdf->Output($form_filename, 'D');
         $logit->portalLog('download document', $cpid, ('document:' . $form_filename));
-        exit();
-    }
-
-    if ($dispose == 'view') {
-        Header("Content-type: application/pdf");
-        $pdf->Output($templatepath, 'I');
         exit();
     }
 
@@ -130,5 +147,5 @@ try {
         exit();
     };
 } catch (Exception $e) {
-    die($e->getMessage());
+    die(text($e->getMessage()));
 }

@@ -17,6 +17,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
+
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
 function temp_copy($filename, $type)
@@ -80,7 +82,12 @@ function temp_unarchive($filename, $type)
 // $is_windows_flag - pass the IS_WINDOWS constant
 function rxnorm_import($is_windows_flag)
 {
-
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+    }
     // set paths
     $dirScripts = $GLOBALS['temporary_files_dir'] . "/RXNORM/scripts/mysql";
     $dir = $GLOBALS['temporary_files_dir'] . "/RXNORM/rrf";
@@ -150,12 +157,25 @@ function rxnorm_import($is_windows_flag)
     sqlStatementNoLog("COMMIT");
     sqlStatementNoLog("SET autocommit=1");
 
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+    }
+
     return true;
 }
 
 // Function to import SNOMED tables
 function snomed_import($us_extension = false)
 {
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+    }
 
     // set up array
     $table_array_for_snomed = array(
@@ -251,6 +271,13 @@ function snomed_import($us_extension = false)
         closedir($handle);
     }
 
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+    }
+
     return true;
 }
 
@@ -301,6 +328,12 @@ function chg_ct_external_torf2()
 
 function snomedRF2_import()
 {
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+    }
 
     // set up array
     $table_array_for_snomed = array(
@@ -437,6 +470,14 @@ function snomedRF2_import()
         }
         closedir($handle);
     }
+
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+    }
+
     return true;
 }
 
@@ -444,6 +485,13 @@ function snomedRF2_import()
 //
 function icd_import($type)
 {
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+    }
+
     // set up paths
     $dir_icd = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
     $dir = str_replace('\\', '/', $dir_icd);
@@ -591,11 +639,25 @@ function icd_import($type)
         sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = concat(concat(left(dx_code, 3), '.'), substr(dx_code, 4)) WHERE LENGTH(dx_code) > 3");
     }
 
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+    }
+
     return true;
 }
 
 function valueset_import($type)
 {
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+    }
+
     $dir_valueset = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
         $dir = str_replace('\\', '/', $dir_valueset);
 
@@ -614,7 +676,36 @@ function valueset_import($type)
                         foreach ($nqf as $nqf_code) {
                             foreach ($cp->Concept as $con) {
                                 $con_attr = $con->attributes();
-                                sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)", array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
+                                sqlStatementNoLog(
+                                    "INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
+                                    code_system = values(code_system),
+                                    description = values(description),
+                                    valueset_name = values(valueset_name)",
+                                    array(
+                                        $nqf_code,
+                                        $con_attr->code,
+                                        $con_attr->codeSystem,
+                                        $con_attr->codeSystemName,
+                                        $vset_attr->ID,
+                                        $con_attr->displayName,
+                                        $vset_attr->displayName
+                                    )
+                                );
+                                sqlStatementNoLog(
+                                    "INSERT INTO valueset_oid values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
+                                    code_system = values(code_system),
+                                    description = values(description),
+                                    valueset_name = values(valueset_name)",
+                                    array(
+                                         $nqf_code,
+                                         $vset_attr->ID,
+                                         $con_attr->codeSystem,
+                                         'OID',
+                                         $vset_attr->ID,
+                                         $vset_attr->displayName,
+                                         $vset_attr->displayName
+                                    )
+                                );
                             }
                         }
                     }
@@ -630,6 +721,13 @@ function valueset_import($type)
     // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("COMMIT");
     sqlStatementNoLog("SET autocommit=1");
+
+    // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+    // or any manual processing that needs to occur.
+    if (!empty($GLOBALS['kernel'])) {
+        $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+    }
         return true;
 }
 

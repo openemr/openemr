@@ -10,12 +10,14 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
+use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
 use OpenEMR\Cqm\Qdm\BaseTypes\Interval;
-use OpenEMR\Cqm\Qdm\MedicationOrder;
+use OpenEMR\Cqm\Qdm\SubstanceOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
-class MedicationOrderService extends AbstractCarePlanService implements QdmServiceInterface
+class SubstanceOrderService extends AbstractCarePlanService implements QdmServiceInterface
 {
     public function getCarePlanType()
     {
@@ -24,12 +26,13 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
 
     public function getModelClass()
     {
-        return MedicationOrder::class;
+        return SubstanceOrder::class;
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
-        $model = parent::makeQdmModel($record);
+        $model = parent::makeQdmModel($recordObj);
+        $record = $recordObj->getData();
 
         // The medication order has an additional field for relevantPeriod that is not in the parent
         $model->relevantPeriod = new Interval([
@@ -40,7 +43,16 @@ class MedicationOrderService extends AbstractCarePlanService implements QdmServi
                 'date' => $record['date_end']
             ]),
             'lowClosed' => $record['date'] ? true : false,
-            'highClosed' => $record['date_end'] ? true : false
+            'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false,
+        ]);
+
+        $model->authorDatetime = new DateTime([
+            'date' => $record['date']
+        ]);
+
+        $model->frequency = new Code([
+            "code" => "396125000",
+            "system" => "2.16.840.1.113883.6.96",
         ]);
 
         return $model;

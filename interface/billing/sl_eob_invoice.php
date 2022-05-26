@@ -271,7 +271,7 @@ function bucks($amount)
 </head>
 <body>
 <?php
-$trans_id = 0 + $_GET['id'];
+$trans_id = (int) $_GET['id'];
 if (!$trans_id) {
     die(xlt("You cannot access this page directly."));
 }
@@ -281,8 +281,8 @@ $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname FROM form_encounter AS 
 if (empty($ferow)) {
     die("There is no encounter with form_encounter.id = '" . text($trans_id) . "'.");
 }
-$patient_id = 0 + $ferow['pid'];
-$encounter_id = 0 + $ferow['encounter'];
+$patient_id = (int) $ferow['pid'];
+$encounter_id = (int) $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
 $form_payer_id = (!empty($_POST['form_payer_id'])) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'] ?? null;

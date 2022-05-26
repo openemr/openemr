@@ -34,15 +34,31 @@ exports.ccd2 = function (html_renderer) {
             },
             fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.1", "2015-08-01"),
             fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.1"),
-            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.2", "2015-08-01"),
-            fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.2"), [fieldLevel.id, dataKey("meta.identifiers")], {
+            {
+                key: "templateId",
+                attributes: {
+                    "root": leafLevel.inputProperty("root"),
+                    "extension": leafLevel.inputProperty("extension")
+                },
+                dataKey: 'meta.ccda_header.template',
+            },
+            {
+                key: "templateId",
+                attributes: {
+                    "root": leafLevel.inputProperty("root")
+                },
+                dataKey: 'meta.ccda_header.template',
+            },
+            [fieldLevel.id, dataKey("meta.identifiers")],
+            {
                 key: "code",
                 attributes: {
                     codeSystem: "2.16.840.1.113883.6.1",
                     codeSystemName: "LOINC",
-                    code: "34133-9",
-                    displayName: "Summarization of Episode Note"
-                }
+                    code: leafLevel.inputProperty("code"),
+                    displayName: leafLevel.inputProperty("name")
+                },
+                dataKey: 'meta.ccda_header.code',
             }, {
                 key: "title",
                 text: leafLevel.inputProperty("title"),
@@ -75,6 +91,7 @@ exports.ccd2 = function (html_renderer) {
             headerLevel.headerAuthor,
             headerLevel.headerInformant,
             headerLevel.headerCustodian,
+            headerLevel.headerInformationRecipient,
             headerLevel.providers, {
                 key: "component",
                 content: {

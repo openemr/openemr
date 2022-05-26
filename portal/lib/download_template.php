@@ -464,8 +464,12 @@ if ($encounter) {
     ));
 }
 $template = $templateService->fetchTemplate($form_id);
-
 $edata = $template['template_content'];
+
+// purify html (and remove js)
+$edata = (new \HTMLPurifier(\HTMLPurifier_Config::createDefault()))->purify($edata);
+
+// do the substitutions (ie. magic)
 $edata = doSubs($edata);
 
 if ($html_flag) { // return raw minified html template

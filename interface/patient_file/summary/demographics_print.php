@@ -33,7 +33,7 @@ use OpenEMR\Common\Acl\AclMain;
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {
-    $patientid = 0 + $pid; // -1 means current pid
+    $patientid = (int) $pid; // -1 means current pid
 }
 
 // True if to display as a form to complete, false to display as information.

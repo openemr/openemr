@@ -47,11 +47,11 @@ if (!empty($_POST['form_save'])) {
     $thisenc = $_POST['thisenc'];
 } else {
     $issue = $_REQUEST['issue'] ?? null;
-    $thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
+    $thispid = (int) (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
     // A nonempty thisenc means we are to link the issue to the encounter.
     $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 }
-
+// NOTE: $ISSUE_TYPES is defined in lists.inc
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
@@ -132,7 +132,10 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
 
     $codeList2 = array();
 
-    $issueCodes2 = sqlStatement("SELECT diagnosis FROM lists WHERE pid = ? AND enddate is NULL AND type IN ($qs2)", $sqlParameters2);
+    $issueCodes2 = sqlStatement(
+        "SELECT diagnosis FROM lists WHERE pid = ? AND enddate is NULL AND type IN ($qs2)",
+        $sqlParameters2
+    );
 
     while ($issueCodesRow2 = sqlFetchArray($issueCodes2)) {
         if ($issueCodesRow2['diagnosis'] != "") {
@@ -181,7 +184,14 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
         if ($displayCodeSet) {
             foreach ($displayCodeSet as $code) {
                 $text = getCodeText($code);
-                echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option(" . js_escape($text) . ", " . js_escape($code) . ", false, false);\n";
+                echo "listBoxOptionSets[" .
+                    attr($akey) .
+                    "][listBoxOptionSets[" .
+                    attr($akey) .
+                    "].length] = new Option(" .
+                    js_escape($text) .
+                    ", " . js_escape($code) .
+                    ", false, false);\n";
             }
         }
     }
@@ -231,8 +241,8 @@ if (!empty($_POST['form_save'])) {
         }
     }
 
-    $form_begin = !empty($_POST['form_begin']) ? DateToYYYYMMDD($_POST['form_begin']) : null;
-    $form_end   = !empty($_POST['form_end']) ? DateToYYYYMMDD($_POST['form_end']) : null;
+    $form_begin = !empty($_POST['form_begin']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_begin']) : null;
+    $form_end   = !empty($_POST['form_end']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_end']) : null;
     $form_return = !empty($_POST['form_return']) ? DateToYYYYMMDD($_POST['form_return']) : null;
 
     $form_injury_part = $_POST['form_medical_system'] ?? '';
@@ -240,15 +250,15 @@ if (!empty($_POST['form_save'])) {
 
     $issueRecord = [
         'type' => $text_type
-        // I don't like how these date columns use this quasi 'NULL' value but its how the underlying service works...
-        ,'begdate' => $form_begin ?? "NULL"
-        ,'enddate' => $form_end ?? "NULL"
-        ,'returndate' => $form_return ?? "NULL"
+        ,'begdate' => $form_begin ?? null
+        ,'enddate' => $form_end ?? null
+        ,'returndate' => $form_return ?? null
         ,'erx_uploaded' => '0'
         ,'id' => $issue ?? null
         ,'pid' => $thispid
     ];
-    // TODO: we could simplify this array by just adding 'form_' onto everything but not all of the fields precisely match so that would need to be fixed up
+    // TODO: we could simplify this array by just adding 'form_' onto everything
+    // but not all of the fields precisely match so that would need to be fixed up
     $issue_form_fields = [
         'title' => 'form_title',
         'udi' => 'form_udi',
@@ -265,7 +275,8 @@ if (!empty($_POST['form_save'])) {
         'reaction' => 'form_reaction',
         'verification' => 'form_verification',
         'severity_al' => 'form_severity_id',
-        'list_option_id' => 'form_title_id'
+        'list_option_id' => 'form_title_id',
+        'subtype' => 'form_subtype'
     ];
     foreach ($issue_form_fields as $field => $form_field) {
         if (isset($_POST[$form_field])) {
@@ -399,9 +410,16 @@ function getCodeText($code)
         foreach ($ISSUE_TYPES as $key => $value) {
             echo " aitypes[" . attr($i) . "] = " . js_escape($value[3]) . ";\n";
             echo " aopts[" . attr($i) . "] = new Array();\n";
-            $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1", array($key . "_issue_list"));
+            $qry = sqlStatement(
+                "SELECT * FROM list_options WHERE list_id = ? AND activity = 1",
+                array($key . "_issue_list")
+            );
             while ($res = sqlFetchArray($qry)) {
-                echo " opt = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
+                echo " opt = new Option(" .
+                    js_escape(xl_list_label(trim($res['title']))) .
+                    ", " .
+                    js_escape(trim($res['option_id'])) .
+                    ", false, false);\n";
                 echo " aopts[" . attr($i) . "][aopts[" . attr($i) . "].length] = opt\n";
                 if ($res['codes']) {
                     $codes = explode(";", $res['codes']);
@@ -710,7 +728,7 @@ function getCodeText($code)
 
         $(function() {
             $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
@@ -844,15 +862,15 @@ function getCodeText($code)
                             </div>
                             <input type='hidden' class="form-control" name='form_diagnosis' id='form_diagnosis'
                                    value='<?php echo attr($irow['diagnosis'] ?? '') ?>' onclick='onAddCode()'
-                                   title='<?php echo xla('Click to select or change coding'); ?>' readonly >
+                                   title='<?php echo xla('Click to select or change coding'); ?>' readonly />
                         </div>
                         <div class="form-group col-12">
-                            <label class="col-form-label" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
-                            <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(oeFormatShortDate($irow['begdate'] ?? '')) ?>' title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
+                            <label class="col-form-label" for="form_begin"><?php echo xlt('Begin Date and Time'); ?>:</label>
+                            <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(trim(oeFormatDateTime($irow['begdate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of onset, surgery or start of medication'); ?>' />
                         </div>
                         <div class="form-group col-12" id='row_enddate'>
-                            <label class="col-form-label" for="form_begin"><?php echo xlt('End Date'); ?>:</label>
-                            <input type='text' class='datepicker form-control' name='form_end' id='form_end' value='<?php echo attr(oeFormatShortDate($irow['enddate'] ?? '')) ?>' title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
+                            <label class="col-form-label" for="form_begin"><?php echo xlt('End Date and Time'); ?>:</label>
+                            <input type='text' class='datepicker form-control' name='form_end' id='form_end' value='<?php echo attr(trim(oeFormatDateTime($irow['enddate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of recovery or end of medication'); ?>' />
                             &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
                         </div>
                         <div class="form-group col-12" id='row_active'>
@@ -865,6 +883,12 @@ function getCodeText($code)
                             <input type='hidden' name='form_return' id='form_return' />
                             <input type='hidden' name='row_reinjury_id' id='row_reinjury_id' />
                             <img id='img_return' />
+                        </div>
+                        <div class="form-group col-12" id='row_subtype'>
+                            <label class="col-form-label" for="form_subtype"><?php echo xlt('Classification Type'); ?>:</label>
+                            <?php
+                            echo generate_select_list('form_subtype', 'issue_subtypes', ($irow['subtype'] ?? null), '', 'NA', '', '');
+                            ?>
                         </div>
                         <div class="form-group col-12" id='row_occurrence'>
                             <label class="col-form-label" for="form_occur"><?php echo xlt('Occurrence'); ?>:</label>

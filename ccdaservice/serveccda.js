@@ -966,7 +966,7 @@ function populateResult(pd) {
             icode = "";
             break;
     }
-    return {
+    let result = {
         "identifiers": [{
             "identifier": pd.subtest.root,
             "extension": pd.subtest.extension
@@ -990,13 +990,18 @@ function populateResult(pd) {
             "type": type,
             "range_type": range_type
         },
-        "interpretations": [icode],
         "value": value + "",
         "unit": pd.subtest.unit,
         "type": type,
         "range": pd.subtest.range,
         "range_type": range_type
     };
+    // interpretation cannot be an empty value so we skip it if it is
+    // empty as Observation.interpretationCode is [0..*]
+    if (icode !== "") {
+        result["interpretations"] = [icode];
+    }
+    return result;
 }
 
 function getResultSet(results) {
@@ -2121,23 +2126,32 @@ function populateNote(pd) {
 }
 
 function populateHeader(pd) {
+    // default doc type ToC
+    let name = "Summarization of Episode Note";
+    let docCode = "34133-9";
+    let docOid = "2.16.840.1.113883.10.20.22.1.2";
+    if (pd.doc_type == 'referral') {
+        name = "Referral Note";
+        docCode = "57133-1";
+        docOid = "2.16.840.1.113883.10.20.22.1.14";
+    }
     const head = {
         "identifiers": [
             {
                 "identifier": oidFacility,
-                "extension": "TT988"
+                "extension": "123456"
             }
         ],
         "code": {
-            "name": "Continuity of Care Document", //change to toc w/code
-            "code": "34133-9",
+            "name": name,
+            "code": docCode,
             "code_system_name": "LOINC"
         },
-        "template": [
-            "2.16.840.1.113883.10.20.22.1.1",
-            "2.16.840.1.113883.10.20.22.1.2"
-        ],
-        "title": "OpenEMR Transitions of Care",
+        "template": {
+                "root": docOid,
+                "extension": "2015-08-01"
+        },
+        "title": name,
         "date_time": {
             "date": pd.created_time_timezone,
             "precision": "none"
@@ -2219,25 +2233,37 @@ function populateHeader(pd) {
                 }
             ],
             "name": [
-                pd.encounter_provider.facility_name
+                pd.custodian.organization || pd.custodian.name
             ],
             "address": [
                 {
                     "street_lines": [
-                        pd.encounter_provider.facility_street
+                        pd.custodian.streetAddressLine
                     ],
-                    "city": pd.encounter_provider.facility_city,
-                    "state": pd.encounter_provider.facility_state,
-                    "zip": pd.encounter_provider.facility_postal_code,
-                    "country": pd.encounter_provider.facility_country_code || "US"
+                    "city": pd.custodian.city,
+                    "state": pd.custodian.state,
+                    "zip": pd.custodian.postal_code,
+                    "country": pd.custodian.country_code || "US"
                 }
             ],
             "phone": [
                 {
-                    "number": pd.encounter_provider.facility_phone,
+                    "number": pd.custodian.telecom,
                     "type": "work primary"
                 }
             ]
+        },
+        "information_recipient": {
+            "name": {
+                "prefix": pd.information_recipient.prefix || "",
+                "suffix": pd.information_recipient.suffix || "",
+                "middle": [pd.information_recipient.mname] || "",
+                "last": pd.information_recipient.lname || "",
+                "first": pd.information_recipient.fname || ""
+            },
+            "organization": {
+                "name": pd.information_recipient.organization || "org"
+            },
         },
         /*"data_enterer": {
             "identifiers": [
@@ -2403,7 +2429,7 @@ function populateHeader(pd) {
 function getMeta(pd) {
     var meta = {};
     meta = {
-        "type": "CCDA",
+        "type": pd.doc_type,
         "identifiers": [
             {
                 "identifier": oidFacility || "",
@@ -2843,7 +2869,7 @@ function genCcda(pd) {
     // build to cda
     let xml = bbg.generateCCD(doc);
 
-    /* Debug
+    /* Debug */
         fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
             if (err) {
                 return console.log(err);
@@ -2857,7 +2883,7 @@ function genCcda(pd) {
             }
             console.log("Xml saved!");
         });
-    */
+
 
     return xml;
 }

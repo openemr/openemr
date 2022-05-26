@@ -51,6 +51,13 @@ class IdTokenSMARTResponse extends IdTokenResponse
      */
     private $contextBuilder;
 
+    /**
+     * The context values to use for issuing new tokens.  This is populated when a refresh grant is generating a new
+     * access token.  We have to use our existing values.
+     * @var array
+     */
+    private $contextForNewTokens;
+
     public function __construct(
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor
@@ -115,7 +122,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         $scopes = $accessToken->getScopes();
         $this->logger->debug("IdTokenSMARTResponse->getExtraParams() params from parent ", ["params" => $extraParams]);
 
-        $contextParams = $this->contextBuilder->getContextForScopes($scopes);
+        $contextParams = $this->getContextForNewAccessTokens($scopes);
         $extraParams = array_merge($extraParams, $contextParams);
         // response should return the scopes we authorized inside the accessToken to be smart compatible
         // I would think this would be better put in the id_token but to be spec compliant we have to have this here
@@ -170,5 +177,30 @@ class IdTokenSMARTResponse extends IdTokenResponse
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
             ->relatedTo($userEntity->getIdentifier());
+    }
+
+    /**
+     * Sets the context array that will be saved to the database for new acess tokens.
+     * @param $context The array of context variables.  If this is not an array the context is set to null;
+     */
+    public function setContextForNewTokens($context)
+    {
+        $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
+    }
+
+    /**
+     * Retrieves the context to use for new access tokens based upon the passed in scopes.  It will use the existing
+     * context saved in the repositoryor will build a new context from the passed in scopes.
+     * @param $scopes The scopes in the access token that determines what context variables to use in the access token
+     * @return array The built context session.
+     */
+    private function getContextForNewAccessTokens($scopes)
+    {
+        if (!empty($this->contextForNewTokens)) {
+            $context = $this->contextBuilder->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
+        } else {
+            $context = $this->contextBuilder->getContextForScopes($scopes) ?? [];
+        }
+        return $context;
     }
 }

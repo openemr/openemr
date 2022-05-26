@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="urn:hl7-org:sdtc" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="urn:hl7-org:sdtc"
+  elementFormDefault="qualified" xmlns:hl7="urn:hl7-org:v3" xmlns:sch="http://www.ascc.net/xml/schematron">
+  <xs:annotation>
+    <xs:documentation>XML schema for message type POCD_MT000040.</xs:documentation>
+    <xs:documentation>
+      Copyright (c) 2015 Health Level Seven.
+      All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or
+      without modification, are permitted provided that the following
+      conditions are met:
+      1. Redistributions of source code must retain the above
+      copyright notice, this list of conditions and the following
+      disclaimer.
+      2. Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials
+      provided with the distribution.
+      3. All advertising materials mentioning features or use of this
+      software must display the following acknowledgement:
+      
+      This product includes software developed by Health Level Seven.
+      
+      THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS
+      ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+      NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+      FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT
+      SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+      INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+      GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+      INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+      WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+      NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+      DAMAGE.
+    </xs:documentation>
+    <xs:documentation>See http://wiki.hl7.org/index.php?title=CDA_R2_Extensions for more details of extensions</xs:documentation>
+    <xs:documentation>
+      2012-07-06 Created SDTC.xsd (this file) this file holds all extensions in the SDTC namespace. 
+      It contains elements, attributes and datatypes
+    </xs:documentation>
+    <xs:documentation>
+      2012-07-06 Added extensions approved by SDWG prior to 2012-07-06: 
+      id, 
+      deceasedInd, 
+      deceasedTime, 
+      valueSet, 
+      valuesetVersion, 
+      dischargeDispositionCode,
+      raceCode,
+      birthTime
+    </xs:documentation>
+    <xs:documentation>
+      2014-07-14 Added extension approved by SDWG on xxxx date:
+      signatureText
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 Added extensions approved by SDWG on 2014-11-xx:
+      multipleBirthInd, 
+      multipleBirthOrderNumber
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 
+      Added extension approved by SDWG on 2014-12-18:
+      ethnicGroupCode
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 
+      Added extension approved by SDWG on 2014-01-xx:
+      statusCode
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 
+      Added extension approved by SDWG on 2015-03-05
+      desc
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 
+      Added extension approved by SDWG on 2015-03-05
+      patient
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-01 
+      Added extension approved by SDWG on 2015-03-19
+      inFulfillmentOf1
+    </xs:documentation>
+    <xs:documentation>
+      2015-04-06 
+      Added extension approved by SDWG on 2015-03-05
+      asPatientRelationship
+    </xs:documentation>
+    <xs:documentation>
+      2016-05-12 
+      Added extension approved by SDWG on 2016-01-28
+      priorityNumber
+    </xs:documentation>
+    <xs:documentation>
+      2017-10-10 
+      Added extension approved by SDWG on 2017-05-17
+      functionCode
+    </xs:documentation>
+    <xs:documentation>
+      2018-07-05 
+      Added extension approved by SDWG on 2018-06-28
+      precondition1
+    </xs:documentation>
+    <xs:documentation>
+      2019-04-14 
+      Added extension approved by SDWG in 2018-11
+      organizer.text
+    </xs:documentation>
+    
+    <xs:documentation>
+      2019-08-06  Extensions created for Form Definition Document IG include: 
+      precondition2, AllFalse, AllTrue, AtLeastOneFalse, AtLeastOneTrue, OnlyOneFalse, OnlyOneTrue
+    </xs:documentation>
+    
+    <xs:documentation>
+      2020-10-12
+      Added alternateIdentification extension approved by SDWG on 2020-09
+    </xs:documentation>
+  </xs:annotation>
+  
+  <xs:import namespace="urn:hl7-org:v3" schemaLocation="POCD_MT000040_SDTC.xsd" />
+  
+  <!-- == Start Data types ===================================================================== -->
+  <!-- Datatype INT_POS (restricts integers to 1 or greater) -->
+  <xs:simpleType name="int_pos">
+    <xs:annotation>
+      <xs:documentation>Positive integer numbers</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="hl7:int">
+      <xs:minInclusive value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="INT_POS">
+    <xs:annotation>
+      <xs:documentation>Positive integer numbers</xs:documentation>
+      <xs:appinfo>
+        <diff>INT</diff>
+        <sch:pattern name="validate SDTC_INT">
+          <sch:rule abstract="true" id="rule-SDTC_INT">
+            <sch:report test="(@value or @nullFlavor) and not(@value and @nullFlavor)" />
+          </sch:rule>
+        </sch:pattern>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="hl7:QTY">
+        <xs:attribute name="value" use="optional" type="int_pos" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- ActReference (created for QRDA) -->
+  <xs:complexType name="ActReference">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="classCode" type="hl7:ActClass" use="required" />
+    <xs:attribute name="moodCode" type="hl7:x_DocumentActMood" use="required" />
+    <xs:attribute name="determinerCode" type="hl7:EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  
+  <!-- Fulfills (created for QRDA) -->
+  <xs:complexType name="InFulfillmentOf1">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="actReference" type="ActReference" />
+    </xs:sequence>
+    <xs:attribute name="typeCode" type="hl7:ActRelationshipFulfills" use="required" fixed="FLFS" />
+    <xs:attribute name="inversionInd" type="hl7:bl" use="optional" />
+    <xs:attribute name="negationInd" type="hl7:bl" use="optional" />
+  </xs:complexType>
+  
+  <xs:complexType name="SdtcPatient">
+    <xs:sequence>
+      <xs:element name="id" type="hl7:II" minOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="AsPatientRelationship">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="code" type="hl7:CE" />
+    </xs:sequence>
+    <xs:attribute name="classCode" type="hl7:x_DocumentSubject" use="required" fixed="PRS" />
+    <xs:attribute name="determinerCode" type="hl7:EntityDeterminer" use="optional" fixed="INSTANCE" />
+  </xs:complexType>
+  
+  <!-- Precondition1 (created for C-CDA Templates for Infectious Disease (lab reporting)) -->
+  <xs:complexType name="Precondition1">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <!-- A code specifying the logical conjunction of the criteria among all the condition-links 
+           of Acts (e.g., and, or, exclusive-or).
+           All AND criteria must be true. 
+           If OR and AND criteria occur together, one criterion out of the OR-group must be true 
+           and all AND criteria must be true also. 
+           If XOR criteria occur together with OR and AND criteria, exactly one of the XOR criteria 
+           must be true, and at least one of the OR criteria and all AND criteria must be true. 
+           In other words, the sets of AND, OR, and XOR criteria are in turn combined by a 
+           logical AND operator (all AND criteria and at least one OR criterion and exactly 
+           one XOR criterion). 
+      -->
+      <!-- Values are restricted to the values in HL7 RelationshipConjunction (AND, OR, XOR)-->
+        
+      <xs:element name="conjunctionCode" type="hl7:CS" minOccurs="1" />
+      <xs:element name="criterion1" type="hl7:POCD_MT000040.Criterion" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="hl7:NullFlavor" use="optional" />
+    <xs:attribute name="typeCode" type="hl7:ActRelationshipType" use="optional" fixed="PRCN" />
+    
+  </xs:complexType>
+  
+  <!-- Precondition2 (created for Structured Form Definition) -->
+  <xs:complexType name="Precondition2">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="conjunctionCode" type="hl7:CS" minOccurs="0" maxOccurs="1" />
+      <xs:choice>
+        <xs:choice>
+          <xs:element name="allTrue" type="AllTrue" nillable="true" minOccurs="1" maxOccurs="1" />
+          <xs:element name="allFalse" type="AllFalse" nillable="true" minOccurs="1" maxOccurs="1" />
+          <xs:element name="atLeastOneTrue" type="AtLeastOneTrue" nillable="true" minOccurs="1" maxOccurs="1" />
+          <xs:element name="atLeastOneFalse" type="AtLeastOneFalse" nillable="true" minOccurs="1" maxOccurs="1" />
+          <xs:element name="onlyOneTrue" type="OnlyOneTrue" nillable="true" minOccurs="1" maxOccurs="1" />
+          <xs:element name="onlyOneFalse" type="OnlyOneFalse" nillable="true" minOccurs="1" maxOccurs="1" />
+        </xs:choice>
+        <xs:choice>
+          <xs:element name="criterion" type="hl7:POCD_MT000040.Criterion" />
+        </xs:choice>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="typeCode" type="hl7:ActRelationshipType" use="optional" fixed="PRCN" />
+    <xs:attribute name="negationInd" type="xs:boolean" use="optional" fixed="true" />
+  </xs:complexType>
+  
+  <!-- AllFalse (created for Structured Form Definition) -->
+  <xs:complexType name="AllFalse">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="1" />
+      <xs:element name="precondition" type="Precondition2" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="hl7:NullFlavor" use="optional" />
+    <!-- SG: Changed this from GROUPER to CLUSTER -->
+    <xs:attribute name="classCode" type="hl7:ActClass" use="optional" fixed="CLUSTER" />
+    <xs:attribute name="moodCode" type="hl7:ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  
+  <!-- AllTrue (created for Structured Form Definition) -->
+  <xs:complexType name="AllTrue">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="1" />
+      <xs:element name="precondition" type="Precondition2" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="hl7:NullFlavor" use="optional" />
+    <!-- SG: Changed this from GROUPER to CLUSTER -->
+    <xs:attribute name="classCode" type="hl7:ActClass" use="optional" fixed="CLUSTER" />
+    <xs:attribute name="moodCode" type="hl7:ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  
+  <!-- AtLeastOneFalse (created for Structured Form Definition) -->
+  <xs:complexType name="AtLeastOneFalse">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="1" />
+      <xs:element name="precondition" type="Precondition2" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="hl7:NullFlavor" use="optional" />
+    <!-- SG: Changed this from GROUPER to CLUSTER -->
+    <xs:attribute name="classCode" type="hl7:ActClass" use="optional" fixed="CLUSTER" />
+    <xs:attribute name="moodCode" type="hl7:ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  
+  <!-- AtLeastOneTrue (created for Structured Form Definition) -->
+  <xs:complexType name="AtLeastOneTrue">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="1" />
+      <xs:element name="precondition2" type="Precondition2" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="hl7:NullFlavor" use="optional" />
+    <!-- SG: Changed this from GROUPER to CLUSTER -->
+    <xs:attribute name="classCode" type="hl7:ActClass" use="optional" fixed="CLUSTER" />
+    <xs:attribute name="moodCode" type="hl7:ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  
+  <!-- OnlyOneFalse (created for Structured Form Definition) -->
+  <xs:complexType name="OnlyOneFalse">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="1" />
+      <xs:element name="precondition" type="Precondition2" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="hl7:NullFlavor" use="optional" />
+    <!-- SG: Changed this from GROUPER to CLUSTER -->
+    <xs:attribute name="classCode" type="hl7:ActClass" use="optional" fixed="CLUSTER" />
+    <xs:attribute name="moodCode" type="hl7:ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  
+  <!-- OnlyOneTrue (created for Structured Form Definition) -->
+  <xs:complexType name="OnlyOneTrue">
+    <xs:sequence>
+      <xs:element name="realmCode" type="hl7:CS" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="typeId" type="hl7:POCD_MT000040.InfrastructureRoot.typeId" minOccurs="0" />
+      <xs:element name="templateId" type="hl7:II" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="1" />
+      <xs:element name="precondition" type="Precondition2" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="nullFlavor" type="hl7:NullFlavor" use="optional" />
+    <!-- SG: Changed this from GROUPER to CLUSTER -->
+    <xs:attribute name="classCode" type="hl7:ActClass" use="optional" fixed="CLUSTER" />
+    <xs:attribute name="moodCode" type="hl7:ActMood" use="optional" fixed="EVN" />
+  </xs:complexType>
+  
+  <xs:complexType name="IdentifiedBy">
+    <xs:sequence>
+      <xs:element name="alternateIdentification" type="AlternateIdentification" minOccurs="1" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attribute name="typeCode" type="hl7:RoleLinkType" use="required" fixed="REL" />
+  </xs:complexType>
+  
+  <xs:complexType name="AlternateIdentification">
+    <xs:sequence>
+      <xs:element name="id" type="hl7:II" minOccurs="1" maxOccurs="1" />
+      <xs:element name="code" type="hl7:CD" minOccurs="0" />
+      <xs:element name="statusCode" type="hl7:CS" minOccurs="0" />
+      <xs:element name="effectiveTime" type="hl7:IVL_TS" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="classCode" type="hl7:RoleClass" use="required" fixed="IDENT" />
+  </xs:complexType>
+  
+  <!-- == End Data Types =================================================================== -->
+  
+  <!-- == Start Attributes =================================================================== -->
+  <xs:attribute name="valueSet" type="hl7:oid" />
+  <xs:attribute name="valueSetVersion" type="hl7:st" />
+  <!-- == End Attributes =================================================================== -->
+  
+  
+  <!-- == Start Elements =================================================================== -->
+  <xs:element name="raceCode" type="hl7:CE" />
+  <xs:element name="ethnicGroupCode" type="hl7:CE" />
+  
+  <xs:element name="dischargeDispositionCode" type="hl7:CE" />
+  
+  <xs:element name="id" type="hl7:II" />
+  
+  <xs:element name="deceasedInd" type="hl7:BL" />
+  <xs:element name="deceasedTime" type="hl7:TS" />
+  
+  <xs:element name="multipleBirthInd" type="hl7:BL" />
+  <xs:element name="multipleBirthOrderNumber" type="INT_POS" />
+  
+  <xs:element name="birthTime" type="hl7:TS" />
+  
+  <xs:element name="signatureText" type="hl7:ED" />
+  
+  <xs:element name="statusCode" type="hl7:CS" />
+  
+  <xs:element name="desc" type="hl7:ED" />
+  
+  <xs:element name="inFulfillmentOf1" type="InFulfillmentOf1" />
+  
+  <xs:element name="patient" type="SdtcPatient" />
+  
+  <xs:element name="asPatientRelationship" type="AsPatientRelationship" />
+  
+  <xs:element name="priorityNumber" type="hl7:INT" />
+  
+  <xs:element name="functionCode" type="hl7:CE" />
+  
+  <xs:element name="precondition1" type="Precondition1" />
+  
+  <!-- created for Structured Form Definition -->
+  <xs:element name="precondition2" type="Precondition2" />
+  
+  
+  <xs:element name="text" type="hl7:ED" />
+  
+  <xs:element name="identifiedBy" type="IdentifiedBy" />
+  
+  <!-- == End Elements =================================================================== -->
+  
+</xs:schema>

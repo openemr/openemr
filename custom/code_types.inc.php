@@ -171,6 +171,7 @@ define_external_table($code_external_tables, 6, 'icd10_pcs_order_code', 'pcs_cod
 //**** End ICD 10 Definitions
 
 define_external_table($code_external_tables, 13, 'valueset', 'code', 'description', 'description', array(), '');
+define_external_table($code_external_tables, 14, 'valueset_oid', 'code', 'description', 'description', array(), '');
 
 /**
  * This array stores the external table options. See above for $code_types array
@@ -190,7 +191,8 @@ $ct_external_options = array(
   '10' => xl('SNOMED (RF2) Diagnosis'),
   '11' => xl('SNOMED (RF2) Clinical Term'),
   '12' => xl('SNOMED (RF2) Procedure'),
-  '13' => xl('CQM (Mixed Types) Value Set')
+  '13' => xl('CQM (Mixed Types) Value Set'),
+  '14' => xl('CQM OID Value Set')
 );
 
 /**

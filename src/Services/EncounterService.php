@@ -107,7 +107,7 @@ class EncounterService extends BaseService
     public function getUuidFields(): array
     {
         return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'
-            , 'facility_location_uuid', 'billing_location_uuid'];
+            , 'facility_location_uuid', 'billing_location_uuid', 'referrer_uuid'];
     }
 
     /**
@@ -210,8 +210,11 @@ class EncounterService extends BaseService
                        fa.billing_location_uuid,
                 
                        fe.provider_id,
+                       fe.referring_provider_id,
                        providers.provider_uuid,
                        providers.provider_username,
+                       referrers.referrer_uuid,
+                       referrers.referrer_username,
                        fe.discharge_disposition,
                        discharge_list.discharge_disposition_text
                        
@@ -240,7 +243,8 @@ class EncounterService extends BaseService
                                class_code,
                                facility_id,
                                discharge_disposition,
-                               pid as encounter_pid
+                               pid as encounter_pid,
+                               referring_provider_id
                            FROM form_encounter
                        ) fe
                        LEFT JOIN openemr_postcalendar_categories as opc
@@ -271,6 +275,15 @@ class EncounterService extends BaseService
                             WHERE
                                 npi IS NOT NULL and npi != ''
                        ) providers ON fe.provider_id = providers.provider_provider_id
+                       LEFT JOIN (
+                           select
+                                id AS referring_provider_id
+                                ,uuid AS referrer_uuid
+                                ,`username` AS referrer_username
+                            FROM users
+                            WHERE
+                                npi IS NOT NULL and npi != ''
+                       ) referrers ON fe.referring_provider_id = referrers.referring_provider_id
                        LEFT JOIN (
                            select
                                 facility.id AS facility_id
@@ -367,7 +380,8 @@ class EncounterService extends BaseService
             $data["provider_id"],
             $data["date"],
             $data['user'],
-            $data['group']
+            $data['group'],
+            $data['referring_provider_id']
         );
 
         if ($results) {

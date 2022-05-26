@@ -152,7 +152,7 @@ class InvoiceSummary
                 $code .= ':' . $row['modifier'];
             }
 
-            $ins_id = 0 + $row['payer_id'];
+            $ins_id = (int) $row['payer_id'];
             $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
             $codes[$code]['bal'] -= $row['pay_amount'];
             $codes[$code]['bal'] -= $row['adj_amount'];

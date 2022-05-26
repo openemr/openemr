@@ -734,7 +734,7 @@ class PatientService extends BaseService
             }
         } else // if patient has had birthday this calandar year
         {
-            $age_year = $yearnow - $dobyear;
+            $age_year = (int) $yearnow - (int) $dobyear;
             if ($daynow < $dobday) {
                 $months_since_birthday = $monthnow - $dobmonth - 1;
                 $days_since_dobday = $nd - $dobday + $daynow;
@@ -760,6 +760,10 @@ class PatientService extends BaseService
 
     private function parseSuffixForPatientRecord($patientRecord)
     {
+        // if we have a suffix populated (that wasn't entered into last name) let's use that.
+        if (!empty($patientRecord['suffix'])) {
+            return $patientRecord['suffix'];
+        }
         // parse suffix from last name. saves messing with LBF
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;

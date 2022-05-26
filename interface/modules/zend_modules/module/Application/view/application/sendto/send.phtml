@@ -182,14 +182,17 @@ $download_format = $this->download_format;
     </div>
     <div id="componentsForCCDA" style="height:300px !important;display:none;" class="ap-st-st-13">
         <div style="display:inline-flex;width:100%;">
-            <div style="width:33%">
-                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_toc" value="toc checked" checked>&nbsp;<?php echo $this->listenerObject->z_xlt('Transistion of Care') ?></label>
+            <div style="width:35%">
+                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_toc" value="toc" checked>&nbsp;<?php echo $this->listenerObject->z_xlt('Transistion of Care') ?></label>
             </div>
             <div style="width:15%">
                 <label style="margin:1px 2px;"><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_ccd" value="ccd">&nbsp;<?php echo $this->listenerObject->z_xlt('CCD') ?></label>
             </div>
-            <div style="width:33%">
+            <div style="width:25%">
                 <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_careplan" value="careplan">&nbsp;<?php echo $this->listenerObject->z_xlt('Careplan') ?></label>
+            </div>
+            <div style="width:25%">
+                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_referral" value="referral">&nbsp;<?php echo $this->listenerObject->z_xlt('Referral') ?></label>
             </div>
         </div>
         <div>

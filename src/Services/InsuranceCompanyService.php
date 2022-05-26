@@ -81,7 +81,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i ";
         $sql .= " JOIN addresses a ON i.id = a.foreign_id";
-        // the foreign_id here is a globally unique sequence so there is no conflict.  I don't like the assumption here as it should be more explicit what table we are pulling
+        // the foreign_id here is a globally unique sequence so there is no conflict.
+        // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
         // foreign id could be ambigious here... but since the sequence is globally unique @see \generate_id() we can
         // join here safely...
@@ -111,7 +112,11 @@ class InsuranceCompanyService extends BaseService
             (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            (new SystemLogger())->error(
+                $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString(),
+                 'field' => $exception->getField()]
+            );
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;
@@ -212,9 +217,24 @@ class InsuranceCompanyService extends BaseService
         return $claim_types;
     }
 
+    public function getInsuranceCqmSop()
+    {
+        $cqm_sop = sqlStatement(
+            "SELECT distinct code, description FROM `valueset` WHERE `valueset` = '2.16.840.1.114222.4.11.3591';"
+        );
+
+        $cqm_sops = [];
+        while ($row = sqlFetchArray($cqm_sop)) {
+            $cqm_sops[$row['code']] = $row['description'];
+        }
+        return $cqm_sops;
+    }
+
     public function insert($data)
     {
-        $freshId = $this->getFreshId("id", "insurance_companies");
+        // insurance companies need to use sequences table since they share the
+        // addresses table with pharmacies
+        $freshId = generate_id();
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
@@ -224,9 +244,10 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     ins_type_code=?,";
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
-        $sql .= "     alt_cms_id=?";
+        $sql .= "     alt_cms_id=?,";
+        $sql .= "     cqm_sop=?";
 
-        $insuranceResults = sqlInsert(
+        sqlInsert(
             $sql,
             array(
                 $freshId,
@@ -236,22 +257,13 @@ class InsuranceCompanyService extends BaseService
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
                 $data["x12_default_partner_id"] ?? '',
-                $data["alt_cms_id"]
+                $data["alt_cms_id"],
+                $data["cqm_sop"] ?? null,
             )
         );
-        // insurance_company doesn't have an auto increment primary
-        // therefore a good insert will return false. You might get an error code on fail!
-        if ($insuranceResults) {
-            return false;
-        }
 
-        $addressesResults = false;
         if (!empty($data["city"] ?? null) && !empty($data["state"] ?? null)) {
-            $addressesResults = $this->addressService->insert($data, $freshId);
-        }
-
-        if ($addressesResults) {
-            return false;
+            $this->addressService->insert($data, $freshId);
         }
 
         return $freshId;
@@ -266,7 +278,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     ins_type_code=?,";
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
-        $sql .= "     alt_cms_id=?";
+        $sql .= "     alt_cms_id=?,";
+        $sql .= "     cqm_sop=?";
         $sql .= "     WHERE id = ?";
 
         $insuranceResults = sqlStatement(
@@ -279,6 +292,7 @@ class InsuranceCompanyService extends BaseService
                 $data["x12_receiver_id"],
                 $data["x12_default_partner_id"],
                 $data["alt_cms_id"],
+                $data["cqm_sop"],
                 $iid
             )
         );

@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * CdaTemplateImportDispose Class
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Services\Cda;
 
 use Application\Model\ApplicationTable;
@@ -7,6 +17,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\ListService;
 
 class CdaTemplateImportDispose
 {
@@ -28,26 +39,20 @@ class CdaTemplateImportDispose
         foreach ($allergy_array as $key => $value) {
             $active = 1;
 
-            if ($value['begdate'] != 0 && $revapprove == 0) {
+            $allergy_begdate_value = null;
+            $allergy_enddate_value = null;
+            if (!empty($value['begdate']) && $revapprove == 0) {
                 $allergy_begdate = $carecoordinationTable->formatDate($value['begdate'], 1);
                 $allergy_begdate_value = fixDate($allergy_begdate);
-            } elseif ($value['begdate'] != 0 && $revapprove == 1) {
+            } elseif (!empty($value['begdate']) && $revapprove == 1) {
                 $allergy_begdate_value = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['begdate'] == 0) {
-                $allergy_begdate = $value['begdate'];
-                //$allergy_begdate_value = fixDate($allergy_begdate);
-                $allergy_begdate_value = (null);
             }
 
-            if ($value['enddate'] != 0 && $revapprove == 0) {
+            if (!empty($value['enddate']) && $revapprove == 0) {
                 $allergy_enddate = $carecoordinationTable->formatDate($value['enddate'], 1);
                 $allergy_enddate_value = fixDate($allergy_enddate);
             } elseif ($value['enddate'] != 0 && $revapprove == 1) {
                 $allergy_enddate_value = ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['enddate'] == 0 || $value['enddate'] == '') {
-                $allergy_enddate = $value['enddate'];
-                //$allergy_enddate_value = fixDate($allergy_enddate);
-                $allergy_enddate_value = (null);
             }
 
             if ($revapprove == 1) {
@@ -223,11 +228,10 @@ class CdaTemplateImportDispose
                 }
             }
 
-            $plan_date = $carecoordinationTable->formatDate($value['date'], 1);
-            $plan_date_value = fixDate($plan_date);
-            $end_date = $value['end_date'] == null ? $value['end_date'] : date("Y-m-d H:i:s", strtotime($value['end_date']));
-            $low_date = $value['reason_date_low'] == null ? $value['reason_date_low'] : date("Y-m-d H:i:s", strtotime($value['reason_date_low']));
-            $high_date = $value['reason_date_high'] == null ? $value['reason_date_high'] : date("Y-m-d H:i:s", strtotime($value['reason_date_high']));
+            $plan_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
+            $end_date = $value['end_date'] ? date("Y-m-d H:i:s", strtotime($value['end_date'])) : null;
+            $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_low'])) : null;
+            $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_high'])) : null;
 
             $query_insert = "INSERT INTO `form_care_plan` (`id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`care_plan_type`, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'], $value['reason_code_text'], $low_date, $high_date, $value['reason_status'] ?? null));
@@ -247,16 +251,11 @@ class CdaTemplateImportDispose
         $encounter_for_billing = 0;
         $appTable = new ApplicationTable();
         foreach ($proc_array as $key => $value) {
-            if ($value['date'] != 0 && $revapprove == 0) {
-                $procedure_date = $carecoordinationTable->formatDate($value['date'], 1);
-                $procedure_date_value = fixDate($procedure_date);
-            } elseif ($value['date'] != 0 && $revapprove == 1) {
-                $procedure_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
-            } elseif ($value['date'] == 0) {
-                $procedure_date = $value['date'];
-                $procedure_date_value = fixDate($procedure_date);
+            $procedure_date_value = null;
+            if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
+                $procedure_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
+                $end_date = $value['end_date'] ? date("Y-m-d H:i:s", strtotime($value['end_date'])) : null;
             }
-
             //facility1
             if (empty($value['represented_organization1'])) {
                 $value['represented_organization1'] = CarecoordinationTable::ORGANIZATION_SAMPLE;
@@ -396,8 +395,12 @@ class CdaTemplateImportDispose
                 $qB_insert = "INSERT INTO external_procedures(ep_date,ep_code,ep_code_type,ep_code_text,ep_pid,ep_encounter,ep_facility_id,ep_external_id) VALUES (?,?,?,?,?,?,?,?)";
                 $appTable->zQuery($qB_insert, array($procedure_date_value, $value['code'], $value['codeSystemName'], $value['code_text'], $pid, $encounter_for_billing, ($facility_id2 ?? null), $value['extension']));
             }
+
+            $code = $value['code'];
             // format code
-            $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName']);
+            if (stripos($value['code'], 'OID:') === false) {
+                $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName']);
+            }
 
             $pro_name = xlt('External Procedure');
             $query_select_pro = 'SELECT * FROM procedure_providers WHERE name = ?';
@@ -425,13 +428,17 @@ class CdaTemplateImportDispose
                 sqlQuery($query_update_pt, array($ptid, $ptid));
             }
             //procedure_order
-            $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type) VALUES (?,?,?,NULL,?,?,?,?,?,?)';
+            $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_low'])) : null;
+            $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_high'])) : null;
+
+            $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type)
+                VALUES (?,?,?,NULL,?,?,?,?,?,?)';
             $result_po = $appTable->zQuery($query_insert_po, array('', $pid, $encounter_for_billing, $procedure_date_value, 'normal', ($value['status'] ?? 'completed'), 1, $pro_id, $value['procedure_type']));
             $po_id = $result_po->getGeneratedValue();
 
             //procedure_order_code
-            $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type) VALUES (?,?,?,?,?,?,?)';
-            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type']));
+            $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
+            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type'], $end_date, $value['reason_code'], $value['reason_description'], $low_date, $high_date, $value['reason_status'] ?? null));
 
             $pro_name_enc = $pro_name . '-' . $value['procedure_type'];
             addForm($encounter_for_billing, $pro_name_enc, $po_id, 'procedure_order', $pid, $this->userauthorized);
@@ -514,12 +521,13 @@ class CdaTemplateImportDispose
                 $facility_id = $res_query_ins_fac->getGeneratedValue();
             }
 
-            if (!empty($value['date']) && $revapprove == 0) {
+            $encounter_date_value = null;
+            $encounter_date_end = null;
+            if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
                 $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
-            } elseif (!empty($value['date']) && $revapprove == 1) {
-                $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
-            } elseif (empty($value['date'])) {
-                $encounter_date_value = null;
+            }
+            if (!empty($value['date_end']) && ($revapprove == 0 || $revapprove == 1)) {
+                $encounter_date_end = date("Y-m-d H:i:s", strtotime($value['date_end']));
             }
             $diag_date = !empty($value['encounter_diagnosis_date']) ? date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])) : null;
 
@@ -542,10 +550,12 @@ class CdaTemplateImportDispose
                             reason,
                             discharge_disposition,
                             encounter_type_code,
-                            encounter_type_description
+                            encounter_type_description,
+                            date_end
                            )
                            VALUES
                            (
+                            ?,
                             ?,
                             ?,
                             ?,
@@ -571,7 +581,8 @@ class CdaTemplateImportDispose
                         $value['code_text'] ?? null,
                         $value['encounter_discharge_code'] ?? null,
                         $value['code'] ?? null,
-                        $value['code_text'] ?? null
+                        $value['code_text'] ?? null,
+                        $encounter_date_end ?? null
                     )
                 );
                 $enc_id = $result->getGeneratedValue();
@@ -600,7 +611,7 @@ class CdaTemplateImportDispose
 
             $q_ins_forms = "INSERT INTO forms (date,encounter,form_name,form_id,pid,user,groupname,deleted,formdir) VALUES (?,?,?,?,?,?,?,?,?)";
             $appTable->zQuery($q_ins_forms, array($encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient'));
-            if (!empty($value['encounter_diagnosis_issue'])) {
+            if (!empty($value['encounter_diagnosis_code'])) {
                 $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
                 $result = $appTable->zQuery($query_select, array($diag_date, $value['encounter_diagnosis_issue'], $pid));
                 if ($result->count() > 0) {
@@ -609,9 +620,9 @@ class CdaTemplateImportDispose
                     }
                 } else {
                     //to lists
-                    $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis) VALUES (?,?,?,?,?,?,?)";
+                    $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis, subtype) VALUES (?,?,?,?,?,?,?,?)";
                     $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])), 1,
-                        $value['encounter_diagnosis_issue'], date('Y-m-d H:i:s'), $value['encounter_diagnosis_code']));
+                        $value['encounter_diagnosis_issue'], date('Y-m-d H:i:s'), $value['encounter_diagnosis_code'], 'encounter_diagnosis'));
                     $list_id = $result->getGeneratedValue();
                 }
 
@@ -738,6 +749,7 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($q_insert_route, array($oid_unit, $value['amount_administered_unit']));
             }
 
+            $value['completion_status'] = $value['reason_status'] ?: $value['completion_status'];
             $q1_completion_status = "SELECT *
                        FROM list_options
                        WHERE list_id='Immunization_Completion_Status' AND title=?";
@@ -783,6 +795,14 @@ class CdaTemplateImportDispose
                            )";
                 $appTable->zQuery($q_insert_completion_status, array($value['manufacturer'], $value['manufacturer']));
             }
+            $option = '';
+            if (!empty($value['reason_code'])) {
+                // TODO: check with @sjpadgett why the codes are "SNOMED CT:<number>" instead of "SNOMED-CT" for the immunization reason code
+                $reason_code = str_replace("SNOMED CT", "SNOMED-CT", $value['reason_code']);
+
+                $listService = new ListService();
+                $option = $listService->getOptionsByListName('immunization_refusal_reason', ['codes' => $reason_code])[0];
+            }
 
             if (!empty($value['extension'])) {
                 $q_sel_imm = "SELECT *
@@ -801,7 +821,8 @@ class CdaTemplateImportDispose
                     amount_administered_unit,
                     manufacturer,
                     completion_status,
-                    external_id
+                    external_id,
+                    refusal_reason
                   )
                   VALUES
                   (
@@ -814,18 +835,23 @@ class CdaTemplateImportDispose
                    ?,
                    ?,
                    ?,
+                   ?,
                    ?
                   )";
-                $appTable->zQuery($query, array($pid,
-                    $immunization_date_value,
-                    $value['cvx_code'],
-                    $value['route_code_text'],
-                    $provider_id,
-                    $value['amount_administered'],
-                    $oid_unit,
-                    $value['manufacturer'],
-                    $value['completion_status'],
-                    $value['extension']));
+                $appTable->zQuery(
+                    $query,
+                    array($pid,
+                        $immunization_date_value,
+                        $value['cvx_code'],
+                        $value['route_code_text'],
+                        $provider_id,
+                        $value['amount_administered'],
+                        $oid_unit,
+                        $value['manufacturer'],
+                        $value['completion_status'],
+                        $value['extension'],
+                        $option['option_id'] ?? '')
+                );
             } else {
                 $q_upd_imm = "UPDATE immunizations
                       SET patient_id=?,
@@ -1172,10 +1198,12 @@ class CdaTemplateImportDispose
                     enddate,
                     outcome,
                     type,
-                    external_id
+                    external_id,
+                    subtype
                   )
                   VALUES
                   ( ?,
+                    ?,
                     ?,
                     ?,
                     ?,
@@ -1195,7 +1223,8 @@ class CdaTemplateImportDispose
                     $med_pblm_enddate_value,
                     $o_id,
                     'medical_problem',
-                    $value['extension']));
+                    $value['extension'],
+                    $value['subtype']));
 
                 $list_id = $result->getGeneratedValue();
             } else {
@@ -1462,10 +1491,9 @@ class CdaTemplateImportDispose
         }
         $appTable = new ApplicationTable();
         foreach ($vitals_array as $key => $value) {
-            if ($value['date'] != 0 && $revapprove == 0) {
-                $vitals_date = $carecoordinationTable->formatDate($value['date'], 1);
-                $vitals_date_value = fixDate($vitals_date);
-            } elseif ($value['date'] != 0 && $revapprove == 1) {
+            if (!empty($value['date']) && $revapprove == 0) {
+                $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
+            } elseif (!empty($value['date']) && $revapprove == 1) {
                 $vitals_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
                 $vitals_date = $value['date'];
@@ -1514,19 +1542,23 @@ class CdaTemplateImportDispose
                           1,
                           ?
                          )";
-                $res = $appTable->zQuery($query_insert, array($pid,
-                    $vitals_date_value,
-                    $value['bps'],
-                    $value['bpd'],
-                    $value['height'],
-                    $value['weight'],
-                    $value['temperature'],
-                    $value['pulse'],
-                    $value['respiration'],
-                    $value['head_circ'],
-                    $value['oxygen_saturation'],
-                    $value['BMI'],
-                    $value['extension']));
+                $res = $appTable->zQuery(
+                    $query_insert,
+                    array(
+                        $pid,
+                        $vitals_date_value,
+                        $value['bps'],
+                        $value['bpd'],
+                        $value['height'],
+                        $value['weight'],
+                        $value['temperature'],
+                        $value['pulse'],
+                        $value['respiration'],
+                        $value['head_circ'],
+                        $value['oxygen_saturation'],
+                        $value['BMI'],
+                        $value['extension'])
+                );
                 $vitals_id = $res->getGeneratedValue();
             } else {
                 $q_upd_vitals = "UPDATE form_vitals
@@ -1595,6 +1627,16 @@ class CdaTemplateImportDispose
                 }
             }
 
+            if (!empty($value['reason_code'] ?? null)) {
+                $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
+                $appTable->zQuery($detail_query, array(
+                    $vitals_id,
+                    $value['vital_column'] ?? '',
+                    $value['reason_code'] ?? '',
+                    $value['reason_code_text'] ?? null,
+                    $value['reason_status'] ?? null
+                ));
+            }
             $query = "INSERT INTO forms
                 (
                   date,
@@ -1640,9 +1682,11 @@ class CdaTemplateImportDispose
         }
 
         foreach ($observation_preformed_array as $key => $value) {
+            $date_end = null;
             if (!empty($value['date'])) {
                 $enc_date = date("Y-m-d", strtotime($value['date']));
                 $date = date("Y-m-d H:i:s", strtotime($value['date']));
+                $date_end = $value['date_end'] ? date("Y-m-d H:i:s", strtotime($value['date_end'])) : null;
             } else {
                 $date = date('Y-m-d');
             }
@@ -1679,11 +1723,12 @@ class CdaTemplateImportDispose
                              ob_type,
                              ob_reason_status,
                              ob_reason_code,
-                             ob_reason_text) 
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                             ob_reason_text,
+                             date_end)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 array(
                     $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
-                    $value['code'],
+                    $value['code'] ?: null,
                     $value['observation'],
                     $value['result_code_text'],
                     $value['result_code_unit'] ?? '',
@@ -1693,7 +1738,8 @@ class CdaTemplateImportDispose
                     $value['observation_type'],
                     $value['reason_status'],
                     $value['reason_code'],
-                    $value['reason_code_text']
+                    $value['reason_code_text'],
+                    $date_end
                 )
             );
             // insert form for observation
@@ -1717,11 +1763,15 @@ class CdaTemplateImportDispose
         $insuranceData = new InsuranceService();
 
         $appTable = new ApplicationTable();
-        $res_ins = $appTable->zQuery("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `ins_type_code` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", array($payer['code'] ?? '1'));
+        $res_ins = $appTable->zQuery("SELECT `id`, `uuid` FROM `insurance_companies` WHERE `cqm_sop` = ? AND `inactive` = 0 ORDER BY `id` DESC LIMIT 1", array($payer['code'] ?? '1'));
         $res_ins_cur = $res_ins->current();
         if (empty($res_ins_cur['id'])) {
             $data["name"] = 'QRDA Insurance Company Payer ' . $payer['code'] ?? '1';
             $data["ins_type_code"] = $payer['code'] ?? '1';
+            $data["city"] = 'QRDA City';
+            $data["state"] = 'QRDA State';
+            $data["zip"] = '33333';
+            $data["cqm_sop"] = $payer['code'] ?? 1;
             $insuranceCompany = new InsuranceCompanyService();
             $ins_id = $insuranceCompany->insert($data);
         } else {

@@ -23,7 +23,7 @@ use OpenEMR\Services\UserService;
 class Claim
 {
     public const X12_VERSION = '005010X222A1';
-    public const NOC_CODES = array('J3301'); // special handling for not otherwise classified HCPCS/CPT, not many so can add more here
+    public const NOC_CODES = array('J3301'); // not otherwise classified HCPCS/CPT
 
     public $pid;               // patient id
     public $encounter_id;      // encounter id
@@ -64,13 +64,19 @@ class Claim
         $this->billing_facility = empty($this->encounter['billing_facility']) ?
             $this->facilityService->getPrimaryBillingLocation() :
             $this->facilityService->getById($this->encounter['billing_facility']);
-        $this->insurance_numbers = $this->getInsuranceNumbers($this->procs[0]['payer_id'], $this->encounter['provider_id']);
+        $this->insurance_numbers = $this->getInsuranceNumbers(
+            $this->procs[0]['payer_id'],
+            $this->encounter['provider_id']
+        );
         $this->patient_data = (new PatientService())->findByPid($this->pid);
         $this->billing_options = $this->getMiscBillingOptions($this->pid, $this->encounter_id);
         $this->referrer = (new UserService())->getUser($this->getReferrerId());
         $this->billing_prov_id = (new UserService())->getUser($this->billing_options['provider_id'] ?? null);
         $this->supervisor = (new UserService())->getUser($this->encounter['supervisor_id']);
-        $this->supervisor_numbers = $this->getInsuranceNumbers($this->procs[0]['payer_id'], $this->encounter['supervisor_id']);
+        $this->supervisor_numbers = $this->getInsuranceNumbers(
+            $this->procs[0]['payer_id'],
+            $this->encounter['supervisor_id']
+        );
     }
 
     public function getProcsAndDiags($pid, $encounter_id)
@@ -223,7 +229,8 @@ class Claim
         //
         $this->payers = array();
         $this->payers[0] = array();
-        $query = "SELECT * FROM insurance_data WHERE pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC";
+        $query = "SELECT * FROM insurance_data WHERE pid = ? AND 
+            (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC";
         $dres = sqlStatement($query, array($this->pid, $encounter_date));
         $prevtype = '';
         while ($drow = sqlFetchArray($dres)) {
@@ -239,7 +246,10 @@ class Claim
             }
 
             $ins = count($this->payers);
-            if (($drow['provider'] == $billrow['payer_id']  || $billrow['payer_id'] == null) && empty($this->payers[0]['data'])) {
+            if (
+                ($drow['provider'] == $billrow['payer_id'] || $billrow['payer_id'] == null) &&
+                empty($this->payers[0]['data'])
+            ) {
                 $ins = 0;
             }
 
@@ -607,7 +617,7 @@ class Claim
             return false;
         }
 
-        $tmp = $this->x12_partner['x12_submitter_name'] ?? false;
+        $tmp = $this->x12Clean(trim($this->x12_partner['x12_submitter_name'])) ?? false;
         return $tmp;
     }
 
@@ -1379,7 +1389,11 @@ class Claim
 
     public function frequencyTypeCode()
     {
-        return (!empty($this->billing_options['replacement_claim']) && ($this->billing_options['replacement_claim'] == 1)) ? '7' : '1';
+        $tmp = (
+            !empty($this->billing_options['replacement_claim']) &&
+            ($this->billing_options['replacement_claim'] == 1)
+        ) ? '7' : '1';
+        return $tmp;
     }
 
     public function icnResubmissionNumber()
@@ -1445,11 +1459,12 @@ class Claim
                 if (!empty($tmp)) {
                     $code_data = explode('|', $tmp);
 
-                    // If there was a | in the code data, the the first part of the array is the type, and the second is the identifier
+                    // If there was a | in the code data, the the first part of the array is the type
+                    // and the second is the identifier
                     if (!empty($code_data[1])) {
                         // This is the simplest way to determine if the claim is using ICD9 or ICD10 codes
-                        // a mix of code types is generally not allowed as there is only one specifier for all diagnoses on HCFA-1500 form
-                        // and there would be ambiguity with E and V codes
+                        // a mix of code types is generally not allowed as there is only one specifier
+                        // for all diagnoses on HCFA-1500 form and there would be ambiguity with E and V codes
                         $this->diagtype = $code_data[0];
 
                         //code is in the second part of the $code_data array.

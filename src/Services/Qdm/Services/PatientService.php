@@ -26,6 +26,7 @@ use OpenEMR\Cqm\Qdm\PatientCharacteristicPayer;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicRace;
 use OpenEMR\Cqm\Qdm\PatientCharacteristicSex;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class PatientService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -57,30 +58,15 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     P.deceased_date,
                     P.deceased_reason,
                     INS.date AS payer_eff_date,
-                    INS.policy_number AS payer_code
+                    INSCO.cqm_sop AS payer_code
             FROM patient_data P
             LEFT JOIN list_options RACE ON RACE.list_id = 'race' AND P.race = RACE.option_id
             LEFT JOIN list_options ETHN ON ETHN.list_id = 'ethnicity' AND P.ethnicity = ETHN.option_id
             LEFT JOIN list_options SEX ON SEX.list_id = 'sex' AND P.sex = SEX.option_id
-            LEFT JOIN insurance_data INS ON P.pid = INS.pid
+            LEFT JOIN insurance_data INS ON P.pid = INS.pid AND INS.type = 'primary'
+            LEFT JOIN insurance_companies INSCO ON INS.provider = INSCO.id
             ";
         return $sql;
-    }
-
-    public static function convertToObjectIdBSONFormat($id)
-    {
-        $hexValue = dechex($id);
-        // max bigint size will fit in 16 characters so we will always have enough space for this.
-        return sprintf("%024x", $hexValue);
-    }
-
-    public static function convertIdFromBSONObjectIdFormat($id)
-    {
-        // max bigint size is 8 bytes which will fit fine
-        // string ID should be prefixed with 0s so the converted data type should be far smaller
-        $trimmedId = ltrim($id, '\x0');
-        $decimal = hexdec($trimmedId);
-        return $decimal;
     }
 
     public static function makeQdmIdentifier($namingSystem, $value)
@@ -93,13 +79,16 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         );
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
-        // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned so we can associate results with patients
-        // This 'underscore' id is not part of QDM, but special for the cqm-execution calculator
+        $record = $recordObj->getData();
+        // Make a BSON-formatted ID that the CQM-execution service will preserve when results returned
+        // so we can associate results with patients.
+        // This 'underscore' id is not part of QDM, but special for the cqm-execution calculator.
         $_id = self::convertToObjectIdBSONFormat($record['pid']);
 
-        // Make a formatted BSON that can be used as an index in a PHP associative array, this will be used for aggregating results
+        // Make a formatted BSON that can be used as an index in a PHP associative array,
+        // this will be used for aggregating results
         $formatted_id = self::convertIdFromBSONObjectIdFormat($_id);
         $id = self::makeQdmIdentifier('OpenEMR BSON', $formatted_id);
 
@@ -177,7 +166,9 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                 'low' => new DateTime([
                     'date' => $record['payer_eff_date']
                 ]),
-                'high' => null // TODO We don't have an end-date for insurance?
+                'high' => null, // TODO We don't have an end-date for insurance?,
+                'lowClosed' => $record['payer_eff_date'] ? true : false,
+                'highClosed' => false
             ]),
             'dataElementCodes' => [
                 new Code(
@@ -220,8 +211,10 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
         $qdmPatient->add_data_element($pce);
 
         $pcs = new PatientCharacteristicSex();
-        // Get the code from the database and use our parent function to split by ':' Because in DB it looks like 'HL7:M'
-        // These HL7 code types aren't in our code types service, so we hard-code it. TODO parse the cdavocabmap.xml into a service
+        // Get the code from the database and use our parent function to split by ':'
+        // Because in DB it looks like 'HL7:M'
+        // These HL7 code types aren't in our code types service, so we hard-code it.
+        // TODO parse the cdavocabmap.xml into a service
         $code = $this->makeQdmCode($record['sex_code']);
         if ($code instanceof Code) {
             // http://www.hl7.org/documentcenter/public/standards/vocabulary/vocabulary_tables/infrastructure/vocabulary/vs_AdministrativeGender.html

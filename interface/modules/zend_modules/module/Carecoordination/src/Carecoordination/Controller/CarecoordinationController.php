@@ -26,6 +26,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use C_Document;
 use Document;
 use CouchDB;
+use OpenEMR\Services\Cda\CdaValidateDocuments;
 use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
@@ -61,6 +62,31 @@ class CarecoordinationController extends AbstractActionController
         $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
     }
 
+    /**
+     * delete an audit record
+     *
+     * @return ViewModel
+     */
+    public function deleteAuditAction()
+    {
+        $request = $this->getRequest();
+        $amid = $request->getPost('am_id') ?? null;
+        if ($amid) {
+            $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $amid));
+        }
+        $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        $view = new ViewModel(array(
+            'records' => $records,
+            'category_id' => $category_details[0]['id'],
+            'file_location' => basename($_FILES['file']['name'] ?? ''),
+            'patient_id' => '00',
+            'listenerObject' => $this->listenerObject
+        ));
+
+        return $view;
+    }
+
     /*
     * Upload CCDA file
     */
@@ -79,7 +105,7 @@ class CarecoordinationController extends AbstractActionController
             foreach ($records as $record) {
                 if (!empty($record['matched_patient'])) {
                     // @todo figure out a way to make this auto. $data is array of doc changes.
-                    //$this->getCarecoordinationTable()->insertApprovedData($data);
+                    // $this->getCarecoordinationTable()->insertApprovedData($data);
                     // meantime make user approve changes.
                     continue;
                 }
@@ -100,8 +126,9 @@ class CarecoordinationController extends AbstractActionController
             $time_start = date('Y-m-d H:i:s');
             $obj_doc = $this->documentsController;
             $cdoc = $obj_doc->uploadAction($request);
-            $uploaded_documents = array();
-            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
+            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
+                array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s'))
+            );
             if ($uploaded_documents[0]['id'] > 0) {
                 $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
                 $_REQUEST["batch_import"] = 'YES';
@@ -119,6 +146,60 @@ class CarecoordinationController extends AbstractActionController
         }
 
         $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        foreach ($records as $key => $r) {
+            if (!empty($records[$key]['dupl_patient'] ?? null)) {
+                continue;
+            }
+            $name = $r['pat_name'];
+            foreach ($records as $k => $r1) {
+                $f = false;
+                $why = '';
+                if (!empty($r1['dupl_patient'] ?? null) || $key == $k) {
+                    continue;
+                }
+                $n = $r1['pat_name'];
+                $fn = $r1['ad_fname'] == $r['ad_fname'];
+                $ln = $r1['ad_lname'] == $r['ad_lname'];
+                $dob = $r1['dob_raw'] == $r['dob_raw'];
+                if ($dob) {
+                    $f = true;
+                    $why = xlt('Match DOB');
+                }
+                if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
+                    if ($f) {
+                        $why = xlt('Matched Demo and DOB');
+                    } else {
+                        $why = xlt('Matched Demo');
+                    }
+                    if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
+                        $why .= ' ' . xlt('with Mismatched Components');
+                    }
+                    $f = true;
+                }
+                if (
+                    (($ln && !$fn || $fn && !$ln) && $dob)
+                    && ($r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])
+                ) {
+                    $why = xlt('Name Misspelled');
+                    if (
+                        $r1['enc_count'] != $r['enc_count']
+                        || $r1['cp_count'] != $r['cp_count']
+                        || $r1['ob_count'] != $r['ob_count']
+                    ) {
+                        $why .= ' ' .  xlt('with Mismatched Components');
+                    }
+                    $f = true;
+                }
+                if (($r1['is_qrda_document'] ?? 0) === 2) {
+                    $f = false;
+                    $records[$k]['dupl_patient'] = xlt('Empty Report. No QDM content.');
+                }
+                if ($f) {
+                    $records[$key]['dupl_patient'] = $records[$k]['dupl_patient'] = $why;
+                }
+            }
+        }
+
         $view = new ViewModel(array(
             'records' => $records,
             'category_id' => $category_details[0]['id'],
@@ -127,7 +208,9 @@ class CarecoordinationController extends AbstractActionController
             'listenerObject' => $this->listenerObject
         ));
         // I haven't a clue why this delay is needed to allow batch to work from fetch.
-        sleep(1);
+        if (!empty($upload)) {
+            sleep(1);
+        }
         return $view;
     }
 
@@ -367,6 +450,10 @@ class CarecoordinationController extends AbstractActionController
         $temp = '';
 
         switch ($component) {
+            case 'schematron':
+                $validate = new CdaValidateDocuments();
+                $temp .= $validate->createSchematronHtml($amid);
+                break;
             case 'allergies':
                 $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');
                 if (count($allergies_audit) > 0) {

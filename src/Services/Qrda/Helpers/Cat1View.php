@@ -25,7 +25,7 @@ trait Cat1View
 
     public function negated(Mustache_Context $context): bool
     {
-        return empty($context->find('negationRationale'));
+        return !empty($context->find('negationRationale'));
     }
 
     public function multiple_codes(Mustache_Context $context): bool
@@ -68,6 +68,12 @@ trait Cat1View
     {
         $oid = $context->find('system');
         $code = $context->find('code');
+        if (empty($oid) && !empty($code)) {
+            $codeService = new CodeTypesService();
+            $code_tmp = $codeService->resolveCode($code, '', '');
+            $code = $code_tmp['code'] ?? null;
+            $oid = $code_tmp['system_oid'] ?? null;
+        }
         if (empty($oid)) {
             return "nullFlavor=\"NA\" sdtc:valueSet=\"$code\"";
         } else {
@@ -150,11 +156,12 @@ trait Cat1View
 
     public function result_value_as_string($result)
     {
-        if (empty($result['value'])) {
+        // Result could be a code or value, but if we have neither, we return null/UNK
+        if (empty($result['code']) && empty($result['value'])) {
             return "<value xsi:type=\"CD\" nullFlavor=\"UNK\"/>";
         }
         // Not all results will have code
-        $oid = $result['system'] ?? $result['codeSystem'];
+        $oid = $result['system'] ?? $result['codeSystem'] ?? '';
         if (!empty($result['code']) && !empty($oid)) {
             $system = $this->get_code_system_for_oid($oid) ?: $result['codeSystem'];
             return "<value xsi:type=\"CD\" code=\"" . $result['code'] . "\" codeSystem=\"" . $oid

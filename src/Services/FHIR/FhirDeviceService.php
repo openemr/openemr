@@ -36,7 +36,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     private $deviceService;
 
 
-    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-device';
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device';
 
     public function __construct()
     {

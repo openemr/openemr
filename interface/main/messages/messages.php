@@ -499,12 +499,18 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked document') . ":</span>\n";
                                                 while ($gprow = sqlFetchArray($tmp)) {
                                                     $d = new Document($gprow['id1']);
-                                                    $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-                                                        " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
-                                                    $str_dob = xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']);
-                                                    $pname = $prow['fname'] . " " . $prow['lname'];
                                                     echo "<a href='javascript:void(0);' ";
-                                                    echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'] ?? $prow['pid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
+                                                    if (empty($prow)) {
+                                                        // when a direct message is received we can't open the document unless its linked to a patient.
+                                                        echo "onClick=\"previewDocument(" . attr_js($d->get_id()) . ");\">";
+                                                    } else {
+                                                        $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+                                                            " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
+                                                        $str_dob = xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']);
+                                                        $pname = $prow['fname'] . " " . $prow['lname'];
+
+                                                        echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'] ?? $prow['pid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
+                                                    }
                                                     echo text($d->get_name()) . "-" . text($d->get_id());
                                                     echo "</a>\n";
                                                 }
@@ -683,7 +689,12 @@ if (!empty($_REQUEST['go'])) { ?>
 
                                                 <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-primary btn-add\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-danger btn-delete\" onclick=\"top.restoreSession()\">" .
-                                                xlt('Delete') . "</a>
+                                                xlt('Delete') . "</a>";
+
+                            if ($GLOBALS['phimail_enable']) {
+                                echo "&nbsp; <a href='trusted-messages.php' onclick='top.restoreSession()' class='btn btn-secondary btn-mail'>" . xlt("Compose Trusted Direct Message") . "</a>";
+                            }
+                            echo "
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
                                                 </div>
                                             </div>
@@ -993,6 +1004,18 @@ if (!empty($_REQUEST['go'])) { ?>
             $("#task").val("");
             $("#new_note").submit();
         };
+
+        /**
+         * Given a document that we don't know what patient to attach the document to we need to look at a preview of
+         * the document.  This loads up the document from the Miscellaneous -> New Documents page.  To access the page
+         * the user must have the following ACLs:  "patients","docs","write","addonly"
+         * @param doc_id The id of the document we want to preview in OpenEMR
+         */
+        function previewDocument(doc_id) {
+            top.restoreSession();
+            var docurl = '../controller.php?document&view' + "&patient_id=0&document_id=" + encodeURIComponent(doc_id) + "&";
+            parent.left_nav.loadFrame('adm0', 'msc', docurl);
+        }
 
         function gotoReport(doc_id, pname, pid, pubpid, str_dob) {
             EncounterDateArray = [];

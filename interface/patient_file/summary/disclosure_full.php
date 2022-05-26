@@ -15,9 +15,18 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
+// Control access
+if (!AclMain::aclCheckCore('patients', 'disclosure')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+$authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
+$authAddonly = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
 
 //retrieve the user name
 $res = sqlQuery("select username from users where username=?", array($_SESSION["authUser"]));
@@ -34,9 +43,17 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     $disclosure_desc = trim($_POST['desc_disc']);
     $disclosure_id = trim($_POST['disclosure_id'] ?? '');
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
+        if (!$authWrite) {
+            echo xlt('Not Authorized');
+            exit;
+        }
         //update the recorded disclosure in the extended_log table.
         EventAuditLogger::instance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     } else {
+        if (!$authWrite && !$authAddonly) {
+            echo xlt('Not Authorized');
+            exit;
+        }
         //insert the disclosure records in the extended_log table.
         EventAuditLogger::instance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
@@ -47,6 +64,11 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
 if (isset($_GET['deletelid'])) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
+    }
+
+    if (!$authWrite) {
+        echo xlt('Not Authorized');
+        exit;
     }
 
     $deletelid = $_GET['deletelid'];
@@ -75,7 +97,9 @@ if (isset($_GET['deletelid'])) {
             </h2>
         </div>
         <div class="col-12">
-            <a href="record_disclosure.php" class="btn btn-primary iframe" onclick="top.restoreSession()"><?php echo xlt('Record'); ?></a>
+            <?php if ($authWrite || $authAddonly) { ?>
+                <a href="record_disclosure.php" class="btn btn-primary iframe" onclick="top.restoreSession()"><?php echo xlt('Record'); ?></a>
+            <?php } ?>
             <a href="demographics.php" class="btn btn-primary" onclick="top.restoreSession()"> <?php echo xlt('View Patient') ?></a>
         </div>
         <div class="col-12 jumbotron mt-3 p-4">
@@ -125,8 +149,10 @@ if (isset($_GET['deletelid'])) {
                         <tr class="noterow" height='25'>
                             <!--buttons for edit and delete.-->
                             <td class="align-top text-nowrap">
-                                <a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>' class='btn btn-primary btn-sm btn-edit iframe' onclick='top.restoreSession()'><?php echo xlt('Edit');?></a>
-                                <a href='#' class='deletenote btn btn-danger btn-delete btn-sm' id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><?php echo xlt('Delete');?></a>
+                                <?php if ($authWrite) { ?>
+                                    <a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>' class='btn btn-primary btn-sm btn-edit iframe' onclick='top.restoreSession()'><?php echo xlt('Edit');?></a>
+                                    <a href='#' class='deletenote btn btn-danger btn-delete btn-sm' id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><?php echo xlt('Delete');?></a>
+                                <?php } ?>
                             </td>
                             <td class="align-top" valign='top'><?php echo text($iter['recipient']);?>&nbsp;</td>
                             <td class='align-top' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>

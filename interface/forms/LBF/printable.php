@@ -31,7 +31,7 @@ $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
-    $patientid = 0 + $pid; // -1 means current pid
+    $patientid = (int) $pid; // -1 means current pid
 }
 // PDF header information
 $patientname = getPatientName($patientid);
@@ -40,7 +40,7 @@ $dateofservice = fetchDateService($encounter);
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
 if ($visitid < 0) {
-    $visitid = 0 + $encounter; // -1 means current encounter
+    $visitid = (int) $encounter; // -1 means current encounter
 }
 
 $formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);

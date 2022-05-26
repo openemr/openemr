@@ -30,6 +30,9 @@
     <td class="editonly">
         { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
     </td>
+    <td class="editonly actions">
+        { include file='vitals_actions.tpl' }
+    </td>
     { include file='vitals_historical_values.tpl' useMetric=false vitalsValue=$vitalsValue vitalsValueMetric=$vitalsValueMetric
             results=$results }
     </tr>
@@ -70,6 +73,13 @@
                 { include file='vitals_interpretation_selector.tpl' vitalDetails=$vitals->get_details_for_column($input) }
             {/if}
         </td>
+        <td class="editonly actions">
+            {if $units_of_measurement == $MEASUREMENT_METRIC_ONLY }
+                { include file='vitals_actions.tpl' }
+            {/if}
+        </td>
         { include file='vitals_historical_values.tpl' useMetric=true vitalsValue=$vitalsValue vitalsValueMetric=$vitalsValueMetric
         results=$results }
     </tr>
+
+{ include file='vitals_reason_row.tpl' input=$input title=$title vitalDetails=$vitals->get_details_for_column($input) }
