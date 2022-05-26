@@ -109,12 +109,12 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
 
         // encounter dates
         if ($_POST['seen_since'] != 0 and $_POST['seen_since'] != '') {
-            $sql .= " and forms.date >= ?" ;
+            $sql .= " and forms.last_visit >= ?" ;
             array_push($params, $_POST['seen_since']);
         }
 
         if ($_POST['seen_before'] != 0 and $_POST['seen_before'] != '') {
-            $sql .= " and forms.date <= ?" ;
+            $sql .= " and forms.last_visit <= ?" ;
             array_push($params, $_POST['seen_before']);
         }
 
