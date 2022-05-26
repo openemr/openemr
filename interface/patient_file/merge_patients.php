@@ -308,6 +308,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     FROM `form_encounter` e1 WHERE e1.pid = ? AND e1.date = ? LIMIT 1";
             $target = sqlQuery($sql, array($targetPid, $source['date']));
             if (empty($target)) {
+                // there wasn't a target encounter date match to merge components
+                // so grab an encounter that is within the date period of source encounter.
+                $src_date = date("Ymd", strtotime($source['date']));
+                $sql = "SELECT e1.date, e1.date_end, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
+                    FROM `form_encounter` e1 WHERE e1.pid = ? AND ? BETWEEN e1.date and e1.date_end LIMIT 1";
+                $target = sqlQuery($sql, array($targetPid, $src_date));
             }
             return [$target ?? null, $source ?? null];
         }
@@ -389,10 +395,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 die(xlt('Target and source pid may not be the same!'));
             }
 
+            // we want to adjust target and source pid so we can remove the anonymous encounter
+            // created by import to house independent components.
             if ($_POST['form_submit'] == 'dedupe') {
                 $targets = resolveTargets($target_pid, $source_pid);
                 if (empty($targets[0]['pid'] || empty($targets[1]['pid']))) {
-                    throw new \RuntimeException("Failed to resolve targets");
+                    throw new \RuntimeException("Failed to resolve target");
                 }
                 $target_pid = $targets[0]['pid'] ?? null;
                 $source_pid = $targets[1]['pid'] ?? null;
@@ -538,12 +546,15 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             }
 
             // Deduplicate encounters
+            // at this point the pids of merge/dedupe action has been merged whereas now
+            // we'll resolve the encounters components to the appropriate target encounter.
             if ($_POST['form_submit'] == 'dedupe') {
                 if (empty($targets)) {
-                    throw new \RuntimeException("Failed to resolve targets");
+                    throw new \RuntimeException("Failed to resolve targets for deduplication. Go back.");
                 }
                 resolveDuplicateEncounters($targets);
             }
+
             // Recompute dupscore for target patient.
             updateDupScore($target_pid);
 
