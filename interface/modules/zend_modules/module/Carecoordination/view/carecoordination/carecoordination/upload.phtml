@@ -408,7 +408,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                         <?php
                         $slno = 0;
                         foreach ($this->records as $row) {
-                            if ($slno === 0 || in_array($slno + 12, [12,24,36,48,60])) {
+                            if ($slno % 12 == 0) {
                             ?>
                             <tr class="se_in_9">
                             <th>&nbsp;</th>
