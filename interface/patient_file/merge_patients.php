@@ -297,9 +297,15 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
         function resolveTargets($target_pid, $source_pid): array
         {
+            // look for an anonymous encounter in a pid target/source set
+            // this is where we source components to merge with target encounter.
             $sql = "SELECT e1.date, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
                     FROM `form_encounter` e1 WHERE e1.pid IN(?,?) AND e1.reason IS NULL AND e1.encounter_type_code IS NULL LIMIT 1";
             $source = sqlQuery($sql, array($target_pid, $source_pid));
+            // will we need to deduplicate?
+            if (empty($source)) {
+                return [];
+            }
 
             $test = ((int)$source['pid'] === (int)$source_pid) ? $source_pid : null;
             $targetPid = $test ? $target_pid : $source_pid;
@@ -390,20 +396,24 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             $targets = null;
             $target_pid = intval($_POST['form_target_pid']);
             $source_pid = intval($_POST['form_source_pid']);
-            echo "<div class='card'>";
+            echo "<div class='jumbotron jumbotron-fluid m-0 p-0 px-2'>";
             if ($target_pid == $source_pid) {
                 die(xlt('Target and source pid may not be the same!'));
             }
 
             // we want to adjust target and source pid so we can remove the anonymous encounter
             // created by import to house independent components.
-            if ($_POST['form_submit'] == 'dedupe') {
+            // test if merge or dedupe action is needed.
+            if (!empty($_POST['form_submit'])) {
                 $targets = resolveTargets($target_pid, $source_pid);
-                if (empty($targets[0]['pid'] || empty($targets[1]['pid']))) {
-                    throw new \RuntimeException("Failed to resolve target");
+                $_POST['form_submit'] = !empty($targets) ? 'dedupe' : 'merge';
+                if ($_POST['form_submit'] == "dedupe" && (empty($targets[0]['pid']) || empty($targets[1]['pid']))) {
+                    throw new \RuntimeException("Failed to resolve deduplication target");
                 }
-                $target_pid = $targets[0]['pid'] ?? null;
-                $source_pid = $targets[1]['pid'] ?? null;
+                if ($_POST['form_submit'] == "dedupe") {
+                    $target_pid = $targets[0]['pid'] ?? null;
+                    $source_pid = $targets[1]['pid'] ?? null;
+                }
             }
 
             $tprow = sqlQuery(
@@ -634,7 +644,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                         value='dedupe'><?php echo xla('Merge with Encounter Deduplication'); ?></button></span>
             </div>
         </form>
-        <div class="jumbotron mt-2">
+        <div class="jumbotron p-2 m-0 mt-2">
             <p class="font-weight-bold"><?php echo xlt('Be careful with this feature. Back up your database and documents before using it!'); ?></p>
             <?php if (!$PRODUCTION) { ?>
                 <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
