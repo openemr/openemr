@@ -34,7 +34,7 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                     JOIN procedure_report REP ON RES.procedure_report_id = REP.procedure_report_id
                     JOIN procedure_order O ON REP.procedure_order_id = O.procedure_order_id
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
-                WHERE O.procedure_order_type = 'laboratory_test'
+                WHERE O.procedure_order_type = 'laboratory_test' AND O.activity != 0
                 ";
 
         return $sql;
