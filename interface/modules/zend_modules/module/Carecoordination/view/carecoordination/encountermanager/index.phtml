@@ -268,10 +268,10 @@ foreach ($this->status_details as $row_status) {
                                         <option value="">--<?php echo xlt("All providers"); ?>--</option>
                                         <?php foreach ($this->providers as $provider) : ?>
                                         <option value="<?php echo attr($provider['id']); ?>"
-                                        <?php echo ($this->form_data['provider_id'] == $provider['id'] ? "selected" : ""); ?>
+                                        <?php echo text(($this->form_data['provider_id'] == $provider['id'] ? "selected" : "")); ?>
                                         ><?php
-                                            echo implode(",", [$provider['lname'] ?? "", $provider['fname'] ?? ""]);
-                                        ?> (<?php echo xlt("NPI"); ?>: <?php echo $provider['npi'] ?? ""; ?>)
+                                            echo text(implode(",", [$provider['lname'] ?? "", $provider['fname'] ?? ""]));
+                                        ?> (<?php echo xlt("NPI"); ?>: <?php echo text($provider['npi'] ?? ""); ?>)
                                         </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -285,7 +285,7 @@ foreach ($this->status_details as $row_status) {
                                         <?php foreach ($this->billing_facilities as $facility) : ?>
                                             <option value="<?php echo attr($facility['id']); ?>"
                                                 <?php echo ($this->form_data['billing_facility_id'] == $facility['id'] ? "selected" : ""); ?>
-                                            ><?php echo $facility['name'] ?? ""; ?> (<?php echo xlt("TIN"); ?>: <?php echo $facility['federal_ein'] ?? ""; ?>)
+                                            ><?php echo text($facility['name'] ?? ""); ?> (<?php echo xlt("TIN"); ?>: <?php echo text($facility['federal_ein'] ?? ""); ?>)
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
