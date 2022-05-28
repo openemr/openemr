@@ -621,7 +621,7 @@ class CdaTemplateImportDispose
                 } else {
                     //to lists
                     $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis, subtype) VALUES (?,?,?,?,?,?,?,?)";
-                    $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])), 1,
+                    $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', $diag_date, 1,
                         $value['encounter_diagnosis_issue'], date('Y-m-d H:i:s'), $value['encounter_diagnosis_code'], 'encounter_diagnosis'));
                     $list_id = $result->getGeneratedValue();
                 }
