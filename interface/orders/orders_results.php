@@ -474,7 +474,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     $selects = "pt2.procedure_type, pt2.procedure_code, ll.title AS pt2_units, " .
                         "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
                         "pt2.name AS name, pt2.description, pt2.seq AS seq, " .
-                        "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.date, ps.abnormal, ps.result, " .
+                        "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.date, ps.date_end, ps.abnormal, ps.result, " .
                         "ps.range, ps.result_status, ps.facility, ps.comments, ps.units, ps.comments";
 
                     // procedure_type_id for order:
@@ -512,7 +512,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         $result_code = empty($rrow['result_code']) ? $restyp_code : $rrow['result_code'];
                         $result_text = empty($rrow['result_text']) ? $restyp_name : $rrow['result_text'];
                         $result_date = empty($rrow['date']) ? '' : $rrow['date'];
-                        $result_date = empty($rrow['date_end']) ? '' : $rrow['date_end'];
+                        $result_date_end = empty($rrow['date_end']) ? '' : $rrow['date_end'];
                         $result_abnormal = empty($rrow['abnormal']) ? '' : $rrow['abnormal'];
                         $result_result = empty($rrow['result']) ? '' : $rrow['result'];
                         $result_units = empty($rrow['units']) ? $restyp_units : $rrow['units'];
