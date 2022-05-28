@@ -10,8 +10,11 @@
 
 namespace OpenEMR\Services\Qdm\Services;
 
-use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
+use OpenEMR\Cqm\Qdm\BaseTypes\{
+    DateTime,
+    Interval,
+    Quantity
+};
 use OpenEMR\Cqm\Qdm\LaboratoryTestPerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
@@ -29,7 +32,8 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                     RES.result_code,
                     RES.result,
                     RES.units,
-                    RES.date
+                    RES.date,
+                    RES.date_end
                 FROM procedure_result RES
                     JOIN procedure_report REP ON RES.procedure_report_id = REP.procedure_report_id
                     JOIN procedure_order O ON REP.procedure_order_id = O.procedure_order_id
@@ -62,6 +66,16 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
         $qdmModel = new LaboratoryTestPerformed([
             'relevantDatetime' => new DateTime([
                 'date' => $record['date']
+            ]),
+            'relevantPeriod' => new Interval([
+                'low' => new DateTime([
+                    'date' => $record['date']
+                ]),
+                'high' => new DateTime([
+                    'date' => $record['date_end'] ?: null
+                ]),
+                'lowClosed' => $record['date'] ? true : false,
+                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
             ]),
             'result' => $result,
             'resultDatetime' => new DateTime([
