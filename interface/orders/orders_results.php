@@ -625,13 +625,13 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         <td class="text-nowrap">
                                 <input type='text' size='13' name='form_result_date[<?php echo attr($lino); ?>]'
                                     id='form_result_date[<?php echo attr($lino); ?>]'
-                                    class='form-control datetimepicker' value='<?php echo attr($date_result); ?>'
+                                    class='form-control datetimepicker' value='<?php echo attr($result_date); ?>'
                                     title='<?php echo xla('Date and time of this result'); ?>' />
                         </td>
                         <td class="text-nowrap">
                                 <input type='text' size='13' name='form_result_date_end[<?php echo attr($lino); ?>]'
                                     id='form_result_date_end[<?php echo attr($lino); ?>]'
-                                    class='form-control datetimepicker' value='<?php echo attr($date_result_end); ?>'
+                                    class='form-control datetimepicker' value='<?php echo attr($result_date_end); ?>'
                                     title='<?php echo xla('End date and time of this result'); ?>' />
                         </td>
                         <td>
