@@ -162,6 +162,7 @@ class CdaValidateDocuments
         } catch (Exception $e) {
             $e = $e->getMessage();
             error_log($e);
+            $result = [];
         }
         return $result;
     }
