@@ -143,7 +143,13 @@ class QrdaReportController
                     }
                     file_put_contents($file, $content);
                     file_put_contents($file_local, $content);
+                    // in order to deal with our zip files we are going to force our garbage collector to run
+                    // json_decode stores a LOT of memory with our measures so we need to collect it.  Otherwise
+                    // we end up exceeding our memory usage. ~60 patients exceeds over 256MB of memory...
+                    // we end up trading CPU cycles to make sure we don't blow up smaller OpenEMR installations.
                     unset($content);
+                    gc_mem_caches();
+                    gc_collect_cycles(); // attempt to force memory collection here.
                     if ($type === 'xml') {
                         copy(
                             __DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl',
