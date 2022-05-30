@@ -62,6 +62,15 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                 'unit' => $record['units']
             ]);
         }
+        // A result generally should have a code however,
+        // for rare occasions with values such as Negative, schematron expects a code type
+        // or will throw a warning. This holds for CDA too.
+        if (
+            is_string($record['result'] ?? null)
+            && $record['result'] == 'Negative'
+        ) {
+            $result = $this->makeQdmCode('SNOMED-CT:260385009');
+        }
 
         $qdmModel = new LaboratoryTestPerformed([
             'relevantDatetime' => new DateTime([
