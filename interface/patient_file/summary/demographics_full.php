@@ -1001,12 +1001,14 @@ if (! $GLOBALS['simplified_demographics']) {
             <div class="col-md-9">
               <select class='form-control form-control-sm mb-1 sel2' name='i<?php echo attr($i); ?>policy_type'>
                 <?php
-                foreach ($policy_types as $key => $value) {
-                    echo "            <option value ='" . attr($key) . "'";
-                    if (!empty($result3['policy_type']) && ($key == $result3['policy_type'])) {
-                        echo " selected";
+                if (!empty($policy_types)) {
+                    foreach ($policy_types as $key => $value) {
+                        echo "            <option value ='" . attr($key) . "'";
+                        if (!empty($result3['policy_type']) && ($key == $result3['policy_type'])) {
+                            echo " selected";
+                        }
+                        echo ">" . text($value) . "</option>\n";
                     }
-                    echo ">" . text($value) . "</option>\n";
                 }
                 ?>
               </select>

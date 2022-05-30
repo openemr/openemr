@@ -714,3 +714,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 UPDATE list_options SET seq=40 WHERE list_id="immunization_refusal_reason" AND option_id="parental_decision";
 UPDATE list_options SET seq=10 WHERE list_id="immunization_refusal_reason" AND option_id="patient_decision";
 #EndIf
+
+#IfMissingColumn procedure_result date_end
+ALTER TABLE `procedure_result` ADD `date_end` datetime DEFAULT NULL COMMENT 'lab-provided end date specific to this result';
+#EndIf
