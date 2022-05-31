@@ -2869,7 +2869,7 @@ function genCcda(pd) {
     // build to cda
     let xml = bbg.generateCCD(doc);
 
-    /* Debug */
+    /* Debug
         fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
             if (err) {
                 return console.log(err);
@@ -2884,7 +2884,7 @@ function genCcda(pd) {
             console.log("Xml saved!");
         });
 
-
+    */
     return xml;
 }
 
