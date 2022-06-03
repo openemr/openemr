@@ -399,7 +399,7 @@ class CdaTemplateImportDispose
             $code = $value['code'];
             // format code
             if (stripos($value['code'], 'OID:') === false) {
-                $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName']);
+                $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName'], true);
             }
 
             $pro_name = xlt('External Procedure');
