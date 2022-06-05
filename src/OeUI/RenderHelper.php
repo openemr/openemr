@@ -4,7 +4,6 @@ namespace OpenEMR\OeUi;
 
 class RenderHelper
 {
-
     const SHOW_ON_NEW_ONLY = 'show_new';
 
     const SHOW_ON_EDIT_ONLY = 'show_edit';
@@ -13,7 +12,8 @@ class RenderHelper
 
     const HIDE_ALL = 'hide_both';
 
-    static public function displayField($option, $mode) {
+    public static function displayField($option, $mode)
+    {
         if ($option === self::HIDE_ALL) {
             return false;
         }
