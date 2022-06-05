@@ -425,18 +425,18 @@ class CdaTemplateParse
             }
 
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['type'] = 'allergy';
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $entry['act']['id']['extension'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['extension'] = $entry['act']['id']['extension'] ?? null;
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['begdate'] = $entry['act']['effectiveTime']['low']['value'] ?? null;
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['enddate'] = $entry['act']['effectiveTime']['high']['value'] ?? null;
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code'] = $entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] ?? '';
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['list_code_text'] = $entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['displayName'];
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['codeSystemName'] = $entry['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['codeSystemName'] ?? null;
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['outcome'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'] ?? '';
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al_code'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'] ?? '';
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['severity_al'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][2]['observation']['value']['code'] ?? '';
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][0]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['status'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][0]['observation']['value']['displayName'] ?? null;
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['code'] ?? '';
-            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'];
+            $this->ccda_data_array['field_name_value_array']['lists2'][$i]['reaction_text'] = $entry['act']['entryRelationship']['observation']['entryRelationship'][1]['observation']['value']['displayName'] ?? null;
             $this->ccda_data_array['field_name_value_array']['lists2'][$i]['modified_time'] = $entry['act']['entryRelationship']['observation']['performer']['assignedEntity']['time']['value'] ?? null;
             $this->ccda_data_array['entry_identification_array']['lists2'][$i] = $i;
         } elseif (!empty($entry['observation']['participant']['participantRole']['playingEntity']['code']['code'])) {
@@ -595,7 +595,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['immunization'][$i]['represented_organization'] = $entry['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['name'] ?? null;
             $this->templateData['field_name_value_array']['immunization'][$i]['represented_organization_tele'] = $entry['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['telecom'] ?? null;
 
-            if ($entry['substanceAdministration']['entryRelationship']['observation']['value']['code']) {
+            if (!empty($entry['substanceAdministration']['entryRelationship']['observation']['value']['code'])) {
                 $code = $this->codeService->resolveCode(
                     $entry['substanceAdministration']['entryRelationship']['observation']['value']['code'],
                     $entry['substanceAdministration']['entryRelationship']['observation']['value']['codeSystemName'] ?: $entry['substanceAdministration']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
@@ -657,12 +657,12 @@ class CdaTemplateParse
             }
 
             // check for a reason code if observation.
-            if (is_array($entry['procedure']['entryRelationship'])) {
+            if (is_array($entry['procedure']['entryRelationship'] ?? null)) {
                 $entryRelationship = $entry['procedure']['entryRelationship'][1];
             } else {
-                $entryRelationship = $entry['procedure']['entryRelationship'];
+                $entryRelationship = $entry['procedure']['entryRelationship'] ?? null;
             }
-            if ($entryRelationship['observation']['value']['code']) {
+            if (!empty($entryRelationship['observation']['value']['code'])) {
                 $code = $this->codeService->resolveCode(
                     $entryRelationship['observation']['value']['code'],
                     $entryRelationship['observation']['value']['codeSystemName'] ?: $entryRelationship['observation']['value']['codeSystem'] ?? '',
@@ -1157,7 +1157,7 @@ class CdaTemplateParse
                 '2.16.840.1.113883.10.20.22.4.78' => 'smoking'
             );
             $i = 0;
-            $code = $social_history_data['observation']['templateId']['root'];
+            $code = $social_history_data['observation']['templateId']['root'] ?? null;
             if (!empty($this->templateData['field_name_value_array']['social_history'])) {
                 foreach ($this->templateData['field_name_value_array']['social_history'] as $key => $value) {
                     if (!array_key_exists($social_history_array[$code], $value)) {
@@ -1166,15 +1166,15 @@ class CdaTemplateParse
                         $i = count($this->templateData['field_name_value_array']['social_history']) + 1;
                     }
                 }
-            }
 
-            $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['extension'] = $social_history_data['observation']['id']['extension'];
-            $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['root'] = $social_history_data['observation']['id']['root'];
-            $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['status'] = $social_history_data['observation']['value']['code'];
-            $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['begdate'] = $social_history_data['observation']['effectiveTime']['low']['value'];
-            $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['enddate'] = $social_history_data['observation']['effectiveTime']['high']['value'];
-            $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['value'] = $social_history_data['observation']['value']['displayName'];
-            $this->templateData['entry_identification_array']['social_history'][$i] = $i;
+                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['extension'] = $social_history_data['observation']['id']['extension'];
+                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['root'] = $social_history_data['observation']['id']['root'];
+                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['status'] = $social_history_data['observation']['value']['code'];
+                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['begdate'] = $social_history_data['observation']['effectiveTime']['low']['value'];
+                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['enddate'] = $social_history_data['observation']['effectiveTime']['high']['value'];
+                $this->templateData['field_name_value_array']['social_history'][$i][$social_history_array[$code]]['value'] = $social_history_data['observation']['value']['displayName'];
+                $this->templateData['entry_identification_array']['social_history'][$i] = $i;
+            }
         }
     }
 
