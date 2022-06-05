@@ -488,6 +488,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 $checked = ($display_style == 'block') ? "show" : "";
                                 $group_name_xl = text(xl_layout_label($group_name));
                                 $onclick = attr_js("div_" . $group_seq);
+                                $init_open = $grparr[$this_group]['grp_init_open'];
+                                if ($checked != "show") {
+                                    $checked = ($init_open == 1) ? $checked . " show" : $checked;
+                                }
                                 echo <<<HTML
                                 <div class="card">
                                     <div class="card-header p-0 bg-secondary" id="header_{$group_seq_attr}">
