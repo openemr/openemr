@@ -895,6 +895,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $in_orderid = 0;
             $in_ssn = preg_replace('/[^0-9]/', '', $a[4]);
             $in_dob = rhl7Date($a[7]);
+            // foreign MRN
+            $in_pubpid = rhl7Text($a[3] ?? '');
             $tmp = explode($d2, $a[11]);
             $in_street = rhl7Text($tmp[0]) ?? '';
             $in_street1 = rhl7Text($tmp[1] ?? '');
@@ -935,7 +937,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     'city' => $in_city,
                     'state' => $in_state,
                     'postal_code' => $in_zip,
-                    'phone_home' => $in_phone
+                    'phone_home' => $in_phone,
+                    'pubpid' => $in_pubpid
                 );
                 $patient_id = match_patient($ptarr);
                 if ($patient_id == -1) {
@@ -1089,6 +1092,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $date_report = substr($datetime_report, 0, 10) . ' 00:00:00';
                     $encounter_id = 0;
                     $provider_id = 0;
+                    $external_id = rhl7Text($a[3]) ?? null;
                     // Look for the most recent encounter within 30 days of the report date.
                     $encrow = sqlQuery(
                         "SELECT encounter FROM form_encounter WHERE " .
@@ -1123,19 +1127,26 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         // Now create the procedure order.
                         $in_orderid = sqlInsert(
                             "INSERT INTO procedure_order SET " .
-                            "date_ordered   = ?, " .
-                            "provider_id    = ?, " .
-                            "lab_id         = ?, " .
-                            "date_collected = ?, " .
-                            "date_transmitted = ?, " .
-                            "patient_id     = ?, " .
-                            "encounter_id   = ?, " .
-                            "control_id     = ?",
-                            array($datetime_report, $provider_id, $lab_id, rhl7DateTime($a[22]),
+                                "date_ordered   = ?, " .
+                                "provider_id    = ?, " .
+                                "lab_id         = ?, " .
+                                "date_collected = ?, " .
+                                "date_transmitted = ?, " .
+                                "patient_id     = ?, " .
+                                "encounter_id   = ?, " .
+                                "control_id     = ?, " .
+                                "external_id    = ?",
+                            array(
+                                $datetime_report,
+                                $provider_id,
+                                $lab_id,
+                                rhl7DateTime($a[22]),
                                 rhl7DateTime($a[7]),
                                 $patient_id,
                                 $encounter_id,
-                                $external_order_id)
+                                $external_order_id,
+                                $external_id
+                            )
                         );
                         // If an encounter was identified then link the order to it.
                         $form_name = ($lab_npi > '' ? $lab_npi : "Auto Result") . "-" . $in_orderid;

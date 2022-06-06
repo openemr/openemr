@@ -92,7 +92,7 @@ if (count($emr_app)) {
 }
 
 // This code allows configurable positioning in the login page
-$logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-primary";
+$logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-secondary";
 $formarea = "py-3 px-2 p-sm-5 bg-white order-2";
 $loginrow = "row login-row bg-white shadow-lg align-items-center my-sm-5";
 
