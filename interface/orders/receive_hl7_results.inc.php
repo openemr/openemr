@@ -1155,10 +1155,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         }
                         // create a note to provider about these actions
                         $txdate = rhl7DateTime($a[7]);
-                        $ptext = "$orphanLog $form_name Order ordered by $provider_username with lab result file " .
+                        $ptext = "$orphanLog $form_name Order ordered by" .  ($provider_username ?? '') .
+                            " with lab result file " .
                             "creation date on $datetime_report and specimen collections on $txdate has been created. " .
                             "Please review these items to ensure proper resolution of order results.";
-                        $dumb = labNotice($patient_id, $ptext, $provider_username, '', $in_message_lab_name);
+                        $dumb = labNotice($patient_id, $ptext, ($provider_username ?? ''), '', $in_message_lab_name);
                     }
                 } // end no $porow
             } // end results-only
@@ -1576,9 +1577,6 @@ function poll_hl7_results(&$info, $labs = 0)
             $pprow['direction'] = $info['orphaned_order']; // manual results or order not found
         }
 
-        // to save encrypted hl7 to drive
-        $cryptoGen = new CryptoGen();
-
         if ($protocol == 'SFTP') {
             $remote_port = 22;
             // Hostname may have ":port" appended to specify a nonstandard port number.
@@ -1630,10 +1628,8 @@ function poll_hl7_results(&$info, $labs = 0)
                 ++$filecount;
                 $fh = fopen("$prpath/$file", 'w');
                 if ($fh) {
-                    // Store the file.
-                    if ($GLOBALS['drive_encryption']) {
-                        $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                    }
+                    // Store the file, encrypted when enabled
+                    $hl7_crypt = hl7Crypt($hl7);
                     fwrite($fh, $hl7_crypt);
                     fclose($fh);
                     $log .= "Retrieved and Saved File #$filecount: $file\n";
@@ -1646,9 +1642,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 if (!empty($info["$lab_name/$ppid/$file"]['delete'])) {
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
-                        if ($GLOBALS['drive_encryption']) {
-                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                        }
+                        $hl7_crypt = hl7Crypt($hl7);
                         fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
@@ -1691,9 +1685,7 @@ function poll_hl7_results(&$info, $labs = 0)
                     // It worked, archive and delete the file.
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
-                        if ($GLOBALS['drive_encryption']) {
-                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                        }
+                        $hl7_crypt = hl7Crypt($hl7);
                         fwrite($fh, $hl7_crypt);
                         fclose($fh);
                         $log .= "Success Saved Results #$filecount to: $file\n";
@@ -1769,9 +1761,7 @@ function poll_hl7_results(&$info, $labs = 0)
 
                 $fh = fopen("$prpath/$file", 'w');
                 if ($fh) {
-                    if ($GLOBALS['drive_encryption']) {
-                        $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                    }
+                    $hl7_crypt = hl7Crypt($hl7);
                     fwrite($fh, $hl7_crypt);
                     fclose($fh);
                     $log .= "Retrieved and Saved File #$filecount: $file\n";
@@ -1780,9 +1770,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 if (!empty($info["$lab_name/$ppid/$file"]['delete'])) {
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
-                        if ($GLOBALS['drive_encryption']) {
-                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                        }
+                        $hl7_crypt = hl7Crypt($hl7);
                         fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
@@ -1808,7 +1796,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
                 if (!empty($tmp['mssgs'])) {
                     $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " .
-                        $tmp['mssgs'] ? print_r($tmp['mssgs'], true) : "None" . "\n";
+                        $tmp['mssgs'] ? print_r($tmp['mssgs'][0], true) : "None" . "\n";
                 }
 
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
@@ -1826,9 +1814,7 @@ function poll_hl7_results(&$info, $labs = 0)
                     // It worked, archive and delete the file.
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
-                        if ($GLOBALS['drive_encryption']) {
-                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                        }
+                        $hl7_crypt = hl7Crypt($hl7);
                         fwrite($fh, $hl7_crypt);
                         fclose($fh);
                         $log .= "Success Saved Results #$filecount to: $prpath/$file\n";
@@ -1915,9 +1901,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 if (!empty($info["$lab_name/$ppid/$file"]['delete'])) {
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
-                        if ($GLOBALS['drive_encryption']) {
-                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                        }
+                        $hl7_crypt = hl7Crypt($hl7);
                         fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
@@ -1950,9 +1934,7 @@ function poll_hl7_results(&$info, $labs = 0)
                     // It worked, archive and delete the file.
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
-                        if ($GLOBALS['drive_encryption']) {
-                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
-                        }
+                        $hl7_crypt = hl7Crypt($hl7);
                         fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
@@ -1972,4 +1954,12 @@ function poll_hl7_results(&$info, $labs = 0)
 
     return '';
 }
-// PHP end tag omitted intentionally.
+
+function hl7Crypt($content)
+{
+    if ($GLOBALS['drive_encryption']) {
+        $content = (new CryptoGen())->encryptStandard($content, null, 'database');
+    }
+
+    return $content;
+}
