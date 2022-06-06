@@ -258,7 +258,7 @@ if (!empty($_GET['id'])) {
                                             <div class="form-radio">
                                                 <input type="radio" name="housing" id="houseother" name='houseother' value="houseother" <?php echo (($obj["housing"] ?? '') == "houseother") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="houseother"><?php echo xlt('Other') . ':';?></label>
-                                                <input type="text" id="housingotherinput" name='housingotherinput' size="30" value="<?php echo text($obj["housingotherinput"] ?? ''); ?>"/>
+                                                <input type="text" id="housingotherinput" name='housingotherinput' size="30" value="<?php echo attr($obj["housingotherinput"] ?? ''); ?>"/>
                                             </div>
                                             <div class="form-radio">
                                                 <input type="radio" name="housing" id="housenotans" name='housenotans' value="housenotans" <?php echo (($obj["housing"] ?? '') == "housenotans") ? "checked" : ""; ?>/>
@@ -327,7 +327,7 @@ if (!empty($_GET['id'])) {
                                 <div class="col-12">
                                     <div class="form-group">
                                         <div class="form-number">
-                                            <input type="number" id="workhours" name='workhours' min="0" max="200" value="<?php echo ($obj["workhours"] ?? ''); ?>"/>
+                                            <input type="number" id="workhours" name='workhours' min="0" max="200" value="<?php echo attr($obj["workhours"] ?? ''); ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -341,7 +341,7 @@ if (!empty($_GET['id'])) {
                                 <div class="col-12">
                                     <div class="form-group">
                                         <div class="form-number">
-                                            <input type="number" id="hhincome" name='hhincome' min="0" max="10000000" value="<?php echo ($obj["hhincome"] ?? ''); ?>"/>
+                                            <input type="number" id="hhincome" name='hhincome' min="0" max="10000000" value="<?php echo attr($obj["hhincome"] ?? ''); ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -355,7 +355,7 @@ if (!empty($_GET['id'])) {
                                 <div class="col-12">
                                     <div class="form-group">
                                         <div class="form-number">
-                                            <input type="number" id="hhsize" name='hhsize' min="1" max="20" value="<?php echo ($obj["hhsize"] ?? ''); ?>"/>
+                                            <input type="number" id="hhsize" name='hhsize' min="1" max="20" value="<?php echo attr($obj["hhsize"] ?? ''); ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -399,7 +399,7 @@ if (!empty($_GET['id'])) {
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="careother" name='careother' <?php echo (($obj["careother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="careother"><?php echo xlt('Other');?></label>
-                                                <input type="text" id="careotherinput" name='careotherinput' size="30" value="<?php echo text($obj["careotherinput"] ?? ''); ?>"/>
+                                                <input type="text" id="careotherinput" name='careotherinput' size="30" value="<?php echo attr($obj["careotherinput"] ?? ''); ?>"/>
                                             </div>
                                     </div>
                                 </div>
@@ -450,7 +450,7 @@ if (!empty($_GET['id'])) {
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="debtother" name='debtother' <?php echo (($obj["debtother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="debtother"><?php echo xlt('Other');?></label>
-                                                <input type="text" id="debtotherinput" name='debtotherinput' size="30" value="<?php echo text($obj["debtotherinput"] ?? ''); ?>"/>
+                                                <input type="text" id="debtotherinput" name='debtotherinput' size="30" value="<?php echo attr($obj["debtotherinput"] ?? ''); ?>"/>
                                             </div>
                                         </div>
                                     </div>
@@ -506,7 +506,7 @@ if (!empty($_GET['id'])) {
                                              <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="moneyother" name='moneyother' <?php echo (($obj["moneyother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="moneyother"><?php echo xlt('Other');?></label>
-                                                 <input type="text" id="moneyotherinput" name='moneyotherinput' size="30" value="<?php echo text($obj["moneyotherinput"] ?? ''); ?>"/>
+                                                 <input type="text" id="moneyotherinput" name='moneyotherinput' size="30" value="<?php echo attr($obj["moneyotherinput"] ?? ''); ?>"/>
                                             </div>
                                          </div>
                                     </div>
@@ -546,7 +546,7 @@ if (!empty($_GET['id'])) {
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="transportother" name='transportother' <?php echo (($obj["transportother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="transportother"><?php echo xlt('Other');?></label>
-                                                <input type="text" id="transportotherinput" name='transportotherinput' size="30" value="<?php echo text($obj["transportotherinput"] ?? ''); ?>"/>
+                                                <input type="text" id="transportotherinput" name='transportotherinput' size="30" value="<?php echo attr($obj["transportotherinput"] ?? ''); ?>"/>
                                             </div>
                                         </div>
                                     </div>
@@ -598,7 +598,7 @@ if (!empty($_GET['id'])) {
                                             <div class="form-check">
                                                  <input type="checkbox" class="form-check-input" id="medicalother" name='medicalother' <?php echo (($obj["medicalother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                  <label class="form-check-label" for="medicalother"><?php echo xlt('Other');?></label>
-                                                <input type="text" id="medicalotherinput" name='medicalotherinput' size="30" value="<?php echo text($obj["medicalotherinput"] ?? ''); ?>"/>
+                                                <input type="text" id="medicalotherinput" name='medicalotherinput' size="30" value="<?php echo attr($obj["medicalotherinput"] ?? ''); ?>"/>
                                             </div>
                                         </div>
                                     </div>
@@ -630,7 +630,7 @@ if (!empty($_GET['id'])) {
                                         <div class="form-radio">
                                             <input type="radio" name="dentist" id="dentistnoother" value="dentistnoother" <?php echo (($obj["dentist"] ?? '') == "dentistnoother") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="dentistnoother"><?php echo xlt('No, other');?></label>
-                                            <input type="text" id="dentistotherinput" name='dentistotherinput' size="30" value="<?php echo text($obj["dentistotherinput"] ?? ''); ?>"/>
+                                            <input type="text" id="dentistotherinput" name='dentistotherinput' size="30" value="<?php echo attr($obj["dentistotherinput"] ?? ''); ?>"/>
                                         </div>
                                         <div class="form-radio">
                                             <input type="radio" name="dentist" id="dentistnotans" value="dentistnotans" <?php echo (($obj["dentist"] ?? '') == "dentistnotans") ? "checked" : ""; ?>/>
@@ -780,7 +780,7 @@ if (!empty($_GET['id'])) {
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="stressother" name='stressother' <?php echo (($obj["stressother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="stressother"><?php echo xlt('Other');?></label>
-                                            <input type="text" id="stressotherinput" name='stressotherinput' size="30" value="<?php echo text($obj["stressotherinput"] ?? ''); ?>"/>
+                                            <input type="text" id="stressotherinput" name='stressotherinput' size="30" value="<?php echo attr($obj["stressotherinput"] ?? ''); ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -999,7 +999,7 @@ if (!empty($_GET['id'])) {
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="discrimother" name='discrimother' <?php echo (($obj["discrimother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="discrimother"><?php echo xlt('Other');?></label>
-                                            <input type="text" id="discrimotherinput" name='discrimotherinput' size="30" value="<?php echo text($obj["discrimotherinput"] ?? ''); ?>"/>
+                                            <input type="text" id="discrimotherinput" name='discrimotherinput' size="30" value="<?php echo attr($obj["discrimotherinput"] ?? ''); ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -1055,7 +1055,7 @@ if (!empty($_GET['id'])) {
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="displaceother" name='displaceother' <?php echo (($obj["displaceother"] ?? '') == "on") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="displaceother"><?php echo xlt('Other');?></label>
-                                            <input type="text" id="displaceotherinput" name='displaceotherinput' size="30" value="<?php echo text($obj["displaceotherinput"] ?? ''); ?>"/>
+                                            <input type="text" id="displaceotherinput" name='displaceotherinput' size="30" value="<?php echo attr($obj["displaceotherinput"] ?? ''); ?>"/>
                                         </div>
                                     </div>
                                 </div>
@@ -1087,7 +1087,7 @@ if (!empty($_GET['id'])) {
                                         <div class="form-radio">
                                             <input type="radio" name="contact" id="contactother" value="contactother" <?php echo (($obj["contact"] ?? '') == "contactother") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="contactother"><?php echo xlt('Other');?></label>
-                                            <input type="text" id="contactotherinput" name='contactotherinput' size="30" value="<?php echo text($obj["contactotherinput"] ?? ''); ?>"/>
+                                            <input type="text" id="contactotherinput" name='contactotherinput' size="30" value="<?php echo attr($obj["contactotherinput"] ?? ''); ?>"/>
                                         </div>
                                     </div>
                                 </div>
