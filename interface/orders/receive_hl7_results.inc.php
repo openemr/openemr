@@ -1955,6 +1955,12 @@ function poll_hl7_results(&$info, $labs = 0)
     return '';
 }
 
+/**
+ * Encrypt the content of the hl7 file if the global is turned on.
+ *
+ * @param string $content The unencrypted content of the hl7.
+ * @return string         The encrypted content of the hl7 if the global is set.
+ */
 function hl7Crypt($content)
 {
     if ($GLOBALS['drive_encryption']) {
