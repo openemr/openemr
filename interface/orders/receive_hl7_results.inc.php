@@ -1632,9 +1632,9 @@ function poll_hl7_results(&$info, $labs = 0)
                 if ($fh) {
                     // Store the file.
                     if ($GLOBALS['drive_encryption']) {
-                        $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                        $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                     }
-                    fwrite($fh, $hl7);
+                    fwrite($fh, $hl7_crypt);
                     fclose($fh);
                     $log .= "Retrieved and Saved File #$filecount: $file\n";
                 } else {
@@ -1647,9 +1647,9 @@ function poll_hl7_results(&$info, $labs = 0)
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
                         if ($GLOBALS['drive_encryption']) {
-                            $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                         }
-                        fwrite($fh, $hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         $log .= "Retrieved but Couldn't Save Rejected File #$filecount: $file\n";
@@ -1692,9 +1692,9 @@ function poll_hl7_results(&$info, $labs = 0)
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
                         if ($GLOBALS['drive_encryption']) {
-                            $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                         }
-                        fwrite($fh, $hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                         $log .= "Success Saved Results #$filecount to: $file\n";
                     } else {
@@ -1770,9 +1770,9 @@ function poll_hl7_results(&$info, $labs = 0)
                 $fh = fopen("$prpath/$file", 'w');
                 if ($fh) {
                     if ($GLOBALS['drive_encryption']) {
-                        $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                        $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                     }
-                    fwrite($fh, $hl7);
+                    fwrite($fh, $hl7_crypt);
                     fclose($fh);
                     $log .= "Retrieved and Saved File #$filecount: $file\n";
                 }
@@ -1781,9 +1781,9 @@ function poll_hl7_results(&$info, $labs = 0)
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
                         if ($GLOBALS['drive_encryption']) {
-                            $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                         }
-                        fwrite($fh, $hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file.rejected" . '"';
@@ -1827,9 +1827,9 @@ function poll_hl7_results(&$info, $labs = 0)
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
                         if ($GLOBALS['drive_encryption']) {
-                            $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                         }
-                        fwrite($fh, $hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                         $log .= "Success Saved Results #$filecount to: $prpath/$file\n";
                     } else {
@@ -1916,9 +1916,9 @@ function poll_hl7_results(&$info, $labs = 0)
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
                         if ($GLOBALS['drive_encryption']) {
-                            $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                         }
-                        fwrite($fh, $hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file.rejected" . '"';
@@ -1951,9 +1951,9 @@ function poll_hl7_results(&$info, $labs = 0)
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
                         if ($GLOBALS['drive_encryption']) {
-                            $hl7 = $cryptoGen->encryptStandard($hl7, null, 'database');
+                            $hl7_crypt = $cryptoGen->encryptStandard($hl7, null, 'database');
                         }
-                        fwrite($fh, $hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file" . '"';
