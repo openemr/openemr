@@ -19,6 +19,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 function getListItem($listid, $value)
@@ -349,7 +350,8 @@ function generate_order_summary($orderid)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Order Summary")]);
+    exit;
 }
 
 $orderid = intval($_GET['orderid']);

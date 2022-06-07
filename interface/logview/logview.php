@@ -16,10 +16,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    die(xlt("Not Authorized"));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Logs Viewer")]);
+    exit;
 }
 
 if (!empty($_GET)) {

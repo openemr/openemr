@@ -18,6 +18,7 @@ require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -64,7 +65,8 @@ function thisLineItem($row, $codetype, $code)
 }
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    die(xlt("Unauthorized access."));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
+    exit;
 }
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));

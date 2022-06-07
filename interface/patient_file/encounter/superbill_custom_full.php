@@ -20,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -27,10 +28,8 @@ $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
 $thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
-    echo "<html>\n<body>\n";
-    echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Codes")]);
+    exit;
 }
 // For revenue codes
 $institutional = $GLOBALS['ub04_support'] == "1" ? true : false;

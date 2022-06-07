@@ -16,11 +16,13 @@ require_once(dirname(__FILE__) . '/../globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 //
 if (!AclMain::aclCheckCore('acct', 'eob')) {
-    die(xlt("Access Not Authorized"));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EDI History")]);
+    exit;
 }
 
 ?>

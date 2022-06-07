@@ -20,6 +20,7 @@ require_once("$srcdir/lists.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 $patdata = getPatientData($pid, "fname,lname,squad");
@@ -33,10 +34,8 @@ if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
 }
 
 if (!$thisauth) {
-    echo "<html>\n<body>\n";
-    echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Issues and Encounters")]);
+    exit;
 }
 
 $alertmsg = ""; // anything here pops up in an alert box

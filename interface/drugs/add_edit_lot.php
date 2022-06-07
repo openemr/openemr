@@ -21,6 +21,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 function checkWarehouseUsed($warehouse_id)
@@ -129,7 +130,8 @@ $auth_lots  = $auth_admin               ||
   AclMain::aclCheckCore('inventory', 'consumption') ||
   AclMain::aclCheckCore('inventory', 'destruction');
 if (!$auth_lots) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
+    exit;
 }
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();

@@ -22,11 +22,13 @@ require_once("$srcdir/patientvalidation.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
-    die(xlt("Adding demographics is not authorized."));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search or Add Patient")]);
+    exit;
 }
 
 $CPR = 4; // cells per row
