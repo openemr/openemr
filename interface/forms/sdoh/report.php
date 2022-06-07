@@ -376,7 +376,7 @@ function sdoh_report($pid, $encounter, $cols, $id)
                 echo "<tr><td><span class=text>" . xlt("Discriminated in Banking or Finance Services") . "</span></td></tr>";
             }
             if (($sdohData['displaceother'] ?? '') == 'on') {
-                echo "<tr><td><span class=text>" . xlt("Discriminated in Other") . ": " . text($sdohData['discrimotherinput'] ?? '') . "</span></td></tr>";
+                echo "<tr><td><span class=text>" . xlt("Discriminated in Other") . ": " . text($sdohData['displaceotherinput'] ?? '') . "</span></td></tr>";
             }
             if (($sdohData['contact'] ?? '') == 'contactphone') {
                 echo "<tr><td><span class=bold>" . xlt("Contact by Phone with Resources") . "</span></td></tr>";
@@ -391,7 +391,7 @@ function sdoh_report($pid, $encounter, $cols, $id)
                 echo "<tr><td><span class=bold>" . xlt("Do Not Contact With Resources") . "</span></td></tr>";
             }
             if (($sdohData['contact'] ?? '') == 'contactother') {
-                echo "<tr><td><span class=bold>" . xlt("Contact with Resources via Other") . ": " . text($sdohData['discrimotherinput'] ?? '') . "</span></td></tr>";
+                echo "<tr><td><span class=bold>" . xlt("Contact with Resources via Other") . ": " . text($sdohData['contactotherinput'] ?? '') . "</span></td></tr>";
             }
 
             echo "<tr><td><span class=text>" . xlt("Patient Score") . " = " . text($sdohData['totalscore'] ?? '') . "</span></td></tr>";
