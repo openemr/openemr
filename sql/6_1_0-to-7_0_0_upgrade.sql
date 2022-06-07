@@ -703,7 +703,7 @@ CREATE TABLE `contact_address` (
     `period_start` DATETIME NULL COMMENT 'Date the address became active',
     `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
     `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
-    PRIMARY KEY (`contact_id`),
+    PRIMARY KEY (`id`),
     KEY (`contact_id`),
     KEY (`address_id`)
 ) ENGINE = InnoDB ;

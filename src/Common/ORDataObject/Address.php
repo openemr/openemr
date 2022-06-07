@@ -12,9 +12,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\ORDataObject\ORDataObject;
+namespace OpenEMR\Common\ORDataObject;
 
-class Address extends ORDataObject
+class Address extends ORDataObject implements \JsonSerializable
 {
     var $id;
     var $foreign_id;
@@ -31,9 +31,10 @@ class Address extends ORDataObject
      */
     function __construct($id = "", $foreign_id = "")
     {
+        parent::__construct("addresses");
+
         $this->id = $id;
         $this->foreign_id = $foreign_id;
-        $this->_table = "addresses";
         $this->line1 = "";
         $this->line2 = "";
         $this->city = "";
@@ -161,6 +162,34 @@ class Address extends ORDataObject
     {
         $this->country = $country;
     }
+
+    /**
+     * Most users should use set_postalcode to handle regional differences
+     * @param $postalcode The postal code for the address
+     */
+    function set_postalcode($postalcode) {
+        $this->zip = $postalcode;
+
+        // change things up for the USA
+        if ($this->country == "USA") {
+            // we will parse our inner elements based on our postal codes
+            if (strpos($postalcode, "-") !== false) { // yes I know this is lazy...
+                $parts = explode("-", $postalcode);
+                $this->zip = $parts[0] ?? "";
+                $this->plus_four = $parts[1] ?? "";
+            }
+        }
+    }
+
+    function get_postalcode() : ?string {
+        // we handle plus four here in the USA
+        if ($this->country == "USA") {
+            if (!empty($this->plus_four)) {
+                return ($this->zip ?? "") . "-" . ($this->plus_four ?? "");
+            }
+        }
+        return $this->zip;
+    }
     function get_country()
     {
         return $this->country;
@@ -173,8 +202,31 @@ class Address extends ORDataObject
 
         parent::persist();
     }
-} // end of Address
-/*
-$a = new Address("0");
 
-echo $a->toString(true);*/
+    public function toArray() : array {
+        return $this->jsonSerialize();
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->get_id(),
+            "foreign_id" => $this->get_foreign_id(),
+            "line1" => $this->get_line1(),
+            "line2" => $this->get_line2(),
+            "city" => $this->get_city(),
+            "state" => $this->get_state(),
+            "zip" => $this->get_zip(),
+            "plus_four" => $this->get_plus_four(),
+            "postalcode" => $this->get_postalcode(),
+            "country" => $this->get_country()
+        ];
+    }
+} // end of Address

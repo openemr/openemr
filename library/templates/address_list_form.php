@@ -13,6 +13,8 @@
 
 use OpenEMR\Services\ContactService;
 
+global $pid; // we need to grab our pid from our global settings.
+
 $contactService = new ContactService();
 $addresses = $contactService->getContactsForPatient($pid);
 
@@ -21,18 +23,8 @@ $table_id = uniqid("table_form_addresses");
 $field_id_esc = $field_id_esc ?? '0';
 $addresses = $addresses ?? [];
 
-/*
- *   let line1 = row_form_addresses.querySelector("input.form_addresses_line1").value;
-        let line2 = row_form_addresses.querySelector("input.form_addresses_line2").value;
-        let city = row_form_addresses.querySelector("input.form_addresses_city").value;
-        let state = row_form_addresses.querySelector("input.form_addresses_state").value;
-        let zip = row_form_addresses.querySelector("input.form_addresses_zip").value;
-        let plus_four = row_form_addresses.querySelector("input.form_addresses_plus_four").value;
-        let full_zip = zip + ((isBlank(zip) || isBlank(plus_four)) ? "": "-" + plus_four);
-        let country = row_form_addresses.querySelector("input.form_addresses_country").value;
-
- */
 $name_field_id = "form_" . $field_id_esc;
+$smallform = $smallform ?? '';
 ?>
 <div>
     <table class='form_addresses table table-sm' id="<?php echo attr($table_id); ?>">
@@ -66,8 +58,8 @@ $name_field_id = "form_" . $field_id_esc;
         <td colspan="1">
             <table class="table table-borderless"><tr>
                 <tr>
-                    <td width='200' colspan='3'><?php echo xlt("Street Line 1"); ?></td>
-                    <td width='200' colspan='2'><?php echo xlt("Street Line 2"); ?></td>
+                    <td width='200' colspan='3'><?php echo xlt("Address"); ?></td>
+                    <td width='200' colspan='2'><?php echo xlt("Address Line 2"); ?></td>
                 </tr>
                 <tr>
                     <td colspan='3'><input type='text' class="form_addresses_line1" name="<?php echo attr($name_field_id); ?>[line_1][]" style='width:200px;' value='' tabindex='4'></td>
@@ -78,15 +70,44 @@ $name_field_id = "form_" . $field_id_esc;
                     <td width='50' colspan='1'><?php echo xlt("City"); ?></td>
                     <td width='8' colspan='1'><?php echo xlt("State"); ?></td>
                     <td width='12' colspan='1'><?php echo xlt("Postal Code"); ?></td>
-                    <td width='12' colspan='1'><?php echo xlt("Plus Four"); ?></td>
                     <td width='25' colspan='1'><?php echo xlt("Country"); ?></td>
                 </tr>
                 <tr>
                     <td colspan='1'><input type='text' class="form_addresses_city" name="<?php echo attr($name_field_id); ?>[city][]" style='width:150px;' value='' tabindex='4'></td>
-                    <td colspan='1'><input type='text' class="form_addresses_state" name="<?php echo attr($name_field_id); ?>[state][]" style='width:30px;' value='' tabindex='4'></td>
-                    <td colspan='1'><input type='text' class="form_addresses_zip" name="<?php echo attr($name_field_id); ?>[zip][]" style='width:55px;' value='' tabindex='4'></td>
-                    <td colspan='1'><input type='text' class="form_addresses_plus_four" name="<?php echo attr($name_field_id); ?>[plus_four][]" style='width:55px;' value='' tabindex='4'></td>
-                    <td colspan='1'><input type='text' class="form_addresses_country" name="<?php echo attr($name_field_id); ?>[country][]" style='width:200px;' value='' tabindex='4'></td>
+                    <td colspan='1'>
+                        <?php
+                            echo generate_select_list(
+                                $name_field_id . "[state][]",
+                                'state',
+                                '',
+                                "State",
+                                'Unassigned',
+                                'addtolistclass_state' . $smallform . ' form_addresses_state',
+                                '',
+                                '',
+                                ($disabled ? array('disabled' => 'disabled') : null),
+                                false
+                            );
+                        ?>
+                    </td>
+                    <td colspan='1'><input type='text' class="form_addresses_postalcode" name="<?php echo attr($name_field_id); ?>[postalcode][]" style='width:55px;' value='' tabindex='4'></td>
+                    <td colspan='1'>
+<!--                        <input type='text' class="form_addresses_country" name="--><?php //echo attr($name_field_id); ?><!--[country][]" style='width:200px;' value='' tabindex='4'>-->
+                        <?php
+                        echo generate_select_list(
+                            $name_field_id . "[country][]",
+                            'country',
+                            '',
+                            "Country",
+                            'Unassigned',
+                            'addtolistclass_country' . $smallform . ' form_addresses_country',
+                            '',
+                            '',
+                            ($disabled ? array('disabled' => 'disabled') : null),
+                            false
+                        );
+                        ?>
+                    </td>
 
                 </tr>
                 <tr class="mt-1">
@@ -155,11 +176,12 @@ $name_field_id = "form_" . $field_id_esc;
 
         for (i = 0; i < full_addresses.length; ++i) {
             form_addresses = full_addresses[i].closest('tr.display_addresses').nextElementSibling;
-            full_addresses[i].innerHTML = FullAddress(form_addresses);
+            full_addresses[i].innerText = FullAddress(form_addresses);
         }
 
         //Event Listener to Update Full Address on Data Entry
         document.getElementById(tableId).addEventListener('keyup', ChangeEdit);
+        // TODO: @adunsulag need to handle the onkeyup event.
     }
 
 
@@ -169,7 +191,7 @@ $name_field_id = "form_" . $field_id_esc;
         var row_form_addresses = event.target.closest('tr.form_addresses');
         var row_display_addresses = row_form_addresses.previousElementSibling;
         var element_full_address = row_display_addresses.querySelector("td.display_addresses_full_address");
-        element_full_address.innerHTML = FullAddress(row_form_addresses);
+        element_full_address.innerText = FullAddress(row_form_addresses);
     }
 
     function EditAddress(element){
@@ -186,13 +208,13 @@ $name_field_id = "form_" . $field_id_esc;
     function DeleteAddress(element){
         var row_display_addresses = element.closest('tr.display_addresses');
         var row_form_addresses = row_display_addresses.nextElementSibling;
-        let prompt = window.top.i18next.t("ARE YOU REALLY REALLY SURE?");
+        let prompt = window.xl("ARE YOU REALLY REALLY SURE?");
         if (confirm(prompt)) {
             // seems odd to hide these when we can just remove them...
             HideElement(row_display_addresses);
             HideElement(row_form_addresses);
             // set the action to be delete so we can remove this index
-            element.querySelector('input.form_addresses_data_action').value = ADDRESS_ACTION_VALUES.DELETE;
+            setInputValue(element, 'input.form_addresses_data_action', ADDRESS_ACTION_VALUES.DELETE)
         }
 
     }
@@ -206,19 +228,29 @@ $name_field_id = "form_" . $field_id_esc;
         node.value = value;
     }
 
+    function getInputValue(root, selector) {
+        let node = root.querySelector(selector);
+        if (!node) {
+            console.error("Failed to find DOM node with selector ", selector, ' in node ', root);
+            return;
+        }
+        return node.value;
+    }
+
     function CreateAddressFromJSON(tableId, record) {
         const row_address_template = document.querySelector(".template_add_address");
         var row_address_clone = row_address_template.content.cloneNode(true);
 
+        setInputValue(row_address_clone, "input.form_addresses_id", record.id || "");
         setInputValue(row_address_clone, "input.form_addresses_line1", record.line1 || "");
         setInputValue(row_address_clone, "input.form_addresses_line2", record.line2 || "");
         setInputValue(row_address_clone, "input.form_addresses_city", record.city || "");
-        setInputValue(row_address_clone, "input.form_addresses_state", record.state || "");
-        setInputValue(row_address_clone, "input.form_addresses_zip", record.zip || "");
-        setInputValue(row_address_clone, "input.form_addresses_plus_four", record.plusfour || "");
-        setInputValue(row_address_clone, "input.form_addresses_country", record.country || "");
+        setInputValue(row_address_clone, "input.form_addresses_postalcode", record.postalcode || "");
         setInputValue(row_address_clone, "input.form_addresses_data_action", ADDRESS_ACTION_VALUES.UPDATE);
         row_address_clone.querySelector("td.display_addresses_full_address").innerHTML  = "None";
+
+        setInputValue(row_address_clone, "select.form_addresses_country", record.country || "");
+        setInputValue(row_address_clone, "select.form_addresses_state", record.state || "");
 
         document.getElementById(tableId).appendChild(row_address_clone);
     }
@@ -246,26 +278,38 @@ $name_field_id = "form_" . $field_id_esc;
         element.classList.add('d-none');
     }
 
+    function getSelectValue(root, selector) {
+        let node = root.querySelector(selector);
+        if (!node) {
+            console.error("Failed to find DOM node with selector ", selector, ' in node ', root);
+            return;
+        }
+        let options = node.selectedOptions;
+        console.log("options found are ", options);
+        if (options && options.length) {
+            return options[0].value;
+        }
+        return "";
+    }
     function FullAddress(row_form_addresses){
         var address = "";
         //var row_form_addresses = element.closest('tr.form_addresses');
 
-        let line1 = row_form_addresses.querySelector("input.form_addresses_line1").value;
-        let line2 = row_form_addresses.querySelector("input.form_addresses_line2").value;
-        let city = row_form_addresses.querySelector("input.form_addresses_city").value;
-        let state = row_form_addresses.querySelector("input.form_addresses_state").value;
-        let zip = row_form_addresses.querySelector("input.form_addresses_zip").value;
-        let plus_four = row_form_addresses.querySelector("input.form_addresses_plus_four").value;
-        let full_zip = zip + ((isBlank(zip) || isBlank(plus_four)) ? "": "-" + plus_four);
-        let country = row_form_addresses.querySelector("input.form_addresses_country").value;
+        let line1 = getInputValue(row_form_addresses, "input.form_addresses_line1");
+        let line2 = getInputValue(row_form_addresses, "input.form_addresses_line2");
+        let city = getInputValue(row_form_addresses, "input.form_addresses_city");
+        let full_zip = getInputValue(row_form_addresses, "input.form_addresses_postalcode");
+        let state = getSelectValue(row_form_addresses, "select.form_addresses_state");
+        let country = getSelectValue(row_form_addresses, "select.form_addresses_country");
 
         address = line1 + (isBlank(line1) ? "": ", ");
         address += line2 + (isBlank(line2) ? "": ", ");
         address += city + (isBlank(city) ? "": ", ");
-        address += state + ((isBlank(state) || isBlank(full_zip)) ? "": "&nbsp;&nbsp;");
+        address += state + ((isBlank(state) || isBlank(full_zip)) ? "": "  ");
         address += full_zip + ( (isBlank(country) || (isBlank(state) && isBlank(full_zip))) ? "": ", ");
         address += country;
         address = address.replace(/(,\s*$)/g, "")
+        console.log("Address is " , address);
         return (isBlank(address) ? "None": address);
     }
 

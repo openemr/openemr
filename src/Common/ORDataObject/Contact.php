@@ -1,6 +1,6 @@
 <?php
 
-use OpenEMR\Common\ORDataObject\ORDataObject;
+namespace OpenEMR\Common\ORDataObject;
 
 class Contact extends ORDataObject
 {
@@ -25,7 +25,7 @@ class Contact extends ORDataObject
 
     public function __construct($id)
     {
-        $this->_table = "contact";
+        parent::__construct("contact");
         $this->_id = $id;
 
         if (!empty($id)) {
@@ -42,7 +42,7 @@ class Contact extends ORDataObject
     /**
      * @return int
      */
-    public function getId(): int
+    public function get_id(): ?int
     {
         return $this->id;
     }
@@ -51,7 +51,7 @@ class Contact extends ORDataObject
      * @param int $id
      * @return Contact
      */
-    public function setId(int $id): Contact
+    public function set_id(int $id): Contact
     {
         $this->id = $id;
         return $this;
@@ -60,7 +60,7 @@ class Contact extends ORDataObject
     /**
      * @return string
      */
-    public function getTypeTableName(): string
+    public function get_type_table_name(): ?string
     {
         return $this->type_table_name;
     }
@@ -69,7 +69,7 @@ class Contact extends ORDataObject
      * @param string $type_table_name
      * @return Contact
      */
-    public function setTypeTableName(string $type_table_name): Contact
+    public function set_type_table_name(string $type_table_name): Contact
     {
         $this->type_table_name = $type_table_name;
         return $this;
@@ -78,7 +78,7 @@ class Contact extends ORDataObject
     /**
      * @return int
      */
-    public function getTypeTableId(): int
+    public function get_type_table_id(): ?int
     {
         return $this->type_table_id;
     }
@@ -87,7 +87,7 @@ class Contact extends ORDataObject
      * @param int $type_table_id
      * @return Contact
      */
-    public function setTypeTableId(int $type_table_id): Contact
+    public function set_type_table_id(int $type_table_id): Contact
     {
         $this->type_table_id = $type_table_id;
         return $this;

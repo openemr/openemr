@@ -12,14 +12,13 @@
 
 namespace OpenEMR\Services;
 
-use \ContactAddress;
-use \Contact;
-use \Address;
+use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\ORDataObject\Contact;
+use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
 
-// TODO: @adunsulag should we create objects for these contacts?  more ORM if we do that...
 class ContactService extends BaseService
 {
     public const TABLE_NAME = 'contact';
@@ -42,10 +41,14 @@ class ContactService extends BaseService
         (new SystemLogger())->debug("Saving contact for patient pid ", ['pid' => $pid, 'contactData' => $contactData]);
 
         try {
-            // wrap the entire thing in a transaction so we are idempotent.
-            \sqlBeginTrans();
+            // due to contention on the sequences table with connection pooling and the sequences table locking everytime
+            // a new sequence value is updated we've disabled the transactions for now until we can figure out what is
+            // going on.
 
-            $preppedData = $this->convertArraysToRecords($contactData);
+            // wrap the entire thing in a transaction so we are idempotent.
+//            \sqlBeginTrans();
+
+            $preppedData = $this->convertArraysToRecords($pid, $contactData);
 
             // save off our data
             foreach ($preppedData as $record) {
@@ -53,11 +56,11 @@ class ContactService extends BaseService
             }
 
             // grab all of the NEW records and insert them in as address records for the given patient
-            \sqlCommitTrans();
+//            \sqlCommitTrans();
         }
         catch (\Exception $exception) {
             // TODO: @adunsulag handle exception
-            \sqlRollbackTrans();
+//            \sqlRollbackTrans();
         }
 
         // then we return
@@ -71,16 +74,19 @@ class ContactService extends BaseService
     public function convertArraysToRecords($pid, $contactData) {
         $count = count($contactData['data_action'] ?? []);
         for ($i = 0; $i < $count; $i++) {
+            // empty data that we don't need to deal with as we can't do anything meaningful without an id
+            if ($contactData['data_action'][$i] != 'ADD' && empty($contactData['id'][$i])) {
+                continue;
+            }
             $contactAddress = new ContactAddress($contactData['id'][$i] ?? null);
 
             $address = $contactAddress->getAddress();
-            $address->set_line1($contactData['line1'][$i] ?? '');
-            $address->set_line2($contactData['line1'][$i] ?? '');
-            $address->set_city($contactData['line1'][$i] ?? '');
-            $address->set_state($contactData['line1'][$i] ?? '');
-            $address->set_zip($contactData['line1'][$i] ?? '');
-            $address->set_plus_four($contactData['line1'][$i] ?? '');
-            $address->set_country($contactData['line1'][$i] ?? '');
+            $address->set_line1($contactData['line_1'][$i] ?? '');
+            $address->set_line2($contactData['line_2'][$i] ?? '');
+            $address->set_city($contactData['city'][$i] ?? '');
+            $address->set_state($contactData['state'][$i] ?? '');
+            $address->set_country($contactData['country'][$i] ?? '');
+            $address->set_postalcode($contactData['postalcode'][$i] ?? '');
             $address->set_foreign_id(null);
 
             $contact = $contactAddress->getContact();
@@ -106,41 +112,22 @@ class ContactService extends BaseService
      */
     public function getContactsForPatient($pid): array
     {
-//        $sql = "SELECT ca.* FROM contact_address ca LEFT JOIN contact c ON ca.contact_id = c.id AND c.type_table_name = 'patient_data' AND c.type_table_id = ?";
-//        $contactData = QueryUtils::fetchRecords($sql, 'id', [$pid]) ?? [];
+
+        $sql = "SELECT ca.* FROM contact_address ca LEFT JOIN contact c ON ca.contact_id = c.id AND c.type_table_name = 'patient_data' AND c.type_table_id = ?";
+        $contactData = QueryUtils::fetchRecords($sql, 'id', [$pid]) ?? [];
 //
-//        // does an O(n) fetch from the db, could be optimized later to use populate_array on the record.
-//        $resultSet = [];
-//        foreach ($contactData as $record) {
-//            $contactAddress = new ContactAddress();
-//            $contactAddress->populate_array($record);
-//            $resultSet[] = $contactAddress;
-//        }
-
-        // for now we use dummy data and just return it.
-        $addresses = [
-            [
-                'id' => 1 // the ContactAddress id
-                ,'line1' => '4005 W Howard Ave'
-                ,'line2' => ''
-                ,'city' => 'Tampa'
-                ,'state' => 'FL'
-                ,'zip' => '33620'
-                ,'plus_four' => '4445'
-                ,'country' => 'USA'
-            ],
-            [
-                'id' => 2
-                ,'line1' => '812 N Great St'
-                ,'line2' => 'Suite #6'
-                ,'city' => 'Tampa'
-                ,'state' => 'FL'
-                ,'zip' => '33602'
-                ,'plus_four' => '2445'
-                ,'country' => 'USA'
-            ]
-        ];
-
-        return $addresses;
+//       // does an O(n) fetch from the db, could be optimized later to use populate_array on the record.
+        // for single patient pid access this is just fine as very few patients have more than 4-5 addresses
+        // TODO: if we need bulk export on patients we should rewrite this method.
+        $resultSet = [];
+        foreach ($contactData as $record) {
+            $contactAddress = new ContactAddress();
+            $contactAddress->populate_array($record);
+            $address = $contactAddress->getAddress();
+            $arrAddress = $address->toArray();
+            $arrAddress['id'] = $contactAddress->get_id();
+            $resultSet[] = $arrAddress;
+        }
+        return $resultSet;
     }
 }

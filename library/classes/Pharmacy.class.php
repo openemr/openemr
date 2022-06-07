@@ -20,6 +20,7 @@ define("TRANSMIT_ERX", 4);
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\Address;
 
 class Pharmacy extends ORDataObject
 {

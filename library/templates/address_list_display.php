@@ -20,7 +20,7 @@ $addresses = $contactService->getContactsForPatient($pid) ?? [];
     <table class='table-text-addresses table table-sm'>
         <thead class ="thead-light">
         <tr>
-            <th width="400">Previous Addresses</th>
+            <th width="400"><?php echo xlt("Previous Addresses"); ?></th>
         </tr>
         </thead>
         <tbody>
@@ -43,8 +43,7 @@ $addresses = $contactService->getContactsForPatient($pid) ?? [];
             address += record.line2 + ((isBlank(record.line2) || isBlank(address)) ? "": ", ");
             address += record.city + ((isBlank(record.city) || isBlank(address)) ? "": ", ");
             address += record.state + ((isBlank(record.state) && isBlank(address) && (!isBlank(record.full_zip))) ? "": " ");
-            let plus_four = record.plus_four;
-            let full_zip = record.zip + ((isBlank(record.zip) || isBlank(plus_four)) ? "": "-" + plus_four);
+            let full_zip = record.zip;
 
             address += full_zip + ((isBlank(full_zip) && isBlank(address) && isBlank(record.country)) ? "": ", ");
             address += record.country;
@@ -78,7 +77,7 @@ $addresses = $contactService->getContactsForPatient($pid) ?? [];
 
         }
         window.document.addEventListener('DOMContentLoaded', function() {
-            init("<?php echo $table_id; ?>", <?php echo json_encode($addresses); ?>);
+            init(<?php echo js_escape($table_id); ?>, <?php echo json_encode($addresses); ?>);
         });
     })(window);
 </script>
