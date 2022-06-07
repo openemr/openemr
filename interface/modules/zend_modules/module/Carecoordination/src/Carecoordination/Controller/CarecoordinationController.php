@@ -962,11 +962,9 @@ class CarecoordinationController extends AbstractActionController
                     $shouldDeleteIndex = true; // no more processing of patient ccdas as we've reached our max import size
                 } else if ($patientCountHash[$patientNameIndex] > $maxDocuments) {
                     $shouldDeleteIndex = true;
-                } 
                 // can fire off events for modifying what files we keep / process...
-
                 // we don't process anything but xml ccds
-                else if (strrpos($fileComponents[$patientNameIndex], '.xml') === false) {
+                } else if (strrpos($fileComponents[$patientNameIndex], '.xml') === false) {
                     $shouldDeleteIndex = true;
                     // if we have a ccd we need to set our document count and increment our patient count
                     // note this logic allows multiple patient ccds to be here as long as they are in the same folder
