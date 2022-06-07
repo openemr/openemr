@@ -39,9 +39,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function __construct()
     {
-        $this->documentData = [];
-        $this->is_qrda_import = false;
-        $this->parseTemplates = new CdaTemplateParse();
+        $this->resetData();
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
@@ -918,6 +916,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function import($document_id)
     {
+        $this->resetData();
         $xml_content = $this->getDocument($document_id);
         $this->importCore($xml_content, $document_id);
         $audit_master_approval_status = 1;
@@ -1971,6 +1970,16 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         return $res_cur['codes'] ?? '';
+    }
+
+    /**
+     * Initialize or reset our private member variables used for importing.
+     */
+    private function resetData()
+    {
+        $this->documentData = [];
+        $this->is_qrda_import = false;
+        $this->parseTemplates = new CdaTemplateParse();
     }
 }
 // Below was removed as couldn't find it used anywhere! Will keep for a minute or two...
