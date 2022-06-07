@@ -1050,7 +1050,7 @@ class CarecoordinationController extends AbstractActionController
                 $pid = '00';
                 $ob = new Document();
                 $contents = $z->getFromIndex($i);
-                $ret = $ob->createDocument($pid, $catId, $file_name, 'text/xml', $contents, '', 1, 0);
+                $ret = $ob->createDocument($pid, $catId, $file_name, 'text/xml', $contents);
                 if (!empty($ret)) {
                     throw new \RuntimeException("Failed to create document from zip file " . $file_name . " error returned was " . $ret);
                 }
