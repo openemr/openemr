@@ -2,6 +2,9 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
 // Get the related document IDs if any.
 $linkedDocsSql = "SELECT id1 FROM gprelations WHERE " .
@@ -11,17 +14,24 @@ if (empty($tmp)) {
     return;
 }
 
-//$enc_list = [];
+$enc_list = [];
 if (!empty($prow)) {
-    $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+    $results = QueryUtils::fetchRecords("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
         " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
+    foreach ($enc_list as $row) {
+        $enc_list[] = [
+            'encounter' => $row['encounter'],
+            'pc_catname' => xl_appt_category($row['pc_catname']),
+            'date' => oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))
+        ];
+    }
 }
 
 // if we have phimail enabled, we are going to find out if our document is an xml file, if so, we are going to do a validation
 // report on the document.  This would be a great thing for caching if we wanted to do that, we'll just compute on the fly for now.
 $records = [];
 $prow = $prow ?? null;
-$cdaDocumentValidator = new \OpenEMR\Services\Cda\CdaValidateDocumentObject();
+$cdaDocumentValidator = new CdaValidateDocumentObject();
 foreach ($tmp as $record) {
     $d = new Document($record['id1']);
     $docInformation = [
@@ -41,10 +51,12 @@ foreach ($tmp as $record) {
     if ($cdaDocumentValidator->isCdaDocument($d)) {
         $docInformation['isCda'] = true;
         $docInformation['validationErrors'] = $cdaDocumentValidator->getValidationErrorsForDocument($d);
+        $docInformation['hasErrors'] = !empty($docInformation['validationErrors']['xsd']) || !empty($docInformation['validationErrors']['errorCount']);
     }
     $records[] = $docInformation;
 }
-
+$twig = new TwigContainer(null, $GLOBALS['kernel']);
+try {
 foreach ($records as $record) : ?>
 <div class="row">
     <div class="col-12">
@@ -61,9 +73,10 @@ foreach ($records as $record) : ?>
     <?php if ($record['isCda']) : ?>
         <details>
             <summary><?php echo xlt("Validation report"); ?></summary>
-            <pre>
-            <?php if (!empty($record['validationErrors']['errorCount'])) : ?>
-                <?php var_dump($record['validationErrors']); ?>
+            <?php if (!empty($record['validationErrors'])) : ?>
+                <?php
+                    echo $twig->getTwig()->render("carecoordination/cda/cda-validate-results.html.twig", $record['validationErrors']);
+                ?>
             <?php else : ?>
                 <?php echo xlt("No errors found, Document(s) passed Import Validation"); ?>
             <?php endif; ?>
@@ -72,7 +85,13 @@ foreach ($records as $record) : ?>
     <?php endif; ?>
     </div>
 </div>
-<?php endforeach; ?>
+<?php endforeach;
+
+} catch (Exception $exception) {
+    // if twig throws any exceptions we want to log it.
+    (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+}
+?>
 <script>
     // this originaly came from the messages class... but it makes no sense to have it there when we only use it here.
     function gotoReport(doc_id, pname, pid, pubpid, str_dob) {
@@ -81,12 +100,12 @@ foreach ($records as $record) : ?>
         EncounterIdArray = [];
         Count = 0;
         <?php
-        if (isset($enc_list) && sqlNumRows($enc_list) > 0) {
-            while ($row = sqlFetchArray($enc_list)) {
+        if (!empty($enc_list)) {
+            foreach ($row as $enc_list) {
                 ?>
         EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
-        EncounterDateArray[Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
-        CalendarCategoryArray[Count] = '<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
+        EncounterDateArray[Count] = '<?php echo attr($row['date']); ?>';
+        CalendarCategoryArray[Count] = '<?php echo attr($row['pc_catname']); ?>';
         Count++;
                 <?php
             }

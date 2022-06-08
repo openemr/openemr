@@ -1,0 +1,28 @@
+<div class='control-group'>
+    <h5 class='text-info' style='padding: 0 0;'>{{ 'Schema Definition Errors'|xlt}} - ({{ xsd|length }})</h5><hr style='margin: 0 0 10px;' />
+    {% if xsd|length <= 1 %}
+        <p class='text-success'>{{"Passed XSD testing."|xlt}}</p><hr style='margin: 0 0 10px;' />
+    {% else %}
+        {% for error in xsd %}
+            <blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>
+                <p class='text-error' style='font-size:12px;'>{{ error|text }}</p>
+            </blockquote><hr style='margin: 0 0 10px;' />
+        {% endfor %}
+    {% endif %}
+
+    <h5 class='text-info'>{{ 'Schematron Errors'|xlt }} - ({{ errorCount }})</h5><hr style='margin: 0 0 10px;' />
+    {% if errorCount <= 0 %}
+        <p class='text-success'>{{ "Passed Schematron testing."|xlt}}</p><hr style='margin: 0 0 10px;' />
+    {% else %}
+        {% for error in errors %}
+            <blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>
+                <p class='text-error' style='font-size:12px;'>
+                    <span style='color: red;padding-right: 2px;'>{{ 'Error'|xlt }}: </span>{{ error.description|text }}
+                    <br /><span style='color: red;margin-right: 2px;'>{{ 'Error Context'|xlt }}: </span>{{ error.context|text }}
+                    <br /><span style='color: red;margin-right: 2px;'>{{ 'Where'|xlt }}: </span>{{ error.path|text }}
+                    <br /><span style='color: red;margin-right: 2px;'>{{ 'Line'|xlt }}# </span>{{ error.line|text }}
+                </p>
+            </blockquote><hr style='margin: 0 0 10px;' />
+        {% endfor %}
+    {% endif %}
+</div>

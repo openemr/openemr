@@ -666,7 +666,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                             if ($GLOBALS['phimail_enable']) {
                                 echo "&nbsp; <a href='trusted-messages.php' onclick='top.restoreSession()' class='btn btn-secondary btn-mail'>" . xlt("Compose Trusted Direct Message") . "</a>";
-                                echo "&nbsp; <button class='btn btn-secondar btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
+                                echo "&nbsp; <button class='btn btn-secondary btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
                             }
                             echo "
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
