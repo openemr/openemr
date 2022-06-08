@@ -167,7 +167,8 @@ class Address extends ORDataObject implements \JsonSerializable
      * Most users should use set_postalcode to handle regional differences
      * @param $postalcode The postal code for the address
      */
-    function set_postalcode($postalcode) {
+    function set_postalcode($postalcode)
+    {
         $this->zip = $postalcode;
 
         // change things up for the USA
@@ -181,7 +182,8 @@ class Address extends ORDataObject implements \JsonSerializable
         }
     }
 
-    function get_postalcode() : ?string {
+    function get_postalcode(): ?string
+    {
         // we handle plus four here in the USA
         if ($this->country == "USA") {
             if (!empty($this->plus_four)) {
@@ -203,7 +205,8 @@ class Address extends ORDataObject implements \JsonSerializable
         parent::persist();
     }
 
-    public function toArray() : array {
+    public function toArray(): array
+    {
         return $this->jsonSerialize();
     }
 

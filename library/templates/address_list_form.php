@@ -88,7 +88,7 @@ $smallform = $smallform ?? '';
                                 ($disabled ? array('disabled' => 'disabled') : null),
                                 false
                             );
-                        ?>
+                            ?>
                     </td>
                     <td colspan='1'><input type='text' class="form_addresses_postalcode" name="<?php echo attr($name_field_id); ?>[postalcode][]" style='width:55px;' value='' tabindex='4'></td>
                     <td colspan='1'>

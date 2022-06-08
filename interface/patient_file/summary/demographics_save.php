@@ -71,8 +71,7 @@ while ($frow = sqlFetchArray($fres)) {
     // have a value set on the form, it will be empty.
     if ($data_type == 54) { // address list
         $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
-    }
-    else if (isset($_POST["form_$field_id"]) || $data_type == 21) {
+    } else if (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }

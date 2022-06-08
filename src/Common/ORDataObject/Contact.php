@@ -33,7 +33,8 @@ class Contact extends ORDataObject
         }
     }
 
-    public function setPatientPid($pid) {
+    public function setPatientPid($pid)
+    {
         // we set our type to be patient_id and our table type here.
         $this->type_table_name = 'patient_data';
         $this->type_table_id = $pid;

@@ -37,15 +37,18 @@ class ORDataObject
         $this->setIsObjectModified(true);
     }
 
-    public function markObjectModified() {
+    public function markObjectModified()
+    {
         $this->_isObjectModified = true;
     }
 
-    public function isObjectModified() {
+    public function isObjectModified()
+    {
         return $this->_isObjectModified;
     }
 
-    protected function setIsObjectModified($isModified) {
+    protected function setIsObjectModified($isModified)
+    {
         $this->_isObjectModified = $isModified;
     }
 
@@ -96,7 +99,7 @@ class ORDataObject
         }
 
         if ($this->_throwExceptionOnError) {
-            QueryUtils::sqlStatementThrowException($sql,[]);
+            QueryUtils::sqlStatementThrowException($sql, []);
         } else {
             sqlQuery($sql);
         }
@@ -139,11 +142,13 @@ class ORDataObject
         return $values;
     }
 
-    public function shouldthrowExceptionOnError() {
+    public function shouldthrowExceptionOnError()
+    {
         return $this->_throwExceptionOnError;
     }
 
-    public function setThrowExceptionOnError($throwException) {
+    public function setThrowExceptionOnError($throwException)
+    {
         $this->_throwExceptionOnError = $throwException;
     }
 

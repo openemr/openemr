@@ -57,8 +57,7 @@ class ContactService extends BaseService
 
             // grab all of the NEW records and insert them in as address records for the given patient
 //            \sqlCommitTrans();
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             // TODO: @adunsulag handle exception
 //            \sqlRollbackTrans();
         }
@@ -71,7 +70,8 @@ class ContactService extends BaseService
      * @param $contactData
      * @return ContactAddress[]
      */
-    public function convertArraysToRecords($pid, $contactData) {
+    public function convertArraysToRecords($pid, $contactData)
+    {
         $count = count($contactData['data_action'] ?? []);
         for ($i = 0; $i < $count; $i++) {
             // empty data that we don't need to deal with as we can't do anything meaningful without an id
