@@ -171,34 +171,34 @@ $(function () {
     $(".export-document").click(function (event) {
         let qrda = $("input[name='downloadformat']:checked").val();
         if (qrda == 'qrda') {
-            $("#componentsForCCDA").hide('slow');
+            $(".components-for-ccda").hide('slow');
             $("#componentsForQRDA3").hide('slow');
             $("#componentsForQRDA").show('slow');
         } else if (qrda == 'qrda3') {
-            $("#componentsForCCDA").hide('slow');
+            $(".components-for-ccda").hide('slow');
             $("#componentsForQRDA").hide('slow');
             $("#componentsForQRDA3").show('slow');
         } else {
             $("#componentsForQRDA").hide('slow');
             $("#componentsForQRDA3").hide('slow');
-            $("#componentsForCCDA").show('slow');
+            $(".components-for-ccda").show('slow');
         }
     });
 
     $(".showcomponentsForCCDA-div").click(function () {
         let qrda = $("input[name='downloadformat']:checked").val();
         if (qrda === 'qrda') {
-            $("#componentsForCCDA").hide('slow');
+            $(".components-for-ccda").hide('slow');
             $("#componentsForQRDA3").hide('slow');
             $("#componentsForQRDA").toggle('slow');
         } else if (qrda === 'qrda3') {
-            $("#componentsForCCDA").hide('slow');
+            $(".components-for-ccda").hide('slow');
             $("#componentsForQRDA").hide('slow');
             $("#componentsForQRDA3").toggle('slow');
         } else {
             $("#componentsForQRDA").hide('slow');
             $("#componentsForQRDA3").hide('slow');
-            $("#componentsForCCDA").toggle('slow');
+            $(".components-for-ccda").toggle('slow');
         }
     });
 
@@ -372,6 +372,15 @@ function getComponentsString() {
     return comp;
 }
 
+function shouldIncludePatientDocuments() {
+    let node = document.querySelector("#patient_documents");
+    if (!node) {
+        console.error("Failed to find DOM node #patient_documents");
+        return false;
+    }
+    return node.checked === true;
+}
+
 function sendToDownloadAll() {
     var i;
     var count = 0;
@@ -379,6 +388,7 @@ function sendToDownloadAll() {
     var pid;
     var latest_ccda = getLatestCcda();
     var comp = getComponentsString();
+    var patient_documents = shouldIncludePatientDocuments() ? 1 : 0;
 
     if ($('#ccda_pid').val()) {
         pids = $('#ccda_pid').val();
@@ -403,7 +413,10 @@ function sendToDownloadAll() {
         var download_format = $('input:radio[name="downloadformat"]:checked').val();
         if (download_format == 'ccda') {
             if ($('#ccda_pid').val()) {
-                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadccda=download_ccda&components=" + comp + "&latest_ccda=" + latest_ccda);
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda="
+                    + pid + "&downloadccda=download_ccda&components=" + comp + "&latest_ccda=" + latest_ccda
+                    + "&includePatientDocuments=" + includePatientDocuments
+                );
             } else {
                 $('#components').val(comp);
                 $("#latestccda").val(latest_ccda);
@@ -426,14 +439,16 @@ function sendToDownloadAll() {
             }
         } else if (download_format == 'ccr') {
             if ($('#ccda_pid').val()) {
-                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccr=" + pid + "&downloadccr=download_ccr");
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccr=" + pid + "&downloadccr=download_ccr"
+                    + "&includePatientDocuments=" + includePatientDocuments);
             } else {
                 $('#download_ccr').trigger("click");
                 $(".check_pid").prop("checked", false);
             }
         } else if (download_format == 'ccd') {
             if ($('#ccda_pid').val()) {
-                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccd=" + pid + "&downloadccd=download_ccd");
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccd=" + pid + "&downloadccd=download_ccd"
+                    + "&includePatientDocuments=" + includePatientDocuments);
             } else {
                 $('#download_ccd').trigger("click");
                 $(".check_pid").prop("checked", false);

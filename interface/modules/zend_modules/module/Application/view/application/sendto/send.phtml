@@ -180,7 +180,7 @@ $download_format = $this->download_format;
             ?>
         </select>
     </div>
-    <div id="componentsForCCDA" style="height:300px !important;display:none;" class="ap-st-st-13">
+    <div id="componentsForCCDA" style="height:300px !important;display:none;" class="ap-st-st-13 components-for-ccda">
         <div style="display:inline-flex;width:100%;">
             <div style="width:35%">
                 <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_toc" value="toc" checked>&nbsp;<?php echo $this->listenerObject->z_xlt('Transistion of Care') ?></label>
@@ -217,6 +217,12 @@ $download_format = $this->download_format;
                 $i++;
             }
         } ?>
+        <div style="display:inline-flex;width:100%;">
+            <input type="checkbox" id="patient_documents" name="patient_documents" value="1" />
+            <label for="patient_documents">
+                <?php echo $this->listenerObject->z_xlt('Include Patient Documents In Zip File'); ?>
+            </label>
+        </div>
     </div>
     <!--End Download All-->
     <div class="ap-st-st-6">

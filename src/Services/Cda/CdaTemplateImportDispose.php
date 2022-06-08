@@ -253,8 +253,8 @@ class CdaTemplateImportDispose
         foreach ($proc_array as $key => $value) {
             $procedure_date_value = null;
             if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
-                $procedure_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
-                $end_date = $value['end_date'] ? date("Y-m-d H:i:s", strtotime($value['end_date'])) : null;
+                $procedure_date_value = !empty($value['date']) ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
+                $end_date = !empty($value['end_date']) ? date("Y-m-d H:i:s", strtotime($value['end_date'])) : null;
             }
             //facility1
             if (empty($value['represented_organization1'])) {

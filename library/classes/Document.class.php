@@ -432,7 +432,7 @@ class Document extends ORDataObject
     /**
      * Returns all of the documents for a specific patient
      * @param int $patient_id
-     * @return array
+     * @return Document[]
      */
     public static function getDocumentsForPatient(int $patient_id)
     {

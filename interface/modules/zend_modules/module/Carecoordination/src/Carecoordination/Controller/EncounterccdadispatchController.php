@@ -224,7 +224,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
                     // no sense in having this forward piece at all...
                     $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids
-                    , 'document_type' => $this->document_type));
+                    , 'document_type' => $this->document_type, 'patient_documents' => $this->params('patient_documents')));
                 } else {
                     die;
                 }

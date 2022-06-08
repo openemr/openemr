@@ -23,6 +23,8 @@ use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PractitionerService;
@@ -84,6 +86,7 @@ class EncountermanagerController extends AbstractActionController
         $new_search = $request->getPost('form_new_search', null);
         $form_sl_no = $request->getPost('form_sl_no', 0);
         $form_measures = $request->getPost('form_measures', null);
+        $includePatientDocuments =  intval($request->getPost("patient_documents") ?? $request->getQuery()->patient_documents ?? 0);
 
         $downloadccda = $request->getPost('downloadccda') ?: $request->getQuery()->downloadccda;
         $downloadqrda = $request->getPost('downloadqrda') ?: $request->getQuery()->downloadqrda;
@@ -127,7 +130,8 @@ class EncountermanagerController extends AbstractActionController
                 'components' => $components,
                 'latest_ccda' => $latest_ccda,
                 'form_date_from' => $fromDate,
-                'form_date_to' => $toDate
+                'form_date_to' => $toDate,
+                'patient_documents' => $includePatientDocuments
             );
             if ($downloadqrda == 'download_qrda') {
                 $send_params = array(
@@ -263,6 +267,8 @@ class EncountermanagerController extends AbstractActionController
     {
         $pids = $this->params('pids');
         $document_type = $this->params('document_type') ?? '';
+        $includePatientDocuments = intval($this->params('patient_documents') ?? 0) === 1;
+
         if ($pids != '') {
             $zip = new Zip();
             $parent_dir = sys_get_temp_dir() . "/CCDA_" . time();
@@ -304,6 +310,9 @@ class EncountermanagerController extends AbstractActionController
                 fwrite($f2, $content);
                 fclose($f2);
                 copy(__DIR__ . "/../../../../../public/xsl/cda.xsl", $dir . "CDA.xsl");
+                if ($includePatientDocuments) {
+                    $this->storePatientDocumentsInDirectory($pid, $dir, $id);
+                }
             }
 
             $zip_dir = sys_get_temp_dir() . "/";
@@ -360,5 +369,41 @@ class EncountermanagerController extends AbstractActionController
     public function getEncountermanagerTable()
     {
         return $this->encountermanagerTable;
+    }
+
+    private function storePatientDocumentsInDirectory($pid, $dir, $ccdaDocToExclude)
+    {
+        // we are going to grab all of our patient documents and save them off to our temp folder that we will then zip up
+        $documentsLocation = $dir . DIRECTORY_SEPARATOR . "patient_documents";
+        if (!is_dir($documentsLocation)) {
+            if (!mkdir($documentsLocation, true) && !is_dir($documentsLocation)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $documentsLocation));
+            }
+            chmod($documentsLocation, 0777);
+        }
+
+        // now let's grab all of our patient documents
+        $patientDocuments = \Document::getDocumentsForPatient($pid);
+        if (!empty($patientDocuments)) {
+            foreach ($patientDocuments as $document) {
+                if ($document->get_id() == $ccdaDocToExclude) {
+                    continue; // skip over our CCDA document that was just generated.
+                }
+                if (!$document->can_access()) {
+                    // don't allow exports of documents we can't access
+                }
+
+                $pathCheck = realpath(dirname($documentsLocation . DIRECTORY_SEPARATOR . $document->get_name()));
+                if (!strpos($pathCheck, $documentsLocation) == 0) {
+                    (new SystemLogger())->errorLogCaller("Document name includes directory traversal attack", ['docId' => $document->get_id()]);
+                    // TODO: do we have a docs ACL?
+                    throw new AccessDeniedException("pat", "demo", "Could not store patient document due to invalid file name");
+                }
+
+                $data = $document->get_data();
+                file_put_contents($documentsLocation . DIRECTORY_SEPARATOR . $document->get_name(), $data);
+                $data = null;
+            }
+        }
     }
 }
