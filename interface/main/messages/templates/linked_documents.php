@@ -57,20 +57,20 @@ foreach ($tmp as $record) {
 }
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 try {
-foreach ($records as $record) : ?>
+    foreach ($records as $record) : ?>
 <div class="row">
     <div class="col-12">
     <span class='font-weight-bold'><?php echo xlt('Linked document'); ?>:</span>
-    <?php if ($record['hasPatient']) : ?>
+        <?php if ($record['hasPatient']) : ?>
         <a href='javascript:void(0);' onClick="previewDocument(" . <?php echo attr_js($record['documentId']); ?>");>
-        <?php echo text($record['title']); ?>
+            <?php echo text($record['title']); ?>
         </a>
     <?php else : ?>
         <a href='javascript:void(0);' onClick="gotoReport(<?php echo attr_js($record['documentId']); ?>, '<?php echo attr_js($record['pname']); ?>', '<?php echo attr_js($record['pid']); ?>','<?php echo attr_js($record['pubpid'] ?? $record['pid']); ?>','<?php echo attr_js($record['DOB']); ?>');">
             <?php echo text($record['title']); ?>
         </a>
     <?php endif; ?>
-    <?php if ($record['isCda']) : ?>
+        <?php if ($record['isCda']) : ?>
         <details>
             <summary><?php echo xlt("Validation report"); ?></summary>
             <?php if (!empty($record['validationErrors'])) : ?>
@@ -85,8 +85,7 @@ foreach ($records as $record) : ?>
     <?php endif; ?>
     </div>
 </div>
-<?php endforeach;
-
+    <?php endforeach;
 } catch (Exception $exception) {
     // if twig throws any exceptions we want to log it.
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
