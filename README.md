@@ -56,11 +56,6 @@ composer dump-autoload -o
 This project exists thanks to all the people who have contributed. [[Contribute]](CONTRIBUTING.md).
 <a href="https://github.com/openemr/openemr/graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
 
-### Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/openemr#backer)]
-
-<a href="https://opencollective.com/openemr#backers" target="_blank"><img src="https://opencollective.com/openemr/backers.svg?width=890"></a>
 
 ### Sponsors
 
