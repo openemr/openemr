@@ -18,6 +18,7 @@ require_once("$include_root/drugs/drugs.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -39,7 +40,8 @@ $auth_drug_reports = $GLOBALS['inhouse_pharmacy'] && (
     AclMain::aclCheckCore('admin', 'drugs') ||
     AclMain::aclCheckCore('inventory', 'reporting'));
 if (!$auth_drug_reports) {
-    die(xlt("Not authorized"));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory List")]);
+    exit;
 }
 
 // Note if user is restricted to any facilities and/or warehouses.

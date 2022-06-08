@@ -315,7 +315,7 @@ function checkNum () {
 function address_verify() {
     top.restoreSession();
     var f = document.demographics_form;
-    
+
     dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(f.form_street.value) +
     '&address2=' + encodeURIComponent(f.form_street_line_2.value) +
     '&city=' + encodeURIComponent(f.form_city.value) +
@@ -323,7 +323,7 @@ function address_verify() {
     '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0,5)) +
     '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5,9))
     , '_blank', 400, 150, '', xl('Address Verify'));
-    
+
     return false;
 }
 
@@ -1166,7 +1166,7 @@ $use_validate_js = $GLOBALS['new_validate'];
             width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
         });
-        
+
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
