@@ -22,6 +22,11 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
+if (! AclMain::aclCheckCore('acct', 'rep')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
+    exit;
+}
+
 $facilityService = new FacilityService();
 
 function thisLineItem($row, $codetype, $code)
@@ -62,11 +67,6 @@ function thisLineItem($row, $codetype, $code)
  </tr>
         <?php
     } // End not csv export
-}
-
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
-    exit;
 }
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
