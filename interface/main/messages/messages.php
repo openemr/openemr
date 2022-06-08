@@ -674,7 +674,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div>" .
                                                 xlt($myrow['title']) . "</div>
                                         <td>
-                                            <div>" . text(oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</div>
+                                            <div>" . text(oeFormatDateTime($myrow['date'])) . "</div>
                                         </td>
                                         <td>
                                             <div>" . text(getListItemTitle('message_status', $myrow['message_status'])) . "</div>
