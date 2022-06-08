@@ -82,14 +82,14 @@ foreach ($records as $record) : ?>
         Count = 0;
         <?php
         if (isset($enc_list) && sqlNumRows($enc_list) > 0) {
-        while ($row = sqlFetchArray($enc_list)) {
-        ?>
+            while ($row = sqlFetchArray($enc_list)) {
+                ?>
         EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
         EncounterDateArray[Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
         CalendarCategoryArray[Count] = '<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
         Count++;
-        <?php
-        }
+                <?php
+            }
         }
         ?>
         top.restoreSession();
