@@ -605,6 +605,7 @@ STP2TOP;
                                     <a href="#pass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                     <p>This is the Login Password that OpenEMR will use to accesses the MySQL database.</p>
                                     <p>It should be at least 12 characters long and composed of both numbers and letters.</p>
+                                    <p>It cannot contain any of these characters: \ ; ( ) < > / ' "</p>
                                 </div>
                             </div>
 STP2TBLTOP1;
