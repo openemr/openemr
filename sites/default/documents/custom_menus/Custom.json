@@ -197,39 +197,6 @@
         "icon": "fa-caret-right",
         "children": [],
         "requirement": 0
-      },
-      {
-        "label": "Import",
-        "icon": "fa-caret-right",
-        "children": [
-          {
-            "label": "Upload",
-            "menu_id": "ccr0",
-            "target": "pat",
-            "url": "/interface/patient_file/ccr_import.php",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "patients",
-              "med",
-              "write"
-            ]
-          },
-          {
-            "label": "Pending Approval",
-            "menu_id": "apr0",
-            "target": "pat",
-            "url": "/interface/patient_file/ccr_pending_approval.php",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "patients",
-              "med",
-              "write"
-            ]
-          }
-        ],
-        "requirement": 0
       }
     ],
     "requirement": 0
