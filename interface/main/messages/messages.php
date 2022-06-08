@@ -884,7 +884,6 @@ if (!empty($_REQUEST['go'])) { ?>
             $('.trusted-messages-force-check').click(function() {
                 window.top.restoreSession();
                 request = new FormData;
-                request.append("skip_timeout_reset", "1");
                 request.append("ajax", "1");
                 request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
                 request.append("background_service", "phimail");
@@ -904,7 +903,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     }
                 }).catch(function(error) {
                     console.log('Background Service refresh failed: ', error);
-                    alert(window.xl("Check new messages failed.  Check the server logs for more information."));
+                    alert(window.xl("Check new messages failed. Check the server logs for more information."));
                 });
             });
             <?php endif; ?>
