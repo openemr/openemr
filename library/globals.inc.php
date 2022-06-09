@@ -77,7 +77,7 @@
 //   Vietnamese                     // xl('Vietnamese')
 
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
-use OpenEMR\OeUi\RenderFormFieldHelper;
+use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
