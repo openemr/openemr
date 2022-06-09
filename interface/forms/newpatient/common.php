@@ -698,12 +698,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             <div class="form-row">
                 <div class="col-sm-12 text-left position-override pl-3">
                     <div class="btn-group" role="group">
+                        <?php $link_submit = ($viewmode || empty($_GET['autoloaded'])) ? '' : 'link_submit'; ?>)
                         <button type="button" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save'); ?></button>
-                        <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                            <button type="button" class="btn btn-cancel" onClick="return cancelClickedOld()"><?php echo xlt('Cancel'); ?></button>
-                        <?php } else { // not $viewmode ?>
-                            <button class="btn btn-cancel" onClick="return cancelClickedNew()"><?php echo xlt('Cancel'); ?></button>
-                        <?php } // end not $viewmode ?>
+                        <button type="button" class="btn btn-cancel <?php echo $link_submit; ?>" onClick="return cancelClickedOld()"><?php echo xlt('Cancel'); ?></button>
                     </div>
                 </div>
             </div>

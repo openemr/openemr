@@ -4067,7 +4067,6 @@ $GLOBALS_METADATA = array(
             xl('Enable follow-up encounters feature')
         ],
 
-
         'gbl_visit_referral_source' => array(
             xl('Referral Source for Encounters'),
             'bool',                           // data type
