@@ -714,3 +714,15 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 UPDATE list_options SET seq=40 WHERE list_id="immunization_refusal_reason" AND option_id="parental_decision";
 UPDATE list_options SET seq=10 WHERE list_id="immunization_refusal_reason" AND option_id="patient_decision";
 #EndIf
+
+#IfMissingColumn procedure_result date_end
+ALTER TABLE `procedure_result` ADD `date_end` datetime DEFAULT NULL COMMENT 'lab-provided end date specific to this result';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id title title Title
+UPDATE `layout_options` SET `title` = 'Title' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'title';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id fname title Name
+UPDATE `layout_options` SET `title` = 'Name', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'fname';
+#EndIf

@@ -3421,8 +3421,8 @@ CREATE TABLE `layout_options` (
 -- Inserting data for table `layout_options`
 --
 
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','title','1','Name',10,1,1,0,0,'titles',1,3,'','[\"N\"]','Title',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','fname','1','',20,2,2,15,63,'',0,0,'','[\"C\",\"DAP\"]','First Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','title','1','Title',10,1,1,0,0,'titles',1,3,'','[\"N\"]','Title',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','fname','1','Name',20,2,2,15,63,'',1,3,'','[\"C\",\"DAP\"]','First Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','mname','1','',30,2,1,5,63,'',0,0,'','[\"C\",\"DAP\"]','Middle Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','lname','1','',40,2,2,20,63,'',0,0,'','[\"C\",\"D\",\"DAP\"]','Last Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','suffix','1','',50,2,1,5,63,'',0,0,'','[\"EP\",\"DAP\"]','Name Suffix',0,'','F','','','');
@@ -9386,6 +9386,7 @@ CREATE TABLE `procedure_result` (
   `comments`            text                             COMMENT 'comments from the lab',
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
+  `date_end`            datetime     DEFAULT NULL        COMMENT 'lab-provided end date specific to this result',
   PRIMARY KEY (`procedure_result_id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY procedure_report_id (procedure_report_id)

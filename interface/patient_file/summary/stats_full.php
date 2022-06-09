@@ -19,6 +19,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -38,7 +39,8 @@ if ($auth) {
         die(xlt('Not authorized'));
     }
 } else {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
+    exit;
 }
 
  // Collect parameter(s)

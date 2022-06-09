@@ -21,6 +21,7 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
@@ -29,7 +30,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reports")]);
+    exit;
 }
 // get various authorization levels
 $auth_notes_a  = AclMain::aclCheckCore('encounters', 'notes_a');

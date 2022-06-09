@@ -674,7 +674,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div>" .
                                                 xlt($myrow['title']) . "</div>
                                         <td>
-                                            <div>" . text(oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</div>
+                                            <div>" . text(oeFormatDateTime($myrow['date'])) . "</div>
                                         </td>
                                         <td>
                                             <div>" . text(getListItemTitle('message_status', $myrow['message_status'])) . "</div>
@@ -693,6 +693,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                             if ($GLOBALS['phimail_enable']) {
                                 echo "&nbsp; <a href='trusted-messages.php' onclick='top.restoreSession()' class='btn btn-secondary btn-mail'>" . xlt("Compose Trusted Direct Message") . "</a>";
+                                echo "&nbsp; <button class='btn btn-secondary btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
                             }
                             echo "
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
@@ -825,6 +826,7 @@ if (!empty($_REQUEST['go'])) { ?>
         var collectvalidation = <?php echo $collectthis; ?>;
 
         $(function () {
+            var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
             $("#reminders-div").hide();
             $("#recalls-div").hide();
             $("#sms-div").hide();
@@ -877,6 +879,34 @@ if (!empty($_REQUEST['go'])) { ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
+
+            <?php if ($GLOBALS['phimail_enable']) : ?>
+            $('.trusted-messages-force-check').click(function() {
+                window.top.restoreSession();
+                request = new FormData;
+                request.append("ajax", "1");
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                request.append("background_service", "phimail");
+                request.append("background_force", "1");
+                fetch(webRoot + "/library/ajax/execute_background_services.php", {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: request
+                }).then((response) => {
+                    if (response.status !== 200) {
+                        console.log('Background Service refresh failed. Status Code: ' + response.status);
+                    } else {
+                        // we've refreshed give them time to reload the page
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 500);
+                    }
+                }).catch(function(error) {
+                    console.log('Background Service refresh failed: ', error);
+                    alert(window.xl("Check new messages failed. Check the server logs for more information."));
+                });
+            });
+            <?php endif; ?>
 
         });
         $(function () {

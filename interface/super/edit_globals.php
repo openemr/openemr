@@ -28,6 +28,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -43,7 +44,8 @@ if (!$userMode) {
   // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        die(xlt('Not authorized'));
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Global Settings")]);
+        exit;
     }
 }
 

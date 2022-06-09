@@ -29,6 +29,7 @@ use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
@@ -224,7 +225,8 @@ class EncountermanagerController extends AbstractActionController
         $zip_dir = sys_get_temp_dir() . "/";
         $zip_name = "CCDA_$id.zip";
 
-        $content = $this->getEncountermanagerTable()->getFile($id);
+        $ccdaDocument = new \Document($id);
+        $content = $ccdaDocument->get_data();
         $f = fopen($dir . $filename, "w");
         fwrite($f, $content);
         fclose($f);
@@ -247,6 +249,10 @@ class EncountermanagerController extends AbstractActionController
         header("Content-Type: application/download");
         header("Content-Transfer-Encoding: binary");
         readfile($zip_dir . $zip_name);
+
+        // we need to unlink both the directory and the zip file once are done... as its a security hazard
+        // to have these files just hanging around in a tmp folder
+        unlink($zip_dir . $zip_name);
 
         $view = new ViewModel();
         $view->setTerminal(true);
@@ -287,7 +293,8 @@ class EncountermanagerController extends AbstractActionController
                     chmod($dir, 0777);
                 }
                 // xml version for parsing or transfer.
-                $content = $this->getEncountermanagerTable()->getFile($id);
+                $ccdaDocuments = \Document::getDocumentsForForeignReferenceId('ccda', $id);
+                $content = !empty($ccdaDocuments) ? $ccdaDocuments[0]->get_data() : ""; // nothing here to export
                 $f2 = fopen($dir . $filename, "w");
                 fwrite($f2, $content);
                 fclose($f2);
@@ -317,6 +324,10 @@ class EncountermanagerController extends AbstractActionController
             header("Content-Type: application/download");
             header("Content-Transfer-Encoding: binary");
             readfile($zip_dir . $zip_name);
+
+            // we need to unlink both the directory and the zip file once are done... as its a security hazard
+            // to have these files just hanging around in a tmp folder
+            unlink($zip_dir . $zip_name);
 
             $view = new ViewModel();
             $view->setTerminal(true);
