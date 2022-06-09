@@ -449,7 +449,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
                                             $selected = ($viewmode && $result['sensitivity'] == $value[1]) ? 'selected' : '';
                                             $value = attr($value[1]);
-                                            $display = xlt($value[3]);
+                                            $display = xlt($value);
                                             echo "<option value=\"$value\" $selected>$display</option>\n";
                                         }
                                         $selected = ($viewmode && !$result['sensitivity']) ? "selected" : "";
@@ -699,7 +699,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             <div class="form-row">
                 <div class="col-sm-12 text-left position-override pl-3">
                     <div class="btn-group" role="group">
-                        <?php $link_submit = ($viewmode || empty($_GET['autoloaded'])) ? '' : 'link_submit'; ?>)
+                        <?php $link_submit = ($viewmode || empty($_GET['autoloaded'])) ? '' : 'link_submit'; ?>
                         <button type="button" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save'); ?></button>
                         <button type="button" class="btn btn-cancel <?php echo $link_submit; ?>" onClick="return cancelClickedOld()"><?php echo xlt('Cancel'); ?></button>
                     </div>
