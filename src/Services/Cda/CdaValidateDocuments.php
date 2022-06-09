@@ -12,14 +12,29 @@
 
 namespace OpenEMR\Services\Cda;
 
+use CURLFile;
+use CURLStringFile;
 use DOMDocument;
 use Exception;
 use OpenEMR\Common\System\System;
+use stdClass;
 
 class CdaValidateDocuments
 {
+    public $externalValidatorUrl;
+    public $externalValidatorEnabled;
+
     public function __construct()
     {
+        $this->externalValidatorEnabled = !empty($GLOBALS['mdht_conformance_server_enable'] ?? false);
+        $this->externalValidatorUrl = null;
+        if ($this->externalValidatorEnabled) {
+            $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: 'http://ccda.healthit.gov';
+            if (!str_ends_with($this->externalValidatorUrl, '/')) {
+                $this->externalValidatorUrl .= '/';
+            }
+            $this->externalValidatorUrl .= 'referenceccdaservice/';
+        }
     }
 
     /**
@@ -30,14 +45,54 @@ class CdaValidateDocuments
      */
     public function validateDocument($document, $type)
     {
+        // always validate schema XSD
         $xsd = $this->validateXmlXsd($document, $type);
-        $schema_results = $this->validateSchematron($document, $type);
+        if ($this->externalValidatorEnabled) {
+            $schema_results = $this->ettValidateCcda($document);
+        } else {
+            $schema_results = $this->validateSchematron($document, $type);
+        }
+
         $totals = array_merge($xsd, $schema_results);
 
         return $totals;
     }
 
     /**
+     * @param $xml
+     * @return array|mixed
+     */
+    public function ettValidateCcda($xml)
+    {
+        try {
+            $result = $this->ettValidateDocumentRequest($xml);
+        } catch (Exception $e) {
+            $e = $e->getMessage();
+            error_log($e);
+            return [];
+        }
+        // translate result to our common render array
+        $results = array(
+            'errorCount' => $result['resultsMetaData']["resultMetaData"][0]["count"],
+            'warningCount' => 0,
+            'ignoredCount' => 0,
+        );
+        foreach ($result['ccdaValidationResults'] as $r) {
+            $results['errors'][] = array(
+                'type' => 'error',
+                'test' => $r['type'],
+                'description' => $r['description'],
+                'line' => $r['documentLineNumber'],
+                'path' => $r['xPath'],
+                'context' => $r['type'],
+                'xml' => '',
+            );
+        }
+        return $results;
+    }
+
+    /**
+     * @param string $port
      * @return bool
      * @throws Exception
      */
@@ -94,7 +149,7 @@ class CdaValidateDocuments
      * @return mixed|null
      * @throws Exception
      */
-    function schematronValidateDocument($xml, $type = 'ccda')
+    private function schematronValidateDocument($xml, $type = 'ccda')
     {
         $service = $this->startValidationService();
         $reply = [];
@@ -116,6 +171,65 @@ class CdaValidateDocuments
         curl_close($ch);
 
         $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        if ($status == '200') {
+            $reply = json_decode($response, true);
+        }
+
+        return $reply;
+    }
+
+    /**
+     * @param $xml
+     * @return array|mixed
+     */
+    private function ettValidateDocumentRequest($xml)
+    {
+        $reply = [];
+        if (empty($xml)) {
+            return $reply;
+        }
+
+        $headers = array(
+            "Content-Type: multipart/form-data",
+            "Accept: application/json",
+        );
+        $post_url = $this->externalValidatorUrl;
+        // I know there's a better way to do this but, not seeing it just now.
+        $post_file = $GLOBALS['temporary_files_dir'] . '/ccda.xml';
+        file_put_contents($post_file, $xml);
+        $file = new CURLFile($post_file, 'application/xhtml+xml', 'ccda.xml');
+
+        $post_this = [
+            'validationObjective' => 'C-CDA_IG_Plus_Vocab',
+            'referenceFileName' => 'noscenariofile',
+            'vocabularyConfig' => 'ccdaReferenceValidatorConfig',
+            'severityLevel' => 'ERROR',
+            'curesUpdate' => true,
+            'ccdaFile' => $file
+        ];
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $post_url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_this);
+
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        if (empty($response) || $status !== '200') {
+            $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
+            $reply['ccdaValidationResults'][] = array(
+                'description' => xlt('Validation Request failed') .
+                    ': Error ' . (curl_error($ch) ?: xlt('Unknown')) . ' ' .
+                    xlt('Request Status') . ':' . $status
+            );
+        }
+        curl_close($ch);
         if ($status == '200') {
             $reply = json_decode($response, true);
         }
@@ -191,6 +305,10 @@ class CdaValidateDocuments
         return $error_str;
     }
 
+    /**
+     * @param $amid
+     * @return string
+     */
     public function createSchematronHtml($amid)
     {
         $errors = $this->fetchValidationLog($amid);

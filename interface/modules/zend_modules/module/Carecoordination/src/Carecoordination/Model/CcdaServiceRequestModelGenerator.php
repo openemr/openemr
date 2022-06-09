@@ -86,7 +86,7 @@ class CcdaServiceRequestModelGenerator
                 <postalCode>" . htmlspecialchars($representedOrganization['postalCode'] ?? '', ENT_QUOTES) . "</postalCode>
                 <country>" . htmlspecialchars($representedOrganization['country'] ?? '', ENT_QUOTES) . "</country>
             </representedOrganization>";
-        $this->data .= "<referral_reason><text>" . htmlspecialchars($referral_reason, ENT_QUOTES) . "</text></referral_reason>";
+        $this->data .= "<referral_reason><text>" . htmlspecialchars($referral_reason ?: '', ENT_QUOTES) . "</text></referral_reason>";
 
         /***************CCDA Header Information***************/
         $this->data .= $this->getEncounterccdadispatchTable()->getPatientdata($pid, $encounter);
