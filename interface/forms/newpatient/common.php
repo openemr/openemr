@@ -90,7 +90,8 @@ $displayMode = ($viewmode && $mode !== "followup") ? "edit" : "new";
  * @param string $field
  * @return string
  */
-function displayOption($field) {
+function displayOption($field)
+{
     global $displayMode;
     echo RenderFormFieldHelper::shouldDisplayFormField($GLOBALS[$field], $displayMode) ? '' : 'd-none';
 }
@@ -637,60 +638,60 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     <?php
                     // Before we even check for auth, see if we will even display
                     // To see issues stuff user needs write access to all issue types.
-                        $issuesauth = true;
-                        foreach ($ISSUE_TYPES as $type => $dummy) {
-                            if (!AclMain::aclCheckIssue($type, '', 'write')) {
-                                $issuesauth = false;
-                                break;
-                            }
+                    $issuesauth = true;
+                    foreach ($ISSUE_TYPES as $type => $dummy) {
+                        if (!AclMain::aclCheckIssue($type, '', 'write')) {
+                            $issuesauth = false;
+                            break;
                         }
-                        if ($issuesauth) {
-                            ?>
-                            <fieldset>
-                                <legend>
-                                    <?php echo xlt('Link/Add Issues to This Visit') ?>
-                                </legend>
-                                <div id="visit-issues">
-                                    <div class="form-row px-3">
-                                        <div class="pb-1 col-sm">
-                                            <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
-                                                <a href="../../patient_file/summary/add_edit_issue.php" class="btn d-block btn-primary btn-add btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
-                                            <?php } ?>
-                                        </div>
-                                        <select multiple name='issues[]' class='form-control' title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>' size='4'>
-                                            <?php
-                                            while ($irow = sqlFetchArray($ires)) {
-                                                $list_id = $irow['id'];
-                                                $tcode = $irow['type'];
-                                                if ($ISSUE_TYPES[$tcode]) {
-                                                    $tcode = $ISSUE_TYPES[$tcode][2];
-                                                }
-                                                echo "<option value='" . attr($list_id) . "'";
-                                                if ($viewmode) {
-                                                    $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-                                                        "pid = ? AND encounter = ? AND list_id = ?", array($pid, $encounter, $list_id));
-                                                    if ($perow['count']) {
-                                                        echo " selected";
-                                                    }
-                                                } else {
-                                                    // For new encounters the invoker may pass an issue ID.
-                                                    if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) {
-                                                        echo " selected";
-                                                    }
-                                                }
-                                                echo ">" . text($tcode) . ": " . text($irow['begdate']) . " " .
-                                                    text(substr($irow['title'], 0, 40)) . "</option>\n";
-                                            }
-                                            ?>
-                                        </select>
-                                        <p><i><?php echo xlt('To link this encounter/consult to an existing issue, click the '
-                                                    . 'desired issue above to highlight it and then click [Save]. '
-                                                    . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
+                    }
+                    if ($issuesauth) {
+                        ?>
+                        <fieldset>
+                            <legend>
+                                <?php echo xlt('Link/Add Issues to This Visit') ?>
+                            </legend>
+                            <div id="visit-issues">
+                                <div class="form-row px-3">
+                                    <div class="pb-1 col-sm">
+                                        <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
+                                            <a href="../../patient_file/summary/add_edit_issue.php" class="btn d-block btn-primary btn-add btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
+                                        <?php } ?>
                                     </div>
+                                    <select multiple name='issues[]' class='form-control' title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>' size='4'>
+                                        <?php
+                                        while ($irow = sqlFetchArray($ires)) {
+                                            $list_id = $irow['id'];
+                                            $tcode = $irow['type'];
+                                            if ($ISSUE_TYPES[$tcode]) {
+                                                $tcode = $ISSUE_TYPES[$tcode][2];
+                                            }
+                                            echo "<option value='" . attr($list_id) . "'";
+                                            if ($viewmode) {
+                                                $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
+                                                    "pid = ? AND encounter = ? AND list_id = ?", array($pid, $encounter, $list_id));
+                                                if ($perow['count']) {
+                                                    echo " selected";
+                                                }
+                                            } else {
+                                                // For new encounters the invoker may pass an issue ID.
+                                                if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) {
+                                                    echo " selected";
+                                                }
+                                            }
+                                            echo ">" . text($tcode) . ": " . text($irow['begdate']) . " " .
+                                                text(substr($irow['title'], 0, 40)) . "</option>\n";
+                                        }
+                                        ?>
+                                    </select>
+                                    <p><i><?php echo xlt('To link this encounter/consult to an existing issue, click the '
+                                                . 'desired issue above to highlight it and then click [Save]. '
+                                                . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
                                 </div>
-                            </fieldset>
-                            <?php
-                        }
+                            </div>
+                        </fieldset>
+                        <?php
+                    }
                     ?>
                 </div>
             </div>
