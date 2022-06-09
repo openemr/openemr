@@ -25,7 +25,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\UserService;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\OeUI\RenderHelper;
+use OpenEMR\OeUI\RenderFormFieldHelper;
 
 $facilityService = new FacilityService();
 
@@ -92,7 +92,7 @@ $displayMode = ($viewmode && $mode !== "followup") ? "edit" : "new";
  */
 function displayOption($field) {
     global $displayMode;
-    echo RenderHelper::displayField($GLOBALS[$field], $displayMode) ? '' : 'd-none';
+    echo RenderFormFieldHelper::shouldDisplayFormField($GLOBALS[$field], $displayMode) ? '' : 'd-none';
 }
 
 // Sort comparison for sensitivities by their order attribute.

@@ -76,10 +76,9 @@
 //   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
-use Google\Service\DriveActivity\Rename;
-use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
-use OpenEMR\OeUi\RenderHelper;
+use OpenEMR\OeUi\RenderFormFieldHelper;
+use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -94,6 +93,16 @@ if (stristr(PHP_OS, 'WIN')) {
     $perl_bin_dir = '/usr/bin';
     $temporary_files_dir = '/tmp';
     $backup_log_dir = '/tmp';
+}
+
+function getDefaultRenderListOptions()
+{
+    return [
+        RenderFormFieldHelper::SHOW_ON_NEW_ONLY => xl('Show on New Form Only'),
+        RenderFormFieldHelper::SHOW_ON_EDIT_ONLY => xl('Show on Edit Form Only'),
+        RenderFormFieldHelper::SHOW_ALL => xl('Show on New and Edit Form'),
+        RenderFormFieldHelper::HIDE_ALL => xl('Hide on New and Edit Form'),
+    ];
 }
 
 // Language constant declarations:
@@ -4036,7 +4045,7 @@ $GLOBALS_METADATA = array(
         ],
     ],
 
-    'Encounter' => [
+    'Encounter Form' => [
         'default_chief_complaint' => array(
             xl('Default Reason for Visit'),
             'text',                           // data type
@@ -4082,109 +4091,64 @@ $GLOBALS_METADATA = array(
 
         'enc_service_date' => [
             xl('Show Date of Service on Encounter Form'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('How to display the Date of Service on the Encounter form. Defaults to the current time on a new form'),
         ],
 
         'enc_sensitivity_visibility' => [
             xl('Show Sensitivity on Encounter Form'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('How to display the sensitivity option'),
         ],
 
         'enc_enable_issues' => [
             xl('Allow Linking/Adding Issues on Encounter'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Allow on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Allow on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Allow on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('Allow issues to be linked or added to an encounter'),
         ],
 
         'enc_enable_referring_provider' => [
             xl('Show Referring Provider option on Encounters'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('Display the Referring Provider option on Encounters'),
         ],
 
         'enc_enable_facility' => [
             xl('Show Facility option on Encounters'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('Display the Referring Provider option on Encounters'),
         ],
 
         'enc_enable_discharge_disposition' => [
             xl('Show Discharge Disposition option on Encounters'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('Display the Discharge Disposition option on the Encounter form'),
         ],
 
         'enc_enable_visit_category' => [
             xl('Show Visit Category option on Encounters'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('Show Visit Category option on Encounters'),
         ],
 
         'enc_enable_class' => [
             xl('Show Encounter Class option on Encounters'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('Show Encounter Class option on Encounters'),
         ],
 
         'enc_enable_type' => [
             xl('Show Encounter Type option on Encounters'),
-            [
-                RenderHelper::SHOW_ON_NEW_ONLY => 'Show on New Form Only',
-                RenderHelper::SHOW_ON_EDIT_ONLY => 'Show on Edit Form Only',
-                RenderHelper::SHOW_ALL => 'Show on New and Edit Form',
-                RenderHelper::HIDE_ALL => 'Hide on New and Edit Form',
-            ],
-            RenderHelper::SHOW_ALL,
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
             xl('Show Encounter Class option on Encounters'),
         ],
 
