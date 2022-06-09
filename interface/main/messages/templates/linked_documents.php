@@ -61,8 +61,8 @@ try {
 <div class="row">
     <div class="col-12">
     <span class='font-weight-bold'><?php echo xlt('Linked document'); ?>:</span>
-        <?php if ($record['hasPatient']) : ?>
-        <a href='javascript:void(0);' onClick="previewDocument(" . <?php echo attr_js($record['documentId']); ?>");>
+        <?php if (!$record['hasPatient']) : ?>
+        <a href='javascript:void(0);' onClick="previewDocument(<?php echo attr_js($record['documentId']); ?>);">
             <?php echo text($record['title']); ?>
         </a>
     <?php else : ?>
