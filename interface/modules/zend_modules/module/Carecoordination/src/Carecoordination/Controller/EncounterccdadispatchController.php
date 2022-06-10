@@ -216,6 +216,10 @@ class EncounterccdadispatchController extends AbstractActionController
                     $proc->transformToURI($xml, $outputFile);
 
                     $htmlContent = file_get_contents($outputFile);
+                    $result = unlink($outputFile); // remove the file so we don't have PHI left around on the filesystem
+                    if (!$result) {
+                        (new SystemLogger())->errorLogCaller("Failed to unlink temporary CDA output on hard drive. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
+                    }
                     echo $htmlContent;
                 }
 

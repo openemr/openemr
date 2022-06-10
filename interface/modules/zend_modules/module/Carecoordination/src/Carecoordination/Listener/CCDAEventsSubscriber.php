@@ -118,7 +118,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 if ($type == 'CCR') {
                     $stylesheet .= "ccr.xsl";
                 } else if ($type == "CCD") {
-                    $stylesheet .= "cda-web.xsl";
+                    $stylesheet .= "cda.xsl";
                 }
                 if (!file_exists($stylesheet)) {
                     throw new \RuntimeException("Could not find stylesheet file at location: " . $stylesheet);

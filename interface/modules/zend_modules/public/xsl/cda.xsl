@@ -38,7 +38,10 @@
   Revision History: 2017-03-31 Eric Parapini - Whitespace issues fixing
   Revision History: 2017-04-05 Eric Parapini - Whitespace tweaking in the header, added patient ID highlighting
   Revision History: 2017-04-06 Eric Parapini - Tweaked encounter whitespace organization
-
+  Revision History: 2022-06-09 Stephen Nielson - Added better support for assignedAuthor.softwareName
+                                                 Added back the timezone component display
+                                                 Added the oid display for patient ids
+                                                 Disabled section sorting, Adding a single section display component
   This style sheet is based on a major revision of the original CDA XSL, which was made possible thanks to the contributions of:
   - Jingdong Li
   - KH
@@ -120,6 +123,7 @@ limitations under the License.
         <xsl:call-template name="bootstrap-javascript"/>
         <xsl:call-template name="lantana-js"/>
         <xsl:call-template name="lantana-css"/>
+        <xsl:call-template name="openemr-js"/>
       </head>
       <body data-spy="scroll" data-target="#navbar-cda">
 
@@ -214,7 +218,7 @@ limitations under the License.
           <ul class="cda-render nav nav-stacked fixed" id="navbar-list-cda-sortable">
             <xsl:for-each select="n1:component/n1:structuredBody/n1:component/n1:section/n1:title">
               <li>
-                <a class="cda-render lantana-toc" href="#{generate-id(.)}">
+                <a class="cda-render lantana-toc openemr-toggle-section cda-clinical-section" href="#{generate-id(.)}">
                   <xsl:value-of select="."/>
                 </a>
               </li>
@@ -222,7 +226,13 @@ limitations under the License.
           </ul>
         </li>
         <li>
-          <a class="cda-render lantana-toc" href="#doc-info">SIGNATURES</a>
+          <a class="cda-render lantana-toc openemr-toggle-section" href="#doc-info">SIGNATURES</a>
+        </li>
+        <li>
+          <a class="cda-render lantana-toc openemr-toggle-display-mode" data-mode="single" href="javascript:void(0)">TOGGLE DISPLAY SINGLE SECTION</a>
+        </li>
+        <li class="hidden">
+          <a class="cda-render lantana-toc openemr-toggle-display-mode" href="javascript:void(0)" data-mode="all">TOGGLE DISPLAY ALL SECTIONS</a>
         </li>
       </ul>
     </nav>
@@ -315,9 +325,32 @@ limitations under the License.
                     </xsl:if>
                   </xsl:when>
                   <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName">
-                    <xsl:call-template name="show-code">
-                      <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
-                    </xsl:call-template>
+                    <xsl:choose>
+                      <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName/n1:originalText">
+                        <xsl:call-template name="show-code">
+                          <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                        </xsl:call-template>
+                      </xsl:when>
+                      <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName/@code">
+                        <xsl:call-template name="show-code">
+                          <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                        </xsl:call-template>
+                      </xsl:when>
+                      <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName/@displayName">
+                        <xsl:call-template name="show-code">
+                          <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                        </xsl:call-template>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <div class="row">
+                          <div class="attribute-title col-md-6">Software Name</div>
+                          <div class="col-md-6">
+                            <xsl:value-of select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                          </div>
+                        </div>
+                      </xsl:otherwise>
+                    </xsl:choose>
+
 
                   </xsl:when>
                   <xsl:when test="n1:representedOrganization">
@@ -1240,7 +1273,7 @@ limitations under the License.
       and process any nested component/sections
     -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="section">
-    <div class="container-fluid header">
+    <div class="container-fluid header cda-section">
       <xsl:call-template name="section-title">
         <xsl:with-param name="title" select="n1:title"/>
       </xsl:call-template>
@@ -1721,6 +1754,9 @@ limitations under the License.
       <xsl:when test="$sig/@code = 'X'">
         <xsl:text>signature required</xsl:text>
       </xsl:when>
+      <xsl:otherwise>
+        <h1>No signatures found</h1>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
   <!--  show-id -->
@@ -2436,6 +2472,17 @@ limitations under the License.
           <xsl:value-of select="$mm"/>
         </xsl:if>
       </xsl:if>
+      <!-- time zone. Don't try getting a name for it as that will always fail parts of the year due to daylight savings -->
+      <xsl:choose>
+        <xsl:when test="contains($date, '+')">
+          <xsl:text> +</xsl:text>
+          <xsl:value-of select="substring-after($date, '+')"/>
+        </xsl:when>
+        <xsl:when test="contains($date, '-')">
+          <xsl:text> -</xsl:text>
+          <xsl:value-of select="substring-after($date, '-')"/>
+        </xsl:when>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
   <!-- convert to lower case -->
@@ -2896,11 +2943,9 @@ limitations under the License.
       <xsl:when test="$id-oid = '2.16.840.1.113883.19.5.99999.2'">
         <xsl:text>Meaningless identifier, not to be used for any actual entities. Examples only.</xsl:text>
       </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>OID: </xsl:text>
-        <xsl:value-of select="$id-oid"/>
-      </xsl:otherwise>
     </xsl:choose>
+    <xsl:text> OID: </xsl:text>
+    <xsl:value-of select="$id-oid"/>
   </xsl:template>
 
 <xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lantana-css">
@@ -3069,7 +3114,8 @@ $(document).ready(function(){
         });
     });
 });
-
+      /*
+      TODO: until we can get the sortable working with our section hide / display, we turn this off
 $( function() {
     $( "#navbar-list-cda-sortable" ).sortable();
     $( "#navbar-list-cda-sortable" ).disableSelection();
@@ -3093,8 +3139,46 @@ $( function() {
     } );
   } );
 
-
+*/
       
+    </script>
+  </xsl:template>
+  <xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="openemr-js">
+    <script type="text/javascript">
+      (function() {
+        var sections = [];
+
+        window.openemr = {
+          showSingleSection: function(evt) {
+            window.openemr.hideAllSections();
+            let hash = evt ? evt.target.hash : window.location.hash;
+            if (hash) {
+              // find the fragment and display it
+              $(hash).closest(".cda-section").removeClass("hidden");
+            }
+          },
+          hideAllSections: function() {
+            $(".cda-section").addClass("hidden");
+          },
+          displayAllSections: function() {
+            $(".cda-section").removeClass("hidden");
+          }
+        };
+      })(window);
+      $(document).ready(function() {
+        $(".openemr-toggle-display-mode").click(function() {
+          $(".openemr-toggle-display-mode").parent().removeClass("hidden");
+          $(this).parent().addClass("hidden");
+          let mode = $(this).data("mode");
+          if (mode == 'single') {
+              $(".lantana-toc.openemr-toggle-section").parent().click(window.openemr.showSingleSection);
+              window.openemr.showSingleSection();
+          } else {
+            $(".lantana-toc.openemr-toggle-section").parent().off("click", window.openemr.showSingleSection);
+            window.openemr.displayAllSections();
+          }
+        });
+      });
     </script>
   </xsl:template>
 <xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jquery">
