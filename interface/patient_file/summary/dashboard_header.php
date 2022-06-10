@@ -20,7 +20,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 
-$portal_login_href = $url_webroot . "/interface/patient_file/summary/create_portallogin.php";
+$portal_login_href = $web_root . "/interface/patient_file/summary/create_portallogin.php";
 
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();
