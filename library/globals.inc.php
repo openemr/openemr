@@ -230,6 +230,13 @@ $GLOBALS_METADATA = array(
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
+        'window_title_add_patient_name' => array(
+            xl('Add Patient Name To Window Title'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Adds the patient name to the end of the window title.')
+        ),
+
         'enable_compact_mode' => array(
             xl('Enable Compact Mode'),
             'bool',                           // data type
