@@ -3509,6 +3509,20 @@ $GLOBALS_METADATA = array(
             '',
             xl('USPS Web Tools API Username')
         ),
+
+        'mdht_conformance_server_enable' => array(
+            xl('Use MDHT External Validation Service'),
+            'bool',                           // data type
+            '0',
+            xl('Enable CCDA conformance and validation API service')
+        ),
+
+        'mdht_conformance_server' => array(
+            xl('CCDA MDHT Validation API Server Address'),
+            'text',                           // data type
+            'http://ccda.healthit.gov',
+            xl('CCDA conformance and validation API service URL. Default is a public server mainly used for testing. Production sites should spin up your own.')
+        ),
     ),
 
     'Rx' => array(
