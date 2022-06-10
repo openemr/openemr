@@ -16,6 +16,7 @@ use CURLFile;
 use CURLStringFile;
 use DOMDocument;
 use Exception;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use stdClass;
 
@@ -67,8 +68,7 @@ class CdaValidateDocuments
         try {
             $result = $this->ettValidateDocumentRequest($xml);
         } catch (Exception $e) {
-            $e = $e->getMessage();
-            error_log($e);
+            (new SystemLogger())->errorLogCaller($e->getMessage(), ["trace" => $e->getTraceAsString()]);
             return [];
         }
         // translate result to our common render array
