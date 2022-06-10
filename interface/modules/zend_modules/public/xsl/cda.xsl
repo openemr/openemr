@@ -161,6 +161,14 @@ limitations under the License.
 
           <!-- produce human readable document content -->
           <div class="middle" id="doc-clinical-info">
+            <xsl:if test="n1:component/n1:structuredBody">
+              <div class="cda-section-empty container-fluid header cda-section hidden">
+                <h1 class="section-title">No Clinical Sections</h1>
+                <div class="section-text">
+                  <p>No clinical sections were selected to be included in this document.</p>
+                </div>
+              </div>
+            </xsl:if>
             <xsl:apply-templates select="n1:component/n1:structuredBody | n1:component/n1:nonXMLBody"/>
           </div>
           <!-- Footer -->
@@ -3131,8 +3139,7 @@ $(document).ready(function(){
         });
     });
 });
-      /*
-      TODO: until we can get the sortable working with our section hide / display, we turn this off
+
 $( function() {
     $( "#navbar-list-cda-sortable" ).sortable();
     $( "#navbar-list-cda-sortable" ).disableSelection();
@@ -3145,18 +3152,22 @@ $( function() {
     $nav.sortable( {
         update: function ( e ) {
             $content.empty( );
+            $originalContent.find('.cda-section-empty').each(function(index, elem) {
+                $content.append( $(elem).clone());
+            });
             $nav.find( 'a' ).each( function ( ) {
                 $content.append( $originalContent.clone( ).find( $( this ).attr( 'href' ) ).parent ( ) );
             } );
 
               $('[data-spy="scroll"]').each(function () {
-  var $spy = $(this).scrollspy('refresh')
-})
+                var $spy = $(this).scrollspy('refresh')
+              });
+            if (window.openemr) {
+                window.openemr.refreshDisplay();
+            }
         }
     } );
   } );
-
-*/
       
     </script>
   </xsl:template>
@@ -3166,6 +3177,50 @@ $( function() {
         var sections = [];
 
         window.openemr = {
+          init: function() {
+              sections = [];
+              let elements = document.querySelectorAll(".cda-clinical-section");
+              elements.forEach(function(elem) {
+                  // we grab original href for our ids
+                  sections.push({ id: elem.getAttribute("href"), visible: true });
+              });
+          },
+
+          refreshDisplay: function() {
+              let hasVisibleSection = false;
+              sections.forEach(function(section) {
+                    hasVisibleSection = hasVisibleSection || section.visible;
+                    let elem = document.querySelector(section.id); // already has # in id
+                    if (!elem) {
+                        console.error("Failed to find element with id ", section.id);
+                    }
+                    let tocLink = document.querySelector("a[href*='" + section.id + "']");
+                    if (section.visible) {
+                      tocLink.querySelector(".toc-icon-hide").classList.remove("hidden");
+                      tocLink.querySelector(".toc-icon-show").classList.add("hidden");
+                      window.openemr.showSectionForId(section.id);
+                    } else {
+                      tocLink.querySelector(".toc-icon-hide").classList.add("hidden");
+                      tocLink.querySelector(".toc-icon-show").classList.remove("hidden");
+                      window.openemr.hideSectionForId(section.id);
+                    }
+              });
+
+              if (hasVisibleSection) {
+                document.querySelector(".toc-icon-container.toc-icon-show").classList.add("hidden");
+                document.querySelector(".toc-icon-container.toc-icon-hide").classList.remove("hidden");
+                document.querySelector(".cda-section-empty").classList.add("hidden");
+              } else {
+                document.querySelector(".toc-icon-container.toc-icon-show").classList.remove("hidden");
+                document.querySelector(".toc-icon-container.toc-icon-hide").classList.add("hidden");
+                document.querySelector(".cda-section-empty").classList.remove("hidden");
+              }
+          },
+          setSectionDisplay: function(id, show) {
+              sections.filter(function(section) { return section.id == id })
+                      .forEach(function(section) { section.visible = show; });
+
+          },
           showSectionForId: function(id) {
             if (id) {
               // find the fragment and display it
@@ -3178,57 +3233,45 @@ $( function() {
               $(id).closest(".cda-section").addClass("hidden");
             }
           },
-          showSingleSection: function(evt) {
-            window.openemr.hideAllSections();
-            let hash = evt ? evt.target.hash : window.location.hash;
-            if (hash) {
-              // find the fragment and display it
-              $(hash).closest(".cda-section").removeClass("hidden");
-            }
-          },
           hideAllSections: function() {
-            $(".cda-section").addClass("hidden");
+            sections.forEach(function(section) { window.openemr.setSectionDisplay(section.id, false); });
+            window.openemr.refreshDisplay();
           },
           displayAllSections: function() {
-            $(".cda-section").removeClass("hidden");
+            sections.forEach(function(section) { window.openemr.setSectionDisplay(section.id, true); });
+            window.openemr.refreshDisplay();
           }
         };
       })(window);
+
       $(document).ready(function() {
+        window.openemr.init(); // setup our section values
 
-
-
-        $(".toc-icon-hide").click(function(evt) {
+      $(".toc-icon-container.toc-icon-hide").click(function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.openemr.hideAllSections();
+      });
+      $(".toc-icon-section.toc-icon-hide").click(function(evt) {
           evt.preventDefault();
           evt.stopPropagation();
           let href = $(this).parent().attr("href") || "";
-          window.openemr.hideSectionForId(href);
-          $(this).siblings(".toc-icon-show").removeClass("hidden");
-          $(this).addClass("hidden");
+          window.openemr.setSectionDisplay(href, false);
+          window.openemr.refreshDisplay();
         });
 
-      $(".toc-icon-show").click(function(evt) {
+      $(".toc-icon-container.toc-icon-show").click(function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.openemr.displayAllSections();
+      });
+      $(".toc-icon-section.toc-icon-show").click(function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
         let href = $(this).parent().attr("href") || "";
-        window.openemr.showSectionForId(href);
-        $(this).addClass("hidden");
-        $(this).siblings(".toc-icon-hide").removeClass("hidden");
+        window.openemr.setSectionDisplay(href, true);
+        window.openemr.refreshDisplay();
       });
-/*
-        $(".openemr-toggle-display-mode").click(function() {
-          $(".openemr-toggle-display-mode").parent().removeClass("hidden");
-          $(this).parent().addClass("hidden");
-          let mode = $(this).data("mode");
-          if (mode == 'single') {
-              $(".lantana-toc.openemr-toggle-section").parent().click(window.openemr.showSingleSection);
-              window.openemr.showSingleSection();
-          } else {
-            $(".lantana-toc.openemr-toggle-section").parent().off("click", window.openemr.showSingleSection);
-            window.openemr.displayAllSections();
-          }
-        });
-      */
       });
     </script>
   </xsl:template>
