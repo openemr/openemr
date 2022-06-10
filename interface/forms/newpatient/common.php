@@ -489,7 +489,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                         echo "<option value=\"" . attr($pos["code"]) . "\"";
                                         if (
                                             ($pos["code"] == ($result['pos_code'] ?? '') && $viewmode)
-                                            || ($pos["code"] == ($posCode ?? null) && !$viewmode)
+                                            || ($pos["code"] == ($posCode ?? '') && !$viewmode)
                                         ) {
                                             echo " selected";
                                         }
