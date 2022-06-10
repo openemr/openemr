@@ -13,12 +13,10 @@
 namespace OpenEMR\Services\Cda;
 
 use CURLFile;
-use CURLStringFile;
 use DOMDocument;
 use Exception;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
-use stdClass;
 
 class CdaValidateDocuments
 {
