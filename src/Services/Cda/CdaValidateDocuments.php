@@ -313,7 +313,7 @@ class CdaValidateDocuments
         $errors = $this->fetchValidationLog($amid);
 
         $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-        $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", $errors);
+        $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         return $html;
     }
 

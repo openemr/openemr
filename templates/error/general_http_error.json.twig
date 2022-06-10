@@ -1,0 +1,13 @@
+{
+    "error": {
+        {% block title %}
+        "location": "{{ pageTitle|attr_js }}",
+        {% endblock %}
+        {% block statusCode %}
+        "code": {{ statusCode|attr_js }},
+        {% endblock %}
+        {% block message %}
+        "message": "{{ errorMessage|default("Please try your request again, check the server logs, or contact the site administrator for support")|xlt|attr_js}}"
+        {% endblock %}
+    }
+}

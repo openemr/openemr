@@ -1,0 +1,7 @@
+{% extends 'error/general_http_error.json.twig' %}
+{% block title %}
+"location": "{{ "OpenEMR 400 Error"|xl|attr_js }}",
+{% endblock %}
+{% block statusCode %}
+"code": 400,
+{% endblock message %}
