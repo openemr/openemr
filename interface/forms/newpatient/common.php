@@ -472,7 +472,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                 <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatDateTime($result['onset_date'])) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                             </div>
-                            <?php $test = $GLOBALS['gbl_visit_onset_date']; ?>
                         </div>
                         <div class="col-sm <?php echo ($GLOBALS['gbl_visit_referral_source'] == 1) ?: 'd-none';?>">
                             <div class="form-group">
@@ -488,7 +487,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                     $pc = new POSRef();
                                     foreach ($pc->get_pos_ref() as $pos) {
                                         echo "<option value=\"" . attr($pos["code"]) . "\"";
-                                        if (($pos["code"] == ($result['pos_code'] ?? '') && $viewmode) || ($pos["code"] == $posCode && !$viewmode)) {
+                                        if (
+                                            ($pos["code"] == ($result['pos_code'] ?? '') && $viewmode)
+                                            || ($pos["code"] == ($posCode ?? null) && !$viewmode)
+                                        ) {
                                             echo " selected";
                                         }
                                         echo ">" . text($pos['code']) . ": " . xlt($pos['title']);

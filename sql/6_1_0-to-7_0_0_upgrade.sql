@@ -726,13 +726,3 @@ UPDATE `layout_options` SET `title` = 'Title' WHERE `layout_options`.`form_id` =
 #IfNotRow3D layout_options form_id DEM field_id fname title Name
 UPDATE `layout_options` SET `title` = 'Name', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'fname';
 #EndIf
-
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_service_date',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_sensitivity_visibility',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_enable_issues',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_enable_referring_provider',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_enable_facility',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_enable_discharge_disposition',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_enable_visit_category',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_enable_class',0,'show_both');
-INSERT INTO globals (gl_name,gl_index,gl_value) VALUES('enc_enable_type',0,'show_both');
