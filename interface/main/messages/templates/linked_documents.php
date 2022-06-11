@@ -24,6 +24,7 @@ use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 if (empty($noteid)) {
     $twig = new TwigContainer(null, $GLOBALS['kernel']);
     echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
+    exit;
 }
 
 // Get the related document IDs if any.
