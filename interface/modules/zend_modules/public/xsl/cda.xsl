@@ -41,7 +41,7 @@
   Revision History: 2022-06-09 Stephen Nielson - Added better support for assignedAuthor.softwareName
                                                  Added back the timezone component display
                                                  Added the oid display for patient ids
-                                                 Disabled section sorting, Adding a single section display component
+                                                 Added a single section display component and a hide all/show all feature
   This style sheet is based on a major revision of the original CDA XSL, which was made possible thanks to the contributions of:
   - Jingdong Li
   - KH
