@@ -3527,8 +3527,8 @@ $GLOBALS_METADATA = array(
         'mdht_conformance_server' => array(
             xl('CCDA MDHT Validation API Server Address'),
             'text',                           // data type
-            'http://ccda.healthit.gov',
-            xl('CCDA conformance and validation API service URL. Default is a public server mainly used for testing. Production sites should spin up your own.')
+            '',
+            xl('CCDA conformance and validation API service URL. For testing (using ONLY test data) you can default to http://ccda.healthit.gov which should not be used to transmit PHI. Production sites can deploy their own by following instructions here https://github.com/onc-healthit/reference-ccda-validator.')
         ),
     ),
 
