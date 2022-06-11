@@ -141,10 +141,9 @@ try {
 
             // now we need to make an ajax async request to the server with the document id
             let docId = validateRecord.dataset['doc'];
+            let url = "<?php echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken()); ?>
 
-            window.fetch('<?php
-                echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=" . js_url(CsrfUtils::collectCsrfToken());
-            ?>' + "&doc=" + encodeURIComponent(docId))
+            window.fetch(url + "&doc=" + encodeURIComponent(docId) )
                 .then(function(result) {
                     if (!result.ok) {
                         throw new Error("Failed to get valid response from server");
