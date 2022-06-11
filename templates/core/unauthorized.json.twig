@@ -1,6 +1,6 @@
 {
     "error": {
-        "location": "{{ pageTitle|attr_js }}",
-        "message": "{{ "Not Authorized"|xlt }}"
+        "location": "{{ pageTitle|json_encode }}",
+        "message": "{{ "Not Authorized"|xl|json_encode }}"
     }
 }

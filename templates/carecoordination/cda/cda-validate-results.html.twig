@@ -1,5 +1,5 @@
 {# Note we use the cda-validate-results and data-error-count as a means for html consumers to grab information from the html #}
-<div class='control-group cda-validate-results' data-error-count="{{ validation.xsd|length + validation.errorCount }}">
+<div class='control-group cda-validate-results' data-error-count="{{ validation.xsd|length + validation.errorCount|attr }}">
     <h5 class='text-info' style='padding: 0 0;'>{{ 'Schema Definition Errors'|xlt}} - ({{ validation.xsd|length }})</h5><hr style='margin: 0 0 10px;' />
     {% if validation.xsd|length <= 1 %}
         <p class='text-success'>{{"Passed XSD testing."|xlt}}</p><hr style='margin: 0 0 10px;' />

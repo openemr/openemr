@@ -27,9 +27,13 @@ class CdaValidateDocuments
     public function __construct()
     {
         $this->externalValidatorEnabled = !empty($GLOBALS['mdht_conformance_server_enable'] ?? false);
+        if (empty($GLOBALS['mdht_conformance_server'])) {
+            $this->externalValidatorEnabled = false;
+        }
         $this->externalValidatorUrl = null;
         if ($this->externalValidatorEnabled) {
-            $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: 'http://ccda.healthit.gov';
+            // should never get to where the url is '' as we disable it if the conformance server is empty
+            $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: '';
             if (!str_ends_with($this->externalValidatorUrl, '/')) {
                 $this->externalValidatorUrl .= '/';
             }

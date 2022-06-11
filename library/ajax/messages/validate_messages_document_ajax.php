@@ -22,13 +22,15 @@ use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 use OpenEMR\Common\Logging\SystemLogger;
 use Document;
 
+$format = $_GET['format'] ?? "html";
+$format = in_array($format, ['json', 'html']) ? $format : "html";
+
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf"])) {
     http_response_code(403);
     CsrfUtils::csrfNotVerified(true, true, false);
+    echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
+    exit;
 }
-
-$format = $_GET['format'] ?? "html";
-$format = in_array($format, ['json', 'html']) ? $format : "html";
 
 try {
     $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();

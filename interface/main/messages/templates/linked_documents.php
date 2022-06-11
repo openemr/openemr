@@ -21,6 +21,11 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
+if (empty($noteid)) {
+    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
+}
+
 // Get the related document IDs if any.
 $linkedDocsSql = "SELECT id1 FROM gprelations WHERE " .
     "type1 = ? AND type2 = ? AND id2 = ?";
@@ -69,11 +74,11 @@ foreach ($tmp as $record) {
     }
     $records[] = $docInformation;
 }
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+
 try {
     foreach ($records as $record) : ?>
 <div class="row mt-2 mb-2 messages-document-row <?php echo $record['requiresValidation'] ? "messages-document-validate" : ""; ?>"
-     data-doc="<?php echo $record['documentId']; ?>">
+     data-doc="<?php echo attr($record['documentId']); ?>">
     <div class="col-12">
     <span class='font-weight-bold'><?php echo xlt('Linked document'); ?>:</span>
         <?php if (!$record['hasPatient']) : ?>
@@ -86,7 +91,7 @@ try {
         <?php else : ?>
             <a class='messages-document-link <?php echo $record['requiresValidation'] ? "d-none" : ""; ?>'
                href='javascript:void(0);'
-               onClick="gotoReport(<?php echo attr_js($record['documentId']); ?>, '<?php echo attr_js($record['pname']); ?>', '<?php echo attr_js($record['pid']); ?>','<?php echo attr_js($record['pubpid'] ?? $record['pid']); ?>','<?php echo attr_js($record['DOB']); ?>');">
+               onClick="gotoReport(<?php echo attr_js($record['documentId']); ?>, <?php echo attr_js($record['pname']); ?>, <?php echo attr_js($record['pid']); ?>,<?php echo attr_js($record['pubpid'] ?? $record['pid']); ?>,<?php echo attr_js($record['DOB']); ?>);">
                 <?php echo text($record['title']); ?>
             </a>
         <?php endif; ?>
@@ -138,7 +143,7 @@ try {
             let docId = validateRecord.dataset['doc'];
 
             window.fetch('<?php
-                echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=" . urlencode(CsrfUtils::collectCsrfToken());
+                echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=" . js_url(CsrfUtils::collectCsrfToken());
             ?>' + "&doc=" + encodeURIComponent(docId))
                 .then(function(result) {
                     if (!result.ok) {

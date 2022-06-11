@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * CdaValidateDocumentObject will validate the xsd schema, schematron rules, and MDHT rules for a valid CDA that is stored
+ * in a Document class object.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Services\Cda;
 
 use Document;
@@ -11,7 +22,6 @@ class CdaValidateDocumentObject
     {
 
 //        // we check the mime extension
-//        // if its a zip file we will peak inside the zip to determine if this is an IHE XDM file.
         if ($this->isZipDocument($document)) {
             // TODO: if we want to do any zip file validations we can do that here.
             // The following link is the validation that ETT does for their XDM format:
@@ -19,7 +29,6 @@ class CdaValidateDocumentObject
             // the validation is pretty primitive and it looks like they threw out trying to validate CDA 2.1 docs.
         }
 
-        //$cdaMimeTypes = ['text/xml', 'application/xml', 'application/zip'];
         $cdaMimeTypes = ['text/xml', 'application/xml'];
         if (in_array($document->get_mimetype(), $cdaMimeTypes)) {
             // now we can open the file and check if we actually have a cda document...
