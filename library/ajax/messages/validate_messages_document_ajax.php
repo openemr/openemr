@@ -20,7 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 use OpenEMR\Common\Logging\SystemLogger;
-use Document;
+use \Document;
 
 $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";
