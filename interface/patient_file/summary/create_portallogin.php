@@ -93,10 +93,14 @@ function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig)
 
 function displayLogin($patient_id, $message, $emailFlag)
 {
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($emailFlag) {
-        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
         $message = xlt("Email was sent to following address") . ": " .
             text($patientData['email']) . "\n\n" .
+            $message;
+    } else {
+        $message = "<div class='text-danger'>" . xlt("Email was not sent to the following address") . ": " .
+            text($patientData['email']) . "</div>" . "\n\n" .
             $message;
     }
 
