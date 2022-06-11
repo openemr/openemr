@@ -11,7 +11,7 @@
         {% endfor %}
     {% endif %}
 
-    <h5 class='text-info'>{{ 'Schematron Errors'|xlt }} - ({{ validation.errorCount }})</h5><hr style='margin: 0 0 10px;' />
+    <h5 class='text-info'>{{ 'Schematron Errors'|xlt }} - ({{ validation.errorCount|text }})</h5><hr style='margin: 0 0 10px;' />
     {% if validation.errorCount <= 0 %}
         <p class='text-success'>{{ "Passed Schematron testing."|xlt}}</p><hr style='margin: 0 0 10px;' />
     {% else %}

@@ -48,6 +48,12 @@ try {
 
     $docId = intval($_GET['doc']);
     $document = new Document($docId);
+    if ($document->get_size() <= 0) {
+        // doc not found
+        http_response_code(404);
+        echo $twig->render('error/404.' . $format . '.twig', ['errorMessage' => xl("Missing document id")]);
+        exit;
+    }
     if (!$document->can_access($docId)) {
         http_response_code(403);
         echo $twig->render('core/unauthorized.' . $format . '.twig', ['pageTitle' => xl("Validate Message Documents")]);
