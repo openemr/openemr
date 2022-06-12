@@ -23,6 +23,7 @@ use OpenEMR\Services\SocialHistoryService;
 
 require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
+global $facilityService;
 $facilityService = new FacilityService();
 
 // These are for sports team use:
