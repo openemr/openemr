@@ -10,8 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+//require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
+//OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
 if (empty($is_portal)) {
