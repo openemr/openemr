@@ -653,7 +653,8 @@ initReport = function(){
          });
     $(".genpdfrep").click(function() {  document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $(".genportal").click(function() {  document.report_form.pdf.value = 2; $("#report_form").submit(); });
-    $("#genfullreport").click(function() { location.href='<?php if (!empty($returnurl)) echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $("#genfullreport").click(function() { location.href='<?php if (!empty($returnurl)) {
+        echo "$rootdir/patient_file/encounter/$returnurl";}?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });
 
