@@ -115,7 +115,7 @@ class C_FormVitals extends Controller
         }
 
         $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
-        $reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status code");
+        $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
         $this->assign("vitals", $vitals);
         $this->assign("results", ($results ?? null));
