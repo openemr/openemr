@@ -15,7 +15,7 @@
  */
 
 namespace PatientPortal;
-exit;
+
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
 \OpenEMR\Common\Session\SessionUtil::portalSessionStart();
