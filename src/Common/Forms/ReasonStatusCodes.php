@@ -17,13 +17,13 @@ class ReasonStatusCodes
     const COMPLETED = "completed";
     const NEGATED = "negated";
     const PENDING = "pending";
-    const EMPTY = "";
+    const NONE = "";
 
     public static function getCodesWithDescriptions()
     {
         return [
-            self::EMPTY => [
-                'code' => self::EMPTY
+            self::NONE => [
+                'code' => self::NONE
                 ,'description' => ""
             ]
             ,self::PENDING => [

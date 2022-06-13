@@ -50,7 +50,7 @@ foreach ($result as $value) :
     $care_plan_type[] = $value;
 endforeach;
 $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
-$reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status code");
+$reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 ?>
 <html>
     <head>
