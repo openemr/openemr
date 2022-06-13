@@ -1031,7 +1031,7 @@ $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $
 $date = xl('on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
 $title = array(xl('Order for'), $name, $date);
 $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
-$reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status code");
+$reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 ?>
 <body class="body_top" onsubmit="doWait(event)">
     <div class="container">
