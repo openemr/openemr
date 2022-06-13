@@ -177,7 +177,7 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         exit();
     }
 
-    if ($userData['email'] != $_POST['passaddon'] && $GLOBALS['enforce_signin_email']) {
+    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $GLOBALS['enforce_signin_email']) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w');
