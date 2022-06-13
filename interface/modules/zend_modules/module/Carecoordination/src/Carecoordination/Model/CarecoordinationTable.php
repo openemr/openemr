@@ -256,9 +256,6 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['country_code'] = $xml['recordTarget']['patientRole']['addr']['country'] ?? null;
-        if ($this->documentData['field_name_value_array']['patient_data'][1]['country_code'] == 'US') {
-            $this->documentData['field_name_value_array']['patient_data'][1]['country_code'] = 'USA';
-        }
 
         if (is_array($xml['recordTarget']['patientRole']['telecom'][0] ?? null)) {
             foreach ($xml['recordTarget']['patientRole']['telecom'] as $tel) {
@@ -268,9 +265,12 @@ class CarecoordinationTable extends AbstractTableGateway
                 if ($tel['use'] == 'HP') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
                 }
+                if ($tel['use'] == 'WP') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                }
             }
         } else {
-            $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
+            $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
         }
 
         $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;

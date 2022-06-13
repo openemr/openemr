@@ -8,6 +8,9 @@
  */
 
 "use strict";
+
+const enableDebug = true;
+
 const net = require('net');
 const server = net.createServer();
 const to_json = require('xmljson').to_json;
@@ -2242,8 +2245,8 @@ function populateHeader(pd) {
                     ],
                     "city": pd.custodian.city,
                     "state": pd.custodian.state,
-                    "zip": pd.custodian.postal_code,
-                    "country": pd.custodian.country_code || "US"
+                    "zip": pd.custodian.postalCode,
+                    "country": pd.custodian.country || "US"
                 }
             ],
             "phone": [
@@ -2869,22 +2872,26 @@ function genCcda(pd) {
     // build to cda
     let xml = bbg.generateCCD(doc);
 
-    /* Debug
-        fs.writeFile("ccda.json", JSON.stringify(all, null, 4), function (err) {
-            if (err) {
-                return console.log(err);
-            }
-            console.log("Json saved!");
-        });
+    /* Debug */
+    if (enableDebug === true) {
+        let place = "./../sites/default/documents/temp/";
+        if (fs.existsSync(place)) {
+            fs.writeFile(place + "ccda.json", JSON.stringify(all, null, 4), function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+                console.log("Json saved!");
+            });
 
-        fs.writeFile("ccda.xml", xml, function (err) {
-            if (err) {
-                return console.log(err);
-            }
-            console.log("Xml saved!");
-        });
+            fs.writeFile(place + "ccda.xml", xml, function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+                console.log("Xml saved!");
+            });
+        }
+    }
 
-    */
     return xml;
 }
 
