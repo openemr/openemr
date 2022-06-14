@@ -66,49 +66,58 @@
                                 { include file="vitals_textbox_conversion.tpl" title="Weight" input="weight"
                                     vitals=$vitals vitalsValue="get_weight" vitalsValueMetric="get_weight_metric"
                                     unit="lbs" unitMetric="kg" vitalsStringFormat="%.2f"
-                                    vitalsValueUSAHelpTitle="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)" }
+                                    vitalsValueUSAHelpTitle="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)"
+                                    codes="LOINC:29463-7"
+                                }
                                 { include file="vitals_textbox_conversion.tpl" title="Height/Length" input="height"
                                     vitalsValue="get_height" vitalsValueMetric="get_height_metric" unit="in"
-                                    unitMetric="cm" vitalsStringFormat="%.2f" }
+                                    unitMetric="cm" vitalsStringFormat="%.2f" codes="LOINC:8302-2" }
 
                                 { include file="vitals_textbox.tpl" title="BP Systolic" unit="mmHg" input="bps"
-                                    vitals=$vitals vitalsValue="get_bps" }
+                                    vitals=$vitals vitalsValue="get_bps" codes="LOINC:8480-6" }
 
                                 { include file="vitals_textbox.tpl" title="BP Diastolic" unit="mmHg" input="bpd"
-                                    vitals=$vitals vitalsValue="get_bpd" }
+                                    vitals=$vitals vitalsValue="get_bpd" codes="LOINC:8462-4" }
 
                                 { include file="vitals_textbox.tpl" title="Pulse" unit="per min" input="pulse"
-                                    vitals=$vitals vitalsValue="get_pulse" vitalsStringFormat="%.0f" }
+                                    vitals=$vitals vitalsValue="get_pulse" vitalsStringFormat="%.0f" codes="LOINC:8867-4" }
 
                                 { include file="vitals_textbox.tpl" title="Respiration" unit="per min"
-                                    input="respiration" vitals=$vitals vitalsValue="get_respiration" vitalsStringFormat="%.0f" }
+                                    input="respiration" vitals=$vitals vitalsValue="get_respiration" vitalsStringFormat="%.0f"
+                                    codes="LOINC:9279-1"
+                                }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Temperature" input="temperature"
                                     vitals=$vitals vitalsValue="get_temperature" vitalsValueMetric="get_temperature_metric"
-                                    unit="F" unitMetric="C" vitalsStringFormat="%.2f" }
+                                    unit="F" unitMetric="C" vitalsStringFormat="%.2f"  codes="LOINC:8310-5" }
 
-                                {include file='vitals_temp_method.tpl'}
+                                {include file='vitals_temp_method.tpl' }
 
                                 { include file="vitals_textbox.tpl" title="Oxygen Saturation" unit="%"
                                     input="oxygen_saturation" vitals=$vitals vitalsValue="get_oxygen_saturation"
-                                    vitalsStringFormat="%.0f" }
+                                    vitalsStringFormat="%.0f"  codes="LOINC:59408-5" }
 
                                 {include file="vitals_textbox.tpl" title="Oxygen Flow Rate" unit="l/min"
-                                    input="oxygen_flow_rate" vitals=$vitals vitalsValue="get_oxygen_flow_rate" }
+                                    input="oxygen_flow_rate" vitals=$vitals vitalsValue="get_oxygen_flow_rate"
+                                    codes="LOINC:3151-8"}
 
                                 {include file="vitals_textbox.tpl" title="Inhaled Oxygen Concentration" unit="%"
-                                    input="inhaled_oxygen_concentration" vitals=$vitals vitalsValue="get_inhaled_oxygen_concentration" }
+                                    input="inhaled_oxygen_concentration" vitals=$vitals vitalsValue="get_inhaled_oxygen_concentration"
+                                    codes="LOINC:3150-0"
+                                }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Head Circumference" input="head_circ"
                                     vitals=$vitals vitalsValue="get_head_circ" vitalsValueMetric="get_head_circ_metric"
-                                    unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences }
+                                    unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences
+                                    codes="LOINC:9843-4"
+                                }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Waist Circumference" input="waist_circ"
                                     vitals=$vitals vitalsValue="get_waist_circ" vitalsValueMetric="get_waist_circ_metric"
                                     unit="in" unitMetric="cm" vitalsStringFormat="%.2f" hide=$hide_circumferences
                                 }
 
-                                    <tr><td class="graph" id="BMI">{xlt t="BMI"}</td><td>{xlt t="kg/m^2"}</td>
+                                    <tr><td class="graph" id="BMI">{xlt t="BMI"} <small>(LOINC:39156-5)</small></td><td>{xlt t="kg/m^2"}</td>
                                         <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
                                             name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5|attr}{/if}"/></td>
                                         <td class="editonly"></td>
@@ -137,16 +146,17 @@
                                 {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
                                     {include file="vitals_textbox.tpl" title="Pediatric Weight Height Percentile"
                                         unit="%" input="ped_weight_height"
-                                        vitals=$vitals vitalsValue="get_ped_weight_height"
+                                        vitals=$vitals vitalsValue="get_ped_weight_height" codes="LOINC:77606-2"
                                     }
 
                                     {include file="vitals_textbox.tpl" title="Pediatric BMI Percentile" unit="%"
-                                        input="ped_bmi" vitals=$vitals vitalsValue="get_ped_bmi"
+                                        input="ped_bmi" vitals=$vitals vitalsValue="get_ped_bmi" codes="LOINC:59576-9"
                                     }
 
                                     {include file="vitals_textbox.tpl" title="Pediatric Head Circumference Percentile"
                                         unit="%" input="ped_head_circ" vitals=$vitals vitalsValue="get_ped_head_circ"
-                                        hide=$hide_circumferences}
+                                        hide=$hide_circumferences codes="LOINC:8289-1"
+                                    }
                                 {/if}
 
                                 {include file="vitals_notes.tpl" title="Other Notes" unit="" input="note" vitalsValue=$vitals->get_note()}
