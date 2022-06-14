@@ -25,10 +25,15 @@ class CcdaUserPreferencesTransformer
      */
     private $maxSections;
 
+    /**
+     * CcdaUserPreferencesTransformer constructor.
+     * @param int|null $maxSections The maximum number of sections to display, null or 0 for unlimited
+     * @param array $sortPreferences map of templateDocumentOids to array of section oids where the order of the array is the sort preference for the document
+     */
     public function __construct($maxSections = null, $sortPreferences = array())
     {
         // TODO: @adunsulag remove these defaults
-        $this->maxSections = intval($maxSections ?? 0);
+            $this->maxSections = intval($maxSections ?? 0);
 
         $this->sortPreferences = $sortPreferences ?? array();
 
@@ -45,17 +50,14 @@ class CcdaUserPreferencesTransformer
         $ccdaDoc->loadXML($content);
 
         $xpath = new \DOMXPath($ccdaDoc);
+        $xpath->registerNamespace('n1', "urn:hl7-org:v3");
         $maxChildren = $this->maxSections;
 
         // first we do our sort order here
-        $sortedSections = $this->sortPreferences;
+        $sortedSections = $this->getDocumentSortPreferencesForCcda($xpath, $this->sortPreferences);
 
         // reverse sort as we are going to be prepending these
         $sortedSections = array_reverse($sortedSections);
-
-        $sortNodes = [];
-
-        $xpath->registerNamespace('n1', "urn:hl7-org:v3");
 
         // first off we need to grab our structured bodies here... should only be one
         $query = "/n1:ClinicalDocument/n1:component/n1:structuredBody";
@@ -125,5 +127,25 @@ class CcdaUserPreferencesTransformer
     {
         $this->maxSections = $maxSections;
         return $this;
+    }
+
+    /**
+     * given an array of user preferences per document type we search through the given document and determine from
+     * the templateId what type of document we are dealing with.  We can then grab our sorted section array values
+     * that have been set by the user.
+     * @param \DOMXPath $xpath
+     * @param array $sortedSections
+     */
+    private function getDocumentSortPreferencesForCcda(&$xpath, $sortedSections)
+    {
+        $baseQuery = "/n1:ClinicalDocument/n1:templateId";
+        foreach ($sortedSections as $docTemplateOid => $sections) {
+            $query = $baseQuery . "[@root='" . $docTemplateOid . "']";
+            $templateNodes = $xpath->query($query);
+            if ($templateNodes !== false && $templateNodes->length > 0) {
+                return $sections;
+            }
+        }
+        return [];
     }
 }

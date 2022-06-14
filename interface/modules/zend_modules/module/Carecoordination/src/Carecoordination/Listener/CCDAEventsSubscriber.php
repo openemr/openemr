@@ -16,9 +16,11 @@ use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use DOMDocument;
+use HTML_TreeNode;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
+use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 use OpenEMR\Services\CDADocumentService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
@@ -31,9 +33,15 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
      */
     private $generator;
 
+    /**
+     * @var string The url that users will be sent to inside OpenEMR to view a CCDA
+     */
+    private $viewCcdaUrl;
+
     public function __construct(CcdaGenerator $generator)
     {
         $this->generator = $generator;
+        $this->viewCcdaUrl = $GLOBALS['webroot'] . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
     }
 
     public static function getSubscribedEvents()
@@ -41,7 +49,8 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
         return [
             PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE => 'onCCDACreateEvent',
             PatientDocumentViewCCDAEvent::EVENT_NAME => 'onCCDAViewEvent',
-            GlobalsInitializedEvent::EVENT_HANDLE => 'setupUserGlobalSettings'
+            GlobalsInitializedEvent::EVENT_HANDLE => 'setupUserGlobalSettings',
+            PatientDocumentTreeViewFilterEvent::EVENT_NAME => 'onPatientDocumentTreeViewFilter'
         ];
     }
 
@@ -150,5 +159,22 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
         $service = $event->getGlobalsService();
         $ccdaGlobalsConfiguration = new CcdaGlobalsConfiguration();
         $ccdaGlobalsConfiguration->setupGlobalSections($service);
+    }
+
+    public function onPatientDocumentTreeViewFilter(PatientDocumentTreeViewFilterEvent $event)
+    {
+        if ($event->getHtmlTreeNode() != null) {
+            $categoryInfo = $event->getCategoryInfo();
+            // we are going to setup our onclick event to launch our
+            // TODO: do we want to look at our LOINC codes here as that seems to be more accurate than if we went with just names...
+            if (in_array(strtoupper(trim($categoryInfo['name'] ?? "")), ["CCR","CCDA","CCD"])) {
+                $htmlNode = $event->getHtmlTreeNode();
+                $url = $this->viewCcdaUrl . "?docId=" . attr_url($event->getDocumentId());
+                $htmlNode->events = [
+                    'onClick' => "javascript:newwindow=window.open('" . $url . "','_blank');"
+                ];
+            }
+        }
+        return $event;
     }
 }
