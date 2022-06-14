@@ -31,6 +31,7 @@
  *          scopes={
  *              "openid": "Generic mandatory scope",
  *              "offline_access": "Will signal server to provide a refresh token",
+ *              "launch/patient": "Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)",
  *              "api:fhir": "FHIR R4 API",
  *              "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
  *              "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
