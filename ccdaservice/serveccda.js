@@ -24,6 +24,7 @@ var npiProvider = "";
 var npiFacility = "";
 var webRoot = "";
 var authorDate = '';
+var documentLocation = '';
 
 function trim(s) {
     if (typeof s === 'string') return s.trim();
@@ -2465,6 +2466,7 @@ function genCcda(pd) {
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
     npiFacility = all.encounter_provider.facility_npi;
     webRoot = all.serverRoot;
+    documentLocation = all.document_location;
 
     if (all.encounter_list.encounter.date) {
         authorDate = all.encounter_list.encounter.date;
@@ -2874,7 +2876,7 @@ function genCcda(pd) {
 
     /* Debug */
     if (enableDebug === true) {
-        let place = "./../sites/default/documents/temp/";
+        let place = documentLocation + "/documents/temp/";
         if (fs.existsSync(place)) {
             fs.writeFile(place + "ccda.json", JSON.stringify(all, null, 4), function (err) {
                 if (err) {
