@@ -18,12 +18,12 @@
 
 // All of the common intialization steps for the get_* patient portal functions are now in this single include.
 
+
+
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
-if (session_status() === PHP_SESSION_NONE) {
-    require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
-}
+require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
