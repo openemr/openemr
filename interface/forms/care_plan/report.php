@@ -17,12 +17,12 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 function care_plan_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
-    $sql = "SELECT *,cp.title AS care_plan_display_name FROM `form_care_plan` LEFT JOIN list_options cp ON "
-    . " cp.list_id='Plan_of_Care_Type' AND form_care_plan.care_plan_type=cp.option_id WHERE id=? AND pid = ? AND encounter = ?";
+    $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($id, $_SESSION["pid"], $_SESSION["encounter"]));
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -48,7 +48,7 @@ function care_plan_report($pid, $encounter, $cols, $id)
                 ?>
                 <tr>
                     <td class="border p-1"><span class='text'><?php echo text($value['user']); ?></span></td>
-                    <td class="border p-1"><span class='text'><?php echo text($value['care_plan_display_name'] ?? $value['care_plan_type']); ?></span></td>
+                    <td class="border p-1"><span class='text'><?php echo text(getListItemTitle('Plan_of_Care_Type', $value['care_plan_type'])); ?></span></td>
                     <td class="border p-1"><span class=text><?php echo text($value['code']); ?></span></td>
                     <td class="border p-1"><span class=text><?php echo text($value['codetext']); ?></span></td>
                     <td class="border p-1"><span class=text><?php echo text($value['description']); ?></span></td>
