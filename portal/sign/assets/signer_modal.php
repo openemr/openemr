@@ -16,10 +16,12 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
 if (empty($is_portal)) {
     session_destroy();
-    require_once(__DIR__ . '/../../../interface/globals.php');
 } else {
-    require_once __DIR__ . "/../../verify_session.php";
+    $pid = $_SESSION['pid'];
+    $ignoreAuth_onsite_portal = true;
 }
+
+require_once(__DIR__ . '/../../../interface/globals.php');
 
 $aud = "admin-signature";
 $cuser = attr($_SESSION['authUserID'] ?? "-patient-");
