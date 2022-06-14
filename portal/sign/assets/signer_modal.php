@@ -17,7 +17,16 @@ $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
 if (empty($is_portal)) {
     session_destroy();
 } else {
-    $pid = $_SESSION['pid'];
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+    //
+    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+        $pid = $_SESSION['pid'];
+    } else {
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w');
+        exit;
+    }
     $ignoreAuth_onsite_portal = true;
 }
 
