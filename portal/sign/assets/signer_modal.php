@@ -15,7 +15,7 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
 if (empty($is_portal)) {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
 } else {
     //landing page definition -- where to go if something goes wrong
     $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
