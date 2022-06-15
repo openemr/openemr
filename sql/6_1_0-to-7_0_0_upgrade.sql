@@ -734,5 +734,32 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='providerID' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','provider_since_date',@group_id,'Provide Since Date',@seq_add_to+5,4,1,10,10,'',1,1,'','','Patient assigned provider since date.',0);
 UPDATE `layout_options` SET `datacols` = 1 WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'providerID';
+UPDATE `layout_options` SET `description` = 'Multi Select race and or race category that describes patient race' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'race';
 ALTER TABLE `patient_data` ADD `provider_since_date` TINYTEXT;
+-- White
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'European';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'English';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'French';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'German';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Irish';
+-- Hispanic or Latino
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Latin American';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Latino';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Hispanic';
+-- American Indian or Alaska Native
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'American Indian';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Alaska Native';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Alaska Indian';
+-- African American
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'African American';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'African';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Middle Eastern or North African';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Black';
+-- Asian & Pacific
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Other Pacific Islander';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Chinese';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Filipino';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Japanese';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Korean';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Asian Indian';
 #Endif
