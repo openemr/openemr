@@ -48,11 +48,12 @@ class CcdaServiceRequestModelGenerator
         return $this->createdtime;
     }
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason, int $send = null)
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason, int $send = null, $date_options = [])
     {
         if (!$send) {
             $send = 0;
         }
+
         global $assignedEntity;
         global $representedOrganization;
         $sections_list = explode('|', $sections);
@@ -64,7 +65,8 @@ class CcdaServiceRequestModelGenerator
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";
-        $this->data .= "<time>" . $this->createdtime . "</time>";
+        $this->data .= "<time_start>" . ($date_options['date_start'] ?: date('YmdHisO')) . "</time_start>";
+        $this->data .= "<time_end>" . ($date_options['date_end'] ?: date('YmdHisO')) . "</time_end>";
         $this->data .= "<client_id></client_id>";
         $this->data .= "<created_time>" . date('YmdHis') . "</created_time>";
         $this->data .= "<created_time_timezone>" . date('YmdHisO') . "</created_time_timezone>";

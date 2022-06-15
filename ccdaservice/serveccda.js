@@ -298,24 +298,24 @@ function populateProviders() {
     }
     return {
         "providers":
-        {
-            "code": {
-                "name": "",
-                "code": "",
-                "code_system_name": "SNOMED CT"
-            },
-            "date_time": {
-                "low": {
-                    "date": fDate(""),
-                    "precision": "day"
+            {
+                "code": {
+                    "name": "",
+                    "code": "",
+                    "code_system_name": "SNOMED CT"
                 },
-                "high": {
-                    "date": fDate(""),
-                    "precision": "day"
-                }
-            },
-            "provider": providerArray,
-        }
+                "date_time": {
+                    "low": {
+                        "date": all.time_start || fDate(""),
+                        "precision": "day"
+                    },
+                    "high": {
+                        "date": all.time_end || fDate(""),
+                        "precision": "day"
+                    }
+                },
+                "provider": providerArray,
+            }
     }
 }
 
@@ -2152,8 +2152,8 @@ function populateHeader(pd) {
             "code_system_name": "LOINC"
         },
         "template": {
-                "root": docOid,
-                "extension": "2015-08-01"
+            "root": docOid,
+            "extension": "2015-08-01"
         },
         "title": name,
         "date_time": {
