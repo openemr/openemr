@@ -44,7 +44,7 @@ class FhirSearchParameterDefinition
     }
 
     /**
-     * @return string[]
+     * @return string|ServiceField[]
      */
     public function getMappedFields()
     {

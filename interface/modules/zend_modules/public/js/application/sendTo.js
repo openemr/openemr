@@ -269,23 +269,98 @@ function getComponents(val) {
     });
 }
 
-function send() {
-    var send_to = $('input:radio[name="send_to"]:checked').val();
-    var cover_letter = 0;
-    var latest_ccda = '';
-    if ($("#include_coverletter").is(":checked")) {
-        cover_letter = 1;
+function sendToEmrDirect() {
+    var latest_ccda = getLatestCcda();
+    var format = $('input:radio[name="phimail_format"]:checked').val();
+    var combination = '';
+    var components = '';
+    var downloadformat_type = $('input[name="downloadformat_type"]:checked').val() || "";
+
+    var comp = getComponentsString();
+    const ccdaGenerateBaseUrl = APP_URL + "/encounterccdadispatch/index?view=1&emr_transfer=1&recipient=emr_direct"
+        + "&downloadformat_type=" + downloadformat_type;
+    const emrDirectBaseUrl = APP_URL + "/encountermanager/transmitCCD?xml_type=" + format
+        + "&downloadformat_type=" + downloadformat_type;
+    if ($("#ccda_pid").val()) {
+        combination = $("#ccda_pid").val();
+    } else {
+        var pid_encounter = document.getElementsByName('ccda_pid[]');
+        for (i = 0; i < pid_encounter.length; i++) {
+            if (pid_encounter[i].checked) {
+                if (combination) combination += '|';
+                combination += pid_encounter[i].value;
+            }
+        }
     }
+    if (combination == '') {
+        $('.ap-st-st-12').fadeOut();
+        $('.activity_indicator').css({"display": "none"});
+        var resultTranslated = js_xl("Please select at least one patient.");
+        alert(resultTranslated.msg);
+        return false;
+    }
+    $(".chkbx_cmps").each(function () {
+        if ($(this).is(":checked")) {
+            i++;
+            if (components) components += "|";
+            components += $(this).val();
+        }
+    });
+    var recipients = $(".emr_to_phimail").val();
+    var referral_reason = $("#referral_reason").val();
+    if (recipients != '') {
+        var ccdaUrl = ccdaGenerateBaseUrl + "&combination=" + combination + "&sections=" + components + "&param=" + recipients
+            + "&referral_reason=" + referral_reason + "&components=" + comp + "&latest_ccda=" + latest_ccda;
+        $.ajax({
+            type: "POST",
+            url: ccdaUrl,
+            dataType: "html",
+            data: {},
+        })
+        .done(function() {
+            $.ajax({
+                type: "POST",
+                url: emrDirectBaseUrl + "&combination=" + combination + "&recipients=" + recipients,
+                dataType: "html",
+                data: {},
+                success: function (thedata) {
+                    $('.ap-st-st-12').fadeOut();
+                    $('.activity_indicator').css({"display": "none"});
+                    var resultTranslated = js_xl(thedata);
+                    alert(resultTranslated.msg);
+                },
+                error: function () {
+                    $('.ap-st-st-12').fadeOut();
+                    $('.activity_indicator').css({"display": "none"});
+                    var resultTranslated = js_xl("Failed to send");
+                    alert(resultTranslated.msg);
+                }
+            });
+        })
+        .fail(function() {
+            $('.ap-st-st-12').fadeOut();
+            $('.activity_indicator').css({"display": "none"});
+            var resultTranslated = js_xl("Failed to send");
+            alert(resultTranslated.msg);
+        });
+
+    } else {
+        $('.activity_indicator').css({"display": "none"});
+        var resultTranslated = js_xl("Please Specify at least One Direct Address");
+        alert(resultTranslated.msg);
+    }
+}
+
+function getLatestCcda() {
+    var latest_ccda = '';
     if ($("#latest_ccda").is(":checked")) {
         latest_ccda = 1;
     }
-    $('.activity_indicator').css({
-        "display": "block"
-    });
-    $("#downloadccda").val('');
-    $("#downloadccr").val('');
-    $("#downloadccd").val('');
-    $("#latestccda").val('');
+    return latest_ccda;
+}
+
+function getComponentsString() {
+    var i = 0;
     var comp = '';
     $(".check_component1").each(function () {
         if ($(this).is(":checked")) {
@@ -294,6 +369,97 @@ function send() {
             comp += $(this).val();
         }
     });
+    return comp;
+}
+
+function sendToDownloadAll() {
+    var i;
+    var count = 0;
+    var pids;
+    var pid;
+    var latest_ccda = getLatestCcda();
+    var comp = getComponentsString();
+
+    if ($('#ccda_pid').val()) {
+        pids = $('#ccda_pid').val();
+        pids = pids.split("_");
+        pid = pids[0];
+        count++;
+    } else {
+        pids = document.getElementsByName('ccda_pid[]');
+        for (i = 0; i < pids.length; i++) {
+            if (pids[i].checked) {
+                count++;
+            }
+        }
+    }
+    if (count == 0 && $('input:radio[name="downloadformat"]:checked').val() != 'qrda3') {
+        $('.ap-st-st-12').fadeOut();
+        $('.activity_indicator').css({"display": "none"});
+        var resultTranslated = js_xl("Please select at least one patient.");
+        alert(resultTranslated.msg);
+        return false;
+    } else {
+        var download_format = $('input:radio[name="downloadformat"]:checked').val();
+        if (download_format == 'ccda') {
+            if ($('#ccda_pid').val()) {
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadccda=download_ccda&components=" + comp + "&latest_ccda=" + latest_ccda);
+            } else {
+                $('#components').val(comp);
+                $("#latestccda").val(latest_ccda);
+                $('#download_ccda').trigger("click");
+                $(".check_pid").prop("checked", false);
+            }
+        } else if (download_format == 'qrda') {
+            if ($('#ccda_pid').val()) {
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda=download_qrda");
+            } else {
+                $('#download_qrda').trigger("click");
+                $(".check_pid").prop("checked", false);
+            }
+        } else if (download_format == 'qrda3') {
+            if ($('#ccda_pid').val()) {
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda=download_qrda3");
+            } else {
+                $('#download_qrda3').trigger("click");
+                $(".check_pid").prop("checked", false);
+            }
+        } else if (download_format == 'ccr') {
+            if ($('#ccda_pid').val()) {
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccr=" + pid + "&downloadccr=download_ccr");
+            } else {
+                $('#download_ccr').trigger("click");
+                $(".check_pid").prop("checked", false);
+            }
+        } else if (download_format == 'ccd') {
+            if ($('#ccda_pid').val()) {
+                window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccd=" + pid + "&downloadccd=download_ccd");
+            } else {
+                $('#download_ccd').trigger("click");
+                $(".check_pid").prop("checked", false);
+            }
+        }
+        //$(".check_pid").prop("checked",false);
+        $('.ap-st-st-12').fadeOut();
+        $('.activity_indicator').css({"display": "none"});
+    }
+}
+
+function send() {
+    var send_to = $('input:radio[name="send_to"]:checked').val();
+    var cover_letter = 0;
+    var latest_ccda = getLatestCcda();
+    if ($("#include_coverletter").is(":checked")) {
+        cover_letter = 1;
+    }
+    $('.activity_indicator').css({
+        "display": "block"
+    });
+    $("#downloadccda").val('');
+    $("#downloadccr").val('');
+    $("#downloadccd").val('');
+    $("#latestccda").val('');
+    var comp = getComponentsString();
     if (send_to == "printer" || send_to == "fax") {
         formnames = "";
         formnames_title = "";
@@ -407,139 +573,8 @@ function send() {
         }
         $('#hl7button').trigger('click');
     } else if (send_to == "emr_direct") {
-        format = $('input:radio[name="phimail_format"]:checked').val();
-        combination = '';
-        components = '';
-        if ($("#ccda_pid").val()) {
-            combination = $("#ccda_pid").val();
-        } else {
-            pid_encounter = document.getElementsByName('ccda_pid[]');
-            for (i = 0; i < pid_encounter.length; i++) {
-                if (pid_encounter[i].checked) {
-                    if (combination) combination += '|';
-                    combination += pid_encounter[i].value;
-                }
-            }
-        }
-        if (combination == '') {
-            $('.ap-st-st-12').fadeOut();
-            $('.activity_indicator').css({"display": "none"});
-            var resultTranslated = js_xl("Please select at least one patient.");
-            alert(resultTranslated.msg);
-            return false;
-        }
-        $(".chkbx_cmps").each(function () {
-            if ($(this).is(":checked")) {
-                i++;
-                if (components) components += "|";
-                components += $(this).val();
-            }
-        });
-        recipients = $(".emr_to_phimail").val();
-        var referral_reason = $("#referral_reason").val();
-        if (recipients != '') {
-            $.ajax({
-                type: "POST",
-                url: APP_URL + "/encounterccdadispatch/index?combination=" + combination + "&sections=" + components + "&view=1&emr_transfer=1&recipient=emr_direct&param=" + recipients + "&referral_reason=" + referral_reason + "&components=" + comp + "&latest_ccda=" + latest_ccda,
-                dataType: "html",
-                data: {},
-            })
-            .done(function() {
-                $.ajax({
-                    type: "POST",
-                    url: APP_URL + "/encountermanager/transmitCCD?combination=" + combination + "&recipients=" + recipients + "&xml_type=" + format,
-                    dataType: "html",
-                    data: {},
-                    success: function (thedata) {
-                        $('.ap-st-st-12').fadeOut();
-                        $('.activity_indicator').css({"display": "none"});
-                        var resultTranslated = js_xl(thedata);
-                        alert(resultTranslated.msg);
-                    },
-                    error: function () {
-                        $('.ap-st-st-12').fadeOut();
-                        $('.activity_indicator').css({"display": "none"});
-                        var resultTranslated = js_xl("Failed to send");
-                        alert(resultTranslated.msg);
-                    }
-                });
-            })
-            .fail(function() {
-                $('.ap-st-st-12').fadeOut();
-                $('.activity_indicator').css({"display": "none"});
-                var resultTranslated = js_xl("Failed to send");
-                alert(resultTranslated.msg);
-            })
-
-        } else {
-            $('.activity_indicator').css({"display": "none"});
-            var resultTranslated = js_xl("Please Specify at least One Direct Address");
-            alert(resultTranslated.msg);
-        }
+        sendToEmrDirect();
     } else if (send_to == "download_all") {
-        var count = 0;
-        if ($('#ccda_pid').val()) {
-            pids = $('#ccda_pid').val();
-            pids = pids.split("_");
-            pid = pids[0];
-            count++;
-        } else {
-            pids = document.getElementsByName('ccda_pid[]');
-            for (i = 0; i < pids.length; i++) {
-                if (pids[i].checked) {
-                    count++;
-                }
-            }
-        }
-        if (count == 0 && $('input:radio[name="downloadformat"]:checked').val() != 'qrda3') {
-            $('.ap-st-st-12').fadeOut();
-            $('.activity_indicator').css({"display": "none"});
-            var resultTranslated = js_xl("Please select at least one patient.");
-            alert(resultTranslated.msg);
-            return false;
-        } else {
-            var download_format = $('input:radio[name="downloadformat"]:checked').val();
-            if (download_format == 'ccda') {
-                if ($('#ccda_pid').val()) {
-                    window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadccda=download_ccda&components=" + comp + "&latest_ccda=" + latest_ccda);
-                } else {
-                    $('#components').val(comp);
-                    $("#latestccda").val(latest_ccda);
-                    $('#download_ccda').trigger("click");
-                    $(".check_pid").prop("checked", false);
-                }
-            } else if (download_format == 'qrda') {
-                if ($('#ccda_pid').val()) {
-                    window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda=download_qrda");
-                } else {
-                    $('#download_qrda').trigger("click");
-                    $(".check_pid").prop("checked", false);
-                }
-            } else if (download_format == 'qrda3') {
-                if ($('#ccda_pid').val()) {
-                    window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccda=" + pid + "&downloadqrda=download_qrda3");
-                } else {
-                    $('#download_qrda3').trigger("click");
-                    $(".check_pid").prop("checked", false);
-                }
-            } else if (download_format == 'ccr') {
-                if ($('#ccda_pid').val()) {
-                    window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccr=" + pid + "&downloadccr=download_ccr");
-                } else {
-                    $('#download_ccr').trigger("click");
-                    $(".check_pid").prop("checked", false);
-                }
-            } else if (download_format == 'ccd') {
-                if ($('#ccda_pid').val()) {
-                    window.location.assign(WEB_ROOT + "/interface/modules/zend_modules/public/encountermanager/index?pid_ccd=" + pid + "&downloadccd=download_ccd");
-                } else {
-                    $('#download_ccd').trigger("click");
-                    $(".check_pid").prop("checked", false);
-                }
-            }
-            //$(".check_pid").prop("checked",false);
-            $('.ap-st-st-12').fadeOut();
-            $('.activity_indicator').css({"display": "none"});
-        }
+        sendToDownloadAll();
     }
 }

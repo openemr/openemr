@@ -18,11 +18,12 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Control access
 if (!AclMain::aclCheckCore('patients', 'disclosure')) {
-    echo xlt('Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Disclosures")]);
     exit;
 }
 $authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');

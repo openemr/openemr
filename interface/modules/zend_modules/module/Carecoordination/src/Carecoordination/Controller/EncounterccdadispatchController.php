@@ -14,14 +14,17 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Controller\EncountermanagerController;
+use Carecoordination\Model\CcdaGenerator;
+use Carecoordination\Model\CcdaServiceConnectionException;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use DOMDocument;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\System\System;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Carecoordination\Controller\EncountermanagerController;
 use Exception;
+use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Http\StatusCode;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
@@ -73,24 +76,24 @@ class EncounterccdadispatchController extends AbstractActionController
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
         $request = $this->getRequest();
-        $this->patient_id = $this->getRequest()->getQuery('pid');
-        $this->encounter_id = $this->getRequest()->getQuery('encounter');
-        $combination = $this->getRequest()->getQuery('combination');
-        $this->sections = $this->getRequest()->getQuery('sections');
-        $sent_by = $this->getRequest()->getQuery('sent_by');
-        $send = $this->getRequest()->getQuery('send') ?: 0;
-        $view = $this->getRequest()->getQuery('view') ?: 0;
-        $emr_transfer = $this->getRequest()->getQuery('emr_transfer') ?: 0;
-        $this->recipients = $this->getRequest()->getQuery('recipient');
-        $this->params = $this->getRequest()->getQuery('param');
-        $this->referral_reason = $this->getRequest()->getQuery('referral_reason');
-        $this->components = $this->getRequest()->getQuery('components') ?: $this->params('components');
+        $this->patient_id = $request->getQuery('pid');
+        $this->encounter_id = $request->getQuery('encounter');
+        $combination = $request->getQuery('combination');
+        $this->sections = $request->getQuery('sections');
+        $sent_by = $request->getQuery('sent_by');
+        $send = $request->getQuery('send') ?: 0;
+        $view = $request->getQuery('view') ?: 0;
+        $emr_transfer = $request->getQuery('emr_transfer') ?: 0;
+        $this->recipients = $request->getQuery('recipient');
+        $this->params = $request->getQuery('param');
+        $this->referral_reason = $request->getQuery('referral_reason');
+        $this->components = $request->getQuery('components') ?: $this->params('components');
         $downloadccda = $this->params('downloadccda');
         $downloadqrda = $this->params('downloadqrda');
         $downloadqrda3 = $this->params('downloadqrda3');
-        $this->latest_ccda = $this->getRequest()->getQuery('latest_ccda') ?: $this->params('latest_ccda');
-        $hie_hook = $this->getRequest()->getQuery('hiehook') || 0;
-        $this->document_type = $this->getRequest()->getPost('downloadformat_type');
+        $this->latest_ccda = $request->getQuery('latest_ccda') ?: $this->params('latest_ccda');
+        $hie_hook = $request->getQuery('hiehook') || 0;
+        $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
         // @TODO future use.
         $date_options = [
@@ -166,96 +169,95 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         }
 
-        if ($sent_by != '') {
-            $_SESSION['authUserID'] = $sent_by;
-        }
-
-        if (!$this->sections) {
-            $components0 = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
-            foreach ($components0 as $key => $value) {
-                if ($str ?? '') {
-                    $str .= '|';
-                } else {
-                    $str = $key;
-                    continue;
-                }
-                $str .= $key;
-            }
-            $this->sections = $str;
-        }
-
-        if (!$this->components) {
-            $components1 = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
-            foreach ($components1 as $key => $value) {
-                if ($str1 ?? '') {
-                    $str1 .= '|';
-                } else {
-                    $str1 = $key;
-                    continue;
-                }
-                $str1 .= $key;
-            }
-            $this->components = $str1;
-        }
-
-        if (!empty($combination)) {
-            $arr = explode('|', $combination);
-            foreach ($arr as $row) {
-                $arr = explode('_', $row);
-                $this->patient_id = $arr[0];
-                $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
-                if ($this->latest_ccda) {
-                    $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
-                }
-
-                $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
-                $content = $this->socket_get($this->data);
-
-                if ($content == 'Authentication Failure') {
-                    echo $this->listenerObject::z_xlt($content);
-                    die();
-                }
-
-                $content = trim($content);
-                $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
-                if (!$view) {
-                    if ($hie_hook) {
-                        echo $content;
-                    } else {
-                        echo $this->listenerObject::z_xlt("Queued for Transfer");
+        try {
+            $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
+            if (!empty($combination)) {
+                $arr = explode('|', $combination);
+                foreach ($arr as $row) {
+                    $arr = explode('_', $row);
+                    $this->patient_id = $arr[0];
+                    $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
+                    if ($this->latest_ccda) {
+                        $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+                    }
+                    $result = $ccdaGenerator->generate(
+                        $this->patient_id,
+                        $this->encounter_id,
+                        $sent_by,
+                        $send,
+                        $view,
+                        $emr_transfer,
+                        $this->components,
+                        $this->sections,
+                        $this->recipients,
+                        $this->params,
+                        $this->document_type
+                    );
+                    $content = $result->getContent();
+                    unset($result); // clear out our memory here as $content is a big string
+                    if (!$view) {
+                        if ($hie_hook) {
+                            echo $content;
+                        } else {
+                            echo $this->listenerObject::z_xlt("Queued for Transfer");
+                        }
                     }
                 }
-            }
 
-            if ($view && !$downloadccda) {
-                $xml = simplexml_load_string($content);
-                $xsl = new DOMDocument();
-                // cda.xsl is self contained with bootstrap and jquery.
-                // cda-web.xsl when used, is for referencing styles from internet.
-                $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
-                $proc = new XSLTProcessor();
-                $proc->importStyleSheet($xsl); // attach the xsl rules
-                $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
-                $proc->transformToURI($xml, $outputFile);
+                if ($view && !$downloadccda) {
+                    $xml = simplexml_load_string($content);
+                    $xsl = new DOMDocument();
+                    // cda.xsl is self contained with bootstrap and jquery.
+                    // cda-web.xsl when used, is for referencing styles from internet.
+                    $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
+                    $proc = new XSLTProcessor();
+                    $proc->importStyleSheet($xsl); // attach the xsl rules
+                    $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
+                    $proc->transformToURI($xml, $outputFile);
 
-                $htmlContent = file_get_contents($outputFile);
-                echo $htmlContent;
-            }
+                    $htmlContent = file_get_contents($outputFile);
+                    $result = unlink($outputFile); // remove the file so we don't have PHI left around on the filesystem
+                    if (!$result) {
+                        (new SystemLogger())->errorLogCaller("Failed to unlink temporary CDA output on hard drive. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
+                    }
+                    echo $htmlContent;
+                }
 
-            if ($downloadccda) {
-                $pids = $this->params('pids') ?? $combination;
-                $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids));
+                if ($downloadccda) {
+                    $pids = $this->params('pids') ?? $combination;
+                    // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
+                    // no sense in having this forward piece at all...
+                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids
+                    , 'document_type' => $this->document_type));
+                } else {
+                    die;
+                }
             } else {
+                // oddly we send an empty string for our components here if there is no combination,
+                // I don't know how this is even valid as the ccda node service fails if there is no encounters section in the component.
+                $result = $ccdaGenerator->generate(
+                    $this->patient_id,
+                    $this->encounter_id,
+                    $sent_by,
+                    $send,
+                    $view,
+                    $emr_transfer,
+                    '',
+                    $this->sections,
+                    $this->recipients,
+                    $this->params,
+                    $this->document_type
+                );
+                $content = $result->getContent();
+                unset($result);
+                echo $content;
                 die;
             }
-        } else {
-            $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, '');
-            $content = $this->socket_get($this->data);
-
-            $content = trim($content);
-            $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authUserID'], $view, $send, $emr_transfer);
-            echo $content;
-            die;
+        } catch (CcdaServiceConnectionException $exception) {
+            http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
+            echo xlt("Failed to connect to ccdaservice.  Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
+            (new SystemLogger())->errorLogCaller("Connection error with ccda service", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+            die();
         }
 
         try {
@@ -275,179 +277,6 @@ class EncounterccdadispatchController extends AbstractActionController
         } catch (Exception $e) {
             die('SOAP Error');
         }
-    }
-
-    public function socket_get($data)
-    {
-        $output = "";
-        $system = new System();
-
-        // Create a TCP Stream Socket
-        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        if ($socket === false) {
-            throw new Exception("Socket Creation Failed");
-        }
-
-        // Let's check if server is already running but suppress warning with @ operator
-        $server_active = @socket_connect($socket, "localhost", "6661");
-
-        if ($server_active === false) {
-            // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
-            if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
-                $path = $GLOBALS['fileroot'] . "/ccdaservice";
-                if (IS_WINDOWS) {
-                    // node server is quite with errors(hidden process) so we'll do redirect of tty
-                    // to generally Windows/Temp.
-                    $redirect_errors = " > " .
-                        $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/ccdaserver.log") . " 2>&1";
-                    $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
-                    $pipeHandle = popen("start /B " . $cmd, "r");
-                    if ($pipeHandle === false) {
-                        throw new Exception("Failed to start local ccdaservice");
-                    }
-                    if (pclose($pipeHandle) === -1) {
-                        error_log("Failed to close pipehandle for ccdaservice");
-                    }
-                } else {
-                    $command = 'nodejs';
-                    if (!$system->command_exists($command)) {
-                        if ($system->command_exists('node')) {
-                            // older or custom Ubuntu systems that have node rather than nodejs command
-                            $command = 'node';
-                        } else {
-                            error_log("Node is not installed on the system.  Connection failed");
-                            throw new Exception('Connection Failed.');
-                        }
-                    }
-                    $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
-                    exec($cmd . " > /dev/null &");
-                }
-                sleep(2); // give cpu a rest
-                $result = socket_connect($socket, "localhost", "6661");
-                if ($result === false) { // hmm something is amiss with service. user will likely try again.
-                    error_log("Failed to start and connect to local ccdaservice server on port 6661");
-                    throw new Exception("Connection Failed");
-                }
-            } else {
-                error_log("C-CDA Service is not enabled in Global Settings");
-                throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
-            }
-        }
-
-        $data = chr(11) . $data . chr(28) . "\r";
-        // Write to socket!
-        $out = socket_write($socket, $data, strlen($data));
-
-        socket_set_nonblock($socket);
-        //Read from socket!
-        do {
-            $line = "";
-            $line = trim(socket_read($socket, 1024, PHP_NORMAL_READ));
-            $output .= $line;
-        } while (!empty($line) && $line !== false);
-
-        $output = substr(trim($output), 0, strlen($output) - 1);
-        // Close and return.
-        socket_close($socket);
-        return $output;
-    }
-
-    public function create_data($pid, $encounter, $sections, int $send = null, $components)
-    {
-        if (!$send) {
-            $send = 0;
-        }
-        global $assignedEntity;
-        global $representedOrganization;
-        $sections_list = explode('|', $sections);
-        $components_list = explode('|', $components);
-        $this->createdtime = time();
-        $this->data .= "<CCDA>";
-        $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
-        $this->data .= "<username></username>";
-        $this->data .= "<password></password>";
-        $this->data .= "<hie>MyHealth</hie>";
-        $this->data .= "<time>" . $this->createdtime . "</time>";
-        $this->data .= "<client_id></client_id>";
-        $this->data .= "<created_time>" . date('YmdHis') . "</created_time>";
-        $this->data .= "<created_time_timezone>" . date('YmdHisO') . "</created_time_timezone>";
-        $this->data .= "<send>" . htmlspecialchars($send, ENT_QUOTES) . "</send>";
-        $this->data .= "<doc_type>" . $this->document_type . "</doc_type>";
-        $this->data .= "<assignedEntity>
-                <streetAddressLine>" . htmlspecialchars($assignedEntity['streetAddressLine'] ?? '', ENT_QUOTES) . "</streetAddressLine>
-                <city>" . htmlspecialchars($assignedEntity['city'] ?? '', ENT_QUOTES) . "</city>
-                <state>" . htmlspecialchars($assignedEntity['state'] ?? '', ENT_QUOTES) . "</state>
-                <postalCode>" . htmlspecialchars($assignedEntity['postalCode'] ?? '', ENT_QUOTES) . "</postalCode>
-                <country>" . htmlspecialchars($assignedEntity['country'] ?? '', ENT_QUOTES) . "</country>
-            </assignedEntity>
-            <telecom use='WP' value='" . htmlspecialchars($assignedEntity['telecom'] ?? '', ENT_QUOTES) . "'/>
-            <representedOrganization>
-                <name>" . htmlspecialchars($representedOrganization['name'] ?? '', ENT_QUOTES) . "</name>
-                <telecom use='WP' value='" . htmlspecialchars($representedOrganization['telecom'] ?? '', ENT_QUOTES) . "'/>
-                <streetAddressLine>" . htmlspecialchars($representedOrganization['streetAddressLine'] ?? '', ENT_QUOTES) . "</streetAddressLine>
-                <city>" . htmlspecialchars($representedOrganization['city'] ?? '', ENT_QUOTES) . "</city>
-                <state>" . htmlspecialchars($representedOrganization['state'] ?? '', ENT_QUOTES) . "</state>
-                <postalCode>" . htmlspecialchars($representedOrganization['postalCode'] ?? '', ENT_QUOTES) . "</postalCode>
-                <country>" . htmlspecialchars($representedOrganization['country'] ?? '', ENT_QUOTES) . "</country>
-            </representedOrganization>";
-        $this->data .= "<referral_reason><text>" . htmlspecialchars($this->referral_reason, ENT_QUOTES) . "</text></referral_reason>";
-
-        /***************CCDA Header Information***************/
-        $this->data .= $this->getEncounterccdadispatchTable()->getPatientdata($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getProviderDetails($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getAuthor($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getDataEnterer($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getInformant($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getCustodian($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getInformationRecipient($pid, $encounter, $this->recipients, $this->params);
-        $this->data .= $this->getEncounterccdadispatchTable()->getLegalAuthenticator($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getAuthenticator($pid, $encounter);
-        $this->data .= $this->getEncounterccdadispatchTable()->getPrimaryCareProvider($pid, $encounter);
-        /***************CCDA Header Information***************/
-
-        /***************CCDA Body Information***************/
-        if (in_array('encounters', $components_list)) {
-            $this->data .= $this->getEncounterccdadispatchTable()->getEncounterHistory($pid, $encounter);
-        }
-
-        if (in_array('continuity_care_document', $sections_list)) {
-            $this->data .= $this->getContinuityCareDocument($pid, $encounter, $components_list);
-        }
-
-        // we're sending everything anyway. document type will tell engine what to include in cda.
-        $this->data .= $this->getEncounterccdadispatchTable()->getClinicalNotes($pid, $encounter);
-
-        if (in_array('progress_note', $sections_list)) {
-            $this->data .= $this->getEncounterccdadispatchTable()->getProgressNotes($pid, $encounter);
-        }
-
-        if (in_array('discharge_summary', $sections_list)) {
-            $this->data .= $this->getDischargeSummary($pid, $encounter);
-        }
-
-        if (in_array('procedure_note', $sections_list)) {
-            $this->data .= $this->getProcedureNotes($pid, $encounter);
-        }
-
-        if (in_array('operative_note', $sections_list)) {
-            $this->data .= $this->getOperativeNotes($pid, $encounter);
-        }
-
-        if (in_array('consultation_note', $sections_list)) {
-            $this->data .= $this->getConsultationNote($pid, $encounter);
-        }
-
-        if (in_array('history_physical_note', $sections_list)) {
-            $this->data .= $this->getHistoryAndPhysicalNotes($pid, $encounter, $components_list);
-        }
-
-        if (in_array('unstructured_document', $sections_list)) {
-            $this->data .= $this->getEncounterccdadispatchTable()->getUnstructuredDocuments($pid, $encounter);
-        }
-
-        /***************CCDA Body Information***************/
-
-        $this->data .= "</CCDA>";
     }
 
     public function get_file_name($dir_source)
@@ -478,187 +307,6 @@ class EncounterccdadispatchController extends AbstractActionController
         header("Content-Type: application/download");
         header("Content-Transfer-Encoding: binary");
         readfile($tmpfile);
-    }
-
-    public function getContinuityCareDocument($pid, $encounter, $components_list)
-    {
-        $ccd = '';
-        if (in_array('allergies', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getAllergies($pid, $encounter);
-        }
-
-        if (in_array('medications', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getMedications($pid, $encounter);
-        }
-
-        if (in_array('problems', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getProblemList($pid, $encounter);
-        }
-
-        if (in_array('procedures', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getProcedures($pid, $encounter);
-        }
-
-        if (in_array('results', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getResults($pid, $encounter);
-        }
-
-        if (in_array('immunizations', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getImmunization($pid, $encounter);
-        }
-
-        if (in_array('plan_of_care', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getPlanOfCare($pid, $encounter);
-        }
-
-        if (in_array('functional_status', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getFunctionalCognitiveStatus($pid, $encounter);
-        }
-
-        if (in_array('instructions', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getClinicalInstructions($pid, $encounter);
-        }
-
-        if (in_array('medical_devices', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getMedicalDeviceList($pid, $encounter);
-        }
-
-        if (in_array('referral', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid, $encounter);
-        }
-        return $ccd;
-    }
-
-    public function getDischargeSummary($pid, $encounter)
-    {
-        $discharge_summary = '';
-
-        $discharge_summary .= $this->getEncounterccdadispatchTable()->getHospitalCourse($pid, $encounter);
-        $discharge_summary .= $this->getEncounterccdadispatchTable()->getDischargeDiagnosis($pid, $encounter);
-        $discharge_summary .= $this->getEncounterccdadispatchTable()->getDischargeMedications($pid, $encounter);
-
-        return $discharge_summary;
-    }
-
-    /*
-    #***********************************************#
-    #       PROCEDURE NOTES section in CCDA.        #
-    #***********************************************#
-    This function contains call to different sub sections like
-    * Complications
-    * Postprocedure Diagnosis
-    * Postprocedure Description
-    * Postprocedure Indications
-
-    * @param    int     $pid           Patient Internal Identifier.
-    * @param    int     $encounter     Current selected encounter.
-
-    * $return   string  $procedure_notes      XML which contains the details collected from the patient.
-    */
-    public function getProcedureNotes($pid, $encounter)
-    {
-        $procedure_notes = '<procedure_notes>';
-        $procedure_notes .= $this->getEncounterccdadispatchTable()->getComplications($pid, $encounter);
-        $procedure_notes .= $this->getEncounterccdadispatchTable()->getPostProcedureDiag($pid, $encounter);
-        $procedure_notes .= $this->getEncounterccdadispatchTable()->getProcedureDescription($pid, $encounter);
-        $procedure_notes .= $this->getEncounterccdadispatchTable()->getProcedureIndications($pid, $encounter);
-        $procedure_notes .= '</procedure_notes>';
-        return $procedure_notes;
-    }
-
-    /*
-    #***********************************************#
-    #       OPERATIVE NOTES section in CCDA.        #
-    #***********************************************#
-    This function contains call to different sub sections like
-    * Anesthesia
-    * Complications (already exist in the CCDA section Procedure Notes)
-    * Post Operative Diagnosis
-    * Pre Operative Diagnosis
-    * Procedure Estimated Blood Loss
-    * Procedure Findings
-    * Procedure Specimens Taken
-    * Procedure Description (already exist in the CCDA section Procedure Notes)
-
-
-    * @param    int     $pid           Patient Internal Identifier.
-    * @param    int     $encounter     Current selected encounter.
-
-    * $return   string  $operative_notes      XML which contains the details collected from the patient.
-    */
-    public function getOperativeNotes($pid, $encounter)
-    {
-        $operative_notes = '<operative_notes>';
-        $operative_notes .= $this->getEncounterccdadispatchTable()->getAnesthesia($pid, $encounter);
-        $operative_notes .= $this->getEncounterccdadispatchTable()->getPostoperativeDiag($pid, $encounter);
-        $operative_notes .= $this->getEncounterccdadispatchTable()->getPreOperativeDiag($pid, $encounter);
-        $operative_notes .= $this->getEncounterccdadispatchTable()->getEstimatedBloodLoss($pid, $encounter);
-        $operative_notes .= $this->getEncounterccdadispatchTable()->getProcedureFindings($pid, $encounter);
-        $operative_notes .= $this->getEncounterccdadispatchTable()->getProcedureSpecimensTaken($pid, $encounter);
-        $operative_notes .= '</operative_notes>';
-        return $operative_notes;
-    }
-
-    /*
-    #***********************************************#
-    #       CONSULTATION NOTES section in CCDA.     #
-    #***********************************************#
-    This function contains call to different sub sections like
-    * History of Present Illness
-    * Physical Exam
-
-    * @param    int     $pid           Patient Internal Identifier.
-    * @param    int     $encounter     Current selected encounter.
-
-    * $return   string  $consultation_notes      XML which contains the details collected from the patient.
-    */
-    public function getConsultationNote($pid, $encounter)
-    {
-        $consultation_notes = '';
-        $consultation_notes .= "<consultation_notes>";
-        $consultation_notes .= $this->getEncounterccdadispatchTable()->getHP($pid, $encounter);
-        $consultation_notes .= $this->getEncounterccdadispatchTable()->getPhysicalExam($pid, $encounter);
-        $consultation_notes .= "</consultation_notes>";
-        return $consultation_notes;
-    }
-
-    /*
-    #********************************************************#
-    #       HISTORY AND PHYSICAL NOTES section in CCDA.      #
-    #********************************************************#
-    This function contains call to different sub sections like
-    * Chief Complaint / Reason for Visit
-    * Family History
-    * General Status
-    * History of Past Illness
-    * Review of Systems
-    * Social History
-    * Vital Signs
-
-    * @param    int     $pid           Patient Internal Identifier.
-    * @param    int     $encounter     Current selected encounter.
-
-    * $return   string  $history_and_physical_notes      XML which contains the details collected from the patient.
-    */
-
-    public function getHistoryAndPhysicalNotes($pid, $encounter, $components_list)
-    {
-        $history_and_physical_notes = '';
-        $history_and_physical_notes .= "<history_physical>";
-        $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getChiefComplaint($pid, $encounter);
-        $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getGeneralStatus($pid, $encounter);
-        $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getHistoryOfPastIllness($pid, $encounter);
-        $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getReviewOfSystems($pid, $encounter);
-        if (in_array('vitals', $components_list)) {
-            $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getVitals($pid, $encounter);
-        }
-
-        if (in_array('social_history', $components_list)) {
-            $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getSocialHistory($pid, $encounter);
-        }
-
-        $history_and_physical_notes .= "</history_physical>";
-        return $history_and_physical_notes;
     }
 
     /**

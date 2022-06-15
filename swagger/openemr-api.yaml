@@ -4206,6 +4206,50 @@ paths:
       security:
         -
           openemr_auth: []
+  /fhir/DocumentReference/$docref:
+    get:
+      tags:
+        - fhir
+      description: 'The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient''s most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href=''http://hl7.org/fhir/us/core/OperationDefinition-docref.html'' target=''_blank'' rel=''noopener''>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details'
+      parameters:
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: start
+          in: query
+          description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no start date is provided then all documents prior to the end date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
+          required: false
+          schema:
+            type: string
+        -
+          name: end
+          in: query
+          description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no end date is provided then all documents subsequent to the start date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
+          required: false
+          schema:
+            type: string
+        -
+          name: type
+          in: query
+          description: 'The type refers to the document type.  This is a LOINC code from the valueset of <a href=''http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html'' target=''_blank'' rel=''noopener''>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node).'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'A search bundle of DocumentReferences is returned'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   '/fhir/DocumentReference/{uuid}':
     get:
       tags:
@@ -7246,6 +7290,7 @@ components:
           scopes:
             openid: 'Generic mandatory scope'
             offline_access: 'Will signal server to provide a refresh token'
+            launch/patient: 'Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)'
             'api:fhir': 'FHIR R4 API'
             patient/AllergyIntolerance.read: 'Read allergy intolerance resources for the current patient (api:fhir)'
             patient/CarePlan.read: 'Read care plan resources for the current patient (api:fhir)'
@@ -7254,7 +7299,9 @@ components:
             patient/Coverage.read: 'Read coverage resources for the current patient (api:fhir)'
             patient/Device.read: 'Read device resources for the current patient (api:fhir)'
             patient/DiagnosticReport.read: 'Read diagnostic report resources for the current patient (api:fhir)'
+            patient/Document.read: 'Read document resources for the current patient (api:fhir)'
             patient/DocumentReference.read: 'Read document reference resources for the current patient (api:fhir)'
+            patient/DocumentReference.$docref: 'Generate a document for the current patient or returns the most current Clinical Summary of Care Document (CCD)'
             patient/Encounter.read: 'Read encounter resources for the current patient (api:fhir)'
             patient/Goal.read: 'Read goal resources for the current patient (api:fhir)'
             patient/Immunization.read: 'Read immunization resources for the current patient (api:fhir)'
@@ -7277,6 +7324,7 @@ components:
             system/DiagnosticReport.read: 'Read all diagnostic report resources in the system (api:fhir)'
             system/Document.read: 'Read all document resources in the system (api:fhir)'
             system/DocumentReference.read: 'Read all document reference resources in the system (api:fhir)'
+            system/DocumentReference.$docref: 'Generate a document for any patient in the system or returns the most current Clinical Summary of Care Document (CCD)'
             system/Encounter.read: 'Read all encounter resources in the system (api:fhir)'
             system/Goal.read: 'Read all goal resources in the system (api:fhir)'
             system/Group.read: 'Read all group resources in the system (api:fhir)'
@@ -7299,7 +7347,9 @@ components:
             user/Coverage.read: 'Read all coverage resources the user has access to (api:fhir)'
             user/Device.read: 'Read all device resources the user has access to (api:fhir)'
             user/DiagnosticReport.read: 'Read all diagnostic report resources the user has access to (api:fhir)'
+            user/Document.read: 'Read all documents the user has access to (api:fhir)'
             user/DocumentReference.read: 'Read all document reference resources the user has access to (api:fhir)'
+            user/DocumentReference.$docref: 'Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)'
             user/Encounter.read: 'Read all encounter resources the user has access to (api:fhir)'
             user/Goal.read: 'Read all goal resources the user has access to (api:fhir)'
             user/Immunization.read: 'Read all immunization resources the user has access to (api:fhir)'

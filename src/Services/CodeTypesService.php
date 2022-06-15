@@ -188,6 +188,15 @@ class CodeTypesService
         if (empty($type) || empty($code)) {
             return "";
         }
+        $tmp = explode(':', $code);
+        if (is_array($tmp) && count($tmp ?? []) === 2) {
+            if (!$oe_format) {
+                return $code;
+            }
+            // rebuild when code type format flag is set
+            $type = $tmp[0];
+            $code = $tmp[1];
+        }
         if ($oe_format) {
             $type = $this->formatCodeType($type ?? "");
         }
@@ -397,5 +406,25 @@ class CodeTypesService
     {
         $listService = new ListService();
         return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
+    }
+
+    public function parseCodesIntoCodeableConcepts($codes)
+    {
+        $codes = explode(";", $codes);
+        $codeableConcepts = array();
+        foreach ($codes as $codeItem) {
+            $parsedCode = $this->parseCode($codeItem);
+            $codeType = $parsedCode['code_type'];
+            $code = $parsedCode['code'];
+            $system = $this->getSystemForCodeType($codeType);
+            $codedesc = $this->lookup_code_description($codeItem);
+            $codeableConcepts[$code] = [
+                'code' => $code
+                , 'description' => $codedesc
+                , 'code_type' => $codeType
+                , 'system' => $system
+            ];
+        }
+        return $codeableConcepts;
     }
 }

@@ -20,15 +20,11 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 
-$url_webroot = $GLOBALS['webroot'];
-$portal_login_href = $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php";
-
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();
 
 $viewArgs = [
     'pageHeading' => $oemr_ui->pageHeading(),
-    'urlWebRoot' => $url_webroot,
     'pid' => $pid,
     'csrf' => CsrfUtils::collectCsrfToken(),
 ];

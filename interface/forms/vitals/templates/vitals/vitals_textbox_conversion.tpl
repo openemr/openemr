@@ -9,7 +9,7 @@
     {else}
         <td class="graph" id="{$input|attr}">
     {/if}
-            {xlt t=$title}
+        {xlt t=$title} {if !empty($codes)}<small>({$codes|text})</small>{/if}
         </td>
     {if $units_of_measurement == $MEASUREMENT_PERSIST_IN_METRIC}
         <td class="unfocus">
@@ -48,7 +48,7 @@
     {else}
         <td class="graph" id="{$input|attr}_metric">
     {/if}
-            {xlt t=$title}
+        {xlt t=$title} {if !empty($codes)}<small>({$codes|text})</small>{/if}
         </td>
     {if $units_of_measurement == $MEASUREMENT_PERSIST_IN_USA}
         <td class="unfocus">

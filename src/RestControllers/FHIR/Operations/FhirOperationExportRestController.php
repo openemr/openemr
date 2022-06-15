@@ -1,24 +1,6 @@
 <?php
 
-/**
- * FhirExportRestController.php
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
-/**
- * FhirExportRestControllertroller.php
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
-namespace OpenEMR\RestControllers\FHIR;
+namespace OpenEMR\RestControllers\FHIR\Operations;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -34,26 +16,18 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
+use OpenEMR\RestControllers\FHIR\Operations\InvalidExportHeaderException;
 use OpenEMR\Services\FHIR\FhirExportJobService;
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
 use OpenEMR\Services\FHIR\FhirGroupService;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\FHIR\UtilsService;
-use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 
-/**
- * Class InvalidExportHeaderException Represents an invalid export header per Bulk FHIR Spect
- * @see https://hl7.org/fhir/uv/bulkdata/export/index.html#headers
- * @package OpenEMR\RestControllers\FHIR
- */
-class InvalidExportHeaderException extends \Exception
-{
-}
-
-class FhirExportRestController
+class FhirOperationExportRestController
 {
     /**
      * The DateInterval format that is the maximum time an export process can execute before
@@ -312,10 +286,10 @@ class FhirExportRestController
      * are saved in the FHIR_DOCUMENT_FOLDER under the file name of <resource>-<jobUuidString>.ndjson with the ndjson
      * mimetype.  The results and any errors of the export are saved back into the ExportJob.  The ExportJob's status
      * is marked as completed upon completion.
-     * @see ExportJob::OUTPUT_FORMAT_FHIR_NDJSON
-     * @see FhirExportRestController::FHIR_DOCUMENT_FOLDER
-     * @param ExportJob $job  The job to start processing the resource exports for.
+     * @param ExportJob $job The job to start processing the resource exports for.
      * @return ExportJob
+     * @see ExportJob::OUTPUT_FORMAT_FHIR_NDJSON
+     * @see FhirOperationExportRestController::FHIR_DOCUMENT_FOLDER
      */
     public function processResourceExportForJob(ExportJob $job)
     {
@@ -369,7 +343,7 @@ class FhirExportRestController
                 $errorOutcome = $this->getExportTimeoutExportError($resource);
                 $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);
                 $this->logger->error("FhirExportRestController->processResourceExportForJob() Export reached "
-                . "maximum execution time.", [
+                    . "maximum execution time.", [
                     'exception' => $exception->getMessage(),
                     'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
             } catch (\Exception $exception) {
@@ -377,7 +351,7 @@ class FhirExportRestController
                 $errorOutcome = $this->createOperationOutcomeError($errorMessage);
                 $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);
                 $this->logger->error("FhirExportRestController->processResourceExportForJob() Unknown system error"
-                . " occurred during export", ['exception' => $exception->getMessage(),
+                    . " occurred during export", ['exception' => $exception->getMessage(),
                     'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
             } finally {
                 $this->logger->debug("FhirExportRestController->processResourceExportForJob() closing resource", [
@@ -404,7 +378,7 @@ class FhirExportRestController
     {
         $jobUuidString = $job->getUuidString();
         $resource = $errorOutcome->get_fhirElementName();
-        $fileName = $resource  . "-" . $jobUuidString . "-" . $errorOutcome->getId() . ".ndjson";
+        $fileName = $resource . "-" . $jobUuidString . "-" . $errorOutcome->getId() . ".ndjson";
         $data = json_encode($errorOutcome);
         $document = $this->createExportJobFile($job, $fileName, $data);
         return $this->getResultForResourceDocument($resource, $document);
@@ -422,7 +396,7 @@ class FhirExportRestController
     {
         return [
             'url' => $this->request->getApiBaseFullUrl() . '/fhir/Document/' . $document->get_id() . '/Binary'
-            ,"type" => $resource
+            , "type" => $resource
         ];
     }
 
@@ -508,13 +482,13 @@ class FhirExportRestController
             switch ($exportType) {
                 case ExportJob::EXPORT_OPERATION_SYSTEM:
                     return $service->supportsSystemExport();
-                break;
+                    break;
                 case ExportJob::EXPORT_OPERATION_GROUP:
                     return $service->supportsGroupExport();
-                break;
+                    break;
                 case ExportJob::EXPORT_OPERATION_PATIENT:
                     return $service->supportsPatientExport();
-                break;
+                    break;
             }
         }
         return false;

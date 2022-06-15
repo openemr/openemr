@@ -7,7 +7,9 @@
  * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Riju K P <rijukp@zhservices.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>_
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,7 +23,11 @@ use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Matrix\Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\Services\PatientService;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
@@ -29,6 +35,7 @@ require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
 class EncounterccdadispatchTable extends AbstractTableGateway
 {
+    const CCDA_DOCUMENT_FOLDER = "CCDA";
     public $amc_num_result = [
             'medications' => 0,
             'allergies' => 0,
@@ -258,7 +265,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $details['lname'] = '';
             $details['organization'] = '';
         } elseif ($recipients == 'emr_direct') {
-            $query = "select fname, lname, organization, street, city, state, zip, phonew1 from users where email_direct = ?";
+            $query = "select fname, lname, organization, street, city, state, zip, phonew1, facility from users where email_direct = ?";
             $field_name[] = $params;
         } elseif ($recipients == 'patient') {
             $query = "select fname, lname from patient_data WHERE pid = ?";
@@ -267,14 +274,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (!$params) {
                 $params = $_SESSION['authUserID'];
             }
-
-            $query = "select fname, lname, organization, street, city, state, zip, phonew1 from users where id = ?";
+            $query = "select fname, lname, organization, street, city, state, zip, phonew1, facility from users where id = ?";
             $field_name[] = $params;
         }
 
         if ($recipients != 'hie') {
             $res = $appTable->zQuery($query, $field_name);
             $result = $res->current();
+            if (empty($result['organization'])) {
+                $result['organization'] = $result['facility'];
+            }
             $details['fname'] = $result['fname'];
             $details['lname'] = $result['lname'];
             $details['organization'] = $result['organization'];
@@ -1583,14 +1592,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $temp_value = $convTempValue;
                 $temp_unit = 'Cel';
             } else {
+                // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
+                // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
                 $temp = US_weight($row['weight'], 1);
                 $tempArr = explode(" ", $temp);
                 $weight_value = (float)$tempArr[0];
-                $weight_unit = 'lb';
+                $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];
-                $height_unit = 'in';
+                $height_unit = '[in_i]'; // inches international
                 $temp_value = (float)$row['temperature'];
-                $temp_unit = 'degF';
+                $temp_unit = '[degF]'; // degrees fahrenheit
             }
 
             $vitals .= "<vitals>
@@ -2192,62 +2203,94 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    integer     $status
     * @return   None
     */
-    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $view = 0, $transfer = 0, $emr_transfer = 0)
+    public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
     {
         $content = base64_decode($content);
-        $file_path = '';
-        $docid = '';
-        $revid = '';
-        if ($GLOBALS['document_storage_method'] == 1) {
-            $couch = new CouchDB();
-            $docid = $couch->createDocId('ccda');
-            $binaryUuid = UuidRegistry::uuidToBytes($docid);
-            if ($GLOBALS['couchdb_encryption']) {
-                $encrypted = 1;
-                $cryptoGen = new CryptoGen();
-                $resp = $couch->save_doc(['_id' => $docid, 'data' => $cryptoGen->encryptStandard($content, null, 'database')]);
-            } else {
-                $encrypted = 0;
-                $resp = $couch->save_doc(['_id' => $docid, 'data' => base64_encode($content)]);
+        $document = new \Document();
+        $document_type = $document_type ?? '';
+
+        // we need to populate the category id based upon the document_type
+        // TOC -> CCDA folder
+        // CCD -> TOC
+        //
+        $categoryId = QueryUtils::fetchSingleValue(
+            'Select `id` FROM categories WHERE name=?',
+            'id',
+            [self::CCDA_DOCUMENT_FOLDER]
+        );
+
+        if ($categoryId === false) {
+            throw new RuntimeException("document category id does not exist in system");
+        }
+
+        // we want to grab the patient name here so we can provide a human readable document name
+        $binaryUuid = (new UuidRegistry(['table_name' => 'ccda']))->createUuid();
+        $patientService = new PatientService();
+        $patient = $patientService->findByPid($pid);
+        if (!empty($patient)) {
+            // should always be populated...
+            // we are only supporting xml for now
+            $file_name = "CCDA_" . $patient['lname'] . '_' . $patient['fname'];
+            if (!empty($document_type)) {
+                $file_name .= '_' . $document_type;
             }
-            $docid = $resp->id;
-            $revid = $resp->rev;
+            $file_name .= '_' . date("Y-m-d") . ".xml";
         } else {
-            $binaryUuid = (new UuidRegistry(['table_name' => 'ccda']))->createUuid();
-            $file_name = UuidRegistry::uuidToString($binaryUuid);
-            $file_path = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $pid . '/CCDA';
-            if (!is_dir($file_path)) {
-                if (!mkdir($file_path, 0777, true) && !is_dir($file_path)) {
-                    // php Exception extends RunTimeException
-                    throw new Exception(sprintf('Directory "%s" was not created', $file_path));
-                }
-            }
-
-            $fccda = fopen($file_path . "/" . $file_name, "w");
-            if ($GLOBALS['drive_encryption']) {
-                $encrypted = 1;
-                $cryptoGen = new CryptoGen();
-                fwrite($fccda, $cryptoGen->encryptStandard($content, null, 'database'));
-            } else {
-                $encrypted = 0;
-                fwrite($fccda, $content);
-            }
-            fclose($fccda);
-            $file_path = $file_path . "/" . $file_name;
+            $file_name = UuidRegistry::uuidToString($binaryUuid) . ".xml";
         }
 
-        $referralId = $this->getMostRecentPatientReferral($pid);
 
-        $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $hash = hash('sha3-512', $content);
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId));
 
-        // now let's go ahead and log our amc actions for this behavior
-        if (!empty($emr_transfer)) {
-            $this->logAmc($pid, $referralId);
+        $mimeType = "text/xml";
+
+        try {
+            \sqlBeginTrans();
+
+            // set the foreign key so we can track documents connected to a specific export
+            $result = $document->createDocument(
+                $pid,
+                $categoryId,
+                $file_name,
+                $mimeType,
+                $content
+            );
+            if (!empty($result)) {
+                throw new \RuntimeException("Failed to save document for ccda. Message: " . $result);
+            }
+
+            $file_path = $document->get_url();
+            $docid = $document->get_couch_docid();
+            $revid = $document->get_couch_revid();
+            $hash = $document->get_hash();
+            $encrypted = $document->is_encrypted();
+            $referralId = $this->getMostRecentPatientReferral($pid);
+
+            $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $appTable = new ApplicationTable();
+            $result = $appTable->zQuery($query, array($binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId));
+
+            // now let's go ahead and log our amc actions for this behavior
+            if (!empty($emr_transfer)) {
+                $this->logAmc($pid, $referralId);
+            }
+            $moduleInsertId = $result->getGeneratedValue();
+
+            // if we have an id, then let's update our document with the foreign key reference
+            $document->set_foreign_reference_id($moduleInsertId);
+            $document->set_foreign_reference_table('ccda');
+            // if we have encounter information we are going to populate it.
+            if (!empty($encounter)) {
+                $document->set_encounter_check(0);
+                $document->set_encounter_id($encounter);
+            }
+            $document->persist(); // save the updated references here.
+            \sqlCommitTrans();
+        } catch (\Exception $exception) {
+            \sqlRollbackTrans();
+            // TODO: @adunsulag do we need to clean up the file if we fail to commit the transaction here?
+            throw $exception;
         }
-        return $moduleInsertId = $result->getGeneratedValue();
+        return new GeneratedCcdaResult($moduleInsertId, UuidRegistry::uuidToString($binaryUuid), $file_name, $content);
     }
 
     /**
@@ -2286,6 +2329,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     private function logAmc($pid, $referralId)
     {
+        if (empty($referralId)) {
+            // user is sending a CCDA w/o any kind of connecting referral... we will log the error and continue
+            (new SystemLogger())->errorLogCaller("Failed to log amc information due to missing referral id.  User is sending CCDA w/o any connecting referral record", ['pid' => $pid]);
+            return;
+        }
+
         $amc_num_result = $this->amc_num_result;
         // either has the issue in the CCDA
         if ($amc_num_result['problems'] > 0 && $amc_num_result['medications'] > 0 && $amc_num_result['allergies'] > 0) {

@@ -231,6 +231,7 @@ class RestControllerHelper
 
     public function addOperations($resource, $items, FHIRCapabilityStatementResource $capResource)
     {
+        // TODO: @adunsulag we need to architect a more generic way of adding operations like we do with resources
         $operation = end($items);
         // we want to skip over anything that's not a resource $operation
         if ($operation == '$export') {
@@ -240,11 +241,19 @@ class RestControllerHelper
                 $operationName = 'export';
             }
             // define export operation
-            $resource = new FHIRPatient();
             $fhirOperation = new FHIRCapabilityStatementOperation();
             $fhirOperation->setName($operation);
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
             $capResource->addOperation($fhirOperation);
+        } else if ($operation === '$bulkdata-status') {
+            // TODO: @adunsulag we should document in our capability statement how to use the bulkdata-status operation
+        } else if ($operation === '$docref') {
+            $fhirOperation = new FHIRCapabilityStatementOperation();
+            $fhirOperation->setName($operation);
+            $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
+            $capResource->addOperation($fhirOperation);
+        } else if (is_string($operation) && strpos($operation, '$') === 0) {
+            (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }
 

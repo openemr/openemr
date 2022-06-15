@@ -132,9 +132,9 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             $docReference->setContext($context);
         }
 
-        // populate our clinical narrative notes
-        if (!empty($dataRecord['id'])) {
-            $url = $this->getFhirApiURL() . '/fhir/Document/' . $dataRecord['id'] . '/Binary';
+        // populate the link to download the patient document
+        if (!empty($dataRecord['uuid'])) {
+            $url = $this->getFhirApiURL() . '/fhir/Document/' . $dataRecord['uuid'] . '/Binary';
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType($dataRecord['mimetype']);

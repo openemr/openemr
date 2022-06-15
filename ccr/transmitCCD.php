@@ -129,24 +129,37 @@ function transmitMessage($message, $recipient)
  * @param string recipient the Direct Address of the recipient
  * @param string requested_by user | patient
  * @param string The format that the document is in (pdf, xml, html)
+ * @param string The message body the clinician wants to send
+ * @param string The filename to use as the name of the attachment (must included file extension as part of filename)
  * @return string result of operation
  */
-function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '')
+function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = ''): string
 {
-    global $pid;
-
-   //get patient name in Last_First format (used for CCDA filename) and
-   //First Last for the message text.
+    //get patient name in Last_First format (used for CCDA filename) and
+    //First Last for the message text.
     $patientData = getPatientPID(array("pid" => $pid));
-    if (empty($patientData[0]['lname'])) {
-        $att_filename = "";
-        $patientName2 = "";
-    } else {
+    if (empty($patientData)) { // shouldn't ever happen but we need to check anyways
+        return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
+    }
+    $patientName2 = "";
+    $att_filename = "";
+
+    // TODO: do we want to throw an error if we can't get patient data?  Probably.
+
+    if (!empty($patientData[0]['lname'])) {
+        $patientName2 = trim($patientData[0]['fname'] . " " . $patientData[0]['lname']);
+    }
+
+    if (!empty($filename)) {
+        // if we have a filename from our database, we want to send that
+        $att_filename = $filename;
+        $extension = ""; // no extension needed
+    } else if (!empty($patientName2)) {
         //spaces are the argument delimiter for the phiMail API calls and must be removed
         // CCDA format requires patient name in last, first format
         $att_filename = str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']
-         . "_" . $patientData[0]['fname']);
-        $patientName2 = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
+            . "_" . $patientData[0]['fname']);
+        $extension = "." . $format_type;
     }
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
@@ -214,7 +227,6 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
 
     $ccd_len = strlen($ccd_out);
-    $extension = "." . $format_type;
 
     phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
     $ret = fgets($fp, 256);

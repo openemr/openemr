@@ -127,7 +127,7 @@ if (!empty($code_desc)) {
                 $reasonCode[$key],
                 $reasonStatusCode[$key],
                 $reasonCodeText[$key],
-                $code_date_end[$key]
+                $code_date_end[$key] ?: null
             ]
         );
     endforeach;

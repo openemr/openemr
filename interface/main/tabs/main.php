@@ -86,6 +86,9 @@ $esignApi = new Api();
         // used in tabs_view_model.js.
         jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
 
+        var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
+        var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
+
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR.

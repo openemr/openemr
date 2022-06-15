@@ -1,4 +1,4 @@
-<tr><td>{xlt t="Temp Location"}<td></td>
+<tr><td>{xlt t="Temp Location"} <small>(LOINC:8327-9)</small><td></td>
     <td class='currentvalues p-2'><select name="temp_method" class="form-control" id='temp_method'><option value=""> </option>
             <option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>{xlt t="Oral"}
             <option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>{xlt t="Tympanic Membrane"}

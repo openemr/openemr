@@ -17,12 +17,13 @@ require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo xlt('Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Delete Encounter Form")]);
     exit;
 }
 

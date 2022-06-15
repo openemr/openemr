@@ -17,6 +17,7 @@ use Carecoordination\Model\CarecoordinationTable;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\ListService;
 
 class CdaTemplateImportDispose
 {
@@ -28,6 +29,27 @@ class CdaTemplateImportDispose
         $this->codeService = new CodeTypesService();
     }
 
+    /**
+     * @param $time
+     * @return false|int
+     */
+    private function str_to_time($time)
+    {
+        $test = explode('-', $time);
+        if (count($test ?? []) === 2) {
+            $time = $test[0];
+        }
+
+        return strtotime($time);
+    }
+
+    /**
+     * @param                       $allergy_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertAllergies($allergy_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($allergy_array)) {
@@ -190,6 +212,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $care_plan_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertCarePlan($care_plan_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($care_plan_array)) {
@@ -227,10 +256,10 @@ class CdaTemplateImportDispose
                 }
             }
 
-            $plan_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
-            $end_date = $value['end_date'] ? date("Y-m-d H:i:s", strtotime($value['end_date'])) : null;
-            $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_low'])) : null;
-            $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_high'])) : null;
+            $plan_date_value = $value['date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
+            $end_date = $value['end_date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
+            $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_low'])) : null;
+            $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_high'])) : null;
 
             $query_insert = "INSERT INTO `form_care_plan` (`id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`care_plan_type`, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'], $value['reason_code_text'], $low_date, $high_date, $value['reason_status'] ?? null));
@@ -242,6 +271,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $proc_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertProcedures($proc_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1): void
     {
         if (empty($proc_array)) {
@@ -252,8 +288,8 @@ class CdaTemplateImportDispose
         foreach ($proc_array as $key => $value) {
             $procedure_date_value = null;
             if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
-                $procedure_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
-                $end_date = $value['end_date'] ? date("Y-m-d H:i:s", strtotime($value['end_date'])) : null;
+                $procedure_date_value = !empty($value['date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
+                $end_date = !empty($value['end_date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
             }
             //facility1
             if (empty($value['represented_organization1'])) {
@@ -398,7 +434,7 @@ class CdaTemplateImportDispose
             $code = $value['code'];
             // format code
             if (stripos($value['code'], 'OID:') === false) {
-                $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName']);
+                $code = $this->codeService->getCodeWithType($value['code'], $value['codeSystemName'], true);
             }
 
             $pro_name = xlt('External Procedure');
@@ -427,8 +463,8 @@ class CdaTemplateImportDispose
                 sqlQuery($query_update_pt, array($ptid, $ptid));
             }
             //procedure_order
-            $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_low'])) : null;
-            $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", strtotime($value['reason_date_high'])) : null;
+            $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_low'])) : null;
+            $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_high'])) : null;
 
             $query_insert_po = 'INSERT INTO procedure_order(provider_id,patient_id,encounter_id,date_collected,date_ordered,order_priority,order_status,activity,lab_id,procedure_order_type)
                 VALUES (?,?,?,NULL,?,?,?,?,?,?)';
@@ -444,6 +480,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $enc_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertEncounter($enc_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($enc_array)) {
@@ -523,12 +566,12 @@ class CdaTemplateImportDispose
             $encounter_date_value = null;
             $encounter_date_end = null;
             if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
-                $encounter_date_value = date("Y-m-d H:i:s", strtotime($value['date']));
+                $encounter_date_value = date("Y-m-d H:i:s", $this->str_to_time($value['date']));
             }
             if (!empty($value['date_end']) && ($revapprove == 0 || $revapprove == 1)) {
-                $encounter_date_end = date("Y-m-d H:i:s", strtotime($value['date_end']));
+                $encounter_date_end = date("Y-m-d H:i:s", $this->str_to_time($value['date_end']));
             }
-            $diag_date = !empty($value['encounter_diagnosis_date']) ? date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])) : null;
+            $diag_date = !empty($value['encounter_diagnosis_date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['encounter_diagnosis_date'])) : null;
 
             if (!empty($value['extension'])) {
                 $q_sel_encounter = "SELECT *
@@ -620,7 +663,7 @@ class CdaTemplateImportDispose
                 } else {
                     //to lists
                     $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis, subtype) VALUES (?,?,?,?,?,?,?,?)";
-                    $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', date("Y-m-d H:i:s", strtotime($value['encounter_diagnosis_date'])), 1,
+                    $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', $diag_date, 1,
                         $value['encounter_diagnosis_issue'], date('Y-m-d H:i:s'), $value['encounter_diagnosis_code'], 'encounter_diagnosis'));
                     $list_id = $result->getGeneratedValue();
                 }
@@ -639,6 +682,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $imm_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertImmunization($imm_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         // if we don't have any immunizations we aren't going to insert anything.
@@ -794,6 +844,14 @@ class CdaTemplateImportDispose
                            )";
                 $appTable->zQuery($q_insert_completion_status, array($value['manufacturer'], $value['manufacturer']));
             }
+            $option = '';
+            if (!empty($value['reason_code'])) {
+                // TODO: check with @sjpadgett why the codes are "SNOMED CT:<number>" instead of "SNOMED-CT" for the immunization reason code
+                $reason_code = str_replace("SNOMED CT", "SNOMED-CT", $value['reason_code']);
+
+                $listService = new ListService();
+                $option = $listService->getOptionsByListName('immunization_refusal_reason', ['codes' => $reason_code])[0];
+            }
 
             if (!empty($value['extension'])) {
                 $q_sel_imm = "SELECT *
@@ -832,16 +890,16 @@ class CdaTemplateImportDispose
                 $appTable->zQuery(
                     $query,
                     array($pid,
-                    $immunization_date_value,
-                    $value['cvx_code'],
-                    $value['route_code_text'],
-                    $provider_id,
-                    $value['amount_administered'],
-                    $oid_unit,
-                    $value['manufacturer'],
-                    $value['completion_status'],
-                    $value['extension'],
-                    $value['reason_code'])
+                        $immunization_date_value,
+                        $value['cvx_code'],
+                        $value['route_code_text'],
+                        $provider_id,
+                        $value['amount_administered'],
+                        $oid_unit,
+                        $value['manufacturer'],
+                        $value['completion_status'],
+                        $value['extension'],
+                        $option['option_id'] ?? '')
                 );
             } else {
                 $q_upd_imm = "UPDATE immunizations
@@ -870,6 +928,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $pres_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertPrescriptions($pres_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($pres_array)) {
@@ -1118,6 +1183,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $med_pblm_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertMedicalProblem($med_pblm_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($med_pblm_array)) {
@@ -1129,17 +1201,17 @@ class CdaTemplateImportDispose
             $activity = 1;
 
             if (!empty($value['begdate']) && $revapprove == 0) {
-                $med_pblm_begdate_value = date("Y-m-d H:i:s", strtotime($value['begdate']));
+                $med_pblm_begdate_value = date("Y-m-d H:i:s", $this->str_to_time($value['begdate']));
             } elseif ($value['begdate'] != 0 && $revapprove == 1) {
-                $med_pblm_begdate_value = date("Y-m-d H:i:s", strtotime($value['begdate']));
+                $med_pblm_begdate_value = date("Y-m-d H:i:s", $this->str_to_time($value['begdate']));
             } elseif (empty($value['begdate'])) {
                 $med_pblm_begdate_value = (null);
             }
 
             if (!empty($value['enddate']) && $revapprove == 0) {
-                $med_pblm_enddate_value = date("Y-m-d H:i:s", strtotime($value['enddate']));
+                $med_pblm_enddate_value = date("Y-m-d H:i:s", $this->str_to_time($value['enddate']));
             } elseif (!empty($value['enddate']) && $revapprove == 1) {
-                $med_pblm_enddate_value = date("Y-m-d H:i:s", strtotime($value['enddate']));
+                $med_pblm_enddate_value = date("Y-m-d H:i:s", $this->str_to_time($value['enddate']));
             } elseif (empty($value['enddate'])) {
                 $med_pblm_enddate_value = (null);
             }
@@ -1243,6 +1315,11 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param $value
+     * @param $create_user_name
+     * @return mixed
+     */
     public function insertImportedUser($value, $create_user_name = false)
     {
         $appTable = new ApplicationTable();
@@ -1273,6 +1350,12 @@ class CdaTemplateImportDispose
         return $res_query_ins_users->getGeneratedValue();
     }
 
+    /**
+     * @param                       $lab_results
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @return void
+     */
     public function InsertLabResults($lab_results, $pid, CarecoordinationTable $carecoordinationTable)
     {
         if (empty($lab_results)) {
@@ -1381,6 +1464,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $functional_cognitive_status_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertFunctionalCognitiveStatus($functional_cognitive_status_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($functional_cognitive_status_array)) {
@@ -1433,6 +1523,12 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param $arr_referral
+     * @param $pid
+     * @param $revapprove
+     * @return void
+     */
     public function InsertReferrals($arr_referral, $pid, $revapprove = 1)
     {
         if (empty($arr_referral)) {
@@ -1448,6 +1544,11 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param $pid
+     * @param $doc_id
+     * @return void
+     */
     public function InsertReconcilation($pid, $doc_id)
     {
         $appTable = new ApplicationTable();
@@ -1475,6 +1576,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $vitals_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertVitals($vitals_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($vitals_array)) {
@@ -1483,7 +1591,7 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         foreach ($vitals_array as $key => $value) {
             if (!empty($value['date']) && $revapprove == 0) {
-                $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", strtotime($value['date'])) : null;
+                $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             } elseif (!empty($value['date']) && $revapprove == 1) {
                 $vitals_date_value = ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
@@ -1536,19 +1644,19 @@ class CdaTemplateImportDispose
                 $res = $appTable->zQuery(
                     $query_insert,
                     array(
-                    $pid,
-                    $vitals_date_value,
-                    $value['bps'],
-                    $value['bpd'],
-                    $value['height'],
-                    $value['weight'],
-                    $value['temperature'],
-                    $value['pulse'],
-                    $value['respiration'],
-                    $value['head_circ'],
-                    $value['oxygen_saturation'],
-                    $value['BMI'],
-                    $value['extension'])
+                        $pid,
+                        $vitals_date_value,
+                        $value['bps'],
+                        $value['bpd'],
+                        $value['height'],
+                        $value['weight'],
+                        $value['temperature'],
+                        $value['pulse'],
+                        $value['respiration'],
+                        $value['head_circ'],
+                        $value['oxygen_saturation'],
+                        $value['BMI'],
+                        $value['extension'])
                 );
                 $vitals_id = $res->getGeneratedValue();
             } else {
@@ -1656,6 +1764,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $observation_preformed_array
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertObservationPerformed($observation_preformed_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($observation_preformed_array)) {
@@ -1675,9 +1790,9 @@ class CdaTemplateImportDispose
         foreach ($observation_preformed_array as $key => $value) {
             $date_end = null;
             if (!empty($value['date'])) {
-                $enc_date = date("Y-m-d", strtotime($value['date']));
-                $date = date("Y-m-d H:i:s", strtotime($value['date']));
-                $date_end = $value['date_end'] ? date("Y-m-d H:i:s", strtotime($value['date_end'])) : null;
+                $enc_date = date("Y-m-d", $this->str_to_time($value['date']));
+                $date = date("Y-m-d H:i:s", $this->str_to_time($value['date']));
+                $date_end = $value['date_end'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date_end'])) : null;
             } else {
                 $date = date('Y-m-d');
             }
@@ -1744,6 +1859,13 @@ class CdaTemplateImportDispose
         }
     }
 
+    /**
+     * @param                       $payer
+     * @param                       $pid
+     * @param CarecoordinationTable $carecoordinationTable
+     * @param                       $revapprove
+     * @return void
+     */
     public function InsertPayers($payer, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
     {
         if (empty($payer)) {

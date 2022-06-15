@@ -21,11 +21,12 @@ require_once($GLOBALS['srcdir'] . "/forms.inc");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo xlt('Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Delete Encounter Form")]);
     exit;
 }
 
@@ -46,7 +47,7 @@ if (!empty($_POST['confirm'])) {
                 left join
                        forms f
                 on f.form_id = p.procedure_order_id
-                set activity=0 
+                set activity=0
                 where f.id=?";
         sqlStatement($sql, array($_POST['id']));
       // Delete the visit's "source=visit" attributes that are not used by any other form.

@@ -3,7 +3,7 @@
 {else}
 <tr>
 {/if}
-    <td class="graph" id="{$input|attr}">{$title|xlt}</td>
+    <td class="graph" id="{$input|attr}">{xlt t=$title} {if !empty($codes)}<small>({$codes|text})</small>{/if}</td>
     <td>{xlt t=$unit|xlt}</td>
 
     <td class='currentvalues p-2'>
