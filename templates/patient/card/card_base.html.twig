@@ -5,7 +5,7 @@
             {% if auth %}
                 <span>
                 {% if card.canAdd() or btnLabel == "Add" %}
-                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-add fa-sm">&nbsp;</i></a>
+                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-plus fa-sm">&nbsp;</i></a>
                 {% endif %}
                 {% if card.canEdit() or btnLabel == "Edit" %}
                     <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-pencil-alt fa-sm">&nbsp;</i></a>
