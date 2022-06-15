@@ -4206,49 +4206,6 @@ paths:
       security:
         -
           openemr_auth: []
-  '/fhir/DocumentReference/{uuid}':
-    get:
-      tags:
-        - fhir
-      description: 'Returns a single DocumentReference resource.'
-      parameters:
-        -
-          name: uuid
-          in: path
-          description: 'The uuid for the DocumentReference resource.'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 'Standard Response'
-          content:
-            application/json:
-              schema:
-                properties:
-                  'json object': { description: 'FHIR Json object.', type: object }
-                type: object
-                example:
-                  id: 946e7553-1aaa-49f8-8f81-ae15ccaa9165
-                  meta: { versionId: '1', lastUpdated: '2021-09-19T03:17:51+00:00' }
-                  resourceType: DocumentReference
-                  identifier: [{ value: 946e7553-1aaa-49f8-8f81-ae15ccaa9165 }]
-                  status: current
-                  type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: unknown }] }
-                  category: [{ coding: [{ system: 'https://localhost:9300/apis/default/fhir/ValueSet/openemr-document-types', code: openemr-document, display: 'OpenEMR Document' }] }]
-                  subject: { reference: Patient/946da619-c631-431a-a282-487cd6fb7802, type: Patient }
-                  date: '2021-09-19T03:15:56+00:00'
-                  author: [null]
-                  content: [{ attachment: { contentType: image/gif, url: 'https://localhost:9300/apis/default/fhir/Document/7/Binary' }, format: { system: 'http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem', code: 'urn:ihe:iti:xds:2017:mimeTypeSufficient', display: 'mimeType Sufficient' } }]
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-        '404':
-          $ref: '#/components/responses/uuidnotfound'
-      security:
-        -
-          openemr_auth: []
   /fhir/DocumentReference/$docref:
     get:
       tags:
@@ -4290,6 +4247,49 @@ paths:
           $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/fhir/DocumentReference/{uuid}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single DocumentReference resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the DocumentReference resource.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 946e7553-1aaa-49f8-8f81-ae15ccaa9165
+                  meta: { versionId: '1', lastUpdated: '2021-09-19T03:17:51+00:00' }
+                  resourceType: DocumentReference
+                  identifier: [{ value: 946e7553-1aaa-49f8-8f81-ae15ccaa9165 }]
+                  status: current
+                  type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: unknown }] }
+                  category: [{ coding: [{ system: 'https://localhost:9300/apis/default/fhir/ValueSet/openemr-document-types', code: openemr-document, display: 'OpenEMR Document' }] }]
+                  subject: { reference: Patient/946da619-c631-431a-a282-487cd6fb7802, type: Patient }
+                  date: '2021-09-19T03:15:56+00:00'
+                  author: [null]
+                  content: [{ attachment: { contentType: image/gif, url: 'https://localhost:9300/apis/default/fhir/Document/7/Binary' }, format: { system: 'http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem', code: 'urn:ihe:iti:xds:2017:mimeTypeSufficient', display: 'mimeType Sufficient' } }]
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -7290,6 +7290,7 @@ components:
           scopes:
             openid: 'Generic mandatory scope'
             offline_access: 'Will signal server to provide a refresh token'
+            launch/patient: 'Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)'
             'api:fhir': 'FHIR R4 API'
             patient/AllergyIntolerance.read: 'Read allergy intolerance resources for the current patient (api:fhir)'
             patient/CarePlan.read: 'Read care plan resources for the current patient (api:fhir)'

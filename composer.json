@@ -65,6 +65,7 @@
         "symfony/dependency-injection": "4.4.37",
         "symfony/event-dispatcher": "4.4.37",
         "symfony/event-dispatcher-contracts": "1.1.11",
+        "symfony/http-client": "4.4.37",
         "symfony/http-foundation": "4.4.37",
         "symfony/yaml": "4.4.37",
         "twig/twig": "3.3.8",
