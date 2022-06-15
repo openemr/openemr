@@ -726,3 +726,13 @@ UPDATE `layout_options` SET `title` = 'Title' WHERE `layout_options`.`form_id` =
 #IfNotRow3D layout_options form_id DEM field_id fname title Name
 UPDATE `layout_options` SET `title` = 'Name', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'fname';
 #EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id provider_since_date
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='providerID' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='providerID' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','provider_since_date',@group_id,'Provide Since Date',@seq_add_to+5,4,1,10,10,'',1,1,'','','Patient assigned provider since date.',0);
+UPDATE `layout_options` SET `datacols` = 1 WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'providerID';
+ALTER TABLE `patient_data` ADD `provider_since_date` TINYTEXT;
+#Endif
