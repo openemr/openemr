@@ -19,7 +19,7 @@
         "dompdf/dompdf": "1.1.1",
         "ezyang/htmlpurifier": "4.14.0",
         "google/apiclient": "2.12.1",
-        "guzzlehttp/guzzle": "7.4.1",
+        "guzzlehttp/guzzle": "7.4.4",
         "html2text/html2text": "4.3.1",
         "kamermans/guzzle-oauth2-subscriber": "1.0.11",
         "knplabs/knp-snappy": "1.4.1",
