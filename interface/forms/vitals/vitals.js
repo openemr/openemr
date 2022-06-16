@@ -277,12 +277,12 @@ function calculateBMI() {
     let precision = vitalsGetPrecision(bmiNode, 2);
 
     let heightNode = document.getElementById("height_input");
-    if (!bmiNode) {
+    if (!heightNode) {
         console.error("Failed to find node with id height_input");
         return;
     }
     let weightNode = document.getElementById("weight_input");
-    if (!bmiNode) {
+    if (!weightNode) {
         console.error("Failed to find node with id weight_input");
         return;
     }
