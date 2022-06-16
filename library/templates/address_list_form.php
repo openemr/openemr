@@ -25,7 +25,14 @@ $addresses = $addresses ?? [];
 
 $name_field_id = "form_" . $field_id_esc;
 $smallform = $smallform ?? '';
-// TODO: @adunsulag change the table to divs so we can use bootstrap here...
+$widgetConstants = [
+        'listWithAddButton' => 26
+        ,'textDate' => 4
+        ,'textbox' => 2
+];
+
+// TODO: @adunsulag could we actually design out an actual layout and then just generate/display it in here?  Seems like that would provide the most extensible option?
+// TODO: @adunsulag the repeating nature of this as a layout display would be problematic... we'd need some kind of repeater widget, would be a fun project.
 ?>
 <div>
     <table class='form_addresses table table-sm' id="<?php echo attr($table_id); ?>">
@@ -42,153 +49,194 @@ $smallform = $smallform ?? '';
 </div>
 
 <template class="template_add_address">
-    <tr class='display_addresses'>
-        <td class='noPrint col-1'>
+    <div class="display_addresses row">
+        <div class="noPrint col-1">
             <span class="fas fa-fw fa-edit text-primary" onclick="EditAddress(this);return false"></span>
             <span class="fas fa-fw fa-trash-alt text-danger" onclick="DeleteAddress(this);return false"></span>
-        </td>
-        <td class='display_addresses_full_address'></td>
-
-    </tr>
-
-    <tr class='d-none form_addresses'>
+        </div>
+        <div class="col-11 display_addresses_full_address"></div>
+    </div>
+    <div class='d-none form_addresses row'>
         <input type="hidden" class="form_addresses_data_action" name="<?php echo attr($name_field_id); ?>[data_action][]" value="<?php echo xla("No Change"); ?>" />
         <input type="hidden" class="form_addresses_id" name="<?php echo attr($name_field_id); ?>[id][]" value="" />
         <input type="hidden" class="form_addresses_foreign_id" name="<?php echo attr($name_field_id); ?>[foreign_id][]" value="" />
-        <td></td>
-        <td colspan="1">
-            <table class="table table-borderless"><tr>
-                <tr>
-                    <td width='200' colspan='3'><?php echo xlt("Address"); ?></td>
-                    <td width='200' colspan='2'><?php echo xlt("Address Line 2"); ?></td>
-                </tr>
-                <tr>
-                    <!-- TODO: @adunsulag clean up all these colspan 1s as we don't need them -->
-                    <td colspan='3'><input type='text' class="form_addresses_line1" name="<?php echo attr($name_field_id); ?>[line_1][]" style='width:200px;' value='' tabindex='4'></td>
-                    <td colspan='1'><input type='text' class="form_addresses_line2" name="<?php echo attr($name_field_id); ?>[line_2][]" style='width:200px;' value='' tabindex='4'></td>
+        <div class="col-12">
+            <!-- Header -->
+            <div class="row">
+                <div class="col-3">
+                    <?php echo xlt("Address Use"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("Address Type"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("Start Date"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("End Date"); ?>
+                </div>
+            </div>
 
-                <tr height='10'><td></td></tr>
-                <tr>
-                    <td width='50' colspan='1'><?php echo xlt("City"); ?></td>
-                    <td width='8' colspan='1'><?php echo xlt("State"); ?></td>
-                    <td width='12' colspan='1'><?php echo xlt("Postal Code"); ?></td>
-                    <td width='25' colspan='1'><?php echo xlt("Country"); ?></td>
-                </tr>
-                <tr>
-                    <td colspan='1'><input type='text' class="form_addresses_city" name="<?php echo attr($name_field_id); ?>[city][]" style='width:150px;' value='' tabindex='4'></td>
-                    <td colspan='1'>
-                        <?php
-                            echo generate_select_list(
-                                $name_field_id . "[state][]",
-                                'state',
-                                '',
-                                "State",
-                                'Unassigned',
-                                'addtolistclass_state' . $smallform . ' form_addresses_state',
-                                '',
-                                '',
-                                ($disabled ? array('disabled' => 'disabled') : null),
-                                false,
-                                '',
-                                false,
-                                false,
-                                4
-                            );
-                            ?>
-                    </td>
-                    <td colspan='1'><input type='text' class="form_addresses_postalcode" name="<?php echo attr($name_field_id); ?>[postalcode][]" style='width:55px;' value='' tabindex='4'></td>
-                    <td colspan='1'>
-<!--                        <input type='text' class="form_addresses_country" name="--><?php //echo attr($name_field_id); ?><!--[country][]" style='width:200px;' value='' tabindex='4'>-->
-                        <?php
-                        echo generate_select_list(
-                            $name_field_id . "[country][]",
-                            'country',
-                            '',
-                            "Country",
-                            'Unassigned',
-                            'addtolistclass_country' . $smallform . ' form_addresses_country',
-                            '',
-                            '',
-                            ($disabled ? array('disabled' => 'disabled') : null),
-                            false,
-                            '',
-                            false,
-                            false,
-                            4
-                        );
-                        ?>
-                    </td>
+            <!-- Values -->
+            <div class="row">
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['listWithAddButton']
+                        ,'field_id' => $field_id_esc . "[use][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_uses'
+                        ,'list_id' => 'address-uses'
+                        ,'empty_name' => 'Unassigned'
+                        ,'edit_options' => $edit_options ?? null
+                    ], '');
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['listWithAddButton']
+                        ,'field_id' => $field_id_esc . "[type][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_types'
+                        ,'list_id' => 'address-types'
+                        ,'empty_name' => 'Unassigned'
+                        ,'edit_options' => $edit_options ?? null
+                    ], '');
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['textDate']
+                        ,'field_id' => $field_id_esc . "[period_start][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_period_start'
+                    ], date("Y-m-d"));
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['textDate']
+                        ,'field_id' => $field_id_esc . "[period_end][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_period_end'
+                    ], '');
+                    ?>
+                </div>
+            </div>
 
-                </tr>
-                <tr>
-                    <td width='50' colspan='1'><?php echo xlt("Address Use"); ?></td>
-                    <td width='8' colspan='1'><?php echo xlt("Address Type"); ?></td>
-                    <td width='12' colspan='1'>
-                        <?php echo xlt("Address Start Date"); ?>
-                    </td>
-                    <td width='25' colspan='1'>
-                        <?php echo xlt("Address End Date"); ?>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <?php
-                        echo generate_select_list(
-                            $name_field_id . "[use][]",
-                            'address-uses',
-                            '',
-                            "Address Type",
-                            'Unassigned',
-                            'addtolistclass_uses' . $smallform . ' form_addresses_uses',
-                            '',
-                            '',
-                            ($disabled ? array('disabled' => 'disabled') : null),
-                            false,
-                            '',
-                            false,
-                            false,
-                            4
-                        );
-                        ?>
-                    </td>
-                    <td>
-                        <?php
-                        echo generate_select_list(
-                            $name_field_id . "[type][]",
-                            'address-types',
-                            '',
-                            "Address Use",
-                            'Unassigned',
-                            'addtolistclass_types' . $smallform . ' form_addresses_types',
-                            '',
-                            '',
-                            ($disabled ? array('disabled' => 'disabled') : null),
-                            false,
-                            '',
-                            false,
-                            false,
-                            4
-                        );
-                        ?>
-                    </td>
-                    <td>
-                        Start date goes here
-                    </td>
-                    <td>
-                        End date goes here
-                    </td>
-                </tr>
-                <tr class="mt-1">
-                    <td>
-                        <div>
-                            <input type='button' class="btn btn-primary btn-sm" style="font-size: 0.9em;" value='<?php echo xla("Close"); ?>' onclick='CloseAddressForm(this);return false' tabindex='7'>
-                        </div>
-                    </td>
-                </tr>
-                <tr height='10'><td></td></tr>
-            </table>
-        </td>
-    </tr>
+            <!-- Header -->
+            <div class="row">
+                <div class="col-3">
+                    <?php echo xlt("Address"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("Address Line 2"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("City"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("County/District"); ?>
+                </div>
+            </div>
+
+            <!-- VALUES -->
+            <div class="row">
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['textbox']
+                        ,'field_id' => $field_id_esc . "[line_1][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_line1'
+                    ], '');
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['textbox']
+                        ,'field_id' => $field_id_esc . "[line_2][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_line2'
+                    ], '');
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['textbox']
+                        ,'field_id' => $field_id_esc . "[city][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_city'
+                    ], '');
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['textbox']
+                        ,'field_id' => $field_id_esc . "[district][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_district'
+                    ], '');
+                    ?>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <div class="row">
+                <div class="col-3">
+                    <?php echo xlt("State"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("Postal Code"); ?>
+                </div>
+                <div class="col-3">
+                    <?php echo xlt("Country"); ?>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <div class="row">
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['listWithAddButton']
+                        ,'field_id' => $field_id_esc . "[state][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_state'
+                        ,'list_id' => 'state'
+                        ,'empty_name' => 'Unassigned'
+                        ,'edit_options' => $edit_options ?? null
+                    ], '');
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['textbox']
+                        ,'field_id' => $field_id_esc . "[postalcode][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_postalcode'
+                    ], '');
+                    ?>
+                </div>
+                <div class="col-3">
+                    <?php
+                    generate_form_field([
+                        'data_type' => $widgetConstants['listWithAddButton']
+                        ,'field_id' => $field_id_esc . "[country][]"
+                        ,'smallform' => ($smallform ?? '') . ' form_addresses_country'
+                        ,'list_id' => 'country'
+                        ,'empty_name' => 'Unassigned'
+                        ,'edit_options' => $edit_options ?? null
+                    ], '');
+                    ?>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <input type='button' class="btn btn-primary btn-sm" style="font-size: 0.9em;" value='<?php echo xla("Close"); ?>' onclick='CloseAddressForm(this);return false' tabindex='7'>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </template>
 
 <script type="text/javascript">
@@ -198,6 +246,12 @@ $smallform = $smallform ?? '';
         'DELETE': 'INACTIVATE'
         ,'ADD': 'ADD'
         ,'UPDATE': 'UPDATE'
+    };
+    let datePickerSettings = {
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
     };
 
     // IFF to trap anything in our variables here
@@ -240,15 +294,17 @@ $smallform = $smallform ?? '';
         }
 
         //Populate Table Cell - Full Address
-        var full_addresses = document.querySelectorAll("td.display_addresses_full_address");
+        var full_addresses = document.querySelectorAll(".display_addresses_full_address");
 
         for (i = 0; i < full_addresses.length; ++i) {
-            form_addresses = full_addresses[i].closest('tr.display_addresses').nextElementSibling;
+            form_addresses = full_addresses[i].closest('.display_addresses').nextElementSibling;
             full_addresses[i].innerText = FullAddress(form_addresses);
         }
 
         //Event Listener to Update Full Address on Data Entry
         document.getElementById(tableId).addEventListener('keyup', ChangeEdit);
+        document.getElementById(tableId).addEventListener('mouseup', ChangeEdit);
+        document.getElementById(tableId).addEventListener('touchend', ChangeEdit);
         // TODO: @adunsulag need to handle the onkeyup event.
     }
 
@@ -256,25 +312,25 @@ $smallform = $smallform ?? '';
 
 
     function ChangeEdit(){
-        var row_form_addresses = event.target.closest('tr.form_addresses');
+        var row_form_addresses = event.target.closest('.form_addresses');
         var row_display_addresses = row_form_addresses.previousElementSibling;
-        var element_full_address = row_display_addresses.querySelector("td.display_addresses_full_address");
+        var element_full_address = row_display_addresses.querySelector(".display_addresses_full_address");
         element_full_address.innerText = FullAddress(row_form_addresses);
     }
 
     function EditAddress(element){
-        ShowElement(element.closest('tr.display_addresses').nextElementSibling);
+        ShowElement(element.closest('.display_addresses').nextElementSibling);
     }
 
     function CloseAddressForm(element){
-        var row_form_addresses = element.closest('tr.form_addresses');
+        var row_form_addresses = element.closest('.form_addresses');
         HideElement(row_form_addresses);
     }
 
 
 
     function DeleteAddress(element){
-        var row_display_addresses = element.closest('tr.display_addresses');
+        var row_display_addresses = element.closest('.display_addresses');
         var row_form_addresses = row_display_addresses.nextElementSibling;
         let prompt = window.xl("ARE YOU REALLY REALLY SURE?");
         if (confirm(prompt)) {
@@ -315,12 +371,24 @@ $smallform = $smallform ?? '';
         setInputValue(row_address_clone, "input.form_addresses_city", record.city || "");
         setInputValue(row_address_clone, "input.form_addresses_postalcode", record.postalcode || "");
         setInputValue(row_address_clone, "input.form_addresses_data_action", ADDRESS_ACTION_VALUES.UPDATE);
-        row_address_clone.querySelector("td.display_addresses_full_address").innerHTML  = "None";
 
+        setInputValue(row_address_clone, "input.form_addresses_district", record.district || "");
         setInputValue(row_address_clone, "select.form_addresses_country", record.country || "");
         setInputValue(row_address_clone, "select.form_addresses_state", record.state || "");
+        setInputValue(row_address_clone, "select.form_addresses_uses", record.use || "");
+        setInputValue(row_address_clone, "select.form_addresses_types", record.type || "");
 
+        setInputValue(row_address_clone, "input.form_addresses_period_start", record.period_start || "");
+        setInputValue(row_address_clone, "input.form_addresses_period_end", record.period_end || "");
+
+        row_address_clone.querySelector(".display_addresses_full_address").innerHTML  = "None";
+
+
+
+        let row = row_address_clone.querySelector(".form_addresses");
         document.getElementById(tableId).appendChild(row_address_clone);
+        setupDatePickersForContainer(row);
+        setupListAddButtons(row);
     }
 
     function AddAddress(event){
@@ -329,13 +397,15 @@ $smallform = $smallform ?? '';
         const row_address_template = document.querySelector(".template_add_address");
         var row_address_clone = row_address_template.content.cloneNode(true);
         row_address_clone.querySelector("input.form_addresses_data_action").value = ADDRESS_ACTION_VALUES.ADD;
-        row_address_clone.querySelector("td.display_addresses_full_address").innerHTML  = "None";
+        row_address_clone.querySelector(".display_addresses_full_address").innerHTML  = "None";
 
         // expand the element and put the cursor focus in the first element of the address
         let row = row_address_clone.querySelector('.form_addresses');
         row.classList.remove('d-none');
         container.appendChild(row_address_clone);
         row.querySelector('input.form_addresses_line1').focus();
+        setupDatePickersForContainer(row);
+        setupListAddButtons(row);
     }
 
     function ShowElement(element){
@@ -346,6 +416,19 @@ $smallform = $smallform ?? '';
         element.classList.add('d-none');
     }
 
+    function getSelectDisplay(root, selector) {
+        let node = root.querySelector(selector);
+        if (!node) {
+            console.error("Failed to find DOM node with selector ", selector, ' in node ', root);
+            return;
+        }
+        let options = node.selectedOptions;
+        if (options && options.length) {
+            return options[0].textContent;
+        }
+        return "";
+    }
+
     function getSelectValue(root, selector) {
         let node = root.querySelector(selector);
         if (!node) {
@@ -353,7 +436,6 @@ $smallform = $smallform ?? '';
             return;
         }
         let options = node.selectedOptions;
-        console.log("options found are ", options);
         if (options && options.length) {
             return options[0].value;
         }
@@ -361,23 +443,57 @@ $smallform = $smallform ?? '';
     }
     function FullAddress(row_form_addresses){
         var address = "";
-        //var row_form_addresses = element.closest('tr.form_addresses');
-
         let line1 = getInputValue(row_form_addresses, "input.form_addresses_line1");
         let line2 = getInputValue(row_form_addresses, "input.form_addresses_line2");
         let city = getInputValue(row_form_addresses, "input.form_addresses_city");
         let full_zip = getInputValue(row_form_addresses, "input.form_addresses_postalcode");
         let state = getSelectValue(row_form_addresses, "select.form_addresses_state");
         let country = getSelectValue(row_form_addresses, "select.form_addresses_country");
+        let district = getInputValue(row_form_addresses, "input.form_addresses_district");
+
+        let addressUseValue = getSelectValue(row_form_addresses, "select.form_addresses_uses");
+        let addressUse = getSelectDisplay(row_form_addresses, "select.form_addresses_uses");
+        let typeValue = getSelectValue(row_form_addresses, "select.form_addresses_types");
+        let type = getSelectDisplay(row_form_addresses, "select.form_addresses_types");
+
+        let periodStart = getInputValue(row_form_addresses, "input.form_addresses_period_start");
+        let periodEnd = getInputValue(row_form_addresses, "input.form_addresses_period_end");
+
 
         address = line1 + (isBlank(line1) ? "": ", ");
         address += line2 + (isBlank(line2) ? "": ", ");
         address += city + (isBlank(city) ? "": ", ");
+        // address fields in USA require Co. for the county, not sure if our translations will even pick this up...
+        address += isBlank(district) ? "" : (window.xl("Co.") + " " + district + ", ");
         address += state + ((isBlank(state) || isBlank(full_zip)) ? "": "  ");
         address += full_zip + ( (isBlank(country) || (isBlank(state) && isBlank(full_zip))) ? "": ", ");
         address += country;
-        address = address.replace(/(,\s*$)/g, "")
-        console.log("Address is " , address);
+
+        // now let's add our meta information
+        address += " (";
+        let meta = [];
+        if (!isBlank(addressUseValue)) {
+            if (!isBlank(typeValue)) {
+                meta.push(addressUse + ",");
+            } else {
+                meta.push(addressUse);
+            }
+        }
+        if (!isBlank(typeValue)) {
+            meta.push(type);
+        }
+        if (!isBlank(periodStart) || !isBlank(periodEnd)) {
+            if (!isBlank(periodStart) && isBlank(periodEnd)) {
+                meta.push(periodStart + " - " + window.xl('Current'));
+            } else if (isBlank(periodStart) && !isBlank(periodEnd)) {
+                meta.push(window.xl('Expired')+ ":" + periodEnd);
+            } else {
+                meta.push(periodStart + " - " + periodEnd);
+            }
+        }
+        address += meta.join(" ").trim() + ")";
+
+        address = address.replace(/(,\s*$)/g, "");
         return (isBlank(address) ? "None": address);
     }
 
@@ -385,6 +501,19 @@ $smallform = $smallform ?? '';
         return (!str || (str.trim().length === 0));
     }
 
+    function setupDatePickersForContainer(container) {
+        let datepickers = container.querySelectorAll(".datepicker");
 
+        // let's setup our date selectors now using our jquery plugin
+        $(datepickers).datetimepicker(datePickerSettings);
+    }
+
+    function setupListAddButtons(container) {
+        if (window.oeUI && window.oeUI.optionWidgets) {
+            $(container).find(".addtolist").on("click", function (evt) {
+                window.oeUI.optionWidgets.AddToList(this, evt);
+            });
+        }
+    }
 
 </script>
