@@ -7405,6 +7405,7 @@ CREATE TABLE `patient_data` (
   `street_line_2` TINYTEXT,
   `patient_groups` TEXT,
   `prevent_portal_apps` TEXT,
+  `provider_since_date` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)

@@ -134,10 +134,11 @@ function populateDemographic(pd, g) {
             "type": "primary home"
         }]
     }];
-    let raceCode = pd.race == "White" ? "European" : "African";
     if (pd.race === 'Declined To Specify' || pd.race === '') {
-        raceCode = "null_flavor";
         pd.race = "null_flavor";
+    }
+    if (pd.race_group === 'Declined To Specify' || pd.race_group === '') {
+        pd.race_group = "null_flavor";
     }
     if (pd.ethnicity === 'Declined To Specify' || pd.ethnicity === '') {
         pd.ethnicity = "null_flavor";
@@ -188,8 +189,8 @@ function populateDemographic(pd, g) {
             }
         ],
         "ethnicity": pd.ethnicity || "",
-        "race": pd.race || "",
-        "race_additional": raceCode,
+        "race": pd.race || "null_flavor",
+        "race_additional": pd.race_group || "null_flavor",
         "languages": [{
             "language": pd.language === 'English' ? "en-US" : pd.language === 'Spanish' ? "sp-US" : 'en-US',
             "preferred": true,
@@ -240,6 +241,12 @@ function populateProvider(provider) {
     // primary care role. All other team members will id via taxonomy only and if not physicians.
     return {
         "function_code": provider.physician_type ? "PP" : "",
+        "time": {
+            "low": {
+                "date": provider.provider_since || fDate(""),
+                "precision": "second"
+            }
+        },
         "identity": [
             {
                 "root": provider.npi ? "2.16.840.1.113883.4.6" : oidFacility,
@@ -275,7 +282,6 @@ function populateProvider(provider) {
             {
                 "value": {
                     "number": all.encounter_provider.facility_phone || "",
-
                 }
             }
         ]
@@ -307,11 +313,11 @@ function populateProviders() {
                 "date_time": {
                     "low": {
                         "date": all.time_start || fDate(""),
-                        "precision": "day"
+                        "precision": "second"
                     },
                     "high": {
                         "date": all.time_end || fDate(""),
-                        "precision": "day"
+                        "precision": "second"
                     }
                 },
                 "provider": providerArray,
