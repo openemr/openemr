@@ -34,7 +34,7 @@
     {else}
         <td class='currentvalues p-2'>
     {/if}
-            <input type="text" class="form-control vitals-conv-unit" size='5' id='{$input|attr}_input_usa'
+            <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{$input|attr}_input_usa'
                    value="{if is_numeric($vitals->$vitalsValue()) }{$vitals->$vitalsValue()|string_format:$vitalsStringFormat|attr}{/if}"
                    data-system="usa" data-unit="{$unit|attr}" data-target-input="{$input|attr}_input"
                    data-target-input-conv="{$input|attr}_input_metric"
@@ -76,7 +76,7 @@
         <td class='currentvalues p-2'>
     {/if}
             <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
-            <input type="text" class="form-control vitals-conv-unit" size='5' id='{$input|attr}_input_metric'
+            <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{$input|attr}_input_metric'
                    value="{if is_numeric($vitals->$vitalsValue()) }{$vitals->$vitalsValueMetric()|string_format:$vitalsStringFormat|attr}{/if}"
                    data-system="metric" data-unit="{$unit|attr}" data-target-input="{$input|attr}_input"
                    data-target-input-conv="{$input|attr}_input_usa" />
