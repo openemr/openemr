@@ -61,8 +61,21 @@ class CcdaGenerator
      * @return GeneratedCcdaResult
      * @throws \Exception
      */
-    public function generate($patient_id, $encounter_id, $sent_by, $send, $view, $emr_transfer, $components, $sections, $recipients, $params, $document_type): GeneratedCcdaResult
-    {
+    public function generate(
+        $patient_id,
+        $encounter_id,
+        $sent_by,
+        $send,
+        $view,
+        $emr_transfer,
+        $components,
+        $sections,
+        $recipients,
+        $params,
+        $document_type,
+        $referral_reason,
+        $date_options = []
+    ): GeneratedCcdaResult {
 
         if ($sent_by != '') {
             $_SESSION['authUserID'] = $sent_by;
@@ -95,7 +108,7 @@ class CcdaGenerator
             }
             $components = $str1;
         }
-        $data = $this->create_data($patient_id, $encounter_id, $sections, $components, $recipients, $params, $document_type, $send);
+        $data = $this->create_data($patient_id, $encounter_id, $sections, $components, $recipients, $params, $document_type, $referral_reason, $send, $date_options);
         $content = $this->socket_get($data);
         $content = trim($content);
         $generatedResult = $this->getEncounterccdadispatchTable()->logCCDA(
@@ -121,10 +134,10 @@ class CcdaGenerator
     }
 
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, int $send = null)
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = [])
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
-        $modelGenerator->create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $send);
+        $modelGenerator->create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason, $send, $date_options);
         $this->createdtime = $modelGenerator->getCreatedTime();
         $this->data = $modelGenerator->getData();
         return $this->data;
