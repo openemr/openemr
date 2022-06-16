@@ -41,11 +41,29 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             'allergies' => 0,
             'problems' => 0
     ];
+    public $searchFromDate;
+    public $searchToDate;
+    public $searchFiltered = false;
 
     public function __construct()
     {
     }
 
+    /**
+     * @param $options
+     * @return void
+     */
+    public function setOptions($options)
+    {
+        $this->searchFromDate = !empty($options['date_start'] ?? null) ? date("Y-m-d", strtotime($options['date_start'])) : null;
+        $this->searchToDate = !empty($options['date_end'] ?? null) ? date("Y-m-d", strtotime($options['date_end'])) : null;
+        $this->searchFiltered = !empty($options['filter_content'] ?? false);
+    }
+
+    /**
+     * @param $race
+     * @return array
+     */
     public function resolveRace($race)
     {
         $appTable = new ApplicationTable();
@@ -97,6 +115,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    $encounter
     * @return   $patient_data   Patient Data in XML format
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getPatientdata($pid, $encounter)
     {
         $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion, l3.notes as religion_code, l4.notes as language_code, l4.title as language_title
@@ -165,6 +188,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $patient_data;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProviderDetails($pid, $encounter)
     {
         $provider_details = '';
@@ -220,6 +248,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $provider_details;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getAuthor($pid, $encounter)
     {
         $author = '';
@@ -241,6 +274,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $author;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getDataEnterer($pid, $encounter)
     {
         $data_enterer = '';
@@ -261,6 +299,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $data_enterer;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getInformant($pid, $encounter)
     {
         $informant = '';
@@ -282,6 +325,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $informant;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getCustodian($pid, $encounter)
     {
         $custodian = '';
@@ -301,6 +349,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $custodian;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @param $recipients
+     * @param $params
+     * @return string
+     */
     public function getInformationRecipient($pid, $encounter, $recipients, $params)
     {
         $information_recipient = '';
@@ -357,6 +412,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $information_recipient;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getLegalAuthenticator($pid, $encounter)
     {
         $legal_authenticator = '';
@@ -376,6 +436,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $legal_authenticator;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getAuthenticator($pid, $encounter)
     {
         $authenticator = '';
@@ -395,6 +460,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $authenticator;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getPrimaryCareProvider($pid, $encounter)
     {
         // primary from demo
@@ -469,6 +539,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     #                  CONTINUITY OF CARE                  #
     #******************************************************#
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getAllergies($pid, $encounter)
     {
         $allergies = '';
@@ -553,6 +628,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $allergies;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getMedications($pid, $encounter)
     {
         $medications = '';
@@ -640,6 +720,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $medications;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProblemList($pid, $encounter)
     {
         UuidRegistry::createMissingUuidsForTables(['lists']);
@@ -712,6 +797,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $problem_lists;
     }
 
+    /**
+     * @param $pid
+     * @param $list_type
+     * @param $current_count
+     * @return mixed
+     */
     private function getAmcCount($pid, $list_type, $current_count)
     {
         if (empty($current_count)) {
@@ -722,6 +813,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $current_count;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getMedicalDeviceList($pid, $encounter)
     {
         $medical_devices = '';
@@ -789,6 +885,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $medical_devices;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getImmunization($pid, $encounter)
     {
         $immunizations = '';
@@ -843,6 +944,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $immunizations;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProcedures($pid, $encounter)
     {
         $wherCon = '';
@@ -901,6 +1007,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $procedure;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getResults($pid, $encounter)
     {
         $wherCon = '';
@@ -999,6 +1110,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     #                ENCOUNTER HISTORY                 #
     #**************************************************#
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getEncounterHistory($pid, $encounter)
     {
         $wherCon = '';
@@ -1130,6 +1246,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     #                  PROGRESS NOTES                  #
     #**************************************************#
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProgressNotes($pid, $encounter)
     {
         $progress_notes = '';
@@ -1155,6 +1276,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     #                DISCHARGE SUMMARY                 #
     #**************************************************#
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getHospitalCourse($pid, $encounter)
     {
         $hospital_course = '';
@@ -1172,6 +1298,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $hospital_course;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getDischargeDiagnosis($pid, $encounter)
     {
         $discharge_diagnosis = '';
@@ -1189,6 +1320,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $discharge_diagnosis;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getDischargeMedications($pid, $encounter)
     {
         $discharge_medications = '';
@@ -1217,6 +1353,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $complications  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getComplications($pid, $encounter)
     {
         $complications = '';
@@ -1243,6 +1384,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $procedure_diag  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getPostProcedureDiag($pid, $encounter)
     {
         $procedure_diag = '';
@@ -1269,6 +1415,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $procedure_description  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProcedureDescription($pid, $encounter)
     {
         $procedure_description = '';
@@ -1294,6 +1445,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $procedure_indications  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProcedureIndications($pid, $encounter)
     {
         $procedure_indications = '';
@@ -1322,6 +1478,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $anesthesia  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getAnesthesia($pid, $encounter)
     {
         $anesthesia = '';
@@ -1346,6 +1507,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $post_operative_diag  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getPostoperativeDiag($pid, $encounter)
     {
         $post_operative_diag = '';
@@ -1370,6 +1536,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $pre_operative_diag  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getPreOperativeDiag($pid, $encounter)
     {
         $pre_operative_diag = '';
@@ -1394,6 +1565,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $pre_operative_diag  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getEstimatedBloodLoss($pid, $encounter)
     {
         $estimated_blood_loss = '';
@@ -1418,6 +1594,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $pre_operative_diag  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProcedureFindings($pid, $encounter)
     {
         $procedure_findings = '';
@@ -1442,6 +1623,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $pre_operative_diag  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getProcedureSpecimensTaken($pid, $encounter)
     {
         $procedure_specimens = '';
@@ -1469,6 +1655,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $hp  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getHP($pid, $encounter)
     {
         $hp = '';
@@ -1493,6 +1684,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $physical_exam  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getPhysicalExam($pid, $encounter)
     {
         $physical_exam = '';
@@ -1520,6 +1716,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $chief_complaint  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getChiefComplaint($pid, $encounter)
     {
         $chief_complaint = '';
@@ -1544,6 +1745,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $general_status  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getGeneralStatus($pid, $encounter)
     {
         $general_status = '';
@@ -1568,6 +1774,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $history_past_illness  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getHistoryOfPastIllness($pid, $encounter)
     {
         $history_past_illness = '';
@@ -1592,6 +1803,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $review_of_systems  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getReviewOfSystems($pid, $encounter)
     {
         $review_of_systems = '';
@@ -1616,6 +1832,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $vitals  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getVitals($pid, $encounter)
     {
         $wherCon = '';
@@ -1711,6 +1932,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $social_history  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getSocialHistory($pid, $encounter)
     {
         $social_history = '';
@@ -1803,6 +2029,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     #                  UNSTRUCTURED DOCUMENTS                #
     #********************************************************#
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getUnstructuredDocuments($pid, $encounter)
     {
         $image = '';
@@ -1825,6 +2056,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $image;
     }
 
+    /**
+     * @param $field_name
+     * @return void
+     */
     public function getDetails($field_name)
     {
         if ($field_name == 'hie_custodian_id') {
@@ -1855,6 +2090,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    int     $age    Age of a patient will be returned
     */
+    /**
+     * @param $pid
+     * @param $date
+     * @return int
+     */
     public function getAge($pid, $date = null)
     {
         if ($date != '') {
@@ -1875,6 +2115,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $age;
     }
 
+    /**
+     * @return array
+     */
     public function getRepresentedOrganization()
     {
         $query = "select * from facility where primary_business_entity = ?";
@@ -1896,6 +2139,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param        $user_id            1
     * @return       $ret                Array containing the list of items mapped in a particular CCDA section.
     */
+    /**
+     * @param $ccda_component
+     * @param $ccda_section
+     * @param $user_id
+     * @return array
+     */
     public function fetchFields($ccda_component, $ccda_section, $user_id)
     {
         $form_type = $table_name = $field_names = '';
@@ -1946,6 +2195,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param        $formTables
     * @return       $res            Array of forms values of a single section
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @param $formTables
+     * @return array|string
+     */
     public function fetchFormValues($pid, $encounter, $formTables)
     {
         if (empty($encounter)) {
@@ -2088,6 +2343,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    string      $module_directory       module directory name
     * @param    string      $field_name             field name as in the module_settings table
     */
+    /**
+     * @param $module_directory
+     * @param $field_name
+     * @return void
+     */
     public function getSettings($module_directory, $field_name)
     {
         $query = "SELECT mo_conf.field_value FROM modules AS mo
@@ -2106,6 +2366,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    Date    $date           Date format yyyy-mm-dd
     * $return   Array   $date_list      List of encounter in the given date.
     */
+    /**
+     * @param $date
+     * @return array
+     */
     public function getEncounterDate($date)
     {
         $date_list = array();
@@ -2130,6 +2394,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    integer     $encounter
     * @return   array       $forms          List of locked forms
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return array
+     */
     public function signOff($pid, $encounter)
     {
         /*Saving Demographics to locked data*/
@@ -2212,6 +2481,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     *
     * @return   None
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @param $formdir
+     * @param $formtype
+     * @param $formid
+     * @return void
+     */
     public function lockedthisform($pid, $encounter, $formdir, $formtype, $formid)
     {
         $query = "select count(*) as count from combination_form where pid = ? and encounter = ? and form_dir = ? and form_type = ? and form_id = ?";
@@ -2233,6 +2510,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    $type
     * @return   Array       $components
     */
+    /**
+     * @param $type
+     * @return array
+     */
     public function getCCDAComponents($type)
     {
         $components = array();
@@ -2257,6 +2538,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     * @param    integer     $status
     * @return   None
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @param $content
+     * @param $time
+     * @param $status
+     * @param $user_id
+     * @param $document_type
+     * @param $view
+     * @param $transfer
+     * @param $emr_transfer
+     * @return GeneratedCcdaResult
+     * @throws \Exception
+     */
     public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
     {
         $content = base64_decode($content);
@@ -2396,6 +2691,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
     }
 
+    /**
+     * @param $logID
+     * @return mixed
+     */
     public function getCcdaLogDetails($logID = 0)
     {
         $query_ccda_log = "SELECT pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer FROM ccda WHERE id = ?";
@@ -2412,6 +2711,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     *
     * @return   String      $formatted_date New formatted date
     */
+    /**
+     * @param $date
+     * @param $format
+     * @return string|void
+     */
     public function date_format($date, $format = null)
     {
         if (!$date) {
@@ -2444,6 +2748,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     *
     * @return   String      Code
     */
+    /**
+     * @param $code_text
+     * @return mixed|string
+     */
     public function generate_code($code_text)
     {
         $rx = sqlQuery("Select drug_code From drugs Where name = ?", array("$code_text"));
@@ -2468,6 +2776,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $code;
     }
 
+    /**
+     * @param $pid
+     * @return mixed|null
+     */
     public function getProviderId($pid)
     {
         $appTable = new ApplicationTable();
@@ -2477,6 +2789,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $row['providerID'] ?? null;
     }
 
+    /**
+     * @param $pid
+     * @return mixed|null
+     */
     public function getProviderStartDate($pid)
     {
         $appTable = new ApplicationTable();
@@ -2486,6 +2802,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $row['provider_since_date'] ?? null;
     }
 
+    /**
+     * @param $uid
+     * @return void
+     */
     public function getUserDetails($uid)
     {
         $query = "SELECT u.title,npi,fname,mname,lname,street,city,state,zip,CONCAT_WS(' ','',phonew1) AS phonew1, lo.title as  physician_type, facility As organization, taxonomy, lous.title as taxonomy_desc, specialty, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as physician_type_code FROM users as u
@@ -2523,6 +2843,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     * return    string  $planofcare  XML which contains the details collected from the patient.
     */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getPlanOfCare($pid, $encounter)
     {
         $wherCon = '';
@@ -2648,6 +2973,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
    * return    string  $functional_cognitive  XML which contains the details collected from the patient.
    */
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getFunctionalCognitiveStatus($pid, $encounter)
     {
         $wherCon = '';
@@ -2694,6 +3024,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $functional_status . $cognitive_status;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getClinicalNotes($pid, $encounter)
     {
         $wherCon = '';
@@ -2745,6 +3080,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $clinical_notes;
     }
 
+    /**
+     * @param $pid
+     * @return mixed
+     */
     public function getCareTeamProviderId($pid)
     {
         $appTable = new ApplicationTable();
@@ -2754,6 +3093,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $row['care_team_provider'];
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getClinicalInstructions($pid, $encounter)
     {
         $wherCon = '';
@@ -2778,6 +3122,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $clinical_instructions;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getReferrals($pid, $encounter)
     {
         // patched out because I can't think of a reason to send a list of referrals
@@ -2799,6 +3148,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $referrals;
     }
 
+    /**
+     * @param $pid
+     * @return string
+     */
     public function getLatestEncounter($pid)
     {
         $encounter = '';
@@ -2812,6 +3165,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $encounter;
     }
 
+    /**
+     * @param $str
+     * @return string
+     */
     public function formatUid($str)
     {
         $sha = sha1($str);

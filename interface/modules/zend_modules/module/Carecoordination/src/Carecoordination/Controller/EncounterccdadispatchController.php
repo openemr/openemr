@@ -100,13 +100,14 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
         // Date Range format.
-        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('YmdHisO', strtotime($this->getRequest()->getPost('form_date_from'))) : null;
-        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('YmdHisO', strtotime($this->getRequest()->getPost('form_date_to'))) : null;
+        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_from'))) : null;
+        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_to'))) : null;
+        $filter_content = !empty($this->getRequest()->getPost('form_filter_content') ?? null);
         $this->date_options = [
             'date_start' => $date_start,
-            'date_end' => $date_end
+            'date_end' => $date_end,
+            'filter_content' => $filter_content
         ];
-
 
         // QRDA I user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda') {
