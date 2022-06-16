@@ -131,7 +131,8 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 if ($key == "Oxygen Saturation") {
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('%') . "</div></td>";
                 } elseif ($key == "Oxygen Flow Rate") {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('l/min') . "</div></td>";
+                    $c_value = number_format($value, 2);
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('l/min') . "</div></td>";
                 } elseif ($key == "BMI") {
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('kg/m^2') . "</div></td>";
                 } else { //pulse and respirations
