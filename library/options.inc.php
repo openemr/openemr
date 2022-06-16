@@ -131,7 +131,8 @@ function generate_select_list(
     $multiple = false,  // new #10
     $backup_list = '',  // new #11
     $ignore_default = false,
-    $include_inactive = false
+    $include_inactive = false,
+    $tabIndex = false
 ) {
     $s = '';
 
@@ -142,6 +143,10 @@ function generate_select_list(
     }
 
     $s .= "<select name='$tag_name_esc'";
+
+    if ($tabIndex !== false) {
+        $s .= " tabindex='" . attr($tabIndex) . "' '";
+    }
 
     if ($multiple) {
         $s .= " multiple='multiple'";

@@ -25,6 +25,7 @@ $addresses = $addresses ?? [];
 
 $name_field_id = "form_" . $field_id_esc;
 $smallform = $smallform ?? '';
+// TODO: @adunsulag change the table to divs so we can use bootstrap here...
 ?>
 <div>
     <table class='form_addresses table table-sm' id="<?php echo attr($table_id); ?>">
@@ -62,6 +63,7 @@ $smallform = $smallform ?? '';
                     <td width='200' colspan='2'><?php echo xlt("Address Line 2"); ?></td>
                 </tr>
                 <tr>
+                    <!-- TODO: @adunsulag clean up all these colspan 1s as we don't need them -->
                     <td colspan='3'><input type='text' class="form_addresses_line1" name="<?php echo attr($name_field_id); ?>[line_1][]" style='width:200px;' value='' tabindex='4'></td>
                     <td colspan='1'><input type='text' class="form_addresses_line2" name="<?php echo attr($name_field_id); ?>[line_2][]" style='width:200px;' value='' tabindex='4'></td>
 
@@ -86,7 +88,11 @@ $smallform = $smallform ?? '';
                                 '',
                                 '',
                                 ($disabled ? array('disabled' => 'disabled') : null),
-                                false
+                                false,
+                                '',
+                                false,
+                                false,
+                                4
                             );
                             ?>
                     </td>
@@ -104,11 +110,73 @@ $smallform = $smallform ?? '';
                             '',
                             '',
                             ($disabled ? array('disabled' => 'disabled') : null),
-                            false
+                            false,
+                            '',
+                            false,
+                            false,
+                            4
                         );
                         ?>
                     </td>
 
+                </tr>
+                <tr>
+                    <td width='50' colspan='1'><?php echo xlt("Address Use"); ?></td>
+                    <td width='8' colspan='1'><?php echo xlt("Address Type"); ?></td>
+                    <td width='12' colspan='1'>
+                        <?php echo xlt("Address Start Date"); ?>
+                    </td>
+                    <td width='25' colspan='1'>
+                        <?php echo xlt("Address End Date"); ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <?php
+                        echo generate_select_list(
+                            $name_field_id . "[use][]",
+                            'address-uses',
+                            '',
+                            "Address Type",
+                            'Unassigned',
+                            'addtolistclass_uses' . $smallform . ' form_addresses_uses',
+                            '',
+                            '',
+                            ($disabled ? array('disabled' => 'disabled') : null),
+                            false,
+                            '',
+                            false,
+                            false,
+                            4
+                        );
+                        ?>
+                    </td>
+                    <td>
+                        <?php
+                        echo generate_select_list(
+                            $name_field_id . "[type][]",
+                            'address-types',
+                            '',
+                            "Address Use",
+                            'Unassigned',
+                            'addtolistclass_types' . $smallform . ' form_addresses_types',
+                            '',
+                            '',
+                            ($disabled ? array('disabled' => 'disabled') : null),
+                            false,
+                            '',
+                            false,
+                            false,
+                            4
+                        );
+                        ?>
+                    </td>
+                    <td>
+                        Start date goes here
+                    </td>
+                    <td>
+                        End date goes here
+                    </td>
                 </tr>
                 <tr class="mt-1">
                     <td>
