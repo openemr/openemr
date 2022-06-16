@@ -727,6 +727,104 @@ UPDATE `layout_options` SET `title` = 'Title' WHERE `layout_options`.`form_id` =
 UPDATE `layout_options` SET `title` = 'Name', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'fname';
 #EndIf
 
+#IfNotColumnType form_vitals weight DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `weight_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient weight stored in imperial lbs' AFTER `height`;
+UPDATE form_vitals SET weight_dec=CAST(weight AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `weight`;
+ALTER TABLE form_vitals CHANGE `weight_dec` `weight` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient weight stored in imperial lbs';
+#EndIf
+
+#IfNotColumnType form_vitals height DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `height_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient height stored in imperial in' AFTER `height`;
+UPDATE form_vitals SET height_dec=CAST(height AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `height`;
+ALTER TABLE form_vitals CHANGE `height_dec` `height` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient height stored in imperial in';
+#EndIf
+
+#IfNotColumnType form_vitals temperature DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `temperature_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient temperature stored in fahrenheit degrees' AFTER `temperature`;
+UPDATE form_vitals SET temperature_dec=CAST(temperature AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `temperature`;
+ALTER TABLE form_vitals CHANGE `temperature_dec` `temperature` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient temperature stored in fahrenheit degrees';
+#EndIf
+
+#IfNotColumnType form_vitals pulse DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `pulse_dec` DECIMAL(12,2) DEFAULT NULL AFTER `pulse`;
+UPDATE form_vitals SET pulse_dec=CAST(pulse AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `pulse`;
+ALTER TABLE form_vitals CHANGE `pulse_dec` `pulse` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals respiration DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `respiration_dec` DECIMAL(12,2) DEFAULT NULL AFTER `respiration`;
+UPDATE form_vitals SET respiration_dec=CAST(respiration AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `respiration`;
+ALTER TABLE form_vitals CHANGE `respiration_dec` `respiration` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals BMI DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `BMI_dec` DECIMAL(6,1) DEFAULT NULL AFTER `BMI`;
+UPDATE form_vitals SET BMI_dec=CAST(BMI AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `BMI`;
+ALTER TABLE form_vitals CHANGE `BMI_dec` `BMI` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals waist_circ DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `waist_circ_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient waist circumference stored in imperial in' AFTER `waist_circ`;
+UPDATE form_vitals SET waist_circ_dec=CAST(waist_circ AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `waist_circ`;
+ALTER TABLE form_vitals CHANGE `waist_circ_dec` `waist_circ` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient waist circumference stored in imperial in';
+#EndIf
+
+#IfNotColumnType form_vitals head_circ DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `head_circ_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient head circumference stored in imperial in' AFTER `head_circ`;
+UPDATE form_vitals SET head_circ_dec=CAST(head_circ AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `head_circ`;
+ALTER TABLE form_vitals CHANGE `head_circ_dec` `head_circ` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient head circumference stored in imperial in';
+#EndIf
+
+#IfNotColumnType form_vitals oxygen_flow_rate DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `oxygen_flow_rate_dec` DECIMAL(12,2) DEFAULT NULL AFTER `oxygen_flow_rate`;
+UPDATE form_vitals SET oxygen_flow_rate_dec=CAST(oxygen_flow_rate AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `oxygen_flow_rate`;
+ALTER TABLE form_vitals CHANGE `oxygen_flow_rate_dec` `oxygen_flow_rate` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals oxygen_saturation DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `oxygen_saturation_dec` DECIMAL(6,2) DEFAULT NULL AFTER `oxygen_saturation`;
+UPDATE form_vitals SET oxygen_saturation_dec=CAST(oxygen_saturation AS DECIMAL(6,2));
+ALTER TABLE form_vitals DROP `oxygen_saturation`;
+ALTER TABLE form_vitals CHANGE `oxygen_saturation_dec` `oxygen_saturation` DECIMAL(6,2) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals ped_weight_height DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `ped_weight_height_dec` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric weight height percentile' AFTER `ped_weight_height`;
+UPDATE form_vitals SET ped_weight_height_dec=CAST(ped_weight_height AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `ped_weight_height`;
+ALTER TABLE form_vitals CHANGE `ped_weight_height_dec` `ped_weight_height` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric weight height percentile';
+#EndIf
+
+#IfNotColumnType form_vitals ped_bmi DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `ped_bmi_dec` DECIMAL(6,1) DEFAULT NULL COMMENT 'pediatric bmi percentile' AFTER `ped_bmi`;
+UPDATE form_vitals SET ped_bmi_dec=CAST(ped_bmi AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `ped_bmi`;
+ALTER TABLE form_vitals CHANGE `ped_bmi_dec` `ped_bmi` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric bmi percentile';
+#EndIf
+
+#IfNotColumnType form_vitals ped_head_circ DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `ped_head_circ_dec` DECIMAL(6,1) DEFAULT NULL COMMENT 'pediatric head circumference percentile' AFTER `ped_head_circ`;
+UPDATE form_vitals SET ped_head_circ_dec=CAST(ped_head_circ AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `ped_head_circ`;
+ALTER TABLE form_vitals CHANGE `ped_head_circ_dec` `ped_head_circ` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric head circumference percentile';
+#EndIf
+
+#IfNotColumnType form_vitals inhaled_oxygen_concentration DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `inhaled_oxygen_concentration_dec` DECIMAL(6,1) DEFAULT NULL AFTER `inhaled_oxygen_concentration`;
+UPDATE form_vitals SET inhaled_oxygen_concentration_dec=CAST(inhaled_oxygen_concentration AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `inhaled_oxygen_concentration`;
+ALTER TABLE form_vitals CHANGE `inhaled_oxygen_concentration_dec` `inhaled_oxygen_concentration` DECIMAL(6,2) DEFAULT NULL;
+#EndIf
+
 #IfNotRow2D layout_options form_id DEM field_id provider_since_date
 SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='providerID' AND form_id='DEM');
 SET @seq_start := 0;
