@@ -1,14 +1,19 @@
 <?php
 
 /**
- * Address List Form
+ * Handles the editing, updating, creating, and deleting of the address list datatype in LBF.  Reuses several LBF components
+ * inside of it.  Also functions as a repeater for address items.  Saving of these properties are handled by the scripts
+ * that call the LBF form.  The current example can be found in interface/patient_file/summary/demographics_save.php
+ * and in interface/new/new_comprehensive_save.php
  *
  * @package   OpenEMR
- * @author    David Eschelbacher <psoas@tampabay.rr.com>
- * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
- * @link      http://www.open-emr.org
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link      https://www.open-emr.org
  *
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Services\ContactService;

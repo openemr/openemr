@@ -1,14 +1,18 @@
 <?php
 
 /**
- * address class for smarty templates
+ * address class for smarty templates.  Follows the Active Record Design Pattern
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    duhlman
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) duhlman
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Represents a contact object in OpenEMR and in the database.  Follows the Active Record design pattern for
+ * loading and persisting data to the database.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ *
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Common\ORDataObject;
 
 class Contact extends ORDataObject

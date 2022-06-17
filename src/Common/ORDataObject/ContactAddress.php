@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Represents a contact address object in OpenEMR and in the database.  Follows the Active Record design pattern for
+ * loading and persisting data to the database.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ *
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Common\ORDataObject;
 
 use OpenEMR\Common\ORDataObject\Contact;
@@ -17,24 +31,6 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     const IS_PRIMARY_YES = "Y";
     const IS_PRIMARY_NO = "N";
     const ADDRESS_TYPE_HOME = "home";
-
-    /**
-     * `id` BIGINT(20) NOT NULL auto_increment,
-    `contact_id` BIGINT(20) NOT NULL,
-    `address_id` BIGINT(20) NOT NULL,
-    `priority` INT(11) NULL,
-    `type` VARCHAR(255) NULL COMMENT '[Values: Home, Work, Physical, Mailing, Shipping]',
-    `notes` TEXT(255) NULL,
-    `status` BINARY(1) NULL COMMENT '[Values: Active, Inactive, etc]',
-    `is_primary` BINARY(1) NULL,
-    `created_date` DATETIME NULL,
-    `period_start` DATETIME NULL COMMENT 'Date the address became active',
-    `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
-    `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
-    PRIMARY KEY (`contact_id`),
-    KEY (`contact_id`),
-    KEY (`address_id`)
-     */
 
     private $id;
     /**
