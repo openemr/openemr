@@ -99,11 +99,11 @@
 
                                 {include file="vitals_textbox.tpl" title="Oxygen Flow Rate" unit="l/min"
                                     input="oxygen_flow_rate" vitals=$vitals vitalsValue="get_oxygen_flow_rate"
-                                    codes="LOINC:3151-8"}
+                                    vitalsStringFormat="%.0f" codes="LOINC:3151-8"}
 
                                 {include file="vitals_textbox.tpl" title="Inhaled Oxygen Concentration" unit="%"
                                     input="inhaled_oxygen_concentration" vitals=$vitals vitalsValue="get_inhaled_oxygen_concentration"
-                                    codes="LOINC:3150-0"
+                                    vitalsStringFormat="%.0f" codes="LOINC:3150-0"
                                 }
 
                                 { include file="vitals_textbox_conversion.tpl" title="Head Circumference" input="head_circ"
@@ -132,7 +132,7 @@
                                     <tr>
                                         <td>{xlt t="BMI Status"}</td><td>{xlt t="Type"}</td>
                                         <td class='currentvalues p-2'>
-                                            <input type="text" class="form-control" size='20'
+                                            <input type="text" class="form-control skip-template-editor" size='20'
                                                 name="BMI_status" id="BMI_status" value="{$vitals->get_BMI_status()|attr}"/></td>
                                         <td class="editonly"></td>
                                         <td class="editonly actions">

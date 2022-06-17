@@ -54,6 +54,10 @@ class EncounterccdadispatchController extends AbstractActionController
 
     protected $document_type;
 
+    protected $components;
+
+    protected $date_options;
+
     public function __construct(EncounterccdadispatchTable $encounterccdadispatchTable)
     {
         $this->listenerObject = new Listener();
@@ -95,10 +99,12 @@ class EncounterccdadispatchController extends AbstractActionController
         $hie_hook = $request->getQuery('hiehook') || 0;
         $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
-        // @TODO future use.
-        $date_options = [
-            'date_start' => $this->getRequest()->getQuery('form_date_from') ?? null,
-            'date_end' => $this->getRequest()->getQuery('form_date_to') ?? null
+        // Date Range format.
+        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('YmdHisO', strtotime($this->getRequest()->getPost('form_date_from'))) : null;
+        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('YmdHisO', strtotime($this->getRequest()->getPost('form_date_to'))) : null;
+        $this->date_options = [
+            'date_start' => $date_start,
+            'date_end' => $date_end
         ];
 
 
@@ -121,7 +127,6 @@ class EncounterccdadispatchController extends AbstractActionController
         if ($downloadqrda === 'download_qrda') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $view = $this->params('view');
             $pids = explode('|', $combination);
             $measures = $_REQUEST['report_measures'] ?? "";
             if (is_array($measures)) {
@@ -134,12 +139,10 @@ class EncounterccdadispatchController extends AbstractActionController
             $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
             exit;
         }
-
         // QRDA III batch selected pids download as zip.
         if ($downloadqrda3 === 'download_qrda3') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $view = $this->params('view');
             $pids = explode('|', $combination);
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
             if (is_array($measures)) {
@@ -191,7 +194,9 @@ class EncounterccdadispatchController extends AbstractActionController
                         $this->sections,
                         $this->recipients,
                         $this->params,
-                        $this->document_type
+                        $this->document_type,
+                        $this->referral_reason,
+                        $this->date_options
                     );
                     $content = $result->getContent();
                     unset($result); // clear out our memory here as $content is a big string
@@ -235,6 +240,7 @@ class EncounterccdadispatchController extends AbstractActionController
             } else {
                 // oddly we send an empty string for our components here if there is no combination,
                 // I don't know how this is even valid as the ccda node service fails if there is no encounters section in the component.
+                // Probably should nullFlavor encounter section in generator and still render document. Looking into sjp
                 $result = $ccdaGenerator->generate(
                     $this->patient_id,
                     $this->encounter_id,
@@ -246,7 +252,9 @@ class EncounterccdadispatchController extends AbstractActionController
                     $this->sections,
                     $this->recipients,
                     $this->params,
-                    $this->document_type
+                    $this->document_type,
+                    $this->referral_reason,
+                    $this->date_options
                 );
                 $content = $result->getContent();
                 unset($result);

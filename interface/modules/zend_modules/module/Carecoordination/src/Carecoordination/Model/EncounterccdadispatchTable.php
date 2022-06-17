@@ -46,7 +46,53 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
     }
 
-    /*Fetch Patient data from EMR
+    public function resolveRace($race)
+    {
+        $appTable = new ApplicationTable();
+        $res_cur = null;
+        $query = "SELECT title, notes FROM list_options WHERE list_id='race' AND option_id=?";
+        $option['race']['title'] = '';
+        $option['race']['code'] = '';
+        $option['race_cat']['title'] = '';
+        $option['race_cat']['code'] = '';
+        if (strpos($race, '|') !== false) {
+            $first = explode('|', $race);
+            foreach ($first as $i => $title) {
+                $result = $appTable->zQuery($query, array($title));
+                $r = $result->current();
+                // ensure at least one
+                if ($i == 0) {
+                    $option['race']['title'] = $r['title'];
+                    $option['race']['code'] = $r['notes'];
+                }
+                if (
+                    in_array(
+                        trim($r['title']),
+                        ['American Indian or Alaska Native',
+                        'Asian',
+                        'Black or African American',
+                        'Native Hawaiian or Other Pacific Islander',
+                        'White']
+                    )
+                ) {
+                    $option['race']['title'] = $r['title'];
+                    $option['race']['code'] = $r['notes'];
+                } else {
+                    $option['race_cat']['title'] = $r['title'];
+                    $option['race_cat']['code'] = $r['notes'];
+                }
+            }
+        } elseif (!empty($race)) {
+            $result = $appTable->zQuery($query, array($race));
+            $r = $result->current();
+            $option['race']['title'] = $r['title'] ?? '';
+            $option['race']['code'] = $r['notes'] ?? '';
+            $option['race_cat']['title'] = '';
+            $option['race_cat']['code'] = '';
+        }
+        return $option;
+    }
+    /* Fetch Patient data from EMR
     * @param    $pid
     * @param    $encounter
     * @return   $patient_data   Patient Data in XML format
@@ -64,6 +110,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $row = $appTable->zQuery($query, array('race', 'ethnicity', 'religious_affiliation', 'language', $pid));
 
         foreach ($row as $result) {
+            $race = $this->resolveRace($result['race']);
             $patient_data = "<patient>
             <id>" . xmlEscape($result['pid']) . "</id>
             <encounter>" . xmlEscape($encounter) . "</encounter>
@@ -91,8 +138,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <email>" . xmlEscape(($result['email'] ?: '')) . "</email>
             <religion>" . xmlEscape(Listener::z_xlt($result['religion'] ?: "")) . "</religion>
             <religion_code>" . xmlEscape($result['religion_code'] ?: '') . "</religion_code>
-            <race>" . xmlEscape(Listener::z_xlt($result['race_title'])) . "</race>
-            <race_code>" . xmlEscape($result['race_code']) . "</race_code>
+            <race>" . xmlEscape(Listener::z_xlt($race['race']['title'])) . "</race>
+            <race_code>" . xmlEscape($race['race']['code']) . "</race_code>
+            <race_group>" . xmlEscape(Listener::z_xlt($race['race_cat']['title'])) . "</race_group>
+            <race_group_code>" . xmlEscape($race['race_cat']['code']) . "</race_group_code>
             <ethnicity>" . xmlEscape(Listener::z_xlt($result['ethnicity_title'])) . "</ethnicity>
             <ethnicity_code>" . xmlEscape($result['ethnicity_code']) . "</ethnicity_code>
             <language>" . xmlEscape(Listener::z_xlt($result['language_title'])) . "</language>
@@ -350,6 +399,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         // primary from demo
         $getprovider = $this->getProviderId($pid);
+        // @TODO I don't like this much. Should add UI in care team assignments.
+        $getprovider_start_date = $this->getProviderStartDate($pid);
+        $getprovider_start_date = !empty($getprovider_start_date) ? date('YmdHisO', strtotime($getprovider_start_date)) : date('YmdHisO');
         if (!empty($getprovider)) { // from patient_data
             $details = $this->getUserDetails($getprovider);
         } else { // get from CCM setup
@@ -374,6 +426,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
             <taxonomy>" . xmlEscape($details['taxonomy'] ?? '') . "</taxonomy>
             <taxonomy_description>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</taxonomy_description>
+            <provider_since>" . xmlEscape($getprovider_start_date) . "</provider_since>
           </provider>
         </primary_care_provider>";
         $care_team_provider = "<care_team>";
@@ -402,6 +455,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <physician_type_code>" . xmlEscape($details2['physician_type_code']) . "</physician_type_code>
             <taxonomy>" . xmlEscape($details2['taxonomy']) . "</taxonomy>
             <taxonomy_description>" . xmlEscape($details2['taxonomy_desc']) . "</taxonomy_description>
+            <provider_since>" . xmlEscape($getprovider_start_date) . "</provider_since>
           </provider>
           ";
         }
@@ -2420,7 +2474,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $query = "SELECT providerID FROM patient_data WHERE `pid`  = ?";
         $result = $appTable->zQuery($query, array($pid));
         $row = $result->current();
-        return $row['providerID'];
+        return $row['providerID'] ?? null;
+    }
+
+    public function getProviderStartDate($pid)
+    {
+        $appTable = new ApplicationTable();
+        $query = "SELECT provider_since_date FROM patient_data WHERE `pid`  = ?";
+        $result = $appTable->zQuery($query, array($pid));
+        $row = $result->current();
+        return $row['provider_since_date'] ?? null;
     }
 
     public function getUserDetails($uid)
@@ -2444,12 +2507,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $codes_installed = false;
         // this throws an exception... which is sad
         // TODO: is there a better way to know if the snomed codes are installed instead of using this method?
-        // we set $error=false or else it will display on the screen, which seems counterintuitive... it also supresses the exception
+        // we set $error=false or else it will display on the screen, which seems counterintuitive... it also suppresses the exception
         $result = $appTable->zQuery("Describe `sct_descriptions`", $params = '', $log = true, $error = false);
         if ($result !== false) { // will return false if there is an error
             $codes_installed = true;
         }
-
 
         return $codes_installed;
     }
