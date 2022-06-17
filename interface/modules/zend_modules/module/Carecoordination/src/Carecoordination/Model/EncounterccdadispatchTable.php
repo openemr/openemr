@@ -25,8 +25,10 @@ use Matrix\Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\PatientService;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
@@ -110,6 +112,27 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         return $option;
     }
+
+    /**
+     * @param $pid
+     * @return ContactAddress[]
+     */
+    public function getPreviousAddresses($pid): array
+    {
+        $address = new ContactService();
+        return $address->getContactsForPatient($pid) ?? [];
+    }
+
+    /**
+     * @param $pid
+     * @return array
+     */
+    public function getPreviousNames($pid): array
+    {
+        $patientService = new PatientService();
+        return $patientService->getPatientNameHistory($pid) ?? [];
+    }
+
     /* Fetch Patient data from EMR
     * @param    $pid
     * @param    $encounter
@@ -120,7 +143,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $encounter
      * @return string
      */
-    public function getPatientdata($pid, $encounter)
+    public function getPatientdata($pid, $encounter): string
     {
         $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion, l3.notes as religion_code, l4.notes as language_code, l4.title as language_title
             from patient_data
@@ -131,6 +154,41 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         where pid=?";
         $appTable = new ApplicationTable();
         $row = $appTable->zQuery($query, array('race', 'ethnicity', 'religious_affiliation', 'language', $pid));
+        // Render previous names
+        $names = $this->getPreviousNames($pid);
+        $previous_names = "<previous_names>";
+        foreach ($names as $n) {
+            $end = !empty($n['previous_name_enddate'] ?? null) ? date("Ymd", strtotime($n['previous_name_enddate'])) : null;
+            $previous_names .= "
+            <prefix>" . xmlEscape($n['previous_name_prefix']) . "</prefix>
+            <fname>" . xmlEscape($n['previous_name_first']) . "</fname>
+            <mname>" . xmlEscape($n['previous_name_middle']) . "</mname>
+            <lname>" . xmlEscape($n['previous_name_last']) . "</lname>
+            <suffix>" . xmlEscape($n['previous_name_suffix']) . "</suffix>
+            <end_date>" . xmlEscape($end) . "</end_date>
+            ";
+        }
+        $previous_names .= "</previous_names>";
+
+        // Render previous addresses
+        $addresses = $this->getPreviousAddresses($pid);
+        $previous_addresses = "<previous_addresses>";
+        foreach ($addresses as $a) {
+            $start = !empty($a['period_start'] ?? null) ? date("Ymd", strtotime($a['period_start'])) : null;
+            $end = !empty($a['period_end'] ?? null) ? date("Ymd", strtotime($a['period_end'])) : null;
+            $previous_addresses .= "
+            <use>" . xmlEscape($a['use'] ?? 'H') . "</use>
+            <street>" . xmlEscape($a['line1'] ?? '') . "</street>
+            <street>" . xmlEscape($a['line2'] ?? '') . "</street>
+            <city>" . xmlEscape($a['city'] ?? '') . "</city>
+            <state>" . xmlEscape($a['state'] ?? '') . "</state>
+            <postalCode>" . xmlEscape($a['postal_code'] ?? '') . "</postalCode>
+            <country>" . xmlEscape($a['country_code'] ?? '') . "</country>
+            <period_start>" . xmlEscape($start) . "</period_start>
+            <period_end>" . xmlEscape($end) . "</period_end>
+            ";
+        }
+        $previous_addresses .= "</previous_addresses>";
 
         foreach ($row as $result) {
             $race = $this->resolveRace($result['race']);
@@ -142,14 +200,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <mname>" . xmlEscape($result['mname']) . "</mname>
             <lname>" . xmlEscape($result['lname']) . "</lname>
             <suffix>" . xmlEscape($result['suffix']) . "</suffix>
+            " . $previous_names . "
             <birth_fname>" . xmlEscape($result['birth_fname']) . "</birth_fname>
             <birth_mname>" . xmlEscape($result['birth_mname']) . "</birth_mname>
             <birth_lname>" . xmlEscape($result['birth_lname']) . "</birth_lname>
-            <street>" . xmlEscape($result['street']) . "</street>
-            <city>" . xmlEscape($result['city']) . "</city>
-            <state>" . xmlEscape($result['state']) . "</state>
-            <postalCode>" . xmlEscape($result['postal_code']) . "</postalCode>
-            <country>" . xmlEscape($result['country_code']) . "</country>
+            <use>" . xmlEscape('HP') . "</use>
+            <street>" . xmlEscape($result['street'] ?? '') . "</street>
+            <street>" . xmlEscape($result['street_line_2'] ?? '') . "</street>
+            <city>" . xmlEscape($result['city'] ?? '') . "</city>
+            <state>" . xmlEscape($result['state'] ?? '') . "</state>
+            <postalCode>" . xmlEscape($result['postal_code'] ?? '') . "</postalCode>
+            <country>" . xmlEscape($result['country_code'] ?? '') . "</country>
+            " . $previous_addresses . "
             <ssn>" . xmlEscape($result['ss'] ?: '') . "</ssn>
             <dob>" . xmlEscape(str_replace('-', '', $result['DOB'])) . "</dob>
             <gender>" . xmlEscape($result['sex']) . "</gender>
@@ -185,7 +247,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         </guardian>";
         }
 
-        return $patient_data;
+        return $patient_data ?? '';
     }
 
     /**
