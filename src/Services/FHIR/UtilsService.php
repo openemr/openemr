@@ -11,7 +11,11 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressType;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -24,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class UtilsService
 {
@@ -112,32 +117,73 @@ class UtilsService
     public static function createAddressFromRecord($dataRecord): ?FHIRAddress
     {
         $address = new FHIRAddress();
-        // TODO: we don't track start and end periods for dates so what value should go here...?
         $addressPeriod = new FHIRPeriod();
-        $start = new \DateTime();
-        $start->sub(new \DateInterval('P1Y')); // subtract one year
-        $end = new \DateTime();
-        $addressPeriod->setStart(new FHIRDateTime($start->format(\DateTime::RFC3339_EXTENDED)));
-        // if there's an end date we provide one here, but for now we just go back one year
-//        $addressPeriod->setEnd(new FHIRDateTime($end->format(\DateTime::RFC3339_EXTENDED)));
+
+        if (!empty($dataRecord['type'])) {
+            // TODO: do we want to do any validation on this?  If people add 'types' we will have issues, downside is a code change if we need to support newer standards
+            $address->setType(new FHIRAddressType(['value' => $dataRecord['type']]));
+        }
+        if (!empty($dataRecord['use'])) {
+            // TODO: do we want to do any validation on this?  If people add 'uses' we will have issues, downside is a code change if we need to support newer standards
+            $address->setUse(new FHIRAddressUse(['value' => $dataRecord['use']]));
+        }
+
+        if (!empty($dataRecord['period_start'])) {
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start']);
+            if ($date === false) {
+                (new SystemLogger())->errorLogCaller(
+                    "Failed to format date record with date format ",
+                    ['start' => $dataRecord['period_start'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
+                );
+                $date = new \DateTime();
+            }
+            $addressPeriod->setStart($date->format(\DateTime::RFC3339_EXTENDED));
+        } else {
+            // we should always have a start period, but if we don't, we will go one year before
+            $start = new \DateTime();
+            $start->sub(new \DateInterval('P1Y')); // subtract one year
+            $addressPeriod->setStart(new FHIRDateTime($start->format(\DateTime::RFC3339_EXTENDED)));
+        }
+
+        if (!empty($dataRecord['period_end'])) {
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end']);
+            if ($date === false) {
+                (new SystemLogger())->errorLogCaller(
+                    "Failed to format date record with date format ",
+                    ['date' => $dataRecord['period_end'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
+                );
+                $date = new \DateTime();
+            }
+            // if we have an end date we need to set our use to be old
+            // TODO: when FHIR R4 5.0.1 is the standard, it has proposed to go off the 'end' date instead of the use column for an old address
+            // for ONC R4 3.1.1 we have to populate the use column as old (which removes the fact that the address was a 'home' or a 'work' address)
+            $addressPeriod->setEnd($date->format(\DateTime::RFC3339_EXTENDED));
+            $address->setUse(new FHIRAddressUse(['value' => ContactAddress::USE_OLD]));
+        }
+
         $address->setPeriod($addressPeriod);
         $hasAddress = false;
-        if (!empty($dataRecord['line1'])) {
-            $address->addLine($dataRecord['line1']);
-            $hasAddress = true;
-        } else if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
+        $line1 = $dataRecord['line1'] ?? $dataRecord['street'] ?? null;
+        if (!empty($line1)) {
+            $address->addLine($line1);
             $hasAddress = true;
         }
 
-        if (!empty($dataRecord['line2'])) {
-            $address->addLine($dataRecord['line2']);
+        $line2 = $dataRecord['line2'] ?? $dataRecord['street_line_2'] ?? null;
+        if (!empty($line2)) {
+            $address->addLine($line2);
         }
 
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
             $hasAddress = true;
         }
+        $district = $dataRecord['county'] ?? $dataRecord['district'] ?? null;
+        if (!empty($district)) {
+            $address->setDistrict($district);
+            $hasAddress = true;
+        }
+
         if (!empty($dataRecord['state'])) {
             $address->setState($dataRecord['state']);
             $hasAddress = true;

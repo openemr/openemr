@@ -1161,7 +1161,7 @@ CREATE TABLE `contact_address` (
     `priority` INT(11) NULL,
     `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
     `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
-    `notes` TEXT,
+    `notes` TINYTEXT,
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
     `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1170,7 +1170,8 @@ CREATE TABLE `contact_address` (
     `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
     PRIMARY KEY (`id`),
     KEY (`contact_id`),
-    KEY (`address_id`)
+    KEY (`address_id`),
+    KEY contact_address_idx (`contact_id`,`address_id`)
 ) ENGINE = InnoDB ;
 
 -- --------------------------------------------------------
@@ -7482,6 +7483,7 @@ CREATE TABLE `patient_history` (
     , `previous_name_enddate` date DEFAULT NULL
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
+    , KEY `pid_idx` (`pid`)
 ) ENGINE = InnoDB;
 --
 -- Table structure for table `patient_portal_menu`

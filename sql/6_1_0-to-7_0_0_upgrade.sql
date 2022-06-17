@@ -752,7 +752,7 @@ CREATE TABLE `contact_address` (
     `priority` INT(11) NULL,
     `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
     `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
-    `notes` TEXT,
+    `notes` TINYTEXT,
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
     `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -922,3 +922,11 @@ UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` 
 UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Korean';
 UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Asian Indian';
 #Endif
+
+#IfNotIndex patient_history idx_pid
+ALTER TABLE patient_history ADD INDEX `pid_idx` (`pid`);
+#EndIf
+
+#IfNotIndex contact_address
+ALTER TABLE contact_address ADD INDEX `contact_address_idx` (`contact_id`,`address_id`);
+#EndIf

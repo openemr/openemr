@@ -52,24 +52,28 @@ class DateFormatterUtils
      */
     public static function dateStringToDateTime(string $DateValue)
     {
+        $dateTime = new DateTime();
         //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
         //But in database the date can be stored only in the yyyy-mm-dd format.
         //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
-        if (trim($DateValue ?? '') == '') {
-            return new DateTime();
+        $timeFormat = '';
+        if (strpos($DateValue, ":") !== false) {
+            $timeFormat = " H:i:s";
         }
-
-        if ($GLOBALS['date_display_format'] == 0) {
-            return \DateTime::createFromFormat("Y-m-d", $DateValue);
+        if (trim($DateValue ?? '') == '') {
+            $dateTime = new DateTime();
+        } else if ($GLOBALS['date_display_format'] == 0) {
+            $dateTime = \DateTime::createFromFormat("Y-m-d$timeFormat", $DateValue);
         } elseif ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
             if ($GLOBALS['date_display_format'] == 1) {
-                return \DateTime::createFromFormat("m/d/Y", $DateValue);
+                $dateTime = \DateTime::createFromFormat("m/d/Y$timeFormat", $DateValue);
             }
 
             if ($GLOBALS['date_display_format'] == 2) {
-                return \DateTime::createFromFormat("d/m/Y", $DateValue);
+                $dateTime = \DateTime::createFromFormat("d/m/Y$timeFormat", $DateValue);
             }
         }
+        return $dateTime;
     }
 
     public static function oeFormatShortDate($date = 'today', $showYear = true)

@@ -31,7 +31,9 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     const IS_PRIMARY_YES = "Y";
     const IS_PRIMARY_NO = "N";
     const ADDRESS_TYPE_HOME = "home";
-
+    const DEFAULT_TYPE = "both"; // both physical and shipping address
+    const DEFAULT_USE = self::ADDRESS_TYPE_HOME;
+    const USE_OLD = "old"; // option_id for 'use' property when the address is no longer used or is incorrect.
     private $id;
     /**
      * @var int The foreign key to the contact table
@@ -120,7 +122,8 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
         $this->priority = 0;
         $this->author = $_SESSION['authUser'];
         $this->status = self::STATUS_ACTIVE;
-        $this->type = self::ADDRESS_TYPE_HOME;
+        $this->use = self::DEFAULT_USE;
+        $this->type = self::DEFAULT_TYPE;
         $this->isPrimary = false;
         $this->createdDate = new DateTime();
         $this->periodStart = $this->createdDate;
