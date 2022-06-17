@@ -411,11 +411,7 @@ $widgetConstants = [
 
         row_address_clone.querySelector(".display_addresses_full_address").innerHTML  = "None";
 
-        row_address_clone.querySelector(".btn-edit-address").addEventListener('click', editAddress);
-        row_address_clone.querySelector(".btn-delete-address").addEventListener('click', deleteAddress);
-        row_address_clone.querySelector(".btn-close-address").addEventListener('click', closeAddressForm);
-
-
+        setupAddressButtonEventListeners(row_address_clone);
 
         let row = row_address_clone.querySelector(".form_addresses");
         document.getElementById(tableId).appendChild(row_address_clone);
@@ -434,10 +430,18 @@ $widgetConstants = [
         // expand the element and put the cursor focus in the first element of the address
         let row = row_address_clone.querySelector('.form_addresses');
         row.classList.remove('d-none');
+        setupAddressButtonEventListeners(row_address_clone);
         container.appendChild(row_address_clone);
         row.querySelector('input.form_addresses_line1').focus();
         setupDatePickersForContainer(row);
         setupListAddButtons(row);
+
+    }
+
+    function setupAddressButtonEventListeners(row) {
+        row.querySelector(".btn-edit-address").addEventListener('click', editAddress);
+        row.querySelector(".btn-delete-address").addEventListener('click', deleteAddress);
+        row.querySelector(".btn-close-address").addEventListener('click', closeAddressForm);
     }
 
     function hideElement(element){

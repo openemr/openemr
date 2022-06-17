@@ -29,7 +29,7 @@ $addresses = $contactService->getContactsForPatient($pid) ?? [];
     <table class='table-text-addresses table table-sm'>
         <thead class ="thead-light">
         <tr>
-            <th width="400"><?php echo xlt("Previous Addresses"); ?></th>
+            <th width="400"><?php echo xlt("Additional Addresses"); ?></th>
         </tr>
         </thead>
         <tbody>
