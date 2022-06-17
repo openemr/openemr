@@ -16,8 +16,10 @@ use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\System\System;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactService extends BaseService
 {
@@ -63,6 +65,7 @@ class ContactService extends BaseService
         }
 
         // then we return
+        return $preppedData;
     }
 
     /**
@@ -72,7 +75,24 @@ class ContactService extends BaseService
      */
     public function convertArraysToRecords($pid, $contactData)
     {
+        $records = [];
         $count = count($contactData['data_action'] ?? []);
+        if ($count <= 0) {
+            return $records;
+        }
+        $listService = new ListService();
+        $types = $listService->getOptionsByListName('address-types');
+        $typesHash = array_reduce($types, function ($map, $item) {
+            $map[$item['option_id']] = $item['option_id'];
+            return $map;
+        }, []);
+        $uses = $listService->getOptionsByListName('address-uses');
+        $usesHash = array_reduce($uses, function ($map, $item) {
+            $map[$item['option_id']] = $item['option_id'];
+            return $map;
+        }, []);
+
+
         for ($i = 0; $i < $count; $i++) {
             // empty data that we don't need to deal with as we can't do anything meaningful without an id
             if ($contactData['data_action'][$i] != 'ADD' && empty($contactData['id'][$i])) {
@@ -80,10 +100,46 @@ class ContactService extends BaseService
             }
             $contactAddress = new ContactAddress($contactData['id'][$i] ?? null);
 
+            $type = $contactData['type'][$i] ?? 'home';
+            if (isset($typesHash[$type])) {
+                $contactAddress->set_type($type);
+            } else {
+                (new SystemLogger())->errorLogCaller("address type does not exist in list_options address-types", ['type' => $type]);
+            }
+            $use = $contactData['use'][$i] ?? 'physical';
+            if (isset($usesHash[$use])) {
+                $contactAddress->set_use($use);
+            } else {
+                (new SystemLogger())->errorLogCaller("address use does not exist in list_options address-uses", ['use' => $use]);
+            }
+
+            $periodStart = DateFormatterUtils::dateStringToDateTime($contactData['period_start'][$i] ?? '');
+            if ($periodStart !== false) {
+                $contactAddress->set_period_start($periodStart);
+            } else {
+                (new SystemLogger())->errorLogCaller("Skipping save of period_start as it was in invalid date format", ['period_start' => $contactData['period_start'][$i]]);
+            }
+
+            $contactAddress->set_period_end(null);
+            if (!empty($contactData['period_end'][$i])) {
+                $date = DateFormatterUtils::dateStringToDateTime($contactData['period_end'][$i]);
+                if ($date !== false) {
+                    $contactAddress->set_period_end($date);
+                } else {
+                    (new SystemLogger())->errorLogCaller("Skipping period_end as it was in invalid date format", ['period_end' => $contactData['period_end'][$i]]);
+                }
+            }
+
+            // TODO: Add the following three fields to the user interface when we can
+            $contactAddress->set_notes($contactData['notes'][$i] ?? '');
+            $contactAddress->set_priority($contactData['priority'][$i] ?? 0);
+            $contactAddress->set_inactivated_reason($contactData['inactivated_reason'][$i] ?? '');
+
             $address = $contactAddress->getAddress();
             $address->set_line1($contactData['line_1'][$i] ?? '');
             $address->set_line2($contactData['line_2'][$i] ?? '');
             $address->set_city($contactData['city'][$i] ?? '');
+            $address->set_district($contactData['district'][$i] ?? '');
             $address->set_state($contactData['state'][$i] ?? '');
             $address->set_country($contactData['country'][$i] ?? '');
             $address->set_postalcode($contactData['postalcode'][$i] ?? '');
@@ -94,7 +150,7 @@ class ContactService extends BaseService
             $contact->setPatientPid($pid);
 
             // here we can handle all of our data actions
-            if ($contactData['data_action'][$i] == 'DELETE') {
+            if ($contactData['data_action'][$i] == 'INACTIVATE') {
                 $contactAddress->deactivate();
             }
 
@@ -110,10 +166,13 @@ class ContactService extends BaseService
      * @param $pid
      * @return ContactAddress[]
      */
-    public function getContactsForPatient($pid): array
+    public function getContactsForPatient($pid, $includeInactive = false): array
     {
 
-        $sql = "SELECT ca.* FROM contact_address ca LEFT JOIN contact c ON ca.contact_id = c.id AND c.type_table_name = 'patient_data' AND c.type_table_id = ?";
+        $sql = "SELECT ca.* FROM contact_address ca LEFT JOIN contact c ON ca.contact_id = c.id AND c.foreign_table_name = 'patient_data' AND c.foreign_id = ?";
+        if ($includeInactive !== true) {
+            $sql .= " WHERE ca.status = 'A'";
+        }
         $contactData = QueryUtils::fetchRecords($sql, 'id', [$pid]) ?? [];
 //
 //       // does an O(n) fetch from the db, could be optimized later to use populate_array on the record.
@@ -125,7 +184,8 @@ class ContactService extends BaseService
             $contactAddress->populate_array($record);
             $address = $contactAddress->getAddress();
             $arrAddress = $address->toArray();
-            $arrAddress['id'] = $contactAddress->get_id();
+            // overwrite any duplicate values in address with the contact data (the id property will be contact data)
+            $arrAddress = array_merge($arrAddress, $contactAddress->toArray());
             $resultSet[] = $arrAddress;
         }
         return $resultSet;

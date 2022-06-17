@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\ContactService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -86,10 +87,10 @@ if (!$GLOBALS['omit_employers']) {
 if (!empty($addressFieldsToSave)) {
     // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
     // address information
+    // TODO: how are error messages supposed to display if the save fails?
     foreach ($addressFieldsToSave as $field => $addressFieldData) {
         // if we need to save other kinds of addresses we could do that here with our field column...
-        // TODO: We need to figure out how to put the address field we add to the database as an undeletable value...
-        $contactService = new \OpenEMR\Services\ContactService();
+        $contactService = new ContactService();
         $contactService->saveContactsForPatient($pid, $addressFieldData);
     }
 }

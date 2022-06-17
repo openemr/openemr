@@ -727,14 +727,18 @@ UPDATE `layout_options` SET `title` = 'Title' WHERE `layout_options`.`form_id` =
 UPDATE `layout_options` SET `title` = 'Name', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'fname';
 #EndIf
 
+#IfMissingColumn addresses district
+ALTER TABLE `addresses` ADD COLUMN `district` VARCHAR(255) DEFAULT NULL COMMENT 'The county or district of the address';
+#EndIf
 
 
 #IfNotTable contact
 CREATE TABLE `contact` (
    `id` BIGINT(20) NOT NULL auto_increment,
-   `type_table_name` VARCHAR(255) NOT NULL DEFAULT '',
-   `type_table_id` BIGINT(20) NOT NULL DEFAULT '0',
-   PRIMARY KEY (`id`)
+   `foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
+   `foreign_id` BIGINT(20) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`),
+   KEY (`foreign_id`)
 ) ENGINE = InnoDB;
 #EndIf
 
@@ -746,11 +750,12 @@ CREATE TABLE `contact_address` (
     `contact_id` BIGINT(20) NOT NULL,
     `address_id` BIGINT(20) NOT NULL,
     `priority` INT(11) NULL,
-    `type` VARCHAR(255) NULL COMMENT '[Values: Home, Work, Physical, Mailing, Shipping]',
+    `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
+    `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
     `notes` TEXT(255) NULL,
-    `status` BINARY(1) NULL COMMENT '[Values: Active, Inactive, etc]',
-    `is_primary` BINARY(1) NULL,
-    `created_date` DATETIME NULL,
+    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
+    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `period_start` DATETIME NULL COMMENT 'Date the address became active',
     `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
     `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
@@ -760,7 +765,7 @@ CREATE TABLE `contact_address` (
 ) ENGINE = InnoDB ;
 #EndIf
 
-#IfNotRow2D list_options list_id lists option_id address-use
+#IfNotRow2D list_options list_id lists option_id address-uses
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-uses','Address Uses',0, 1, 0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','home','Home',10,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','work','Work',20,0,1);
@@ -775,3 +780,10 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','physical','Physical',20,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','both','Postal & Physical',30,0,1);
 #EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id additional_addresses
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='street' AND form_id='DEM');
+SET @seq_add_to = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+VALUES ('DEM','additional_addresses',@group_id,'',@seq_add_to+1,54,1,0,0,'',4,4,'','','Additional Patient Addresses',0);
+#Endif

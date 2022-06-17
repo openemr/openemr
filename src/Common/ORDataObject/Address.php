@@ -27,6 +27,11 @@ class Address extends ORDataObject implements \JsonSerializable
     var $country;
 
     /**
+     * @var string The county or district of the address
+     */
+    private $district;
+
+    /**
      * Constructor sets all Address attributes to their default value
      */
     function __construct($id = "", $foreign_id = "")
@@ -41,6 +46,7 @@ class Address extends ORDataObject implements \JsonSerializable
         $this->state = "";
         $this->zip = "";
         $this->plus_four = "";
+        $this->district = "";
         $this->country = "USA";
         if ($id != "") {
             $this->populate();
@@ -73,7 +79,7 @@ class Address extends ORDataObject implements \JsonSerializable
 
     function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "FID: " . $this->foreign_id . "\n"
         . $this->line1 . "\n"
@@ -122,7 +128,7 @@ class Address extends ORDataObject implements \JsonSerializable
     }
     function get_lines_display()
     {
-        $string .= $this->get_line1();
+        $string = $this->get_line1();
         $string .= " " . $this->get_line2();
         return $string;
     }
@@ -211,6 +217,26 @@ class Address extends ORDataObject implements \JsonSerializable
     }
 
     /**
+     * @return string
+     */
+    public function get_district(): string
+    {
+        return $this->district;
+    }
+
+    /**
+     * @param string $district
+     * @return Address
+     */
+    public function set_district(string $district): Address
+    {
+        $this->district = $district;
+        return $this;
+    }
+
+
+
+    /**
      * Specify data which should be serialized to JSON
      * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,
@@ -225,6 +251,7 @@ class Address extends ORDataObject implements \JsonSerializable
             "line1" => $this->get_line1(),
             "line2" => $this->get_line2(),
             "city" => $this->get_city(),
+            "district" => $this->get_district(),
             "state" => $this->get_state(),
             "zip" => $this->get_zip(),
             "plus_four" => $this->get_plus_four(),

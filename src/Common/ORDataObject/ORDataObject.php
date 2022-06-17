@@ -54,7 +54,6 @@ class ORDataObject
 
     public function persist()
     {
-        error_log("persist method called");
         if (!$this->isObjectModified()) {
             return true;
         }
@@ -78,6 +77,8 @@ class ORDataObject
                     $val = $last_id;
                 }
 
+                // TODO: This fails to save any numeric column with a value of 0, such as a status with 0/1 being
+                // false/true, we should change this but we will need to heavily test it.
                 if (!empty($val)) {
                     if ($val instanceof \DateTime) {
                         $val = $val->format(DATE_ISO8601);

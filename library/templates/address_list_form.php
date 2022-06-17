@@ -40,7 +40,7 @@ $widgetConstants = [
         <tr>
             <th colspan="2">
                 <?php echo xlt("Additional Addresses"); ?>&nbsp;&nbsp;&nbsp;&nbsp;
-                <span class="fas fa-plus-square" style="color:#007bff;" onclick="AddAddress(event);return false"></span>
+                <span class="fas fa-plus-square text-primary" onclick="addAddress(event);return false"></span>
             </th>
         </tr>
         </thead>
@@ -51,12 +51,12 @@ $widgetConstants = [
 <template class="template_add_address">
     <div class="display_addresses row">
         <div class="noPrint col-1">
-            <span class="fas fa-fw fa-edit text-primary" onclick="EditAddress(this);return false"></span>
-            <span class="fas fa-fw fa-trash-alt text-danger" onclick="DeleteAddress(this);return false"></span>
+            <span class="fas fa-fw fa-edit text-primary btn-edit-address"></span>
+            <span class="fas fa-fw fa-trash-alt text-danger btn-delete-address"></span>
         </div>
         <div class="col-11 display_addresses_full_address"></div>
     </div>
-    <div class='d-none form_addresses row'>
+    <div class='d-none form_addresses row ml-3 mr-3 mt-2 mb-2'>
         <input type="hidden" class="form_addresses_data_action" name="<?php echo attr($name_field_id); ?>[data_action][]" value="<?php echo xla("No Change"); ?>" />
         <input type="hidden" class="form_addresses_id" name="<?php echo attr($name_field_id); ?>[id][]" value="" />
         <input type="hidden" class="form_addresses_foreign_id" name="<?php echo attr($name_field_id); ?>[foreign_id][]" value="" />
@@ -231,7 +231,7 @@ $widgetConstants = [
 
             <div class="row">
                 <div class="col-12">
-                    <input type='button' class="btn btn-primary btn-sm" style="font-size: 0.9em;" value='<?php echo xla("Close"); ?>' onclick='CloseAddressForm(this);return false' tabindex='7'>
+                    <input type='button' class="btn btn-primary btn-sm btn-close-address" value='<?php echo xla("Close"); ?>' tabindex='7'>
                 </div>
             </div>
 
@@ -289,7 +289,7 @@ $widgetConstants = [
         // go through and populate our addresses from our JSON array
         if (addresses && addresses.length && addresses.forEach) {
             addresses.forEach(function(item) {
-                CreateAddressFromJSON(tableId, item);
+                createAddressFromJSON(tableId, item);
             });
         }
 
@@ -298,47 +298,70 @@ $widgetConstants = [
 
         for (i = 0; i < full_addresses.length; ++i) {
             form_addresses = full_addresses[i].closest('.display_addresses').nextElementSibling;
-            full_addresses[i].innerText = FullAddress(form_addresses);
+            full_addresses[i].innerText = fullAddress(form_addresses);
         }
 
         //Event Listener to Update Full Address on Data Entry
-        document.getElementById(tableId).addEventListener('keyup', ChangeEdit);
-        document.getElementById(tableId).addEventListener('mouseup', ChangeEdit);
-        document.getElementById(tableId).addEventListener('touchend', ChangeEdit);
+        document.getElementById(tableId).addEventListener('keyup', changeEdit);
+        document.getElementById(tableId).addEventListener('mouseup', changeEdit);
+        document.getElementById(tableId).addEventListener('touchend', changeEdit);
         // TODO: @adunsulag need to handle the onkeyup event.
     }
 
 
 
 
-    function ChangeEdit(){
+    function changeEdit(){
+        // note we intentially keep this to be event.target as we have the event at the overarching container level
+        // and need to work on the input level.
         var row_form_addresses = event.target.closest('.form_addresses');
+        if (!row_form_addresses) {
+            console.error("Failed to find element with class .form_addresses");
+            return;
+        }
         var row_display_addresses = row_form_addresses.previousElementSibling;
+        if (!row_display_addresses) {
+            console.error("Failed to find previousElementSibling for .form_addresses");
+            return;
+        }
         var element_full_address = row_display_addresses.querySelector(".display_addresses_full_address");
-        element_full_address.innerText = FullAddress(row_form_addresses);
+        element_full_address.innerText = fullAddress(row_form_addresses);
     }
 
-    function EditAddress(element){
-        ShowElement(element.closest('.display_addresses').nextElementSibling);
+    function editAddress(evt){
+        evt.preventDefault();
+        let element = evt.currentTarget;
+        let toggleElement = element.closest('.display_addresses').nextElementSibling;
+        toggleElement.classList.remove('d-none');
     }
 
-    function CloseAddressForm(element){
+    function closeAddressForm(evt){
+        evt.preventDefault();
+        let element = evt.currentTarget;
         var row_form_addresses = element.closest('.form_addresses');
-        HideElement(row_form_addresses);
+        hideElement(row_form_addresses);
     }
 
 
 
-    function DeleteAddress(element){
-        var row_display_addresses = element.closest('.display_addresses');
+    function deleteAddress(evt){
+        evt.preventDefault();
+        var row_display_addresses = evt.currentTarget.closest('.display_addresses');
+        if (!row_display_addresses) {
+            console.error("Failed to find element with class .display_addresses");
+            return;
+        }
         var row_form_addresses = row_display_addresses.nextElementSibling;
-        let prompt = window.xl("ARE YOU REALLY REALLY SURE?");
+
+        //var row_display_addresses = element.closest('.display_addresses');
+        //var row_form_addresses = row_display_addresses.nextElementSibling;
+        let prompt = window.xl("Are you sure you wish to delete this address?");
         if (confirm(prompt)) {
             // seems odd to hide these when we can just remove them...
-            HideElement(row_display_addresses);
-            HideElement(row_form_addresses);
+            hideElement(row_display_addresses);
+            hideElement(row_form_addresses);
             // set the action to be delete so we can remove this index
-            setInputValue(element, 'input.form_addresses_data_action', ADDRESS_ACTION_VALUES.DELETE)
+            setInputValue(row_form_addresses, 'input.form_addresses_data_action', ADDRESS_ACTION_VALUES.DELETE)
         }
 
     }
@@ -361,7 +384,7 @@ $widgetConstants = [
         return node.value;
     }
 
-    function CreateAddressFromJSON(tableId, record) {
+    function createAddressFromJSON(tableId, record) {
         const row_address_template = document.querySelector(".template_add_address");
         var row_address_clone = row_address_template.content.cloneNode(true);
 
@@ -383,6 +406,10 @@ $widgetConstants = [
 
         row_address_clone.querySelector(".display_addresses_full_address").innerHTML  = "None";
 
+        row_address_clone.querySelector(".btn-edit-address").addEventListener('click', editAddress);
+        row_address_clone.querySelector(".btn-delete-address").addEventListener('click', deleteAddress);
+        row_address_clone.querySelector(".btn-close-address").addEventListener('click', closeAddressForm);
+
 
 
         let row = row_address_clone.querySelector(".form_addresses");
@@ -391,7 +418,7 @@ $widgetConstants = [
         setupListAddButtons(row);
     }
 
-    function AddAddress(event){
+    function addAddress(event){
         let target = event.currentTarget;
         let container = target.closest(".form_addresses")
         const row_address_template = document.querySelector(".template_add_address");
@@ -408,11 +435,7 @@ $widgetConstants = [
         setupListAddButtons(row);
     }
 
-    function ShowElement(element){
-        element.classList.remove('d-none');
-    }
-
-    function HideElement(element){
+    function hideElement(element){
         element.classList.add('d-none');
     }
 
@@ -441,7 +464,7 @@ $widgetConstants = [
         }
         return "";
     }
-    function FullAddress(row_form_addresses){
+    function fullAddress(row_form_addresses){
         var address = "";
         let line1 = getInputValue(row_form_addresses, "input.form_addresses_line1");
         let line2 = getInputValue(row_form_addresses, "input.form_addresses_line2");

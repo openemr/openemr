@@ -254,7 +254,8 @@ function isColumnReserved($tablename, $field_id)
             'care_team_facility',
             'name_history',
             'care_team_status',
-            'patient_groups'
+            'patient_groups',
+            'additional_addresses'
             ))
         ) {
             return true;

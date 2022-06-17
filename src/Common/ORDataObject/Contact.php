@@ -12,12 +12,12 @@ class Contact extends ORDataObject
     /**
      * @var string
      */
-    private $type_table_name;
+    private $foreign_table_name;
 
     /**
      * @var int
      */
-    private $type_table_id;
+    private $foreign_id;
 
 
     const CONTACT_TYPE_PATIENT = 'Patient';
@@ -36,8 +36,8 @@ class Contact extends ORDataObject
     public function setPatientPid($pid)
     {
         // we set our type to be patient_id and our table type here.
-        $this->type_table_name = 'patient_data';
-        $this->type_table_id = $pid;
+        $this->foreign_table_name = 'patient_data';
+        $this->foreign_id = $pid;
     }
 
     /**
@@ -61,36 +61,36 @@ class Contact extends ORDataObject
     /**
      * @return string
      */
-    public function get_type_table_name(): ?string
+    public function get_foreign_table_name(): ?string
     {
-        return $this->type_table_name;
+        return $this->foreign_table_name;
     }
 
     /**
-     * @param string $type_table_name
+     * @param string $foreign_table_name
      * @return Contact
      */
-    public function set_type_table_name(string $type_table_name): Contact
+    public function set_foreign_table_name(string $foreign_table_name): Contact
     {
-        $this->type_table_name = $type_table_name;
+        $this->foreign_table_name = $foreign_table_name;
         return $this;
     }
 
     /**
      * @return int
      */
-    public function get_type_table_id(): ?int
+    public function get_foreign_id(): ?int
     {
-        return $this->type_table_id;
+        return $this->foreign_id;
     }
 
     /**
-     * @param int $type_table_id
+     * @param int $foreign_id
      * @return Contact
      */
-    public function set_type_table_id(int $type_table_id): Contact
+    public function set_foreign_id(int $foreign_id): Contact
     {
-        $this->type_table_id = $type_table_id;
+        $this->foreign_id = $foreign_id;
         return $this;
     }
 }

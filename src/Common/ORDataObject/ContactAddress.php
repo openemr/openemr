@@ -5,13 +5,18 @@ namespace OpenEMR\Common\ORDataObject;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\Address;
 use DateTime;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
-class ContactAddress extends ORDataObject
+class ContactAddress extends ORDataObject implements \JsonSerializable
 {
-    const STATUS_ACTIVE = 1;
-    const STATUS_INACTIVE = 0;
-    const ADDRESS_TYPE_HOME = "Home";
-    const ADDRESS_TYPE_DEFAULT = "Default";
+    // ORDataObject won't save with a numeric "0", we could change the condition but we don't know the ramifications
+    // of doing that and we're short on time.  So we are switching this to string constants and letting MySQL convert it
+    // TODO: Change these to numeric values once we've fixed the issue in ORDataObject
+    const STATUS_ACTIVE = 'A';
+    const STATUS_INACTIVE = 'I';
+    const IS_PRIMARY_YES = "Y";
+    const IS_PRIMARY_NO = "N";
+    const ADDRESS_TYPE_HOME = "home";
 
     /**
      * `id` BIGINT(20) NOT NULL auto_increment,
@@ -48,7 +53,7 @@ class ContactAddress extends ORDataObject
     private $priority;
 
     /**
-     * @var string The type of address this is
+     * @var string The type of address this is (physical, postal, etc)
      */
     private $type;
 
@@ -58,7 +63,7 @@ class ContactAddress extends ORDataObject
     private $notes;
 
     /**
-     * @var Active|Inactive Whether the address is active or not
+     * @var bool Whether the address is active or not
      */
     private $status;
 
@@ -103,27 +108,30 @@ class ContactAddress extends ORDataObject
     private $_address;
 
     /**
+     * @var string The use of this address (home, work, etc)
+     */
+    private $_use;
+
+    /**
      * Constructor sets all Address attributes to their default value
      */
-    public function __construct($id = "", $foreign_table_name = "", $foreign_id = "")
+    public function __construct($id = "")
     {
         parent::__construct("contact_address");
         $this->setThrowExceptionOnError(true);
+        // we set our defaults, populate can override this if  needed.
         $this->id = $id;
+        $this->priority = 0;
+        $this->author = $_SESSION['authUser'];
+        $this->status = self::STATUS_ACTIVE;
+        $this->type = self::ADDRESS_TYPE_HOME;
+        $this->isPrimary = false;
+        $this->createdDate = new DateTime();
+        $this->periodStart = $this->createdDate;
 
         if ($id != "") {
             $this->populate();
             $this->setIsObjectModified(false);
-        } else {
-            // set our default values
-            $this->set_author($_SESSION['authUser']);
-            $this->set_status(self::STATUS_ACTIVE);
-            $this->set_priority(0);
-            $this->set_is_primary(false);
-            $this->set_type(self::ADDRESS_TYPE_HOME);
-            $this->set_is_primary(false); // default not primary
-            $this->set_created_date(new DateTime());
-            $this->set_period_start($this->get_created_date());
         }
     }
 
@@ -164,12 +172,14 @@ class ContactAddress extends ORDataObject
     {
         $this->_address = $address;
         $this->address_id = $address->get_id();
+        $this->setIsObjectModified(true);
     }
 
     public function setContact(Contact $contact)
     {
         $this->_contact = $contact;
         $this->contact_id = $contact->get_id();
+        $this->setIsObjectModified(true);
     }
 
     public function getContact(): Contact
@@ -192,6 +202,7 @@ class ContactAddress extends ORDataObject
     {
         $this->periodEnd = new DateTime();
         $this->set_status(self::STATUS_INACTIVE);
+        $this->setIsObjectModified(true);
     }
 
     private function loadAddress($id)
@@ -241,6 +252,7 @@ class ContactAddress extends ORDataObject
     public function set_contact_id(int $contact_id): ContactAddress
     {
         $this->contact_id = $contact_id;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -259,6 +271,7 @@ class ContactAddress extends ORDataObject
     public function set_address_id(int $address_id): ContactAddress
     {
         $this->address_id = $address_id;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -277,6 +290,7 @@ class ContactAddress extends ORDataObject
     public function set_priority(int $priority): ContactAddress
     {
         $this->priority = $priority;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -295,6 +309,7 @@ class ContactAddress extends ORDataObject
     public function set_type(string $type): ContactAddress
     {
         $this->type = $type;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -313,11 +328,12 @@ class ContactAddress extends ORDataObject
     public function set_notes(string $notes): ContactAddress
     {
         $this->notes = $notes;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
     /**
-     * @return int 0 for inactive 1 for active
+     * @return string
      */
     public function get_status()
     {
@@ -325,30 +341,32 @@ class ContactAddress extends ORDataObject
     }
 
     /**
-     * @param int $status 0 for inactive 1 for active
+     * @param string $status The status of the address
      * @return ContactAddress
      */
     public function set_status($status)
     {
-        $this->status = $status;
+        $this->status = $status == self::STATUS_ACTIVE ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function get_is_primary(): bool
+    public function get_is_primary(): string
     {
         return $this->isPrimary;
     }
 
     /**
-     * @param bool $isPrimary
+     * @param string $isPrimary
      * @return ContactAddress
      */
-    public function set_is_primary(bool $isPrimary): ContactAddress
+    public function set_is_primary($isPrimary): ContactAddress
     {
-        $this->isPrimary = $isPrimary;
+        $this->isPrimary = $isPrimary == self::IS_PRIMARY_YES ? self::IS_PRIMARY_YES : self::IS_PRIMARY_NO;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -367,6 +385,7 @@ class ContactAddress extends ORDataObject
     public function set_created_date(Datetime $createdDate): ContactAddress
     {
         $this->createdDate = $createdDate;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -379,12 +398,13 @@ class ContactAddress extends ORDataObject
     }
 
     /**
-     * @param Datetime $periodStart
+     * @param Datetime|null $periodStart
      * @return ContactAddress
      */
     public function set_period_start(Datetime $periodStart): ContactAddress
     {
         $this->periodStart = $periodStart;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -397,12 +417,13 @@ class ContactAddress extends ORDataObject
     }
 
     /**
-     * @param Datetime $periodEnd
+     * @param Datetime|null $periodEnd
      * @return ContactAddress
      */
-    public function set_period_end(Datetime $periodEnd): ContactAddress
+    public function set_period_end(?Datetime $periodEnd): ContactAddress
     {
         $this->periodEnd = $periodEnd;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -421,6 +442,7 @@ class ContactAddress extends ORDataObject
     public function set_author(string $author): ContactAddress
     {
         $this->author = $author;
+        $this->setIsObjectModified(true);
         return $this;
     }
 
@@ -439,6 +461,57 @@ class ContactAddress extends ORDataObject
     public function set_inactivated_reason(string $inactivated_reason): ContactAddress
     {
         $this->inactivated_reason = $inactivated_reason;
+        $this->setIsObjectModified(true);
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function get_use(): ?string
+    {
+        return $this->_use;
+    }
+
+    /**
+     * @param string $use
+     * @return ContactAddress
+     */
+    public function set_use(?string $use): ContactAddress
+    {
+        $this->_use = $use;
+        $this->setIsObjectModified(true);
+        return $this;
+    }
+
+    public function toArray()
+    {
+        return $this->jsonSerialize();
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        $result = [
+            "id" => $this->get_id(),
+            'use' => $this->get_use(),
+            'type' => $this->get_type(),
+            'author' => $this->get_author(),
+            'period_end' => null,
+            'period_start' => null
+        ];
+        if (!empty($this->get_period_end())) {
+            $result['period_end'] = DateFormatterUtils::oeFormatShortDate($this->get_period_end()->format("Y-m-d"));
+        }
+        if (!empty($this->get_period_start())) {
+            $result['period_start'] = DateFormatterUtils::oeFormatShortDate($this->get_period_start()->format("Y-m-d"));
+        }
+        return $result;
     }
 }
