@@ -37,9 +37,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 {
     const CCDA_DOCUMENT_FOLDER = "CCDA";
     public $amc_num_result = [
-            'medications' => 0,
-            'allergies' => 0,
-            'problems' => 0
+        'medications' => 0,
+        'allergies' => 0,
+        'problems' => 0
     ];
     public $searchFromDate;
     public $searchToDate;
@@ -55,8 +55,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function setOptions($options)
     {
-        $this->searchFromDate = !empty($options['date_start'] ?? null) ? date("Y-m-d", strtotime($options['date_start'])) : null;
-        $this->searchToDate = !empty($options['date_end'] ?? null) ? date("Y-m-d", strtotime($options['date_end'])) : null;
+        $this->searchFromDate = !empty($options['date_start'] ?? null) ? date("Y-m-d H:i:s", strtotime($options['date_start'])) : null;
+        $this->searchToDate = !empty($options['date_end'] ?? null) ? date("Y-m-d H:i:s", strtotime($options['date_end'])) : null;
         $this->searchFiltered = !empty($options['filter_content'] ?? false);
     }
 
@@ -959,13 +959,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $procedure = '';
-        $query = "select b.id, b.date as proc_date, b.code_text, b.code, fe.date,
+        $query = "SELECT b.id, b.date as proc_date, b.code_text, b.code, fe.date,
     u.fname, u.lname, u.mname, u.npi, u.street, u.city, u.state, u.zip,
     f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone
-    from billing as b
-        LEFT join code_types as ct on ct.ct_key
-        LEFT join codes as c on c.code = b.code AND c.code_type = ct.ct_id
-        LEFT join form_encounter as fe on fe.pid = b.pid AND fe.encounter = b.encounter
+    FROM billing as b
+    LEFT JOIN code_types as ct on ct.ct_key
+    LEFT JOIN codes as c on c.code = b.code AND c.code_type = ct.ct_id
+    LEFT JOIN form_encounter as fe on fe.pid = b.pid AND fe.encounter = b.encounter
     LEFT JOIN users AS u ON u.id = b.provider_id
     LEFT JOIN facility AS f ON f.id = fe.facility_id
         where $wherCon b.pid = ? and b.activity = ?";
@@ -975,6 +975,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $procedure = '<procedures>';
         foreach ($res as $row) {
+            if ($this->searchFiltered) {
+                if ($row['proc_date'] < $this->searchFromDate || $row['proc_date'] > $this->searchToDate) {
+                    continue;
+                }
+            }
             $procedure .= "<procedure>
             <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
             <sha_extension>" . xmlEscape("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d") . "</sha_extension>
@@ -1000,7 +1005,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <facility_zip>" . xmlEscape($row['fzip']) . "</facility_zip>
             <facility_phone>" . xmlEscape($row['fphone']) . "</facility_phone>
             <procedure_date>" . xmlEscape(preg_replace('/-/', '', substr($row['proc_date'], 0, 10))) . "</procedure_date>
-                </procedure>";
+            </procedure>";
         }
 
         $procedure .= '</procedures>';
@@ -1035,6 +1040,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $results_list = array();
         foreach ($res as $row) {
+            if ($this->searchFiltered) {
+                if ($row['date_ordered'] < $this->searchFromDate || $row['date_ordered'] > $this->searchToDate) {
+                    continue;
+                }
+            }
             if (empty($row['result_code']) && empty($row['abnormal_flag'])) {
                 continue;
             }
@@ -1122,6 +1132,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if ($encounter) {
             $wherCon = " fe.encounter = ? AND ";
             $sqlBindArray[] = $encounter;
+        }
+        if ($this->searchFiltered) {
+            $wherCon = " fe.date BETWEEN ? and ? AND ";
+            $sqlBindArray[] = $this->searchFromDate;
+            $sqlBindArray[] = $this->searchToDate;
         }
 
         $results = "";
@@ -2589,7 +2604,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
 
-
         $mimeType = "text/xml";
 
         try {
@@ -2644,6 +2658,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * Retrieves the most recent patient referral found in the transactions table or null if none is found.
+     *
      * @param $pid
      * @return int|null
      */
@@ -2673,7 +2688,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * Marks a ccda as having all of the requisite data to be counted for the send summary of care amc rule
-     * @param $pid number The patient identifier
+     *
+     * @param $pid        number The patient identifier
      * @param $referralId number The id of the referral stored in the transactions table
      */
     private function logAmc($pid, $referralId)
@@ -2852,6 +2868,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $wherCon = '';
         $appTable = new ApplicationTable();
+        $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0, $pid];
         if ($encounter) {
             $query = "SELECT form_id, encounter FROM forms  WHERE pid = ? AND formdir = ? AND deleted = 0 ORDER BY date DESC LIMIT 1";
             $result = $appTable->zQuery($query, array($pid, 'care_plan'));
@@ -2865,7 +2882,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         UuidRegistry::createMissingUuidsForTables(['lists']);
-
         $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues
             FROM forms AS f
             LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
@@ -2881,13 +2897,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to'
             LEFT JOIN users AS u ON u.id = l3.field_value
             WHERE t.pid = ?";
-        $res = $appTable->zQuery($query, ['Plan_of_Care_Type', $pid, 'care_plan', 0, $pid]);
+        $res = $appTable->zQuery($query, $sqlBindArray);
         $status = 'Pending';
         $status_entry = 'active';
         $planofcare = '<planofcare>';
         $goals = '<goals>';
         $concerns = '<health_concerns>';
         foreach ($res as $row) {
+            if ($this->searchFiltered) {
+                if ($row['date'] < $this->searchFromDate || $row['date'] > $this->searchToDate) {
+                    continue;
+                }
+            }
             $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', $row['description']);
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
@@ -2997,26 +3018,27 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $res = $appTable->zQuery($query, $sqlBindArray);
 
         foreach ($res as $row) {
+            // $row['activity'] designates functional or cognitive status
             if ($row['activity'] == 1) {
                 $cognitive_status .= '<item>
-        <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
-        <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
-        <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
-        <date>' . xmlEscape($row['date']) . '</date>
-        <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
-        <status>' . xmlEscape('completed') . '</status>
-        <age>' . xmlEscape($this->getAge($pid)) . '</age>
-        </item>';
+    <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
+    <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
+    <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
+    <date>' . xmlEscape($row['date']) . '</date>
+    <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
+    <status>' . xmlEscape('completed') . '</status>
+    <age>' . xmlEscape($this->getAge($pid)) . '</age>
+    </item>';
             } else {
                 $functional_status .= '<item>
-        <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
-        <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
-        <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
-        <date>' . xmlEscape($row['date']) . '</date>
-        <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
-        <status>' . xmlEscape('completed') . '</status>
-        <age>' . xmlEscape($this->getAge($pid)) . '</age>
-        </item>';
+    <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
+    <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
+    <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
+    <date>' . xmlEscape($row['date']) . '</date>
+    <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
+    <status>' . xmlEscape('completed') . '</status>
+    <age>' . xmlEscape($this->getAge($pid)) . '</age>
+    </item>';
             }
         }
         $functional_status .= '</functional_status>';
@@ -3050,6 +3072,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $clinical_notes .= '<clinical_notes>';
         foreach ($res as $row) {
+            if ($this->searchFiltered) {
+                if ($row['date'] < $this->searchFromDate || $row['date'] > $this->searchToDate) {
+                    continue;
+                }
+            }
             if (empty($row['clinical_notes_type'])) {
                 continue;
             }
@@ -3129,19 +3156,24 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getReferrals($pid, $encounter)
     {
-        // patched out because I can't think of a reason to send a list of referrals
-        /*$wherCon = '';
+        $wherCon = '';
         if ($encounter) {
             $wherCon = "ORDER BY date DESC LIMIT 1";
-        }*/
-        $wherCon = "ORDER BY date DESC LIMIT 1";
+        }
+        $wherCon .= "ORDER BY date DESC LIMIT 1";
 
         $appTable = new ApplicationTable();
-        $query = "SELECT field_value FROM transactions JOIN lbt_data ON form_id=id AND field_id = 'body' WHERE pid = ? $wherCon";
+        $query = "SELECT field_value, date FROM transactions JOIN lbt_data ON form_id=id AND field_id = 'body' WHERE pid = ? $wherCon";
         $result = $appTable->zQuery($query, array($pid));
         $referrals = '<referral_reason>';
         foreach ($result as $row) {
-            $referrals .= '<text>' . xmlEscape($row['field_value']) . '</text>';
+            if ($this->searchFiltered) {
+                if ($row['date'] < $this->searchFromDate || $row['date'] > $this->searchToDate) {
+                    continue;
+                }
+            }
+            $referrals .= '<text>' . xmlEscape($row['field_value']) . '</text>
+                           <date>' . xmlEscape($row['date']) . '</date>';
         }
 
         $referrals .= '</referral_reason>';
