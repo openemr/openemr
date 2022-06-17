@@ -176,16 +176,17 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($addresses as $a) {
             $start = !empty($a['period_start'] ?? null) ? date("Ymd", strtotime($a['period_start'])) : null;
             $end = !empty($a['period_end'] ?? null) ? date("Ymd", strtotime($a['period_end'])) : null;
-            $previous_addresses .= "
+            $previous_addresses .= "<address>
             <use>" . xmlEscape($a['use'] ?? 'H') . "</use>
             <street>" . xmlEscape($a['line1'] ?? '') . "</street>
             <street>" . xmlEscape($a['line2'] ?? '') . "</street>
             <city>" . xmlEscape($a['city'] ?? '') . "</city>
             <state>" . xmlEscape($a['state'] ?? '') . "</state>
-            <postalCode>" . xmlEscape($a['postal_code'] ?? '') . "</postalCode>
-            <country>" . xmlEscape($a['country_code'] ?? '') . "</country>
+            <postalCode>" . xmlEscape($a['zip'] ?? '') . "</postalCode>
+            <country>" . xmlEscape($a['country'] ?? '') . "</country>
             <period_start>" . xmlEscape($start) . "</period_start>
             <period_end>" . xmlEscape($end) . "</period_end>
+            </address>
             ";
         }
         $previous_addresses .= "</previous_addresses>";
