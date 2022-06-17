@@ -28,7 +28,7 @@ function doTemplateEditor(_this, event, oContext = '') {
 }
 
 const bindTextArea = function () {
-    const teventElement = document.querySelectorAll("textarea, input[type='text']");
+    const teventElement = document.querySelectorAll("textarea, input[type='text']:not(.skip-template-editor)");
     if (typeof teventElement === 'undefined' || teventElement === null) {
         return false;
     }

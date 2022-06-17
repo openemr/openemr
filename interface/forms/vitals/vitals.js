@@ -69,14 +69,19 @@
         if (value != "") {
             let convValue = convUnit(system, unit, value);
             if (!isNaN(convValue)) {
-                inputSave.value = convValue;
                 inputConv.value = convValue.toFixed(precision);
+                // all values are saved in usa system units
+                if (system !== "usa") {
+                    inputSave.value = inputSave.value = convValue;
+                } else {
+                    inputSave.value = value;
+                }
             } else {
                 console.error("Failed to get valid number for input with id ", node.id, " with value ", value);
             }
         } else {
-            targetSaveUnit.value = "";
-            targetInputConv.value = "";
+            inputSave.value = "";
+            inputConv.value = "";
         }
 
         if (targetSaveUnit == "weight_input" || targetSaveUnit == "height_input") {
@@ -180,7 +185,6 @@ function convLbtoKg(value) {
     }
     else if (lb == parseFloat(lb)) {
         kg = lb*0.45359237;
-        kg = kg.toFixed(6);
         return kg;
     }
     else {
@@ -273,12 +277,12 @@ function calculateBMI() {
     let precision = vitalsGetPrecision(bmiNode, 2);
 
     let heightNode = document.getElementById("height_input");
-    if (!bmiNode) {
+    if (!heightNode) {
         console.error("Failed to find node with id height_input");
         return;
     }
     let weightNode = document.getElementById("weight_input");
-    if (!bmiNode) {
+    if (!weightNode) {
         console.error("Failed to find node with id weight_input");
         return;
     }
