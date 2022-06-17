@@ -1161,7 +1161,7 @@ CREATE TABLE `contact_address` (
     `priority` INT(11) NULL,
     `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
     `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
-    `notes` TEXT(255),
+    `notes` TEXT,
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
     `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -3497,7 +3497,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'phone_cell', '2', 'Mobile Phone', 13, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'email', '2', 'Contact Email', 14, 2, 1, 30, 95, '', 1, 1, '', '', 'Contact Email Address', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'email_direct', '2', 'Trusted Email', 15, 2, 1, 30, 95, '', 1, 1, '', '', 'Trusted Direct Email Address', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM','additional_addresses','2','Additional Addresses',16,54,1,0,0,'',4,4,'','','Additional Patient Addresses',0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM','additional_addresses','2','',16,54,1,0,0,'',4,4,'','','Additional Patient Addresses',0);
 -- choices
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'providerID', '3', 'Provider', 10, 11, 1, 0, 0, '', 1, 1, '', '', 'Provider', 0);
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','provider_since_date','3','Provide Since Date',15,4,1,10,10,'',1,1,'','','Patient assigned provider since date.',0);
