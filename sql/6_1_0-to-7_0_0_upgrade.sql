@@ -752,7 +752,7 @@ CREATE TABLE `contact_address` (
     `priority` INT(11) NULL,
     `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
     `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
-    `notes` TEXT(255) NULL,
+    `notes` TEXT(255),
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
     `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
