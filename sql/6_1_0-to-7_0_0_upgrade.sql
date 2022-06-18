@@ -923,10 +923,10 @@ UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` 
 UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Asian Indian';
 #Endif
 
-#IfNotIndex patient_history idx_pid
+#IfNotIndex patient_history pid_idx
 ALTER TABLE patient_history ADD INDEX `pid_idx` (`pid`);
 #EndIf
 
-#IfNotIndex contact_address
+#IfNotIndex contact_address contact_address_idx
 ALTER TABLE contact_address ADD INDEX `contact_address_idx` (`contact_id`,`address_id`);
 #EndIf
