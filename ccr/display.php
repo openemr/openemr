@@ -8,6 +8,7 @@
  * @author    Ajil P.M <ajilpm@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @deprecated 7.0.0 People should use the /interface/modules/zend_modules/public/encountermanager/previewDocument?docId=<id> REST action instead of this file
  * @copyright Copyright (c) 2011 Z&H Consultancy Services Private Limited <ajilpm@zhservices.com>
  * @copyright Copyright (c) 2013 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
