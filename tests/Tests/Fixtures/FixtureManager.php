@@ -185,7 +185,7 @@ class FixtureManager
         $entry = $this->getSingleEntry($this->patientFixtures);
         $address = $this->getSingleEntry($this->addressFixtures);
         $contactAddress = $this->getSingleEntry($this->contactAddressFixtures);
-        $contactAddress['contact_id'] = hexdec( uniqid() ); // just need a random unique id
+        $contactAddress['contact_id'] = hexdec(uniqid()); // just need a random unique id
         unset($contactAddress['address_id']);
 
         // now combine our contact address and address for our unique address information
