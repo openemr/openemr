@@ -98,7 +98,13 @@ function cleanCode(code) {
 function isOne(who) {
     try {
         if (who !== null && typeof who === 'object') {
-            return (who.hasOwnProperty('npi') || who.hasOwnProperty('code') || who.hasOwnProperty('extension') || who.hasOwnProperty('id') || who.hasOwnProperty('date')) ? 1 : Object.keys(who).length;
+            return (who.hasOwnProperty('npi')
+                || who.hasOwnProperty('code')
+                || who.hasOwnProperty('extension')
+                || who.hasOwnProperty('id')
+                || who.hasOwnProperty('date')
+                || who.hasOwnProperty('use')
+            ) ? 1 : Object.keys(who).length;
         }
     } catch (e) {
         return false;
@@ -107,11 +113,86 @@ function isOne(who) {
 }
 
 function headReplace(content) {
-    let xslUrl = "CDA.xsl";
+    let xslUrl = "cda.xsl";
     let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
         '<?xml-stylesheet type="text/xsl" href="' + xslUrl + '"?>';
     r += "\n" + content.substr(content.search(/<ClinicalDocument/i));
     return r;
+}
+
+function fetchPreviousAddresses(pd) {
+    let addressArray = [];
+    let pa = pd.previous_addresses.address;
+    let streetLine = [pd.street[0]];
+    if (pd.street[1].length > 0) {
+        streetLine = [pd.street[0], pd.street[1]];
+    }
+    addressArray.push({
+        "use": "HP",
+        "street_lines": streetLine,
+        "city": pd.city,
+        "state": pd.state,
+        "zip": pd.postalCode,
+        "country": pd.country || "US",
+        "date_time": {
+            // use current date for current residence
+            "low": {
+                "date": fDate(""),
+                "precision": "day"
+            }
+        }
+    });
+    let count = isOne(pa);
+    if (count === 1) {
+        streetLine = [pa.street[0]];
+        if (pa.street[1].length > 0) {
+            streetLine = [pa.street[0], pa.street[1]];
+        }
+        addressArray.push({
+            "use": pa.use,
+            "street_lines": streetLine,
+            "city": pa.city,
+            "state": pa.state,
+            "zip": pa.postalCode,
+            "country": pa.country || "US",
+            "date_time": {
+                "low": {
+                    "date": pa.period_start,
+                    "precision": "day"
+                },
+                "high": {
+                    "date": pa.period_end || fDate(""),
+                    "precision": "day"
+                }
+            }
+        });
+    } else if (count > 1) {
+        for (let i in pa) {
+            streetLine = [pa[i].street[0]];
+            if (pa[i].street[1].length > 0) {
+                streetLine = [pa[i].street[0], pa[i].street[1]];
+            }
+            addressArray.push({
+                "use": pa[i].use,
+                "street_lines": streetLine,
+                "city": pa[i].city,
+                "state": pa[i].state,
+                "zip": pa[i].postalCode,
+                "country": pa[i].country || "US",
+                "date_time": {
+                    "low": {
+                        "date": pa[i].period_start,
+                        "precision": "day"
+                    },
+                    "high": {
+                        "date": pa[i].period_end || fDate(""),
+                        "precision": "day"
+                    }
+                }
+            });
+        }
+    }
+    return addressArray;
 }
 
 function populateDemographic(pd, g) {
@@ -143,6 +224,7 @@ function populateDemographic(pd, g) {
     if (pd.ethnicity === 'Declined To Specify' || pd.ethnicity === '') {
         pd.ethnicity = "null_flavor";
     }
+    let addressArray = fetchPreviousAddresses(pd);
     return {
         "name": {
             "prefix": pd.prefix,
@@ -168,14 +250,7 @@ function populateDemographic(pd, g) {
             "extension": "PT-" + pd.id
         }],
         "marital_status": pd.status.toUpperCase(),
-        "addresses": [{
-            "street_lines": [pd.street],
-            "city": pd.city,
-            "state": pd.state,
-            "zip": pd.postalCode,
-            "country": pd.country || "US",
-            "use": "primary home"
-        }],
+        "addresses": addressArray,
         "phone": [
             {
                 "number": pd.phone_home,

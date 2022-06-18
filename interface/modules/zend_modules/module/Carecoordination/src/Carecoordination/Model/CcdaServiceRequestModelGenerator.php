@@ -50,12 +50,14 @@ class CcdaServiceRequestModelGenerator
 
     public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason, int $send = null, $date_options = [])
     {
+        global $assignedEntity;
+        global $representedOrganization;
+
+        $this->getEncounterccdadispatchTable()->setOptions($date_options);
+
         if (!$send) {
             $send = 0;
         }
-
-        global $assignedEntity;
-        global $representedOrganization;
         $sections_list = explode('|', $sections);
         $components_list = explode('|', $components);
         $this->createdtime = time();
