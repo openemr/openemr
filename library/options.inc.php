@@ -3558,6 +3558,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
             $jump_new_row = isOption($frow['edit_options'], 'J');
             $prepend_blank_row = isOption($frow['edit_options'], 'K');
             $portal_exclude = (!empty($_SESSION["patient_portal_onsite_two"]) && isOption($frow['edit_options'], 'EP')) ?? null;
+            $span_col_row = isOption($frow['edit_options'], 'SP');
 
             if (!empty($portal_exclude)) {
                 continue;
@@ -3624,13 +3625,14 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new label cell.
-                if ($titlecols > 0) {
+                if ($titlecols > 0 || $span_col_row) {
                     disp_end_cell();
-                    //echo "<td class='label_custom align-top' colspan='$titlecols'";
+                    $titlecols = $span_col_row ? 0 : $titlecols;
                     $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
-                    echo "<td class='label_custom' colspan='$titlecols_esc' ";
-                    //if ($cell_count == 2) echo " style='padding-left:10pt'";
-                    echo ">";
+                    if (!$span_col_row) {
+                        echo "<td class='label_custom' colspan='$titlecols_esc' ";
+                        echo ">";
+                    }
                     $cell_count += $titlecols;
                 }
 
@@ -3651,10 +3653,9 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
                     disp_end_cell();
-                    //echo "<td class='text data align-top' colspan='$datacols'";
+                    $datacols = $span_col_row ? $CPR : $datacols;
                     $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
                     echo "<td class='text data' colspan='$datacols_esc'";
-                    //if ($cell_count > 0) echo " style='padding-left:5pt'";
                     echo ">";
                     $cell_count += $datacols;
                 }
@@ -3794,6 +3795,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 $edit_options  = $group_fields['edit_options'];
                 $jump_new_row = isOption($edit_options, 'J');
                 $prepend_blank_row = isOption($edit_options, 'K');
+                $span_col_row = isOption($edit_options, 'SP');
 
                 if ($formtype == 'DEM') {
                     if (strpos($field_id, 'em_') === 0) {
@@ -3856,12 +3858,15 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new label cell.
-                if ($titlecols > 0) {
+                if ($titlecols > 0 || $span_col_row) {
                     disp_end_cell();
+                    $titlecols = $span_col_row ? 0 : $titlecols;
                     $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
                     $field_id_label = 'label_' . $group_fields['field_id'];
-                    echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
-                    echo ">";
+                    if (!$span_col_row) {
+                        echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
+                        echo ">";
+                    }
                     $cell_count += $titlecols;
                 }
 
@@ -3891,6 +3896,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
                     disp_end_cell();
+                    $datacols = $span_col_row ? $CPR : $datacols;
                     $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
                     $field_id = 'text_' . $group_fields['field_id'];
                     echo "<td class='text data' colspan='$datacols_esc' id='" . attr($field_id) . "'  data-value='" . attr($currvalue) . "'";
@@ -4089,6 +4095,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 $action     = 'skip';
                 $jump_new_row = isOption($group_fields['edit_options'], 'J');
                 $prepend_blank_row = isOption($group_fields['edit_options'], 'K');
+                $span_col_row = isOption($group_fields['edit_options'], 'SP');
 
                 // Accumulate action conditions into a JSON expression for the browser side.
                 accumActionConditions($group_fields, $condition_str);
@@ -4149,8 +4156,9 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new label cell.
-                if ($titlecols > 0) {
+                if ($titlecols > 0 || $span_col_row) {
                     bs_disp_end_cell();
+                    $titlecols = $span_col_row ? 0 : $titlecols;
                     $bs_cols = $titlecols * intval(12 / $CPR);
                     echo "<div class='$BS_COL_CLASS-$bs_cols pt-1 label_custom' ";
                     echo "id='label_id_" . attr($field_id) . "'";
@@ -4181,6 +4189,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 if ($datacols > 0) {
                     bs_disp_end_cell();
                     $field_id = 'text_' . $group_fields['field_id'];
+                    $datacols = $span_col_row ? $CPR : $datacols;
                     $bs_cols = $datacols * intval(12 / $CPR);
                     echo "<div class='$BS_COL_CLASS-$bs_cols'";
                     echo " id='value_id_" . attr($field_id) . "'";
