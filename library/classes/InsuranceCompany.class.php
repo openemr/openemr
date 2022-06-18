@@ -14,6 +14,7 @@
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Common\ORDataObject\Address;
 
 /**
  * class Insurance Company

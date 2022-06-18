@@ -210,5 +210,17 @@ $(function () {
 
     }  // end SaveNewListItem
 
+    // let's expose some of these options so that others can use them if they are using the options.inc.php piece
+    let optionWidgets = {
+        CancelAddToList: CancelAddToList
+        ,AddToList: AddToList
+        ,SaveNewListItem: SaveNewListItem
+    };
+
+    if (!window.oeUI) {
+        window.oeUI = {};
+    }
+    window.oeUI.optionWidgets = optionWidgets;
+
 }); // end jQuery .ready
 </script>

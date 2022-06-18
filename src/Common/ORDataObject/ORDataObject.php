@@ -11,12 +11,16 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class ORDataObject
 {
+    private $_isObjectModified;
+    private $_throwExceptionOnError;
     protected $_prefix;
     protected $_table;
     public $_db; // Need to be public so can access from C_Document class
 
     public function __construct($table = null, $prefix = null)
     {
+        // default is to just die in SQL
+        $this->setThrowExceptionOnError(false);
         // TODO: with testing we could probably remove the isset... but we will leave this here until there are more
         // unit tests saying this doesn't break subclass constructors
         if (isset($table)) {
@@ -27,10 +31,33 @@ class ORDataObject
         }
 
         $this->_db = $GLOBALS['adodb']['db'];
+
+        // TODO: @adunsulag at some point we need to set this default to false
+        // currently most objects assume we need to save when we call persist
+        $this->setIsObjectModified(true);
+    }
+
+    public function markObjectModified()
+    {
+        $this->_isObjectModified = true;
+    }
+
+    public function isObjectModified()
+    {
+        return $this->_isObjectModified;
+    }
+
+    protected function setIsObjectModified($isModified)
+    {
+        $this->_isObjectModified = $isModified;
     }
 
     public function persist()
     {
+        if (!$this->isObjectModified()) {
+            return true;
+        }
+
         // NOTE: REPLACE INTO does a DELETE and then INSERT, if you have foreign keys setup the delete call will trigger
         $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
@@ -50,7 +77,12 @@ class ORDataObject
                     $val = $last_id;
                 }
 
+                // TODO: This fails to save any numeric column with a value of 0, such as a status with 0/1 being
+                // false/true, we should change this but we will need to heavily test it.
                 if (!empty($val)) {
+                    if ($val instanceof \DateTime) {
+                        $val = $val->format(DATE_ISO8601);
+                    }
                     //echo "s: $field to: $val <br />";
 
                                         //modified 01-2010 by BGM to centralize to formdata.inc.php
@@ -67,27 +99,19 @@ class ORDataObject
                 $sql = substr($sql, 0, (strlen($sql) - 1));
         }
 
-        //echo "<br />sql is: " . $sql . "<br /><br />";
-        sqlQuery($sql);
+        if ($this->_throwExceptionOnError) {
+            QueryUtils::sqlStatementThrowException($sql, []);
+        } else {
+            sqlQuery($sql);
+        }
         return true;
     }
 
     public function populate()
     {
         $sql = "SELECT * from " . escape_table_name($this->_prefix . $this->_table) . " WHERE id = ?";
-        $results = sqlQuery($sql, [strval($this->id)]);
-        if (is_array($results)) {
-            foreach ($results as $field_name => $field) {
-                $func = "set_" . $field_name;
-                //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
-                if (is_callable(array($this,$func))) {
-                    if (!empty($field)) {
-                        //echo "s: $field_name to: $field <br />";
-                        call_user_func(array(&$this,$func), $field);
-                    }
-                }
-            }
-        }
+        $results = sqlQuery($sql, [strval($this->get_id())]);
+        $this->populate_array($results);
     }
 
     public function populate_array($results)
@@ -117,6 +141,16 @@ class ORDataObject
             }
         }
         return $values;
+    }
+
+    public function shouldthrowExceptionOnError()
+    {
+        return $this->_throwExceptionOnError;
+    }
+
+    public function setThrowExceptionOnError($throwException)
+    {
+        $this->_throwExceptionOnError = $throwException;
     }
 
     /**

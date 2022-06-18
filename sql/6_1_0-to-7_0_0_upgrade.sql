@@ -727,6 +727,67 @@ UPDATE `layout_options` SET `title` = 'Title' WHERE `layout_options`.`form_id` =
 UPDATE `layout_options` SET `title` = 'Name', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'fname';
 #EndIf
 
+#IfMissingColumn addresses district
+ALTER TABLE `addresses` ADD COLUMN `district` VARCHAR(255) DEFAULT NULL COMMENT 'The county or district of the address';
+#EndIf
+
+
+#IfNotTable contact
+CREATE TABLE `contact` (
+   `id` BIGINT(20) NOT NULL auto_increment,
+   `foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
+   `foreign_id` BIGINT(20) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`),
+   KEY (`foreign_id`)
+) ENGINE = InnoDB;
+#EndIf
+
+
+
+#IfNotTable contact_address
+CREATE TABLE `contact_address` (
+    `id` BIGINT(20) NOT NULL auto_increment,
+    `contact_id` BIGINT(20) NOT NULL,
+    `address_id` BIGINT(20) NOT NULL,
+    `priority` INT(11) NULL,
+    `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
+    `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
+    `notes` TINYTEXT,
+    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
+    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `period_start` DATETIME NULL COMMENT 'Date the address became active',
+    `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
+    `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
+    PRIMARY KEY (`id`),
+    KEY (`contact_id`),
+    KEY (`address_id`)
+) ENGINE = InnoDB ;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id address-uses
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-uses','Address Uses',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','home','Home',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','work','Work',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','temp','Temporary',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','old','Old/Incorrect',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','billing','Billing',50,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id address-types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-types','Address Types',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','postal','Postal',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','physical','Physical',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','both','Postal & Physical',30,0,1);
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id additional_addresses
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='street' AND form_id='DEM');
+SET @seq_add_to = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+VALUES ('DEM','additional_addresses',@group_id,'',@seq_add_to+1,54,1,0,0,'',4,4,'','','Additional Patient Addresses',0);
+#Endif
+
 #IfNotColumnType form_vitals weight DECIMAL(12,6)
 ALTER TABLE form_vitals ADD `weight_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient weight stored in imperial lbs' AFTER `height`;
 UPDATE form_vitals SET weight_dec=CAST(weight AS DECIMAL(12,2));
@@ -861,3 +922,11 @@ UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` 
 UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Korean';
 UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Asian Indian';
 #Endif
+
+#IfNotIndex patient_history pid_idx
+ALTER TABLE patient_history ADD INDEX `pid_idx` (`pid`);
+#EndIf
+
+#IfNotIndex contact_address contact_address_idx
+ALTER TABLE contact_address ADD INDEX `contact_address_idx` (`contact_id`,`address_id`);
+#EndIf

@@ -1,0 +1,29 @@
+[
+  {
+    "line1": "72 Rolling Green Ave"
+    ,"line2": ""
+    ,"city" : "Los Angeles"
+    ,"district": ""
+    ,"state" : "CA"
+    ,"postal_code": "90210"
+    ,"country_code": "USA"
+  }
+  ,{
+    "line1": "789 Third Avenue"
+    ,"line2": ""
+    ,"city" : "San Diego"
+    ,"district": ""
+    ,"state" : "CA"
+    ,"postal_code": "90210"
+    ,"country_code": "USA"
+  }
+  ,{
+    "line1": "155 First Avenue"
+    ,"line2": ""
+    ,"city" : "San Luis"
+    ,"district": ""
+    ,"state" : "CA"
+    ,"postal_code": "92101"
+    ,"country_code": "USA"
+  }
+]

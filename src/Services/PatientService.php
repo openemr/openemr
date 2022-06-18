@@ -17,6 +17,8 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
@@ -298,6 +300,9 @@ class PatientService extends BaseService
         if (!empty($record['uuid'])) {
             $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
         }
+        if (!empty($record['patient_history_uuid'])) {
+            $record['patient_history_uuid'] = UuidRegistry::uuidToString($record['patient_history_uuid']);
+        }
 
         return $record;
     }
@@ -323,7 +328,8 @@ class PatientService extends BaseService
             } else if (isset($search['uuid'])) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
-            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title');
+            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
+            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode');
             foreach ($wildcardFields as $field) {
                 if (isset($search[$field])) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
@@ -341,8 +347,14 @@ class PatientService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql = "SELECT
+        // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
+        // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
+        // patient history, address) we have to grab all of our patients uuids and then run our query AGAIN without any
+        // search filters so that we can make sure to grab the ENTIRE patient record (all of their names, addresses, etc).
+        $sqlSelectIds = "SELECT DISTINCT patient_data.uuid ";
+        $sqlSelectData = "SELECT
                     patient_data.*
+                    ,patient_history_uuid
                     ,patient_history_type_key
                     ,previous_name_first
                     ,previous_name_prefix
@@ -351,6 +363,9 @@ class PatientService extends BaseService
                     ,previous_name_last
                     ,previous_name_suffix
                     ,previous_name_enddate
+                    ,patient_additional_addresses.*
+        ";
+        $sql = "
                 FROM patient_data
                 LEFT JOIN (
                     SELECT
@@ -365,14 +380,46 @@ class PatientService extends BaseService
                     ,`date` AS previous_creation_date
                     ,uuid AS patient_history_uuid
                     FROM patient_history
-                ) patient_history ON patient_data.pid = patient_history.patient_history_pid";
-        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+                ) patient_history ON patient_data.pid = patient_history.patient_history_pid
+                LEFT JOIN (
+                    SELECT  
+                        contact.id AS contact_address_contact_id
+                        ,contact.foreign_id AS contact_address_patient_id
+                        ,contact_address.`id` AS contact_address_id
+                        ,contact_address.`priority` AS contact_address_priority
+                        ,contact_address.`type` AS contact_address_type
+                        ,contact_address.`use` AS contact_address_use
+                        ,contact_address.`is_primary` AS contact_address_is_primary
+                        ,contact_address.`created_date` AS contact_address_created_date
+                        ,contact_address.`period_start` AS contact_address_period_start
+                        ,contact_address.`period_end` AS contact_address_period_end
+                        ,addresses.id AS contact_address_address_id
+                        ,addresses.`line1` AS contact_address_line1
+                        ,addresses.`line2` AS contact_address_line2
+                        ,addresses.`city` AS contact_address_city
+                        ,addresses.`district` AS contact_address_district
+                        ,addresses.`state` AS contact_address_state
+                        ,addresses.`zip` AS contact_address_postal_code
+                        ,addresses.`country` AS contact_address_country
+                    FROM contact
+                    INNER JOIN contact_address ON contact.id = contact_address.contact_id
+                    INNER JOIN addresses ON contact_address.address_id = addresses.id
+                    WHERE `contact_address`.`status`='A' AND contact.foreign_table_name='patient_data'
+                ) patient_additional_addresses ON patient_data.pid = patient_additional_addresses.contact_address_patient_id";
+        $whereUuidClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $sql .= $whereClause->getFragment();
-        $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $sqlUuids = $sqlSelectIds . $sql . $whereUuidClause->getFragment();
+        $uuidResults = QueryUtils::fetchTableColumn($sqlUuids, 'uuid', $whereUuidClause->getBoundValues());
 
-        $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+        if (!empty($uuidResults)) {
+            // now we are going to run through this again and grab all of our data w only the uuid search as our filter
+            // this makes sure we grab the entire patient record and associated data
+            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(function ($uuid) {
+                return "?";
+            }, $uuidResults)) . ")";
+            $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
+            $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+        }
         return $processingResult;
     }
 
@@ -380,13 +427,15 @@ class PatientService extends BaseService
     {
         $processingResult = new ProcessingResult();
         $patientsByUuid = [];
+        $alreadySeenPatientHistoryUuids = [];
+        $alreadySeenContactAddressIds = [];
         $patientFields = array_combine($this->getFields(), $this->getFields());
         $previousNameColumns = ['previous_name_prefix', 'previous_name_first', 'previous_name_middle'
             , 'previous_name_last', 'previous_name_suffix', 'previous_name_enddate'];
         $previousNamesFields = array_combine($previousNameColumns, $previousNameColumns);
         $patientOrderedList = [];
         while ($row = sqlFetchArray($queryResource)) {
-            $record = $this->createResultRecordFromDatabaseResult($row);
+                $record = $this->createResultRecordFromDatabaseResult($row);
             $patientUuid = $record['uuid'];
             if (!isset($patientsByUuid[$patientUuid])) {
                 $patient = array_intersect_key($record, $patientFields);
@@ -396,12 +445,25 @@ class PatientService extends BaseService
             } else {
                 $patient = $patientsByUuid[$patientUuid];
             }
-            if (!empty($record['patient_history_type_key'])) {
-                if ($record['patient_history_type_key'] == 'name_history') {
+            // we only want to populate our patient history records if we haven't seen this uuid before and we are working
+            // with a name history record...
+            if (
+                !empty($record['patient_history_type_key'])
+                && empty($alreadySeenPatientHistoryUuids[$record['patient_history_uuid']])
+                && $record['patient_history_type_key'] == 'name_history'
+            ) {
+                $alreadySeenPatientHistoryUuids[$record['patient_history_uuid']] = $record['patient_history_uuid'];
                     $previousName = array_intersect_key($record, $previousNamesFields);
                     $previousName['formatted_name'] = $this->formatPreviousName($previousName);
                     $patient['previous_names'][] = $previousName;
-                }
+            }
+            if (empty($patient['addresses'])) {
+                $patient['addresses'] = [$this->hydratedPatientInitialAddressInformation($patient)];
+            }
+
+            // now we are going to keep track of our address information
+            if (!empty($record['contact_address_id']) && empty($alreadySeenContactAddressIds[$record['contact_address_id']])) {
+                $patient['addresses'][] = $this->hydratePatientAdditionalAddressInformation($record);
             }
 
             // now let's grab our history
@@ -412,6 +474,51 @@ class PatientService extends BaseService
             $processingResult->addData($patient);
         }
         return $processingResult;
+    }
+
+    private function hydratePatientAdditionalAddressInformation(&$record)
+    {
+        $address = [
+            'id' => $record['contact_address_address_id'] ?? null
+            ,'contact_id' => $record['contact_address_contact_id'] ?? null
+            ,'contact_address_id' => $record['contact_address_id'] ?? null
+            ,'period_start' => $record['contact_address_period_start'] ?? date("Y-m-d 00:00:00")
+            ,'period_end' => $record['contact_address_period_end'] ?? null
+            ,'type' => $record['contact_address_type'] ?? ContactAddress::DEFAULT_TYPE
+            ,'use' => $record['contact_address_use'] ?? ContactAddress::DEFAULT_USE
+            ,'priority' => $record['contact_address_address_priority'] ?? 0
+            ,'line1' => $record['contact_address_line1'] ?? ''
+            ,'line2' => $record['contact_address_line2'] ?? ''
+            ,'city' => $record['contact_address_city'] ?? ''
+            ,'district' => $record['contact_address_district'] ?? ''
+            ,'state' => $record['contact_address_state'] ?? ''
+            ,'postal_code' => $record['contact_address_postal_code'] ?? ''
+            ,'country_code' => $record['contact_address_country'] ?? ''
+        ];
+        return $address;
+    }
+
+    private function hydratedPatientInitialAddressInformation(&$patient)
+    {
+        // we need to setup our initial address from the patient records if we have one
+        $address = [
+            'id' => null
+            ,'contact_id' => null
+            ,'contact_address_id' => null
+            ,'period_start' => $patient['date'] // we go off the patient date as for when the address was here as we don't have any other good date to go off of.
+            ,'period_end' => null
+            ,'type' => ContactAddress::DEFAULT_TYPE
+            ,'use' => ContactAddress::DEFAULT_USE
+            ,'priority' => 0
+            ,'line1' => $patient['street'] ?? ''
+            ,'line2' => $patient['street_line_2'] ?? ''
+            ,'city' => $patient['city'] ?? ''
+            ,'district' => $patient['county'] ?? ''
+            ,'state' => $patient['state'] ?? ''
+            ,'postal_code' => $patient['postal_code'] ?? ''
+            ,'country_code' => $patient['country_code'] ?? ''
+        ];
+        return $address;
     }
 
     /**

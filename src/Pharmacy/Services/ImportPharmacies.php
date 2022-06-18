@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Pharmacy\Services;
 
-use Address;
+use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\Http\oeHttp;
 use Pharmacy;
 

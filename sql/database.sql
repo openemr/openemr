@@ -17,6 +17,7 @@ CREATE TABLE `addresses` (
   `plus_four` varchar(4) default NULL,
   `country` varchar(255) default NULL,
   `foreign_id` int(11) default NULL,
+  `district` VARCHAR(255) DEFAULT NULL COMMENT 'The county or district of the address',
   PRIMARY KEY  (`id`),
   KEY `foreign_id` (`foreign_id`)
 ) ENGINE=InnoDB;
@@ -1136,6 +1137,42 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Per Oris','C38288'
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Inhale','C38216',112);
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Intramuscular','C28161',112);
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `contact`
+--
+CREATE TABLE `contact` (
+   `id` BIGINT(20) NOT NULL auto_increment,
+   `foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
+   `foreign_id` BIGINT(20) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`),
+   KEY (`foreign_id`)
+) ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `contact_address`
+--
+CREATE TABLE `contact_address` (
+    `id` BIGINT(20) NOT NULL auto_increment,
+    `contact_id` BIGINT(20) NOT NULL,
+    `address_id` BIGINT(20) NOT NULL,
+    `priority` INT(11) NULL,
+    `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
+    `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
+    `notes` TINYTEXT,
+    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
+    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `period_start` DATETIME NULL COMMENT 'Date the address became active',
+    `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
+    `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
+    PRIMARY KEY (`id`),
+    KEY (`contact_id`),
+    KEY (`address_id`),
+    KEY contact_address_idx (`contact_id`,`address_id`)
+) ENGINE = InnoDB ;
 
 -- --------------------------------------------------------
 
@@ -3461,6 +3498,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'phone_cell', '2', 'Mobile Phone', 13, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'email', '2', 'Contact Email', 14, 2, 1, 30, 95, '', 1, 1, '', '', 'Contact Email Address', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'email_direct', '2', 'Trusted Email', 15, 2, 1, 30, 95, '', 1, 1, '', '', 'Trusted Direct Email Address', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM','additional_addresses','2','',16,54,1,0,0,'',4,4,'','','Additional Patient Addresses',0);
 -- choices
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'providerID', '3', 'Provider', 10, 11, 1, 0, 0, '', 1, 1, '', '', 'Provider', 0);
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','provider_since_date','3','Provide Since Date',15,4,1,10,10,'',1,1,'','','Patient assigned provider since date.',0);
@@ -6646,6 +6684,20 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medical_equipment','Medical Equipment',210,0,1, 'oid:2.16.840.1.113883.10.20.22.2.23');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','us_realm_person_name','US Realm Person Name',220,0,1, 'oid:2.16.840.1.113883.10.20.22.5.1.1');
 
+-- Address Use Types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-uses','Address Uses',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','home','Home',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','work','Work',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','temp','Temporary',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','old','Old/Incorrect',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','billing','Billing',50,0,1);
+
+-- Address Types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-types','Address Types',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','postal','Postal',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','physical','Physical',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','both','Postal & Physical',30,0,1);
+
 --
 -- Table structure for table `lists`
 --
@@ -7431,6 +7483,7 @@ CREATE TABLE `patient_history` (
     , `previous_name_enddate` date DEFAULT NULL
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
+    , KEY `pid_idx` (`pid`)
 ) ENGINE = InnoDB;
 --
 -- Table structure for table `patient_portal_menu`
