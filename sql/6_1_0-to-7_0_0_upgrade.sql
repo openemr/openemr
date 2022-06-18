@@ -930,3 +930,9 @@ ALTER TABLE patient_history ADD INDEX `pid_idx` (`pid`);
 #IfNotIndex contact_address contact_address_idx
 ALTER TABLE contact_address ADD INDEX `contact_address_idx` (`contact_id`,`address_id`);
 #EndIf
+
+#IfUpdateEditOptionsNeeded add DEM J additional_addresses
+#EndIf
+
+#IfUpdateEditOptionsNeeded add DEM SP additional_addresses
+#EndIf
