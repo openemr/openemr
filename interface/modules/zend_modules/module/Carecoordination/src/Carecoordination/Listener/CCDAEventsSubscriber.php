@@ -75,7 +75,8 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $event->getSectionsAsString(),
                 '',
                 [],
-                'xml'
+                'xml',
+                ''
             );
 
             // the generator just returns the content...

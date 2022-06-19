@@ -251,12 +251,12 @@ class PatientDocumentCreateCCDAEvent
 
     public function getSectionsAsString(): string
     {
-        return $this->getCcdaStringFormat($this->sections);
+        return $this->getCcdaStringFormat($this->sections ?? []);
     }
 
     public function getComponentsAsString(): string
     {
-        return $this->getCcdaStringFormat($this->components);
+        return $this->getCcdaStringFormat($this->components ?? []);
     }
 
     private function getCcdaStringFormat(array $arr)
