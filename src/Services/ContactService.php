@@ -169,11 +169,11 @@ class ContactService extends BaseService
     public function getContactsForPatient($pid, $includeInactive = false): array
     {
 
-        $sql = "SELECT ca.* FROM contact_address ca LEFT JOIN contact c ON ca.contact_id = c.id AND c.foreign_table_name = 'patient_data' AND c.foreign_id = ?";
+        $sql = "SELECT ca.* FROM contact_address ca JOIN contact c ON ca.contact_id = c.id AND c.foreign_table_name = 'patient_data' AND c.foreign_id = ?";
         if ($includeInactive !== true) {
             $sql .= " WHERE ca.status = 'A'";
         }
-        $contactData = QueryUtils::fetchRecords($sql, 'id', [$pid]) ?? [];
+        $contactData = QueryUtils::fetchRecords($sql, [$pid]) ?? [];
 //
 //       // does an O(n) fetch from the db, could be optimized later to use populate_array on the record.
         // for single patient pid access this is just fine as very few patients have more than 4-5 addresses
