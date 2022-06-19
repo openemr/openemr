@@ -2903,6 +2903,7 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 54) {
+        global $pid;
         include "templates/address_list_display.php";
     }
 
