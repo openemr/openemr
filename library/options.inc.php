@@ -625,8 +625,8 @@ function generate_form_field($frow, $currvalue)
                 " value='" . attr($comment) . "'/>";
         }
     } elseif ($data_type == 2) { // simple text field
-        $fldlength = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
-        $maxlength = $frow['max_length'];
+        $fldlength = htmlspecialchars($frow['fld_length'] ?? '', ENT_QUOTES);
+        $maxlength = $frow['max_length'] ?? '';
         $string_maxlength = "";
         // if max_length is set to zero, then do not set a maxlength
         if ($maxlength) {
@@ -699,7 +699,7 @@ function generate_form_field($frow, $currvalue)
         }
         if ($data_type == 4) {
             $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
-            $datetimepickerclass = $frow['validation'] === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
+            $datetimepickerclass = ($frow['validation'] ?? null) === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";
@@ -2903,7 +2903,6 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 54) {
-        global $pid;
         include "templates/address_list_display.php";
     }
 

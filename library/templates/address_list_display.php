@@ -18,7 +18,7 @@ use OpenEMR\Services\ContactService;
 $table_id = uniqid("table_addresses");
 
 $contactService = new ContactService();
-$addresses = $contactService->getContactsForPatient($pid) ?? [];
+$addresses = $contactService->getContactsForPatient($_SESSION['pid']) ?? [];
 ?>
 <div id="<?php echo attr($table_id); ?>">
     <template class="template-text-addresses">
