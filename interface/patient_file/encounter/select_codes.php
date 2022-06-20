@@ -117,7 +117,7 @@ function onOK() {
 
             // Row ids are of the form "CID|jsonstring".
             var jobj = JSON.parse(ids[i].substring(4));
-            var code = jobj['code'].split('|');
+            var code = jobj['code'].toString().split('|');
             var msg = opener.OnCodeSelected(jobj['codetype'], code[0], code[1], jobj['description']);
             if (msg) {
                 alert(msg);
@@ -144,7 +144,7 @@ function onOK() {
             } else {
                 echo "<div class='col'><select name='form_code_type' onchange='oTable.fnDraw()'>\n";
                 foreach ($allowed_codes as $code) {
-                    echo " <option value='" . attr($code) . "'>" . xlt($code_types[$code]['label']) . "</option>\n";
+                    echo " <option value='" . attr($code ?? '') . "'>" . xlt($code_types[$code]['label'] ?? '') . "</option>\n";
                 }
                 echo "</select></div>\n";
             }

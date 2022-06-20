@@ -616,14 +616,28 @@ function getCodeText($code)
                 $url .= urlencode(collect_codetypes("medical_problem", "csv"));
             } else {
                 $url .= urlencode(collect_codetypes("diagnosis", "csv"));
-                $tmp  = urlencode(collect_codetypes("drug", "csv"));
+                $tmp_csv = collect_codetypes("drug", "csv");
+                $tmp_csv .= "," . collect_codetypes("clinical_term", "csv");
+                $tmp = explode(",", $tmp_csv);
                 if (!empty($irow['type']) && ($irow['type'] == 'allergy')) {
                     if ($tmp) {
-                        $url .= ",$tmp";
+                        foreach ($tmp as $item) {
+                            $pos = strpos($url, $item);
+                            if ($pos === false) {
+                                $item = urlencode($item);
+                                $url .= ",$item";
+                            }
+                        }
                     }
                 } elseif (!empty($irow['type']) && ($irow['type'] == 'medication')) {
                     if ($tmp) {
-                        $url .= ",$tmp&default=$tmp";
+                        foreach ($tmp as $item) {
+                            $pos = strpos($url, $item);
+                            if ($pos === false) {
+                                $item = urlencode($item);
+                                $url .= ",$item&default=$item";
+                            }
+                        }
                     }
                 }
             }
