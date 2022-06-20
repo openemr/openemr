@@ -11,8 +11,10 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class ORDataObject
 {
-    private $_isObjectModified;
-    private $_throwExceptionOnError;
+    // TODO: @adunsulag at some point we need to set this default to false
+    // currently most objects assume we need to save when we call persist
+    private $_isObjectModified = true;
+    private $_throwExceptionOnError = false;
     protected $_prefix;
     protected $_table;
     public $_db; // Need to be public so can access from C_Document class
@@ -31,10 +33,6 @@ class ORDataObject
         }
 
         $this->_db = $GLOBALS['adodb']['db'];
-
-        // TODO: @adunsulag at some point we need to set this default to false
-        // currently most objects assume we need to save when we call persist
-        $this->setIsObjectModified(true);
     }
 
     public function markObjectModified()
