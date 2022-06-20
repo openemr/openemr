@@ -143,6 +143,7 @@ function fetchPreviousAddresses(pd) {
         }
     });
     let count = isOne(pa);
+    // how do we ever get here where we just have one object?
     if (count === 1) {
         streetLine = [pa.street[0]];
         if (pa.street[1].length > 0) {

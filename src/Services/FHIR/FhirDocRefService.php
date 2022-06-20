@@ -152,8 +152,14 @@ class FhirDocRefService
 
         // document create event
         $event = new PatientDocumentCreateCCDAEvent($patient['pid']);
-        $event->addSection("continuity_care_document"); // make it a CCD
 
+        // apparently the PHP CCDA just sends over every single section/component regardless of whether its used or not
+        // the node server on the backend is what distinguishes between what sections to include / exclude based on the
+        // document type that is sent.  Bizarre.
+        // TODO: if we ever decide to actually put the filtering on the PHP side we will need to adjust this.
+//        $event->addSection("continuity_care_document"); // make it a CCD
+//        $event->addComponent("vitals");
+//        $event->addComponent("social_history");
 
         // this creates our CCDA
         $createdEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
