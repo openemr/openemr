@@ -316,10 +316,10 @@ function populateProvider(provider) {
     // primary care role. All other team members will id via taxonomy only and if not physicians.
     return {
         "function_code": provider.physician_type ? "PP" : "",
-        "time": {
+        "date_time": {
             "low": {
                 "date": provider.provider_since || fDate(""),
-                "precision": "second"
+                "precision": "day"
             }
         },
         "identity": [
@@ -363,8 +363,9 @@ function populateProvider(provider) {
     }
 }
 
-function populateProviders() {
+function populateProviders(all) {
     let providerArray = [];
+    // primary provider
     let provider = populateProvider(all.primary_care_provider.provider);
     providerArray.push(provider);
     let count = isOne(all.care_team.provider);
@@ -380,15 +381,10 @@ function populateProviders() {
     return {
         "providers":
             {
-                "code": {
-                    "name": "",
-                    "code": "",
-                    "code_system_name": "SNOMED CT"
-                },
                 "date_time": {
                     "low": {
                         "date": all.time_start || fDate(""),
-                        "precision": "second"
+                        "precision": "day"
                     },
                     "high": {
                         "date": all.time_end || fDate(""),
@@ -397,6 +393,82 @@ function populateProviders() {
                 },
                 "provider": providerArray,
             }
+    }
+}
+
+
+function populateCareTeamMember(provider) {
+    return {
+        //"function_code": provider.physician_type ? "PP" : "",
+        "function_code": {
+            "xmlns": "urn:hl7-org:sdtc",
+            "name": provider.taxonomy_description || "",
+            "code": cleanCode(provider.taxonomy) || "",
+            "code_system": "2.16.840.1.113883.6.101",
+            "code_system_name": "NUCC Health Care Provider Taxonomy"
+        },
+        "status": "active",
+        "date_time": {
+            "low": {
+                "date": provider.provider_since || fDate(""),
+                "precision": "day"
+            }
+        },
+        "identifiers": [
+            {
+                "identifier": provider.npi ? "2.16.840.1.113883.4.6" : oidFacility,
+                "extension": provider.npi || provider.table_id
+            }
+        ],
+        "full_name": provider.fname + " " + provider.lname,
+        "name": {
+            "last": provider.lname || "",
+            "first": provider.fname || ""
+        },
+        "address": {
+            "street_lines": [
+                provider.street
+            ],
+            "city": provider.city,
+            "state": provider.state,
+            "zip": provider.zip,
+            "country": all.encounter_provider.facility_country_code || "US"
+        },
+        "phone": [{
+            "value": {
+                "number": provider.phone || "",
+            }
+        }]
+    }
+}
+
+function populateCareTeamMembers(pd) {
+    let providerArray = [];
+    // primary provider
+    let provider = populateCareTeamMember(pd.primary_care_provider.provider);
+    providerArray.push(provider);
+    let count = isOne(pd.care_team.provider);
+    if (count === 1) {
+        provider = populateCareTeamMember(pd.care_team.provider);
+        providerArray.push(provider);
+    } else if (count > 1) {
+        for (let i in pd.care_team.provider) {
+            provider = populateCareTeamMember(pd.care_team.provider[i]);
+            providerArray.push(provider);
+        }
+    }
+    return {
+        "providers":
+            {
+                "provider": providerArray,
+            },
+        "status": "active",
+        "date_time": {
+            "low": {
+                "date": pd.care_team.provider.provider_since || fDate(""),
+                "precision": "day"
+            }
+        },
     }
 }
 
@@ -2211,7 +2283,7 @@ function populateNote(pd) {
 }
 
 function populateHeader(pd) {
-    // default doc type ToC
+    // default doc type ToC CCD
     let name = "Summarization of Episode Note";
     let docCode = "34133-9";
     let docOid = "2.16.840.1.113883.10.20.22.1.2";
@@ -2557,7 +2629,7 @@ function genCcda(pd) {
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
 // This populates documentationOf. We are using providerOrganization also.
-    Object.assign(demographic, populateProviders());
+    Object.assign(demographic, populateProviders(pd));
 
     data.demographics = Object.assign(demographic);
 // Encounters
@@ -2702,9 +2774,9 @@ function genCcda(pd) {
         data.results = Object.assign(getResultSet(pd.results, pd)['results']);
     }
 
-// Referral
+// Referral TODO sjp I'm not happy with this.
     // different referral sources. 1st is dynamic with doc gen from CCM.
-    // 2nd is latest referral from transactions.
+    // 2nd is the latest referral from transactions.
     if (pd.referral_reason[0].text !== "") {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[0], pd));
     } else if (pd.referral_reason[1].text !== "" && typeof pd.referral_reason[1].text !== 'undefined') {
@@ -2943,7 +3015,10 @@ function genCcda(pd) {
             data[currentNote] = Object.assign(many);
         }
     }
-
+// Care Team and members
+    if (pd.care_team.is_active == 'active') {
+        data.care_team = Object.assign(populateCareTeamMembers(pd));
+    }
 // ------------------------------------------ End Sections ----------------------------------------//
 
     doc.data = Object.assign(data);

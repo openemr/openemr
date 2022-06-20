@@ -90,6 +90,15 @@ exports.uniqueId = {
     }
 };
 
+exports.uniqueIdRoot = {
+    key: "id",
+    attributes: {
+        root: function (input, context) {
+            return uuid.v4();
+        }
+    }
+};
+
 exports.statusCodeCompleted = {
     key: "statusCode",
     attributes: {
@@ -258,7 +267,7 @@ var usRealmAddress = exports.usRealmAddress = {
     }, {
         key: "country",
         text: leafLevel.inputProperty("country")
-    },useablePeriod,
+    }, useablePeriod,
     ],
     dataKey: "address"
 };
@@ -320,7 +329,6 @@ var assignedEntity = exports.assignedEntity = {
         attributes: leafLevel.code,
         dataKey: "code"
     },
-
         usRealmAddress,
         telecom, {
             key: "assignedPerson",

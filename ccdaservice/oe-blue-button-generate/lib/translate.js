@@ -27,10 +27,14 @@ exports.codeFromName = function (OID) {
 exports.code = function (input) {
     var result = {};
 
-    if (input.code === 'null_flavor') {
+    if (input.code === 'null_flavor' || input.code === '') {
         return {
             nullFlavor: "UNK"
         };
+    }
+
+    if (input.xmlns) {
+        result.xmlns = input.xmlns;
     }
 
     if (input.code) {
