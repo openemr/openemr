@@ -144,7 +144,7 @@ function onOK() {
             } else {
                 echo "<div class='col'><select name='form_code_type' onchange='oTable.fnDraw()'>\n";
                 foreach ($allowed_codes as $code) {
-                    echo " <option value='" . attr($code ?? '') . "'>" . xlt($code_types[$code]['label'] ?? '') . "</option>\n";
+                    echo " <option value='" . attr($code) . "'>" . xlt($code_types[$code]['label']) . "</option>\n";
                 }
                 echo "</select></div>\n";
             }
