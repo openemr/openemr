@@ -62,6 +62,16 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
      */
     public function onCCDACreateEvent(PatientDocumentCreateCCDAEvent $event)
     {
+        $dates = [];
+        if (!empty($event->getDateFrom())) {
+            $dates['date_start'] = $event->getDateFrom()->format("Y-m-d H:i:s");
+            $dates['filter_content'] = true;
+        }
+
+        if (!empty($event->getDateTo())) {
+            $dates['date_end'] = $event->getDateTo()->format("Y-m-d H:i:s");
+            $dates['filter_content'] = true;
+        }
 
         try {
             $result = $this->generator->generate(
@@ -74,9 +84,11 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $event->getComponentsAsString(),
                 $event->getSectionsAsString(),
                 '',
-                [],
+                [], // params appears to be used for the informationRecipient pieces, so we leaves this alone
                 'xml',
                 ''
+                ,$dates
+                ,true // not sure I like how many parameters we are adding on and on, may need to introduce a configuration object
             );
 
             // the generator just returns the content...

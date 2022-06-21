@@ -18,6 +18,7 @@ namespace Carecoordination\Model;
 use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
+use Couchbase\SearchQuery;
 use CouchDB;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
@@ -30,6 +31,13 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\BasicSearchField;
+use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchComparator;
+use OpenEMR\Services\Search\SearchFieldStatementResolver;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\SearchQueryFragment;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
@@ -43,6 +51,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         'allergies' => 0,
         'problems' => 0
     ];
+    public $searchDateField;
     public $searchFromDate;
     public $searchToDate;
     public $searchFiltered = false;
@@ -57,9 +66,61 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function setOptions($options)
     {
-        $this->searchFromDate = !empty($options['date_start'] ?? null) ? date("Y-m-d H:i:s", strtotime($options['date_start'])) : null;
-        $this->searchToDate = !empty($options['date_end'] ?? null) ? date("Y-m-d H:i:s", strtotime($options['date_end'])) : null;
-        $this->searchFiltered = !empty($options['filter_content'] ?? false);
+        // we keep from and to dates in order to handle the transaction table where we have to manually convert the dates
+        // since they are stored as strings.
+        $this->searchFromDate = null;
+        $this->searchToDate = null;
+
+        $dateValues = [];
+
+        if (!empty($options['date_start'])) {
+            $searchFromDate = strtotime($options['date_start']);
+            // date values for search fields have to be in ISO8601
+            // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
+            $dateStart = date(DATE_ATOM, $searchFromDate);
+            if ($dateStart !== false) {
+                $this->searchFromDate = $searchFromDate;
+                $dateValues[] = SearchComparator::GREATER_THAN_OR_EQUAL_TO . $dateStart;
+
+            } else {
+                // TODO: do we want to log the invalid format
+            }
+        }
+
+
+
+        if (!empty($options['date_end'])) {
+            $searchToDate = strtotime($options['date_end']);
+            // date values for search fields have to be in ISO8601
+            // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
+            $dateEnd = date(DATE_ATOM, $searchToDate);
+            if ($dateEnd !== false) {
+                $this->searchToDate = $searchToDate;
+                $dateValues[] = SearchComparator::LESS_THAN_OR_EQUAL_TO . $dateEnd;
+            } else {
+                // TODO: do we want to log the invalid format
+            }
+        }
+        if (!empty($dateValues)) {
+            $this->searchDateField = new DateSearchField('search_date', $dateValues, DateSearchField::DATE_TYPE_DATETIME, true);
+            $this->searchFiltered = !empty($options['filter_content'] ?? false);
+        } else {
+            $this->searchFiltered = false;
+        }
+
+    }
+
+    private function getDateQueryClauseForColumn($column) : SearchQueryFragment {
+
+        $searchField = $this->convertDateSearchFieldForColumn($this->searchDateField, $column);
+
+
+        $queryClause = SearchFieldStatementResolver::resolveDateField($searchField);
+        return $queryClause;
+    }
+
+    private function convertDateSearchFieldForColumn(DateSearchField $searchField, $column) {
+        return new DateSearchField($column, $searchField->getValues(), $searchField->getDateType(), $searchField->isAnd());
     }
 
     /**
@@ -1022,6 +1083,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $procedure = '';
+        // TODO: the code_types join on just the ct.ct_key is joining against the primary key of billing which is a type misconversion... not sure why we do this
         $query = "SELECT b.id, b.date as proc_date, b.code_text, b.code, fe.date,
     u.fname, u.lname, u.mname, u.npi, u.street, u.city, u.state, u.zip,
     f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone
@@ -1032,17 +1094,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     LEFT JOIN users AS u ON u.id = b.provider_id
     LEFT JOIN facility AS f ON f.id = fe.facility_id
         where $wherCon b.pid = ? and b.activity = ?";
+
         array_push($sqlBindArray, $pid, 1);
+        if ($this->searchFiltered) {
+            $queryClause = $this->getDateQueryClauseForColumn('fe.date');
+            if (!empty($queryClause->getFragment())) {
+                $query .= " AND " . $queryClause->getFragment();
+                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
+            }
+        }
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
 
         $procedure = '<procedures>';
         foreach ($res as $row) {
-            if ($this->searchFiltered) {
-                if ($row['proc_date'] < $this->searchFromDate || $row['proc_date'] > $this->searchToDate) {
-                    continue;
-                }
-            }
             $procedure .= "<procedure>
             <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
             <sha_extension>" . xmlEscape("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d") . "</sha_extension>
@@ -1098,16 +1163,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id
         WHERE $wherCon po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
         array_push($sqlBindArray, $pid);
+        if ($this->searchFiltered) {
+            $queryClause = $this->getDateQueryClauseForColumn('date_ordered');
+            if (!empty($queryClause->getFragment())) {
+                $query .= " AND " . $queryClause->getFragment();
+                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
+            }
+        }
+
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
 
         $results_list = array();
         foreach ($res as $row) {
-            if ($this->searchFiltered) {
-                if ($row['date_ordered'] < $this->searchFromDate || $row['date_ordered'] > $this->searchToDate) {
-                    continue;
-                }
-            }
             if (empty($row['result_code']) && empty($row['abnormal_flag'])) {
                 continue;
             }
@@ -1197,11 +1265,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $sqlBindArray[] = $encounter;
         }
         if ($this->searchFiltered) {
-            $wherCon = " fe.date BETWEEN ? and ? AND ";
-            $sqlBindArray[] = $this->searchFromDate;
-            $sqlBindArray[] = $this->searchToDate;
+            $queryClause = $this->getDateQueryClauseForColumn('fe.date');
+            if (!empty($queryClause->getFragment())) {
+                $wherCon .= $queryClause->getFragment() . " AND ";
+                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
+            }
         }
-
         $results = "";
         $query = "SELECT fe.date, fe.encounter,fe.reason,
         f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone, f.facility_npi as fnpi,
@@ -2967,8 +3036,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $goals = '<goals>';
         $concerns = '<health_concerns>';
         foreach ($res as $row) {
+            // we are handling the dates differently here than the other filtered data types because the transaction
+            // table stores the refer_date as a textual string and we can't convert it in a cross-database fashion right
+            // now to do our date comparisons like we do all of the other fields.
             if ($this->searchFiltered) {
-                if ($row['date'] < $this->searchFromDate || $row['date'] > $this->searchToDate) {
+                $rowDate = strtotime($row['date']);
+                // if we can't format the date and we are filtering then we exclude it,
+                if ($rowDate === false ||
+                    // we have a from date so we filter by it
+                    (isset($this->searchFromDate) && $rowDate < $this->searchFromDate)
+                    // we have a to date so we filter by it
+                    || (isset($this->searchToDate) && $rowDate > $this->searchToDate)
+                ) {
                     continue;
                 }
             }
@@ -3122,6 +3201,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $wherCon = " f.encounter = ? AND ";
             $sqlBindArray[] = $encounter;
         }
+        if ($this->searchFiltered) {
+            $queryClause = $this->getDateQueryClauseForColumn('fnote.date');
+            if (!empty($queryClause->getFragment())) {
+                $wherCon .= $queryClause->getFragment() . " AND ";
+                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
+            }
+        }
 
         $clinical_notes = '';
         $query = "SELECT fnote.*, u.*, fac.* FROM forms AS f
@@ -3135,11 +3221,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $clinical_notes .= '<clinical_notes>';
         foreach ($res as $row) {
-            if ($this->searchFiltered) {
-                if ($row['date'] < $this->searchFromDate || $row['date'] > $this->searchToDate) {
-                    continue;
-                }
-            }
             if (empty($row['clinical_notes_type'])) {
                 continue;
             }
@@ -3220,6 +3301,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getReferrals($pid, $encounter)
     {
         $wherCon = '';
+        $sqlBindArray = [$pid];
+        if ($this->searchFiltered) {
+            $queryClause = $this->getDateQueryClauseForColumn('date');
+            if (!empty($queryClause->getFragment())) {
+                $wherCon .= " AND " . $queryClause->getFragment();
+                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
+            }
+        }
         if ($encounter) {
             $wherCon = "ORDER BY date DESC LIMIT 1";
         }
@@ -3227,14 +3316,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $appTable = new ApplicationTable();
         $query = "SELECT field_value, date FROM transactions JOIN lbt_data ON form_id=id AND field_id = 'body' WHERE pid = ? $wherCon";
-        $result = $appTable->zQuery($query, array($pid));
+
+        $result = $appTable->zQuery($query, $sqlBindArray);
         $referrals = '<referral_reason>';
         foreach ($result as $row) {
-            if ($this->searchFiltered) {
-                if ($row['date'] < $this->searchFromDate || $row['date'] > $this->searchToDate) {
-                    continue;
-                }
-            }
             $referrals .= '<text>' . xmlEscape($row['field_value']) . '</text>
                            <date>' . xmlEscape($row['date']) . '</date>';
         }

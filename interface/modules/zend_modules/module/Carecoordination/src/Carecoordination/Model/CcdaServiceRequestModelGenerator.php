@@ -48,7 +48,8 @@ class CcdaServiceRequestModelGenerator
         return $this->createdtime;
     }
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason, int $send = null, $date_options = [])
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason
+        , int $send = null, $date_options = [], $useAbsoluteXsl = false)
     {
         global $assignedEntity;
         global $representedOrganization;
@@ -64,6 +65,10 @@ class CcdaServiceRequestModelGenerator
         $this->data .= "<CCDA>";
         $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
         $this->data .= "<document_location>" . $GLOBALS['OE_SITE_DIR'] . "</document_location>";
+        if ($useAbsoluteXsl) {
+            // if we are generating a document to be passed around w/o our zip file we need to specify an absolute xsl
+            $this->data .= "<xslUrl>" . $GLOBALS['qualified_site_addr'] . '/interface/modules/zend_modules/public/xsl/cda.xsl' . "</xslUrl>";
+        }
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";

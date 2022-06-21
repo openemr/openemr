@@ -58,6 +58,8 @@ class CcdaGenerator
      * @param $recipients
      * @param $params
      * @param $document_type
+     * @param $referral_reason
+     * @param $date_options has the format of ['date_start' => 'YYYY-MM-DD HH:mm:ss', 'date_end' => 'YYYY-MM-DD HH:mm:ss', 'filter_content' => boolean]
      * @return GeneratedCcdaResult
      * @throws \Exception
      */
@@ -74,7 +76,8 @@ class CcdaGenerator
         $params,
         $document_type,
         $referral_reason,
-        $date_options = []
+        $date_options = [],
+        $useAbsoluteXsl = false
     ): GeneratedCcdaResult {
 
         // we need to make sure we don't accidently stuff in the debug logs any PHI so we'll only report on the presence of certain variables
@@ -83,7 +86,8 @@ class CcdaGenerator
                 , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
                 , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . count($recipients) : "No recipients"
                 , 'params' => $params, 'document_type' => $document_type
-                , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason"), 'date_options' => $date_options]);
+                , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
+                , 'date_options' => $date_options, 'useAbsoluteXsl' => $useAbsoluteXsl]);
         if ($sent_by != '') {
             $_SESSION['authUserID'] = $sent_by;
         }
@@ -115,7 +119,8 @@ class CcdaGenerator
             }
             $components = $str1;
         }
-        $data = $this->create_data($patient_id, $encounter_id, $sections, $components, $recipients, $params, $document_type, $referral_reason, $send, $date_options);
+        $data = $this->create_data($patient_id, $encounter_id, $sections, $components, $recipients, $params
+                    , $document_type, $referral_reason, $send, $date_options, $useAbsoluteXsl);
         $content = $this->socket_get($data);
         $content = trim($content);
         $generatedResult = $this->getEncounterccdadispatchTable()->logCCDA(
@@ -141,10 +146,12 @@ class CcdaGenerator
     }
 
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = [])
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type
+        , $referral_reason = null, $send = null, $date_options = [], $useAbsoluteXsl = false)
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
-        $modelGenerator->create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason, $send, $date_options);
+        $modelGenerator->create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type
+                            , $referral_reason, $send, $date_options, $useAbsoluteXsl);
         $this->createdtime = $modelGenerator->getCreatedTime();
         $this->data = $modelGenerator->getData();
         return $this->data;

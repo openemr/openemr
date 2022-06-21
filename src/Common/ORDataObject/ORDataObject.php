@@ -81,7 +81,10 @@ class ORDataObject
                 // false/true, we should change this but we will need to heavily test it.
                 if (!empty($val)) {
                     if ($val instanceof \DateTime) {
-                        $val = $val->format(DATE_ISO8601);
+                        // we are storing up to the second in precision, if we need to store fractional seconds
+                        // that will be more complicated as the mysql datetime needs to specify the decimal seconds
+                        // that can be stored
+                        $val = $val->format("Y-m-d H:i:s");
                     }
                     //echo "s: $field to: $val <br />";
 
