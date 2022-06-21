@@ -501,6 +501,29 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
     };
 };
 
+exports.careTeamSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            attributes: condition.isNullFlavorSection('care_team'),
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.500", "2019-07-01"),
+                fieldLevel.templateCode("CareTeamSection"),
+                fieldLevel.templateTitle("CareTeamSection"), {
+                    key: "text",
+                    text: "A Care Team is not assigned.",
+                    existsWhen: condition.keyDoesntExist("care_team")
+                },
+                htmlHeader, {
+                    key: "entry",
+                    content: entryLevel.careTeamOrganizer
+                }
+            ]
+        }]
+    };
+};
+
 exports.medicalEquipmentSectionEntriesOptional = function (htmlHeader, na) {
     return {
         key: "component",
@@ -1418,27 +1441,4 @@ exports.pathologyReportNoteSection = function (htmlHeader, noteData) {
             ]
         }]
     }
-};
-
-exports.careTeamSection = function (htmlHeader, na) {
-    return {
-        key: "component",
-        content: [{
-            key: "section",
-            attributes: condition.isNullFlavorSection('care_team'),
-            content: [
-                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.500", "2019-07-01"),
-                fieldLevel.templateCode("CareTeamSection"),
-                fieldLevel.templateTitle("CareTeamSection"), {
-                    key: "text",
-                    text: na,
-                    existsWhen: condition.keyDoesntExist("care_team")
-                },
-                htmlHeader, {
-                    key: "entry",
-                    content: [entryLevel.careTeamOrganizer]
-                }
-            ]
-        }]
-    };
 };

@@ -7,11 +7,13 @@ var condition = require("../condition");
 var contentModifier = require("../contentModifier");
 
 var required = contentModifier.required;
+var dataKey = contentModifier.dataKey;
+var key = contentModifier.key;
 
-let careTeamProviderAct = {
+var careTeamProviderAct = {
     key: "act",
     attributes: {
-        classCode: "ACT",
+        classCode: "PCPR",
         moodCode: "EVN"
     },
     content: [
@@ -49,8 +51,7 @@ let careTeamProviderAct = {
                 fieldLevel.assignedEntity
             ]
         }
-    ],
-    dataKey: "provider"
+    ]
 };
 
 exports.careTeamOrganizer = {
@@ -65,7 +66,7 @@ exports.careTeamOrganizer = {
         {
             key: "code",
             attributes: {
-                code: "85847-2",
+                code: "86744-0",
                 codeSystem: "2.16.840.1.113883.6.1",
                 codeSystemName: "LOINC",
                 displayName: "Care Team Information"
@@ -76,13 +77,14 @@ exports.careTeamOrganizer = {
             attributes: {
                 code: leafLevel.inputProperty("status")
             }
-        }, [fieldLevel.effectiveTime, required],
+        },
+        [fieldLevel.effectiveTime, required],
         [{
             key: "component",
-            content: careTeamProviderAct,
-            dataKey: "providers",
-            required: true
-        }]
+            content: careTeamProviderAct
+        },
+            dataKey("providers.provider")
+        ],
     ],
     dataKey: "care_team"
 };
