@@ -528,12 +528,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $encounter
      * @return string
      */
-    public function getPrimaryCareProvider($pid, $encounter)
+    public function getPrimaryCareProvider($pid, $encounter): string
     {
-        // primary from demo
+        // primary from demographics
         $getprovider = $this->getProviderId($pid);
-        // @TODO I don't like this much. Should add UI in care team assignments.
-        $getprovider_start_date = $this->getProviderStartDate($pid);
+        // @TODO I don't like this much. Should add date UI in care team assignments.
+        $getprovider_status = $this->getPatientProviderStatus($pid) ?? null;
         $getprovider_start_date = !empty($getprovider_start_date) ? date('YmdHisO', strtotime($getprovider_start_date)) : date('YmdHisO');
         if (!empty($getprovider)) { // from patient_data
             $details = $this->getUserDetails($getprovider);
@@ -552,17 +552,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <speciality>" . xmlEscape($details['specialty'] ?? '') . "</speciality>
             <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
             <telecom>" . xmlEscape((($details['phonew1'] ?? '') ? $details['phonew1'] : 0)) . "</telecom>
-            <addr>" . xmlEscape($details['addr'] ?? '') . "</addr>
+            <street>" . xmlEscape($details['street'] ?? '') . "</street>
+            <city>" . xmlEscape($details['city'] ?? '') . "</city>
+            <state>" . xmlEscape($details['state'] ?? '') . "</state>
+            <zip>" . xmlEscape($details['zip'] ?? '') . "</zip>
             <table_id>" . xmlEscape("provider-" . $getprovider ?? '') . "</table_id>
             <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
             <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
             <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
             <taxonomy>" . xmlEscape($details['taxonomy'] ?? '') . "</taxonomy>
             <taxonomy_description>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</taxonomy_description>
-            <provider_since>" . xmlEscape($getprovider_start_date) . "</provider_since>
+            <provider_since>" . xmlEscape($getprovider_status['provider_since_date'] ?? null) . "</provider_since>
           </provider>
         </primary_care_provider>";
-        $care_team_provider = "<care_team>";
+        $care_team_provider = "<care_team><is_active>" . ($getprovider_status['care_team_status'] ?? false) . "</is_active>";
         foreach ($get_care_team_provider as $team_member) {
             if ((int)$getprovider === (int)$team_member) {
                 // primary should be a part of care team but just in case
@@ -581,7 +584,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <speciality>" . xmlEscape($details2['specialty']) . "</speciality>
             <organization>" . xmlEscape($details2['organization']) . "</organization>
             <telecom>" . xmlEscape(($details2['phonew1'] ?: '')) . "</telecom>
-            <addr>" . xmlEscape($details2['']) . "</addr>
+            <street>" . xmlEscape($details2['street'] ?? '') . "</street>
+            <city>" . xmlEscape($details2['city'] ?? '') . "</city>
+            <state>" . xmlEscape($details2['state'] ?? '') . "</state>
+            <zip>" . xmlEscape($details2['zip'] ?? '') . "</zip>
             <table_id>" . xmlEscape("provider-" . $team_member) . "</table_id>
             <npi>" . xmlEscape($details2['npi']) . "</npi>
             <physician_type>" . xmlEscape($details2['physician_type']) . "</physician_type>
@@ -2872,13 +2878,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $pid
      * @return mixed|null
      */
-    public function getProviderStartDate($pid)
+    public function getPatientProviderStatus($pid)
     {
         $appTable = new ApplicationTable();
-        $query = "SELECT provider_since_date FROM patient_data WHERE `pid`  = ?";
+        $query = "SELECT provider_since_date, care_team_status FROM patient_data WHERE `pid`  = ?";
         $result = $appTable->zQuery($query, array($pid));
         $row = $result->current();
-        return $row['provider_since_date'] ?? null;
+        return $row ?? null;
     }
 
     /**
