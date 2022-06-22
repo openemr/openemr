@@ -704,12 +704,6 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','us_realm_person_name','US Realm Person Name',220,0,1, 'oid:2.16.840.1.113883.10.20.22.5.1.1');
 #EndIf
 
-
-#IfNotRow2D list_options list_id drug_interval option_id WK
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','WK','Weekly',19,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','MO','Monthly',20,0,1);
-#EndIf
-
 #IfRow3D list_options list_id immunization_refusal_reason option_id parental_decision seq 10
 UPDATE list_options SET seq=40 WHERE list_id="immunization_refusal_reason" AND option_id="parental_decision";
 UPDATE list_options SET seq=10 WHERE list_id="immunization_refusal_reason" AND option_id="patient_decision";
@@ -935,4 +929,21 @@ ALTER TABLE contact_address ADD INDEX `contact_address_idx` (`contact_id`,`addre
 #EndIf
 
 #IfUpdateEditOptionsNeeded add DEM SP additional_addresses
+#EndIf
+
+#IfNotRow3D list_options list_id drug_route title IM codes NCI-CONCEPT-ID:C28161
+UPDATE list_options SET codes='NCI-CONCEPT-ID:C28161' WHERE list_id='drug_route' AND title='IM' AND codes != 'NCI-CONCEPT-ID:C28161';
+#EndIf
+
+#IfRow2D list_options list_id drug_interval option_id WK
+UPDATE list_options SET option_id='19' WHERE list_id='drug_interval' AND option_id='WK';
+#EndIf
+
+#IfRow2D list_options list_id drug_interval option_id MO
+UPDATE list_options SET option_id='20' WHERE list_id='drug_interval' AND option_id='MO';
+#EndIf
+
+#IfNotRow2D list_options list_id drug_interval option_id 19
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','19','Weekly',19,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','20','Monthly',20,0,1);
 #EndIf
