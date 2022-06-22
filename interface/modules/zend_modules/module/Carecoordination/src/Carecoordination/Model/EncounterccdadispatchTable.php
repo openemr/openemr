@@ -18,25 +18,18 @@ namespace Carecoordination\Model;
 use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
-use Couchbase\SearchQuery;
-use CouchDB;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Matrix\Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\Search\BasicSearchField;
 use OpenEMR\Services\Search\DateSearchField;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
-use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryFragment;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
@@ -1973,7 +1966,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $wherCon = '';
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " AND fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
