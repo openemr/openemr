@@ -226,7 +226,7 @@ It is recommended that native applications follow best practices for native clie
     
 - CCD is generated on demand, saved off in patient's record under the CCDA category
 - Requires following standard FHIR authorization
-- Requires <context>/DocumentReference.$docref scope, <context>/Document.read scope
+- Requires <context>/DocumentReference.$docref scope, <context>/DocumentReference.read, <context>/Document.read scope
 - Returns a DocumentReference search bundle per the IG spec.
 - XSL to view the document can be download at /<site>/interface/modules/zend_modules/public/xls/cda.xsl
 - Or xml file can be uploaded as a document into OpenEMR to view in a human readable format
