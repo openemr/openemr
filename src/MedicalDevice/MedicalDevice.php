@@ -80,7 +80,6 @@ class MedicalDevice
             $html .= '<span class="font-weight-bold">' . xlt('This device is labeled as a Human Cell, Tissue or Cellular or Tissue-Based Product (HCT/P).') . '</span><br>';
         }
         if (!empty($this->udi_data['standard_elements']['issuingAgency'])) {
-
             $html .= '<span class="font-weight-bold">' . xlt('Issuing Agency') . ': </span>' . text($this->udi_data['standard_elements']['issuingAgency']);
             $html .= '<br>';
 
