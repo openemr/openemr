@@ -524,8 +524,8 @@ class RestConfig
                 $restRequest->setPatientUuidString($patientUuid);
             }
         } else {
-            (new SystemLogger())->error(("OpenEMR Error: api had patient launch scope but no patient was set in the "
-            . " session cache.  Resources restricted with patient scopes will not return results"));
+            (new SystemLogger())->error("OpenEMR Error: api had patient launch scope but no patient was set in the "
+            . " session cache.  Resources restricted with patient scopes will not return results");
         }
         return $restRequest;
     }
