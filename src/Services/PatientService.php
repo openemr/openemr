@@ -419,8 +419,10 @@ class PatientService extends BaseService
             }, $uuidResults)) . ")";
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+            return $processingResult;
+        } else {
+            return new ProcessingResult();
         }
-        return $processingResult;
     }
 
     private function hydrateSearchResultsFromQueryResource($queryResource)

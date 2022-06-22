@@ -12,6 +12,9 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
+use OpenEMR\Services\Search\DateSearchField;
+use DateTime;
+
 class PatientDocumentCreateCCDAEvent
 {
     const EVENT_NAME_CCDA_CREATE = "patient.ccda.create";
@@ -53,12 +56,18 @@ class PatientDocumentCreateCCDAEvent
     private $fileUrl;
 
     /**
-     * @var \DateTime The start date from which to include clinically relevant data for the generated CCDA.  Null if all data from the start of the system is relevant.
+     * @var DateTime The start date from which to include clinically relevant data for the generated CCDA.  Null if all data from the start of the system is relevant.
      */
     private $dateFrom;
 
     /**
-     * @var \DateTime The end date to include clinically relevant data for the generated CCDA.  Null if there is no end date.
+     * If a dateFromSearchField is populated it will take precedence over the dateFrom field
+     * @var DateSearchField Complex date search field - The start date from which to include clinically relevant data for the generated CCDA.  Null if all data from the start of the system is relevant.
+     */
+    private $dateFromSearchField;
+
+    /**
+     * @var DateTime The end date to include clinically relevant data for the generated CCDA.  Null if there is no end date.
      */
     private $dateTo;
 
@@ -189,36 +198,36 @@ class PatientDocumentCreateCCDAEvent
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime|null
      */
-    public function getDateFrom(): \DateTime
+    public function getDateFrom(): ?DateTime
     {
         return $this->dateFrom;
     }
 
     /**
-     * @param \DateTime $dateFrom
+     * @param DateTime $dateFrom
      * @return PatientDocumentCreateCCDAEvent
      */
-    public function setDateFrom(\DateTime $dateFrom): PatientDocumentCreateCCDAEvent
+    public function setDateFrom(?DateTime $dateFrom): PatientDocumentCreateCCDAEvent
     {
         $this->dateFrom = $dateFrom;
         return $this;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime|null
      */
-    public function getDateTo(): \DateTime
+    public function getDateTo(): ?DateTime
     {
         return $this->dateTo;
     }
 
     /**
-     * @param \DateTime $dateTo
+     * @param DateTime|null $dateTo
      * @return PatientDocumentCreateCCDAEvent
      */
-    public function setDateTo(\DateTime $dateTo): PatientDocumentCreateCCDAEvent
+    public function setDateTo(?DateTime $dateTo): PatientDocumentCreateCCDAEvent
     {
         $this->dateTo = $dateTo;
         return $this;

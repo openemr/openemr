@@ -24,6 +24,7 @@
         - [Group Export](FHIR_README.md#bulk-fhir-exports)
 - [3rd Party SMART Apps](FHIR_README.md#3rd-party-smart-apps)
 - [Native Applications](FHIR_README.md#native-applications)
+- [Carecoordination Summary Of Care (CCD) Generation](FHIR_README.md#carecoordination-summary-of-care-docref-operation)
 - [For Developers](FHIR_README.md#for-developers)
 
 ## Overview
@@ -188,6 +189,49 @@ Interoperability requirements with OpenEMR for Native Applications
 - Native applications must use the Authorization Code grant flow in order to receive a refresh token.  
 
 It is recommended that native applications follow best practices for native client applications as outlined in RFC 8252 OAuth 2.0 for Native Apps.
+
+## Carecoordination Summary of Care Docref Operation
+
+- TODO: add documentation for POST /$doc-ref operation that meets 3.1.1 US Core standard
+- The $docref operation is used to request the server generates a document based on the specified
+  parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical
+  Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url
+  element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank'
+  rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.
+- Need to discuss that if the medical info is connected to an encounter and the encounter service date falls in the date range it will be included.
+- start and end date filter encounter related events for the following sections.
+    - History of Procedures
+    - Relevant DX Tests / LAB Data
+    - Functional Status
+    - Vital Signs
+    - Progress Notes
+    - Procedure Notes
+    - Laboratory Report Narrative
+    - Encounters
+    - Assessments
+    - Treatment Plan
+    - Goals
+    - Health Concerns Document
+    - Reason for Referral
+    - Mental Status
+  
+- The following sections have the entire medical record sent to ensure that medical professionals have medically necessary information to provide treatment of care
+    - Demographics
+    - Allergies, Adverse Reactions, Alerts
+    - History of Medication Use
+    - Problem List
+    - Immunizations
+    - Social History
+    - Medical Equipment
+    
+- CCD is generated on demand, saved off in patient's record under the CCDA category
+- Requires following standard FHIR authorization
+- Requires <context>/DocumentReference.$docref scope, <context>/DocumentReference.read, <context>/Document.read scope
+- Returns a DocumentReference search bundle per the IG spec.
+- XSL to view the document can be download at /<site>/interface/modules/zend_modules/public/xls/cda.xsl
+- Or xml file can be uploaded as a document into OpenEMR to view in a human readable format
+- Due to browser security restrictions XSL file must be in same directory as ccd document to view.
+- link out to swagger location on where to build file
 
 ## For Developers
 

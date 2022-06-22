@@ -112,8 +112,13 @@ function isOne(who) {
     return 0;
 }
 
-function headReplace(content) {
-    let xslUrl = "cda.xsl";
+function headReplace(content, xslUrl="") {
+
+    let xsl = "cda.xsl";
+    if (typeof xslUrl == "string" && xslUrl.trim() != "") {
+        xsl = xslUrl;
+    }
+
     let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
         '<?xml-stylesheet type="text/xsl" href="' + xslUrl + '"?>';
     r += "\n" + content.substr(content.search(/<ClinicalDocument/i));
@@ -1281,7 +1286,10 @@ function getPlanOfCare(pd) {
         }
     }
     if (one) {
-        let value = all.encounter_list.encounter.encounter_diagnosis || "";
+        let value = "";
+        if (all.encounter_list && all.encounter_list.encounter && all.encounter_list.encounter.encounter_diagnosis) {
+            value = all.encounter_list.encounter.encounter_diagnosis;
+        }
         name = value.text;
         code = cleanCode(value.code);
         code_system_name = value.code_type;
@@ -2293,6 +2301,14 @@ function populateHeader(pd) {
         docCode = "57133-1";
         docOid = "2.16.840.1.113883.10.20.22.1.14";
     }
+    let authorDateTime = pd.created_time_timezone;
+    if (all.encounter_list && all.encounter_list.encounter) {
+        if (isOne(all.encounter_list.encounter) === 1) {
+            authorDateTime = all.encounter_list.encounter.date_formatted;
+        } else {
+            authorDateTime = all.encounter_list.encounter[0].date_formatted;
+        }
+    }
     const head = {
         "identifiers": [
             {
@@ -2317,7 +2333,7 @@ function populateHeader(pd) {
         "author": {
             "date_time": {
                 "point": {
-                    "date": (isOne(all.encounter_list.encounter) === 1 ? all.encounter_list.encounter.date_formatted : all.encounter_list.encounter[0].date_formatted) || pd.created_time_timezone,
+                    "date": authorDateTime,
                     "precision": "day"
                 }
             },
@@ -2614,7 +2630,7 @@ function genCcda(pd) {
     let count = 0;
     let many = [];
     let theone = {};
-
+    authorDate = '';
     all = pd;
     npiProvider = all.primary_care_provider.provider.npi;
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
@@ -2622,10 +2638,16 @@ function genCcda(pd) {
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
 
-    if (all.encounter_list.encounter.date) {
-        authorDate = all.encounter_list.encounter.date;
-    } else if (all.encounter_list.encounter[0].date) {
-        authorDate = all.encounter_list.encounter[0].date;
+    if (all.encounter_list && all.encounter_list.encounter) {
+        if (all.encounter_list.encounter.date) {
+            authorDate = all.encounter_list.encounter.date;
+        } else if (all.encounter_list.encounter[0].date) {
+            authorDate = all.encounter_list.encounter[0].date;
+        }
+    }
+    if (!authorDate) {
+        // when is there ever a situation where a patient doesn't have an encounter?
+        authorDate = pd.created_time_timezone;
     }
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
@@ -3073,6 +3095,7 @@ function processConnection(connection) {
         if (xml.toString().match(/<\/CCDA>$/g)) {
             // ---------------------start--------------------------------
             let doc = "";
+            let xslUrl = "";
             xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
             // convert xml data set for document to json array
             to_json(xml_complete, function (error, data) {
@@ -3083,9 +3106,12 @@ function processConnection(connection) {
                 }
                 // create document
                 doc = genCcda(data.CCDA);
+                if (data.CCDA.xslUrl) {
+                    xslUrl = data.CCDA.xslUrl;
+                }
             });
 
-            doc = headReplace(doc);
+            doc = headReplace(doc, xslUrl);
             doc = doc.toString().replace(/(\u000b|\u001c|\r)/gm, "").trim();
             //console.log(doc);
             let chunk = "";
