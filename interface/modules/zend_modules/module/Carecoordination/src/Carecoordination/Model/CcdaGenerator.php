@@ -83,7 +83,7 @@ class CcdaGenerator
         (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
                 , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
-                , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . count($recipients) : "No recipients"
+                , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . (is_array($recipients) ? count($recipients) : "1") : "No recipients"
                 , 'params' => $params, 'document_type' => $document_type
                 , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
                 , 'date_options' => $date_options]);
