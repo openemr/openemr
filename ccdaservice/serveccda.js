@@ -114,13 +114,13 @@ function isOne(who) {
 
 function headReplace(content, xslUrl="") {
 
-    let xsl = "cda.xsl";
+    let xsl = "CDA.xsl";
     if (typeof xslUrl == "string" && xslUrl.trim() != "") {
         xsl = xslUrl;
     }
 
     let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
-        '<?xml-stylesheet type="text/xsl" href="' + xslUrl + '"?>';
+        '<?xml-stylesheet type="text/xsl" href="' + xsl + '"?>';
     r += "\n" + content.substr(content.search(/<ClinicalDocument/i));
     return r;
 }
@@ -452,14 +452,17 @@ function populateCareTeamMembers(pd) {
     let providerArray = [];
     // primary provider
     let provider = populateCareTeamMember(pd.primary_care_provider.provider);
+    let providerSince = provider.provider_since;
     providerArray.push(provider);
     let count = isOne(pd.care_team.provider);
     if (count === 1) {
         provider = populateCareTeamMember(pd.care_team.provider);
+        providerSince = providerSince || provider.provider_since;
         providerArray.push(provider);
     } else if (count > 1) {
         for (let i in pd.care_team.provider) {
             provider = populateCareTeamMember(pd.care_team.provider[i]);
+            providerSince = providerSince ||provider.provider_since;
             providerArray.push(provider);
         }
     }
@@ -471,7 +474,7 @@ function populateCareTeamMembers(pd) {
         "status": "active",
         "date_time": {
             "low": {
-                "date": pd.care_team.provider.provider_since || fDate(""),
+                "date": providerSince || fDate(""),
                 "precision": "day"
             }
         },
@@ -3107,7 +3110,7 @@ function processConnection(connection) {
                 // create document
                 doc = genCcda(data.CCDA);
                 if (data.CCDA.xslUrl) {
-                    xslUrl = data.CCDA.xslUrl;
+                    xslUrl = data.CCDA.xslUrl || "";
                 }
             });
 
