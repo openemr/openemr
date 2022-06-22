@@ -88,7 +88,6 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 'xml',
                 ''
                 ,$dates
-                ,true // not sure I like how many parameters we are adding on and on, may need to introduce a configuration object
             );
 
             // the generator just returns the content...

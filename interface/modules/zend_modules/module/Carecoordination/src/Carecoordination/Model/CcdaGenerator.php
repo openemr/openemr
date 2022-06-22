@@ -76,8 +76,7 @@ class CcdaGenerator
         $params,
         $document_type,
         $referral_reason,
-        $date_options = [],
-        $useAbsoluteXsl = false
+        $date_options = []
     ): GeneratedCcdaResult {
 
         // we need to make sure we don't accidently stuff in the debug logs any PHI so we'll only report on the presence of certain variables
@@ -87,7 +86,7 @@ class CcdaGenerator
                 , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . count($recipients) : "No recipients"
                 , 'params' => $params, 'document_type' => $document_type
                 , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
-                , 'date_options' => $date_options, 'useAbsoluteXsl' => $useAbsoluteXsl]);
+                , 'date_options' => $date_options]);
         if ($sent_by != '') {
             $_SESSION['authUserID'] = $sent_by;
         }
@@ -120,7 +119,7 @@ class CcdaGenerator
             $components = $str1;
         }
         $data = $this->create_data($patient_id, $encounter_id, $sections, $components, $recipients, $params
-                    , $document_type, $referral_reason, $send, $date_options, $useAbsoluteXsl);
+                    , $document_type, $referral_reason, $send, $date_options);
         $content = $this->socket_get($data);
         $content = trim($content);
         $generatedResult = $this->getEncounterccdadispatchTable()->logCCDA(
@@ -147,11 +146,11 @@ class CcdaGenerator
 
 
     public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type
-        , $referral_reason = null, $send = null, $date_options = [], $useAbsoluteXsl = false)
+        , $referral_reason = null, $send = null, $date_options = [])
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
         $modelGenerator->create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type
-                            , $referral_reason, $send, $date_options, $useAbsoluteXsl);
+                            , $referral_reason, $send, $date_options);
         $this->createdtime = $modelGenerator->getCreatedTime();
         $this->data = $modelGenerator->getData();
         return $this->data;

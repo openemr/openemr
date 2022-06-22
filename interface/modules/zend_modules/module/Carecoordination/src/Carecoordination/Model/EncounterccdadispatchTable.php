@@ -55,6 +55,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public $searchFromDate;
     public $searchToDate;
     public $searchFiltered = false;
+    private $encounterFilterList = [];
 
     public function __construct()
     {
@@ -64,12 +65,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $options
      * @return void
      */
-    public function setOptions($options)
+    public function setOptions($pid, $encounter, $options)
     {
         // we keep from and to dates in order to handle the transaction table where we have to manually convert the dates
         // since they are stored as strings.
         $this->searchFromDate = null;
         $this->searchToDate = null;
+        $this->encounterFilterList = [];
 
         $dateValues = [];
 
@@ -104,7 +106,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($dateValues)) {
             $this->searchDateField = new DateSearchField('search_date', $dateValues, DateSearchField::DATE_TYPE_DATETIME, true);
             $this->searchFiltered = !empty($options['filter_content'] ?? false);
+            $this->encounterFilterList = $this->getEncounterListForDateRange($pid, $encounter);
         } else {
+            if (!empty($encounter)) {
+                $this->encounterFilterList = [intval($encounter)];
+            }
             $this->searchFiltered = false;
         }
 
@@ -665,10 +671,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getAllergies($pid, $encounter)
+    public function getAllergies($pid)
     {
         $allergies = '';
         $query = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation,
@@ -754,10 +759,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getMedications($pid, $encounter)
+    public function getMedications($pid)
     {
         $medications = '';
         $query = "select l.id, l.date_added, l.start_date, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
@@ -846,10 +850,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getProblemList($pid, $encounter)
+    public function getProblemList($pid)
     {
         UuidRegistry::createMissingUuidsForTables(['lists']);
         $problem_lists = '';
@@ -939,10 +942,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getMedicalDeviceList($pid, $encounter)
+    public function getMedicalDeviceList($pid)
     {
         $medical_devices = '';
         $query = "select l.*, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
@@ -1011,10 +1013,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getImmunization($pid, $encounter)
+    public function getImmunization($pid)
     {
         $immunizations = '';
         $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
@@ -1070,16 +1071,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getProcedures($pid, $encounter)
+    public function getProcedures($pid)
     {
         $wherCon = '';
         $sqlBindArray = [];
-        if ($encounter) {
-            $wherCon = " b.encounter = ? AND ";
-            $sqlBindArray[] = $encounter;
+        if (!empty($this->encounterFilterList)) {
+            $wherCon .= " b.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+        } else if ($this->searchFiltered) {
+            // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
+            // date range then we want to return an empty procedures list
+            return "<procedures></procedures>";
         }
 
         $procedure = '';
@@ -1096,13 +1099,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         where $wherCon b.pid = ? and b.activity = ?";
 
         array_push($sqlBindArray, $pid, 1);
-        if ($this->searchFiltered) {
-            $queryClause = $this->getDateQueryClauseForColumn('fe.date');
-            if (!empty($queryClause->getFragment())) {
-                $query .= " AND " . $queryClause->getFragment();
-                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
-            }
-        }
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
 
@@ -1142,16 +1138,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getResults($pid, $encounter)
+    public function getResults($pid)
     {
         $wherCon = '';
         $sqlBindArray = [];
-        if ($encounter) {
-            $wherCon = " po.encounter_id = ? AND ";
-            $sqlBindArray[] = $encounter;
+        if (!empty($this->encounterFilterList)) {
+            $wherCon .= " po.encounter_id IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+        } else if ($this->searchFiltered) {
+            // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
+            // date range then we want to return an empty procedures list
+            return "<results></results>";
         }
 
         $results = '';
@@ -1163,13 +1161,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id
         WHERE $wherCon po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
         array_push($sqlBindArray, $pid);
-        if ($this->searchFiltered) {
-            $queryClause = $this->getDateQueryClauseForColumn('date_ordered');
-            if (!empty($queryClause->getFragment())) {
-                $query .= " AND " . $queryClause->getFragment();
-                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
-            }
-        }
 
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
@@ -1253,24 +1244,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getEncounterHistory($pid, $encounter)
+    public function getEncounterHistory($pid)
     {
         $wherCon = '';
         $sqlBindArray = [];
-        if ($encounter) {
-            $wherCon = " fe.encounter = ? AND ";
-            $sqlBindArray[] = $encounter;
+        if (!empty($this->encounterFilterList)) {
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+        } else if ($this->searchFiltered) {
+            // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
+            // date range then we want to return an empty procedures list
+            return "<encounter_list></encounter_list>";
         }
-        if ($this->searchFiltered) {
-            $queryClause = $this->getDateQueryClauseForColumn('fe.date');
-            if (!empty($queryClause->getFragment())) {
-                $wherCon .= $queryClause->getFragment() . " AND ";
-                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
-            }
-        }
+
         $results = "";
         $query = "SELECT fe.date, fe.encounter,fe.reason,
         f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone, f.facility_npi as fnpi,
@@ -1984,12 +1971,17 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $encounter
      * @return string
      */
-    public function getVitals($pid, $encounter)
+    public function getVitals($pid)
     {
         $wherCon = '';
-        if ($encounter) {
-            $wherCon = "AND fe.encounter = $encounter";
+        if (!empty($this->encounterFilterList)) {
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+        } else if ($this->searchFiltered) {
+            // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
+            // date range then we want to return an empty procedures list
+            return "<vitals_list></vitals_list>";
         }
+
 
         $vitals = '';
         $query = "SELECT DATE(fe.date) AS date, fv.id, fv.* FROM forms AS f
@@ -2081,10 +2073,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getSocialHistory($pid, $encounter)
+    public function getSocialHistory($pid)
     {
         $social_history = '';
         $arr = array(
@@ -2984,51 +2975,36 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $codes_installed;
     }
 
-    /*
-    * get details from care plan form
-    * @param    int     $pid           Patient Internal Identifier.
-    * @param    int     $encounter     Current selected encounter.
-
-    * return    string  $planofcare  XML which contains the details collected from the patient.
-    */
     /**
-     * @param $pid
-     * @param $encounter
-     * @return string
+     * get details from care plan form
+     * @param $pid Patient Internal Identifier.
+     * @return string $planofcare  XML which contains the details collected from the patient.
      */
-    public function getPlanOfCare($pid, $encounter)
+    public function getPlanOfCare($pid)
     {
         $wherCon = '';
         $appTable = new ApplicationTable();
-        $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0, $pid];
-        if ($encounter) {
-            $query = "SELECT form_id, encounter FROM forms  WHERE pid = ? AND formdir = ? AND deleted = 0 ORDER BY date DESC LIMIT 1";
-            $result = $appTable->zQuery($query, array($pid, 'care_plan'));
-            foreach ($result as $row) {
-                $form_id = $row['form_id'];
-            }
+        $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
 
-            if ($form_id) {
-                $wherCon = "AND f.form_id = '" . add_escape_custom($form_id) . "'";
-            }
+        if (!empty($this->encounterFilterList)) {
+            $wherCon = " AND f.encounter IN (" . implode(",", array_map("intval", $this->encounterFilterList)) . ")";
+        } else if ($this->searchFiltered) {
+            // there are no encounters to filter on in the form and we are filtering the data...
+            return "<planofcare></planofcare><goals></goals><health_concerns></health_concerns>";
         }
 
         UuidRegistry::createMissingUuidsForTables(['lists']);
+        // TODO: implement referrals.  Our transactions table does not keep a code value which is required to report for ccda.
+        //  We used to grab the referrals but since we have no codes for the referral we ended up just skipping all the data
+        //  We removed the care plan transaction information here as it wasn't being used here or with serveccda.  When we
+        //  support codes in the transaction table we can add that back in.
         $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues
             FROM forms AS f
             LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
             LEFT JOIN codes AS c ON c.code = fcp.code
             LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
             LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
-            WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
-            UNION
-            SELECT 'referral' AS source,'' encounter,'' AS CODE,'' AS codetext,CONCAT_WS(', ',l1.field_value,CONCAT_WS(' ',u.fname,u.lname),CONCAT('Tel:',u.phonew1),u.street,u.city,CONCAT_WS(' ',u.state,u.zip),CONCAT('Schedule Date: ',l2.field_value)) AS description,l2.field_value AS DATE,'' moodCode,'' care_plan_type, '' note_issues
-            FROM transactions AS t
-            LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body'
-            LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date'
-            LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to'
-            LEFT JOIN users AS u ON u.id = l3.field_value
-            WHERE t.pid = ?";
+            WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon";
         $res = $appTable->zQuery($query, $sqlBindArray);
         $status = 'Pending';
         $status_entry = 'active';
@@ -3055,12 +3031,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
             $code = $tmp[1];
-            if ($row['source'] === 'referral') {
-                if (empty($row['code'])) {
-                    continue;
-                }
-                $row['care_plan_type'] = 'referral';
-            }
             if ($row['care_plan_type'] === 'health_concern') {
                 $issue_uuid = "<issues>\n";
                 if (!empty($row['note_issues'])) {
@@ -3138,16 +3108,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
    */
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getFunctionalCognitiveStatus($pid, $encounter)
+    public function getFunctionalCognitiveStatus($pid)
     {
         $wherCon = '';
         $sqlBindArray = [];
-        if ($encounter) {
-            $wherCon = " f.encounter = ? AND ";
-            $sqlBindArray[] = $encounter;
+
+        if (!empty($this->encounterFilterList)) {
+            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+        } else if ($this->searchFiltered) {
+            // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
+            // date range then we want to return an empty procedures list
+            return "<functional_status></functional_status><mental_status></mental_status>";
         }
 
         $functional_status = '<functional_status>';
@@ -3197,16 +3170,15 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $wherCon = '';
         $sqlBindArray = [];
-        if ($encounter) {
+        if ($this->searchFiltered) {
+            if (empty($this->encounterFilterList)) {
+                return "<clinical_notes></clinical_notes><mental_status></mental_status>";
+            } else {
+                $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            }
+        } else if ($encounter) {
             $wherCon = " f.encounter = ? AND ";
             $sqlBindArray[] = $encounter;
-        }
-        if ($this->searchFiltered) {
-            $queryClause = $this->getDateQueryClauseForColumn('fnote.date');
-            if (!empty($queryClause->getFragment())) {
-                $wherCon .= $queryClause->getFragment() . " AND ";
-                $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
-            }
         }
 
         $clinical_notes = '';
@@ -3266,16 +3238,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getClinicalInstructions($pid, $encounter)
+    public function getClinicalInstructions($pid)
     {
         $wherCon = '';
         $sqlBindArray = [];
-        if ($encounter) {
-            $wherCon = " f.encounter = ? AND ";
-            $sqlBindArray[] = $encounter;
+        if (!empty($this->encounterFilterList)) {
+            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+        } else if ($this->searchFiltered) {
+            // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
+            // date range then we want to return an empty procedures list
+            return "<clinical_instruction></clinical_instruction>";
         }
 
         $query = "SELECT fci.* FROM forms AS f
@@ -3295,22 +3269,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     /**
      * @param $pid
-     * @param $encounter
      * @return string
      */
-    public function getReferrals($pid, $encounter)
+    public function getReferrals($pid)
     {
         $wherCon = '';
         $sqlBindArray = [$pid];
         if ($this->searchFiltered) {
             $queryClause = $this->getDateQueryClauseForColumn('date');
             if (!empty($queryClause->getFragment())) {
-                $wherCon .= " AND " . $queryClause->getFragment();
+                $wherCon .= " AND " . $queryClause->getFragment() . " ";
                 $sqlBindArray = array_merge($sqlBindArray, $queryClause->getBoundValues());
             }
-        }
-        if ($encounter) {
-            $wherCon = "ORDER BY date DESC LIMIT 1";
         }
         $wherCon .= "ORDER BY date DESC LIMIT 1";
 
@@ -3353,6 +3323,32 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $sha = sha1($str);
         return substr(preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
+    }
+
+    private function getEncounterListForDateRange($pid, $encounter)
+    {
+        $encounter = '';
+        $appTable = new ApplicationTable();
+        $boundParams = [$pid];
+        $query = "SELECT encounter FROM form_encounter  WHERE pid = ? ";
+        if (!empty($encounter)) {
+            $query .= " AND encounter = ? ";
+            $boundParams[] = $encounter;
+        }
+        $searchClause = $this->getDateQueryClauseForColumn('date');
+        if (!empty($searchClause)) {
+            $query .= "AND " . $searchClause->getFragment();
+            $boundParams = array_merge($boundParams, $searchClause->getBoundValues());
+        }
+
+        $query .= " ORDER BY id DESC";
+        $result = $appTable->zQuery($query, $boundParams);
+        $encounters = [];
+        foreach ($result as $row) {
+            $encounters[] = intval($row['encounter']);
+        }
+
+        return $encounters;
     }
 }
 

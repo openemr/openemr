@@ -49,12 +49,12 @@ class CcdaServiceRequestModelGenerator
     }
 
     public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason
-        , int $send = null, $date_options = [], $useAbsoluteXsl = false)
+        , int $send = null, $date_options = [])
     {
         global $assignedEntity;
         global $representedOrganization;
 
-        $this->getEncounterccdadispatchTable()->setOptions($date_options);
+        $this->getEncounterccdadispatchTable()->setOptions($pid, $encounter, $date_options);
 
         if (!$send) {
             $send = 0;
@@ -65,10 +65,6 @@ class CcdaServiceRequestModelGenerator
         $this->data .= "<CCDA>";
         $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
         $this->data .= "<document_location>" . $GLOBALS['OE_SITE_DIR'] . "</document_location>";
-        if ($useAbsoluteXsl) {
-            // if we are generating a document to be passed around w/o our zip file we need to specify an absolute xsl
-            $this->data .= "<xslUrl>" . $GLOBALS['qualified_site_addr'] . '/interface/modules/zend_modules/public/xsl/cda.xsl' . "</xslUrl>";
-        }
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";
@@ -113,11 +109,11 @@ class CcdaServiceRequestModelGenerator
 
         /***************CCDA Body Information***************/
         if (in_array('encounters', $components_list)) {
-            $this->data .= $this->getEncounterccdadispatchTable()->getEncounterHistory($pid, $encounter);
+            $this->data .= $this->getEncounterccdadispatchTable()->getEncounterHistory($pid);
         }
 
         if (in_array('continuity_care_document', $sections_list)) {
-            $this->data .= $this->getContinuityCareDocument($pid, $encounter, $components_list);
+            $this->data .= $this->getContinuityCareDocument($pid, $components_list);
         }
 
         // we're sending everything anyway. document type will tell engine what to include in cda.
@@ -156,51 +152,51 @@ class CcdaServiceRequestModelGenerator
         $this->data .= "</CCDA>";
     }
 
-    public function getContinuityCareDocument($pid, $encounter, $components_list)
+    public function getContinuityCareDocument($pid, $components_list)
     {
         $ccd = '';
         if (in_array('allergies', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getAllergies($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getAllergies($pid);
         }
 
         if (in_array('medications', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getMedications($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getMedications($pid);
         }
 
         if (in_array('problems', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getProblemList($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getProblemList($pid);
         }
 
         if (in_array('procedures', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getProcedures($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getProcedures($pid);
         }
 
         if (in_array('results', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getResults($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getResults($pid);
         }
 
         if (in_array('immunizations', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getImmunization($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getImmunization($pid);
         }
 
         if (in_array('plan_of_care', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getPlanOfCare($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getPlanOfCare($pid);
         }
 
         if (in_array('functional_status', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getFunctionalCognitiveStatus($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getFunctionalCognitiveStatus($pid);
         }
 
         if (in_array('instructions', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getClinicalInstructions($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getClinicalInstructions($pid);
         }
 
         if (in_array('medical_devices', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getMedicalDeviceList($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getMedicalDeviceList($pid);
         }
 
         if (in_array('referral', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid, $encounter);
+            $ccd .= $this->getEncounterccdadispatchTable()->getReferrals($pid);
         }
         return $ccd;
     }
@@ -328,11 +324,11 @@ class CcdaServiceRequestModelGenerator
         $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getHistoryOfPastIllness($pid, $encounter);
         $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getReviewOfSystems($pid, $encounter);
         if (in_array('vitals', $components_list)) {
-            $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getVitals($pid, $encounter);
+            $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getVitals($pid);
         }
 
         if (in_array('social_history', $components_list)) {
-            $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getSocialHistory($pid, $encounter);
+            $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getSocialHistory($pid);
         }
 
         $history_and_physical_notes .= "</history_physical>";

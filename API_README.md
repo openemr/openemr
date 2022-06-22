@@ -24,6 +24,7 @@
         - [System Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
         - [Patient Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
         - [Group Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
+    - [Carecoordination Summary of Care (CCD) Generation (in FHIR_README.md)](FHIR_README.md#carecoordination-summary-of-care-docref-operation)
 - [For Developers](API_README.md#for-developers)
 
 ## Overview

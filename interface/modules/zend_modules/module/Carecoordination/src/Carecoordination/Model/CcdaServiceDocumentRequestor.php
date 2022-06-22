@@ -106,6 +106,9 @@ class CcdaServiceDocumentRequestor
         if ($output == "Authentication Failure") {
             throw new CcdaServiceConnectionException("Authentication Failure");
         }
+        if (empty(trim($output))) {
+            throw new CcdaServiceConnectionException("Ccda document generated was empty.  Check node service logs.");
+        }
         return $output;
     }
 }
