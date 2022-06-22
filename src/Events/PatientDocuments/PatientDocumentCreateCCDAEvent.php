@@ -13,7 +13,7 @@
 namespace OpenEMR\Events\PatientDocuments;
 
 use OpenEMR\Services\Search\DateSearchField;
-use \DateTime;
+use DateTime;
 
 class PatientDocumentCreateCCDAEvent
 {

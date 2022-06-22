@@ -48,8 +48,7 @@ class CcdaServiceRequestModelGenerator
         return $this->createdtime;
     }
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason
-        , int $send = null, $date_options = [])
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason, int $send = null, $date_options = [])
     {
         global $assignedEntity;
         global $representedOrganization;

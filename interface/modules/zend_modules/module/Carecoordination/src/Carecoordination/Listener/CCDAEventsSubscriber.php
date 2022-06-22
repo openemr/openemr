@@ -86,8 +86,8 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 '',
                 [], // params appears to be used for the informationRecipient pieces, so we leaves this alone
                 'xml',
-                ''
-                ,$dates
+                '',
+                $dates
             );
 
             // the generator just returns the content...

@@ -210,7 +210,8 @@ class FhirDocRefService
         return $this->getDocumentReferenceForCCDAEvent($event);
     }
 
-    private function getDocumentReferenceForCCDAEvent(PatientDocumentCreateCCDAEvent $event) {
+    private function getDocumentReferenceForCCDAEvent(PatientDocumentCreateCCDAEvent $event)
+    {
         // this creates our CCDA
         $createdEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
         if (empty($createdEvent->getCcdaId())) {

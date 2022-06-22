@@ -141,7 +141,8 @@ class BasicSearchField implements ISearchField
     }
 
 
-    public function __clone() {
+    public function __clone()
+    {
         if (!empty($this->values)) {
             $values = $this->values;
             $newValues = [];
