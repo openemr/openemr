@@ -3,7 +3,6 @@
 //these are the functions used to access the forms registry database
 //
 
-
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory=?", array($directory));
