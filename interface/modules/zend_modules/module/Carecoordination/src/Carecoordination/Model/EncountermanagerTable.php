@@ -251,6 +251,12 @@ class EncountermanagerTable extends AbstractTableGateway
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
+        if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
+            $verifyMessageReceivedChecked = true;
+        } else {
+            $verifyMessageReceivedChecked = false;
+        }
+
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = array();
@@ -296,7 +302,7 @@ class EncountermanagerTable extends AbstractTableGateway
 
                     // there is no way currently to specify this came from the patient so we force to clinician.
                     // Default xml type is CCD  (ie Continuity of Care Document)
-                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", $xml_type, '', $fileName);
+                    $result = transmitCCD($value, $ccda_file, $recipient, 'clinician', "CCD", $xml_type, '', $fileName, $verifyMessageReceivedChecked);
                     if ($result !== "SUCCESS") {
                         $d_Address .= ' ' . $recipient . "(" . $result . ")";
                     }
