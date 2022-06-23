@@ -3425,6 +3425,12 @@ $GLOBALS_METADATA = array(
             '0',
             xl('When you are ready to run phiMail in production mode. Turn on this flag.')
         ),
+        'phimail_verifyrecipientreceived_enable' => array(
+            xl("phiMail default force message receipt confirmation to on"),
+            'bool',
+            '0',
+            xl("Marks a message as succesful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
+        ),
 
         'phimail_server_address' => array(
             xl('phiMail Server Address'),
