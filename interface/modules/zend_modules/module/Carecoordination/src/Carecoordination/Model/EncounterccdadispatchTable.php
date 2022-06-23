@@ -596,12 +596,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($getprovider)) { // from patient_data
             $details = $this->getUserDetails($getprovider);
         } else { // get from CCM setup
-            $providerId = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
-            $details = !empty($providerId) ? $this->getUserDetails($providerId) : null;
+            $getprovider = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
+            $details = !empty($getprovider) ? $this->getUserDetails($getprovider) : null;
         }
         // Note for NPI: Many times a care team member may not have an NPI so instead of
         // an NPI OID use facility/document unique OID with user table reference for extension.
         $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid));
+        if (empty($getprovider)) {
+            // Last chance. Get the first care team member as primary.
+            if (!empty($get_care_team_provider[0])) {
+                $getprovider = $get_care_team_provider[0];
+                $details = $this->getUserDetails($getprovider);
+            }
+        }
         if (!empty($details)) {
             $primary_care_provider = "
         <primary_care_provider>
