@@ -42,6 +42,12 @@
                                                  Added back the timezone component display
                                                  Added the oid display for patient ids
                                                  Added a single section display component and a hide all/show all feature
+  Revision History: 2022-06-23 Stephen Nielson - Made patient display name be the Legal name if available
+                                                 Added display of additional patient names in header
+                                                 Added display of sdtcRace and sdtcEthnicity values
+                                                 Added multiple address display, multiple telecom display
+                                                 Added support for Mobile Contact telecom
+
   This style sheet is based on a major revision of the original CDA XSL, which was made possible thanks to the contributions of:
   - Jingdong Li
   - KH
@@ -63,7 +69,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
---><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+--><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sdtc="urn:hl7-org:sdtc" version="1.0">
   <!-- This is where all the styles are loaded -->
   
   
@@ -203,9 +209,21 @@ limitations under the License.
         </xsl:if>
         <div class="cda-render toc-header">
           <xsl:for-each select="/n1:ClinicalDocument/n1:recordTarget/n1:patientRole">
-            <xsl:call-template name="show-name">
-              <xsl:with-param name="name" select="n1:patient/n1:name"/>
-            </xsl:call-template>
+            <xsl:choose>
+              <xsl:when test="n1:patient/n1:name[@use] ='L'">
+                <xsl:call-template name="show-name">
+                  <xsl:with-param name="name" select="n1:patient/n1:name[@use='L']"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:call-template name="show-name">
+                  <xsl:with-param name="name" select="n1:patient/n1:name"/>
+                </xsl:call-template>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:if test="n1:patient/n1:name[@use='L']">
+            </xsl:if>
+
           </xsl:for-each>
         </div>
         <div class="cda-render toc-header">
@@ -1032,6 +1050,30 @@ limitations under the License.
                     </xsl:for-each>
                   </div>
                 </div>
+                <xsl:for-each select="n1:patient/n1:languageCommunication">
+                  <div class="row">
+                    <div class="attribute-title col-md-6">
+                      <xsl:text>Language Communication</xsl:text>
+                    </div>
+                    <div class="col-md-6">
+                      <xsl:value-of select="n1:proficiencyLevelCode[@displayName]" />
+                      <xsl:choose>
+                        <xsl:when test="n1:languageCode[@code]">
+                          <xsl:value-of select="n1:languageCode/@code" />
+                          <xsl:if test="n1:proficiencyLevelCode[@displayName]">
+                            Proficiency <xsl:value-of select="n1:proficiencyLevelCode/@displayName" />
+                          </xsl:if>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <span class="generated-text">
+                            <xsl:text>Information not available</xsl:text>
+                          </span>
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </div>
+                  </div>
+                </xsl:for-each>
+
                 <xsl:if test="n1:patient/n1:raceCode | (n1:patient/n1:ethnicGroupCode)">
                   <div class="row">
                     <div class="attribute-title col-md-6">
@@ -1039,9 +1081,10 @@ limitations under the License.
                     </div>
                     <div class="col-md-6">
                       <xsl:choose>
-                        <xsl:when test="n1:patient/n1:raceCode">
-                          <xsl:for-each select="n1:patient/n1:raceCode">
+                        <xsl:when test="n1:patient/n1:raceCode | n1:patient/sdtc:raceCode">
+                          <xsl:for-each select="n1:patient/n1:raceCode | n1:patient/sdtc:raceCode">
                             <xsl:call-template name="show-race-ethnicity"/>
+                            <xsl:text> </xsl:text>
                           </xsl:for-each>
                         </xsl:when>
                         <xsl:otherwise>
@@ -1058,9 +1101,10 @@ limitations under the License.
                     </div>
                     <div class="col-md-6">
                       <xsl:choose>
-                        <xsl:when test="n1:patient/n1:ethnicGroupCode">
-                          <xsl:for-each select="n1:patient/n1:ethnicGroupCode">
+                        <xsl:when test="n1:patient/n1:ethnicGroupCode | n1:patient/sdtc:ethnicGroupCode">
+                          <xsl:for-each select="n1:patient/n1:ethnicGroupCode | n1:patient/sdtc:ethnicGroupCode">
                             <xsl:call-template name="show-race-ethnicity"/>
+                            <xsl:text> </xsl:text>
                           </xsl:for-each>
                         </xsl:when>
                         <xsl:otherwise>
@@ -1071,6 +1115,9 @@ limitations under the License.
                       </xsl:choose>
                     </div>
                   </div>
+                  <xsl:if test="count(n1:patient/n1:name) > 1">
+                    <xsl:call-template name="show-names-other-list"></xsl:call-template>
+                  </xsl:if>
                 </xsl:if>
               </div>
             </div>
@@ -1807,8 +1854,11 @@ limitations under the License.
           <xsl:value-of select="$name/n1:prefix"/>
           <xsl:text> </xsl:text>
         </xsl:if>
-        <xsl:value-of select="$name/n1:given"/>
-        <xsl:text> </xsl:text>
+        <!-- Make sure we are displaying the whole name -->
+        <xsl:for-each select="$name[1]/n1:given">
+          <xsl:value-of select="."/>
+          <xsl:text> </xsl:text>
+        </xsl:for-each>
         <xsl:value-of select="$name/n1:family"/>
         <xsl:if test="$name/n1:suffix">
           <xsl:text>, </xsl:text>
@@ -1845,15 +1895,49 @@ limitations under the License.
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  <!-- show-names-other-list -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-names-other-list">
+    <xsl:for-each select="n1:patient/n1:name[not(@use = 'L')]">
+      <div class="row">
+        <div class="attribute-title col-md-6">
+          <xsl:if test="self::node()/n1:family[@qualifier]">
+            <xsl:choose>
+              <xsl:when test="self::node()/n1:family[@qualifier = 'BR']">
+                Birth Name
+              </xsl:when>
+              <xsl:otherwise>
+                Previous Name
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:if>
+        </div>
+        <div class="col-md-6">
+          <xsl:call-template name="show-name">
+            <xsl:with-param name="name" select="current()"/>
+          </xsl:call-template>
+        </div>
+      </div>
+    </xsl:for-each>
+  </xsl:template>
   <!-- show-contactInfo -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-contactInfo">
     <xsl:param name="contact"/>
-    <xsl:call-template name="show-address">
-      <xsl:with-param name="address" select="$contact/n1:addr"/>
-    </xsl:call-template>
-    <xsl:call-template name="show-telecom">
-      <xsl:with-param name="telecom" select="$contact/n1:telecom"/>
-    </xsl:call-template>
+    <xsl:for-each select="$contact/n1:addr">
+      <xsl:if test="position() > 1">
+        <hr />
+      </xsl:if>
+      <xsl:call-template name="show-address">
+        <xsl:with-param name="address" select="."/>
+      </xsl:call-template>
+    </xsl:for-each>
+    <xsl:if test="$contact/n1:addr and $contact/n1:telecom">
+      <hr />
+    </xsl:if>
+    <xsl:for-each select="$contact/n1:telecom">
+      <xsl:call-template name="show-telecom">
+        <xsl:with-param name="telecom" select="."/>
+      </xsl:call-template>
+    </xsl:for-each>
   </xsl:template>
   <!-- show-address -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-address">
@@ -1861,7 +1945,7 @@ limitations under the License.
     <div class="address-group">
       <xsl:choose>
         <xsl:when test="$address">
-          <div class="adress-group-header">
+          <div class="address-group-header">
             <xsl:if test="$address/@use">
               <xsl:call-template name="translateTelecomCode">
                 <xsl:with-param name="code" select="$address/@use"/>
@@ -1910,7 +1994,37 @@ limitations under the License.
           </div>
         </xsl:otherwise>
       </xsl:choose>
+      <xsl:if test="$address/n1:useablePeriod">
+        <xsl:for-each select="$address/n1:useablePeriod">
+          <p>
+            Period of Use
+            <xsl:call-template name="show-period">
+              <xsl:with-param name="period" select="." />
+            </xsl:call-template>
+          </p>
+        </xsl:for-each>
+      </xsl:if>
     </div>
+  </xsl:template>
+  <!-- show-period -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-period">
+    <xsl:variable name="period" />
+    <xsl:call-template name="show-time">
+      <xsl:with-param name="datetime" select="n1:low"/>
+    </xsl:call-template>
+    <xsl:if test="n1:low">
+      <xsl:text> - </xsl:text>
+    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="n1:high">
+        <xsl:call-template name="show-time">
+          <xsl:with-param name="datetime" select="n1:high"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        Now
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <!-- show-telecom -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-telecom">
@@ -1985,6 +2099,9 @@ limitations under the License.
       </xsl:when>
       <xsl:when test="$code = 'WP'">
         <xsl:text>Work Place</xsl:text>
+      </xsl:when>
+      <xsl:when test="$code = 'MC'">
+        <xsl:text>Mobile Contact</xsl:text>
       </xsl:when>
       <xsl:when test="$code = 'PUB'">
         <xsl:text>Pub</xsl:text>
