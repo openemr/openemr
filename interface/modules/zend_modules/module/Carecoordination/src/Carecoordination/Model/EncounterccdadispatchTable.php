@@ -596,12 +596,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($getprovider)) { // from patient_data
             $details = $this->getUserDetails($getprovider);
         } else { // get from CCM setup
-            $details = $this->getDetails('hie_primary_care_provider_id');
+            $providerId = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
+            $details = !empty($providerId) ? $this->getUserDetails($providerId) : null;
         }
         // Note for NPI: Many times a care team member may not have an NPI so instead of
         // an NPI OID use facility/document unique OID with user table reference for extension.
         $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid));
-        $primary_care_provider = "
+        if (!empty($details)) {
+            $primary_care_provider = "
         <primary_care_provider>
           <provider>
             <prefix>" . xmlEscape($details['title'] ?? '') . "</prefix>
@@ -623,6 +625,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <provider_since>" . xmlEscape($getprovider_status['provider_since_date'] ?? null) . "</provider_since>
           </provider>
         </primary_care_provider>";
+        } else {
+            $primary_care_provider = '';
+        }
+
         $care_team_provider = "<care_team><is_active>" . ($getprovider_status['care_team_status'] ?? false) . "</is_active>";
         foreach ($get_care_team_provider as $team_member) {
             if ((int)$getprovider === (int)$team_member) {
@@ -2189,6 +2195,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $image .= "</document>";
         return $image;
+    }
+
+    public function getCarecoordinationModuleSettingValue($field_name)
+    {
+        $query = "SELECT field_value FROM modules AS mo "
+        . " JOIN module_configuration AS conf ON mo.mod_id=conf.module_id "
+        . " WHERE mo.mod_directory='Carecoordination' AND conf.field_name=?";
+        $appTable = new ApplicationTable();
+        $res = $appTable->zQuery($query, array($field_name));
+        foreach ($res as $result) {
+            return $result['field_value'];
+        }
+        return null;
     }
 
     /**
