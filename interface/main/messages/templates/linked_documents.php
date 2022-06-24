@@ -84,7 +84,7 @@ try {
     <span class='font-weight-bold'><?php echo xlt('Linked document'); ?>:</span>
         <?php if (!$record['hasPatient']) : ?>
         <a class='messages-document-link<?php echo $record['requiresValidation'] ? " d-none" : ""; ?>'
-           href='javascript:void(0);' onClick="previewDocument(<?php echo attr_js($record['documentId']); ?>);"
+           href='javascript:void(0);' onClick='previewDocument(<?php echo attr_js($record['documentId']); ?>);'
 
         >
             <?php echo text($record['title']); ?>
@@ -120,6 +120,8 @@ try {
             <summary><?php echo xlt("Validation report"); ?></summary>
             <div class="validation-report-errors-container">
             </div>
+            <a href="javascript:void(0)" onClick='previewCCDADocument(event,<?php echo attr_js($record['documentId']);?>);'
+                ><?php echo xlt("View Processed Document"); ?></a>
         </details>
     <?php endif; ?>
     </div>
@@ -132,6 +134,19 @@ try {
 ?>
 
 <script>
+
+    function previewCCDADocument(event, documentId) {
+        event.preventDefault();
+        let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
+        try {
+            window.open(url);
+        }
+        catch (error)
+        {
+            console.error(error);
+            alert(window.xl("Failed to preview document"));
+        }
+    }
     function startDocumentValidation() {
         top.restoreSession();
         // document validation can take a long time especially if it is happening externally...

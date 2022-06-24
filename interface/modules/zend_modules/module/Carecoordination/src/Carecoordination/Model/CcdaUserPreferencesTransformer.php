@@ -21,6 +21,11 @@ class CcdaUserPreferencesTransformer
     private $sortPreferences;
 
     /**
+     * @var array of ccda section order to display items in to display if no document type is found.
+     */
+    private $defaultSortPreferences;
+
+    /**
      * @var int the maximum number of clinical section contents to display in the ccda
      */
     private $maxSections;
@@ -36,6 +41,10 @@ class CcdaUserPreferencesTransformer
             $this->maxSections = intval($maxSections ?? 0);
 
         $this->sortPreferences = $sortPreferences ?? array();
+        if (isset($this->sortPreferences['default'])) {
+            $this->defaultSortPreferences = $this->sortPreferences['default'] ?? [];
+            unset($this->sortPreferences['default']);
+        }
 
         /*[
             '2.16.840.1.113883.10.20.22.2.1.1' // Medications
@@ -82,9 +91,9 @@ class CcdaUserPreferencesTransformer
             if ($maxChildren > 0) {
                 // now that we've sorted everything, start at the end of our node list and just truncate our
                 // component sections until we get to our max number of nodes
-                if ($body->childNodes && $body->childNodes->length > $maxChildren) {
-                    for ($i = $body->childNodes->length; $i > $maxChildren; --$i) {
-                        $body->removeChild($body->lastChild);
+                if ($body->childElementCount && $body->childElementCount > $maxChildren) {
+                    for ($i = $body->childElementCount; $i > $maxChildren; --$i) {
+                        $body->removeChild($body->lastElementChild);
                     }
                 }
             }
@@ -146,6 +155,11 @@ class CcdaUserPreferencesTransformer
                 return $sections;
             }
         }
+        // if we couldn't find a single document then we will return our default sections if we have any
+        if (!empty($this->defaultSortPreferences)) {
+            return $this->defaultSortPreferences;
+        }
+
         return [];
     }
 }
