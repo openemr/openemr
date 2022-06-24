@@ -1,13 +1,16 @@
 <?php
 
 /**
+ * Latest Encounters report -
  * This report lists patients that were seen within a given date
- * range, or all patients if no date range is entered.
+ * range, or all patients if no date range is entered. It gives details of the latest encounter: facility, provider, patient, dob, gender
+ * and reason for the encounter
  *
- * modified for homeless health link requirements - ruth moulton 10th-june-22
+ * created by Ruth Moulton from report Patient_list.php authors Rod Roark and Brady Miller June 2022
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @author    Ruth Moulton <ruth@muswell.me.uk>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
