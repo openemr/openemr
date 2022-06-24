@@ -1913,16 +1913,14 @@ limitations under the License.
     <xsl:for-each select="n1:patient/n1:name[not(@use = 'L')]">
       <div class="row">
         <div class="attribute-title col-md-6">
-          <xsl:if test="self::node()/n1:family[@qualifier]">
-            <xsl:choose>
-              <xsl:when test="self::node()/n1:family[@qualifier = 'BR']">
-                Birth Name
-              </xsl:when>
-              <xsl:otherwise>
-                Previous Name
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:if>
+          <xsl:choose>
+            <xsl:when test="n1:family[@qualifier = 'BR'] | n1:given[@qualifier = 'BR']">
+              Birth Name
+            </xsl:when>
+            <xsl:otherwise>
+              Previous Name
+            </xsl:otherwise>
+          </xsl:choose>
         </div>
         <div class="col-md-6">
           <xsl:call-template name="show-name">
