@@ -165,6 +165,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 }
 
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
@@ -245,7 +246,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
             echo text($tmp['title']);
         } else {
             //There isn't documents for therapy group yet
-            echo $attendant_type == 'pid' ? xlt('Past Encounters and Documents') : xlt('Past Therapy Group Encounters');
+            echo $attendant_type == 'pid' ? xlt('Visit History') : xlt('Past Therapy Group Encounters');
         }
         ?>
     </span>
@@ -280,9 +281,9 @@ function efmouseover(elem, ptid, encid, formname, formid) {
     ?>
 
     <?php if ($billing_view) { ?>
-        <a href='encounters.php?billing=0&issue=<?php echo $issue . $getStringForPage; ?>' onclick='top.restoreSession()' style='font-size: 11px'>(<?php echo xlt('To Clinical View'); ?>)</a>
+        <a href='encounters.php?billing=0&issue=<?php echo $issue . $getStringForPage; ?>' class="btn btn-small btn-info" onclick='top.restoreSession()' style='font-size: 11px'><?php echo xlt('To Clinical View'); ?></a>
     <?php } else { ?>
-        <a href='encounters.php?billing=1&issue=<?php echo $issue . $getStringForPage; ?>' onclick='top.restoreSession()' style='font-size: 11px'>(<?php echo xlt('To Billing View'); ?>)</a>
+        <a href='encounters.php?billing=1&issue=<?php echo $issue . $getStringForPage; ?>' class="btn btn-small btn-info" onclick='top.restoreSession()' style='font-size: 11px'><?php echo xlt('To Billing View'); ?></a>
     <?php } ?>
 
     <span class="float-right">
@@ -647,7 +648,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                         if ($billing_view) {
                                 $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
                                             "pid = ? AND encounter = ?", array($pid, $result4['encounter']));
-                                $arid = 0 + $tmp['id'];
+                                $arid = (int) $tmp['id'];
                             if ($arid) {
                                 $arinvoice = InvoiceSummary::arGetInvoiceSummary($pid, $result4['encounter'], true);
                             }

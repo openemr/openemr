@@ -365,6 +365,9 @@ exports.planOfCareSection = function (htmlHeader, na) {
             key: "section",
             attributes: condition.isNullFlavorSection('plan_of_care'),
             content: [
+                // @see http://www.hl7.org/ccdasearch/templates/2.16.840.1.113883.10.20.22.2.10.html
+                // They keep renaming this section, but ccda calls this Plan of Treatment Section (V2)
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.10", "2014-06-09"),
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.10"),
                 fieldLevel.templateCode("PlanOfCareSection"),
                 fieldLevel.templateTitle("PlanOfCareSection"), {
@@ -492,6 +495,29 @@ exports.vitalSignsSectionEntriesOptional = function (htmlHeader, na) {
                         [entryLevel.vitalSignsOrganizer, required]
                     ],
                     dataKey: "vitals"
+                }
+            ]
+        }]
+    };
+};
+
+exports.careTeamSection = function (htmlHeader, na) {
+    return {
+        key: "component",
+        content: [{
+            key: "section",
+            attributes: condition.isNullFlavorSection('care_team'),
+            content: [
+                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.500", "2019-07-01"),
+                fieldLevel.templateCode("CareTeamSection"),
+                fieldLevel.templateTitle("CareTeamSection"), {
+                    key: "text",
+                    text: "A Care Team is not assigned.",
+                    existsWhen: condition.keyDoesntExist("care_team")
+                },
+                htmlHeader, {
+                    key: "entry",
+                    content: entryLevel.careTeamOrganizer
                 }
             ]
         }]

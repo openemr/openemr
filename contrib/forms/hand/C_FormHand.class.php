@@ -11,7 +11,6 @@ require_once("FormHand.class.php");
 
 class C_FormHand extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

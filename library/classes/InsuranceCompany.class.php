@@ -14,6 +14,7 @@
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Common\ORDataObject\Address;
 
 /**
  * class Insurance Company
@@ -57,6 +58,18 @@ class InsuranceCompany extends ORDataObject
 
     var $address;
 
+    var $X12Partner;
+
+    /**
+     * @var Integer CQM SOP, Source of Payment, from HL7
+     */
+    var $cqm_sop;
+
+    /**
+     * @var Array contains code and description of above
+     */
+    var $cqm_sop_array;
+
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
@@ -79,6 +92,7 @@ class InsuranceCompany extends ORDataObject
         }
 
         $this->X12Partner = new X12Partner();
+        $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSop();
     }
 
     public function set_id($id = "")
@@ -191,6 +205,17 @@ class InsuranceCompany extends ORDataObject
     {
         return $this->ins_claim_type_array[$this->ins_type_code];
     }
+
+    public function set_cqm_sop($code)
+    {
+        $this->cqm_sop = $code;
+    }
+
+    public function get_cqm_sop()
+    {
+        return $this->cqm_sop;
+    }
+
     public function get_phone()
     {
         foreach ($this->phone_numbers as $phone) {

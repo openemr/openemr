@@ -43,7 +43,13 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+
+if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+    echo xlt('Patient Portal is turned off');
+    exit;
+}
 
 $docid = empty($_REQUEST['docid']) ? 0 : (int)$_REQUEST['docid'];
 $orderid = empty($_REQUEST['orderid']) ? 0 : (int)$_REQUEST['orderid'];
@@ -93,14 +99,14 @@ function getAuthPortalUsers()
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']); ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
     <meta name="description" content="Mail Application" />
 </head>
 <body class="skin-blue">
     <script>
         (function () {
-            var app = angular.module("emrMessageApp", ['ngSanitize', 'summernote', "checklist-model"]);
+            var app = angular.module("emrMessageApp", ['ngSanitize', "checklist-model"]);
             app.controller('inboxCtrl', ['$scope', '$filter', '$http', '$window', function ($scope, $filter, $http, $window) {
                 $scope.date = new Date;
                 $scope.sortingOrder = 'id';
@@ -130,6 +136,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Delete Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Delete Selected?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal')); ?>;
 
                 $scope.init = function () {
                     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
@@ -225,8 +232,7 @@ function getAuthPortalUsers()
                             itemToDelete.push($scope.items[i.indexOf(o)].id);
                         }
                     })
-                    $http.post('handle_note.php', $.param({'task': 'massdelete', 'notejson': JSON.stringify(itemToDelete)}))
-                    .then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'massdelete', 'notejson': JSON.stringify(itemToDelete), 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         $window.location.reload();
                     }, function errorCallback(response) {
                         alert(response.data);
@@ -235,8 +241,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.deleteMessage = function (id) {
-                    $http.post('handle_note.php', $.param({'task': 'delete', 'noteid': id}))
-                    .then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'delete', 'noteid': id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         return true;
                     }, function errorCallback(response) {
                         alert(response.data);
@@ -288,7 +293,7 @@ function getAuthPortalUsers()
 
                 $scope.readMessage = function (idx) {
                     if ($scope.items[idx].message_status == 'New') { // mark mail read else ignore
-                        $http.post('handle_note.php', $.param({'task': 'setread', 'noteid': $scope.items[idx].id})).then(function successCallback(response) {
+                        $http.post('handle_note.php', $.param({'task': 'setread', 'noteid': $scope.items[idx].id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                             $scope.items[idx].message_status = 'Read';
                             $scope.selected.message_status = 'Read';
                         }, function errorCallback(response) {
@@ -321,15 +326,14 @@ function getAuthPortalUsers()
                     return html;
                 };
 
-                $scope.htmlToText = function(html) {
+                $scope.htmlToText = function (html) {
                     const hold = document.createElement('DIV');
                     hold.innerHTML = html;
                     return jsText(hold.textContent || hold.innerText || '');
                 };
 
                 $scope.getInbox = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getinbox', 'owner': $scope.cUserId}))
-                    .then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getinbox', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.inboxItems = angular.copy(response.data);
                         } else alert(response.data);
@@ -339,8 +343,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getAllMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getall', 'owner': $scope.cUserId}))
-                    .then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getall', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.allItems = angular.copy(response.data);
                         } else alert(response.data);
@@ -350,8 +353,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getDeletedMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getdeleted', 'owner': $scope.cUserId}))
-                    .then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getdeleted', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.deletedItems = [];
                             $scope.deletedItems = angular.copy(response.data);
@@ -362,8 +364,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getSentMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getsent', 'owner': $scope.cUserId}))
-                    .then(function successCallback(response) {
+                    $http.post('handle_note.php', $.param({'task': 'getsent', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         $scope.sentItems = [];
                         $scope.sentItems = angular.copy(response.data);
                     }, function errorCallback(response) {
@@ -377,10 +378,10 @@ function getAuthPortalUsers()
                     $("#title").prop("disabled", false);
                     $("#selSendto").prop("disabled", false);
 
-                    compose.owner = $scope.cUserId;
+                    compose.csrf_token_form = $scope.csrf;
                     compose.sender_id = $scope.cUserId;
                     compose.sender_name = $scope.userproper;
-                    if ($scope.selrecip == compose.owner) {
+                    if ($scope.selrecip == $scope.cUserId) {
                         if (!confirm($scope.xLate.confirm.err))
                             return false;
                     }
@@ -392,7 +393,7 @@ function getAuthPortalUsers()
                         compose.sender_name = $("#selForwardto option:selected").text();
                         compose.selrecip = compose.recipient_id;
                     } else {
-                        compose.inputBody = $("#inputBody").summernote('code');
+                        compose.inputBody = CKEDITOR.instances.inputBody.getData();
                     }
                     return true; // okay to submit
                 }
@@ -400,7 +401,9 @@ function getAuthPortalUsers()
                 $('#modalCompose').on('show.bs.modal', function (e) {
                     // Sets up the compose modal before we show it
                     $scope.compose = [];
-                    $('#inputBody').summernote('destroy');
+                    if ($scope.editor) {
+                        $scope.editor.destroy(true);
+                    }
                     var mode = $(e.relatedTarget).attr('data-mode');
                     $scope.compose.task = mode;
                     if (mode == 'forward') {
@@ -425,7 +428,31 @@ function getAuthPortalUsers()
                         $("textarea#finputBody").text(fmsg)
                         $scope.compose.noteid = $(e.relatedTarget).attr('data-noteid');
                     } else if (mode == 'reply') {
-                        $('#inputBody').summernote({focus: true, height: '225px', width: '100%'});
+                        $scope.editor = CKEDITOR.instances['inputBody'];
+                        if ($scope.editor) {
+                            $scope.editor.destroy(true);
+                        }
+                        $scope.editor = CKEDITOR.replace('inputBody', {
+                            toolbarGroups: [
+                                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+                                { name: 'forms', groups: [ 'forms' ] },
+                                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+                                { name: 'links', groups: [ 'links' ] },
+                                { name: 'insert', groups: [ 'insert' ] },
+                                { name: 'styles', groups: [ 'styles' ] },
+                                { name: 'colors', groups: [ 'colors' ] },
+                                { name: 'tools', groups: [ 'tools' ] },
+                                { name: 'others', groups: [ 'others' ] },
+                                { name: 'about', groups: [ 'about' ] }
+                            ],
+                            removeButtons: 'About,Table,Smiley,SpecialChar,PageBreak,Iframe,HorizontalRule,Anchor,Unlink,Link,NumberedList,BulletedList,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,CopyFormatting,RemoveFormat,Superscript,Subscript,Strike,Underline,Italic,Bold,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,SelectAll,Scayt,Find,Replace,PasteFromWord,Templates,NewPage,ExportPdf,Maximize,ShowBlocks,Source,Save,Preview,Print,Cut,Copy,Paste,PasteText,TextColor,BGColor',
+                            height: 250,
+                            width: '100%',
+                            resize_maxHeight: 650
+                        });
                         $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose Reply Message"); ?>)
                         $scope.compose.task = mode;
                         //get data attributes of the clicked element (selected recipient) for replies only
@@ -446,16 +473,32 @@ function getAuthPortalUsers()
                         $scope.compose.recipient_id = recipId;
                         $scope.compose.noteid = chain;
                     } else {
-                        $('#inputBody').summernote({
+                        $scope.editor = CKEDITOR.instances['inputBody'];
+                        if ($scope.editor) {
+                            $scope.editor.destroy(true);
+                        }
+                        $scope.editor = CKEDITOR.replace('inputBody', {
+                            toolbarGroups: [
+                                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
+                                { name: 'forms', groups: [ 'forms' ] },
+                                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
+                                { name: 'links', groups: [ 'links' ] },
+                                { name: 'insert', groups: [ 'insert' ] },
+                                { name: 'styles', groups: [ 'styles' ] },
+                                { name: 'colors', groups: [ 'colors' ] },
+                                { name: 'tools', groups: [ 'tools' ] },
+                                { name: 'others', groups: [ 'others' ] },
+                                { name: 'about', groups: [ 'about' ] }
+                            ],
+                            removeButtons: 'About,Table,Smiley,SpecialChar,PageBreak,Iframe,HorizontalRule,Anchor,Unlink,Link,NumberedList,BulletedList,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,CopyFormatting,RemoveFormat,Superscript,Subscript,Strike,Underline,Italic,Bold,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,SelectAll,Scayt,Find,Replace,PasteFromWord,Templates,NewPage,ExportPdf,Maximize,ShowBlocks,Source,Save,Preview,Print,Cut,Copy,Paste,PasteText,TextColor,BGColor',
+                            height: 250,
                             width: '100%',
-                            focus: true,
-                            height: '225px',
-                            popover: {
-                                image: [],
-                                link: [],
-                                air: []
-                            }
+                            resize_maxHeight: 650
                         });
+
                         $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose New Message"); ?>)
                         $scope.compose.task = 'add';
                         $(e.currentTarget).find('select[id="selSendto"]').prop("disabled", false);
@@ -465,12 +508,6 @@ function getAuthPortalUsers()
                         $scope.$apply();
                     }
                 }); // on modal
-                $('#modalCompose').on('shown.bs.modal', function (e) {
-                    // may yet need
-                });
-                $('#modalCompose').on('hidden.bs.modal', function (e) {
-                    // cleanup
-                });
                 // initialize application
                 if (!$scope.isInit) {
                     $scope.init();
@@ -534,7 +571,7 @@ function getAuthPortalUsers()
                                 <a class="nav-link" href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
                             </li>
                             <!--<li class="nav-item">
-                                <a class="nav-link" href="javascript:;" onclick='window.location.replace("<?php /*echo $GLOBALS['web_root'] */?>/portal/home.php")' ng-show="isPortal"><?php /*echo xlt('Exit'); */?></a>
+                                <a class="nav-link" href="javascript:;" onclick='window.location.replace("<?php /*echo $GLOBALS['web_root'] */ ?>/portal/home.php")' ng-show="isPortal"><?php /*echo xlt('Exit'); */ ?></a>
                             </li>-->
                         </ul>
                     </div>
@@ -556,15 +593,15 @@ function getAuthPortalUsers()
                                     </li>
                                     <li class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><?php echo xlt('Compose new'); ?></a>
+                                        <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i><?php echo xlt('Compose new'); ?></a>
                                     </li>
                                     <li ng-show='!isTrash'>
-                                        <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
+                                        <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i><?php echo xlt('Send Selected to Archive'); ?></a></li>
                                     <li>
-                                        <a href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root'] ?>/portal/home.php")' ng-show="isPortal" class="dropdown-item text-muted"><?php echo xlt('Return Home'); ?></a>
+                                        <a href="javascript:;" onclick='window.location.replace("./messages.php")' ng-show="isPortal" class="dropdown-item"><i class="fa fa-sync"></i><?php echo xlt('Refresh'); ?></a>
                                     </li>
                                     <li>
-                                        <a href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item text-muted"><?php echo xlt('Return Home'); ?></a>
+                                        <a href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item"><i class="fa fa-home"></i><?php echo xlt('Return Home'); ?></a>
                                     </li>
                                 </ul>
                             </div>
@@ -585,7 +622,8 @@ function getAuthPortalUsers()
                                     <td><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
                                         <span class="col-sm-1 px-1" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span>
                                         <span class="col-sm-1 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
-                                        <span class="col-sm-2 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span> <span class="col-sm-3 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.sender_name}} to
+                                        <span class="col-sm-2 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
+                                        <span class="col-sm-3 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.sender_name}} to
                                                 {{item.recipient_name}}</span></span> <span class="col-sm-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.title}}</span></span>
                                         <span class="col-sm-4 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
                                         <!-- below for attachments, eventually -->
@@ -667,38 +705,38 @@ function getAuthPortalUsers()
                             <div class="modal-body ">
                                 <div class="col-12">
                                     <label ng-show='selected.mail_chain'><?php echo xlt('Refer to Message') . ' # '; ?>{{selected.id}}</label>
-                                    <div class="jumbotron col-lg-12 m-1 p-1 bg-secondary" id="referMsg" ng-show='selected.mail_chain'  ng-bind-html='renderMessageBody(selected.body)'></div>
+                                    <div class="jumbotron col-lg-12 m-1 p-1 bg-secondary" id="referMsg" ng-show='selected.mail_chain' ng-bind-html='renderMessageBody(selected.body)'></div>
 
                                     <form role="form" class="form-horizontal" ng-submit="submitForm(compose)" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
                                         <fieldset class="row">
-                                            <div class="form-row col-lg-6 input-group">
-                                                <label class="col-lg-1" for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
-                                                <select class="form-control col-lg-5" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:type = 'user' track by recip.userid"></select>
-                                                <select class="form-control col-lg-5" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
+                                            <div class="col-lg-6 input-group my-2">
+                                                <label for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
+                                                <select class="form-control ml-2" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:type = 'user' track by recip.userid"></select>
+                                                <select class="form-control ml-2" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
                                             </div>
-                                            <div class="form-row input-group col-lg-6">
-                                                <label class="col-lg-2" for="title"><?php echo xlt('Subject'); ?></label>
-                                                <input type='text' list='listid' name='title' id='title' class="form-control" ng-model='compose.title'>
-                                                    <datalist id='listid'>
-                                                        <option><?php echo xlt('Unassigned'); ?></option>
-                                                        <option label='<?php echo xlt('Insurance'); ?>'
-                                                            value='<?php echo xla('Insurance'); ?>' />
-                                                        <option label='<?php echo xlt('Prior Auth'); ?>'
-                                                            value='<?php echo xla('Prior Auth'); ?>' />
-                                                        <option label='<?php echo xlt('Bill/Collect'); ?>'
-                                                            value='<?php echo xla('Bill/Collect'); ?>' />
-                                                        <option label='<?php echo xlt('Referral'); ?>'
-                                                            value='<?php echo xla('Referral'); ?>' />
-                                                        <option label='<?php echo xlt('Pharmacy'); ?>'
-                                                            value='<?php echo xla('Pharmacy'); ?>' />
-                                                    </datalist>
+                                            <div class="input-group col-lg-6 my-2">
+                                                <label for="title"><?php echo xlt('Subject'); ?></label>
+                                                <input type='text' list='listid' name='title' id='title' class="form-control ml-2" ng-model='compose.title'>
+                                                <datalist id='listid'>
+                                                    <option><?php echo xlt('Unassigned'); ?></option>
+                                                    <option label='<?php echo xlt('Insurance'); ?>'
+                                                        value='<?php echo xla('Insurance'); ?>' />
+                                                    <option label='<?php echo xlt('Prior Auth'); ?>'
+                                                        value='<?php echo xla('Prior Auth'); ?>' />
+                                                    <option label='<?php echo xlt('Bill/Collect'); ?>'
+                                                        value='<?php echo xla('Bill/Collect'); ?>' />
+                                                    <option label='<?php echo xlt('Referral'); ?>'
+                                                        value='<?php echo xla('Referral'); ?>' />
+                                                    <option label='<?php echo xlt('Pharmacy'); ?>'
+                                                        value='<?php echo xla('Pharmacy'); ?>' />
+                                                </datalist>
                                             </div>
                                             <div class="col-12" id="inputBody" ng-hide="compose.task == 'forward'" ng-model="compose.inputBody"></div>
                                             <textarea class="col-12" id="finputBody" rows="8" ng-hide="compose.task != 'forward'" ng-model="compose.inputBody"></textarea>
                                         </fieldset>
+                                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" ng-value="compose.csrf_token_form" />
                                         <input type='hidden' name='noteid' id='noteid' ng-value="compose.noteid" />
                                         <input type='hidden' name='replyid' id='replyid' ng-value='selected.reply_mail_chain' />
-                                        <input type='hidden' name='owner' ng-value='compose.owner' />
                                         <input type='hidden' name='recipient_id' ng-value='compose.selrecip' />
                                         <input type='hidden' name='recipient_name' ng-value='compose.recipient_name' />
                                         <input type='hidden' name='sender_id' ng-value='compose.sender_id' />

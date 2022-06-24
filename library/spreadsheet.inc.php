@@ -341,7 +341,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 <script>
 
  var ssChanged = false; // if they have changed anything in the spreadsheet
- var startDate = '<?php echo $start_date ? $start_date : date('Y-m-d'); ?>';
+ var startDate = <?php echo js_escape(($start_date ? $start_date : date('Y-m-d'))); ?>;
 
  // In case we are a popup (top level) window, handle top.restoreSession() calls.
  function restoreSession() {

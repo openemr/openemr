@@ -13,6 +13,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 $alertmsg = '';
@@ -21,7 +22,8 @@ $info_msg = "";
 $tmpl_line_no = 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Drug")]);
+    exit;
 }
 
 // Write a line of data for one template to the form.
@@ -125,7 +127,7 @@ function set_related_target(codetype, code, selector, codedesc, target_element, 
                 if (s.indexOf(codetype + ':') == 0 || s.indexOf(';' + codetype + ':') > 0) {
                     return <?php echo xlj('A code of this type is already selected. Erase the field first if you need to replace it.') ?>;
                 }
-            }     
+            }
             if (s.length > 0) {
                 s += ';';
             }

@@ -371,12 +371,13 @@ class HTML_TreeNode
   // author's intention was in using this name twice or if it was a mistake
     //var $parent;
 
-
     /**
     * Javascript event handlers;
     * @var array
     */
     var $events;
+
+    var $id;
 
     /**
     * Constructor
@@ -575,6 +576,9 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     */
     var $noTopLevelImages;
 
+    var $maxDepth;
+    var $usePersistence;
+
     /**
     * Constructor, takes the tree structure as
     * an argument and an array of options which
@@ -748,6 +752,8 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     */
     var $linkTarget;
 
+    var $submitText;
+
     /**
     * Constructor
     *
@@ -796,7 +802,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
         }
 
         if ($this->promoText) {
-            return sprintf('<option value="">%s</option>%s', $this->promoText, $nodeHTML);
+            return sprintf('<option value="">%s</option>%s', text($this->promoText ?? ''), $nodeHTML);
         } else {
             return $nodeHTML;
         }
@@ -809,7 +815,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     */
     function _nodeToHTML($node, $prefix = '')
     {
-        $html = sprintf('<option value="%s">%s%s</option>', $node->id, $prefix, $node->text);
+        $html = sprintf('<option value="%s">%s%s</option>', attr($node->id), $prefix, text($node->text));
 
         /**
         * Loop through subnodes

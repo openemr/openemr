@@ -19,6 +19,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -38,7 +39,8 @@ if ($auth) {
         die(xlt('Not authorized'));
     }
 } else {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
+    exit;
 }
 
  // Collect parameter(s)
@@ -359,8 +361,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         onclick='rowSelectionChanged(" . attr_js($focustype) . ");'/></td>\n";
                                 }
                                 echo "  <td class='text-left " . attr($click_class) . "' style='text-decoration: underline' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
-                                echo "  <td>" . text(oeFormatShortDate($row['begdate'])) . "&nbsp;</td>\n";
-                                echo "  <td>" . text(oeFormatShortDate($row['enddate'])) . "&nbsp;</td>\n";
+                                echo "  <td>" . text(trim(oeFormatDateTime($row['begdate']))) . "&nbsp;</td>\n";
+                                echo "  <td>" . text(trim(oeFormatDateTime($row['enddate']))) . "&nbsp;</td>\n";
                                 // both codetext and statusCompute have already been escaped above with htmlspecialchars)
                                 echo "  <td>" . $codetext . "</td>\n";
                                 echo "  <td>" . $statusCompute . "&nbsp;</td>\n";

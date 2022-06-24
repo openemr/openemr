@@ -144,7 +144,7 @@ class InvoiceSummary
                 if ($row['account_code'] == "PCP") {
                     $code = "Copay";
                 } else {
-                    $code = "Unknown";
+                    $code = "Claim level";
                 }
             }
 
@@ -152,9 +152,12 @@ class InvoiceSummary
                 $code .= ':' . $row['modifier'];
             }
 
-            $ins_id = 0 + $row['payer_id'];
+            $ins_id = (int) $row['payer_id'];
+            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
             $codes[$code]['bal'] -= $row['pay_amount'];
             $codes[$code]['bal'] -= $row['adj_amount'];
+
+            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
             $codes[$code]['chg'] -= $row['adj_amount'];
 
             $codes[$code]['adj'] = $codes[$code]['adj'] ?? null;
@@ -165,7 +168,7 @@ class InvoiceSummary
 
             // Add the details if they want 'em.
             if ($with_detail) {
-                if (!$codes[$code]['dtl']) {
+                if (!($codes[$code]['dtl'] ?? '')) {
                     $codes[$code]['dtl'] = array();
                 }
 

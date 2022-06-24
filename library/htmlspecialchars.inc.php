@@ -33,7 +33,7 @@ function attr_js($text)
  */
 function attr_url($text)
 {
-    return attr(urlencode($text));
+    return attr(urlencode($text ?? ''));
 }
 
 /**

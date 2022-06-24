@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientCharacteristicClinicalTrialParticipant extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\Code $reason
      */
@@ -52,3 +51,4 @@ class PatientCharacteristicClinicalTrialParticipant extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicClinicalTrialParticipant';
 }
+

@@ -2,7 +2,6 @@
 
 class C_PatientFinder extends Controller
 {
-
     var $template_mod;
 
     function __construct($template_mod = "general")

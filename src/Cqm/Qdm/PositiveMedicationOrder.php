@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveMedicationOrder extends MedicationOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveMedicationOrder extends MedicationOrder
 
     public $_type = 'QDM::PositiveMedicationOrder';
 }
+

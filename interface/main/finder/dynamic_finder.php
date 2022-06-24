@@ -68,6 +68,7 @@ while ($row = sqlFetchArray($res)) {
 }
 $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . xlt("Loading") . "...</span></div>";
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
@@ -423,7 +424,6 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
         $("#pt_table_length").addClass("d-md-initial");
         $("#show_hide").addClass("d-md-initial");
         $("#search_hide").addClass("d-md-initial");
-        $("#pt_table_filter").addClass("d-none");
         $("#pt_table_length").addClass("d-none");
         $("#show_hide").addClass("d-none");
         $("#search_hide").addClass("d-none");

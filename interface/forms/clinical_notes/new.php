@@ -29,7 +29,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\ClinicalNotesService;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + ($_GET['id'] ?? 0);
+$formid = (int) ($_GET['id'] ?? 0);
 
 $clinicalNotesService = new ClinicalNotesService();
 
@@ -196,7 +196,7 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                         <div class="row pl-2">
                                             <div class="col-12">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                                <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                                <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                                             </div>
                                             <div class="col-12">
                                                 <label for="clinical_notes_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
@@ -217,7 +217,7 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                                 <select name="clinical_notes_category[]" id="clinical_notes_category_<?php echo attr($key) + 1; ?>" class="form-control clinical_notes_category">
                                                     <option value=""><?php echo xlt('Select Note Category'); ?></option>
                                                     <?php foreach ($clinical_notes_category as $value) :
-                                                        $selected = ($value['value'] == $obj["clinical_notes_category"]) ? 'selected="selected"' : '';
+                                                        $selected = ($value['value'] == ($obj["clinical_notes_category"] ?? '')) ? 'selected="selected"' : '';
                                                         if (!empty($selected)) {
                                                             $context = $value['title'];
                                                         }

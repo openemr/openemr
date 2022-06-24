@@ -110,7 +110,8 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
                 $fhirGoalTarget = new FHIRGoalTarget();
                 if (!empty($detail['date'])) {
                     $fhirDate = new FHIRDate();
-                    $fhirDate->setValue($detail['date']);
+                    $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $detail['date']);
+                    $fhirDate->setValue($parsedDateTime->format("Y-m-d"));
                     $fhirGoalTarget->setDueDate($fhirDate);
                 } else {
                     $fhirGoalTarget->setDueDate(UtilsService::createDataMissingExtension());

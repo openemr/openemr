@@ -1,0 +1,15 @@
+{#
+The Patient Portal card for the Medical Record Dashboard
+
+@author       Robert Down <robertdown@live.com>
+@copyright    Copyright (c) 2022 Robert Down <robertdown@live.com>
+@package      OpenEMR
+#}
+
+{% block delete %}
+{% if isAdmin == true and allowPatientDelete == true %}
+    <a class="btn btn-block btn-danger text-light deleter delete"
+        href="{{ webroot|attr }}/interface/patient_file/deleter.php?patient={{ pid|attr_url }}&csrf_token_form={{ csrf|attr_url }}"
+        onclick='return top.restoreSession()'><i class="fa fa-user-times fa-fw"></i>&nbsp;{{ "Delete Patient"|xlt }}</a>
+{% endif %}
+{% endblock %}

@@ -16,7 +16,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class FormEvaluation extends ORDataObject
 {
-
     /**
      *
      * @access private

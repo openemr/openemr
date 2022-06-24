@@ -13,7 +13,6 @@
  */
 class ReminderIntervalType
 {
-
     var $code;
     var $lbl;
 

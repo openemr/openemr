@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class SubstanceOrder extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -66,6 +65,11 @@ class SubstanceOrder extends QDMBaseType
     public $requester = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Substance, Order';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.77';
@@ -87,3 +91,4 @@ class SubstanceOrder extends QDMBaseType
 
     public $_type = 'QDM::SubstanceOrder';
 }
+

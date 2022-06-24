@@ -100,7 +100,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask
                 $this->getAction() === BillingProcessor::VALIDATE_ONLY ||
                 $this->getAction() === BillingProcessor::VALIDATE_AND_CLEAR
             ) {
-                $this->completeToScreen($context);
+                    $this->completeToScreen($context);
             }
         }
 

@@ -59,8 +59,7 @@ var patient = exports.patient = {
                 code: function (input) {
                     if (Object.prototype.toString.call(input) === "[object String]") {
                         return input.substring(0, 1);
-                    }
-                    else {
+                    } else {
                         return input.code.substring(0, 1);
                     }
                 },
@@ -471,7 +470,6 @@ var headerInformant = exports.headerInformant = {
                 key: "name",
                 text: leafLevel.inputProperty("name"),
                 dataKey: "name"
-
             }]
         }]
     },
@@ -535,3 +533,51 @@ var headerCustodian = exports.headerCustodian = {
     },
     dataKey: "meta.ccda_header.custodian"
 };
+var headerInformationRecipient = exports.headerInformationRecipient = {
+    key: "informationRecipient",
+    content: {
+        key: "intendedRecipient",
+        content: [{
+            key: "informationRecipient",
+            content: {
+                key: "name",
+                content: [
+                    {
+                        key: "family",
+                        text: leafLevel.inputProperty("family")
+                    }, {
+                        key: "given",
+                        text: leafLevel.input,
+                        dataKey: "given"
+                    }, {
+                        key: "prefix",
+                        text: leafLevel.inputProperty("prefix")
+                    }, {
+                        key: "suffix",
+                        text: leafLevel.inputProperty("suffix")
+                    }],
+                dataKey: "name",
+                dataTransform: translate.name,
+            },
+        },
+            {
+                key: "receivedOrganization",
+                content: [{
+                    key: "name",
+                    text: leafLevel.inputProperty("name"),
+                    dataKey: "organization"
+                }],
+
+            }]
+    },
+    dataKey: "meta.ccda_header.information_recipient"
+}
+
+/* {
+    key: "receivedOrganization",
+    content: [{
+        key: "name",
+        text: leafLevel.inputProperty("name"),
+        dataKey: "organization"
+    }],
+}*/

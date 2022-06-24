@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class FacilityLocation extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 {
-
     /**
      * @property BaseTypes\Code $code
      */
@@ -32,3 +31,4 @@ class FacilityLocation extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 
     public $_type = 'QDM::FacilityLocation';
 }
+

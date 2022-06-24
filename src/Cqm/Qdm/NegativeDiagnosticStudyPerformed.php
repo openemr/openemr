@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeDiagnosticStudyPerformed extends DiagnosticStudyPerformed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeDiagnosticStudyPerformed extends DiagnosticStudyPerformed
 
     public $_type = 'QDM::NegativeDiagnosticStudyPerformed';
 }
+

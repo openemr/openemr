@@ -12,6 +12,7 @@ require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -47,7 +48,8 @@ $fee             = $_REQUEST['fee'];
 $user            = $_SESSION['authUser'];
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    die(xl('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
+    exit;
 }
 
 if (!$drug_id) {

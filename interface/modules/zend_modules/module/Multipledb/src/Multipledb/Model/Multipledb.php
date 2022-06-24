@@ -26,7 +26,6 @@ use Laminas\InputFilter\InputFilterInterface;
 
 class Multipledb implements InputFilterAwareInterface
 {
-
     const FIELD_ID = "id";
     public $id;
     public $namespace;

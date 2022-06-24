@@ -1,0 +1,29 @@
+<supply classCode="SPLY" moodCode="RQO">
+ <!-- Immunization Supply Request template -->
+  <templateId root="2.16.840.1.113883.10.20.24.3.167" extension="2019-12-01"/>
+  <!-- Conforms to C-CDA R2 Planned Supply (V2) template-->
+  <templateId root="2.16.840.1.113883.10.20.22.4.43" extension="2014-06-09" />
+  <id root="{{random_id}}"/>
+  <statusCode code="active"/>
+  {{#relevantPeriod}}
+  {{{medication_supply_request_period}}}
+  {{/relevantPeriod}}
+  {{^relevantPeriod}}
+    {{#authorDatetime}}
+    {{{author_effective_time}}}
+    {{/authorDatetime}}
+  {{/relevantPeriod}}
+  <quantity value="{{{value_as_float}}}"/>
+  <product>
+    <manufacturedProduct classCode="MANU">
+      <!-- Immunization Medication Information (consolidation) template -->
+      <templateId root="2.16.840.1.113883.10.20.22.4.54" extension="2014-06-09"/>
+      <id root="{{random_id}}"/>
+      <manufacturedMaterial>
+        <!--  QDM Attribute: Code -->
+        {{> _codes}}
+        <lotNumberText>1</lotNumberText>
+      </manufacturedMaterial>
+    </manufacturedProduct>
+  </product>
+</supply>

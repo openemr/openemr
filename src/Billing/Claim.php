@@ -15,17 +15,20 @@ namespace OpenEMR\Billing;
 
 use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\UserService;
 
 class Claim
 {
     public const X12_VERSION = '005010X222A1';
-    public const NOC_CODES = array('J3301'); // special handling for not otherwise classified HCPCS/CPT, not many so can add more here
+    public const NOC_CODES = array('J3301'); // not otherwise classified HCPCS/CPT
 
     public $pid;               // patient id
     public $encounter_id;      // encounter id
     public $procs;             // array of procedure rows from billing table
-    public $diags;             // array of icd9 codes from billing table
+    public $diags;             // array of icd codes from billing table
     public $diagtype = "ICD10"; // diagnosis code_type; safe to assume ICD10 now
     public $x12_partner;       // row from x12_partners table
     public $encounter;         // row from form_encounter table
@@ -43,6 +46,145 @@ class Claim
     public $copay;             // total of copays from the ar_activity table
     public $facilityService;   // via matthew.vita orm work :)
     public $pay_to_provider;   // to be implemented in facility ui
+    private $encounterService;
+
+    public function __construct($pid, $encounter_id)
+    {
+        $this->pid = $pid;
+        $this->encounter_id = $encounter_id;
+        $this->encounterService = new EncounterService();
+        $this->encounter = $this->encounterService->getOneByPidEid($this->pid, $this->encounter_id);
+        $this->getProcsAndDiags($this->pid, $this->encounter_id);
+        $this->copay = $this->getCopay($this->pid, $this->encounter_id);
+        $this->facilityService = new FacilityService();
+        $this->facility = $this->facilityService->getById($this->encounter['facility_id']);
+        $this->pay_to_provider = ''; // will populate from facility someday :)
+        $this->x12_partner = $this->getX12Partner($this->procs[0]['x12_partner_id']);
+        $this->provider = (new UserService())->getUser($this->encounter['provider_id']);
+        $this->billing_facility = empty($this->encounter['billing_facility']) ?
+            $this->facilityService->getPrimaryBillingLocation() :
+            $this->facilityService->getById($this->encounter['billing_facility']);
+        $this->insurance_numbers = $this->getInsuranceNumbers(
+            $this->procs[0]['payer_id'],
+            $this->encounter['provider_id']
+        );
+        $this->patient_data = (new PatientService())->findByPid($this->pid);
+        $this->billing_options = $this->getMiscBillingOptions($this->pid, $this->encounter_id);
+        $this->referrer = (new UserService())->getUser($this->getReferrerId());
+        $this->billing_prov_id = (new UserService())->getUser($this->billing_options['provider_id'] ?? null);
+        $this->supervisor = (new UserService())->getUser($this->encounter['supervisor_id']);
+        $this->supervisor_numbers = $this->getInsuranceNumbers(
+            $this->procs[0]['payer_id'],
+            $this->encounter['supervisor_id']
+        );
+    }
+
+    public function getProcsAndDiags($pid, $encounter_id)
+    {
+        $this->procs = array();
+        $this->diags = array();
+        // Sort by procedure timestamp in order to get some consistency.
+        $sql = "SELECT b.id, b.date, b.code_type, b.code, b.pid, b.provider_id, " .
+        "b.user, b.groupname, b.authorized, b.encounter, b.code_text, b.billed, " .
+        "b.activity, b.payer_id, b.bill_process, b.bill_date, b.process_date, " .
+        "b.process_file, b.modifier, b.units, b.fee, b.justify, b.target, b.x12_partner_id, " .
+        "b.ndc_info, b.notecodes, b.revenue_code, ct.ct_diag " .
+        "FROM billing as b " .
+        "INNER JOIN code_types as ct ON b.code_type = ct.ct_key " .
+        "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND b.pid = ? AND b.encounter = ? AND " .
+        "b.activity = '1' ORDER BY b.date, b.id";
+        $res = sqlStatement($sql, array($pid, $encounter_id));
+        while ($row = sqlFetchArray($res)) {
+            // Save all diagnosis codes.
+            if ($row['ct_diag'] == '1') {
+                $this->diags[$row['code']] = $row['code'];
+                continue;
+            }
+
+            if (!$row['units']) {
+                $row['units'] = 1;
+            }
+
+            // Load prior payer data at the first opportunity in order to get
+            // the using_modifiers flag that is referenced below.
+            if (empty($this->procs)) {
+                $this->loadPayerInfo($row);
+            }
+
+            // The consolidate duplicate procedures, which was previously here, was removed
+            // from codebase on 12/9/15. Reason: Some insurance companies decline consolidated
+            // procedures, and this can be left up to the billing coder when they input the items.
+
+            // If there is a row-specific provider then get its details.
+            if (!empty($row['provider_id'])) {
+                // Get service provider data for this row.
+                $sql = "SELECT * FROM users WHERE id = ?";
+                $row['provider'] = sqlQuery($sql, array($row['provider_id']));
+                // Get insurance numbers for this row's provider.
+                $sql = "SELECT * FROM insurance_numbers " .
+                "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ?" .
+                "ORDER BY insurance_company_id DESC LIMIT 1";
+                $row['insurance_numbers'] = sqlQuery($sql, array($row['payer_id'], $row['provider_id']));
+            }
+
+            $this->procs[] = $row;
+        }
+    }
+
+    public function getCopay($pid, $encounter_id)
+    {
+        $copay = 0;
+        $resMoneyGot = sqlStatement(
+            "SELECT pay_amount as PatientPay, session_id as id, " .
+            "date(post_time) as date FROM ar_activity WHERE pid = ? AND encounter = ? AND " .
+            "deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
+            array($pid, $encounter_id)
+        );
+            //new fees screen copay gives account_code='PCP'
+        while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
+                $PatientPay = $rowMoneyGot['PatientPay'] * -1;
+                $copay -= $PatientPay;
+        }
+        return $copay;
+    }
+
+    public function getX12Partner($x12_partner_id)
+    {
+        $sql = "SELECT * FROM x12_partners WHERE id = ?";
+        return sqlQuery($sql, array($x12_partner_id));
+    }
+
+    public function getInsuranceNumbers($payer_id, $provider_id)
+    {
+        $sql = "SELECT * FROM insurance_numbers " .
+            "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
+            "ORDER BY insurance_company_id DESC LIMIT 1";
+        return sqlQuery($sql, array($payer_id, $provider_id));
+    }
+
+    public function getMiscBillingOptions($pid, $encounter_id)
+    {
+        $sql = "SELECT fpa.* FROM forms JOIN form_misc_billing_options AS fpa " .
+            "ON fpa.id = forms.form_id " .
+            "WHERE forms.pid = ? AND forms.encounter = ? AND " .
+            "forms.deleted = 0 AND forms.formdir = 'misc_billing_options' " .
+            "ORDER BY forms.date";
+        return sqlQuery($sql, array($pid, $encounter_id));
+    }
+
+    public function getReferrerId()
+    {
+        if ($this->billing_options['provider_id'] ?? '') {
+            $referrer_id = $this->billing_options['provider_id'];
+        } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
+            $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
+        } else {
+            $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
+            ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') ?
+            $this->patient_data['ref_providerID'] : $provider_id;
+        }
+        return $referrer_id;
+    }
 
     // This enforces the X12 Basic Character Set. Page A2.
     public function x12Clean($str)
@@ -87,7 +229,8 @@ class Claim
         //
         $this->payers = array();
         $this->payers[0] = array();
-        $query = "SELECT * FROM insurance_data WHERE pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC";
+        $query = "SELECT * FROM insurance_data WHERE pid = ? AND 
+            (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC";
         $dres = sqlStatement($query, array($this->pid, $encounter_date));
         $prevtype = '';
         while ($drow = sqlFetchArray($dres)) {
@@ -103,7 +246,10 @@ class Claim
             }
 
             $ins = count($this->payers);
-            if ($drow['provider'] == $billrow['payer_id'] && empty($this->payers[0]['data'])) {
+            if (
+                ($drow['provider'] == $billrow['payer_id'] || $billrow['payer_id'] == null) &&
+                empty($this->payers[0]['data'])
+            ) {
                 $ins = 0;
             }
 
@@ -148,147 +294,7 @@ class Claim
         }
     }
 
-  // Constructor. Loads relevant database information.
-  //
-    public function __construct($pid, $encounter_id)
-    {
-        $this->pid = $pid;
-        $this->encounter_id = $encounter_id;
-        $this->procs = array();
-        $this->diags = array();
-        $this->copay = 0;
 
-        $this->facilityService = new FacilityService();
-        $this->pay_to_provider = ''; // will populate from facility someday :)
-
-
-        // We need the encounter date before we can identify the payers.
-        $sql = "SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?";
-        $this->encounter = sqlQuery($sql, array($this->pid, $this->encounter_id));
-
-        // Sort by procedure timestamp in order to get some consistency.
-        $sql = "SELECT b.id, b.date, b.code_type, b.code, b.pid, b.provider_id, " .
-        "b.user, b.groupname, b.authorized, b.encounter, b.code_text, b.billed, " .
-        "b.activity, b.payer_id, b.bill_process, b.bill_date, b.process_date, " .
-        "b.process_file, b.modifier, b.units, b.fee, b.justify, b.target, b.x12_partner_id, " .
-        "b.ndc_info, b.notecodes, b.revenue_code, ct.ct_diag " .
-        "FROM billing as b " .
-        "INNER JOIN code_types as ct ON b.code_type = ct.ct_key " .
-        "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND b.encounter = ? AND b.pid = ? AND " .
-        "b.activity = '1' ORDER BY b.date, b.id";
-        $res = sqlStatement($sql, array($this->encounter_id, $this->pid));
-        while ($row = sqlFetchArray($res)) {
-            // Save all diagnosis codes.
-            if ($row['ct_diag'] == '1') {
-                $this->diags[$row['code']] = $row['code'];
-                continue;
-            }
-
-            if (!$row['units']) {
-                $row['units'] = 1;
-            }
-
-            // Load prior payer data at the first opportunity in order to get
-            // the using_modifiers flag that is referenced below.
-            if (empty($this->procs)) {
-                $this->loadPayerInfo($row);
-            }
-
-            // The consolidate duplicate procedures, which was previously here, was removed
-            // from codebase on 12/9/15. Reason: Some insurance companies decline consolidated
-            // procedures, and this can be left up to the billing coder when they input the items.
-
-            // If there is a row-specific provider then get its details.
-            if (!empty($row['provider_id'])) {
-                // Get service provider data for this row.
-                $sql = "SELECT * FROM users WHERE id = ?";
-                $row['provider'] = sqlQuery($sql, array($row['provider_id']));
-                // Get insurance numbers for this row's provider.
-                $sql = "SELECT * FROM insurance_numbers " .
-                "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ?" .
-                "ORDER BY insurance_company_id DESC LIMIT 1";
-                $row['insurance_numbers'] = sqlQuery($sql, array($row['payer_id'], $row['provider_id']));
-            }
-
-            $this->procs[] = $row;
-        }
-
-        $resMoneyGot = sqlStatement(
-            "SELECT pay_amount as PatientPay, session_id as id, " .
-            "date(post_time) as date FROM ar_activity WHERE pid = ? AND encounter = ? AND " .
-            "deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
-            array($this->pid, $this->encounter_id)
-        );
-          //new fees screen copay gives account_code='PCP'
-        while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
-              $PatientPay = $rowMoneyGot['PatientPay'] * -1;
-              $this->copay -= $PatientPay;
-        }
-
-        $sql = "SELECT * FROM x12_partners WHERE id = ?";
-        $this->x12_partner = sqlQuery($sql, array($this->procs[0]['x12_partner_id']));
-
-        $this->facility = $this->facilityService->getById($this->encounter['facility_id']);
-
-        /*****************************************************************
-        $provider_id = $this->procs[0]['provider_id'];
-        *****************************************************************/
-        $provider_id = $this->encounter['provider_id'];
-        $sql = "SELECT * FROM users WHERE id = ?";
-        $this->provider = sqlQuery($sql, array($provider_id));
-        // Selecting the billing facility assigned  to the encounter.  If none,
-        // try the first (and hopefully only) facility marked as a billing location.
-        if (empty($this->encounter['billing_facility'])) {
-              $this->billing_facility = $this->facilityService->getPrimaryBillingLocation();
-        } else {
-              $this->billing_facility = $this->facilityService->getById($this->encounter['billing_facility']);
-        }
-
-        $sql = "SELECT * FROM insurance_numbers " .
-        "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
-        "ORDER BY insurance_company_id DESC LIMIT 1";
-        $this->insurance_numbers = sqlQuery($sql, array($this->procs[0]['payer_id'], $provider_id));
-
-        $sql = "SELECT * FROM patient_data WHERE pid = ? ORDER BY id LIMIT 1";
-        $this->patient_data = sqlQuery($sql, array($this->pid));
-
-        $sql = "SELECT fpa.* FROM forms JOIN form_misc_billing_options AS fpa " .
-        "ON fpa.id = forms.form_id " .
-        "WHERE forms.encounter = ? AND forms.pid = ? AND forms.deleted = 0 AND forms.formdir = 'misc_billing_options' " .
-        "ORDER BY forms.date";
-        $this->billing_options = sqlQuery($sql, array($this->encounter_id, $this->pid));
-
-        $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
-        $this->insurance_numbers['provider_number_type'] != '1C') ?
-          $this->patient_data['ref_providerID'] : $provider_id;
-        $sql = "SELECT * FROM users WHERE id = ?";
-        $this->referrer = sqlQuery($sql, array($referrer_id));
-        if (!$this->referrer) {
-            $this->referrer = array();
-        }
-
-        $supervisor_id = $this->encounter['supervisor_id'];
-        $sql = "SELECT * FROM users WHERE id = ?";
-        $this->supervisor = sqlQuery($sql, array($supervisor_id));
-        if (!$this->supervisor) {
-            $this->supervisor = array();
-        }
-
-        $billing_options_id = $this->billing_options['provider_id'] ?? null;
-        $sql = "SELECT * FROM users WHERE id = ?";
-        $this->billing_prov_id = sqlQuery($sql, array($billing_options_id));
-        if (!$this->billing_prov_id) {
-            $this->billing_prov_id = array();
-        }
-
-        $sql = "SELECT * FROM insurance_numbers WHERE " .
-          "(insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
-          "ORDER BY insurance_company_id DESC LIMIT 1";
-        $this->supervisor_numbers = sqlQuery($sql, array($this->procs[0]['payer_id'], $supervisor_id));
-        if (!$this->supervisor_numbers) {
-            $this->supervisor_numbers = array();
-        }
-    }
 
   // Return an array of adjustments from the designated prior payer for the
   // designated procedure key (might be procedure:modifier), or for the claim
@@ -333,7 +339,7 @@ class Claim
             // Compute this procedure's patient responsibility amount as of this
             // prior payer, which is the original charge minus all insurance
             // payments and "hard" adjustments up to this payer.
-            $ptresp = $this->invoice[$code]['chg'] + $this->invoice[$code]['adj'];
+            $ptresp = $this->invoice[$code]['chg'] + $this->invoice[$code]['adj'] ?? '';
             foreach ($this->invoice[$code]['dtl'] as $key => $value) {
                 // plv (from ar_activity.payer_type) exists to
                 // indicate the payer level.
@@ -607,11 +613,11 @@ class Claim
 //***MS Add - since we are a TPA we need to include this
     public function x12_submitter_name()
     {
-        $tmp = $this->x12_partner['x12_submitter_name'] ?? '';
-        while (strlen($tmp) < 15) {
-            $tmp .= " ";
+        if ($GLOBALS['gen_x12_based_on_ins_co'] != 1) {
+            return false;
         }
 
+        $tmp = $this->x12Clean(trim($this->x12_partner['x12_submitter_name'])) ?? false;
         return $tmp;
     }
 
@@ -1383,7 +1389,11 @@ class Claim
 
     public function frequencyTypeCode()
     {
-        return (!empty($this->billing_options['replacement_claim']) && ($this->billing_options['replacement_claim'] == 1)) ? '7' : '1';
+        $tmp = (
+            !empty($this->billing_options['replacement_claim']) &&
+            ($this->billing_options['replacement_claim'] == 1)
+        ) ? '7' : '1';
+        return $tmp;
     }
 
     public function icnResubmissionNumber()
@@ -1449,11 +1459,12 @@ class Claim
                 if (!empty($tmp)) {
                     $code_data = explode('|', $tmp);
 
-                    // If there was a | in the code data, the the first part of the array is the type, and the second is the identifier
+                    // If there was a | in the code data, the the first part of the array is the type
+                    // and the second is the identifier
                     if (!empty($code_data[1])) {
                         // This is the simplest way to determine if the claim is using ICD9 or ICD10 codes
-                        // a mix of code types is generally not allowed as there is only one specifier for all diagnoses on HCFA-1500 form
-                        // and there would be ambiguity with E and V codes
+                        // a mix of code types is generally not allowed as there is only one specifier
+                        // for all diagnoses on HCFA-1500 form and there would be ambiguity with E and V codes
                         $this->diagtype = $code_data[0];
 
                         //code is in the second part of the $code_data array.

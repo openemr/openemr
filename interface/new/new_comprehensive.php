@@ -22,11 +22,13 @@ require_once("$srcdir/patientvalidation.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
-    die(xlt("Adding demographics is not authorized."));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search or Add Patient")]);
+    exit;
 }
 
 $CPR = 4; // cells per row
@@ -86,13 +88,9 @@ $fres = getLayoutRes();
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <?php require_once("$srcdir/erx_javascript.inc.php"); ?>
 <style>
-  div.section {
-   border: solid;
-   border-width: 1px;
-   border-color: var(--primary);
-   margin: 0 0 0 13px;
-   padding: 7px;
-  }
+.form-group {
+    margin-bottom: 0.25rem;
+}
 </style>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
@@ -136,6 +134,7 @@ function auto_populate_employer_address<?php echo $i ?>(){
   f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
   f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
   f.i<?php echo $i?>subscriber_street.value=f.form_street.value;
+  f.i<?php echo $i?>subscriber_street_line_2.value=f.form_street_line_2.value;
   f.i<?php echo $i?>subscriber_city.value=f.form_city.value;
   f.form_i<?php echo $i?>subscriber_state.value=f.form_state.value;
   f.i<?php echo $i?>subscriber_postal_code.value=f.form_postal_code.value;
@@ -388,20 +387,19 @@ function srchDone(pid){
 $constraints = LBF_Validation::generate_validate_constraints("DEM");
 ?>
 <script> var constraints = <?php echo $constraints; ?>; </script>
-    <div class="container-fluid">
+    <div class="container-xl">
         <div class="row">
             <div class="col-md-12">
                 <h2><?php echo xlt('Search or Add Patient');?></h2>
             </div>
         </div>
-        <br />
         <div class="row">
             <div class="<?php echo $BS_COL_CLASS; ?>-12">
                 <div class="accordion" id="dem_according">
                 <form action='new_comprehensive_save.php' name='demographics_form' id='DEM'
-                 method='post'
-                 onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
-                 <!--  Was: class='form-inline' -->
+                      method='post'
+                      onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
+                    <!--  Was: class='form-inline' -->
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <table class='table table-sm w-100' cellspacing='8'>
@@ -492,19 +490,23 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 $checked = ($display_style == 'block') ? "show" : "";
                                 $group_name_xl = text(xl_layout_label($group_name));
                                 $onclick = attr_js("div_" . $group_seq);
+                                $init_open = $grparr[$this_group]['grp_init_open'];
+                                if ($checked != "show") {
+                                    $checked = ($init_open == 1) ? $checked . " show" : $checked;
+                                }
                                 echo <<<HTML
                                 <div class="card">
-                                    <div class="card-header" id="header_{$group_seq_attr}">
+                                    <div class="card-header p-0 bg-secondary" id="header_{$group_seq_attr}">
                                         <h2 class="mb-0">
-                                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
+                                            <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
                                         </h2>
                                     </div>
-                                    <div id="div_{$group_seq_attr}" class="section collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
-                                        <div class="container-fluid card-body">
+                                    <div id="div_{$group_seq_attr}" class="bg-light collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
+                                        <div class="container-xl card-body">
                                 HTML;
                                 $display_style = 'none';
                             } elseif (strlen($last_group) == 0) {
-                                echo " <div class='container-fluid'>\n";
+                                echo " <div class='container-xl'>\n";
                             }
                             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
                             $last_group = $this_group;
@@ -513,7 +515,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       // Handle starting of a new row.
                         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
                             end_row();
-                            echo "  <div class='form-row'>";
+                            echo "  <div class='form-group row'>";
                         }
 
                         if ($item_count == 0 && $titlecols == 0) {
@@ -526,7 +528,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         if ($titlecols > 0) {
                             end_cell();
                             $bs_cols = $titlecols * intval(12 / $CPR);
-                            echo "<div class='$BS_COL_CLASS-$bs_cols pt-1 ";
+                            echo "<div class='$BS_COL_CLASS-$bs_cols ";
                             echo ($frow['uor'] == 2) ? "required" : "";
                             echo "' id='" . attr($field_id_label) . "'";
                             echo ">";
@@ -597,13 +599,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $insuranceTitle = xlt("Insurance");
                         echo <<<HTML
                         <div class="card">
-                            <div class="card-header" id="header_ins">
+                            <div class="card-header p-0 bg-secondary" id="header_ins">
                                 <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
+                                    <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
                                 </h2>
                             </div>
-                            <div id="div_ins" class="section collapse" aria-labelledby="header_ins" >
-                                <div class="container-fluid card-body">
+                            <div id="div_ins" class="bg-light collapse" aria-labelledby="header_ins" >
+                                <div class="container-xl card-body">
                         HTML;
 
                         for ($i = 1; $i <= sizeof($insurance_info); $i++) {
@@ -688,9 +690,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                               <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_employer_street' value="<?php echo attr($result3["subscriber_employer_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address'); ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 1'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street' value="<?php echo attr($result3["subscriber_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
+                          </div>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 2'); ?>:</label>
+                          <div class="col-md-5 mb-2">
+                            <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street_line_2' value="<?php echo attr($result3["subscriber_street_line_2"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE City'); ?>:</label>
@@ -926,6 +932,8 @@ while ($lrow = sqlFetchArray($lres)) {
 
     $(".select-dropdown").select2({
         theme: "bootstrap4",
+        dropdownAutoWidth: true,
+        width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {

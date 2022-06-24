@@ -12,7 +12,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 
 class FhirValidationService
 {
-
     public function validate($data)
     {
         if (!array_key_exists('resourceType', $data)) {

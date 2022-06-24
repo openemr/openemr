@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientCharacteristicPayer extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\Interval $relevantPeriod
      */
@@ -47,3 +46,4 @@ class PatientCharacteristicPayer extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicPayer';
 }
+

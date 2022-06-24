@@ -24,6 +24,7 @@ class Patient extends ORDataObject
     var $mname;
     var $fname;
     var $date_of_birth;
+    var $dob;
     var $provider;
 
     /**

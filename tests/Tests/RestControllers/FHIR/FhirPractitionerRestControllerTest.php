@@ -17,7 +17,6 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
  */
 class FhirPractitionerRestControllerTest extends TestCase
 {
-
     /**
      * @var FhirPractitionerRestController
      */

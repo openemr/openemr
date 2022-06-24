@@ -110,7 +110,8 @@ class BillingProcessor
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor);
-                if (($billingClaim->getPartner() == -1) && ($_SESSION['bn_x12'])) {
+                $bn_x12 = $_SESSION['bn_x12'] ?? '';
+                if (($billingClaim->getPartner() == -1) && $bn_x12) {
                     // If the x-12 partner is unassigned, don't process it.
                     $this->logger->printToScreen(xl("No X-12 partner assigned for claim " . $billingClaim->getId()));
                     continue;
@@ -174,8 +175,9 @@ class BillingProcessor
         } elseif (isset($post['bn_x12_encounter'])) {
             SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12($this->extractAction(), true);
+        } elseif (isset($post['bn_hcfa_txt_file'])) {
+            $processing_task = new Tasks\GeneratorHCFA($this->extractAction());
         } elseif (isset($post['bn_process_hcfa'])) {
-            SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorHCFA_PDF($this->extractAction());
         } elseif (isset($post['bn_process_hcfa_form'])) {
             $processing_task = new Tasks\GeneratorHCFA_PDF_IMG($this->extractAction());

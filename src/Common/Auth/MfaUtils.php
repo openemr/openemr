@@ -17,7 +17,6 @@ use u2flib_server\U2F;
 
 class MfaUtils
 {
-
     const TOTP_TOKEN_LENGTH = 6;
     const TOTP = 'TOTP';
     const U2F = 'U2F';

@@ -34,7 +34,7 @@
   </tr>
 </table>
 
-<div class="rule_detail edit text">
+<div class="rule_detail edit">
     <p class="header"><?php echo xlt('Reminder intervals'); ?> </p>
 
     <form action="index.php?action=edit!submit_intervals" method="post" id="frm_submit" onsubmit="return top.restoreSession()">

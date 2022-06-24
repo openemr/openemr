@@ -13,10 +13,11 @@
 
 class C_Pharmacy extends Controller
 {
-
     var $template_mod;
     var $pharmacies;
     public $totalpages;
+    private $pageno;
+    private $Pharmacy;
 
     function __construct($template_mod = "general")
     {

@@ -526,7 +526,7 @@ while ($prow = sqlFetchArray($pres)) {
                 }
             }
 
-            if (!is_array($html_strings[$form_name])) {
+            if (!is_array($html_strings[$form_name] ?? null)) {
                 $html_strings[$form_name] = array();
             }
 
@@ -540,7 +540,7 @@ while ($prow = sqlFetchArray($pres)) {
     }
 
     foreach ($registry_form_name as $var) {
-        if ($toprint = $html_strings[$var]) {
+        if ($toprint = $html_strings[$var] ?? null) {
             foreach ($toprint as $var) {
                 print $var;
             }
@@ -653,7 +653,7 @@ initReport = function(){
          });
     $(".genpdfrep").click(function() {  document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $(".genportal").click(function() {  document.report_form.pdf.value = 2; $("#report_form").submit(); });
-    $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $("#genfullreport").click(function() { location.href='<?php echo (!empty($returnurl)) ? "$rootdir/patient_file/encounter/$returnurl"  : '';?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });
 

@@ -12,7 +12,9 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\CarePlanService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\CarePlanFixtureManager;
+use OpenEMR\Tests\Fixtures\FormFixtureManager;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PractitionerService;
@@ -57,20 +59,30 @@ class CarePlanServiceTest extends TestCase
      */
     public function testGetOne()
     {
-        $this->fixtureManager->installFixtures();
+        $this->markTestIncomplete("This test is not implemented");
+    }
 
-        // attempt to verify the uuid surrogate key is working correctly
+    /**
+     * @cover ::getSurrogateKeyForRecord
+     */
+    public function testGetSurrogateKeyForRecord()
+    {
+        // we are going to use the old care plan
         $expectedResult = sqlQuery("SELECT `fcp`.`id` AS `form_id`,`fe`.`uuid` AS `euuid`, `fcp`.`encounter` FROM `form_care_plan` fcp "
         . " JOIN `form_encounter` fe ON `fcp`.`encounter` = `fe`.`encounter` LIMIT 1");
-        $expectedResult['euuid'] = UuidRegistry::uuidToString($expectedResult['euuid']);
-        $uuid = $this->service->getSurrogateKeyForRecord($expectedResult);
 
-        // getOne
-        $actualResult = $this->service->getOne($uuid);
-        $resultData = $actualResult->getData()[0];
-        $this->assertNotNull($resultData);
-        foreach (['euuid','form_id'] as $check) {
-            $this->assertEquals($expectedResult[$check], $resultData[$check]);
-        }
+        $euuid = "960aaed3-de07-44a5-9328-835ebc822169";
+        $expectedResult = ['euuid' => $euuid, 'form_id' => 1];
+
+        $result1 = $expectedResult; // clones
+        $result1['creation_timestamp'] = CarePlanService::V2_TIMESTAMP;
+        $uuid = $this->service->getSurrogateKeyForRecord($result1);
+        $this->assertStringContainsString(CarePlanService::SURROGATE_KEY_SEPARATOR_V1, $uuid, "v1 separator should be in surrogate key");
+
+        // past our v2 date
+        $result2 = $expectedResult;
+        $result2['creation_timestamp'] = CarePlanService::V2_TIMESTAMP + 1;
+        $uuid = $this->service->getSurrogateKeyForRecord($result2);
+        $this->assertStringContainsString(CarePlanService::SURROGATE_KEY_SEPARATOR_V2, $uuid, "v2 separator should be in surrogate key");
     }
 }

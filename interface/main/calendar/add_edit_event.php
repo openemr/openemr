@@ -52,13 +52,15 @@ require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'] . '/group.inc');
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
-    die(xl('Access not allowed'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Event")]);
+    exit;
 }
 
 /* Things that might be passed by our opener. */
@@ -1294,6 +1296,8 @@ function dateChanged() {
 
 // This is for callback by the find-available popup.
 function setappt(year,mon,mday,hours,minutes) {
+    //Infeg Save button should become active once an appointment is selected.
+    $('#form_save').attr('disabled', false);
     var f = document.forms[0];
     <?php
     $currentDateFormat = $GLOBALS['date_display_format'];
@@ -1310,15 +1314,18 @@ function setappt(year,mon,mday,hours,minutes) {
         ('' + (mon  + 100)).substring(1) + '/' +
         '' + year;
     <?php } ?>
+    f.form_hour.value = hours;
     <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+        f.form_hour.value = (hours > 12) ? hours - 12 : hours;
         f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
     <?php } ?>
-    f.form_hour.value = (hours > 12) ? hours - 12 : hours;
     f.form_minute.value = ('' + (minutes + 100)).substring(1);
 }
 
 // Invoke the find-available popup.
 function find_available(extra) {
+    //Infeg Save button should become active once an appointment is selected.
+    $('#form_save').attr('disabled', false);
     top.restoreSession();
     // (CHEMED) Conditional value selection, because there is no <select> element
     // when making an appointment for a specific provider

@@ -14,7 +14,6 @@
  */
 class ControllerRouter
 {
-
     /**
      * xxx todo: error handling
      */

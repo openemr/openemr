@@ -75,7 +75,7 @@ class EncounterService extends BaseService
     }
 
     /**
-     * Returns a list of encounters matching the encounter indentifier.
+     * Returns a list of encounters matching the encounter identifier.
      *
      * @param  $euuid     The encounter identifier of particular encounter
      * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
@@ -88,11 +88,26 @@ class EncounterService extends BaseService
         return $this->search($search, true, $puuidBind);
     }
 
+    /**
+     * Returns an encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return array         first row of encounter data
+     */
+    public function getOneByPidEid($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0];
+        }
+        return [];
+    }
 
     public function getUuidFields(): array
     {
         return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'
-            , 'facility_location_uuid', 'billing_location_uuid'];
+            , 'facility_location_uuid', 'billing_location_uuid', 'referrer_uuid'];
     }
 
     /**
@@ -121,6 +136,7 @@ class EncounterService extends BaseService
      * @param array  $search         search array parameters
      * @param bool   $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param string $puuidBindValue - Optional puuid to only allow visibility of the patient with this puuid.
+     * @param array  $options        - Optional array of sql clauses like LIMIT, ORDER, etc
      * @return bool|ProcessingResult|true|null ProcessingResult which contains validation messages, internal error messages, and the data
      *                               payload.
      */
@@ -194,8 +210,11 @@ class EncounterService extends BaseService
                        fa.billing_location_uuid,
                 
                        fe.provider_id,
+                       fe.referring_provider_id,
                        providers.provider_uuid,
                        providers.provider_username,
+                       referrers.referrer_uuid,
+                       referrers.referrer_username,
                        fe.discharge_disposition,
                        discharge_list.discharge_disposition_text
                        
@@ -224,7 +243,8 @@ class EncounterService extends BaseService
                                class_code,
                                facility_id,
                                discharge_disposition,
-                               pid as encounter_pid
+                               pid as encounter_pid,
+                               referring_provider_id
                            FROM form_encounter
                        ) fe
                        LEFT JOIN openemr_postcalendar_categories as opc
@@ -255,6 +275,15 @@ class EncounterService extends BaseService
                             WHERE
                                 npi IS NOT NULL and npi != ''
                        ) providers ON fe.provider_id = providers.provider_provider_id
+                       LEFT JOIN (
+                           select
+                                id AS referring_provider_id
+                                ,uuid AS referrer_uuid
+                                ,`username` AS referrer_username
+                            FROM users
+                            WHERE
+                                npi IS NOT NULL and npi != ''
+                       ) referrers ON fe.referring_provider_id = referrers.referring_provider_id
                        LEFT JOIN (
                            select
                                 facility.id AS facility_id
@@ -351,7 +380,8 @@ class EncounterService extends BaseService
             $data["provider_id"],
             $data["date"],
             $data['user'],
-            $data['group']
+            $data['group'],
+            $data['referring_provider_id']
         );
 
         if ($results) {
@@ -627,19 +657,7 @@ class EncounterService extends BaseService
     public function getPatientEncounterListWithCategories($pid)
     {
         $encounters = $this->getEncountersForPatientByPid($pid);
-        /**
-         *  $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
-        if (sqlNumRows($result4) > 0) {
-        while ($rowresult4 = sqlFetchArray($result4)) { ?>
-        EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
-        EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
-        CalendarCategoryArray[Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
-        Count++;
-        <?php
-        }
-        }
-         */
+
         $encounterList = [
             'ids' => []
             ,'dates' => []
@@ -651,5 +669,37 @@ class EncounterService extends BaseService
             $encounterList['categories'][$index] = $encounter['pc_catname'];
         }
         return $encounterList;
+    }
+
+    /**
+     * Returns the sensitivity level for the encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return string         sensitivity_level of first row of encounter data
+     */
+    public function getSensitivity($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0]['sensitivity'];
+        }
+        return [];
+    }
+
+    /**
+     * Returns the referring provider for the encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return string        referring provider of first row of encounter data (it's an id from the users table)
+     */
+    public function getReferringProviderID($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0]['referring_provider_id'] ?? '';
+        }
+        return [];
     }
 }

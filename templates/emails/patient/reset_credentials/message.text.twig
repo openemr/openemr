@@ -1,0 +1,9 @@
+{{  "We received a credentials reset request. The link to reset your credentials is below."|xlt }}
+{{ "Please ignore this email if you did not make this request"|xlt }}
+{{ "Credentials Reset. Below link is only valid for one hour."|xlt }}:
+{{ encoded_link|text }}
+{{ "One Time verification PIN"|xlt }}: </strong>{{ pin|text  }}
+{{ "Your Portal Login Web Address. Bookmark for future logins."|xlt  }}:
+{{ portal_onsite_two_address|text }}
+
+{% include 'emails/partials/patient/email-message-fhir-access.text.twig' with {fhir_address: fhir_address, fhir_requirements_address: fhir_requirements_address} %}

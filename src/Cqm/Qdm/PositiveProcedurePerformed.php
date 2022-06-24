@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveProcedurePerformed extends ProcedurePerformed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveProcedurePerformed extends ProcedurePerformed
 
     public $_type = 'QDM::PositiveProcedurePerformed';
 }
+

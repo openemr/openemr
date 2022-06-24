@@ -140,19 +140,22 @@ function doSubs($s)
         $nextLocation = $keyLocation + 1;
 
         if (keySearch($s, '{PatientSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld = '<script>page.presentPatientSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld = '<script>page.presentAdminSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld = '<script>page.presentWitnessSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{SignaturesRequired}')) {
+            $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
             global $templateService;
@@ -168,7 +171,7 @@ function doSubs($s)
             $content = 'data:application/pdf;base64,' . base64_encode($content);
             $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
             $sigfld .= "<div class='d-none' id='showPdf'>\n";
-            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='450px'></object>\n";
+            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='675em'></object>\n";
             $sigfld .= '</div>';
             $sigfld .= "<a class='btn btn-link' id='pdfView' onclick='" . 'document.getElementById("showPdf").classList.toggle("d-none")' . "'>" . $formtitle . "</a>";
             $s = keyReplace($s, $sigfld);
@@ -461,8 +464,12 @@ if ($encounter) {
     ));
 }
 $template = $templateService->fetchTemplate($form_id);
-
 $edata = $template['template_content'];
+
+// purify html (and remove js)
+$edata = (new \HTMLPurifier(\HTMLPurifier_Config::createDefault()))->purify($edata);
+
+// do the substitutions (ie. magic)
 $edata = doSubs($edata);
 
 if ($html_flag) { // return raw minified html template

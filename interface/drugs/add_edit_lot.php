@@ -21,7 +21,22 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+// Check authorizations.
+$auth_admin = AclMain::aclCheckCore('admin', 'drugs');
+$auth_lots  = $auth_admin               ||
+    AclMain::aclCheckCore('inventory', 'lots') ||
+    AclMain::aclCheckCore('inventory', 'purchases') ||
+    AclMain::aclCheckCore('inventory', 'transfers') ||
+    AclMain::aclCheckCore('inventory', 'adjustments') ||
+    AclMain::aclCheckCore('inventory', 'consumption') ||
+    AclMain::aclCheckCore('inventory', 'destruction');
+if (!$auth_lots) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
+    exit;
+}
 
 function checkWarehouseUsed($warehouse_id)
 {
@@ -75,7 +90,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 
     while ($lrow = sqlFetchArray($lres)) {
         $whid = $lrow['option_id'];
-        $facid = 0 + $lrow['option_value'];
+        $facid = (int) ($lrow['option_value'] ?? null);
         if ($whid != $currvalue) {
             if (!$allow_multiple && checkWarehouseUsed($whid)) {
                 continue;
@@ -119,18 +134,6 @@ $info_msg = "";
 
 $form_trans_type = intval(isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0');
 
-// Check authorizations.
-$auth_admin = AclMain::aclCheckCore('admin', 'drugs');
-$auth_lots  = $auth_admin               ||
-  AclMain::aclCheckCore('inventory', 'lots') ||
-  AclMain::aclCheckCore('inventory', 'purchases') ||
-  AclMain::aclCheckCore('inventory', 'transfers') ||
-  AclMain::aclCheckCore('inventory', 'adjustments') ||
-  AclMain::aclCheckCore('inventory', 'consumption') ||
-  AclMain::aclCheckCore('inventory', 'destruction');
-if (!$auth_lots) {
-    die(xlt('Not authorized'));
-}
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();
 
@@ -684,7 +687,7 @@ $lres = sqlStatement(
 while ($lrow = sqlFetchArray($lres)) {
     // TBD: For transfer to an existing lot do we want to force the same lot number?
     // Check clinic/wh permissions.
-    $facid = 0 + $lrow['option_value'];
+    $facid = (int) ($lrow['option_value'] ?? null);
     if ($is_user_restricted && !isWarehouseAllowed($facid, $lrow['warehouse_id'])) {
         continue;
     }

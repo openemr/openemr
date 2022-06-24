@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class DeviceApplied extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -51,6 +50,11 @@ class DeviceApplied extends QDMBaseType
     public $performer = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Device, Applied';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.13';
@@ -72,3 +76,4 @@ class DeviceApplied extends QDMBaseType
 
     public $_type = 'QDM::DeviceApplied';
 }
+

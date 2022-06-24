@@ -21,6 +21,7 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
@@ -29,7 +30,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reports")]);
+    exit;
 }
 // get various authorization levels
 $auth_notes_a  = AclMain::aclCheckCore('encounters', 'notes_a');
@@ -40,12 +42,12 @@ $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = AclMain::aclCheckCore('patients', 'med');
 $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
 
-$oefax = !empty($GLOBALS['oefax_enable']) ? $GLOBALS['oefax_enable'] : 0;
 /**
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
  */
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 ?>
+<!DOCTYPE>
 <html>
 <head>
 <title><?php echo xlt("Patient Reports"); ?></title>
@@ -269,9 +271,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <button type="button" class="genpdfrep btn btn-primary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
 
                         <?php
-                        if ($oefax) {
+
                             $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
-                        }
+
                         ?>
                         <input type='hidden' name='pdf' value='0' />
                         <br />
@@ -752,9 +754,9 @@ $(function () {
     <?php } ?>
 
     <?php
-    if ($oefax) {
+        //event dispatch
         $eventDispatcher->dispatch(PatientReportEvent::JAVASCRIPT_READY_POST, new GenericEvent());
-    }
+
     ?>
 
 });

@@ -18,7 +18,8 @@ function getLabel($value, $list_id)
 {
     // get from list_options
     $result = generate_display_field(array('data_type' => '1','list_id' => $list_id), $value);
-    if ($result != '') {
+    // trap for fa-exclamation-circle used to indicate empty input from layouts options.
+    if ($result != '' && stripos($result, 'fa-exclamation-circle') === false) {
         return $result;
     }
 

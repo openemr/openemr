@@ -19,7 +19,6 @@
  */
 class RuleCriteriaDatabaseCustom extends RuleCriteria
 {
-
     var $table;
     var $column;
     var $valueComparator;

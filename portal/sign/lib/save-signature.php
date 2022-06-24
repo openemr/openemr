@@ -39,8 +39,12 @@ if ($isPortal) {
 }
 require_once("../../../interface/globals.php");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if ($type == 'admin-signature') {
+if ($type === 'witness-signature') {
+    echo(js_escape('Done'));
+    exit();
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($type === 'admin-signature') {
         $req_pid = 0;
     }
     $sig_hash = hash('sha3-512', $output);

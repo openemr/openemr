@@ -12,7 +12,6 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
 
 class FhirPatientRestControllerTest extends TestCase
 {
-
     private $fhirPatientController;
     private $fixtureManager;
     private $fhirFixture;

@@ -12,7 +12,7 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +23,7 @@ use OpenEMR\Services\SocialHistoryService;
 
 require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
+global $facilityService;
 $facilityService = new FacilityService();
 
 // These are for sports team use:
@@ -1065,9 +1066,11 @@ function fixDate($date, $default = "0000-00-00")
                     $dmy[2] += 100;
                 }
             }
-
-            // phone_country_code indicates format of ambiguous input dates.
-            if ($GLOBALS['phone_country_code'] == 1) {
+            // Determine if MDY date format is used, preferring Date Display Format from
+            // global settings if it's not YMD, otherwise guessing from country code.
+            $using_mdy = empty($GLOBALS['date_display_format']) ?
+                ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
+            if ($using_mdy) {
                 $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
             } else {
                 $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[1], $dmy[0]);
@@ -1152,7 +1155,12 @@ function newEmployerData(
 //
 function updateEmployerData($pid, $new, $create = false)
 {
-    $colnames = array('name','street','city','state','postal_code','country');
+    // used to hard code colnames array('name','street','city','state','postal_code','country');
+    // but now adapted for layout based
+    $colnames = array();
+    foreach ($new as $key => $value) {
+        $colnames[] = $key;
+    }
 
     if ($create) {
         $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";

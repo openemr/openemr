@@ -19,6 +19,7 @@ require_once("$srcdir/erx_javascript.inc.php");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
@@ -28,7 +29,8 @@ use OpenEMR\Services\UserService;
 $facilityService = new FacilityService();
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    exit();
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Add User")]);
+    exit;
 }
 
 $alertmsg = '';
@@ -471,6 +473,28 @@ foreach ($list_acl_groups as $value) {
   <td><textarea name=info style="width:120px;" cols='27' rows='4' wrap='auto' class="form-control"></textarea></td>
 
   </tr>
+    <tr>
+        <td><span class=text><?php echo xlt('Default Billing Facility'); ?>: </span></td>
+        <td><select name="billing_facility_id" style="width:150px;" class="form-control">
+                <?php
+                $fres = $facilityService->getAllBillingLocations();
+                if ($fres) {
+                    $billResults = [];
+                    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
+                        $billResults[$iter2] = $fres[$iter2];
+                    }
+
+                    foreach ($billResults as $iter2) {
+                        ?>
+                        <option value="<?php echo attr($iter2['id']); ?>"><?php echo text($iter2['name']); ?></option>
+                        <?php
+                    }
+                }
+                ?>
+            </select>
+        </td>
+        <td></td>
+    </tr>
   <tr height="25"><td colspan="4">&nbsp;</td></tr>
 
 </table>

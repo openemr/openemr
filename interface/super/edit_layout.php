@@ -20,6 +20,7 @@ require_once("$srcdir/layout.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Indicates if deactivated layouts are included in the dropdown.
@@ -252,6 +253,9 @@ function isColumnReserved($tablename, $field_id)
             'uuid',
             'care_team_facility',
             'name_history',
+            'care_team_status',
+            'patient_groups',
+            'additional_addresses'
             ))
         ) {
             return true;
@@ -389,7 +393,8 @@ function encodeModifier($jsonArray)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
+    exit;
 }
 
 // Make a sorted version of the $datatypes array.
@@ -398,6 +403,7 @@ natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
+$layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
 $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
@@ -1457,7 +1463,6 @@ function myChangeCheck() {
 <input type="hidden" id="targetlayout" name="targetlayout" value="" />
 
 <div class="fixed-top py-2 px-1 bg-light text-dark">
-
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
 <select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
 <?php echo genLayoutOptions('-- ' . xl('Select') . ' --', $layout_id); ?>
@@ -1574,7 +1579,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' > ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+                'translate_layout' => ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
@@ -1778,8 +1783,8 @@ foreach ($sorted_datatypes as $key => $value) {
 /* Field modifier objects - heading towards context based.
     Used by Select2 so rtl may be enabled*/
 <?php echo "var fldOptions = [";
-echo !empty($GLOBALS['portal_onsite_two_enable']) ? "{id: 'EP',text:" . xlj('Exclude in Portal') . "}," : '';
-echo "{id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
+echo "{id: 'EP',text:" . xlj('Exclude in Portal') . "},
+    {id: 'A',text:" . xlj('Age') . ",ctx:['4'],ctxExcp:['0']},
     {id: 'B',text:" . xlj('Gestational Age') . ",ctx:['4'],ctxExcp:['0']},
     {id: 'F',text:" . xlj('Add Time to Date') . ",ctx:['4'],ctxExcp:['0']},
     {id: 'C',text:" . xlj('Capitalize') . ",ctx:['0'],ctxExcp:['4','15','40']},

@@ -36,6 +36,8 @@
  * @link    http://www.open-emr.org
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 /**
  * Return listing of report results.
  *
@@ -270,12 +272,14 @@ function getStatusReportDatabase($report_id)
  * @param   integer  $itemized_test_id  Itemized test id
  * @param   integer  $pass              0 is fail, 1 is pass, 2 is exclude
  * @param   integer  $patient_id        Patient pid
- * @param   integer  $$numerator_label  Numerator label (if applicable)
+ * @param   string   $numerator_label  Numerator label (if applicable)
+ * @param   string   $rule_id  The name of the rule that was used to generate this item
+ * @param   string   $itemized_details  JSON of itemized details about this rule (if applicable)
  */
-function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label = '')
+function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label = '', $rule_id = '', $itemizedDetails = '')
 {
-    $sqlParameters = array($report_id,$itemized_test_id,$numerator_label,$pass,$patient_id);
-    sqlStatementCdrEngine("INSERT INTO `report_itemized` (`report_id`,`itemized_test_id`,`numerator_label`,`pass`,`pid`) VALUES (?,?,?,?,?)", $sqlParameters);
+    $sqlParameters = array($report_id,$itemized_test_id,$numerator_label,$pass,$patient_id, $rule_id, $itemizedDetails);
+    sqlStatementCdrEngine("INSERT INTO `report_itemized` (`report_id`,`itemized_test_id`,`numerator_label`,`pass`,`pid`,`rule_id`,`item_details`) VALUES (?,?,?,?,?,?,?)", $sqlParameters);
 }
 
 /**
@@ -292,11 +296,35 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
     $report_view = collectReportDatabase($report_id);
     $type_report = $report_view['type'];
     $dataSheet = json_decode($report_view['data'], true);
+    $display_group_provider_info = false;
+    $group_label = '';
+    $group_provider_label = '';
+
+    // for our group calculation reports we want to display the group and the provider label information
+    if ($report_view['provider'] == 'group_calculation') {
+        $display_group_provider_info = true;
+    }
     foreach ($dataSheet as $row) {
+        if ($display_group_provider_info) {
+            if (isset($row['is_provider_group'])) {
+                $group_label = xlt('Group') . ': ' . text($row['name']) . ' ( ' . xlt('TIN') . ' '
+                    . text($row['federaltaxid']) . ' )';
+                $group_provider_label = $group_label;
+            } else if (isset($row['is_provider'])) {
+                $provider_label = ' ' . xlt('Provider') . ': ' . text($row['prov_fname']) . ',' . text($row['prov_lname'])
+                    . ' ( ' . xlt('NPI') . ' ' . text($row['npi']) . ' ) ';
+                if (isset($row['is_provider_in_group'])) {
+                    $group_provider_label = $group_label . ' ' . $provider_label;
+                } else {
+                    $group_provider_label = $provider_label;
+                }
+            }
+        }
+
         if (isset($row['is_main']) || isset($row['is_sub'])) {
             if (isset($row['is_main'])) {
                 // Store this
-                $dispTitle = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
+                $dispTitle = $group_provider_label . ' ' . generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
             }
 
             if (($row['itemized_test_id'] == $itemized_test_id) && (($row['numerator_label'] ?? '') == $numerator_label)) {
@@ -445,4 +473,103 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
 
         return $returnval;
     }
+}
+
+/**
+ * Formats the report data into a format that can be consumed by the twig rendering output.
+ * @param $report_id The report that we are formatting
+ * @param $data string json encoded report data retrieved from the database
+ * @param $is_amc boolean True if this is an AMC report
+ * @param $is_cqm boolean True if this is an CQM report
+ * @param $type_report The specific report type (could be a subset of AMC or CQM)
+ * @param $amc_report_types If an AMC report, the specific AMC report type
+ * @return array A formatted array of record rows to be used for displaying a CQM/AMC/Standard report.
+ */
+function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = array())
+{
+    $dataSheet = json_decode($data, true) ?? [];
+    $formatted = [];
+    $main_pass_filter = 0;
+    foreach ($dataSheet as $row) {
+        $row['type'] = $type_report;
+        $row['total_patients'] = $row['total_patients'] ?? 0;
+        $failed_items = null;
+        $displayFieldSubHeader = "";
+
+        if ($is_cqm) {
+            $row['type'] = 'cqm';
+            $row['total_patients'] = $row['initial_population'] ?? 0;
+            if (isset($row['cqm_pqri_code'])) {
+                $displayFieldSubHeader .= " " . xl('PQRI') . ":" . $row['cqm_pqri_code'] . " ";
+            }
+            if (isset($row['cqm_nqf_code'])) {
+                $displayFieldSubHeader .= " " . xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
+            }
+        } else if ($is_amc) {
+            $row['type'] = 'amc';
+            if (!empty($amc_report_types[$type_report]['code_col'])) {
+                $code_col = $amc_report_types[$type_report]['code_col'];
+                $displayFieldSubHeader .= " " . text($amc_report_types[$type_report]['abbr']) . ":"
+                    . text($row[$code_col]) . " ";
+            }
+        }
+
+        if (isset($row['is_main'])) {
+            // note that the is_main record must always come before is_sub in the report or the data will not work.
+            $main_pass_filter = $row['pass_filter'] ?? 0;
+            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
+            if ($type_report == "standard") {
+                // Excluded is not part of denominator in standard rules so do not use in calculation
+                $failed_items = $row['pass_filter'] - $row['pass_target'];
+            } else {
+                $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
+            }
+            $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
+        } else if (isset($row['is_sub'])) {
+            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category'])
+                . ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
+            // Excluded is not part of denominator in standard rules so do not use in calculation
+            $failed_items = $main_pass_filter - $row['pass_target'];
+        } else if (isset($row['is_plan'])) {
+            $row['display_field'] = generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
+        }
+
+        if (isset($row['itemized_test_id'])) {
+            $csrf_token = CsrfUtils::collectCsrfToken();
+
+            $base_link = sprintf(
+                "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"
+                . "&itemized_test_id=%d&numerator_label=%s&csrf_token_form=%s",
+                urlencode($report_id),
+                urlencode($row['itemized_test_id']),
+                urlencode($row['numerator_label'] ?? ''),
+                urlencode($csrf_token)
+            );
+
+            // we need the provider & group id here...
+
+            // denominator
+            if (isset($row['pass_filter']) && $row['pass_filter'] > 0) {
+                $row['display_pass_link'] = $base_link . "&pass_id=all";
+            }
+
+            // excluded denominator
+            if (isset($row['excluded']) && ($row['excluded'] > 0)) {
+                $row['display_excluded_link'] = $base_link . "&pass_id=exclude";
+            }
+
+            // passed numerator
+            if (isset($row['pass_target']) && ($row['pass_target'] > 0)) {
+                $row['display_target_link'] = $base_link . "&pass_id=pass";
+            }
+            // failed numerator
+            if (isset($failed_items) && $failed_items > 0) {
+                $row['display_failed_link'] = $base_link . "&pass_id=fail";
+            }
+            $row['failed_items'] = $failed_items;
+        }
+
+        $formatted[] = $row;
+    }
+    return $formatted;
 }

@@ -24,7 +24,6 @@ require_once("UserCriteria.php");
  */
 class User extends UserDAO
 {
-
     /**
      * Override default validation
      * @see Phreezable::Validate()

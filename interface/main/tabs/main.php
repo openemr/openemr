@@ -86,6 +86,9 @@ $esignApi = new Api();
         // used in tabs_view_model.js.
         jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
 
+        var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
+        var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
+
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR.
@@ -192,7 +195,7 @@ $esignApi = new Api();
         }
     </script>
 
-    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next']); ?>
+    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys']); ?>
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {
@@ -200,7 +203,13 @@ $esignApi = new Api();
             return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> + "/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
-            }).then(response => response.json())
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('I18n setup failed. Status Code: ' + response.status);
+                    return [];
+                }
+                return response.json();
+            })
         }
         setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
             i18next.init({
@@ -217,6 +226,19 @@ $esignApi = new Api();
         }).catch(error => {
             console.log(error.message);
         });
+
+        /**
+         * Assign and persist documents to portal patients
+         * @var int patientId pid
+         */
+        function assignPatientDocuments(patientId) {
+            let url = top.webroot_url + '/portal/import_template_ui.php?from_demo_pid=' + encodeURIComponent(patientId);
+            dlgopen(url, 'pop-assignments', 'modal-lg', 850, '', '', {
+                allowDrag: true,
+                allowResize: true,
+                sizeHeight: 'full',
+            });
+        }
     </script>
 
     <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -227,6 +249,7 @@ $esignApi = new Api();
     <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/shortcuts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu

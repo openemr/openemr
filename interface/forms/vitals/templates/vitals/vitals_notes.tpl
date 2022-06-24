@@ -11,6 +11,8 @@
     </td>
     <td class="editonly">
     </td>
+    <td class="editonly actions">
+    </td>
     {foreach item=result from=$results}
         <td  class='historicalvalues'>
             {if $result->get_note() != 0}

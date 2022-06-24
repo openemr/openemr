@@ -20,7 +20,6 @@ require_once("verysimple/DB/DataDriver/IDataDriver.php");
  */
 class DataAdapter implements IObservable
 {
-
     /**
      *
      * @var ConnectionSetting

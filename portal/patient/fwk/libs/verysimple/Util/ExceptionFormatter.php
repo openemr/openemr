@@ -13,7 +13,6 @@
  */
 class ExceptionFormatter
 {
-
     /**
      * This is a utility function for tracing errors.
      * It will return a string that

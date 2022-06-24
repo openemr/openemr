@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3" xmlns:voc="urn:hl7-org:v3/voc" xmlns:sdtc="urn:hl7-org:sdtc">
+
+{{> _header}}
+
+<component>
+  <structuredBody>
+    {{> _measure_section}}
+    {{> _reporting_period}}
+    <component>
+        <section>
+          <!-- This is the templateId for Patient Data section -->
+          <templateId root="2.16.840.1.113883.10.20.17.2.4"/>
+          <!-- This is the templateId for Patient Data QDM section -->
+          <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.2.1"/>
+          <templateId extension="2020-02-01" root="2.16.840.1.113883.10.20.24.2.1.1"/>
+          <code code="55188-7" codeSystem="2.16.840.1.113883.6.1"/>
+          <title>Patient Data</title>
+          <text/>
+
+          {{#adverse_event}}
+            {{> qrda_templates/adverse_event}}
+          {{/adverse_event}}
+
+          {{#allergy_intolerance}}
+            {{> qrda_templates/allergy_intolerance}}
+          {{/allergy_intolerance}}
+
+          {{#assessment_order}}
+            {{> qrda_templates/assessment_order}}
+          {{/assessment_order}}
+
+          {{#assessment_performed}}
+            {{> qrda_templates/assessment_performed}}
+          {{/assessment_performed}}
+
+          {{#assessment_recommended}}
+            {{> qrda_templates/assessment_recommended}}
+          {{/assessment_recommended}}
+
+          {{#communication_performed}}
+            {{> qrda_templates/communication_performed}}
+          {{/communication_performed}}
+
+          {{#diagnosis}}
+            {{> qrda_templates/diagnosis}}
+          {{/diagnosis}}
+
+          {{#device_applied}}
+            {{> qrda_templates/device_applied}}
+          {{/device_applied}}
+
+          {{#device_order}}
+            {{> qrda_templates/device_order}}
+          {{/device_order}}
+
+          {{#device_recommended}}
+            {{> qrda_templates/device_recommended}}
+          {{/device_recommended}}
+
+          {{#diagnostic_study_order}}
+            {{> qrda_templates/diagnostic_study_order}}
+          {{/diagnostic_study_order}}
+
+          {{#diagnostic_study_performed}}
+            {{> qrda_templates/diagnostic_study_performed}}
+          {{/diagnostic_study_performed}}
+
+          {{#diagnostic_study_recommended}}
+            {{> qrda_templates/diagnostic_study_recommended}}
+          {{/diagnostic_study_recommended}}
+
+          {{#encounter_order}}
+            {{> qrda_templates/encounter_order}}
+          {{/encounter_order}}
+
+          {{#encounter_performed}}
+            {{> qrda_templates/encounter_performed}}
+          {{/encounter_performed}}
+
+          {{#encounter_recommended}}
+            {{> qrda_templates/encounter_recommended}}
+          {{/encounter_recommended}}
+
+          {{#family_history}}
+            {{> qrda_templates/family_history}}
+          {{/family_history}}
+
+          {{#immunization_administered}}
+            {{> qrda_templates/immunization_administered}}
+          {{/immunization_administered}}
+
+          {{#immunization_order}}
+            {{> qrda_templates/immunization_order}}
+          {{/immunization_order}}
+
+          {{#intervention_order}}
+            {{> qrda_templates/intervention_order}}
+          {{/intervention_order}}
+
+          {{#intervention_performed}}
+            {{> qrda_templates/intervention_performed}}
+          {{/intervention_performed}}
+
+          {{#intervention_recommended}}
+            {{> qrda_templates/intervention_recommended}}
+          {{/intervention_recommended}}
+
+          {{#laboratory_test_order}}
+            {{> qrda_templates/laboratory_test_order}}
+          {{/laboratory_test_order}}
+
+          {{#laboratory_test_performed}}
+            {{> qrda_templates/laboratory_test_performed}}
+          {{/laboratory_test_performed}}
+
+          {{#laboratory_test_recommended}}
+            {{> qrda_templates/laboratory_test_recommended}}
+          {{/laboratory_test_recommended}}
+
+          {{#medication_active}}
+            {{> qrda_templates/medication_active}}
+          {{/medication_active}}
+
+          {{#medication_administered}}
+            {{> qrda_templates/medication_administered}}
+          {{/medication_administered}}
+
+          {{#medication_discharge}}
+            {{> qrda_templates/medication_discharge}}
+          {{/medication_discharge}}
+
+          {{#medication_dispensed}}
+            {{> qrda_templates/medication_dispensed}}
+          {{/medication_dispensed}}
+
+          {{#medication_order}}
+            {{> qrda_templates/medication_order}}
+          {{/medication_order}}
+
+          {{#patient_care_experience}}
+            {{> qrda_templates/patient_care_experience}}
+          {{/patient_care_experience}}
+
+          {{#patient_characteristic_clinical_trial_participant}}
+            {{> qrda_templates/patient_characteristic_clinical_trial_participant}}
+          {{/patient_characteristic_clinical_trial_participant}}
+
+          {{#patient_characteristic_expired}}
+            {{> qrda_templates/patient_characteristic_expired}}
+          {{/patient_characteristic_expired}}
+
+          {{#physical_exam_order}}
+            {{> qrda_templates/physical_exam_order}}
+          {{/physical_exam_order}}
+
+          {{#physical_exam_performed}}
+            {{> qrda_templates/physical_exam_performed}}
+          {{/physical_exam_performed}}
+
+          {{#physical_exam_recommended}}
+            {{> qrda_templates/physical_exam_recommended}}
+          {{/physical_exam_recommended}}
+
+          {{#procedure_order}}
+            {{> qrda_templates/procedure_order}}
+          {{/procedure_order}}
+
+          {{#procedure_performed}}
+            {{> qrda_templates/procedure_performed}}
+          {{/procedure_performed}}
+
+          {{#procedure_recommended}}
+            {{> qrda_templates/procedure_recommended}}
+          {{/procedure_recommended}}
+
+          {{#program_participation}}
+            {{> qrda_templates/program_participation}}
+          {{/program_participation}}
+
+          {{#provider_care_experience}}
+            {{> qrda_templates/provider_care_experience}}
+          {{/provider_care_experience}}
+
+          {{#related_person}}
+            {{> qrda_templates/related_person}}
+          {{/related_person}}
+
+          {{#substance_administered}}
+            {{> qrda_templates/medication_administered}}
+          {{/substance_administered}}
+
+          {{#substance_order}}
+            {{> qrda_templates/medication_order}}
+          {{/substance_order}}
+
+          {{#substance_recommended}}
+            {{> qrda_templates/substance_recommended}}
+          {{/substance_recommended}}
+
+          {{#symptom}}
+            {{> qrda_templates/symptom}}
+          {{/symptom}}
+
+          {{#patient_characteristic_payer}}
+            {{> qrda_templates/patient_characteristic_payer}}
+          {{/patient_characteristic_payer}}
+
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>
