@@ -1081,8 +1081,8 @@ limitations under the License.
                     </div>
                     <div class="col-md-6">
                       <xsl:choose>
-                        <xsl:when test="n1:patient/n1:raceCode | n1:patient/sdtc:raceCode">
-                          <xsl:for-each select="n1:patient/n1:raceCode | n1:patient/sdtc:raceCode">
+                        <xsl:when test="n1:patient/n1:raceCode">
+                          <xsl:for-each select="n1:patient/n1:raceCode">
                             <xsl:call-template name="show-race-ethnicity"/>
                             <xsl:text> </xsl:text>
                           </xsl:for-each>
@@ -1095,6 +1095,19 @@ limitations under the License.
                       </xsl:choose>
                     </div>
                   </div>
+                  <xsl:if test="n1:patient/sdtc:raceCode">
+                    <xsl:for-each select="n1:patient/sdtc:raceCode">
+                    <div class="row">
+                      <div class="attribute-title col-md-6">
+                        <xsl:text>Additional Race(s)</xsl:text>
+                      </div>
+                      <div class="col-md-6">
+                          <xsl:call-template name="show-race-ethnicity"/>
+                          <xsl:text> </xsl:text>
+                      </div>
+                    </div>
+                    </xsl:for-each>
+                  </xsl:if>
                   <div class="row">
                     <div class="attribute-title col-md-6">
                       <xsl:text>Ethnicity</xsl:text>
