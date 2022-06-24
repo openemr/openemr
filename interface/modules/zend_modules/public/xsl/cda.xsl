@@ -47,6 +47,7 @@
                                                  Added display of sdtcRace and sdtcEthnicity values
                                                  Added multiple address display, multiple telecom display
                                                  Added support for Mobile Contact telecom
+                                                 Added service event performer function and display name
 
   This style sheet is based on a major revision of the original CDA XSL, which was made possible thanks to the contributions of:
   - Jingdong Li
@@ -775,6 +776,10 @@ limitations under the License.
               <div class="container-fluid">
                 <h2 class="section-title col-md-6" id="service-event">
                   <xsl:text>Service Event</xsl:text>
+                  <xsl:if test="$displayName">
+                    <xsl:text> - </xsl:text>
+                    <xsl:value-of select="$displayName" />
+                  </xsl:if>
                 </h2>
                 <div class="header-group-content col-md-8">
                   <xsl:call-template name="show-assignedEntity">
