@@ -83,10 +83,8 @@ function gad7_report($pid, $encounter, $cols, $id)
           print "<td><span class=bold>" . text($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . text($exp) . "</span></td>";
     }
 
-  /*  print "</tr></table>";
+    print "</tr></table>";
        /* let user download the pdf */
        /*  execute interface/forms/gad7/report-as-pdf.php */
-  /*  print '<br> <a  target="_blank" href="' . $genpdf_file_path . '?form_id=' . attr_url($id) . '">' . text($str_generate_pdf) . ' </a><br>';
-  */
-   print "</tr></table>";
+    print '<br> <a  target="_blank" href="' . $genpdf_file_path . '?form_id=' . attr_url($id) . '">' . text($str_generate_pdf) . ' </a><br>';
 }
