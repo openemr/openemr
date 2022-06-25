@@ -365,11 +365,10 @@ var headerAuthor = exports.headerAuthor = {
             }, {
                 key: "telecom",
                 attributes: {
-                    value: leafLevel.inputProperty("number"),
-                    use: leafLevel.inputProperty("type")
+                    value: leafLevel.inputProperty("value"),
+                    use: leafLevel.inputProperty("use")
                 },
-                dataKey: "phone",
-                //dataTransform: translate.telecom
+                dataTransform: translate.telecom
             }, {
                 key: "assignedPerson",
                 content: {
