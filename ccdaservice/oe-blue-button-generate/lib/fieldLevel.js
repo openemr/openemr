@@ -307,8 +307,8 @@ var representedOrganization = {
         id, {
             key: "id",
             attributes: {
+                root: leafLevel.inputProperty("root"),
                 extension: leafLevel.inputProperty("extension"),
-                root: leafLevel.inputProperty("root")
             },
             dataKey: "identity"
         }, {

@@ -84,11 +84,11 @@ class CcdaServiceRequestModelGenerator
             <telecom use='WP' value='" . htmlspecialchars($assignedEntity['telecom'] ?? '', ENT_QUOTES) . "'/>
             <representedOrganization>
                 <name>" . htmlspecialchars($representedOrganization['name'] ?? '', ENT_QUOTES) . "</name>
-                <telecom use='WP' value='" . htmlspecialchars($representedOrganization['telecom'] ?? '', ENT_QUOTES) . "'/>
-                <streetAddressLine>" . htmlspecialchars($representedOrganization['streetAddressLine'] ?? '', ENT_QUOTES) . "</streetAddressLine>
+                <telecom use='WP' value='" . htmlspecialchars($representedOrganization['phone'] ?? '', ENT_QUOTES) . "'/>
+                <streetAddressLine>" . htmlspecialchars($representedOrganization['street'] ?? '', ENT_QUOTES) . "</streetAddressLine>
                 <city>" . htmlspecialchars($representedOrganization['city'] ?? '', ENT_QUOTES) . "</city>
                 <state>" . htmlspecialchars($representedOrganization['state'] ?? '', ENT_QUOTES) . "</state>
-                <postalCode>" . htmlspecialchars($representedOrganization['postalCode'] ?? '', ENT_QUOTES) . "</postalCode>
+                <postalCode>" . htmlspecialchars($representedOrganization['postal_code'] ?? '', ENT_QUOTES) . "</postalCode>
                 <country>" . htmlspecialchars($representedOrganization['country'] ?? '', ENT_QUOTES) . "</country>
             </representedOrganization>";
         $this->data .= "<referral_reason><text>" . htmlspecialchars($referral_reason ?: '', ENT_QUOTES) . "</text></referral_reason>";

@@ -79,8 +79,8 @@ exports.time = function (input) {
     if (m._isValid !== true) {
         m = moment(input.date, "YYYYMMDD HH:mm:ss")
     }
-    var formatSpec = precisionToFormat[input.precision];
-    var result = m.format(formatSpec);
+    let formatSpec = precisionToFormat[input.precision];
+    let result = m.format(formatSpec);
     return result;
 };
 

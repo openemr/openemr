@@ -46,18 +46,27 @@ function fDate(str, lim8 = false) {
         return rtn;
     }
     if (Number(str) === 0) {
-        return (new Date()).toISOString().slice(0, 10).replace(/-/g, "");
+        return (new Date()).toISOString();
     }
-    if (str.length === 1 || str === "0000-00-00") return (new Date()).toISOString().slice(0, 10).replace(/-/g, "");
+    if (str.length === 1 || str === "0000-00-00") return (new Date()).toISOString();
     if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
-        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-')
+        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-');
     } else if (str.length === 10 && (1 * str.substring(0, 2)) <= 12) {
         // case mm/dd/yyyy or mm-dd-yyyy
-        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-')
-    } else if (str.length === 14 && (1 * str.substring(12, 14)) > 0) {
-        // maybe a real time so parse
-    } else {
+        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-');
+    } else if (str.length === 17) {
+        str = str.split(' ');
+        str = [str[0].slice(0, 4), str[0].slice(4, 6), str[0].slice(6, 8)].join('-') + ' ' + str[1];
+        return str;
+    } else if (str.length === 19 && (str.substring(14, 15)) == '-') {
+        let strZone = str.split('-');
+        let strDate = [strZone[0].substring(0, 4), strZone[0].substring(4, 6), strZone[0].substring(6, 8)].join('-');
+        let strTime = [str.substring(8, 10), str.substring(10, 12), str.substring(12, 14)].join(':');
 
+        let str1 = strDate + ' ' + strTime + '-' + strZone[1];
+        return str1;
+    } else {
+        return str;
     }
 
     return str;
@@ -112,7 +121,7 @@ function isOne(who) {
     return 0;
 }
 
-function headReplace(content, xslUrl="") {
+function headReplace(content, xslUrl = "") {
 
     let xsl = "CDA.xsl";
     if (typeof xslUrl == "string" && xslUrl.trim() != "") {
@@ -163,11 +172,11 @@ function fetchPreviousAddresses(pd) {
             "country": pa.country || "US",
             "date_time": {
                 "low": {
-                    "date": pa.period_start,
+                    "date": fDate(pa.period_start),
                     "precision": "day"
                 },
                 "high": {
-                    "date": pa.period_end || fDate(""),
+                    "date": fDate(pa.period_end) || fDate(""),
                     "precision": "day"
                 }
             }
@@ -187,11 +196,11 @@ function fetchPreviousAddresses(pd) {
                 "country": pa[i].country || "US",
                 "date_time": {
                     "low": {
-                        "date": pa[i].period_start,
+                        "date": fDate(pa[i].period_start),
                         "precision": "day"
                     },
                     "high": {
-                        "date": pa[i].period_end || fDate(""),
+                        "date": fDate(pa[i].period_end) || fDate(""),
                         "precision": "day"
                     }
                 }
@@ -324,8 +333,8 @@ function populateProvider(provider) {
         "function_code": provider.physician_type ? "PP" : "",
         "date_time": {
             "low": {
-                "date": provider.provider_since || fDate(""),
-                "precision": "day"
+                "date": provider.provider_since ? fDate(provider.provider_since) : fDate(""),
+                "precision": "tz"
             }
         },
         "identity": [
@@ -389,12 +398,12 @@ function populateProviders(all) {
             {
                 "date_time": {
                     "low": {
-                        "date": all.time_start || fDate(""),
-                        "precision": "day"
+                        "date": fDate(all.time_start) || fDate(""),
+                        "precision": "tz"
                     },
                     "high": {
-                        "date": all.time_end || fDate(""),
-                        "precision": "second"
+                        "date": fDate(all.time_end) || fDate(""),
+                        "precision": "tz"
                     }
                 },
                 "provider": providerArray,
@@ -416,8 +425,8 @@ function populateCareTeamMember(provider) {
         "status": "active",
         "date_time": {
             "low": {
-                "date": provider.provider_since || fDate(""),
-                "precision": "day"
+                "date": fDate(provider.provider_since) || fDate(""),
+                "precision": "tz"
             }
         },
         "identifiers": [
@@ -452,17 +461,17 @@ function populateCareTeamMembers(pd) {
     let providerArray = [];
     // primary provider
     let provider = populateCareTeamMember(pd.primary_care_provider.provider);
-    let providerSince = provider.provider_since;
+    let providerSince = fDate(pd.primary_care_provider.provider.provider_since || '');
     providerArray.push(provider);
     let count = isOne(pd.care_team.provider);
     if (count === 1) {
         provider = populateCareTeamMember(pd.care_team.provider);
-        providerSince = providerSince || provider.provider_since;
+        providerSince = providerSince || fDate(provider.provider_since);
         providerArray.push(provider);
     } else if (count > 1) {
         for (let i in pd.care_team.provider) {
             provider = populateCareTeamMember(pd.care_team.provider[i]);
-            providerSince = providerSince ||provider.provider_since;
+            providerSince = providerSince || fDate(provider.provider_since);
             providerArray.push(provider);
         }
     }
@@ -746,7 +755,7 @@ function populateEncounter(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.date),
-                "precision": "second" //getPrecision(fDate(pd.date_formatted))
+                "precision": "second" //getPrecision(fDate(pd.date))
             }
         },
         "performers": [{
@@ -863,7 +872,7 @@ function populateAllergy(pd) {
             },
             "date_time": {
                 "low": {
-                    "date": fDate(pd.startdate) || fdate(""),
+                    "date": fDate(pd.startdate) || fDate(""),
                     "precision": "day"
                 }
             },
@@ -1315,7 +1324,7 @@ function getPlanOfCare(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(pd.date_formatted),
+                "date": fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -1403,7 +1412,7 @@ function getGoals(pd) {
         }],
         "date_time": {
             "point": {
-                "date": fDate(pd.date_formatted),
+                "date": fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -1432,7 +1441,7 @@ function getFunctionalStatus(pd) {
             }],
             "date_time": {
                 "point": {
-                    "date": fDate(pd.date_formatted),
+                    "date": fDate(pd.date),
                     "precision": "day"
                 }
             },
@@ -1453,7 +1462,7 @@ function getMentalStatus(pd) {
         }],
         "note": cleanText(pd.description),
         "date_time": {
-            "low": templateDate(pd.date_formatted, "day")
+            "low": templateDate(pd.date, "day")
             //"high": templateDate(pd.date, "day")
         },
     };
@@ -2017,7 +2026,7 @@ function populateVital(pd) {
 function populateSocialHistory(pd) {
     return {
         "date_time": {
-            "low": templateDate(pd.date_formatted, "day")
+            "low": templateDate(pd.date, "day")
             //"high": templateDate(pd.date, "day")
         },
         "identifiers": [{
@@ -2256,7 +2265,7 @@ function populateNote(pd) {
     return {
         "date_time": {
             "point": {
-                "date": fDate(pd.date_formatted),
+                "date": fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -2273,7 +2282,7 @@ function populateNote(pd) {
             }],
             "date_time": {
                 "point": {
-                    "date": fDate(pd.date_formatted),
+                    "date": fDate(pd.date),
                     "precision": "day"
                 }
             },
@@ -2305,11 +2314,13 @@ function populateHeader(pd) {
         docOid = "2.16.840.1.113883.10.20.22.1.14";
     }
     let authorDateTime = pd.created_time_timezone;
-    if (all.encounter_list && all.encounter_list.encounter) {
+    if (pd.author.time.length > 7) {
+        authorDateTime = pd.author.time;
+    } else if (all.encounter_list && all.encounter_list.encounter) {
         if (isOne(all.encounter_list.encounter) === 1) {
-            authorDateTime = all.encounter_list.encounter.date_formatted;
+            authorDateTime = all.encounter_list.encounter.date;
         } else {
-            authorDateTime = all.encounter_list.encounter[0].date_formatted;
+            authorDateTime = all.encounter_list.encounter[0].date;
         }
     }
     const head = {
@@ -2330,20 +2341,20 @@ function populateHeader(pd) {
         },
         "title": name,
         "date_time": {
-            "date": pd.created_time_timezone,
+            "date": fDate(pd.created_time_timezone),
             "precision": "none"
         },
         "author": {
             "date_time": {
                 "point": {
                     "date": authorDateTime,
-                    "precision": "day"
+                    "precision": "tz"
                 }
             },
             "identifiers": [
                 {
-                    "identifier": "2.16.840.1.113883.4.6",
-                    "extension": pd.author.npi || ""
+                    "identifier": pd.author.id || "2.16.840.1.113883.4.6",
+                    "extension": !pd.author.id ? pd.author.npi : ''
                 }
             ],
             "name": [
@@ -2652,6 +2663,7 @@ function genCcda(pd) {
         // when is there ever a situation where a patient doesn't have an encounter?
         authorDate = pd.created_time_timezone;
     }
+    authorDate = fDate(authorDate);
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
 // This populates documentationOf. We are using providerOrganization also.
@@ -2862,7 +2874,7 @@ function genCcda(pd) {
     }
     if (count > 1) {
         for (let i in pd.planofcare.item) {
-            if (cleanCode(pd.planofcare.item[i].date_formatted) === '') {
+            if (cleanCode(pd.planofcare.item[i].date) === '') {
                 i--;
                 continue;
             }

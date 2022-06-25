@@ -216,7 +216,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $names = $this->getPreviousNames($pid);
         $previous_names = "<previous_names>";
         foreach ($names as $n) {
-            $end = !empty($n['previous_name_enddate'] ?? null) ? date("Ymd", strtotime($n['previous_name_enddate'])) : null;
+            $end = !empty($n['previous_name_enddate'] ?? null) ? date("Y-m-d", strtotime($n['previous_name_enddate'])) : null;
             $previous_names .= "
             <prefix>" . xmlEscape($n['previous_name_prefix']) . "</prefix>
             <fname>" . xmlEscape($n['previous_name_first']) . "</fname>
@@ -232,8 +232,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $addresses = $this->getPreviousAddresses($pid);
         $previous_addresses = "<previous_addresses>";
         foreach ($addresses as $a) {
-            $start = !empty($a['period_start'] ?? null) ? date("Ymd", strtotime($a['period_start'])) : null;
-            $end = !empty($a['period_end'] ?? null) ? date("Ymd", strtotime($a['period_end'])) : null;
+            $start = !empty($a['period_start'] ?? null) ? date("Y-m-d", strtotime($a['period_start'])) : null;
+            $end = !empty($a['period_end'] ?? null) ? date("Y-m-d", strtotime($a['period_end'])) : null;
             $previous_addresses .= "<address>
             <use>" . xmlEscape($a['use'] ?? 'H') . "</use>
             <street>" . xmlEscape($a['line1'] ?? '') . "</street>
@@ -376,20 +376,30 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getAuthor($pid, $encounter)
     {
-        $author = '';
         $details = $this->getDetails('hie_author_id');
+        if (!$details) {
+            $details = $this->getDetails($_SESSION['authUserID']);
+        }
+        if (!$details) {
+            $details = $this->getDetails($this->getProviderId($pid));
+        }
+        $time = $this->getCarecoordinationModuleSettingValue('hie_author_date');
+        $time = !empty($time) ? date('Y-m-d H:i:sO', strtotime($time)) : date('Y-m-d H:i:sO');
+        $uuid = UuidRegistry::uuidToString($details['uuid']);
 
         $author = "
         <author>
-            <streetAddressLine>" . xmlEscape($details['street'] ?? '') . "</streetAddressLine>
-            <city>" . xmlEscape($details['city'] ?? '') . "</city>
-            <state>" . xmlEscape($details['state'] ?? '') . "</state>
-            <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
-            <country>" . xmlEscape($details['country'] ?? '') . "</country>
-            <telecom>" . xmlEscape((($details['phonew1'] ?? '') ? $details['phonew1'] : 0)) . "</telecom>
-            <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
-            <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
-            <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
+        <time>" . xmlEscape($time ?? '') . "</time>
+        <id>" . xmlEscape($uuid ?? '') . "</id>
+        <streetAddressLine>" . xmlEscape($details['street'] ?? '') . "</streetAddressLine>
+        <city>" . xmlEscape($details['city'] ?? '') . "</city>
+        <state>" . xmlEscape($details['state'] ?? '') . "</state>
+        <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
+        <country>" . xmlEscape($details['country'] ?? '') . "</country>
+        <telecom>" . xmlEscape(trim(($details['phonew1'] ?? '') ? $details['phonew1'] : '')) . "</telecom>
+        <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+        <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+        <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
         </author>";
 
         return $author;
@@ -592,7 +602,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $getprovider = $this->getProviderId($pid);
         // @TODO I don't like this much. Should add date UI in care team assignments.
         $getprovider_status = $this->getPatientProviderStatus($pid) ?? null;
-        $getprovider_start_date = !empty($getprovider_start_date) ? date('YmdHisO', strtotime($getprovider_start_date)) : date('YmdHisO');
+        $provider_since_date = !empty($getprovider_status['provider_since_date']) ? date('Y-m-d H:i:sO', strtotime($getprovider_status['provider_since_date'])) : date('Y-m-d H:i:sO');
         if (!empty($getprovider)) { // from patient_data
             $details = $this->getUserDetails($getprovider);
         } else { // get from CCM setup
@@ -629,7 +639,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
             <taxonomy>" . xmlEscape($details['taxonomy'] ?? '') . "</taxonomy>
             <taxonomy_description>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</taxonomy_description>
-            <provider_since>" . xmlEscape($getprovider_status['provider_since_date'] ?? null) . "</provider_since>
+            <provider_since>" . xmlEscape($provider_since_date ?: null) . "</provider_since>
           </provider>
         </primary_care_provider>";
         } else {
@@ -665,7 +675,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <physician_type_code>" . xmlEscape($details2['physician_type_code']) . "</physician_type_code>
             <taxonomy>" . xmlEscape($details2['taxonomy']) . "</taxonomy>
             <taxonomy_description>" . xmlEscape($details2['taxonomy_desc']) . "</taxonomy_description>
-            <provider_since>" . xmlEscape($getprovider_start_date) . "</provider_since>
+            <provider_since>" . xmlEscape($provider_since_date) . "</provider_since>
           </provider>
           ";
         }
@@ -2224,18 +2234,23 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getDetails($field_name)
     {
         if ($field_name == 'hie_custodian_id') {
-            $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone AS phonew1
-            FROM facility AS f
-            JOIN modules AS mo ON mo.mod_directory='Carecoordination'
-            JOIN module_configuration AS conf ON conf.field_value=f.id AND mo.mod_id=conf.module_id
-            WHERE conf.field_name=?";
-        } else {
-            $query = "SELECT u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, CONCAT_WS(' ','',u.phonew1) AS phonew1, u.organization, u.specialty, conf.field_name, mo.mod_name, lo.title as  physician_type, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code
-            FROM users AS u
+            $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone, f.uuid AS phonew1
+        FROM facility AS f
+        JOIN modules AS mo ON mo.mod_directory='Carecoordination'
+        JOIN module_configuration AS conf ON conf.field_value=f.id AND mo.mod_id=conf.module_id
+        WHERE conf.field_name=?";
+        } elseif (is_string($field_name)) {
+            $query = "SELECT u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, CONCAT_WS(' ','',u.phonew1) AS phonew1, u.organization, u.specialty, conf.field_name, mo.mod_name, lo.title as  physician_type, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code, uuid
+        FROM users AS u
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
-            JOIN modules AS mo ON mo.mod_directory='Carecoordination'
-            JOIN module_configuration AS conf ON conf.field_value=u.id AND mo.mod_id=conf.module_id
-            WHERE conf.field_name=?";
+        JOIN modules AS mo ON mo.mod_directory='Carecoordination'
+        JOIN module_configuration AS conf ON conf.field_value=u.id AND mo.mod_id=conf.module_id
+        WHERE conf.field_name=?";
+        } elseif (is_int($field_name)) {
+            $query = "SELECT u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, CONCAT_WS(' ','',u.phonew1) AS phonew1, u.organization, u.specialty, lo.title as  physician_type, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code, uuid
+        FROM users AS u
+        LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
+        WHERE u.id=?";
         }
 
         $appTable = new ApplicationTable();
@@ -2281,7 +2296,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getRepresentedOrganization()
     {
-        $query = "select * from facility where primary_business_entity = ?";
+        $query = "select * from facility where primary_business_entity = ? Limit 1";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array(1));
 
