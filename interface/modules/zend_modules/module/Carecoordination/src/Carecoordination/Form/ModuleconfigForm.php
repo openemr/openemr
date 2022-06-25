@@ -204,6 +204,22 @@ class ModuleconfigForm extends Form
                     'value_options' => $this->getProviders(),
                 ),
             ));
+        $this->add(array(
+
+            'name' => 'hie_author_date',
+            'type' => 'Laminas\Form\Element\DateTimeLocal',
+            'attributes' => [
+                //'min' => '2000-01-01T00:00Z',
+                //'max' => '2030-01-01T00:00:00Z',
+                'step' => '1',
+                'id' => 'hie_author_date',
+            ],
+            'options' => array(
+                //'format' => 'Y-m-d\T:HP',
+                'label' => $this->zListener->z_xlt('Author Date')
+            ),
+
+        ));
     }
 
     /**

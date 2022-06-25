@@ -377,11 +377,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getAuthor($pid, $encounter)
     {
         $details = $this->getDetails('hie_author_id');
-        if (!$details) {
-            $details = $this->getDetails($_SESSION['authUserID']);
+        if (!$details && !empty($_SESSION['authUserID'])) {
+            // function expects an int
+            $details = $this->getDetails(intval($_SESSION['authUserID']));
         }
         if (!$details) {
-            $details = $this->getDetails($this->getProviderId($pid));
+            $providerId = $this->getProviderId($pid);
+            if (empty($providerId)) {
+                // at this point we really can't do anything as we can't provide an author piece
+                (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
+                return;
+            }
+            $details = $this->getDetails(intval($providerId));
         }
         $time = $this->getCarecoordinationModuleSettingValue('hie_author_date');
         $time = !empty($time) ? date('Y-m-d H:i:sO', strtotime($time)) : date('Y-m-d H:i:sO');
@@ -2234,7 +2241,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getDetails($field_name)
     {
         if ($field_name == 'hie_custodian_id') {
-            $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone, f.uuid AS phonew1
+            $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid
         FROM facility AS f
         JOIN modules AS mo ON mo.mod_directory='Carecoordination'
         JOIN module_configuration AS conf ON conf.field_value=f.id AND mo.mod_id=conf.module_id

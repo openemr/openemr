@@ -2353,8 +2353,8 @@ function populateHeader(pd) {
             },
             "identifiers": [
                 {
-                    "identifier": pd.author.id || "2.16.840.1.113883.4.6",
-                    "extension": !pd.author.id ? pd.author.npi : ''
+                    "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
+                        "extension": pd.author.npi ? pd.author.npi : ''
                 }
             ],
             "name": [
