@@ -1302,6 +1302,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
 
+        $primary_diagnosis = '';
         $results = "<encounter_list>";
         foreach ($res as $row) {
             $tmp = explode(":", $row['physician_type_code']);
@@ -1357,6 +1358,15 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <status></status>
                 </encounter_diagnosis>";
             }
+            if (empty($primary_diagnosis) && !empty($code_type)) {
+                $primary_diagnosis = "
+                <primary_diagnosis>
+                <code>" . xmlEscape($tmp[1] ?? '') . "</code>
+                <code_type>" . xmlEscape($code_type ?? '') . "</code_type>
+                <text>" . xmlEscape(Listener::z_xlt($row['title'] ?? '')) . "</text>
+                <status>" . xmlEscape($encounter_activity ?? '') . "</status>
+                </primary_diagnosis>";
+            }
             $location_details = ($row['name'] !== '') ? (',' . $row['fstreet'] . ',' . $row['fcity'] . ',' . $row['fstate'] . ' ' . $row['fzip']) : '';
             $results .= "
         <encounter>
@@ -1397,8 +1407,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $encounter_reason
         </encounter>";
         }
-
-        $results .= "</encounter_list>";
+        if (empty($primary_diagnosis)) {
+            $primary_diagnosis = "
+                <primary_diagnosis>
+                <code></code>
+                <code_type></code_type>
+                <text></text>
+                <status></status>
+                </primary_diagnosis>";
+        }
+        $results .= "</encounter_list>" . $primary_diagnosis;
         return $results;
     }
 

@@ -130,7 +130,7 @@ function headReplace(content, xslUrl = "") {
 
     let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
         '<?xml-stylesheet type="text/xsl" href="' + xsl + '"?>';
-    r += "\n" + content.substr(content.search(/<ClinicalDocument/i));
+    r += "\n" + content.substring(content.search(/<ClinicalDocument/i));
     return r;
 }
 
@@ -406,6 +406,11 @@ function populateProviders(all) {
                         "precision": "tz"
                     }
                 },
+                "code": {
+                    "name": all.primary_diagnosis.text || "",
+                    "code": cleanCode(all.primary_diagnosis.code || ""),
+                    "code_system_name": all.primary_diagnosis.code_type || ""
+                },
                 "provider": providerArray,
             }
     }
@@ -486,7 +491,7 @@ function populateCareTeamMembers(pd) {
                 "date": providerSince || fDate(""),
                 "precision": "day"
             }
-        },
+        }
     }
 }
 
@@ -2354,7 +2359,7 @@ function populateHeader(pd) {
             "identifiers": [
                 {
                     "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
-                        "extension": pd.author.npi ? pd.author.npi : ''
+                    "extension": pd.author.npi ? pd.author.npi : ''
                 }
             ],
             "name": [
