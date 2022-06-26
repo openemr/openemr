@@ -899,7 +899,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
 </head>
 
-<body class="mt-1 patient-demographic bg-light">
+<body id="DEM" class="mt-1 patient-demographic bg-light">
 
     <?php
     // Create and fire the patient demographics view event
