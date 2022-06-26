@@ -368,7 +368,6 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 <body>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
          <div class="w-100">
-
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
                 <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
@@ -376,8 +375,8 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
             <div>
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                     <!-- Class "display" is defined in demo_table.css -->
-                    <div class="">
-                        <table class="table" class="border-0 display table-responsive" id="pt_table">
+                    <div class="table-responsive">
+                        <table class="table" class="border-0 display" id="pt_table">
                             <thead class="thead-dark">
                                 <tr id="advanced_search" class="hideaway"  style="display: none;">
                                     <?php echo $header0; ?>
