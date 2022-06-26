@@ -8642,7 +8642,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Document/{id}/Binary",
-     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+     *      description="Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="id",
@@ -8655,7 +8655,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
+     *          description="The documentation for working with BULK FHIR or $docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
