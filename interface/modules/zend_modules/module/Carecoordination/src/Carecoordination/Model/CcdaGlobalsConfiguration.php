@@ -29,6 +29,7 @@ class CcdaGlobalsConfiguration
     const GLOBAL_KEY_CCDA_REFERRAL_SORT_ORDER = 'ccda_referral_section_sort_order';
     const GLOBAL_KEY_CCDA_TOC_SORT_ORDER = 'ccda_toc_section_sort_order';
     const GLOBAL_KEY_CCDA_CAREPLAN_SORT_ORDER = 'ccda_careplan_section_sort_order';
+    const GLOBAL_KEY_CCDA_DEFAULT_SORT_ORDER = "ccda_default_section_sort_order";
 
     /**
      * @var array in memory cache of the ccda list options in the database
@@ -49,11 +50,11 @@ class CcdaGlobalsConfiguration
 
 
         $docTypeSortOrderSections = [
-            xl("CCD Section Display Order") => self::GLOBAL_KEY_CCDA_CCD_SORT_ORDER
-            ,xl("Referral Section Display Order") => self::GLOBAL_KEY_CCDA_REFERRAL_SORT_ORDER
-            ,xl("Transition of Care Section Display Order") => self::GLOBAL_KEY_CCDA_TOC_SORT_ORDER
-            ,xl("Careplan Section Display Order") => self::GLOBAL_KEY_CCDA_CAREPLAN_SORT_ORDER
-            ,xl("Referral Section Display Order") => self::GLOBAL_KEY_CCDA_REFERRAL_SORT_ORDER
+            xl("CCD Document Section Display Order") => self::GLOBAL_KEY_CCDA_CCD_SORT_ORDER
+            ,xl("Referral Document Section Display Order") => self::GLOBAL_KEY_CCDA_REFERRAL_SORT_ORDER
+            ,xl("Transition of Care Document Section Display Order") => self::GLOBAL_KEY_CCDA_TOC_SORT_ORDER
+            ,xl("Careplan Document Section Display Order") => self::GLOBAL_KEY_CCDA_CAREPLAN_SORT_ORDER
+            ,xl("Referral Document Section Display Order") => self::GLOBAL_KEY_CCDA_REFERRAL_SORT_ORDER
         ];
         foreach ($docTypeSortOrderSections as $name => $globalKey) {
             $setting = new GlobalSetting(
@@ -66,6 +67,16 @@ class CcdaGlobalsConfiguration
             $setting->addFieldOption(GlobalSetting::DATA_TYPE_OPTION_LIST_ID, 'ccda-sections');
             $service->appendToSection(self::GLOBAL_SECTION_NAME, $globalKey, $setting);
         }
+
+        $setting = new GlobalSetting(
+            xl("Default Document Section Display Order"),
+            GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR,
+            '',
+            xl('The order of clinical information sections to display when viewing a CCD-A document when the document type is not supported or is unknown'),
+            true
+        );
+        $setting->addFieldOption(GlobalSetting::DATA_TYPE_OPTION_LIST_ID, 'ccda-sections');
+        $service->appendToSection(self::GLOBAL_SECTION_NAME, self::GLOBAL_KEY_CCDA_DEFAULT_SORT_ORDER, $setting);
     }
 
     public function getMaxSections(): int
@@ -86,6 +97,7 @@ class CcdaGlobalsConfiguration
             ,CcdaDocumentTemplateOids::CAREPLAN => $this->getSectionDisplayOrderForType(self::GLOBAL_KEY_CCDA_CAREPLAN_SORT_ORDER)
             ,CcdaDocumentTemplateOids::TRANSFER_SUMMARY => $this->getSectionDisplayOrderForType(self::GLOBAL_KEY_CCDA_TOC_SORT_ORDER)
             ,CcdaDocumentTemplateOids::REFERRAL => $this->getSectionDisplayOrderForType(self::GLOBAL_KEY_CCDA_REFERRAL_SORT_ORDER)
+            ,'default' => $this->getSectionDisplayOrderForType(self::GLOBAL_KEY_CCDA_DEFAULT_SORT_ORDER)
         ];
     }
 
