@@ -142,6 +142,13 @@ var timeNow = exports.timeNow = {
     }
 };
 
+var timeDocumentTime = exports.timeDocumentTime = {
+    key: "time",
+    attributes: {
+        "value": leafLevel.time
+    }
+};
+
 var effectiveTime = exports.effectiveTime = {
     key: "effectiveTime",
     attributes: {
@@ -338,6 +345,32 @@ var assignedEntity = exports.assignedEntity = {
         representedOrganization
     ],
     existsWhen: condition.eitherKeyExists("address", "identifiers", "organization", "name")
+};
+
+var associatedEntity = exports.associatedEntity = {
+    key: "associatedEntity"
+    ,attributes: {
+        classCode: leafLevel.inputProperty("classCode"),
+    },
+    content: [
+        id,
+        {
+            key: "code",
+            attributes: leafLevel.code,
+            dataKey: "code"
+        },
+        usRealmAddress,
+        telecom,
+        {
+            key: "associatedPerson",
+            content: usRealmName,
+            existsWhen: condition.keyExists("name")
+            ,attributes: {
+                classCode: "PSN"
+                ,determinerCode: "INSTANCE"
+            }
+        }
+    ]
 };
 
 exports.author = {
