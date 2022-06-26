@@ -28,7 +28,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\PractitionerService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo xlt('Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
     exit;
 }
 

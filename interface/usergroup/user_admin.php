@@ -24,6 +24,7 @@ require_once("$srcdir/erx_javascript.inc.php");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
@@ -38,7 +39,12 @@ if (!empty($_GET)) {
 
 $facilityService = new FacilityService();
 
-if (!$_GET["id"] || !AclMain::aclCheckCore('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit User")]);
+    exit;
+}
+
+if (!$_GET["id"]) {
     exit();
 }
 
@@ -554,7 +560,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
   </td>
  </tr>
 <?php } ?>
- 
+
  <tr>
 <td class='text'><?php echo xlt('Access Control'); ?>:</td>
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">

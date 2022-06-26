@@ -16,6 +16,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 $feid = $_GET['feid'] + 0; // id from form_encounter table
@@ -23,7 +24,8 @@ $feid = $_GET['feid'] + 0; // id from form_encounter table
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Note")]);
+    exit;
 }
 ?>
 <html>
@@ -81,7 +83,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
                         <?php echo xla('Cancel'); ?>
                     </button>
                 </div>
-            </div>    
+            </div>
         </form>
     </div>
 </body>

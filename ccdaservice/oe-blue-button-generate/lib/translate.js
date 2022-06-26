@@ -27,10 +27,14 @@ exports.codeFromName = function (OID) {
 exports.code = function (input) {
     var result = {};
 
-    if (input.code === 'null_flavor') {
+    if (input.code === 'null_flavor' || input.code === '') {
         return {
             nullFlavor: "UNK"
         };
+    }
+
+    if (input.xmlns) {
+        result.xmlns = input.xmlns;
     }
 
     if (input.code) {
@@ -81,12 +85,16 @@ exports.time = function (input) {
 };
 
 var acronymize = exports.acronymize = function (string) {
-    var ret = string.split(" ");
-    var fL = ret[0].slice(0, 1);
-    var lL = ret[1].slice(0, 1);
-    fL = fL.toUpperCase();
-    lL = lL.toUpperCase();
-    ret = fL + lL;
+    let ret = string.split(" ");
+    if (ret.length > 1) {
+        let fL = ret[0].slice(0, 1);
+        let lL = ret[1].slice(0, 1);
+        fL = fL.toUpperCase();
+        lL = lL.toUpperCase();
+        ret = fL + lL;
+    } else {
+        ret = string;
+    }
     if (ret === "PH") {
         ret = "HP";
     }
@@ -98,6 +106,18 @@ var acronymize = exports.acronymize = function (string) {
     }
     if (ret === "CE") {
         ret = "EM";
+    }
+    if (ret.toUpperCase() === "WORK") {
+        ret = "WP";
+    }
+    if (ret.toUpperCase() === "HOME") {
+        ret = "H";
+    }
+    if (ret.toUpperCase() === "TEMP") {
+        ret = "TMP";
+    }
+    if (ret.toUpperCase() === "BILLING") {
+        ret = "PST";
     }
     return ret;
 };

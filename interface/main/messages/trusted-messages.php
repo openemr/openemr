@@ -40,6 +40,11 @@ if (!empty($_SESSION['pid'])) {
     }
 }
 
+if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
+    $verifyMessageReceivedChecked = "checked";
+} else {
+    $verifyMessageReceivedChecked = '';
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -182,6 +187,22 @@ if (!empty($_SESSION['pid'])) {
                                         <input id="documentId" type="hidden" name="documentId" value="" />
                                         <input id="documentName" class="form-control" type="textbox" name="documentName" value="" placeholder="<?php echo xla('Choose a document to attach'); ?>" />
                                         <p class="alert alert-info mt-2"><?php echo xlt("CCD/CCR/CCDA Documents must be in a xml or pdf format in order to send via Direct"); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 oe-custom-line">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="verifyMessageReceived" id="verifyMessageReceived" value="1" <?php echo $verifyMessageReceivedChecked; ?>>
+                                            <label for="verifyMessageReceived" class="form-check-label"><?php echo xlt("Verify Message Received"); ?></label>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-9">
+                                        <p class="alert alert-warning mt-2"><?php echo xlt("Forcing confirmation that recipient received a message could fail to send if the recipient's system does not support or has disabled receipt confirmation."); ?></p>
                                     </div>
                                 </div>
                             </div>

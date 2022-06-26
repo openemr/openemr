@@ -10,6 +10,7 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
 **************************************************************************/
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\Address;
 
 /**
  * class Address

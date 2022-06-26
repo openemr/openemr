@@ -27,12 +27,13 @@ use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo xlt('Billing Reporting Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Manager")]);
     exit;
 }
 

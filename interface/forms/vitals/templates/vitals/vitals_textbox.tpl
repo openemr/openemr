@@ -3,15 +3,15 @@
 {else}
 <tr>
 {/if}
-    <td class="graph" id="{$input|attr}">{$title|xlt}</td>
+    <td class="graph" id="{$input|attr}">{xlt t=$title} {if !empty($codes)}<small>({$codes|text})</small>{/if}</td>
     <td>{xlt t=$unit|xlt}</td>
 
     <td class='currentvalues p-2'>
         {if isset($vitalsStringFormat) }
-        <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
+        <input type="text" class="form-control skip-template-editor" size='5' name='{$input|attr}' id='{$input|attr}_input'
                value="{if is_numeric($vitals->$vitalsValue()) }{$vitals->$vitalsValue()|string_format:$vitalsStringFormat|attr}{/if}"/>
         {else}
-        <input type="text" class="form-control" size='5' name='{$input|attr}' id='{$input|attr}_input'
+        <input type="text" class="form-control skip-template-editor" size='5' name='{$input|attr}' id='{$input|attr}_input'
                value="{if is_numeric($vitals->$vitalsValue())}{$vitals->$vitalsValue()|attr}{/if}"/>
         {/if}
 

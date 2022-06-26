@@ -30,12 +30,14 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use ESign\Api;
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
+    exit;
 }
 
 $facilityService = new FacilityService();
@@ -956,7 +958,7 @@ function zip_content($source, $destination, $content = '', $create = true)
             document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;
         </script>
     <?php } ?>
-    
+
 </body>
 </html>
 <?php } ?>

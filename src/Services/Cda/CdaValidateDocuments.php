@@ -12,14 +12,33 @@
 
 namespace OpenEMR\Services\Cda;
 
+use CURLFile;
 use DOMDocument;
 use Exception;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
+use OpenEMR\Common\Twig\TwigContainer;
 
 class CdaValidateDocuments
 {
+    public $externalValidatorUrl;
+    public $externalValidatorEnabled;
+
     public function __construct()
     {
+        $this->externalValidatorEnabled = !empty($GLOBALS['mdht_conformance_server_enable'] ?? false);
+        if (empty($GLOBALS['mdht_conformance_server'])) {
+            $this->externalValidatorEnabled = false;
+        }
+        $this->externalValidatorUrl = null;
+        if ($this->externalValidatorEnabled) {
+            // should never get to where the url is '' as we disable it if the conformance server is empty
+            $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: '';
+            if (!str_ends_with($this->externalValidatorUrl, '/')) {
+                $this->externalValidatorUrl .= '/';
+            }
+            $this->externalValidatorUrl .= 'referenceccdaservice/';
+        }
     }
 
     /**
@@ -30,14 +49,53 @@ class CdaValidateDocuments
      */
     public function validateDocument($document, $type)
     {
+        // always validate schema XSD
         $xsd = $this->validateXmlXsd($document, $type);
-        $schema_results = $this->validateSchematron($document, $type);
+        if ($this->externalValidatorEnabled) {
+            $schema_results = $this->ettValidateCcda($document);
+        } else {
+            $schema_results = $this->validateSchematron($document, $type);
+        }
+
         $totals = array_merge($xsd, $schema_results);
 
         return $totals;
     }
 
     /**
+     * @param $xml
+     * @return array|mixed
+     */
+    public function ettValidateCcda($xml)
+    {
+        try {
+            $result = $this->ettValidateDocumentRequest($xml);
+        } catch (Exception $e) {
+            (new SystemLogger())->errorLogCaller($e->getMessage(), ["trace" => $e->getTraceAsString()]);
+            return [];
+        }
+        // translate result to our common render array
+        $results = array(
+            'errorCount' => $result['resultsMetaData']["resultMetaData"][0]["count"],
+            'warningCount' => 0,
+            'ignoredCount' => 0,
+        );
+        foreach ($result['ccdaValidationResults'] as $r) {
+            $results['errors'][] = array(
+                'type' => 'error',
+                'test' => $r['type'],
+                'description' => $r['description'],
+                'line' => $r['documentLineNumber'],
+                'path' => $r['xPath'],
+                'context' => $r['type'],
+                'xml' => '',
+            );
+        }
+        return $results;
+    }
+
+    /**
+     * @param string $port
      * @return bool
      * @throws Exception
      */
@@ -94,7 +152,7 @@ class CdaValidateDocuments
      * @return mixed|null
      * @throws Exception
      */
-    function schematronValidateDocument($xml, $type = 'ccda')
+    private function schematronValidateDocument($xml, $type = 'ccda')
     {
         $service = $this->startValidationService();
         $reply = [];
@@ -116,6 +174,65 @@ class CdaValidateDocuments
         curl_close($ch);
 
         $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        if ($status == '200') {
+            $reply = json_decode($response, true);
+        }
+
+        return $reply;
+    }
+
+    /**
+     * @param $xml
+     * @return array|mixed
+     */
+    private function ettValidateDocumentRequest($xml)
+    {
+        $reply = [];
+        if (empty($xml)) {
+            return $reply;
+        }
+
+        $headers = array(
+            "Content-Type: multipart/form-data",
+            "Accept: application/json",
+        );
+        $post_url = $this->externalValidatorUrl;
+        // I know there's a better way to do this but, not seeing it just now.
+        $post_file = $GLOBALS['temporary_files_dir'] . '/ccda.xml';
+        file_put_contents($post_file, $xml);
+        $file = new CURLFile($post_file, 'application/xhtml+xml', 'ccda.xml');
+
+        $post_this = [
+            'validationObjective' => 'C-CDA_IG_Plus_Vocab',
+            'referenceFileName' => 'noscenariofile',
+            'vocabularyConfig' => 'ccdaReferenceValidatorConfig',
+            'severityLevel' => 'ERROR',
+            'curesUpdate' => true,
+            'ccdaFile' => $file
+        ];
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $post_url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_this);
+
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        if (empty($response) || $status !== '200') {
+            $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
+            $reply['ccdaValidationResults'][] = array(
+                'description' => xlt('Validation Request failed') .
+                    ': Error ' . (curl_error($ch) ?: xlt('Unknown')) . ' ' .
+                    xlt('Request Status') . ':' . $status
+            );
+        }
+        curl_close($ch);
         if ($status == '200') {
             $reply = json_decode($response, true);
         }
@@ -162,6 +279,7 @@ class CdaValidateDocuments
         } catch (Exception $e) {
             $e = $e->getMessage();
             error_log($e);
+            $result = [];
         }
         return $result;
     }
@@ -190,37 +308,16 @@ class CdaValidateDocuments
         return $error_str;
     }
 
+    /**
+     * @param $amid
+     * @return string
+     */
     public function createSchematronHtml($amid)
     {
         $errors = $this->fetchValidationLog($amid);
-        $xsd = $errors['xsd'];
-        $schema = $errors['errors'];
 
-        $html = "<div class='control-group'>\n" .
-            "<h5 class='text-info' style='padding: 0 0;'>" . xlt('Schema Definition Errors') . "</h5><hr style='margin: 0 0 10px;' />\n";
-        if (empty($xsd)) {
-            $html .= "<p class='text-success'>" . xlt("Passed XSD testing.") . "</p><hr style='margin: 0 0 10px;' />\n";
-        }
-        foreach ($xsd as $error) {
-            $html .= "<blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>" .
-                "<p class='text-error' style='font-size:12px;'>" . text($error) . "</p>" .
-                "</blockquote><hr style='margin: 0 0 10px;' />\n";
-        }
-        $html .= "<h5 class='text-info'>" . xlt('Schematron Errors') . "</h5><hr style='margin: 0 0 10px;' />\n";
-        if (empty($errors['errorCount'])) {
-            $html .= "<p class='text-success'>" . xlt("Passed Schematron testing.") . "</p><hr style='margin: 0 0 10px;' />\n";
-        }
-        foreach ($schema as $error) {
-            $html .= "<blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>" .
-                "<p class='text-error' style='font-size:12px;'>" .
-                "<span style='color: red;padding-right: 2px;'>" . xlt('Error') . ": </span>" . text($error['description']) .
-                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Error Context') . ": </span>" . text($error['context']) .
-                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Where') . ": </span>" . text($error['path']) .
-                "<br />" . "<span style='color: red;margin-right: 2px;'>" . xlt('Line') . "# " . "</span>" . text($error['line']) .
-                "</p></blockquote><hr style='margin: 0 0 10px;' />\n";
-        }
-        $html .= "</div>\n";
-
+        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         return $html;
     }
 

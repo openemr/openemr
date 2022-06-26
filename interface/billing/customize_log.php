@@ -16,10 +16,11 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Twig\TwigContainer;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo xlt('Billing Log Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Log")]);
     exit;
 }
 

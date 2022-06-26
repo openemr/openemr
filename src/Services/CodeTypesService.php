@@ -188,6 +188,15 @@ class CodeTypesService
         if (empty($type) || empty($code)) {
             return "";
         }
+        $tmp = explode(':', $code);
+        if (is_array($tmp) && count($tmp ?? []) === 2) {
+            if (!$oe_format) {
+                return $code;
+            }
+            // rebuild when code type format flag is set
+            $type = $tmp[0];
+            $code = $tmp[1];
+        }
         if ($oe_format) {
             $type = $this->formatCodeType($type ?? "");
         }

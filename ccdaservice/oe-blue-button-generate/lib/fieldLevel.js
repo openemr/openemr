@@ -90,6 +90,15 @@ exports.uniqueId = {
     }
 };
 
+exports.uniqueIdRoot = {
+    key: "id",
+    attributes: {
+        root: function (input, context) {
+            return uuid.v4();
+        }
+    }
+};
+
 exports.statusCodeCompleted = {
     key: "statusCode",
     attributes: {
@@ -213,28 +222,53 @@ exports.nullFlavor = function (name) {
     };
 };
 
+
+var useablePeriod = exports.useablePeriod = {
+    key: "useablePeriod",
+    attributes: {
+        "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xsi:type": "IVL_TS"
+    },
+    content: [{
+        key: "low",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'low',
+    }, {
+        key: "high",
+        attributes: {
+            "value": leafLevel.time
+        },
+        dataKey: 'high',
+    }],
+    dataKey: 'date_time',
+    existsWhen: condition.eitherKeyExists('point', 'low', 'high')
+};
+
 var usRealmAddress = exports.usRealmAddress = {
     key: "addr",
     attributes: {
         use: leafLevel.use("use")
     },
     content: [{
-        key: "country",
-        text: leafLevel.inputProperty("country")
-    }, {
-        key: "state",
-        text: leafLevel.inputProperty("state")
+        key: "streetAddressLine",
+        text: leafLevel.input,
+        dataKey: "street_lines"
     }, {
         key: "city",
         text: leafLevel.inputProperty("city")
     }, {
+        key: "state",
+        text: leafLevel.inputProperty("state")
+    }, {
         key: "postalCode",
         text: leafLevel.inputProperty("zip")
     }, {
-        key: "streetAddressLine",
-        text: leafLevel.input,
-        dataKey: "street_lines"
-    }],
+        key: "country",
+        text: leafLevel.inputProperty("country")
+    }, useablePeriod,
+    ],
     dataKey: "address"
 };
 
@@ -295,7 +329,6 @@ var assignedEntity = exports.assignedEntity = {
         attributes: leafLevel.code,
         dataKey: "code"
     },
-
         usRealmAddress,
         telecom, {
             key: "assignedPerson",

@@ -170,7 +170,7 @@ $download_format = $this->download_format;
         <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
         <select size="12" id="report_measures_cat3" name="report_measures_cat3[]" style="width:100%;">
             <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures All Patients'); ?></option>
-            <!--<option value="all"><?php /*echo $this->listenerObject->z_xlt('Patient with all Measures'); */?></option>-->
+            <!--<option value="all"><?php /*echo $this->listenerObject->z_xlt('Patient with all Measures'); */ ?></option>-->
             <?php
             foreach ($this->current_measures as $measure) {
                 $help = attr($measure['title']);
@@ -221,7 +221,9 @@ $download_format = $this->download_format;
     <!--End Download All-->
     <div class="ap-st-st-6">
         <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
-        <div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('SEND'); ?></div>
+        <div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('Send'); ?></div>
+        <input type="hidden" name="form_filter_content" id="form_filter_content" value="" />
+        <div class="ap-st-st-7" onclick="sendFiltered();"><?php echo $this->listenerObject->z_xlt('Send Filtered'); ?></div>
     </div>
 </div>
 <?php $this->headScript()->captureStart() ?>

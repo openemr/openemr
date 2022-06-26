@@ -19,6 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 
 class C_Document extends Controller
 {
@@ -543,7 +544,7 @@ class C_Document extends Controller
         $menu  = new HTML_TreeMenu();
 
         //pass an empty array because we don't want the documents for each category showing up in this list box
-        $rnode = $this->array_recurse($this->tree->tree, array());
+        $rnode = $this->array_recurse($this->tree->tree, $patient_id, array());
         $menu->addItem($rnode);
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
 
@@ -1053,7 +1054,7 @@ class C_Document extends Controller
         //print_r($categories_list);
 
         $menu  = new HTML_TreeMenu();
-        $rnode = $this->array_recurse($this->tree->tree, $categories_list);
+        $rnode = $this->array_recurse($this->tree->tree, $patient_id, $categories_list);
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
@@ -1084,7 +1085,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    public function &array_recurse($array, $categories = array())
+    public function &array_recurse($array, $patient_id, $categories = array())
     {
         if (!is_array($array)) {
             $array = array();
@@ -1107,7 +1108,7 @@ class C_Document extends Controller
                     $current_node = &$this->_last_node;
                 }
 
-                $this->array_recurse($ar, $categories);
+                $this->array_recurse($ar, $patient_id, $categories);
             } else {
                 if ($id === 0 && !empty($ar)) {
                     $info = $this->tree->get_node_info($id);
@@ -1133,29 +1134,30 @@ class C_Document extends Controller
                     if (!AclMain::aclCheckAcoSpec($doc['aco_spec'])) {
                         $link = '';
                     }
-                    if ($this->tree->get_node_name($id) == "CCR") {
-                        $current_node->addItem(new HTML_TreeNode(array(
-                            'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
-                            'link' => $link,
-                            'icon' => $icon,
-                            'expandedIcon' => $expandedIcon,
-                            'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
-                        )));
-                    } elseif ($this->tree->get_node_name($id) == "CCD") {
-                        $current_node->addItem(new HTML_TreeNode(array(
-                            'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
-                            'link' => $link,
-                            'icon' => $icon,
-                            'expandedIcon' => $expandedIcon,
-                            'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
-                        )));
+                    // CCD view
+                    $nodeInfo = $this->tree->get_node_info($id);
+                    $treeViewFilterEvent = new PatientDocumentTreeViewFilterEvent();
+                    $treeViewFilterEvent->setCategoryTreeNode($this->tree);
+                    $treeViewFilterEvent->setDocumentId($doc['document_id']);
+                    $treeViewFilterEvent->setDocumentName($doc['document_name']);
+                    $treeViewFilterEvent->setCategoryId($id);
+                    $treeViewFilterEvent->setCategoryInfo($nodeInfo);
+                    $treeViewFilterEvent->setPid($patient_id);
+
+                    $htmlNode = new HTML_TreeNode(array(
+                        'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
+                        'link' => $link,
+                        'icon' => $icon,
+                        'expandedIcon' => $expandedIcon
+                    ));
+
+                    $treeViewFilterEvent->setHtmlTreeNode($htmlNode);
+                    $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($treeViewFilterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
+                    if ($filteredEvent->getHtmlTreeNode() != null) {
+                        $current_node->addItem($filteredEvent->getHtmlTreeNode());
                     } else {
-                        $current_node->addItem(new HTML_TreeNode(array(
-                            'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
-                            'link' => $link,
-                            'icon' => $icon,
-                            'expandedIcon' => $expandedIcon
-                        )));
+                        // add the original node if we got back nothing from the server
+                        $current_node->addItem($htmlNode);
                     }
                 }
             }

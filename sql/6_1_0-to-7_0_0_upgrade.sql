@@ -704,13 +704,246 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','us_realm_person_name','US Realm Person Name',220,0,1, 'oid:2.16.840.1.113883.10.20.22.5.1.1');
 #EndIf
 
-
-#IfNotRow2D list_options list_id drug_interval option_id WK
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','WK','Weekly',19,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','MO','Monthly',20,0,1);
-#EndIf
-
 #IfRow3D list_options list_id immunization_refusal_reason option_id parental_decision seq 10
 UPDATE list_options SET seq=40 WHERE list_id="immunization_refusal_reason" AND option_id="parental_decision";
 UPDATE list_options SET seq=10 WHERE list_id="immunization_refusal_reason" AND option_id="patient_decision";
+#EndIf
+
+#IfMissingColumn procedure_result date_end
+ALTER TABLE `procedure_result` ADD `date_end` datetime DEFAULT NULL COMMENT 'lab-provided end date specific to this result';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id title title Title
+UPDATE `layout_options` SET `title` = 'Title' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'title';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id fname title Name
+UPDATE `layout_options` SET `title` = 'Name', `titlecols` = '1', `datacols` = '3' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'fname';
+#EndIf
+
+#IfMissingColumn addresses district
+ALTER TABLE `addresses` ADD COLUMN `district` VARCHAR(255) DEFAULT NULL COMMENT 'The county or district of the address';
+#EndIf
+
+
+#IfNotTable contact
+CREATE TABLE `contact` (
+   `id` BIGINT(20) NOT NULL auto_increment,
+   `foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
+   `foreign_id` BIGINT(20) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`),
+   KEY (`foreign_id`)
+) ENGINE = InnoDB;
+#EndIf
+
+
+
+#IfNotTable contact_address
+CREATE TABLE `contact_address` (
+    `id` BIGINT(20) NOT NULL auto_increment,
+    `contact_id` BIGINT(20) NOT NULL,
+    `address_id` BIGINT(20) NOT NULL,
+    `priority` INT(11) NULL,
+    `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
+    `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
+    `notes` TINYTEXT,
+    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
+    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `period_start` DATETIME NULL COMMENT 'Date the address became active',
+    `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
+    `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
+    PRIMARY KEY (`id`),
+    KEY (`contact_id`),
+    KEY (`address_id`)
+) ENGINE = InnoDB ;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id address-uses
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-uses','Address Uses',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','home','Home',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','work','Work',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','temp','Temporary',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','old','Old/Incorrect',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','billing','Billing',50,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id address-types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-types','Address Types',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','postal','Postal',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','physical','Physical',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','both','Postal & Physical',30,0,1);
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id additional_addresses
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='street' AND form_id='DEM');
+SET @seq_add_to = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+VALUES ('DEM','additional_addresses',@group_id,'',@seq_add_to+1,54,1,0,0,'',4,4,'','','Additional Patient Addresses',0);
+#Endif
+
+#IfNotColumnType form_vitals weight DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `weight_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient weight stored in imperial lbs' AFTER `height`;
+UPDATE form_vitals SET weight_dec=CAST(weight AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `weight`;
+ALTER TABLE form_vitals CHANGE `weight_dec` `weight` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient weight stored in imperial lbs';
+#EndIf
+
+#IfNotColumnType form_vitals height DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `height_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient height stored in imperial in' AFTER `height`;
+UPDATE form_vitals SET height_dec=CAST(height AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `height`;
+ALTER TABLE form_vitals CHANGE `height_dec` `height` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient height stored in imperial in';
+#EndIf
+
+#IfNotColumnType form_vitals temperature DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `temperature_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient temperature stored in fahrenheit degrees' AFTER `temperature`;
+UPDATE form_vitals SET temperature_dec=CAST(temperature AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `temperature`;
+ALTER TABLE form_vitals CHANGE `temperature_dec` `temperature` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient temperature stored in fahrenheit degrees';
+#EndIf
+
+#IfNotColumnType form_vitals pulse DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `pulse_dec` DECIMAL(12,2) DEFAULT NULL AFTER `pulse`;
+UPDATE form_vitals SET pulse_dec=CAST(pulse AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `pulse`;
+ALTER TABLE form_vitals CHANGE `pulse_dec` `pulse` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals respiration DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `respiration_dec` DECIMAL(12,2) DEFAULT NULL AFTER `respiration`;
+UPDATE form_vitals SET respiration_dec=CAST(respiration AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `respiration`;
+ALTER TABLE form_vitals CHANGE `respiration_dec` `respiration` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals BMI DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `BMI_dec` DECIMAL(6,1) DEFAULT NULL AFTER `BMI`;
+UPDATE form_vitals SET BMI_dec=CAST(BMI AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `BMI`;
+ALTER TABLE form_vitals CHANGE `BMI_dec` `BMI` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals waist_circ DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `waist_circ_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient waist circumference stored in imperial in' AFTER `waist_circ`;
+UPDATE form_vitals SET waist_circ_dec=CAST(waist_circ AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `waist_circ`;
+ALTER TABLE form_vitals CHANGE `waist_circ_dec` `waist_circ` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient waist circumference stored in imperial in';
+#EndIf
+
+#IfNotColumnType form_vitals head_circ DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `head_circ_dec` DECIMAL(12,2) DEFAULT NULL COMMENT 'patient head circumference stored in imperial in' AFTER `head_circ`;
+UPDATE form_vitals SET head_circ_dec=CAST(head_circ AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `head_circ`;
+ALTER TABLE form_vitals CHANGE `head_circ_dec` `head_circ` DECIMAL(12,6) DEFAULT NULL COMMENT 'patient head circumference stored in imperial in';
+#EndIf
+
+#IfNotColumnType form_vitals oxygen_flow_rate DECIMAL(12,6)
+ALTER TABLE form_vitals ADD `oxygen_flow_rate_dec` DECIMAL(12,2) DEFAULT NULL AFTER `oxygen_flow_rate`;
+UPDATE form_vitals SET oxygen_flow_rate_dec=CAST(oxygen_flow_rate AS DECIMAL(12,2));
+ALTER TABLE form_vitals DROP `oxygen_flow_rate`;
+ALTER TABLE form_vitals CHANGE `oxygen_flow_rate_dec` `oxygen_flow_rate` DECIMAL(12,6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals oxygen_saturation DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `oxygen_saturation_dec` DECIMAL(6,2) DEFAULT NULL AFTER `oxygen_saturation`;
+UPDATE form_vitals SET oxygen_saturation_dec=CAST(oxygen_saturation AS DECIMAL(6,2));
+ALTER TABLE form_vitals DROP `oxygen_saturation`;
+ALTER TABLE form_vitals CHANGE `oxygen_saturation_dec` `oxygen_saturation` DECIMAL(6,2) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType form_vitals ped_weight_height DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `ped_weight_height_dec` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric weight height percentile' AFTER `ped_weight_height`;
+UPDATE form_vitals SET ped_weight_height_dec=CAST(ped_weight_height AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `ped_weight_height`;
+ALTER TABLE form_vitals CHANGE `ped_weight_height_dec` `ped_weight_height` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric weight height percentile';
+#EndIf
+
+#IfNotColumnType form_vitals ped_bmi DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `ped_bmi_dec` DECIMAL(6,1) DEFAULT NULL COMMENT 'pediatric bmi percentile' AFTER `ped_bmi`;
+UPDATE form_vitals SET ped_bmi_dec=CAST(ped_bmi AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `ped_bmi`;
+ALTER TABLE form_vitals CHANGE `ped_bmi_dec` `ped_bmi` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric bmi percentile';
+#EndIf
+
+#IfNotColumnType form_vitals ped_head_circ DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `ped_head_circ_dec` DECIMAL(6,1) DEFAULT NULL COMMENT 'pediatric head circumference percentile' AFTER `ped_head_circ`;
+UPDATE form_vitals SET ped_head_circ_dec=CAST(ped_head_circ AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `ped_head_circ`;
+ALTER TABLE form_vitals CHANGE `ped_head_circ_dec` `ped_head_circ` DECIMAL(6,2) DEFAULT NULL COMMENT 'pediatric head circumference percentile';
+#EndIf
+
+#IfNotColumnType form_vitals inhaled_oxygen_concentration DECIMAL(6,2)
+ALTER TABLE form_vitals ADD `inhaled_oxygen_concentration_dec` DECIMAL(6,1) DEFAULT NULL AFTER `inhaled_oxygen_concentration`;
+UPDATE form_vitals SET inhaled_oxygen_concentration_dec=CAST(inhaled_oxygen_concentration AS DECIMAL(6,1));
+ALTER TABLE form_vitals DROP `inhaled_oxygen_concentration`;
+ALTER TABLE form_vitals CHANGE `inhaled_oxygen_concentration_dec` `inhaled_oxygen_concentration` DECIMAL(6,2) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id provider_since_date
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='providerID' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='providerID' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','provider_since_date',@group_id,'Provide Since Date',@seq_add_to+5,4,1,10,10,'',1,1,'','','Patient assigned provider since date.',0);
+UPDATE `layout_options` SET `datacols` = 1 WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'providerID';
+UPDATE `layout_options` SET `description` = 'Multi Select race and or race category that describes patient race' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'race';
+ALTER TABLE `patient_data` ADD `provider_since_date` TINYTEXT;
+-- White
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'European';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'English';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'French';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'German';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Irish';
+-- Hispanic or Latino
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Latin American';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Latino';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Hispanic';
+-- American Indian or Alaska Native
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'American Indian';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Alaska Native';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Alaska Indian';
+-- African American
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'African American';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'African';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Middle Eastern or North African';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Black';
+-- Asian & Pacific
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Other Pacific Islander';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Chinese';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Filipino';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Japanese';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Korean';
+UPDATE `list_options` SET `activity` = '1' WHERE `list_id` = 'race' AND `title` = 'Asian Indian';
+#Endif
+
+#IfNotIndex patient_history pid_idx
+ALTER TABLE patient_history ADD INDEX `pid_idx` (`pid`);
+#EndIf
+
+#IfNotIndex contact_address contact_address_idx
+ALTER TABLE contact_address ADD INDEX `contact_address_idx` (`contact_id`,`address_id`);
+#EndIf
+
+#IfUpdateEditOptionsNeeded add DEM J additional_addresses
+#EndIf
+
+#IfUpdateEditOptionsNeeded add DEM SP additional_addresses
+#EndIf
+
+#IfNotRow3D list_options list_id drug_route title IM codes NCI-CONCEPT-ID:C28161
+UPDATE list_options SET codes='NCI-CONCEPT-ID:C28161' WHERE list_id='drug_route' AND title='IM' AND codes != 'NCI-CONCEPT-ID:C28161';
+#EndIf
+
+#IfRow2D list_options list_id drug_interval option_id WK
+UPDATE list_options SET option_id='19' WHERE list_id='drug_interval' AND option_id='WK';
+#EndIf
+
+#IfRow2D list_options list_id drug_interval option_id MO
+UPDATE list_options SET option_id='20' WHERE list_id='drug_interval' AND option_id='MO';
+#EndIf
+
+#IfNotRow2D list_options list_id drug_interval option_id 19
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','19','Weekly',19,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','20','Monthly',20,0,1);
 #EndIf

@@ -28,6 +28,7 @@ $mimeTypeMappings = [
 ];
 
 $csrf = $_REQUEST['csrf_token_form'] ?? null;
+$verifyMessageReceived = false;
 if (!CsrfUtils::verifyCsrfToken($csrf)) {
     $result['errorCode'] = 'invalidCsrf';
     $isValid = false;
@@ -71,6 +72,7 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
                 throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
             }
         }
+        $verifyMessageReceived = intval($_REQUEST['verifyMessageReceived'] ?? 0) == 1;
         $isValid = true;
     } catch (AccessDeniedException $exception) {
         http_response_code(401);
@@ -87,7 +89,7 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
 if ($isValid) {
     try {
         if (empty($document)) {
-            $transmitResult = transmitMessage($message, $recipient);
+            $transmitResult = transmitMessage($message, $recipient, $verifyMessageReceived);
         } else {
             $mimeType = $document->get_mimetype();
             $formatType = 'xml';
@@ -103,7 +105,7 @@ if ($isValid) {
             // use the filename that exists in the document for what is sent
             $fileName = $document->get_name();
 
-            $transmitResult = transmitCCD($pid, $dataToSend, $recipient, $requested_by, $xmlType, $formatType, $message, $fileName);
+            $transmitResult = transmitCCD($pid, $dataToSend, $recipient, $requested_by, $xmlType, $formatType, $message, $fileName, $verifyMessageReceived);
         }
         if ($transmitResult !== "SUCCESS") {
             $result['errorCode'] = 'directError';

@@ -41,7 +41,7 @@ if (sqlNumRows($res) > 0) {
     <?php
     $even = false;
     while ($row = sqlFetchArray($res)) {
-        echo "<tr class='" . text($class) . "'>";
+        echo "<tr class='" . text($class ?? '') . "'>";
         echo "<td>" . text($row['title']) . "</td>";
         echo "<td>" . text($row['begdate']) . "</td>";
         echo "<td>" . text($row['enddate']) . "</td>";

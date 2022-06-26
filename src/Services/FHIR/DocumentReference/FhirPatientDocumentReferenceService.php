@@ -175,14 +175,17 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         $docReference->setCustodian($orgReference);
 
+        // if we don't have a practitioner reference then it is the business owner that will be the author on
+        // the clinical notes
+        $authorReference = $orgReference;
         if (!empty($dataRecord['user_uuid'])) {
             if (!empty($dataRecord['user_npi'])) {
-                $docReference->addAuthor(UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']));
-            } else {
-                // if we don't have a practitioner reference then it is the business owner that will be the author on
-                // the clinical notes
-                $docReference->addAuthor($orgReference);
+                $authorReference = UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']);
             }
+        }
+
+        if (!empty($authorReference)) {
+            $docReference->addAuthor($authorReference);
         }
 
         if (!empty($dataRecord['deleted'])) {

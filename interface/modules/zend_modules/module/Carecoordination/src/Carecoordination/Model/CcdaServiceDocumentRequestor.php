@@ -76,8 +76,21 @@ class CcdaServiceDocumentRequestor
         }
 
         $data = chr(11) . $data . chr(28) . "\r";
+        if (strlen($data) > 1024 * 128) {
+            throw new CcdaServiceConnectionException("Export document exceeds the maximum size of 128KB");
+        }
         // Write to socket!
-        $out = socket_write($socket, $data, strlen($data));
+        if (strlen($data) > 1024 * 64) {
+            $data1 = substr($data, 0, floor(strlen($data) / 2));
+            $data2 = substr($data, floor(strlen($data) / 2));
+            $out = socket_write($socket, $data1, strlen($data1));
+            // give distance a chance to clear buffer
+            // we could handshake with a little effort
+            sleep(1);
+            $out = socket_write($socket, $data2, strlen($data2));
+        } else {
+            $out = socket_write($socket, $data, strlen($data));
+        }
 
         socket_set_nonblock($socket);
         //Read from socket!
@@ -92,6 +105,9 @@ class CcdaServiceDocumentRequestor
         socket_close($socket);
         if ($output == "Authentication Failure") {
             throw new CcdaServiceConnectionException("Authentication Failure");
+        }
+        if (empty(trim($output))) {
+            throw new CcdaServiceConnectionException("Ccda document generated was empty.  Check node service logs.");
         }
         return $output;
     }

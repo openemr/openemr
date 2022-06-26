@@ -84,7 +84,7 @@ class ImmunizationService extends BaseService
                 site.title as site_display,
                 site.notes as site_code,
                 completion_status,
-                immunizations.reason_codes,
+                immunizations.reason_code,
                 immunizations.refusal_reason,
                 refusal_reasons.refusal_reason_codes,
                 refusal_reasons.refusal_reason_cdc_nip_code,

@@ -38,9 +38,10 @@ use OpenEMR\Common\DirectMessaging\ErrorConstants;
  * server, the script will return "SUCCESS", otherwise it will return an error msg.
  * @param string message The message to send via Direct
  * @param string recipient the Direct Address of the recipient
+ * @param bool Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
  * @return string result of operation
  */
-function transmitMessage($message, $recipient)
+function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
 {
 
     $reqBy = $_SESSION['authUser'];
@@ -84,6 +85,18 @@ function transmitMessage($message, $recipient)
     $ret = phimail_write_expect_OK($fp, $text_out);
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
+    }
+
+    if ($verifyFinalDelivery) {
+        $ret = phimail_write_expect_OK($fp, "SET FINAL 1\n");
+        if ($ret !== true) {
+            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
+        }
+    } else {
+        $ret = phimail_write_expect_OK($fp, "SET FINAL 0\n");
+        if ($ret !== true) {
+            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
+        }
     }
 
     phimail_write($fp, "SEND\n");
@@ -131,9 +144,10 @@ function transmitMessage($message, $recipient)
  * @param string The format that the document is in (pdf, xml, html)
  * @param string The message body the clinician wants to send
  * @param string The filename to use as the name of the attachment (must included file extension as part of filename)
+ * @param bool Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
  * @return string result of operation
  */
-function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = ''): string
+function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = '', $verifyFinalDelivery = false): string
 {
     //get patient name in Last_First format (used for CCDA filename) and
     //First Last for the message text.
@@ -238,6 +252,18 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $ret = phimail_write_expect_OK($fp, $ccd_out);
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_CONFIRM_FAILED);
+    }
+
+    if ($verifyFinalDelivery) {
+        $ret = phimail_write_expect_OK($fp, "SET FINAL 1\n");
+        if ($ret !== true) {
+            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
+        }
+    } else {
+        $ret = phimail_write_expect_OK($fp, "SET FINAL 0\n");
+        if ($ret !== true) {
+            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
+        }
     }
 
     phimail_write($fp, "SEND\n");

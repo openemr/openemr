@@ -30,6 +30,7 @@ use OpenEMR\Services\FHIR\DocumentReference\FhirPatientDocumentReferenceService;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -66,8 +67,8 @@ class FhirDocRefService
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            'start' => new FhirSearchParameterDefinition('start', SearchFieldType::DATETIME, ['start_datetime']),
-            'end' => new FhirSearchParameterDefinition('end', SearchFieldType::DATETIME, ['end_datetime']),
+            'start' => new FhirSearchParameterDefinition('start', SearchFieldType::DATETIME, ['start']),
+            'end' => new FhirSearchParameterDefinition('end', SearchFieldType::DATETIME, ['end']),
             'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['type']),
         ];
     }
@@ -92,8 +93,8 @@ class FhirDocRefService
         }
 
         // if no start & end, return current CCD
-        if ($this->shouldReturnMostRecentCCD($oeSearchParameters)) {
-            $documentReference = $this->getMostRecentCCDReference($oeSearchParameters, $fhirSearchResult);
+        if ($this->shouldReturnMostCurrentCCD($oeSearchParameters)) {
+            $documentReference = $this->getMostCurrentCCDReference($oeSearchParameters, $fhirSearchResult);
         } else {
             // else
             // generate CCD using start & end
@@ -117,10 +118,10 @@ class FhirDocRefService
         return false;
     }
 
-    private function shouldReturnMostRecentCCD($oeSearchparameters): bool
+    private function shouldReturnMostCurrentCCD($oeSearchparameters): bool
     {
-        // attempt to grab our CCD from our
-        return empty($oeSearchparameters['start']) || empty($oeSearchparameters['end']);
+        // if start and end date is empty then we return the most current ccd
+        return empty($oeSearchparameters['start']) && empty($oeSearchparameters['end']);
     }
 
     private function getPatientRecordForSearchParameters($oeSearchParameters): array
@@ -128,14 +129,20 @@ class FhirDocRefService
         $mappedField = reset($this->getPatientContextSearchField()->getMappedFields()); // grab the first one
         $searchPatient = $oeSearchParameters[$mappedField->getField()];
 
+        // we only allow one patient CCD to be generated at a time.
+        if (empty($searchPatient->getValues()) || count($searchPatient->getValues()) > 1) {
+            throw new SearchFieldException($mappedField->getField(), "Field is required and cardinality is 1..1");
+        }
+
         $fhirPatientService = new FhirPatientService();
 
         $field = current($fhirPatientService->getPatientContextSearchField()->getMappedFields())->getField();
         $newSearchField = new ReferenceSearchField($field, $searchPatient->getValues(), true);
+
         $patientService = new PatientService();
         $patient = $patientService->search([$field => $newSearchField])->getData() ?? null;
         if (empty($patient)) {
-            // TODO: do we have a not found exception anywhere?
+            (new SystemLogger())->errorLogCaller("Failed to find patient with uuid", ['uuids' => $searchPatient->getValues()]);
             throw new SearchFieldException($field, "Invalid argument");
         } else {
             $patient = $patient[0];
@@ -143,18 +150,68 @@ class FhirDocRefService
         return $patient;
     }
 
-    private function getMostRecentCCDReference($oeSearchParameters): FHIRDocumentReference
+    /**
+     * At some point we could return an already generated CCD, but we generate a CCD that covers the patient's entire
+     * medical history as their most current
+     * @param $oeSearchParameters
+     * @return FHIRDocumentReference
+     * @throws \Exception
+     */
+    private function getMostCurrentCCDReference($oeSearchParameters): FHIRDocumentReference
     {
-
         // let's grab our patient
         // while these are right now 100% the same field names, the underlying data models can change so we have to handle that.
         $patient = $this->getPatientRecordForSearchParameters($oeSearchParameters);
 
         // document create event
         $event = new PatientDocumentCreateCCDAEvent($patient['pid']);
-        $event->addSection("continuity_care_document"); // make it a CCD
 
+        // apparently the PHP download CCDA just sends over every single section/component regardless of whether its used or not
+        // the node server on the backend is what distinguishes between what sections to include / exclude based on the
+        // document type that is sent.
+        // TODO: if we ever decide to actually put the filtering on the PHP side we will need to adjust this.
+//        $event->addSection("continuity_care_document"); // make it a CCD
+//        $event->addComponent("vitals");
+//        $event->addComponent("social_history");
+        return $this->getDocumentReferenceForCCDAEvent($event);
+    }
 
+    private function generateCCD($oeSearchParameters): FHIRDocumentReference
+    {
+        $patient = $this->getPatientRecordForSearchParameters($oeSearchParameters);
+        $event = new PatientDocumentCreateCCDAEvent($patient['pid']);
+
+        if (!empty($oeSearchParameters['start'])) {
+            $dateFrom = $oeSearchParameters['start'];
+            if (!($dateFrom instanceof DateSearchField)) {
+                throw new SearchFieldException("start", "start parameter could not be parsed as a valid date");
+            }
+            if (empty($dateFrom->getValues())) {
+                throw new SearchFieldException("start", "start parameter could not be parsed as a valid date");
+            }
+            // getValue() returns a DatePeriod object
+            // TODO: if we implement FHIR support for dates we will pass this along
+            $startDate = current($dateFrom->getValues())->getValue()->getStartDate();
+            $event->setDateFrom($startDate);
+        }
+
+        if (!empty($oeSearchParameters['end'])) {
+            $dateTo = $oeSearchParameters['end'];
+            if (!($dateTo instanceof DateSearchField)) {
+                throw new SearchFieldException("start", "start parameter could not be parsed as a valid date");
+            }
+            if (empty($dateTo->getValues())) {
+                throw new SearchFieldException("start", "start parameter could not be parsed as a valid date");
+            }
+            // TODO: if we implement FHIR support for dates we will pass this along
+            $endDate = current($dateTo->getValues())->getValue()->getEndDate();
+            $event->setDateTo($endDate);
+        }
+        return $this->getDocumentReferenceForCCDAEvent($event);
+    }
+
+    private function getDocumentReferenceForCCDAEvent(PatientDocumentCreateCCDAEvent $event)
+    {
         // this creates our CCDA
         $createdEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
         if (empty($createdEvent->getCcdaId())) {
@@ -179,10 +236,5 @@ class FhirDocRefService
             throw new \Exception("Fhir DocumentReference resource could not be found for uuid");
         }
         return $result->getData()[0];
-    }
-
-    private function generateCCD($oeSearchParameters): FHIRDocumentReference
-    {
-        return new FHIRDocumentReference();
     }
 }

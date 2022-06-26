@@ -97,6 +97,7 @@ exports.ccd2 = function (html_renderer) {
                 content: {
                     key: "structuredBody",
                     content: [
+                        sectionLevel2.careTeamSection(html_renderer.careTeamSectionHtmlHeader, html_renderer.careTeamSectionHtmlHeaderNA),
                         [sectionLevel2.allergiesSectionEntriesRequired(html_renderer.allergiesSectionEntriesRequiredHtmlHeader, html_renderer.allergiesSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.medicationsSectionEntriesRequired(html_renderer.medicationsSectionEntriesRequiredHtmlHeader, html_renderer.medicationsSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.problemsSectionEntriesRequired(html_renderer.problemsSectionEntriesRequiredHtmlHeader, html_renderer.problemsSectionEntriesRequiredHtmlHeaderNA), required],

@@ -31,6 +31,7 @@
  *          scopes={
  *              "openid": "Generic mandatory scope",
  *              "offline_access": "Will signal server to provide a refresh token",
+ *              "launch/patient": "Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)",
  *              "api:fhir": "FHIR R4 API",
  *              "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
  *              "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
@@ -8456,10 +8457,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
-     *  @OA\Get(
+     *  @OA\POST(
      *      path="/fhir/DocumentReference/$docref",
-     *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details",
+     *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.",
      *      tags={"fhir"},
+     *      @OA\ExternalDocumentation(description="Detailed documentation on this operation", url="https://github.com/openemr/openemr/blob/master/FHIR_README.md#carecoordination-summary-of-care-docref-operation"),
      *      @OA\Parameter(
      *          name="patient",
      *          in="query",
@@ -8511,7 +8513,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /fhir/DocumentReference/$docref' => function (HttpRestRequest $request) {
+    'POST /fhir/DocumentReference/$docref' => function (HttpRestRequest $request) {
 
         // NOTE: The order of this route is IMPORTANT as it needs to come before the DocumentReference single request.
         if ($request->isPatientRequest()) {
@@ -8640,7 +8642,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Document/{id}/Binary",
-     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+     *      description="Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="id",
@@ -8653,7 +8655,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
+     *          description="The documentation for working with BULK FHIR or $docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
