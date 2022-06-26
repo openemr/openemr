@@ -66,7 +66,9 @@ This is a listing of scopes:
   - `patient/Coverage.read`
   - `patient/Device.read`
   - `patient/DiagnosticReport.read`
+  - `patient/Document.read`
   - `patient/DocumentReference.read`
+  - `patient/DocumentReference.$docref`
   - `patient/Encounter.read`
   - `patient/Goal.read`
   - `patient/Immunization.read`
@@ -87,12 +89,13 @@ This is a listing of scopes:
   - `system/Coverage.read`
   - `system/Device.read`
   - `system/DiagnosticReport.read`
-  - `system/Document.read` (used for Bulk FHIR export downloads)
+  - `system/Document.read`
   - `system/DocumentReference.read`
+  - `system/DocumentReference.$docref`
   - `system/Encounter.read`
   - `system/Goal.read`
   - `system/Group.read`
-  - `system/Group.$export` (???)
+  - `system/Group.$export`
   - `system/Immunization.read`
   - `system/Location.read`
   - `system/MedicationRequest.read`
@@ -100,14 +103,14 @@ This is a listing of scopes:
   - `system/Observation.read`
   - `system/Organization.read`
   - `system/Patient.read`
-  - `system/Patient.$export` (???)
+  - `system/Patient.$export`
   - `system/Person.read`
   - `system/Practitioner.read`
   - `system/PractitionerRole.read`
   - `system/Procedure.read`
   - `system/Provenance.read`
-  - `system/*.$bulkdata-status` (???)
-  - `system/*.$export` (???)
+  - `system/*.$bulkdata-status`
+  - `system/*.$export`
   - `user/AllergyIntolerance.read`
   - `user/CarePlan.read`
   - `user/CareTeam.read`
@@ -115,7 +118,9 @@ This is a listing of scopes:
   - `user/Coverage.read`
   - `user/Device.read`
   - `user/DiagnosticReport.read`
+  - `user/Document.read`
   - `user/DocumentReference.read`
+  - `user/DocumentReference.$docref`
   - `user/Encounter.read`
   - `user/Goal.read`
   - `user/Immunization.read`
@@ -248,7 +253,7 @@ curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
 'https://localhost:9300/oauth2/default/token'
 --data 'grant_type=authorization_code&client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&code=def50...'
 ```
-    
+
 Example Private Application POST
 ```
 curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded' \

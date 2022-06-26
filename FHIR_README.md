@@ -100,7 +100,7 @@ An export operation that implements the [BULK FHIR Export ONC requirements](http
           curl -X GET 'https://localhost:9300/apis/default/fhir/$export'
     ```
  - Group Export, requires the **system/Group.$export** scope.  Exports all data in the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html) for the group.
-   The system automatically creates a group for every Practitioner resource in the system where the patients in the group are the individuals who have the Practitioner as their primary care provider.  
+   The system automatically creates a group for every Practitioner resource in the system where the patients in the group are the individuals who have the Practitioner as their primary care provider.
     ```sh
           curl -X GET 'https://localhost:9300/apis/default/fhir/Group/1/$export'
     ```
@@ -152,9 +152,9 @@ In order to download the documents you will need the **system/Document.read** sc
 - Group System export - **system/Group.$export system\*.$bulkdata-status system/Document.read**
 - Patient System export - **system/Patient.$export system\*.$bulkdata-status system/Document.read**
 
-#### 
+####
 ## 3rd Party SMART Apps
-OpenEMR supports the ability for 3rd party apps who implement the [SMART on FHIR App Launch Implementation Guide 1.1.0](http://hl7.org/fhir/smart-app-launch/2021May/) context. 
+OpenEMR supports the ability for 3rd party apps who implement the [SMART on FHIR App Launch Implementation Guide 1.1.0](http://hl7.org/fhir/smart-app-launch/2021May/) context.
 
 3rd party Apps using the confidential app profile must be authorized by the OpenEMR Server Installation Administrator.  Access Tokens issued to 3rd party apps are only valid for one hour and must be renewed with a refresh token which is valid for up to three months.  Refresh tokens are only issued if the offline_access scope is authorized by the OpenEMR user authenticating with OpenEMR through their 3rd party app.
 
@@ -174,32 +174,34 @@ If you wish to revoke a user's authorization for a particular client you will ne
 From there you can find the user that is listed and hit the Revoke User button (Note this can be a lengthy list so use your browser's search text functionality to find the user).
 
 ## Revoking Access Tokens
-You can revoke an access token two ways.  One from the API Client edit screen, finding the client and then the access token's identifier you wish to revoke.  
+You can revoke an access token two ways.  One from the API Client edit screen, finding the client and then the access token's identifier you wish to revoke.
 
-The second way is if you have the fully encoded access token using the API Client Tools screen.  Go to Admin->System->API Clients and then click on the Token Tools button.  Paste in the entire encoded token and then select Parse Token.  Information about the token will be displayed including the authenticated user that authorized the token.  Now select the Revoke Token button to revoke the token.  A success message will be displayed when the revocation completes.  You can parse the token again to see that the token has been revoked. 
+The second way is if you have the fully encoded access token using the API Client Tools screen.  Go to Admin->System->API Clients and then click on the Token Tools button.  Paste in the entire encoded token and then select Parse Token.  Information about the token will be displayed including the authenticated user that authorized the token.  Now select the Revoke Token button to revoke the token.  A success message will be displayed when the revocation completes.  You can parse the token again to see that the token has been revoked.
 
 ## Native Applications
 Interoperability requirements with OpenEMR for Native Applications
 
-- Native applications wishing to use the OpenEMR FHIR API with refresh tokens MUST be capable of storing the refresh token in a secure manner similar to the requirements of storing a secret for confidential apps.  
+- Native applications wishing to use the OpenEMR FHIR API with refresh tokens MUST be capable of storing the refresh token in a secure manner similar to the requirements of storing a secret for confidential apps.
 - Native applications must register their application as a confidential app
 - Native applications must request the offline_scope in their initial API request in order to receive a refresh token
 - Native application refresh tokens are valid for 3 months before they must be renewed.
 - Native applications can only communicate with OpenEMR over a TLS secured channel in order to ensure the safe transmission of the refresh token.
-- Native applications must use the Authorization Code grant flow in order to receive a refresh token.  
+- Native applications must use the Authorization Code grant flow in order to receive a refresh token.
 
 It is recommended that native applications follow best practices for native client applications as outlined in RFC 8252 OAuth 2.0 for Native Apps.
 
 ## Carecoordination Summary of Care Docref Operation
-
-- TODO: add documentation for POST /$doc-ref operation that meets 3.1.1 US Core standard
-- The $docref operation is used to request the server generates a document based on the specified
+### Overview
+- The $docref operation is used to request the server to generate a document based on the specified
   parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical
   Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url
   element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank'
   rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.
-- Need to discuss that if the medical info is connected to an encounter and the encounter service date falls in the date range it will be included.
-- start and end date filter encounter related events for the following sections.
+### Generate CCDA
+- [Tutorial to Generate CCDA (with Screenshots)](https://github.com/openemr/openemr/issues/5284#issuecomment-1155678620)
+### Details
+- Requires <context>/DocumentReference.$docref, <context>/DocumentReference.read, and <context>/Document.read scopes
+- Start and end date filter encounter related events for the following sections:
     - History of Procedures
     - Relevant DX Tests / LAB Data
     - Functional Status
@@ -213,8 +215,7 @@ It is recommended that native applications follow best practices for native clie
     - Health Concerns Document
     - Reason for Referral
     - Mental Status
-  
-- The following sections have the entire medical record sent to ensure that medical professionals have medically necessary information to provide treatment of care
+- The following sections have the entire medical record sent to ensure that medical professionals have medically necessary information to provide treatment of care:
     - Demographics
     - Allergies, Adverse Reactions, Alerts
     - History of Medication Use
@@ -223,19 +224,14 @@ It is recommended that native applications follow best practices for native clie
     - Social History
     - Medical Equipment
     - Vital Signs (shows the latest vitals recorded for the patient)
-    
-- CCD is generated on demand, saved off in patient's record under the CCDA category
-- Requires following standard FHIR authorization
-- Requires <context>/DocumentReference.$docref scope, <context>/DocumentReference.read, <context>/Document.read scope
+- CCD is generated on demand, saved off in patient's documents record under the CCDA category.
 - Returns a DocumentReference search bundle per the IG spec.
-- XSL to view the document can be download at /<site>/interface/modules/zend_modules/public/xls/cda.xsl
-- Or xml file can be uploaded as a document into OpenEMR to view in a human readable format
-- Due to browser security restrictions XSL file must be in same directory as ccd document to view.
-- link out to swagger location on where to build file
+- XSL to view the document can be download at /<site>/interface/modules/zend_modules/public/xsl/cda.xsl
+    - Or xml file can be uploaded as a document into OpenEMR to view in a human readable format
+    - Due to browser security restrictions XSL file must be in same directory as ccd document to view.
 - If no start date is provided it will retrieve all records in the patient history up to the end date
-- If no end date is provided it will retrieve all records connected to encounters starting from
-the start date
-- If a records for a specific service date are desired, make the start date and end date the same day in YYYY-MM-DD format. 
+- If no end date is provided it will retrieve all records connected to encounters starting from the start date
+- If a records for a specific service date are desired, make the start date and end date the same day in YYYY-MM-DD format.
 - Dates must be specified in least specifity to most specifity for wildcard like operations IE YYYY for the beginning of the year for start date or ending of the year for end date, YYYY-MM for the beginning of the month for start date and end of the month for end date, etc.
 
 ## For Developers
