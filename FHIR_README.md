@@ -25,6 +25,9 @@
 - [3rd Party SMART Apps](FHIR_README.md#3rd-party-smart-apps)
 - [Native Applications](FHIR_README.md#native-applications)
 - [Carecoordination Summary Of Care (CCD) Generation](FHIR_README.md#carecoordination-summary-of-care-docref-operation)
+    - [Overview Docref](FHIR_README.md#overview-docref)
+    - [Generate CCDA](FHIR_README.md#generate-ccda)
+    - [Details Docref](FHIR_README.md#details-docref)
 - [For Developers](FHIR_README.md#for-developers)
 
 ## Overview
@@ -191,7 +194,7 @@ Interoperability requirements with OpenEMR for Native Applications
 It is recommended that native applications follow best practices for native client applications as outlined in RFC 8252 OAuth 2.0 for Native Apps.
 
 ## Carecoordination Summary of Care Docref Operation
-### Overview
+### Overview Docref
 - The $docref operation is used to request the server to generate a document based on the specified
   parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical
   Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url
@@ -199,7 +202,7 @@ It is recommended that native applications follow best practices for native clie
   rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.
 ### Generate CCDA
 - [Tutorial to Generate CCDA (with Screenshots)](https://github.com/openemr/openemr/issues/5284#issuecomment-1155678620)
-### Details
+### Details Docref
 - Requires <context>/DocumentReference.$docref, <context>/DocumentReference.read, and <context>/Document.read scopes
 - Start and end date filter encounter related events for the following sections:
     - History of Procedures

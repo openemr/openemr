@@ -24,7 +24,12 @@
         - [System Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
         - [Patient Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
         - [Group Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
+    - [3rd Party SMART Apps (in FHIR_README.md)](FHIR_README.md#3rd-party-smart-apps)
+    - [Native Applications (in FHIR_README.md)](FHIR_README.md#native-applications)
     - [Carecoordination Summary of Care (CCD) Generation (in FHIR_README.md)](FHIR_README.md#carecoordination-summary-of-care-docref-operation)
+        - [Overview Docref (in FHIR_README.md)](FHIR_README.md#overview-docref)
+        - [Generate CCDA (in FHIR_README.md)](FHIR_README.md#generate-ccda)
+        - [Details Docref (in FHIR_README.md)](FHIR_README.md#details-docref)
 - [For Developers](API_README.md#for-developers)
 
 ## Overview
