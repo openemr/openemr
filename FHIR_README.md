@@ -203,7 +203,6 @@ It is recommended that native applications follow best practices for native clie
     - History of Procedures
     - Relevant DX Tests / LAB Data
     - Functional Status
-    - Vital Signs
     - Progress Notes
     - Procedure Notes
     - Laboratory Report Narrative
@@ -223,6 +222,7 @@ It is recommended that native applications follow best practices for native clie
     - Immunizations
     - Social History
     - Medical Equipment
+    - Vital Signs (shows the latest vitals recorded for the patient)
     
 - CCD is generated on demand, saved off in patient's record under the CCDA category
 - Requires following standard FHIR authorization
@@ -232,6 +232,11 @@ It is recommended that native applications follow best practices for native clie
 - Or xml file can be uploaded as a document into OpenEMR to view in a human readable format
 - Due to browser security restrictions XSL file must be in same directory as ccd document to view.
 - link out to swagger location on where to build file
+- If no start date is provided it will retrieve all records in the patient history up to the end date
+- If no end date is provided it will retrieve all records connected to encounters starting from
+the start date
+- If a records for a specific service date are desired, make the start date and end date the same day in YYYY-MM-DD format. 
+- Dates must be specified in least specifity to most specifity for wildcard like operations IE YYYY for the beginning of the year for start date or ending of the year for end date, YYYY-MM for the beginning of the month for start date and end of the month for end date, etc.
 
 ## For Developers
 
