@@ -204,7 +204,6 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         echo csvEscape(xl('Date of Birth')) . ',';
         echo csvEscape(xl('Gender')) . ',';
         echo csvEscape(xl('Reason for encounter')) . "\n";
-
     } else {
         ?>
 
@@ -295,9 +294,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $eres = sqlStatement($equery, $sqlArrayBind);
         // get encounter on the most recent date
         while ($erow = sqlFetchArray($eres)) {
-                if ($erow['date'] == $row['edate']) {
-                 break;
-                }
+           if ($erow['date'] == $row['edate']) {
+                break;
+           }
         }
         // get provider name
         $sqlArrayBind = array();
@@ -330,10 +329,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
                 <?php echo xlt($erow['facility']); ?>
             </td>
             <td>
-                 <?php echo text($prow['fname'] . ' ' . $prow['lname']  ); ?>
+                 <?php echo text($prow['fname'] . ' ' . $prow['lname']); ?>
             </td>
             <td>
-                <?php echo text($row['lname'] . ', ' . $row['fname']  ); ?>
+                <?php echo text($row['lname'] . ', ' . $row['fname']); ?>
             </td>
             <td>
                 <?php echo text(oeFormatShortDate(substr($row['DOB'], 0, 10))); ?>
