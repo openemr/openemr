@@ -294,9 +294,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $eres = sqlStatement($equery, $sqlArrayBind);
         // get encounter on the most recent date
         while ($erow = sqlFetchArray($eres)) {
-           if ($erow['date'] == $row['edate']) {
+            if ($erow['date'] == $row['edate']) {
                 break;
-           }
+            }
         }
         // get provider name
         $sqlArrayBind = array();
