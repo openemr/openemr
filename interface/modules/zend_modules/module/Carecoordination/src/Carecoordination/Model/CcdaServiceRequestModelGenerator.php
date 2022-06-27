@@ -52,7 +52,8 @@ class CcdaServiceRequestModelGenerator
         return $this->createdtime;
     }
 
-    private function getServiceStartDates($pid, $encounter, $document_type, $date_options) {
+    private function getServiceStartDates($pid, $encounter, $document_type, $date_options)
+    {
         $start = $date_options['date_start'];
         $end = $date_options['date_end'];
         $document_type = $document_type ?? "ccd"; // default to ccd

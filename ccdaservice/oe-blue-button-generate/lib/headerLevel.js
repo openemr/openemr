@@ -265,15 +265,15 @@ var providers = exports.providers = {
 
 var participants = exports.participant = [{
     key: "participant"
-    ,attributes: {
+    , attributes: {
         typeCode: leafLevel.inputProperty("typeCode")
     }
-    ,content: [
+    , content: [
         [fieldLevel.effectiveTime, required, key("time")],
         // associatedEntity
-        ,fieldLevel.associatedEntity
+        , fieldLevel.associatedEntity
     ]
-    ,dataKey: "meta.ccda_header.participants"
+    , dataKey: "meta.ccda_header.participants"
 }];
 
 var attributed_provider = exports.attributed_provider = {
@@ -352,6 +352,11 @@ var headerAuthor = exports.headerAuthor = {
                     extension: leafLevel.inputProperty("extension")
                 },
                 dataKey: 'identifiers',
+            }, {
+                key: "code",
+                attributes: leafLevel.code,
+                existsWhen: condition.propertyNotEmpty('code'),
+                dataKey: "code"
             }, {
                 key: "addr",
                 attributes: {
@@ -579,7 +584,6 @@ var headerInformationRecipient = exports.headerInformationRecipient = {
                     text: leafLevel.inputProperty("name"),
                     dataKey: "organization"
                 }],
-
             }]
     },
     dataKey: "meta.ccda_header.information_recipient"
@@ -593,3 +597,42 @@ var headerInformationRecipient = exports.headerInformationRecipient = {
         dataKey: "organization"
     }],
 }*/
+
+var headerComponentOf = exports.headerComponentOf = {
+    key: "componentOf",
+    content: {
+        key: "encompassingEncounter",
+        content: [
+            fieldLevel.id,
+            {
+                key: "code",
+                attributes: leafLevel.code,
+                existsWhen: condition.propertyNotEmpty('code'),
+                dataKey: "code"
+            },
+            [fieldLevel.effectiveTime, key("effectiveTime"), dataKey("date_time"), required],
+            fieldLevel.responsibleParty,
+            {
+                key: "encounterParticipant",
+                attributes: {
+                    "typeCode": "ATND"
+                },
+                content: [{
+                    key: "assignedEntity",
+                    content: [{
+                        key: "id",
+                        attributes: {
+                            root: leafLevel.inputProperty("root")
+                        }
+                    }, {
+                        key: "assignedPerson",
+                        content: fieldLevel.usRealmName
+                    }]
+                }],
+                dataKey: "encounter_participant",
+                existsWhen: condition.propertyValueNotEmpty("name.last")
+            }
+        ]
+    },
+    dataKey: "meta.ccda_header.component_of"
+};

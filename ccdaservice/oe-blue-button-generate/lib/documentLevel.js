@@ -93,7 +93,8 @@ exports.ccd2 = function (html_renderer) {
             headerLevel.headerCustodian,
             headerLevel.headerInformationRecipient,
             headerLevel.participant,
-            headerLevel.providers, {
+            headerLevel.providers,
+            headerLevel.headerComponentOf, {
                 key: "component",
                 content: {
                     key: "structuredBody",

@@ -400,6 +400,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <author>
         <time>" . xmlEscape($time ?? '') . "</time>
         <id>" . xmlEscape($uuid ?? '') . "</id>
+        <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
+        <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
         <streetAddressLine>" . xmlEscape($details['street'] ?? '') . "</streetAddressLine>
         <city>" . xmlEscape($details['city'] ?? '') . "</city>
         <state>" . xmlEscape($details['state'] ?? '') . "</state>
@@ -414,7 +416,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $author;
     }
 
-    public function getAuthorDate($pid, $encounter) {
+    public function getAuthorDate($pid, $encounter)
+    {
         // we allow providers to use the latest encounter date if they have the force flag set.
         $time = null;
         $setting = $this->getCarecoordinationModuleSettingValue('hie_force_latest_encounter_provenance_date');
@@ -487,16 +490,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $informant;
     }
 
-    public function getDocumentParticipants($pid, $encounter) {
+    public function getDocumentParticipants($pid, $encounter)
+    {
 
-        $participants = '<document_participants>';
+        $participants = "<document_participants>";
         $participants .= $this->getDocumentReferralParticipant($pid, $encounter);
         $participants .= $this->getOfficeContact($pid, $encounter);
-        $participants .= '</document_participants>';
+        $participants .= "</document_participants>";
         return $participants;
     }
 
-    public function getDocumentReferralParticipant($pid, $encounter) {
+    public function getDocumentReferralParticipant($pid, $encounter)
+    {
         $participant = '';
         $records = $this->getReferralRecords($pid);
         if (empty($records[0]['refer_from']) || !is_numeric($records[0]['refer_from'])) {
@@ -524,7 +529,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <lname>" . xmlEscape($details['lname']) . "</lname>
             <organization>" . xmlEscape($details['organization']) . "</organization>
             <organization_id>" . xmlEscape($organization_uuid) . "</organization_id>
-            <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>506:1
+            <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>
             <organization_taxonomy>" . xmlEscape($details['facility_taxonomy']) . "</organization_taxonomy>
             <organization_taxonomy_desc>" . xmlEscape($details['facility_taxonomy_description']) . "</organization_taxonomy_desc>
             <street>" . xmlEscape($details['street']) . "</street>
@@ -534,13 +539,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <phonew1>" . xmlEscape($details['phonew1']) . "</phonew1>
             <address_use>WP</address_use>
             <type>REFB</type>
-            
         </participant>";
 
         return $participant;
     }
 
-    public function getOfficeContact($pid, $encounter) {
+    public function getOfficeContact($pid, $encounter)
+    {
         $details = $this->getDetails('hie_office_contact');
         if (empty($details)) {
             return '';
@@ -1415,6 +1420,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $tmp = explode(":", $row['physician_type_code']);
             $physician_code_type = str_replace('-', ' ', $tmp[0]);
             $row['physician_type_code'] = $tmp[1] ?? '';
+            $date_zone = !empty($row['date']) ? date("Y-m-d H:i:sO", strtotime(($row['date']))) : '';
+            $date_zone_end = !empty($date_zone) ? date("Y-m-d H:i:sO", strtotime('+30 minutes', strtotime($date_zone))) : '';
             $encounter_reason = '';
             if (empty($row['reason'])) {
                 $row['reason'] = xlt('Reason not given');
@@ -1436,7 +1443,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <text>" . xmlEscape($row_procedures['code_text']) . "</text>
                 </procedures>";
             }
-            $encounter_diagnosis = "";
+            $encounter_ext = base64_encode($_SESSION['site_id'] . $row['encounter']);
+            $encounter_root = $this->formatUid($_SESSION['site_id'] . $row['encounter']);
             if ($row['encounter_diagnosis']) {
                 $tmp = explode(":", $row['raw_diagnosis']);
                 $code_type = str_replace('-', ' ', $tmp[0]);
@@ -1468,6 +1476,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (empty($primary_diagnosis) && !empty($code_type)) {
                 $primary_diagnosis = "
                 <primary_diagnosis>
+                <root>" . xmlEscape($encounter_root) . "</root>
+                <extension>" . xmlEscape($encounter_ext) . "</extension>
+                <encounter_date>" . xmlEscape($date_zone) . "</encounter_date>
+                <encounter_end_date>" . xmlEscape($date_zone_end) . "</encounter_end_date>
                 <code>" . xmlEscape($tmp[1] ?? '') . "</code>
                 <code_type>" . xmlEscape($code_type ?? '') . "</code_type>
                 <text>" . xmlEscape(Listener::z_xlt($row['title'] ?? '')) . "</text>
@@ -1477,8 +1489,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $location_details = ($row['name'] !== '') ? (',' . $row['fstreet'] . ',' . $row['fcity'] . ',' . $row['fstate'] . ' ' . $row['fzip']) : '';
             $results .= "
         <encounter>
-        <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . "</extension>
-        <sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $row['encounter'])) . "</sha_extension>
+        <extension>" . xmlEscape($encounter_ext) . "</extension>
+        <sha_extension>" . xmlEscape($encounter_root) . "</sha_extension>
         <encounter_id>" . xmlEscape($row['encounter']) . "</encounter_id>
         <visit_category>" . xmlEscape($row['pc_catname']) . "</visit_category>
         <performer>" . xmlEscape($row['fname'] . " " . $row['mname'] . " " . $row['lname']) . "</performer>
@@ -1496,7 +1508,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <work_phone>" . xmlEscape($row['phonew1']) . "</work_phone>
         <location>" . xmlEscape($row['name']) . "</location>
         <location_details>" . xmlEscape($location_details) . "</location_details>
-        <date>" . xmlEscape($this->date_format(substr($row['date'], 0, 10))) . "</date>
+        <date>" . xmlEscape($date_zone) . "</date>
         <date_formatted>" . xmlEscape(str_replace("-", '', substr($row['date'], 0, 10))) . "</date_formatted>
         <facility_extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['fid'])) . "</facility_extension>
         <facility_sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $row['fid'])) . "</facility_sha_extension>
@@ -1517,6 +1529,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (empty($primary_diagnosis)) {
             $primary_diagnosis = "
                 <primary_diagnosis>
+                <root></root>
+                <extension></extension>
+                <encounter_date></encounter_date>
+                <encounter_end_date></encounter_end_date>
                 <code></code>
                 <code_type></code_type>
                 <text></text>
@@ -3444,7 +3460,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $clinical_instructions;
     }
 
-    private function getReferralRecords($pid) {
+    private function getReferralRecords($pid)
+    {
         $wherCon = '';
         $sqlBindArray = [$pid];
         $wherCon .= "ORDER BY date DESC";
