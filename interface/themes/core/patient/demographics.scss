@@ -46,36 +46,34 @@
 }
 
 #DEM .data {
-  padding-right: 15px;
   padding-left: 8px;
+  padding-right: 15px;
 }
 
 
 /* Demographics - Previous Addresses - address_list_display.php */
 
 #DEM .table_text_addresses {
-  margin-top: 1em;
   border-bottom: 2px solid #e9ecef;
+  margin-top: 1em;
 }
 
 #DEM .text_addresses.header {
-  margin-right: 0px;
+  background: #e9ecef;
   margin-left: 0px;
+  margin-right: 0px;
   padding-left: 2px;
-
-  background:#e9ecef;
+  border-bottom: 0px;
   border-top: 2px solid #e9ecef;
-  border-bottom: none;
   text-align: left;
 }
 
 #DEM .text_addresses_row {
-  margin-right: 0px;
   margin-left: 0px;
+  margin-right: 0px;
   padding-left: 0px;
-
+  border-bottom: 0px;
   border-top: 2px solid #e9ecef;
-  border-bottom: none;
 }
 
 #DEM .text_addresses_row div:nth-child(n) {
@@ -83,22 +81,22 @@
 }
 
 #DEM #text_additional_addresses {
-  margin-right: 0px;
   margin-left: 0px;
+  margin-right: 0px;
   padding-left: 0px;
   padding-right: 0px;
 }
 
 #DEM #text_additional_addresses .row {
-  margin-right: 0px;
   margin-left: 0px;
+  margin-right: 0px;
   padding-left: 2px;
   padding-right: 0px;
 }
 
 #DEM #text_additional_addresses .text.data {
-  margin-right: 0px;
   margin-left: 0px;
+  margin-right: 0px;
   padding-left: 0px;
   padding-right: 0px;
 }
@@ -108,23 +106,21 @@
 /* Demographics - Previous Addresses - address_list_form.php */
 
 #DEM .display_addresses.header {
-  margin-right: 0px;
-  margin-left: 0px;
-  padding-left: 2px;
-
   background:#e9ecef;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-left: 2px;
   border-top: 2px solid #e9ecef;
-  border-bottom: none;
+  border-bottom: 0px;
   text-align: left;
 }
 
 #DEM .display_addresses.row {
-  margin-right: 0px;
   margin-left: 0px;
+  margin-right: 0px;
   padding-left: 0px;
-
+  border-bottom: 0px;
   border-top: 2px solid #e9ecef;
-  border-bottom: none;
 }
 
 #DEM .display_addresses.row > .col-12 {
@@ -150,8 +146,5 @@
 }
 
 #DEM .display_addresses_use_column {
-    flex: 0 0 12%;
+  flex: 0 0 12%;
 }
-
-
-

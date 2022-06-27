@@ -67,7 +67,7 @@ $widgetConstants = [
             <span class="display_addresses_period label_custom"></span>
         </div>
 
-        <div class="col-1 display_trash_column">
+        <div class="col display_trash_column" style="text-align: right;">
             <i class="fas fa-fw fa-trash-alt text-danger btn-delete-address"></i>
         </div>
 

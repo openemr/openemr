@@ -21,10 +21,9 @@ $contactService = new ContactService();
 $addresses = $contactService->getContactsForPatient($_SESSION['pid']) ?? [];
 
 $list_address_types = generate_list_map("address-types");
-$list_address_uses = generate_list_map("address-uses"); 
-
-
+$list_address_uses = generate_list_map("address-uses");
 ?>
+
 <div id="<?php echo attr($table_id); ?>">
     <div class="table_text_addresses">
         <div class ="text_addresses header label_custom row">

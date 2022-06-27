@@ -851,6 +851,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             border-radius: 0;
         }
 
+        <?php if (!$GLOBALS['right_justify_labels_demographics']) { ?> 
+        #DEM .label_custom {
+            text-align: left !important;
+        }
+
+        <?php } ?>
         <?php
         // This is for layout font size override.
         $grparr = array();
@@ -868,7 +874,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         #DEM .label {
             font-size: <?php echo attr($FONTSIZE); ?>rem;
         }
-
+    
         #DEM .data {
             font-size: <?php echo attr($FONTSIZE); ?>rem;
         }
