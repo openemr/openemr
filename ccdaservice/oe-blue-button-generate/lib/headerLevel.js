@@ -187,51 +187,12 @@ var provider = exports.provider = [{
                 attributes: leafLevel.code,
                 content: [{key: "originalText", text: "Care Team Member"}],
                 dataKey: "type"
-            }, {
-                key: "addr",
-                attributes: {
-                    use: leafLevel.use("use")
-                },
-                content: [{
-                    key: "country",
-                    text: leafLevel.inputProperty("country")
-                }, {
-                    key: "state",
-                    text: leafLevel.inputProperty("state")
-                }, {
-                    key: "city",
-                    text: leafLevel.inputProperty("city")
-                }, {
-                    key: "postalCode",
-                    text: leafLevel.inputProperty("zip")
-                }, {
-                    key: "streetAddressLine",
-                    text: leafLevel.input,
-                    dataKey: "street_lines"
-                }],
-                dataKey: "address"
-            }, {
-                key: "telecom",
-                attributes: [{
-                    use: "WP",
-                    value: function (input) {
-                        return input.value.number;
-                    }
-                }],
-                dataKey: "phone"
-            }, {
+            },
+            ,fieldLevel.usRealmAddress
+            ,fieldLevel.telecom
+            ,{
                 key: "assignedPerson",
-                content: [{
-                    key: "name",
-                    content: [{
-                        key: "given",
-                        text: leafLevel.inputProperty("first")
-                    }, {
-                        key: "family",
-                        text: leafLevel.inputProperty("last")
-                    }],
-                    dataKey: "name"
-                }]
+                content: fieldLevel.usRealmName
             }
             ]
         }
@@ -624,7 +585,10 @@ var headerComponentOf = exports.headerComponentOf = {
                         attributes: {
                             root: leafLevel.inputProperty("root")
                         }
-                    }, {
+                    }
+                    ,fieldLevel.usRealmAddress
+                    ,fieldLevel.telecom
+                    ,{
                         key: "assignedPerson",
                         content: fieldLevel.usRealmName
                     }]
