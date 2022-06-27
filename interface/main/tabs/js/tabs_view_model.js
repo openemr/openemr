@@ -379,9 +379,6 @@ function clearPatient()
     tabCloseByName('rev');
     tabCloseByName('pop');
     tabCloseByName('pat');
-    navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin', function () {
-        activateTabByName('fin',true);
-    });
 
     if (WindowTitleAddPatient) 
     {

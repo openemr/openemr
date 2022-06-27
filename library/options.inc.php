@@ -699,7 +699,7 @@ function generate_form_field($frow, $currvalue)
         }
         if ($data_type == 4) {
             $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
-            $datetimepickerclass = ($frow['validation'] ?? null) === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
+            $datetimepickerclass = ($frow['validation'] ?? null) === 'past_date' ? '-past' : ( ($frow['validation'] ?? null) === 'future_date' ? '-future' : '' );
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";

@@ -370,7 +370,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
          <div class="w-100">
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
-                <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
+                <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.clearPatient();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
             <?php } ?>
             <div>
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
