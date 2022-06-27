@@ -23,7 +23,7 @@ var all = "";
 var npiProvider = "";
 var npiFacility = "";
 var webRoot = "";
-var authorDate = '';
+var authorDateTime = '';
 var documentLocation = '';
 
 function trim(s) {
@@ -46,18 +46,27 @@ function fDate(str, lim8 = false) {
         return rtn;
     }
     if (Number(str) === 0) {
-        return (new Date()).toISOString().slice(0, 10).replace(/-/g, "");
+        return (new Date()).toISOString();
     }
-    if (str.length === 1 || str === "0000-00-00") return (new Date()).toISOString().slice(0, 10).replace(/-/g, "");
+    if (str.length === 1 || str === "0000-00-00") return (new Date()).toISOString();
     if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
-        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-')
+        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-');
     } else if (str.length === 10 && (1 * str.substring(0, 2)) <= 12) {
         // case mm/dd/yyyy or mm-dd-yyyy
-        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-')
-    } else if (str.length === 14 && (1 * str.substring(12, 14)) > 0) {
-        // maybe a real time so parse
-    } else {
+        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-');
+    } else if (str.length === 17) {
+        str = str.split(' ');
+        str = [str[0].slice(0, 4), str[0].slice(4, 6), str[0].slice(6, 8)].join('-') + ' ' + str[1];
+        return str;
+    } else if (str.length === 19 && (str.substring(14, 15)) == '-') {
+        let strZone = str.split('-');
+        let strDate = [strZone[0].substring(0, 4), strZone[0].substring(4, 6), strZone[0].substring(6, 8)].join('-');
+        let strTime = [str.substring(8, 10), str.substring(10, 12), str.substring(12, 14)].join(':');
 
+        let str1 = strDate + ' ' + strTime + '-' + strZone[1];
+        return str1;
+    } else {
+        return str;
     }
 
     return str;
@@ -75,6 +84,9 @@ function getPrecision(str) {
     }
     if (str.length > 12) {
         pflg = "second";
+    }
+    if (str.length > 23) {
+        pflg = "tz";
     }
 
     return pflg;
@@ -112,7 +124,7 @@ function isOne(who) {
     return 0;
 }
 
-function headReplace(content, xslUrl="") {
+function headReplace(content, xslUrl = "") {
 
     let xsl = "CDA.xsl";
     if (typeof xslUrl == "string" && xslUrl.trim() != "") {
@@ -121,7 +133,7 @@ function headReplace(content, xslUrl="") {
 
     let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
         '<?xml-stylesheet type="text/xsl" href="' + xsl + '"?>';
-    r += "\n" + content.substr(content.search(/<ClinicalDocument/i));
+    r += "\n" + content.substring(content.search(/<ClinicalDocument/i));
     return r;
 }
 
@@ -163,11 +175,11 @@ function fetchPreviousAddresses(pd) {
             "country": pa.country || "US",
             "date_time": {
                 "low": {
-                    "date": pa.period_start,
+                    "date": fDate(pa.period_start),
                     "precision": "day"
                 },
                 "high": {
-                    "date": pa.period_end || fDate(""),
+                    "date": fDate(pa.period_end) || fDate(""),
                     "precision": "day"
                 }
             }
@@ -187,11 +199,11 @@ function fetchPreviousAddresses(pd) {
                 "country": pa[i].country || "US",
                 "date_time": {
                     "low": {
-                        "date": pa[i].period_start,
+                        "date": fDate(pa[i].period_start),
                         "precision": "day"
                     },
                     "high": {
-                        "date": pa[i].period_end || fDate(""),
+                        "date": fDate(pa[i].period_end) || fDate(""),
                         "precision": "day"
                     }
                 }
@@ -324,8 +336,8 @@ function populateProvider(provider) {
         "function_code": provider.physician_type ? "PP" : "",
         "date_time": {
             "low": {
-                "date": provider.provider_since || fDate(""),
-                "precision": "day"
+                "date": provider.provider_since ? fDate(provider.provider_since) : fDate(""),
+                "precision": "tz"
             }
         },
         "identity": [
@@ -389,13 +401,18 @@ function populateProviders(all) {
             {
                 "date_time": {
                     "low": {
-                        "date": all.time_start || fDate(""),
-                        "precision": "day"
+                        "date": fDate(all.time_start) || fDate(""),
+                        "precision": "tz"
                     },
                     "high": {
-                        "date": all.time_end || fDate(""),
-                        "precision": "second"
+                        "date": fDate(all.time_end) || fDate(""),
+                        "precision": "tz"
                     }
+                },
+                "code": {
+                    "name": all.primary_diagnosis.text || "",
+                    "code": cleanCode(all.primary_diagnosis.code || ""),
+                    "code_system_name": all.primary_diagnosis.code_type || ""
                 },
                 "provider": providerArray,
             }
@@ -416,8 +433,8 @@ function populateCareTeamMember(provider) {
         "status": "active",
         "date_time": {
             "low": {
-                "date": provider.provider_since || fDate(""),
-                "precision": "day"
+                "date": fDate(provider.provider_since) || fDate(""),
+                "precision": "tz"
             }
         },
         "identifiers": [
@@ -452,17 +469,17 @@ function populateCareTeamMembers(pd) {
     let providerArray = [];
     // primary provider
     let provider = populateCareTeamMember(pd.primary_care_provider.provider);
-    let providerSince = provider.provider_since;
+    let providerSince = fDate(pd.primary_care_provider.provider.provider_since || '');
     providerArray.push(provider);
     let count = isOne(pd.care_team.provider);
     if (count === 1) {
         provider = populateCareTeamMember(pd.care_team.provider);
-        providerSince = providerSince || provider.provider_since;
+        providerSince = providerSince || fDate(provider.provider_since);
         providerArray.push(provider);
     } else if (count > 1) {
         for (let i in pd.care_team.provider) {
             provider = populateCareTeamMember(pd.care_team.provider[i]);
-            providerSince = providerSince ||provider.provider_since;
+            providerSince = providerSince || fDate(provider.provider_since);
             providerArray.push(provider);
         }
     }
@@ -475,9 +492,9 @@ function populateCareTeamMembers(pd) {
         "date_time": {
             "low": {
                 "date": providerSince || fDate(""),
-                "precision": "day"
+                "precision": "tz"
             }
-        },
+        }
     }
 }
 
@@ -487,7 +504,7 @@ function populateMedication(pd) {
         "date_time": {
             "low": {
                 "date": fDate(pd.start_date),
-                "precision": "day"
+                "precision": "tz"
             }/*,
             "high": {
                 "date": fDate(pd.end_date),
@@ -521,8 +538,8 @@ function populateMedication(pd) {
         "author": {
             "date_time": {
                 "point": {
-                    "date": fDate(authorDate),
-                    "precision": getPrecision(fDate(pd.start_date))
+                    "date": fDate(authorDateTime),
+                    "precision": "tz"
                 }
             },
             "identifiers": [{
@@ -569,8 +586,8 @@ function populateMedication(pd) {
             "author": {
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.start_date),
-                        "precision": getPrecision(fDate(pd.start_date))
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "identifiers": [{
@@ -746,7 +763,7 @@ function populateEncounter(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.date),
-                "precision": "second" //getPrecision(fDate(pd.date_formatted))
+                "precision": "tz"
             }
         },
         "performers": [{
@@ -846,8 +863,8 @@ function populateAllergy(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": authorDate,
-                        "precision": "day"
+                        "date": authorDateTime,
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -863,7 +880,7 @@ function populateAllergy(pd) {
             },
             "date_time": {
                 "low": {
-                    "date": fDate(pd.startdate) || fdate(""),
+                    "date": fDate(pd.startdate) || fDate(""),
                     "precision": "day"
                 }
             },
@@ -954,8 +971,8 @@ function populateProblem(pd) {
             }],
             "date_time": {
                 "point": {
-                    "date": authorDate,
-                    "precision": "day"
+                    "date": authorDateTime,
+                    "precision": "tz"
                 }
             },
             "name": {
@@ -1315,7 +1332,7 @@ function getPlanOfCare(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(pd.date_formatted),
+                "date": fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -1403,7 +1420,7 @@ function getGoals(pd) {
         }],
         "date_time": {
             "point": {
-                "date": fDate(pd.date_formatted),
+                "date": fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -1432,7 +1449,7 @@ function getFunctionalStatus(pd) {
             }],
             "date_time": {
                 "point": {
-                    "date": fDate(pd.date_formatted),
+                    "date": fDate(pd.date),
                     "precision": "day"
                 }
             },
@@ -1453,7 +1470,7 @@ function getMentalStatus(pd) {
         }],
         "note": cleanText(pd.description),
         "date_time": {
-            "low": templateDate(pd.date_formatted, "day")
+            "low": templateDate(pd.date, "day")
             //"high": templateDate(pd.date, "day")
         },
     };
@@ -1555,8 +1572,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1592,8 +1609,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1629,8 +1646,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1666,8 +1683,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1703,8 +1720,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1740,8 +1757,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1777,8 +1794,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1814,8 +1831,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1851,8 +1868,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1888,8 +1905,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1925,8 +1942,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1962,8 +1979,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -1999,8 +2016,8 @@ function populateVital(pd) {
                 }],
                 "date_time": {
                     "point": {
-                        "date": fDate(pd.effectivetime),
-                        "precision": "day"
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "name": {
@@ -2017,7 +2034,7 @@ function populateVital(pd) {
 function populateSocialHistory(pd) {
     return {
         "date_time": {
-            "low": templateDate(pd.date_formatted, "day")
+            "low": templateDate(pd.date, "day")
             //"high": templateDate(pd.date, "day")
         },
         "identifiers": [{
@@ -2256,7 +2273,7 @@ function populateNote(pd) {
     return {
         "date_time": {
             "point": {
-                "date": fDate(pd.date_formatted),
+                "date": fDate(pd.date),
                 "precision": "day"
             }
         },
@@ -2273,8 +2290,8 @@ function populateNote(pd) {
             }],
             "date_time": {
                 "point": {
-                    "date": fDate(pd.date_formatted),
-                    "precision": "day"
+                    "date": fDate(authorDateTime),
+                    "precision": "tz"
                 }
             },
             "name": {
@@ -2294,6 +2311,54 @@ function populateNote(pd) {
     };
 }
 
+function populateParticipant(participant) {
+    return {
+        "name": {
+            "prefix": participant.prefix || "",
+            "suffix": participant.suffix || "",
+            "middle": [participant.mname] || "",
+            "last": participant.lname || "",
+            "first": participant.fname || ""
+        },
+        "typeCode": participant.type || "",
+        "classCode": "ASSIGNED",
+        "code": {
+            "name": participant.organization_taxonomy_description || "",
+            "code": cleanCode(participant.organization_taxonomy) || "",
+            "code_system": "2.16.840.1.113883.6.101",
+            "code_system_name": "NUCC Health Care Provider Taxonomy"
+        },
+        "identifiers": [{
+            "identifier": participant.organization_npi ? "2.16.840.1.113883.4.6" : participant.organization_id,
+            "extension": participant.organization_npi ? participant.organization_npi : ''
+        }],
+        "date_time": {
+            "point": {
+                "date": participant.date_time,
+                "precision": "tz"
+            }
+        },
+        "phone": [
+            {
+                "number": participant.phonew1 || "",
+                "type": "WP"
+            }
+        ],
+        "address": [
+            {
+                "street_lines": [
+                    participant.street
+                ],
+                "city": participant.city,
+                "state": participant.state,
+                "zip": participant.postalCode,
+                "country": participant.country || "US",
+                "use": participant.address_use || "WP"
+            }
+        ],
+    }
+}
+
 function populateHeader(pd) {
     // default doc type ToC CCD
     let name = "Summarization of Episode Note";
@@ -2304,14 +2369,7 @@ function populateHeader(pd) {
         docCode = "57133-1";
         docOid = "2.16.840.1.113883.10.20.22.1.14";
     }
-    let authorDateTime = pd.created_time_timezone;
-    if (all.encounter_list && all.encounter_list.encounter) {
-        if (isOne(all.encounter_list.encounter) === 1) {
-            authorDateTime = all.encounter_list.encounter.date_formatted;
-        } else {
-            authorDateTime = all.encounter_list.encounter[0].date_formatted;
-        }
-    }
+
     const head = {
         "identifiers": [
             {
@@ -2330,20 +2388,27 @@ function populateHeader(pd) {
         },
         "title": name,
         "date_time": {
-            "date": pd.created_time_timezone,
-            "precision": "none"
+            "point": {
+                "date": fDate(pd.created_time_timezone),
+                "precision": "tz"
+            }
         },
         "author": {
+            "code": {
+                "name": pd.author.physician_type || '',
+                "code": pd.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
             "date_time": {
                 "point": {
                     "date": authorDateTime,
-                    "precision": "day"
+                    "precision": "tz"
                 }
             },
             "identifiers": [
                 {
-                    "identifier": "2.16.840.1.113883.4.6",
-                    "extension": pd.author.npi || ""
+                    "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
+                    "extension": pd.author.npi ? pd.author.npi : ''
                 }
             ],
             "name": [
@@ -2441,165 +2506,67 @@ function populateHeader(pd) {
             "organization": {
                 "name": pd.information_recipient.organization || "org"
             },
-        },
-        /*"data_enterer": {
+        }
+    };
+    let participants = [];
+    let docParticipants = pd.document_participants || {participant: []};
+    let count = 0;
+    try {
+        count = isOne(docParticipants.participant);
+    } catch (e) {
+        count = 0
+    }
+    if (count === 1) {
+        participants = [populateParticipant(docParticipants.participant)];
+    } else {
+        // grab the values of our object
+        participants = Object.values(docParticipants.participant).filter(pcpt => pcpt.type).map(pcpt => populateParticipant(pcpt));
+    }
+    if (participants.length) {
+        head.participants = participants;
+    }
+
+
+    if (isOne(all.encounter_list.encounter) === 1) {
+        head.component_of = {
             "identifiers": [
                 {
-                    "identifier": "2.16.840.1.113883.4.6",
-                    "extension": "999999943252"
+                    "identifier": oidFacility || "",
+                    "extension": "PT-" + (pd.patient.id || "")
                 }
             ],
-            "name": [
-                {
-                    "last": pd.data_enterer.lname,
-                    "first": pd.data_enterer.fname
-                }
-            ],
-            "address": [
-                {
-                    "street_lines": [
-                        pd.data_enterer.streetAddressLine
-                    ],
-                    "city": pd.data_enterer.city,
-                    "state": pd.data_enterer.state,
-                    "zip": pd.data_enterer.postalCode,
-                    "country": pd.data_enterer.country
-                }
-            ],
-            "phone": [
-                {
-                    "number": pd.data_enterer.telecom,
-                    "type": "work place"
-                }
-            ]
-        },
-        "informant": {
-            "identifiers": [
-                {
-                    "identifier": "2.16.840.1.113883.19.5",
-                    "extension": "KP00017"
-                }
-            ],
-            "name": [
-                {
-                    "last": pd.informer.lname || "",
-                    "first": pd.informer.fname || ""
-                }
-            ],
-            "address": [
-                {
-                    "street_lines": [
-                        pd.informer.streetAddressLine || ""
-                    ],
-                    "city": pd.informer.city,
-                    "state": pd.informer.state,
-                    "zip": pd.informer.postalCode,
-                    "country": pd.informer.country
-                }
-            ],
-            "phone": [
-                {
-                    "number": pd.informer.telecom || "",
-                    "type": "work place"
-                }
-            ]
-        },*/
-        /*"service_event": {
             "code": {
-                "name": "",
-                "code": "",
-                "code_system_name": "SNOMED CT"
+                "name": pd.primary_diagnosis.text || "",
+                "code": pd.primary_diagnosis.code || "",
+                "code_system_name": pd.primary_diagnosis.code_type || ""
             },
             "date_time": {
                 "low": {
-                    "date": "2021-03-11",
-                    "precision": "day"
+                    "date": pd.primary_diagnosis.encounter_date || "",
+                    "precision": "tz"
                 },
                 "high": {
-                    "date": pd.created_time,
-                    "precision": "day"
+                    "date": pd.primary_diagnosis.encounter_end_date || "",
+                    "precision": "tz"
                 }
             },
-            "performer": [
-                {
-                    "performer": [
-                        {
-                            "identifiers": [
-                                {
-                                    "identifier": "2.16.840.1.113883.4.6",
-                                    "extension": npiProvider
-                                }
-                            ],
-                            "name": [
-                                {
-                                    "last": pd.information_recipient.lname || "DAH",
-                                    "first": pd.information_recipient.fname || "DAH"
-                                }
-                            ],
-                            "address": [
-                                {
-                                    "street_lines": [
-                                        pd.information_recipient.streetAddressLine
-                                    ],
-                                    "city": pd.information_recipient.city,
-                                    "state": pd.information_recipient.state,
-                                    "zip": pd.information_recipient.postalCode,
-                                    "country": pd.information_recipient.country || "US"
-                                }
-                            ],
-                            "phone": [
-                                {
-                                    "number": pd.information_recipient.telecom,
-                                    "type": "work place"
-                                }
-                            ],
-                            "organization": [
-                                {
-                                    "identifiers": [
-                                        {
-                                            "identifier": "2.16.840.1.113883.19.5.9999.1393"
-                                        }
-                                    ],
-                                    "name": [
-                                        pd.encounter_provider.facility_name
-                                    ],
-                                    "address": [
-                                        {
-                                            "street_lines": [
-                                                pd.encounter_provider.facility_street
-                                            ],
-                                            "city": pd.encounter_provider.facility_city,
-                                            "state": pd.encounter_provider.facility_state,
-                                            "zip": pd.encounter_provider.facility_postal_code,
-                                            "country": pd.encounter_provider.facility_country_code || "US"
-                                        }
-                                    ],
-                                    "phone": [
-                                        {
-                                            "number": pd.encounter_provider.facility_phone,
-                                            "type": "primary work"
-                                        }
-                                    ]
-                                }
-                            ],
-                            "code": [
-                                {
-                                    "name": "",
-                                    "code": "",
-                                    "code_system_name": "Provider Codes"
-                                }
-                            ]
-                        }
-                    ],
-                    "code": {
-                        "name": "Primary Performer",
-                        "code": "PP",
-                        "code_system_name": "Provider Role"
-                    }
-                }
-            ]
-        }*/
-    };
+            "responsible_party": {
+                "root": oidFacility,
+                "name": {
+                    "last": pd.author.lname,
+                    "first": pd.author.fname
+                },
+            },
+            "encounter_participant": {
+                "root": oidFacility,
+                "name": {
+                    "last": pd.primary_care_provider.provider.lname || "",
+                    "first": pd.primary_care_provider.provider.fname || ""
+                },
+            }
+        }
+    }
+
     return head;
 }
 
@@ -2633,7 +2600,7 @@ function genCcda(pd) {
     let count = 0;
     let many = [];
     let theone = {};
-    authorDate = '';
+
     all = pd;
     npiProvider = all.primary_care_provider.provider.npi;
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
@@ -2641,17 +2608,18 @@ function genCcda(pd) {
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
 
-    if (all.encounter_list && all.encounter_list.encounter) {
-        if (all.encounter_list.encounter.date) {
-            authorDate = all.encounter_list.encounter.date;
-        } else if (all.encounter_list.encounter[0].date) {
-            authorDate = all.encounter_list.encounter[0].date;
+    authorDateTime = pd.created_time_timezone;
+    if (pd.author.time.length > 7) {
+        authorDateTime = pd.author.time;
+    } else if (all.encounter_list && all.encounter_list.encounter) {
+        if (isOne(all.encounter_list.encounter) === 1) {
+            authorDateTime = all.encounter_list.encounter.date;
+        } else {
+            authorDateTime = all.encounter_list.encounter[0].date;
         }
     }
-    if (!authorDate) {
-        // when is there ever a situation where a patient doesn't have an encounter?
-        authorDate = pd.created_time_timezone;
-    }
+    
+    authorDateTime = fDate(authorDateTime);
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
 // This populates documentationOf. We are using providerOrganization also.
@@ -2862,7 +2830,7 @@ function genCcda(pd) {
     }
     if (count > 1) {
         for (let i in pd.planofcare.item) {
-            if (cleanCode(pd.planofcare.item[i].date_formatted) === '') {
+            if (cleanCode(pd.planofcare.item[i].date) === '') {
                 i--;
                 continue;
             }
@@ -3151,3 +3119,162 @@ function setUp(server) {
 
 // start up listener for requests from CCM or others.
 setUp(server);
+
+/* For future use in header. Do not remove! */
+/*"data_enterer": {
+    "identifiers": [
+        {
+            "identifier": "2.16.840.1.113883.4.6",
+            "extension": "999999943252"
+        }
+    ],
+    "name": [
+        {
+            "last": pd.data_enterer.lname,
+            "first": pd.data_enterer.fname
+        }
+    ],
+    "address": [
+        {
+            "street_lines": [
+                pd.data_enterer.streetAddressLine
+            ],
+            "city": pd.data_enterer.city,
+            "state": pd.data_enterer.state,
+            "zip": pd.data_enterer.postalCode,
+            "country": pd.data_enterer.country
+        }
+    ],
+    "phone": [
+        {
+            "number": pd.data_enterer.telecom,
+            "type": "work place"
+        }
+    ]
+},
+"informant": {
+    "identifiers": [
+        {
+            "identifier": "2.16.840.1.113883.19.5",
+            "extension": "KP00017"
+        }
+    ],
+    "name": [
+        {
+            "last": pd.informer.lname || "",
+            "first": pd.informer.fname || ""
+        }
+    ],
+    "address": [
+        {
+            "street_lines": [
+                pd.informer.streetAddressLine || ""
+            ],
+            "city": pd.informer.city,
+            "state": pd.informer.state,
+            "zip": pd.informer.postalCode,
+            "country": pd.informer.country
+        }
+    ],
+    "phone": [
+        {
+            "number": pd.informer.telecom || "",
+            "type": "work place"
+        }
+    ]
+},*/
+/*"service_event": {
+    "code": {
+        "name": "",
+        "code": "",
+        "code_system_name": "SNOMED CT"
+    },
+    "date_time": {
+        "low": {
+            "date": "2021-03-11",
+            "precision": "day"
+        },
+        "high": {
+            "date": pd.created_time,
+            "precision": "day"
+        }
+    },
+    "performer": [
+        {
+            "performer": [
+                {
+                    "identifiers": [
+                        {
+                            "identifier": "2.16.840.1.113883.4.6",
+                            "extension": npiProvider
+                        }
+                    ],
+                    "name": [
+                        {
+                            "last": pd.information_recipient.lname || "DAH",
+                            "first": pd.information_recipient.fname || "DAH"
+                        }
+                    ],
+                    "address": [
+                        {
+                            "street_lines": [
+                                pd.information_recipient.streetAddressLine
+                            ],
+                            "city": pd.information_recipient.city,
+                            "state": pd.information_recipient.state,
+                            "zip": pd.information_recipient.postalCode,
+                            "country": pd.information_recipient.country || "US"
+                        }
+                    ],
+                    "phone": [
+                        {
+                            "number": pd.information_recipient.telecom,
+                            "type": "work place"
+                        }
+                    ],
+                    "organization": [
+                        {
+                            "identifiers": [
+                                {
+                                    "identifier": "2.16.840.1.113883.19.5.9999.1393"
+                                }
+                            ],
+                            "name": [
+                                pd.encounter_provider.facility_name
+                            ],
+                            "address": [
+                                {
+                                    "street_lines": [
+                                        pd.encounter_provider.facility_street
+                                    ],
+                                    "city": pd.encounter_provider.facility_city,
+                                    "state": pd.encounter_provider.facility_state,
+                                    "zip": pd.encounter_provider.facility_postal_code,
+                                    "country": pd.encounter_provider.facility_country_code || "US"
+                                }
+                            ],
+                            "phone": [
+                                {
+                                    "number": pd.encounter_provider.facility_phone,
+                                    "type": "primary work"
+                                }
+                            ]
+                        }
+                    ],
+                    "code": [
+                        {
+                            "name": "",
+                            "code": "",
+                            "code_system_name": "Provider Codes"
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "name": "Primary Performer",
+                "code": "PP",
+                "code_system_name": "Provider Role"
+            }
+        }
+    ]
+}*/

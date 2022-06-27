@@ -85,7 +85,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $event->getSectionsAsString(),
                 '',
                 [], // params appears to be used for the informationRecipient pieces, so we leaves this alone
-                'xml',
+                $event->getDocumentType(),
                 '',
                 $dates
             );
