@@ -2384,12 +2384,16 @@ function populateParticipant(participant) {
 function populateHeader(pd) {
     // default doc type ToC CCD
     let name = "Summarization of Episode Note";
+    let isEpisodicDocumentType = false;
     let docCode = "34133-9";
     let docOid = "2.16.840.1.113883.10.20.22.1.2";
     if (pd.doc_type == 'referral') {
         name = "Referral Note";
         docCode = "57133-1";
         docOid = "2.16.840.1.113883.10.20.22.1.14";
+        isEpisodicDocumentType = true;
+    } else if (pd.doc_type == 'careplan') {
+        isEpisodicDocumentType = true;
     }
 
     const head = {
@@ -2549,7 +2553,7 @@ function populateHeader(pd) {
     }
 
 
-    if (pd.doc_type != 'ccd' && pd.doc_type != 'toc'
+    if (isEpisodicDocumentType
         && isOne(all.encounter_list.encounter) === 1) {
         head.component_of = {
             "identifiers": [
