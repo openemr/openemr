@@ -2005,8 +2005,6 @@ limitations under the License.
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="$address/n1:houseNumber"/>
               </xsl:if>
-            </p>
-            <p class="tight">
               <xsl:if test="string-length($address/n1:city) &gt; 0">
                 <xsl:value-of select="$address/n1:city"/>
               </xsl:if>
@@ -2014,10 +2012,9 @@ limitations under the License.
                 <xsl:text>, </xsl:text>
                 <xsl:value-of select="$address/n1:state"/>
               </xsl:if>
-            </p>
-            <p class="tight">
               <xsl:if test="string-length($address/n1:postalCode) &gt; 0">
                 <!--<xsl:text>&#160;</xsl:text>-->
+                <xsl:text> </xsl:text>
                 <xsl:value-of select="$address/n1:postalCode"/>
               </xsl:if>
               <xsl:if test="string-length($address/n1:country) &gt; 0">
