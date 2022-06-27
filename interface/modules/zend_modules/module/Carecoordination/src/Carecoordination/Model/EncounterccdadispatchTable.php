@@ -505,12 +505,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $participant = '';
         $records = $this->getReferralRecords($pid);
         if (empty($records[0]['refer_from']) || !is_numeric($records[0]['refer_from'])) {
-            return $participant;
+            // attempt to get the primary care physician for the patient and use that for the referral
+            $providerId = $this->getProviderId($pid);
+            if (empty($providerId)) {
+                return $participant;
+            } else {
+                $providerId = $providerId;
+            }
+        } else {
+            $providerId = $records[0]['refer_from'];
         }
-        $referral = $records[0];
-        $details = $this->getDetails(intval($referral['refer_from']));
+        $details = $this->getDetails(intval($providerId));
         if (empty($details)) {
-            return '';
+            return $participant;
         } else {
             $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
         }
@@ -3146,6 +3153,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($uid));
         foreach ($res as $result) {
+            if (!empty($result['phonew1'])) {
+                // not sure why we are concat_ws the phone but we need to trim off any excess white space to fix
+                // our phone formatting issues on the node side.
+                $result['phonew1'] = trim($result['phonew1']);
+            }
             return $result;
         }
     }
