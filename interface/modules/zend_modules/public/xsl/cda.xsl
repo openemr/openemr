@@ -159,8 +159,8 @@ limitations under the License.
             <xsl:call-template name="documentationOf"/>
             <xsl:call-template name="author"/>
             <xsl:call-template name="componentOf"/>
-            <xsl:call-template name="participant"/>
             <xsl:call-template name="referrer-fall-back"></xsl:call-template>
+            <xsl:call-template name="participant"/>
             <xsl:call-template name="informant"/>
             <xsl:call-template name="informationRecipient"/>
             <xsl:call-template name="legalAuthenticator"/>
@@ -522,7 +522,7 @@ limitations under the License.
     <xsl:if test="n1:componentOf">
       <div class="header container-fluid">
         <xsl:for-each select="n1:componentOf/n1:encompassingEncounter">
-          <div class="container-fluid col-md-8">
+          <div class="container-fluid col-md-12">
             <div class="container-fluid">
               <h2 class="section-title col-md-10">
                 <xsl:text>Encounter</xsl:text>
@@ -937,8 +937,65 @@ limitations under the License.
       </xsl:if>
     </div>
   </xsl:template>
+  <!-- show-assigned-entity-contact -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-assigned-entity-contact">
+    <xsl:param name="asgnEntity"></xsl:param>
+    <xsl:param name="label"></xsl:param>
+    <div class="container-fluid">
+      <div class="header container-fluid">
+        <div class="col-md-6">
+          <h2 class="section-title col-md-12">
+            <xsl:value-of select="$label"></xsl:value-of>
+          </h2>
+          <div class="header-group-content col-md-8">
+            <xsl:if test="$asgnEntity">
+              <xsl:call-template name="show-assignedEntity">
+                <xsl:with-param name="asgnEntity" select="$asgnEntity"/>
+              </xsl:call-template>
+            </xsl:if>
+          </div>
+        </div>
+        <xsl:if test="$asgnEntity/n1:addr | $asgnEntity/n1:telecom">
+          <div class="col-md-6">
+            <h2 class="section-title col-md-6">
+              <xsl:text>Contact</xsl:text>
+            </h2>
+            <div class="header-group-content col-md-8">
+              <xsl:if test="$asgnEntity">
+                <xsl:call-template name="show-contactInfo">
+                  <xsl:with-param name="contact" select="$asgnEntity"/>
+                </xsl:call-template>
+              </xsl:if>
+            </div>
+          </div>
+        </xsl:if>
+      </div>
+    </div>
+  </xsl:template>
+  <!-- referrer-fall-back -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="referrer-fall-back">
     <!-- Here is where we would check to see if we have a participant with /REF or REFB -->
+    <xsl:if test="not(/n1:ClinicalDocument/n1:participant[@typeCode='REFB']) and not(/n1:ClinicalDocument/n1:participant[@typeCode='REF'])">
+      <xsl:choose>
+        <xsl:when test="/n1:ClinicalDocument/n1:componentOf/n1:encompassingEncounter/n1:encounterParticipant[@typeCode='ATND']">
+          <xsl:call-template name="show-assigned-entity-contact">
+            <xsl:with-param name="label" select="'Referring / Transitioning Provider'" />
+            <xsl:with-param name="asgnEntity" select="/n1:ClinicalDocument/n1:componentOf/n1:encompassingEncounter/n1:encounterParticipant[@typeCode='ATND']/n1:assignedEntity" />
+          </xsl:call-template>
+        </xsl:when>
+        <!-- Primary Care Provider (PP) and Primary Care Physician (PCP) will be our referrer fall back if we have nothing else -->
+        <xsl:when test="/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer/n1:functionCode[@code='PP']|/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer/n1:functionCode[@code='PCP']">
+          <xsl:for-each select="/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer">
+            <xsl:if test="n1:functionCode[@code = 'PP'] | n1:functionCode[@code = 'PCP']">
+              <xsl:call-template name="show-assigned-entity-contact">
+                <xsl:with-param name="label" select="'Referring / Transitioning Provider'" />
+                <xsl:with-param name="asgnEntity" select="n1:assignedEntity" />
+              </xsl:call-template>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:if>
     <!-- IF we don't we fall back to the care team member PCP -->
   </xsl:template>
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="participant-with-title">
@@ -1084,7 +1141,7 @@ limitations under the License.
                 <xsl:for-each select="n1:patient/n1:languageCommunication">
                   <div class="row">
                     <div class="attribute-title col-md-6">
-                      <xsl:text>Language Communication</xsl:text>
+                      <xsl:text>Language</xsl:text>
                     </div>
                     <div class="col-md-6">
                       <xsl:value-of select="n1:proficiencyLevelCode[@displayName]" />
@@ -1987,15 +2044,15 @@ limitations under the License.
     <div class="address-group">
       <xsl:choose>
         <xsl:when test="$address">
-          <div class="address-group-header">
-            <xsl:if test="$address/@use">
-              <xsl:call-template name="translateTelecomCode">
-                <xsl:with-param name="code" select="$address/@use"/>
-              </xsl:call-template>
-            </xsl:if>
-          </div>
           <div class="address-group-content">
             <p class="tight">
+              <xsl:if test="$address/@use">
+                <xsl:text>(</xsl:text>
+                <xsl:call-template name="translateTelecomCode">
+                  <xsl:with-param name="code" select="$address/@use"/>
+                </xsl:call-template>
+                <xsl:text>) </xsl:text>
+              </xsl:if>
               <xsl:for-each select="$address/n1:streetAddressLine">
                 <xsl:value-of select="."/>
                 <xsl:text> </xsl:text>

@@ -138,6 +138,7 @@ function isOne(who) {
                 || who.hasOwnProperty('id')
                 || who.hasOwnProperty('date')
                 || who.hasOwnProperty('use')
+                || who.hasOwnProperty('type')
             ) ? 1 : Object.keys(who).length;
         }
     } catch (e) {
@@ -393,13 +394,10 @@ function populateProvider(provider) {
                 "country": all.encounter_provider.facility_country_code || "US"
             }
         ],
-        "phone": [
-            {
-                "value": {
-                    "number": all.encounter_provider.facility_phone || "",
-                }
-            }
-        ]
+
+        "phone": [{
+            "number": all.encounter_provider.facility_phone || ""
+        }]
     }
 }
 
@@ -479,11 +477,12 @@ function populateCareTeamMember(provider) {
             "zip": provider.zip,
             "country": all.encounter_provider.facility_country_code || "US"
         },
-        "phone": [{
-            "value": {
-                "number": provider.phone || "",
+        "phone": [
+            {
+                "number": provider.telecom,
+                "type": "work place"
             }
-        }]
+        ]
     }
 }
 
@@ -2384,16 +2383,12 @@ function populateParticipant(participant) {
 function populateHeader(pd) {
     // default doc type ToC CCD
     let name = "Summarization of Episode Note";
-    let isEpisodicDocumentType = false;
     let docCode = "34133-9";
     let docOid = "2.16.840.1.113883.10.20.22.1.2";
     if (pd.doc_type == 'referral') {
         name = "Referral Note";
         docCode = "57133-1";
         docOid = "2.16.840.1.113883.10.20.22.1.14";
-        isEpisodicDocumentType = true;
-    } else if (pd.doc_type == 'careplan') {
-        isEpisodicDocumentType = true;
     }
 
     const head = {
@@ -2553,8 +2548,7 @@ function populateHeader(pd) {
     }
 
 
-    if (isEpisodicDocumentType
-        && isOne(all.encounter_list.encounter) === 1) {
+    if (isOne(all.encounter_list.encounter) === 1) {
         head.component_of = {
             "identifiers": [
                 {
@@ -2590,6 +2584,24 @@ function populateHeader(pd) {
                     "last": pd.primary_care_provider.provider.lname || "",
                     "first": pd.primary_care_provider.provider.fname || ""
                 },
+                "address": [
+                    {
+                        "street_lines": [
+                            pd.encounter_provider.facility_street
+                        ],
+                        "city": pd.encounter_provider.facility_city,
+                        "state": pd.encounter_provider.facility_state,
+                        "zip": pd.encounter_provider.facility_postal_code,
+                        "country": pd.encounter_provider.facility_country_code || "US",
+                        "use": "work place"
+                    }
+                ],
+                "phone": [
+                    {
+                        "number": pd.encounter_provider.facility_phone,
+                        "type": "work primary"
+                    }
+                ]
             }
         }
     }
