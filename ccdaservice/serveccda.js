@@ -39,6 +39,28 @@ function cleanText(s) {
     return s;
 }
 
+// do a recursive descent transformation of the node object populating the timezone offset value if we have
+// a precision property (inside a date) with the value of timezone.
+function populateTimezones(node, tzOffset, depthCheck) {
+    if (!node || typeof node !== 'object') {
+        return node;
+    }
+    // we should NEVER go farther than 25 recursive loops down in our heirarchy, if we do it means we have an infinite loop
+    if (depthCheck > 25) {
+        console.error("Max depth traversal reached.  Potential infinite loop.  Breaking out of loop")
+        return node;
+    }
+
+    if (node.hasOwnProperty('precision') && node.precision == 'tz' && !node.hasOwnProperty('timezoneOffset')) {
+        node.timezoneOffset = tzOffset;
+    } else {
+        for (const [key, value] of Object.entries(node)) {
+            node[key] = populateTimezones(value, tzOffset, depthCheck + 1);
+        }
+    }
+    return node;
+}
+
 function fDate(str, lim8 = false) {
     str = String(str);
     if (lim8) {
@@ -1201,8 +1223,8 @@ function getResultSet(results) {
             {
                 "date_time": {
                     "point": {
-                        "date": fDate(tResult.date_ordered),
-                        "precision": getPrecision(fDate(tResult.date_ordered))
+                        "date": fDate(authorDateTime),
+                        "precision": "tz"
                     }
                 },
                 "identifiers": [
@@ -2527,7 +2549,8 @@ function populateHeader(pd) {
     }
 
 
-    if (isOne(all.encounter_list.encounter) === 1) {
+    if (pd.doc_type != 'ccd' && pd.doc_type != 'toc'
+        && isOne(all.encounter_list.encounter) === 1) {
         head.component_of = {
             "identifiers": [
                 {
@@ -3021,6 +3044,10 @@ function genCcda(pd) {
 
     meta.ccda_header = Object.assign(header);
     doc.meta = Object.assign(meta);
+
+    if (pd.timezone_local_offset) {
+        populateTimezones(doc, pd.timezone_local_offset, 0);
+    }
     // build to cda
     let xml = bbg.generateCCD(doc);
 

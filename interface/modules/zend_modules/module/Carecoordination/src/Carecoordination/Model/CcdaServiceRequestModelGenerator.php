@@ -139,6 +139,7 @@ class CcdaServiceRequestModelGenerator
         $this->data .= "<client_id></client_id>";
         $this->data .= "<created_time>" . date('YmdHis') . "</created_time>";
         $this->data .= "<created_time_timezone>" . date('YmdHisO') . "</created_time_timezone>";
+        $this->data .= "<timezone_local_offset>" . date('O') . "</timezone_local_offset>";
         $this->data .= "<send>" . htmlspecialchars($send, ENT_QUOTES) . "</send>";
         $this->data .= "<doc_type>" . $document_type . "</doc_type>";
         $this->data .= "<assignedEntity>

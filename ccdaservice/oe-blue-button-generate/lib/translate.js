@@ -83,7 +83,11 @@ exports.time = function (input) {
     let formatSpec = precisionToFormat[input.precision];
     if (input.precision === 'tz') {
         formatSpec = precisionToFormat['tz'];
-        result =  m.utcOffset('-0400').format(formatSpec);
+        if (input.timezoneOffset) {
+            result =  m.utcOffset(input.timezoneOffset).format(formatSpec);
+        } else {
+            result =  m.format(formatSpec);
+        }
         return result;
     }
     result = m.format(formatSpec);
