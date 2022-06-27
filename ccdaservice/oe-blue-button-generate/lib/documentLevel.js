@@ -64,7 +64,7 @@ exports.ccd2 = function (html_renderer) {
                 text: leafLevel.inputProperty("title"),
                 dataKey: "meta.ccda_header"
             },
-            [fieldLevel.effectiveDocumentTime, required], {
+            [fieldLevel.effectiveTime, required, dataKey("meta.ccda_header.date_time")], {
                 key: "confidentialityCode",
                 attributes: leafLevel.codeFromName("2.16.840.1.113883.5.25"),
                 dataKey: "meta.confidentiality"
@@ -92,7 +92,9 @@ exports.ccd2 = function (html_renderer) {
             headerLevel.headerInformant,
             headerLevel.headerCustodian,
             headerLevel.headerInformationRecipient,
-            headerLevel.providers, {
+            headerLevel.participant,
+            headerLevel.providers,
+            headerLevel.headerComponentOf, {
                 key: "component",
                 content: {
                     key: "structuredBody",
