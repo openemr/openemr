@@ -14,19 +14,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$patientPortalSession = false;
-if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
-    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $ignoreAuth_onsite_portal = true;
-    } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        exit;
-    }
-    // flag to show patient portal session being used, which will use
-    //  below to bootrap the form id to the patient
-    $patientPortalSession = true;
+// since need this class before autoloader, need to manually include it and then set it in line below with use command
+require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+
+// block of code to securely support use by the patient portal
+$patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+if ($patientPortalSession) {
+    $ignoreAuth_onsite_portal = true;
 }
 
 require_once("../../globals.php");
