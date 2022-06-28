@@ -2417,6 +2417,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($field_name));
         foreach ($res as $result) {
+            if (!empty($result['phonew1'])) {
+                $result['phonew1'] = trim($result['phonew1']);
+            }
             return $result;
         }
     }
