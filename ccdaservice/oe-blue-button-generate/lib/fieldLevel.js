@@ -328,8 +328,8 @@ var representedOrganization = {
             text: leafLevel.input,
             dataKey: "name"
         },
-        usRealmAddress,
-        telecom
+        //usRealmAddress,
+        //telecom
     ],
     dataKey: "organization"
 };
@@ -385,8 +385,6 @@ exports.author = {
         [effectiveTime, required, key("time")], {
             key: "assignedAuthor",
             content: [
-                usRealmAddress,
-                telecom,
                 id, {
                     key: "assignedPerson",
                     content: usRealmName
