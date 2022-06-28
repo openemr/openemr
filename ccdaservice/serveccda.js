@@ -564,7 +564,7 @@ function populateMedication(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime,
+                    "date": fDate(authorDateTime),
                     "precision": "tz"
                 }
             },
