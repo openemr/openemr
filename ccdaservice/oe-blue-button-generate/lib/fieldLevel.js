@@ -316,7 +316,7 @@ var telecom = exports.telecom = {
 var representedOrganization = {
     key: "representedOrganization",
     content: [
-        id, {
+        {
             key: "id",
             attributes: {
                 root: leafLevel.inputProperty("root"),
@@ -385,6 +385,8 @@ exports.author = {
         [effectiveTime, required, key("time")], {
             key: "assignedAuthor",
             content: [
+                usRealmAddress,
+                telecom,
                 id, {
                     key: "assignedPerson",
                     content: usRealmName
