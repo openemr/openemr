@@ -3453,6 +3453,8 @@ function genCcda(pd) {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[0], pd));
     } else if (pd.referral_reason[1].text !== "" && typeof pd.referral_reason[1].text !== 'undefined') {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
+    } else {
+        data.referral_reason = {}; // leave as empty so we can get our null flavor section.
     }
 // Health Concerns
     many = [];
@@ -3475,6 +3477,8 @@ function genCcda(pd) {
     }
     if (count !== 0) {
         data.health_concerns = Object.assign(many.health_concerns);
+    } else {
+        data.health_concerns = {"type": "act"}; // leave it as an empty section that we'll null flavor
     }
 // Immunizations
     many = [];
