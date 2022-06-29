@@ -39,7 +39,8 @@ exports.healthConcernObservation = {
             dataKey: "value",
             existsWhen: condition.codeOrDisplayname
         },
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
     ],
 
 }
@@ -110,7 +111,8 @@ exports.planOfCareActivityAct = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
     ],
     existsWhen: function (input) {
         return input.type === "act";
@@ -132,7 +134,8 @@ exports.planOfCareActivityObservation = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
     ],
     existsWhen: function (input) {
         return input.type === "observation";
@@ -154,7 +157,8 @@ exports.planOfCareActivityProcedure = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
     ],
     existsWhen: function (input) {
         return input.type === "procedure";
@@ -274,7 +278,8 @@ exports.planOfCareActivitySupply = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author
     ],
     existsWhen: function (input) {
         return input.type === "supply";
@@ -333,7 +338,9 @@ exports.planOfCareActivityInstructions = {
             }],
             dataKey: "severity"
         },
-        fieldLevel.effectiveTime, {
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
+        {
             key: "entryRelationship",
             attributes: {
                 typeCode: "COMP"

@@ -649,14 +649,14 @@ exports.healthConcernSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
-            attributes: condition.isNullFlavorSection('health_concerns'),
+            attributes: condition.isNullFlavorSection('author'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.58", "2015-08-01"),
                 fieldLevel.templateCode("HealthConcernSection"),
                 fieldLevel.templateTitle("HealthConcernSection"), {
                     key: "text",
                     text: "Health Concerns Not Available",
-                    existsWhen: condition.keyDoesntExist("health_concerns")
+                    existsWhen: condition.keyDoesntExist("author")
                 }, {
                     key: "text",
                     text: leafLevel.input,
