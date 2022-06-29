@@ -369,10 +369,10 @@ var associatedEntity = exports.associatedEntity = {
         {
             key: "associatedPerson",
             content: usRealmName,
-            existsWhen: condition.keyExists("name")
-            , attributes: {
-                classCode: "PSN"
-                , determinerCode: "INSTANCE"
+            existsWhen: condition.keyExists("name"),
+            attributes: {
+                classCode: "PSN",
+                determinerCode: "INSTANCE"
             }
         }
     ]
@@ -386,6 +386,11 @@ exports.author = {
             key: "assignedAuthor",
             content: [
                 id, {
+                    key: "code",
+                    attributes: leafLevel.code,
+                    existsWhen: condition.propertyNotEmpty('code'),
+                    dataKey: "code"
+                }, {
                     key: "assignedPerson",
                     content: usRealmName
                 },

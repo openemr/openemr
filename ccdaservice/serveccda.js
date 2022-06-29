@@ -564,7 +564,7 @@ function populateMedication(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(authorDateTime),
+                    "date": authorDateTime,
                     "precision": "tz"
                 }
             },
@@ -580,24 +580,6 @@ function populateMedication(pd) {
                     "first": all.author.fname
                 }
             ],
-            "address": [
-                {
-                    "street_lines": [
-                        all.author.streetAddressLine
-                    ],
-                    "city": all.author.city,
-                    "state": all.author.state,
-                    "zip": all.author.postalCode,
-                    "country": all.author.country || "US",
-                    "use": "work place"
-                }
-            ],
-            "phone": [
-                {
-                    "number": all.author.telecom || "",
-                    "type": "WP"
-                }
-            ],
             "organization": [
                 {
                     "identity": [
@@ -608,24 +590,6 @@ function populateMedication(pd) {
                     ],
                     "name": [
                         all.encounter_provider.facility_name
-                    ],
-                    "address": [
-                        {
-                            "street_lines": [
-                                all.encounter_provider.facility_street
-                            ],
-                            "city": all.encounter_provider.facility_city,
-                            "state": all.encounter_provider.facility_state,
-                            "zip": all.encounter_provider.facility_postal_code,
-                            "country": all.encounter_provider.facility_country_code || "US",
-                            "use": "work place"
-                        }
-                    ],
-                    "phone": [
-                        {
-                            "number": all.encounter_provider.facility_phone,
-                            "type": "work primary"
-                        }
                     ]
                 }
             ]
@@ -662,79 +626,43 @@ function populateMedication(pd) {
                 //"manufacturer": ""
             },
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
             "instructions": {
                 "code": {
                     "name": "instruction",
@@ -992,79 +920,43 @@ function populateAllergy(pd) {
                 "extension": pd.id + 1 || ""
             }],
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
             "allergen": {
                 "name": pd.title || "",
                 "code": pd.rxnorm_code_text ? cleanCode(pd.rxnorm_code) : pd.snomed_code_text ? cleanCode(pd.snomed_code) : cleanCode(""),
@@ -1180,24 +1072,6 @@ function populateProblem(pd) {
                     "first": all.author.fname
                 }
             ],
-            "address": [
-                {
-                    "street_lines": [
-                        all.author.streetAddressLine
-                    ],
-                    "city": all.author.city,
-                    "state": all.author.state,
-                    "zip": all.author.postalCode,
-                    "country": all.author.country || "US",
-                    "use": "work place"
-                }
-            ],
-            "phone": [
-                {
-                    "number": all.author.telecom || "",
-                    "type": "WP"
-                }
-            ],
             "organization": [
                 {
                     "identity": [
@@ -1208,24 +1082,6 @@ function populateProblem(pd) {
                     ],
                     "name": [
                         all.encounter_provider.facility_name
-                    ],
-                    "address": [
-                        {
-                            "street_lines": [
-                                all.encounter_provider.facility_street
-                            ],
-                            "city": all.encounter_provider.facility_city,
-                            "state": all.encounter_provider.facility_state,
-                            "zip": all.encounter_provider.facility_postal_code,
-                            "country": all.encounter_provider.facility_country_code || "US",
-                            "use": "work place"
-                        }
-                    ],
-                    "phone": [
-                        {
-                            "number": all.encounter_provider.facility_phone,
-                            "type": "work primary"
-                        }
                     ]
                 }
             ]
@@ -1470,24 +1326,6 @@ function getResultSet(results) {
                     "first": all.author.fname
                 }
             ],
-            "address": [
-                {
-                    "street_lines": [
-                        all.author.streetAddressLine
-                    ],
-                    "city": all.author.city,
-                    "state": all.author.state,
-                    "zip": all.author.postalCode,
-                    "country": all.author.country || "US",
-                    "use": "work place"
-                }
-            ],
-            "phone": [
-                {
-                    "number": all.author.telecom || "",
-                    "type": "WP"
-                }
-            ],
             "organization": [
                 {
                     "identity": [
@@ -1498,24 +1336,6 @@ function getResultSet(results) {
                     ],
                     "name": [
                         all.encounter_provider.facility_name
-                    ],
-                    "address": [
-                        {
-                            "street_lines": [
-                                all.encounter_provider.facility_street
-                            ],
-                            "city": all.encounter_provider.facility_city,
-                            "state": all.encounter_provider.facility_state,
-                            "zip": all.encounter_provider.facility_postal_code,
-                            "country": all.encounter_provider.facility_country_code || "US",
-                            "use": "work place"
-                        }
-                    ],
-                    "phone": [
-                        {
-                            "number": all.encounter_provider.facility_phone,
-                            "type": "work primary"
-                        }
                     ]
                 }
             ]
@@ -1730,6 +1550,44 @@ function getGoals(pd) {
         "status": {
             "code": "active", //cleanCode(pd.status)
         },
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         "name": pd.description
     };
 }
@@ -1820,6 +1678,44 @@ function getHealthConcerns(pd) {
             "code": cleanCode(pd.code) || "",
             "code_system_name": pd.code_type || "SNOMED CT"
         },
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         "identifiers": [{
             "identifier": pd.sha_extension
         }],
@@ -1868,79 +1764,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.bps) || pd.bps,
             "unit": "mm[Hg]",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -1962,79 +1822,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.bpd) || pd.bpd,
             "unit": "mm[Hg]",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2056,79 +1880,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.height) || pd.height,
             "unit": pd.unit_height,
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2150,79 +1938,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.weight) || "",
             "unit": pd.unit_weight,
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2244,79 +1996,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.BMI) || "",
             "unit": "kg/m2",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2338,79 +2054,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.pulse) || "",
             "unit": "/min",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.2",
@@ -2432,79 +2112,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.breath) || "",
             "unit": "/min",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.3",
@@ -2526,79 +2170,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.temperature) || "",
             "unit": pd.unit_temperature,
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2620,79 +2228,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.oxygen_saturation) || "",
             "unit": "%",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2714,79 +2286,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.ped_weight_height) || "",
             "unit": "%",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2808,79 +2344,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.inhaled_oxygen_concentration) || "",
             "unit": "%",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2902,79 +2402,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.ped_bmi) || "",
             "unit": "%",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2996,79 +2460,43 @@ function populateVital(pd) {
             "value": parseFloat(pd.ped_head_circ) || "",
             "unit": "%",
             "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "address": [
-                    {
-                        "street_lines": [
-                            all.author.streetAddressLine
-                        ],
-                        "city": all.author.city,
-                        "state": all.author.state,
-                        "zip": all.author.postalCode,
-                        "country": all.author.country || "US",
-                        "use": "work place"
-                    }
-                ],
-                "phone": [
-                    {
-                        "number": all.author.telecom || "",
-                        "type": "WP"
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ],
-                        "address": [
-                            {
-                                "street_lines": [
-                                    all.encounter_provider.facility_street
-                                ],
-                                "city": all.encounter_provider.facility_city,
-                                "state": all.encounter_provider.facility_state,
-                                "zip": all.encounter_provider.facility_postal_code,
-                                "country": all.encounter_provider.facility_country_code || "US",
-                                "use": "work place"
-                            }
-                        ],
-                        "phone": [
-                            {
-                                "number": all.encounter_provider.facility_phone,
-                                "type": "work primary"
-                            }
-                        ]
-                    }
-                ]
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
             },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         }
         ]
     }
@@ -3568,7 +2996,6 @@ function populateHeader(pd) {
     if (participants.length) {
         head.participants = participants;
     }
-
 
     if (isOne(all.encounter_list.encounter) === 1) {
         head.component_of = {

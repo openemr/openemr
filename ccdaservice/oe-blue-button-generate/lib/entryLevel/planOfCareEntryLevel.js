@@ -29,7 +29,8 @@ exports.healthConcernObservation = {
                 displayName: "Health Status"
             },
         },
-        fieldLevel.statusCodeCompleted, {
+        fieldLevel.statusCodeCompleted,
+        {
             key: "value",
             attributes: [
                 leafLevel.typeCD,
@@ -62,6 +63,7 @@ exports.healthConcernActivityAct = {
             },
         },
         fieldLevel.statusCodeActive,
+        fieldLevel.author,
         [{
             key: "entryRelationship",
             attributes: {
