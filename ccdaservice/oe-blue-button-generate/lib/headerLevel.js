@@ -188,12 +188,12 @@ var provider = exports.provider = [{
                 content: [{key: "originalText", text: "Care Team Member"}],
                 dataKey: "type"
             },
-            ,fieldLevel.usRealmAddress
-            ,fieldLevel.telecom
-            ,{
-                key: "assignedPerson",
-                content: fieldLevel.usRealmName
-            }
+                fieldLevel.usRealmAddress,
+                fieldLevel.telecom,
+                {
+                    key: "assignedPerson",
+                    content: fieldLevel.usRealmName
+                }
             ]
         }
     ],
@@ -586,12 +586,12 @@ var headerComponentOf = exports.headerComponentOf = {
                             root: leafLevel.inputProperty("root")
                         }
                     }
-                    ,fieldLevel.usRealmAddress
-                    ,fieldLevel.telecom
-                    ,{
-                        key: "assignedPerson",
-                        content: fieldLevel.usRealmName
-                    }]
+                        , fieldLevel.usRealmAddress
+                        , fieldLevel.telecom
+                        , {
+                            key: "assignedPerson",
+                            content: fieldLevel.usRealmName
+                        }]
                 }],
                 dataKey: "encounter_participant",
                 existsWhen: condition.propertyValueNotEmpty("name.last")
