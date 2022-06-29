@@ -380,6 +380,9 @@ var associatedEntity = exports.associatedEntity = {
 
 exports.author = {
     key: "author",
+    attributes: {
+        typeCode: "AUT"
+    },
     content: [
         templateId("2.16.840.1.113883.10.20.22.4.119"),
         [effectiveTime, required, key("time")], {
