@@ -33,7 +33,6 @@ exports.goalActivityObservation = {
         },
         fieldLevel.statusCodeActive, // always for goals
         fieldLevel.effectiveTime,
-        fieldLevel.author,
         {
             key: "value",
             attributes: {
