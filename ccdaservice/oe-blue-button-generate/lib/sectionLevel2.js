@@ -341,21 +341,24 @@ exports.assessmentSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
-            attributes: condition.isNullFlavorSection('clinicalNoteAssessments'),
+            attributes: condition.isNullFlavorSection('description'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.8"),
                 fieldLevel.templateCode("AssessmentSection"),
                 fieldLevel.templateTitle("AssessmentSection"), {
                     key: "text",
                     text: na,
-                    existsWhen: condition.keyDoesntExist("clinicalNoteAssessments")
+                    existsWhen: condition.keyDoesntExist("description")
                 }, {
                     key: "text",
                     text: leafLevel.input,
-                    dataKey: "clinicalNoteAssessments.description"
-                }
+                    dataKey: "description"
+                },
+                fieldLevel.author
             ],
-        }]
+            dataKey: "clinicalNoteAssessments"
+        }
+        ]
     }
 };
 
