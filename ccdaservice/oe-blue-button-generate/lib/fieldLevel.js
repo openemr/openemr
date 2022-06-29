@@ -316,7 +316,7 @@ var telecom = exports.telecom = {
 var representedOrganization = {
     key: "representedOrganization",
     content: [
-        id, {
+        {
             key: "id",
             attributes: {
                 root: leafLevel.inputProperty("root"),
@@ -328,8 +328,8 @@ var representedOrganization = {
             text: leafLevel.input,
             dataKey: "name"
         },
-        usRealmAddress,
-        telecom
+        //usRealmAddress,
+        //telecom
     ],
     dataKey: "organization"
 };
@@ -369,10 +369,10 @@ var associatedEntity = exports.associatedEntity = {
         {
             key: "associatedPerson",
             content: usRealmName,
-            existsWhen: condition.keyExists("name")
-            , attributes: {
-                classCode: "PSN"
-                , determinerCode: "INSTANCE"
+            existsWhen: condition.keyExists("name"),
+            attributes: {
+                classCode: "PSN",
+                determinerCode: "INSTANCE"
             }
         }
     ]
@@ -380,12 +380,20 @@ var associatedEntity = exports.associatedEntity = {
 
 exports.author = {
     key: "author",
+    attributes: {
+        typeCode: "AUT"
+    },
     content: [
         templateId("2.16.840.1.113883.10.20.22.4.119"),
         [effectiveTime, required, key("time")], {
             key: "assignedAuthor",
             content: [
                 id, {
+                    key: "code",
+                    attributes: leafLevel.code,
+                    existsWhen: condition.propertyNotEmpty('code'),
+                    dataKey: "code"
+                }, {
                     key: "assignedPerson",
                     content: usRealmName
                 },

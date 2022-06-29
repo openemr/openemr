@@ -239,7 +239,8 @@ var allergyProblemAct = exports.allergyProblemAct = {
         fieldLevel.uniqueId,
         fieldLevel.id,
         fieldLevel.templateCode("AllergyProblemAct"),
-        fieldLevel.statusCodeActive, [fieldLevel.effectiveTime, required], {
+        fieldLevel.statusCodeActive, [fieldLevel.effectiveTime, required],
+        fieldLevel.author, {
             key: "entryRelationship",
             attributes: {
                 typeCode: "SUBJ",
