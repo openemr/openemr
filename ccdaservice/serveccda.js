@@ -1308,6 +1308,45 @@ function populateProcedure(pd) {
                 }]
             }]
         }],
+        // TODO: how do we handle external organization references?
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         "procedure_type": "procedure"
     };
 }
