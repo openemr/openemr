@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "137e464217415a1730b8453de042b956",
+    "content-hash": "6f094d96251531ed6dceee4c0e1bb1d0",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -132,16 +132,16 @@
         },
         {
             "name": "adodb/adodb-php",
-            "version": "v5.22.2",
+            "version": "v5.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ADOdb/ADOdb.git",
-                "reference": "876bc2287171ea96a571f84c23845e44a759d9a0"
+                "reference": "d99127b8811a9f949c00ab425065e380dce6bdc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/876bc2287171ea96a571f84c23845e44a759d9a0",
-                "reference": "876bc2287171ea96a571f84c23845e44a759d9a0",
+                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/d99127b8811a9f949c00ab425065e380dce6bdc1",
+                "reference": "d99127b8811a9f949c00ab425065e380dce6bdc1",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,7 @@
                 "issues": "https://github.com/ADOdb/ADOdb/issues",
                 "source": "https://github.com/ADOdb/ADOdb"
             },
-            "time": "2022-05-08T10:01:41+00:00"
+            "time": "2022-02-07T23:42:42+00:00"
         },
         {
             "name": "aranyasen/hl7",
@@ -12656,5 +12656,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
