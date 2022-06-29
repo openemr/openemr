@@ -10,8 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once(dirname(__FILE__) . '/../../../library/api.inc');
 
 function sdoh_report($pid, $encounter, $cols, $id)
 {
@@ -28,10 +27,11 @@ function sdoh_report($pid, $encounter, $cols, $id)
             $sdohData[$key] = $value;
         }
 
+        // note that including the bold inline styling so it works when create pdf (when storing as pdf document from portal)
         if (empty($sdohData['totalscore'])) {
-            echo "<tr><td><span class=bold>" . xlt("No Social Screening Risks") . "</span></td></tr>";
+            echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("No Social Screening Risks") . "</span></td></tr>";
         } else {
-            echo "<tr><td><span class=bold>" . xlt("Social Screening Risks") . ":" . "</span></td></tr>";
+            echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("Social Screening Risks") . ":" . "</span></td></tr>";
 
             if (($sdohData['education'] ?? '') == 'lessthanhs') {
                 echo "<tr><td><span class=text>" . xlt("Less than High School Education") . "</span></td></tr>";
@@ -379,24 +379,24 @@ function sdoh_report($pid, $encounter, $cols, $id)
                 echo "<tr><td><span class=text>" . xlt("Discriminated in Other") . ": " . text($sdohData['displaceotherinput'] ?? '') . "</span></td></tr>";
             }
             if (($sdohData['contact'] ?? '') == 'contactphone') {
-                echo "<tr><td><span class=bold>" . xlt("Contact by Phone with Resources") . "</span></td></tr>";
+                echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("Contact by Phone with Resources") . "</span></td></tr>";
             }
             if (($sdohData['contact'] ?? '') == 'contactemail') {
-                echo "<tr><td><span class=bold>" . xlt("Contact by Email with Resources") . "</span></td></tr>";
+                echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("Contact by Email with Resources") . "</span></td></tr>";
             }
             if (($sdohData['contact'] ?? '') == 'contactportal') {
-                echo "<tr><td><span class=bold>" . xlt("Contact through Patient Portal with Resources") . "</span></td></tr>";
+                echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("Contact through Patient Portal with Resources") . "</span></td></tr>";
             }
             if (($sdohData['contact'] ?? '') == 'contactno') {
-                echo "<tr><td><span class=bold>" . xlt("Do Not Contact With Resources") . "</span></td></tr>";
+                echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("Do Not Contact With Resources") . "</span></td></tr>";
             }
             if (($sdohData['contact'] ?? '') == 'contactother') {
-                echo "<tr><td><span class=bold>" . xlt("Contact with Resources via Other") . ": " . text($sdohData['contactotherinput'] ?? '') . "</span></td></tr>";
+                echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("Contact with Resources via Other") . ": " . text($sdohData['contactotherinput'] ?? '') . "</span></td></tr>";
             }
 
             echo "<tr><td><span class=text>" . xlt("Patient Score") . " = " . text($sdohData['totalscore'] ?? '') . "</span></td></tr>";
 
-            echo "<tr><td><span class=bold>" . xlt("Possible Diagnoses") . ":" . "</span></td></tr>";
+            echo "<tr><td><span class=bold style='font-weight: bold;'>" . xlt("Possible Diagnoses") . ":" . "</span></td></tr>";
 
             if (
                 ($sdohData['debtmedical'] ?? '') == 'on'
