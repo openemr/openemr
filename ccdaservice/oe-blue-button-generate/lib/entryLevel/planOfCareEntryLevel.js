@@ -135,7 +135,14 @@ exports.planOfCareActivityObservation = {
         },
         fieldLevel.statusCodeActive,
         fieldLevel.effectiveTime,
-        fieldLevel.author,
+        {
+            key: "value",
+            attributes: {
+                "xsi:type": "ST"
+            },
+            text: leafLevel.inputProperty("name")
+        },
+        fieldLevel.author
     ],
     existsWhen: function (input) {
         return input.type === "observation";
