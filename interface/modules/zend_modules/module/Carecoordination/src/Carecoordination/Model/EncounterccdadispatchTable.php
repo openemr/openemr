@@ -923,9 +923,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $query = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation,
             SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS observation_code,
                         SUBSTRING(l.`diagnosis`,1,LOCATE(':',l.diagnosis)-1) AS code_type_real,
-                        l.reaction, l.diagnosis, l.diagnosis AS code
+                        l.reaction, l.diagnosis, l.diagnosis AS code, author.id AS provenance_updated_by, l.modifydate
                         FROM lists AS l
                         LEFT JOIN list_options AS lo ON lo.list_id = ? AND lo.option_id = l.severity_al
+                        left join users author ON l.user = author.username
                         WHERE l.type = ? AND l.pid = ?";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array('severity_ccda', 'allergy', $pid));
@@ -933,6 +934,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $allergies = "<allergies>";
         foreach ($res as $row) {
             $split_codes = explode(';', $row['code']);
+            // we go with the user the last modified the record as our provenance author
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['modifydate']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             foreach ($split_codes as $key => $single_code) {
                 $code = $code_text = $code_rx = $code_text_rx = $code_snomed = $code_text_snomed = $reaction_text = $reaction_code = '';
                 $get_code_details = explode(':', $single_code);
@@ -968,7 +975,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $reaction_code = explode(':', $reaction_code);
                 }
 
-                $allergies .= "<allergy>
+                $allergies .= "<allergy>" . $provenanceXml . "
                 <id>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . $single_code)) . "</id>
                 <sha_id>" . xmlEscape("36e3e930-7b14-11db-9fe1-0800200c9a66") . "</sha_id>
                 <title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
@@ -1199,8 +1206,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getMedicalDeviceList($pid)
     {
         $medical_devices = '';
-        $query = "select l.*, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
+        $query = "select l.*, author.id AS provenance_updated_by, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
     from lists AS l
+    left join users author ON l.user = author.username
     left join list_options as lo on lo.option_id = l.outcome AND lo.list_id = ?
     where l.type = ? and l.pid = ? AND l.outcome != ? AND l.id NOT IN(SELECT list_id FROM issue_encounter WHERE pid = ?)";
         $appTable = new ApplicationTable();
@@ -1209,6 +1217,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $medical_devices .= '<medical_devices>';
         foreach ($res as $row) {
             $split_codes = explode(';', $row['code']);
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['modifydate']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             foreach ($split_codes as $key => $single_code) {
                 $get_code_details = explode(':', $single_code);
                 $code_type = $get_code_details[0];
@@ -1238,7 +1251,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $observation_code = explode(':', $row['observation_code']);
                 $observation_code = $observation_code[1];
 
-                $medical_devices .= "<device>
+                $medical_devices .= "<device>" . $provenanceXml . "
                 <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
                 <sha_extension>" . xmlEscape($this->formatUid($_SESSION['site_id'] . $row['udi'])) . "</sha_extension>
                 <title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
