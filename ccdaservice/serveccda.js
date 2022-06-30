@@ -972,6 +972,45 @@ function populateEncounter(pd) {
 }
 
 function populateAllergy(pd) {
+    let allergyAuthor = {
+        "code": {
+            "name": pd.author.physician_type || '',
+            "code": pd.author.physician_type_code || '',
+            "code_system": pd.author.physician_type_system, "code_system_name": pd.author.physician_type_system_name
+        },
+        "date_time": {
+            "point": {
+                "date": fDate(pd.author.time),
+                "precision": "tz"
+            }
+        },
+        "identifiers": [
+            {
+                "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
+                "extension": pd.author.npi ? pd.author.npi : ''
+            }
+        ],
+        "name": [
+            {
+                "last": pd.author.lname,
+                "first": pd.author.fname
+            }
+        ],
+        "organization": [
+            {
+                "identity": [
+                    {
+                        "root": pd.author.facility_oid || "2.16.840.1.113883.4.6",
+                        "extension": pd.author.facility_npi || ""
+                    }
+                ],
+                "name": [
+                    pd.author.facility_name
+                ]
+            }
+        ]
+    };
+
     if (!pd) {
         return {
             "no_know_allergies": "No Known Allergies",
@@ -990,87 +1029,13 @@ function populateAllergy(pd) {
             "low": templateDate(pd.startdate, "day"),
             //"high": templateDate(pd.enddate, "day")
         },
-        "author": {
-            "code": {
-                "name": all.author.physician_type || '',
-                "code": all.author.physician_type_code || '',
-                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-            },
-            "date_time": {
-                "point": {
-                    "date": authorDateTime,
-                    "precision": "tz"
-                }
-            },
-            "identifiers": [
-                {
-                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                    "extension": all.author.npi ? all.author.npi : ''
-                }
-            ],
-            "name": [
-                {
-                    "last": all.author.lname,
-                    "first": all.author.fname
-                }
-            ],
-            "organization": [
-                {
-                    "identity": [
-                        {
-                            "root": oidFacility || "2.16.840.1.113883.4.6",
-                            "extension": npiFacility || ""
-                        }
-                    ],
-                    "name": [
-                        all.encounter_provider.facility_name
-                    ]
-                }
-            ]
-        },
+        "author": allergyAuthor,
         "observation": {
             "identifiers": [{
                 "identifier": pd.sha_extension || "2a620155-9d11-439e-92b3-5d9815ff4ee8",
                 "extension": pd.id + 1 || ""
             }],
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": allergyAuthor,
             "allergen": {
                 "name": pd.title || "",
                 "code": pd.rxnorm_code_text ? cleanCode(pd.rxnorm_code) : pd.snomed_code_text ? cleanCode(pd.snomed_code) : cleanCode(""),
@@ -1386,38 +1351,38 @@ function populateMedicalDevice(pd) {
         },
         "author": {
             "code": {
-                "name": all.author.physician_type || '',
-                "code": all.author.physician_type_code || '',
-                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
+                "name": pd.author.physician_type || '',
+                "code": pd.author.physician_type_code || '',
+                "code_system": pd.author.physician_type_system, "code_system_name": pd.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime,
+                    "date": fDate(pd.author.time),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
-                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                    "extension": all.author.npi ? all.author.npi : ''
+                    "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
+                    "extension": pd.author.npi ? pd.author.npi : ''
                 }
             ],
             "name": [
                 {
-                    "last": all.author.lname,
-                    "first": all.author.fname
+                    "last": pd.author.lname,
+                    "first": pd.author.fname
                 }
             ],
             "organization": [
                 {
                     "identity": [
                         {
-                            "root": oidFacility || "2.16.840.1.113883.4.6",
-                            "extension": npiFacility || ""
+                            "root": pd.author.facility_oid || "2.16.840.1.113883.4.6",
+                            "extension": pd.author.facility_npi || ""
                         }
                     ],
                     "name": [
-                        all.encounter_provider.facility_name
+                        pd.author.facility_name
                     ]
                 }
             ]
