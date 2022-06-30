@@ -25,6 +25,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
@@ -396,12 +397,28 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $time = $this->getAuthorDate($pid, $encounter);
         $uuid = UuidRegistry::uuidToString($details['uuid']);
 
+        if (!empty($details['provider_role_code']) ) {
+            $type_code = $details['provider_role_code'];
+            $type_title = $details['provider_role_title'] ?? '';
+            $type_system = CodeTypesService::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY;
+            $type_system_name = "ValueSet Healthcare Provider Taxonomy (HIPAA)"; // this appears to be a subset of NUCC
+        } else {
+            $type_code = $details['physician_type'] ?? '';
+            $type_title = $details['physician_type_code'] ?? '';
+            $type_system = "SNOMED CT";
+            $type_system_name = "SNOMED CT";
+        }
+
+        // <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
+        // <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
         $author = "
         <author>
         <time>" . xmlEscape($time ?? '') . "</time>
         <id>" . xmlEscape($uuid ?? '') . "</id>
-        <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
-        <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
+        <physician_type>" . xmlEscape($type_title) . "</physician_type>
+        <physician_type_code>" . xmlEscape($type_code) . "</physician_type_code>
+        <physician_type_system>" . xmlEscape($type_system) . "</physician_type_system>
+        <physician_type_system_name>" . xmlEscape($type_system_name) . "</physician_type_system_name>
         <streetAddressLine>" . xmlEscape($details['street'] ?? '') . "</streetAddressLine>
         <city>" . xmlEscape($details['city'] ?? '') . "</city>
         <state>" . xmlEscape($details['state'] ?? '') . "</state>
@@ -2397,20 +2414,24 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         } elseif (is_string($field_name)) {
             $query = "SELECT u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, CONCAT_WS(' ','',u.phonew1) AS phonew1, u.organization, u.specialty, conf.field_name, mo.mod_name, lo.title as  physician_type, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code, u.uuid
             ,facility.facility_npi, facility.facility_taxonomy, lous.title as taxonomy_desc, facility.uuid AS facility_uuid
+            ,provider_roles.title AS provider_role_title, u.taxonomy AS provider_role_code
         FROM users AS u
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
         LEFT JOIN facility ON u.facility_id = facility.id
         LEFT JOIN list_options AS lous ON lous.list_id = 'us-core-provider-specialty' AND lous.option_id = facility.facility_taxonomy
+        LEFT JOIN list_options AS provider_roles ON provider_roles.list_id = 'us-core-provider-role' AND provider_roles.option_id = u.taxonomy
         JOIN modules AS mo ON mo.mod_directory='Carecoordination'
         JOIN module_configuration AS conf ON conf.field_value=u.id AND mo.mod_id=conf.module_id
         WHERE conf.field_name=?";
         } elseif (is_int($field_name)) {
             $query = "SELECT u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, CONCAT_WS(' ','',u.phonew1) AS phonew1, u.organization, u.specialty, lo.title as  physician_type, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code, u.uuid
         ,facility.facility_npi, facility.facility_taxonomy, lous.title as taxonomy_desc, facility.uuid AS facility_uuid
+        ,provider_roles.title AS provider_role_title, u.taxonomy AS provider_role_code
         FROM users AS u
         LEFT JOIN facility ON u.facility_id = facility.id
         LEFT JOIN list_options AS lous ON lous.list_id = 'us-core-provider-specialty' AND lous.option_id = facility.facility_taxonomy
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
+        LEFT JOIN list_options AS provider_roles ON provider_roles.list_id = 'us-core-provider-role' AND provider_roles.option_id = u.taxonomy
         WHERE u.id=?";
         }
 
