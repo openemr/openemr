@@ -207,7 +207,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getPatientdata($pid, $encounter): string
     {
-        $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion, l3.notes as religion_code, l4.notes as language_code, l4.title as language_title
+        $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion
+            , l3.notes as religion_code, l4.notes as language_code, l4.title as language_title
+            ,patient_data.updated_by AS provenance_updated_by
             from patient_data
             left join list_options as l1 on l1.list_id=? AND l1.option_id=race
             left join list_options as l2 on l2.list_id=? AND l2.option_id=ethnicity
@@ -255,7 +257,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         foreach ($row as $result) {
             $race = $this->resolveRace($result['race']);
-            $patient_data = "<patient>
+            $provenanceRecord = [
+                'author_id' => $result['provenance_updated_by']
+                ,'time' => $result['date']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
+            $patient_data = "<patient>" . $provenanceXml . "
             <id>" . xmlEscape($result['pid']) . "</id>
             <encounter>" . xmlEscape($encounter) . "</encounter>
             <prefix>" . xmlEscape($result['title']) . "</prefix>
@@ -2430,7 +2437,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             'neveralcohol' => '33'
         );
 
-        $query = "SELECT id, tobacco, alcohol, exercise_patterns, recreational_drugs FROM history_data WHERE pid=? ORDER BY id DESC LIMIT 1";
+        $query = "SELECT id, tobacco, alcohol, exercise_patterns, recreational_drugs,date,created_by AS provenance_updated_by
+                    FROM history_data WHERE pid=? ORDER BY id DESC LIMIT 1";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($pid));
 
@@ -2439,7 +2447,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $tobacco = explode('|', $row['tobacco']);
             $status_code = (new CarecoordinationTable())->getListCodes($tobacco[3] ?? '', 'smoking_status');
             $status_code = str_replace("SNOMED-CT:", "", $status_code);
-            $social_history .= "<history_element>
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['date']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
+            $social_history .= "<history_element>" . $provenanceXml . "
                                   <extension>" . xmlEscape(base64_encode('smoking' . $_SESSION['site_id'] . $row['id'])) . "</extension>
                                   <sha_extension>" . xmlEscape("9b56c25d-9104-45ee-9fa4-e0f3afaa01c1") . "</sha_extension>
                                   <element>" . xmlEscape('Smoking') . "</element>
@@ -2451,7 +2464,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <code>" . xmlEscape(($arr['smoking'] ? $arr['smoking'] : '')) . "</code>
                             </history_element>";
             $alcohol = explode('|', $row['alcohol']);
-            $social_history .= "<history_element>
+            $social_history .= "<history_element>" . $provenanceXml . "
                                   <extension>" . xmlEscape(base64_encode('alcohol' . $_SESSION['site_id'] . $row['id'])) . "</extension>
                                   <sha_extension>" . xmlEscape("37f76c51-6411-4e1d-8a37-957fd49d2cef") . "</sha_extension>
                                   <element>" . xmlEscape('Alcohol') . "</element>
