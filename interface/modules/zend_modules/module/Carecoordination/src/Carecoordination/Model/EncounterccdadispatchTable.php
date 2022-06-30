@@ -3399,10 +3399,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         //  We removed the care plan transaction information here as it wasn't being used here or with serveccda.  When we
         //  support codes in the transaction table we can add that back in.
         $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues
+            , u.id AS provenance_updated_by, f.date AS modifydate
             FROM forms AS f
             LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
             LEFT JOIN codes AS c ON c.code = fcp.code
             LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
+            LEFT JOIN users as u on u.username = fcp.user
             LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
             WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon";
         $res = $appTable->zQuery($query, $sqlBindArray);
@@ -3428,6 +3430,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     continue;
                 }
             }
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['modifydate']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', $row['description']);
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
@@ -3446,7 +3453,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         $issue_uuid .= "<issue_uuid>" . xmlEscape($uuid_problem) . "</issue_uuid>\n";
                     }
                 }
-                $concerns .= "<concern>" .
+                $concerns .= "<concern>" . $provenanceXml .
                     $issue_uuid . "</issues>" .
                     "<encounter>" . xmlEscape($row['encounter']) . "</encounter>
                 <extension>" . xmlEscape(base64_encode($row['form_id'] . $row['code'])) . "</extension>
@@ -3460,7 +3467,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 </concern>';
             }
             if ($row['care_plan_type'] === 'goal') {
-                $goals .= '<item>
+                $goals .= '<item>' . $provenanceXml . '
                 <extension>' . xmlEscape(base64_encode($row['form_id'] . $row['code'])) . '</extension>
                 <sha_extension>' . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . '</sha_extension>
                 <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
@@ -3476,7 +3483,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <moodCode>' . xmlEscape($row['moodCode']) . '</moodCode>
                 </item>';
             } elseif ($row['care_plan_type'] !== 'health_concern') {
-                $planofcare .= '<item>
+                $planofcare .= '<item>' . $provenanceXml . '
                 <extension>' . xmlEscape(base64_encode($row['form_id'] . $row['code'])) . '</extension>
                 <sha_extension>' . xmlEscape($this->formatUid($row['form_id'] . $row['description'])) . '</sha_extension>
                 <care_plan_type>' . xmlEscape($row['care_plan_type']) . '</care_plan_type>
