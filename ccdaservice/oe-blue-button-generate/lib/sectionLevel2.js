@@ -659,7 +659,7 @@ exports.healthConcernSection = function (htmlHeader, na) {
                 fieldLevel.templateTitle("HealthConcernSection"), {
                     key: "text",
                     text: "Health Concerns Not Available",
-                    existsWhen: condition.keyDoesntExist("author")
+                    existsWhen: condition.keyDoesntExist("text")
                 }, {
                     key: "text",
                     text: leafLevel.input,
@@ -670,12 +670,14 @@ exports.healthConcernSection = function (htmlHeader, na) {
                     key: "entry",
                     content: [
                         entryLevel.healthConcernObservation
-                    ]
+                    ],
+                    existsWhen: condition.keyExists("text")
                 }, {
                     key: "entry",
                     content: [
                         [entryLevel.healthConcernActivityAct]
-                    ]
+                    ],
+                    existsWhen: condition.keyExists("text")
                 }
             ],
             dataKey: "health_concerns"

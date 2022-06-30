@@ -1,6 +1,6 @@
 "use strict";
 
-var fieldLevel = require('../headerLevel');
+var headerLevel = require('../headerLevel');
 var fieldLevel = require('../fieldLevel');
 var leafLevel = require('../leafLevel');
 var condition = require("../condition");
@@ -79,6 +79,7 @@ exports.careTeamOrganizer = {
             }
         },
         [fieldLevel.effectiveTime, required],
+        fieldLevel.author,
         [{
             key: "component",
             content: careTeamProviderAct
