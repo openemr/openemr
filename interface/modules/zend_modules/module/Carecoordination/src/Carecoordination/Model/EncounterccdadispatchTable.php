@@ -1452,7 +1452,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $pid
      * @return string
      */
-    public function getResults($pid)
+    public function getResults($pid, $encounter)
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -1467,6 +1467,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $results = '';
         $query = "SELECT prs.result AS result_value, prs.units, prs.range, prs.result_text as order_title, prs.result_code, prs.procedure_result_id,
         prs.result_text as result_desc, prs.procedure_result_id AS test_code, poc.procedure_code, poc.procedure_name, poc.diagnoses, po.date_ordered, prs.date AS result_time, prs.abnormal AS abnormal_flag,po.order_status AS order_status
+        , provider_id AS provenance_updated_by, prs.date AS result_date, pr.date_report AS report_date
         FROM procedure_order AS po
         JOIN procedure_order_code as poc on poc.procedure_order_id = po.procedure_order_id
         JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id
@@ -1485,6 +1486,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $results_list[$row['test_code']]['test_code'] = $row['test_code'];
             $results_list[$row['test_code']]['order_title'] = $row['order_title'];
             $results_list[$row['test_code']]['order_status'] = $row['order_status'];
+            $results_list[$row['test_code']]['date_modified'] = $row['result_date'] ?? $row['report_date'] ?? $row['date_ordered'];
             $results_list[$row['test_code']]['date_ordered'] = substr(str_replace("-", '', $row['date_ordered']), 0, 8);
             $results_list[$row['test_code']]['date_ordered_table'] = $row['date_ordered'];
             $results_list[$row['test_code']]['procedure_code'] = $row['procedure_code'];
@@ -1511,8 +1513,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $order_status = 'completed';
                 $order_status_table = '';
             }
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['date_modified']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
 
-            $results .= '<result>
+            $results .= '<result>' . $provenanceXml . '
         <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row['test_code'])) . '</extension>
         <root>' . xmlEscape("7d5a02b0-67a4-11db-bd13-0800200c9a66") . '</root>
         <date_ordered>' . xmlEscape($row['date_ordered']) . '</date_ordered>
