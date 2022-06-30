@@ -1919,44 +1919,7 @@ function getMentalStatus(pd) {
 function getAssessments(pd) {
     return {
         "description": cleanText(pd.description),
-        "author": {
-            "code": {
-                "name": all.author.physician_type || '',
-                "code": all.author.physician_type_code || '',
-                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-            },
-            "date_time": {
-                "point": {
-                    "date": authorDateTime,
-                    "precision": "tz"
-                }
-            },
-            "identifiers": [
-                {
-                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                    "extension": all.author.npi ? all.author.npi : ''
-                }
-            ],
-            "name": [
-                {
-                    "last": all.author.lname,
-                    "first": all.author.fname
-                }
-            ],
-            "organization": [
-                {
-                    "identity": [
-                        {
-                            "root": oidFacility || "2.16.840.1.113883.4.6",
-                            "extension": npiFacility || ""
-                        }
-                    ],
-                    "name": [
-                        all.encounter_provider.facility_name
-                    ]
-                }
-            ]
-        }
+        "author": populateAuthorFromAuthorContainer(pd)
     };
 }
 
@@ -3224,30 +3187,7 @@ function populateNote(pd) {
             code: cleanCode(pd.code),
             name: pd.code_text || ""
         },
-        "author": {
-            "identifiers": [{
-                "identifier": "2.16.840.1.113883.4.6",
-                "extension": pd.author_npi || "123456789"
-            }],
-            "date_time": {
-                "point": {
-                    "date": fDate(authorDateTime),
-                    "precision": "tz"
-                }
-            },
-            "name": {
-                "prefix": pd.author_title,
-                "last": pd.author_last,
-                "first": pd.author_first,
-            },
-            "author_full_name": pd.author_title + " " + pd.author_first + " " + pd.author_last,
-            "organization": [{
-                "identity": {
-                    "root": pd.facility_oid || oidFacility || "",
-                },
-                "name": [pd.facility_name]
-            }]
-        },
+        "author": populateAuthorFromAuthorContainer(pd),
         "note": cleanText(pd.description),
     };
 }

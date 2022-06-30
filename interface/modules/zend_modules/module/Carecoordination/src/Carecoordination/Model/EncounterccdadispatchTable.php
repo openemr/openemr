@@ -3573,7 +3573,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
         if ($this->searchFiltered) {
             if (empty($this->encounterFilterList)) {
-                return "<clinical_notes></clinical_notes><mental_status></mental_status>";
+                return "<clinical_notes></clinical_notes>";
             } else {
                 $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
             }
@@ -3583,7 +3583,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $clinical_notes = '';
-        $query = "SELECT fnote.*, u.*, fac.* FROM forms AS f
+        $query = "SELECT fnote.*, u.*, fac.*,u.id AS provenance_updated_by, f.date AS modifydate FROM forms AS f
                 LEFT JOIN `form_clinical_notes` AS fnote ON fnote.`form_id` = f.`form_id`
                 LEFT JOIN users as u on u.username = fnote.user
                 LEFT JOIN facility as fac on fac.id = u.facility_id
@@ -3597,11 +3597,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (empty($row['clinical_notes_type'])) {
                 continue;
             }
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['modifydate']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
             $code = $tmp[1];
             $clt = xmlEscape($row['clinical_notes_type']);
-            $clinical_notes .= "<$clt>" .
+            $clinical_notes .= "<$clt>" . $provenanceXml .
                 '<clinical_notes_type>' . $clt . '</clinical_notes_type>
             <encounter>' . xmlEscape($row['encounter']) . '</encounter>
             <author_title>' . xmlEscape($row['title']) . '</author_title>
