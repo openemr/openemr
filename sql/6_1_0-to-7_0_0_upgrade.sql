@@ -967,3 +967,19 @@ ALTER TABLE patient_data ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT '
 #IfMissingColumn patient_history created_by
 ALTER TABLE patient_history ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
 #EndIf
+
+#IfNotColumnType prescriptions date_modified DATETIME
+ALTER TABLE `prescriptions` CHANGE COLUMN `date_modified` `date_modified` DATETIME DEFAULT NULL COMMENT 'Datetime the prescriptions was last modified';
+#EndIf
+
+#IfNotColumnType prescriptions date_added DATETIME
+ALTER TABLE `prescriptions` CHANGE COLUMN `date_added` `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the prescriptions was initially created';
+#EndIf
+
+#IfMissingColumn prescriptions created_by
+ALTER TABLE prescriptions ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+#EndIf
+
+#IfMissingColumn prescriptions updated_by
+ALTER TABLE prescriptions ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
+#EndIf

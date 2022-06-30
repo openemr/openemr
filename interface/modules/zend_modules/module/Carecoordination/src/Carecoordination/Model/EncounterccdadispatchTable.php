@@ -1018,6 +1018,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $query = "select l.id, l.date_added, l.start_date, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
                        l.rxnorm_drugcode, l1.title as unit, l1.codes as unit_code,l2.title as form,SUBSTRING(l2.codes, LOCATE(':',l2.codes)+1, LENGTH(l2.codes)) AS form_code, l3.title as route, l4.title as `interval`,
                        u.title, u.fname, u.lname, u.mname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1, l.note
+                       ,u.id AS provider_id, l.date_modified, l.updated_by AS provenance_updated_by
                        from prescriptions as l
                        left join list_options as l1 on l1.option_id=unit AND l1.list_id = ?
                        left join list_options as l2 on l2.option_id=form AND l2.list_id = ?
@@ -1033,7 +1034,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (!$row['rxnorm_drugcode']) {
                 $row['rxnorm_drugcode'] = $this->generate_code($row['drug']);
             }
-
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by'] ?? $row['provider_id']
+                ,'time' => $row['date_modified']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $unit = $str = $active = '';
 
             if ($row['size'] > 0) {
@@ -1054,7 +1059,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 ;
             }
 
-            $medications .= "<medication>
+            $medications .= "<medication>" . $provenanceXml . "
     <id>" . xmlEscape($row['id']) . "</id>
     <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
     <sha_extension>" . xmlEscape("cdbd33f0-6cde-11db-9fe1-0800200c9a66") . "</sha_extension>
