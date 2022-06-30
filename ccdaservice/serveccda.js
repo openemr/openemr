@@ -515,6 +515,44 @@ function populateCareTeamMembers(pd) {
                 "date": providerSince || fDate(""),
                 "precision": "tz"
             }
+        },
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
         }
     }
 }
@@ -1270,6 +1308,45 @@ function populateProcedure(pd) {
                 }]
             }]
         }],
+        // TODO: how do we handle external organization references?
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
         "procedure_type": "procedure"
     };
 }
@@ -1306,6 +1383,44 @@ function populateMedicalDevice(pd) {
                 "code_system_name": ""
             }],
             "udi": pd.udi
+        },
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
         }
     }
 }
@@ -1707,11 +1822,52 @@ function getGoals(pd) {
 }
 
 function getFunctionalStatus(pd) {
+    let functionalStatusAuthor = {
+        "code": {
+            "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+        },
+        "date_time": {
+            "point": {
+                "date": authorDateTime,
+                    "precision": "tz"
+            }
+        },
+        "identifiers": [
+            {
+                "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                "extension": all.author.npi ? all.author.npi : ''
+            }
+        ],
+            "name": [
+            {
+                "last": all.author.lname,
+                "first": all.author.fname
+            }
+        ],
+            "organization": [
+            {
+                "identity": [
+                    {
+                        "root": oidFacility || "2.16.840.1.113883.4.6",
+                        "extension": npiFacility || ""
+                    }
+                ],
+                "name": [
+                    all.encounter_provider.facility_name
+                ]
+            }
+        ]
+    };
+
     return {
         "status": "completed",
+        "author": functionalStatusAuthor,
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000"
         }],
+        
         "observation": {
             "value": {
                 "name": pd.code_text !== "NULL" ? cleanText(pd.code_text) : "",
@@ -1727,7 +1883,8 @@ function getFunctionalStatus(pd) {
                     "precision": "day"
                 }
             },
-            "status": "completed"
+            "status": "completed",
+            "author": functionalStatusAuthor
         }
     };
 }
@@ -1747,6 +1904,44 @@ function getMentalStatus(pd) {
             "low": templateDate(pd.date, "day")
             //"high": templateDate(pd.date, "day")
         },
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        }
     };
 }
 
@@ -2707,7 +2902,45 @@ function populateSocialHistory(pd) {
         },
         "element": pd.element,
         "value": pd.description,
-        "gender": all.patient.gender
+        "gender": all.patient.gender,
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        }
     };
 }
 
@@ -2780,6 +3013,44 @@ function populateImmunization(pd) {
                 "code_system_name": "SNOMED CT"
             },
             "free_text": "Needs Attention for more data."
+        },
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system_name": "SNOMED CT"
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
         }
     };
 }
@@ -3453,6 +3724,8 @@ function genCcda(pd) {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[0], pd));
     } else if (pd.referral_reason[1].text !== "" && typeof pd.referral_reason[1].text !== 'undefined') {
         data.referral_reason = Object.assign(getReferralReason(pd.referral_reason[1], pd));
+    } else {
+        data.referral_reason = {}; // leave as empty so we can get our null flavor section.
     }
 // Health Concerns
     many = [];
@@ -3475,6 +3748,8 @@ function genCcda(pd) {
     }
     if (count !== 0) {
         data.health_concerns = Object.assign(many.health_concerns);
+    } else {
+        data.health_concerns = {"type": "act"}; // leave it as an empty section that we'll null flavor
     }
 // Immunizations
     many = [];
