@@ -181,7 +181,7 @@ class CcdaServiceRequestModelGenerator
         }
 
         if (in_array('continuity_care_document', $sections_list)) {
-            $this->data .= $this->getContinuityCareDocument($pid, $components_list);
+            $this->data .= $this->getContinuityCareDocument($pid, $components_list, $encounter);
         }
 
         // we're sending everything anyway. document type will tell engine what to include in cda.
@@ -236,7 +236,7 @@ class CcdaServiceRequestModelGenerator
         }
 
         if (in_array('procedures', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getProcedures($pid);
+            $ccd .= $this->getEncounterccdadispatchTable()->getProcedures($pid, $encounter);
         }
 
         if (in_array('results', $components_list)) {
