@@ -520,7 +520,7 @@ function populateCareTeamMembers(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -598,7 +598,7 @@ function populateMedication(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -667,7 +667,7 @@ function populateMedication(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -933,7 +933,7 @@ function populateEncounter(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -994,7 +994,7 @@ function populateAllergy(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1037,7 +1037,7 @@ function populateAllergy(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -1166,7 +1166,7 @@ function populateProblem(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1313,7 +1313,7 @@ function populateProcedure(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1388,7 +1388,7 @@ function populateMedicalDevice(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1497,7 +1497,7 @@ function getResultSet(results) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1657,7 +1657,7 @@ function getPlanOfCare(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1783,7 +1783,7 @@ function getGoals(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1826,7 +1826,7 @@ function getFunctionalStatus(pd) {
         "code": {
             "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
         },
         "date_time": {
             "point": {
@@ -1908,7 +1908,7 @@ function getMentalStatus(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -1952,7 +1952,7 @@ function getAssessments(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -2029,7 +2029,7 @@ function getHealthConcerns(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -2077,7 +2077,7 @@ function getReferralReason(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -2152,7 +2152,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2210,7 +2210,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2268,7 +2268,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2326,7 +2326,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2384,7 +2384,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2442,7 +2442,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2500,7 +2500,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2558,7 +2558,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2616,7 +2616,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2674,7 +2674,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2732,7 +2732,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2790,7 +2790,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2848,7 +2848,7 @@ function populateVital(pd) {
                 "code": {
                     "name": all.author.physician_type || '',
                     "code": all.author.physician_type_code || '',
-                    "code_system_name": "SNOMED CT"
+                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
                 },
                 "date_time": {
                     "point": {
@@ -2907,7 +2907,7 @@ function populateSocialHistory(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -3018,7 +3018,7 @@ function populateImmunization(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
@@ -3329,7 +3329,7 @@ function populateHeader(pd) {
             "code": {
                 "name": all.author.physician_type || '',
                 "code": all.author.physician_type_code || '',
-                "code_system_name": "SNOMED CT"
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
