@@ -3699,12 +3699,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $query = "SELECT ref_body.field_value AS body, ref_to.field_value AS refer_to
                     , ref_from.field_value AS refer_from, ref_billing_facility_id.field_value AS billing_facility_id
                     , t.date AS creation_date, ref_date.field_value AS refer_date
+                    , u.id AS provenance_updated_by
                     FROM transactions t
                         JOIN lbt_data ref_body ON ref_body.form_id=t.id AND ref_body.field_id = 'body'
                         JOIN lbt_data ref_to ON ref_to.form_id=t.id AND ref_to.field_id = 'refer_to'
                         JOIN lbt_data ref_date ON ref_date.form_id=t.id AND ref_date.field_id = 'refer_date'
                         JOIN lbt_data ref_from ON ref_from.form_id=t.id AND ref_from.field_id = 'refer_from'
                         JOIN lbt_data ref_billing_facility_id ON ref_billing_facility_id.form_id=t.id 
+                        LEFT JOIN users u ON t.user = u.username
                             AND ref_billing_facility_id.field_id = 'billing_facility_id'
                     WHERE pid = ? $wherCon";
 
@@ -3744,6 +3746,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $referral = $result[0];
             $referralsXML .= '<text>' . xmlEscape($referral['body']) . '</text>
                            <date>' . xmlEscape($referral['refer_date']) . '</date>';
+            $provenanceRecord = [
+                'author_id' => $referral['provenance_updated_by']
+                ,'time' => $referral['creation_date']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
+            $referralsXML .= $provenanceXml;
         }
 
         $referralsXML .= '</referral_reason>';
