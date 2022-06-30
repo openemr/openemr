@@ -947,3 +947,23 @@ UPDATE list_options SET option_id='20' WHERE list_id='drug_interval' AND option_
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','19','Weekly',19,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','20','Monthly',20,0,1);
 #EndIf
+
+#IfMissingColumn history_data created_by
+ALTER TABLE history_data ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+#EndIf
+
+#IfMissingColumn patient_data created_by
+ALTER TABLE patient_data ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+#EndIf
+
+#IfNotColumnType patient_data regdate DATETIME
+ALTER TABLE `patient_data` CHANGE COLUMN `regdate` `regdate` DATETIME DEFAULT NULL COMMENT 'Registration Date';
+#EndIf
+
+#IfMissingColumn patient_data updated_by
+ALTER TABLE patient_data ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
+#EndIf
+
+#IfMissingColumn patient_history created_by
+ALTER TABLE patient_history ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+#EndIf

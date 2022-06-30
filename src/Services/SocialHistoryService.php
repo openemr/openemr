@@ -79,8 +79,12 @@ class SocialHistoryService extends BaseService
                 ,history.alcohol
                 ,history.exercise_patterns
                 ,history.recreational_drugs
+                ,history.created_by
                 ,patients.pid
                 ,patients.puuid
+                ,provenance_created.provider_uuid
+                ,provenance_created.provider_npi
+                ,provenance_created.provider_username
             FROM
             history_data history
             JOIN
@@ -97,7 +101,17 @@ class SocialHistoryService extends BaseService
                     uuid AS puuid
                     ,pid
                     FROM patient_data
-            ) patients ON history.pid = patients.pid";
+            ) patients ON history.pid = patients.pid
+            LEFT JOIN (
+                    select
+                        uuid AS provider_uuid
+                        ,npi AS provider_npi
+                        ,username AS provider_username
+                        ,id AS provider_id
+                    FROM
+                        users
+            ) provenance_created ON history.created_by = provenance_created.provider_id
+            ";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
@@ -140,6 +154,9 @@ class SocialHistoryService extends BaseService
 
     private function insertRecord($record)
     {
+        $createdBy = $_SESSION['authUserID']; // we don't let anyone else but the current user be the createdBy
+        $record['created_by'] = $createdBy;
+
         $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $record);
         $pid = $record['pid'] ?? null;
         if (!is_numeric($pid)) {

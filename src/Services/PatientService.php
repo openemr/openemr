@@ -134,6 +134,10 @@ class PatientService extends BaseService
         // so set both to the current datetime.
         $data['date'] = date("Y-m-d H:i:s");
         $data['regdate'] = date("Y-m-d H:i:s");
+        // we should never be null here but for legacy reasons we are going to default to this
+        $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
+        $data['created_by'] = $createdBy;
+        $data['updated_by'] = $createdBy; // for an insert this is the same
         if (empty($data['pubpid'])) {
             $data['pubpid'] = $freshPid;
         }
@@ -212,6 +216,9 @@ class PatientService extends BaseService
 
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
+        // we should never be null here but for legacy reasons we are going to default to this
+        $updatedBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the updatedBy
+        $data['updated_by'] = $updatedBy; // for an insert this is the same
         $table = PatientService::TABLE_NAME;
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
@@ -356,6 +363,7 @@ class PatientService extends BaseService
                     patient_data.*
                     ,patient_history_uuid
                     ,patient_history_type_key
+                    ,patient_history_created_by
                     ,previous_name_first
                     ,previous_name_prefix
                     ,previous_name_first
@@ -371,6 +379,7 @@ class PatientService extends BaseService
                     SELECT
                     pid AS patient_history_pid
                     ,history_type_key AS patient_history_type_key
+                    ,created_by AS patient_history_created_by
                     ,previous_name_prefix
                     ,previous_name_first
                     ,previous_name_middle
@@ -658,8 +667,12 @@ class PatientService extends BaseService
      */
     public function createPatientNameHistory($pid, $record)
     {
+        // we should never be null here but for legacy reasons we are going to default to this
+        $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
+
         $insertData = [
             'pid' => $pid,
+            'created_by' => $createdBy,
             'history_type_key' => 'name_history',
             'previous_name_prefix' => $record['previous_name_prefix'],
             'previous_name_first' => $record['previous_name_first'],
