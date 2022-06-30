@@ -145,6 +145,10 @@ class Prescription extends ORDataObject
 
     var $encounter;
 
+    var $created_by;
+
+    var $updated_by;
+
     /**
     * Constructor sets all Prescription attributes to their default value
     */
@@ -178,11 +182,14 @@ class Prescription extends ORDataObject
             $this->_table = "prescriptions";
             $this->pharmacy = new Pharmacy();
             $this->pharmacist = new Person();
+            // default provider is the current user
             $this->provider = new Provider($_SESSION['authUserID']);
             $this->patient = new Patient();
             $this->start_date = date("Y-m-d");
-            $this->date_added = date("Y-m-d");
-            $this->date_modified = date("Y-m-d");
+            $this->date_added = date("Y-m-d H:i:s");
+            $this->date_modified = date("Y-m-d H:i:s");
+            $this->created_by = $_SESSION['authUserID'];
+            $this->updated_by = $_SESSION['authUserID'];
             $this->per_refill = 0;
             $this->note = "";
 
@@ -202,9 +209,9 @@ class Prescription extends ORDataObject
 
     function persist()
     {
-        $this->date_modified = date("Y-m-d");
+        $this->date_modified = date("Y-m-d H:i:s");
         if ($this->id == "") {
-            $this->date_added = date("Y-m-d");
+            $this->date_added = date("Y-m-d H:i:s");
         }
 
         if (parent::persist()) {
@@ -214,6 +221,13 @@ class Prescription extends ORDataObject
     function populate()
     {
         parent::populate();
+        // for old historical data we are going to populate our created_by and updated_by
+        if (empty($this->created_by)) {
+            $this->created_by = $this->get_provider_id();
+        }
+        if (empty($this->updated_by)) {
+            $this->updated_by = $this->get_provider_id();
+        }
     }
 
     function toString($html = false)
@@ -468,6 +482,28 @@ class Prescription extends ORDataObject
     function get_provider_id()
     {
         return $this->provider->id;
+    }
+
+    function set_created_by($id)
+    {
+        if (is_numeric($id)) {
+            $this->created_by = $id;
+        }
+    }
+    function get_created_by()
+    {
+        return $this->created_by;
+    }
+
+    function set_updated_by($id)
+    {
+        if (is_numeric($id)) {
+            $this->updated_by = $id;
+        }
+    }
+    function get_updated_by()
+    {
+        return $this->updated_by;
     }
 
     function set_provider($pobj)
