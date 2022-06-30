@@ -1420,50 +1420,14 @@ function getResultSet(results) {
 
     if (!results) return '';
 
+    // not sure if the result set should be grouped better on the backend as the author information needs to be more nuanced here
     let tResult = results.result[0] || results.result;
     var resultSet = {
         "identifiers": [{
             "identifier": tResult.root,
             "extension": tResult.extension
         }],
-        "author": [{
-            "code": {
-                "name": all.author.physician_type || '',
-                "code": all.author.physician_type_code || '',
-                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-            },
-            "date_time": {
-                "point": {
-                    "date": authorDateTime,
-                    "precision": "tz"
-                }
-            },
-            "identifiers": [
-                {
-                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                    "extension": all.author.npi ? all.author.npi : ''
-                }
-            ],
-            "name": [
-                {
-                    "last": all.author.lname,
-                    "first": all.author.fname
-                }
-            ],
-            "organization": [
-                {
-                    "identity": [
-                        {
-                            "root": oidFacility || "2.16.840.1.113883.4.6",
-                            "extension": npiFacility || ""
-                        }
-                    ],
-                    "name": [
-                        all.encounter_provider.facility_name
-                    ]
-                }
-            ]
-        }],
+        "author": populateAuthorFromAuthorContainer(tResult),
         "result_set": {
             "name": tResult.test_name,
             "code": cleanCode(tResult.test_code),

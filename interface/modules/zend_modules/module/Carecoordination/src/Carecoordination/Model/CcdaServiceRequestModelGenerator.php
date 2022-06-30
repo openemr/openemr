@@ -220,7 +220,7 @@ class CcdaServiceRequestModelGenerator
         $this->data .= "</CCDA>";
     }
 
-    public function getContinuityCareDocument($pid, $components_list)
+    public function getContinuityCareDocument($pid, $components_list, $encounter)
     {
         $ccd = '';
         if (in_array('allergies', $components_list)) {
@@ -240,7 +240,7 @@ class CcdaServiceRequestModelGenerator
         }
 
         if (in_array('results', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getResults($pid);
+            $ccd .= $this->getEncounterccdadispatchTable()->getResults($pid, $encounter);
         }
 
         if (in_array('immunizations', $components_list)) {
