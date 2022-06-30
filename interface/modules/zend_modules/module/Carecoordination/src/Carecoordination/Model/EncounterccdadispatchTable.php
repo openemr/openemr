@@ -373,13 +373,80 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $provider_details;
     }
 
-    /**
-     * @param $pid
-     * @param $encounter
-     * @return string
-     */
-    public function getAuthor($pid, $encounter)
-    {
+    public function getProvenanceForRecord($recordAuthor, $pid, $encounter) {
+        if (empty($recordAuthor['author_id']) || !is_numeric($recordAuthor['author_id']))
+        {
+            $details = $this->getDocumentAuthorRecord($pid, $encounter);
+        } else {
+            $details = $this->getDetails(intval($recordAuthor['author_id']));
+        }
+
+        if (empty($details)) {
+            return null;
+        }
+
+        $setting = $this->getCarecoordinationModuleSettingValue('hie_force_latest_encounter_provenance_date');
+        // we override our author date if we force the latest encounter date
+        if (empty($recordAuthor['time']) || $setting == 'yes') {
+            $time = $this->getAuthorDate($pid, $encounter);
+        } else {
+            $time = $recordAuthor['time'];
+        }
+        return [
+            'author' => $details
+            ,'time' => $time
+        ];
+    }
+
+    public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter) {
+        $provenanceRecord = $this->getProvenanceForRecord($recordAuthor, $pid, $encounter);
+
+        $time = $provenanceRecord['time'];
+        $details = $provenanceRecord['author'];
+        $uuid = UuidRegistry::uuidToString($details['uuid']);
+
+        if (!empty($details['provider_role_code'])) {
+            $type_code = $details['provider_role_code'];
+            $type_title = $details['provider_role_title'] ?? '';
+            $type_system = CodeTypesService::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY;
+            $type_system_name = "ValueSet Healthcare Provider Taxonomy (HIPAA)"; // this appears to be a subset of NUCC
+        } else {
+            $type_code = $details['physician_type'] ?? '';
+            $type_title = $details['physician_type_code'] ?? '';
+            $type_system = "SNOMED CT";
+            $type_system_name = "SNOMED CT";
+        }
+
+        // <physician_type>" . xmlEscape($details['physician_type'] ?? '') . "</physician_type>
+        // <physician_type_code>" . xmlEscape($details['physician_type_code'] ?? '') . "</physician_type_code>
+        //     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
+        //    npiFacility = all.encounter_provider.facility_npi;
+        $author = "
+        <author>
+        <time>" . xmlEscape($time ?? '') . "</time>
+        <id>" . xmlEscape($uuid ?? '') . "</id>
+        <physician_type>" . xmlEscape($type_title) . "</physician_type>
+        <physician_type_code>" . xmlEscape($type_code) . "</physician_type_code>
+        <physician_type_system>" . xmlEscape($type_system) . "</physician_type_system>
+        <physician_type_system_name>" . xmlEscape($type_system_name) . "</physician_type_system_name>
+        <streetAddressLine>" . xmlEscape($details['street'] ?? '') . "</streetAddressLine>
+        <facility_oid>" . xmlEscape($details['facility_oid']) . "</facility_oid>
+        <facility_npi>" . xmlEscape($details['facility_npi']) . "</facility_npi>
+        <facility_name>" . xmlEscape($details['facility_name']) . "</facility_name>
+        <city>" . xmlEscape($details['city'] ?? '') . "</city>
+        <state>" . xmlEscape($details['state'] ?? '') . "</state>
+        <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
+        <country>" . xmlEscape($details['country'] ?? '') . "</country>
+        <telecom>" . xmlEscape(trim(($details['phonew1'] ?? '') ? $details['phonew1'] : '')) . "</telecom>
+        <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+        <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+        <npi>" . xmlEscape($details['npi'] ?? '') . "</npi>
+        </author>";
+
+        return $author;
+    }
+
+    private function getDocumentAuthorRecord($pid, $encounter) {
         $details = $this->getDetails('hie_author_id');
         if (!$details && !empty($_SESSION['authUserID'])) {
             // function expects an int
@@ -390,9 +457,23 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (empty($providerId)) {
                 // at this point we really can't do anything as we can't provide an author piece
                 (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
-                return;
+                return null;
             }
             $details = $this->getDetails(intval($providerId));
+        }
+        return $details;
+    }
+
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
+    public function getAuthor($pid, $encounter)
+    {
+        $details = $this->getDocumentAuthorRecord($pid, $encounter);
+        if (empty($details)) {
+            return;
         }
         $time = $this->getAuthorDate($pid, $encounter);
         $uuid = UuidRegistry::uuidToString($details['uuid']);
@@ -1019,8 +1100,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         UuidRegistry::createMissingUuidsForTables(['lists']);
         $problem_lists = '';
-        $query = "select l.*, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
+        $query = "select l.*, author.id AS provenance_updated_by, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
     from lists AS l
+    left join users author ON l.user = author.username
     left join list_options as lo on lo.option_id = l.outcome AND lo.list_id = ?
     where l.type = ? and l.pid = ? AND l.outcome != ?"; // patched out /* AND l.id NOT IN(SELECT list_id FROM issue_encounter WHERE pid = ?)*/
         $appTable = new ApplicationTable();
@@ -1030,6 +1112,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($res as $row) {
             $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $split_codes = explode(';', $row['code']);
+            // we go with the user the last modified the record as our provenance author
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['modifydate']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             foreach ($split_codes as $key => $single_code) {
                 $get_code_details = explode(':', $single_code);
                 $code_type = $get_code_details[0];
@@ -1056,10 +1144,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $status_code = '55561003';
                 }
 
+
                 $observation = $row['observation'];
                 $observation_code = explode(':', $row['observation_code']);
                 $observation_code = $observation_code[1];
-                $problem_lists .= "<problem>
+                $problem_lists .= "<problem>" . $provenanceXml . "
                 <problem_id>" . ($code ? xmlEscape($row['$id']) : '') . "</problem_id>
                 <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
                 <sha_extension>" . xmlEscape($row['uuid']) . "</sha_extension>
@@ -2406,14 +2495,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getDetails($field_name)
     {
         if ($field_name == 'hie_custodian_id') {
-            $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid
+            $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid, f.oid AS facility_oid, f.facility_npi
         FROM facility AS f
         JOIN modules AS mo ON mo.mod_directory='Carecoordination'
         JOIN module_configuration AS conf ON conf.field_value=f.id AND mo.mod_id=conf.module_id
         WHERE conf.field_name=?";
         } elseif (is_string($field_name)) {
             $query = "SELECT u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, CONCAT_WS(' ','',u.phonew1) AS phonew1, u.organization, u.specialty, conf.field_name, mo.mod_name, lo.title as  physician_type, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code, u.uuid
-            ,facility.facility_npi, facility.facility_taxonomy, lous.title as taxonomy_desc, facility.uuid AS facility_uuid
+            ,facility.facility_npi, facility.facility_taxonomy, lous.title as taxonomy_desc, facility.uuid AS facility_uuid, facility.oid AS facility_oid, facility.name AS facility_name
             ,provider_roles.title AS provider_role_title, u.taxonomy AS provider_role_code
         FROM users AS u
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
@@ -2425,7 +2514,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         WHERE conf.field_name=?";
         } elseif (is_int($field_name)) {
             $query = "SELECT u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, CONCAT_WS(' ','',u.phonew1) AS phonew1, u.organization, u.specialty, lo.title as  physician_type, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as  physician_type_code, u.uuid
-        ,facility.facility_npi, facility.facility_taxonomy, lous.title as taxonomy_desc, facility.uuid AS facility_uuid
+        ,facility.facility_npi, facility.facility_taxonomy, lous.title as taxonomy_desc, facility.uuid AS facility_uuid, facility.oid AS facility_oid, facility.name AS facility_name
         ,provider_roles.title AS provider_role_title, u.taxonomy AS provider_role_code
         FROM users AS u
         LEFT JOIN facility ON u.facility_id = facility.id
@@ -2440,6 +2529,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($res as $result) {
             if (!empty($result['phonew1'])) {
                 $result['phonew1'] = trim($result['phonew1']);
+            }
+            if (empty($result['facility_oid'])) {
+                // TODO: set the oid to an NPI number as our default if we don't have one.
+                $result['facility_oid'] = "2.16.840.1.113883.4.6";
             }
             return $result;
         }
