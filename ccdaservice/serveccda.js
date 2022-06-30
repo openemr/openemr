@@ -977,6 +977,16 @@ function populateEncounter(pd) {
 }
 
 function populateAllergy(pd) {
+    
+    if (!pd) {
+        return {
+            "no_know_allergies": "No Known Allergies",
+            "date_time": {
+                "low": templateDate("", "day"),
+                //"high": templateDate(pd.enddate, "day")
+            }
+        }
+    }
     let allergyAuthor = {
         "code": {
             "name": pd.author.physician_type || '',
@@ -1016,15 +1026,6 @@ function populateAllergy(pd) {
         ]
     };
 
-    if (!pd) {
-        return {
-            "no_know_allergies": "No Known Allergies",
-            "date_time": {
-                "low": templateDate("", "day"),
-                //"high": templateDate(pd.enddate, "day")
-            }
-        }
-    }
     return {
         "identifiers": [{
             "identifier": pd.sha_id,
