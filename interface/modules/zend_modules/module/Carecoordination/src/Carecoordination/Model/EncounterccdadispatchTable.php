@@ -1292,6 +1292,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             DATE_FORMAT(administered_date,'%Y%m%d') AS administered_formatted, lo.title as route_of_administration,
             u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1,
             f.name, f.phone, SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS route_code
+            , im.updated_by AS provenance_updated_by, im.update_date
             FROM immunizations AS im
             LEFT JOIN codes AS cd ON cd.code = im.cvx_code
             JOIN code_types AS ctype ON ctype.ct_key = 'CVX' AND ctype.ct_id=cd.code_type
@@ -1304,8 +1305,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $immunizations .= '<immunizations>';
         foreach ($res as $row) {
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['update_date']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
+
             $immunizations .= "
-        <immunization>
+        <immunization>" . $provenanceXml . "
         <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
         <sha_extension>" . xmlEscape("e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92") . "</sha_extension>
         <id>" . xmlEscape($row['id']) . "</id>
