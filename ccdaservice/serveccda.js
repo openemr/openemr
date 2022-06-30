@@ -2870,38 +2870,76 @@ function populateSocialHistory(pd) {
         "gender": all.patient.gender,
         "author": {
             "code": {
-                "name": all.author.physician_type || '',
-                "code": all.author.physician_type_code || '',
-                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
+                "name": pd.author.physician_type || '',
+                "code": pd.author.physician_type_code || '',
+                "code_system": pd.author.physician_type_system, "code_system_name": pd.author.physician_type_system_name
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime,
+                    "date": fDate(pd.author.time),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
-                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                    "extension": all.author.npi ? all.author.npi : ''
+                    "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
+                    "extension": pd.author.npi ? pd.author.npi : ''
                 }
             ],
             "name": [
                 {
-                    "last": all.author.lname,
-                    "first": all.author.fname
+                    "last": pd.author.lname,
+                    "first": pd.author.fname
                 }
             ],
             "organization": [
                 {
                     "identity": [
                         {
-                            "root": oidFacility || "2.16.840.1.113883.4.6",
-                            "extension": npiFacility || ""
+                            "root": pd.author.facility_oid || "2.16.840.1.113883.4.6",
+                            "extension": pd.author.facility_npi || ""
                         }
                     ],
                     "name": [
-                        all.encounter_provider.facility_name
+                        pd.author.facility_name
+                    ]
+                }
+            ]
+        }
+        ,"gender_author": {
+            "code": {
+                "name": all.patient.author.physician_type || '',
+                "code": all.patient.author.physician_type_code || '',
+                "code_system": all.patient.author.physician_type_system, "code_system_name": all.patient.author.physician_type_system_name
+            },
+            "date_time": {
+                "point": {
+                    "date": fDate(all.patient.author.time),
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.patient.author.npi ? "2.16.840.1.113883.4.6" : all.patient.author.id,
+                    "extension": all.patient.author.npi ? all.patient.author.npi : ''
+                }
+            ],
+            "name": [
+                {
+                    "last": all.patient.author.lname,
+                    "first": all.patient.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": all.patient.author.facility_oid || "2.16.840.1.113883.4.6",
+                            "extension": all.patient.author.facility_npi || ""
+                        }
+                    ],
+                    "name": [
+                        all.patient.author.facility_name
                     ]
                 }
             ]
