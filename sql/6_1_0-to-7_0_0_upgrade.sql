@@ -983,3 +983,13 @@ ALTER TABLE prescriptions ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 
 #IfMissingColumn prescriptions updated_by
 ALTER TABLE prescriptions ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
 #EndIf
+
+#IfMissingColumn module_configuration created_by
+ALTER TABLE module_configuration ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+ALTER TABLE `module_configuration` ADD COLUMN `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the record was initially created';
+#EndIf
+
+#IfMissingColumn module_configuration updated_by
+ALTER TABLE module_configuration ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
+ALTER TABLE `module_configuration` ADD COLUMN `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified';
+#EndIf

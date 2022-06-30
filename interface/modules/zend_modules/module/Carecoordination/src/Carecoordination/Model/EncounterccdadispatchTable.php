@@ -834,12 +834,35 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         // @TODO I don't like this much. Should add date UI in care team assignments.
         $getprovider_status = $this->getPatientProviderStatus($pid) ?? null;
         $provider_since_date = !empty($getprovider_status['provider_since_date']) ? date('Y-m-d H:i:sO', strtotime($getprovider_status['provider_since_date'])) : date('Y-m-d H:i:sO');
+        $provenanceXml = ""; // if we can't get the provenance information we'll just have to leave it as empty
         if (!empty($getprovider)) { // from patient_data
             $details = $this->getUserDetails($getprovider);
-        } else { // get from CCM setup
-            $getprovider = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
-            $details = !empty($getprovider) ? $this->getUserDetails($getprovider) : null;
+            $provenanceSql = "select updated_by AS provenance_updated_by, date AS date_modified FROM patient_data WHERE pid = ?";
+            $provenanceRecord = [];
+            $appTable = new ApplicationTable();
+            $res = $appTable->zQuery($provenanceSql, array($pid));
+            foreach ($res as $row) {
+                $provenanceRecord = [
+                    'author_id' => $row['provenance_updated_by']
+                    ,'time' => $row['date_modified']
+                ];
+            }
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
         }
+        else { // get from CCM setup
+            $getprovider = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
+            if (!empty($getprovider)) {
+                $details = $this->getUserDetails($getprovider);
+                $provenanceRecord = $this->getCarecoordinationProvenanceForField('hie_primary_care_provider_id');
+                $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
+            }
+            $details = !empty($getprovider) ? $this->getUserDetails($getprovider) : null;
+
+        }
+
+
+
+
         // Note for NPI: Many times a care team member may not have an NPI so instead of
         // an NPI OID use facility/document unique OID with user table reference for extension.
         $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid));
@@ -853,7 +876,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($details)) {
             $primary_care_provider = "
         <primary_care_provider>
-          <provider>
+          <provider>" . $provenanceXml . "
             <prefix>" . xmlEscape($details['title'] ?? '') . "</prefix>
             <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
             <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
@@ -877,7 +900,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $primary_care_provider = '';
         }
 
-        $care_team_provider = "<care_team><is_active>" . ($getprovider_status['care_team_status'] ?? false) . "</is_active>";
+        $care_team_provider = "<care_team>" . $provenanceXml
+            . "<is_active>" . ($getprovider_status['care_team_status'] ?? false) . "</is_active>";
         foreach ($get_care_team_provider as $team_member) {
             if ((int)$getprovider === (int)$team_member) {
                 // primary should be a part of care team but just in case
@@ -2524,6 +2548,23 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             return $result['field_value'];
         }
         return null;
+    }
+
+    public function getCarecoordinationProvenanceForField($field_name)
+    {
+        $query = "SELECT updated_by AS provenance_updated_by, date_modified FROM modules AS mo "
+            . " JOIN module_configuration AS conf ON mo.mod_id=conf.module_id "
+            . " WHERE mo.mod_directory='Carecoordination' AND conf.field_name=?";
+        $appTable = new ApplicationTable();
+        $res = $appTable->zQuery($query, array($field_name));
+        $provenanceRecord = null;
+        foreach ($res as $row) {
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['date_modified']
+            ];
+        }
+        return $provenanceRecord;
     }
 
     /**

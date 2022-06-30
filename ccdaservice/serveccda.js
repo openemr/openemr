@@ -486,6 +486,47 @@ function populateCareTeamMember(provider) {
     }
 }
 
+function populateAuthorFromAuthorContainer(pd) {
+    return {
+        "code": {
+            "name": pd.author.physician_type || '',
+            "code": pd.author.physician_type_code || '',
+            "code_system": pd.author.physician_type_system, "code_system_name": pd.author.physician_type_system_name
+        },
+        "date_time": {
+            "point": {
+                "date": fDate(pd.author.time),
+                "precision": "tz"
+            }
+        },
+        "identifiers": [
+            {
+                "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
+                "extension": pd.author.npi ? pd.author.npi : ''
+            }
+        ],
+        "name": [
+            {
+                "last": pd.author.lname,
+                "first": pd.author.fname
+            }
+        ],
+        "organization": [
+            {
+                "identity": [
+                    {
+                        "root": pd.author.facility_oid || "2.16.840.1.113883.4.6",
+                        "extension": pd.author.facility_npi || ""
+                    }
+                ],
+                "name": [
+                    pd.author.facility_name
+                ]
+            }
+        ]
+    };
+}
+
 function populateCareTeamMembers(pd) {
     let providerArray = [];
     // primary provider
@@ -516,44 +557,8 @@ function populateCareTeamMembers(pd) {
                 "precision": "tz"
             }
         },
-        "author": {
-            "code": {
-                "name": all.author.physician_type || '',
-                "code": all.author.physician_type_code || '',
-                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-            },
-            "date_time": {
-                "point": {
-                    "date": authorDateTime,
-                    "precision": "tz"
-                }
-            },
-            "identifiers": [
-                {
-                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                    "extension": all.author.npi ? all.author.npi : ''
-                }
-            ],
-            "name": [
-                {
-                    "last": all.author.lname,
-                    "first": all.author.fname
-                }
-            ],
-            "organization": [
-                {
-                    "identity": [
-                        {
-                            "root": oidFacility || "2.16.840.1.113883.4.6",
-                            "extension": npiFacility || ""
-                        }
-                    ],
-                    "name": [
-                        all.encounter_provider.facility_name
-                    ]
-                }
-            ]
-        }
+        // we treat this author a bit differently since we are working at the main pd object instead of the sub pd.care_team
+        "author": populateAuthorFromAuthorContainer(pd.care_team)
     }
 }
 
