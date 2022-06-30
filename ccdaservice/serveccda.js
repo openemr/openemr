@@ -1971,44 +1971,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.bps) || pd.bps,
             "unit": "mm[Hg]",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2029,44 +1992,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.bpd) || pd.bpd,
             "unit": "mm[Hg]",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2087,44 +2013,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.height) || pd.height,
             "unit": pd.unit_height,
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2145,44 +2034,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.weight) || "",
             "unit": pd.unit_weight,
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2203,44 +2055,7 @@ function populateVital(pd) {
             "interpretations": [pd.BMI_status == 'Overweight' ? 'High' : pd.BMI_status == 'Overweight' ? 'Low' : 'Normal'],
             "value": parseFloat(pd.BMI) || "",
             "unit": "kg/m2",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2261,44 +2076,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.pulse) || "",
             "unit": "/min",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.2",
@@ -2319,44 +2097,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.breath) || "",
             "unit": "/min",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": "2.16.840.1.113883.3.140.1.0.6.10.14.3",
@@ -2377,44 +2118,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.temperature) || "",
             "unit": pd.unit_temperature,
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2435,44 +2139,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.oxygen_saturation) || "",
             "unit": "%",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2493,44 +2160,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.ped_weight_height) || "",
             "unit": "%",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2551,44 +2181,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.inhaled_oxygen_concentration) || "",
             "unit": "%",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2609,44 +2202,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.ped_bmi) || "",
             "unit": "%",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }, {
             "identifiers": [{
                 "identifier": pd.sha_extension,
@@ -2667,44 +2223,7 @@ function populateVital(pd) {
             "interpretations": ["Normal"],
             "value": parseFloat(pd.ped_head_circ) || "",
             "unit": "%",
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
+            "author": populateAuthorFromAuthorContainer(pd),
         }
         ]
     }

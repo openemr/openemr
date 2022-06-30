@@ -2311,8 +2311,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getVitals($pid)
     {
         $wherCon = '';
+        $first_encounter = null;
         if (!empty($this->encounterFilterList)) {
             $wherCon .= " AND fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") ";
+            $first_encounter = reset($this->encounterFilterList);
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -2321,9 +2323,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
 
         $vitals = '';
-        $query = "SELECT DATE(fe.date) AS date, fv.id, fv.* FROM forms AS f
+        $query = "SELECT DATE(fe.date) AS date, fv.id, fv.*
+                ,u.id AS provenance_updated_by, f.date AS modifydate  FROM forms AS f
                 JOIN form_encounter AS fe ON fe.encounter = f.encounter AND fe.pid = f.pid
                 JOIN form_vitals AS fv ON fv.id = f.form_id
+                LEFT JOIN users as u on u.username = fv.user
                 WHERE f.pid = ? AND f.formdir = 'vitals' AND f.deleted=0 $wherCon
                 ORDER BY fe.date DESC LIMIT 1";
         $appTable = new ApplicationTable();
@@ -2332,6 +2336,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $vitals .= "<vitals_list>";
         foreach ($res as $row) {
+            $provenanceRecord = [
+                'author_id' => $row['provenance_updated_by']
+                ,'time' => $row['modifydate']
+            ];
+            $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
             $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
             $convHeightValue = round(number_format($row['height'] * 2.54, 2), 1);
             $convTempValue = round(number_format(($row['temperature'] - 32) * (5 / 9), 1));
@@ -2355,7 +2364,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $temp_unit = '[degF]'; // degrees fahrenheit
             }
 
-            $vitals .= "<vitals>
+            $vitals .= "<vitals>" . $provenanceXml . "
             <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
             <sha_extension>" . xmlEscape("c6f88321-67ad-11db-bd13-0800200c9a66") . "</sha_extension>
             <date>" . xmlEscape(date('Y-m-d', strtotime($row['date'])) ?: '') . "</date>
