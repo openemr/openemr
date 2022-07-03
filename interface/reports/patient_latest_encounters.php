@@ -51,7 +51,7 @@ if (!empty($_POST['form_csvexport'])) {
 <html>
 <head>
 
-<title><?php echo xlt($report_title); ?></title>
+<title><?php echo text($report_title); ?></title>
 
 
 
@@ -112,7 +112,7 @@ $(function () {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt($report_title);   ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo text($report_title);   ?></span>
  <? php echo debug_print_backtrace (0,0); ?>
 
 <div id="report_parameters_daterange">
