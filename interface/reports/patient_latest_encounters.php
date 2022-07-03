@@ -36,7 +36,7 @@ $to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_
 
 $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
 
-$report_title = "List of Clients' Last Visit";
+$report_title = xl("List of Clients' Last Visit");
 
 // In the case of CSV export only, a download will be forced.
 if (!empty($_POST['form_csvexport'])) {
@@ -325,7 +325,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
                 <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
             </td>
             <td>
-                <?php echo xlt($erow['facility']); ?>
+                <?php echo text($erow['facility']); ?>
             </td>
             <td>
                  <?php echo text($prow['fname'] . ' ' . $prow['lname']); ?>
