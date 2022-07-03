@@ -19,18 +19,12 @@ $gad7_total = 0;
 $pdf_as_string = '';
 $data;
 $exp = '';
-$file_path = $GLOBALS['fileroot'] . '/tmp/'; /* where to store the pdfs */
 
-
-/*$file_path = $GLOBALS['MPDF_WRITE_DIR'].'/'; /*'temporary_files_dir'] is there a way to have / or \ depending on operating system or does backend only run on unix like systems? */
-
-   $str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
+$str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
 
 function gad7_report($pid, $encounter, $cols, $id)
 {
-    global $str_test, $str_nervous,$gad7_total, $pdf_as_string, $str_values,$str_difficulty_values, $data, $exp, $file_path,$file_name, $str_generate_pdf;
-
-    $genpdf_file_path = __DIR__ . 'report-as-pdf.php';
+    global $str_test, $str_nervous,$gad7_total, $pdf_as_string, $str_values,$str_difficulty_values, $data, $exp, $file_name, $str_generate_pdf;
 
     $count = 0;
     $value = 0;

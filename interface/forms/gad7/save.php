@@ -25,11 +25,9 @@ if ($encounter == "") {
     $encounter = date("Ymd");
 }
 
-$form_date = date("dmY");
-
 if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_gad7", $_POST, $_GET["id"], $userauthorized);  /*in api.inc - create record for this form in form_gad7 table */
-    addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized, $form_date); /* in forms.inc. add date in required format */
+    addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized) ; /* in forms.inc. add date in required format */
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(
         "update form_gad7 set pid = ?,
