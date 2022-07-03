@@ -4634,7 +4634,7 @@ function dropdown_facility(
  * @var $fixedWidth is to flag whether width is fixed
  * @var $forceExpandAlways is a flag to force the widget to always be expanded
  *
- * @todo Convert to a modern layotu
+ * @todo Convert to a modern layout
  */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false)
 {

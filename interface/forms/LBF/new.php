@@ -1268,7 +1268,7 @@ if (
 
                     ++$item_count;
 
-                    echo "<strong>";
+                    // This gets a font-weight-bold class so removed strong
                     if ($frow['title']) {
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
@@ -1279,7 +1279,7 @@ if (
                     } else {
                         echo "&nbsp;";
                     }
-                    echo "</strong>";
+
                     // Note the labels are not repeated in the history columns.
 
                     // Handle starting of a new data cell.

@@ -45,10 +45,16 @@
       margin-bottom: 0;
     }
 
+    table {
+      width:100%;
+    }
+
     table td {
       padding-bottom: 0;
 
       &.label_custom {
+        font-size: .8rem;
+        font-weight: 700;
         min-width: 80px;
       }
 
