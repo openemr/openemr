@@ -3878,20 +3878,22 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 }
 
                 $field_id_label = 'label_' . $group_fields['field_id'];
-                echo "<span id='" . attr($field_id_label) . "'>";
-                if ($skip_this_field) {
-                    // No label because skipping
-                } elseif ($group_fields['title']) {
-                    $tmp = xl_layout_label($group_fields['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
-                        echo ':';
+                if (!$span_col_row) {
+                    echo "<span id='" . attr($field_id_label) . "'>";
+                    if ($skip_this_field) {
+                        // No label because skipping
+                    } elseif ($group_fields['title']) {
+                        $tmp = xl_layout_label($group_fields['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
                     }
-                } else {
-                    echo "&nbsp;";
+                    echo "</span>";
                 }
-                echo "</span>";
 
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
