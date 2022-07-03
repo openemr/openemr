@@ -113,7 +113,6 @@ $(function () {
 <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo text($report_title);   ?></span>
- <? php echo debug_print_backtrace (0,0); ?>
 
 <div id="report_parameters_daterange">
     <?php if (!(empty($to_date) && empty($from_date))) { ?>
