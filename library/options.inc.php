@@ -1281,7 +1281,7 @@ function generate_form_field($frow, $currvalue)
         // show the add button if user has access to correct list
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
         $btnSize = ($smallform) ? "btn-sm" : "";
-        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-secondary $btnSize addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-secondary $btnSize mb-1 addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' value='$inputValue' $disabled /></div>";
         if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
@@ -4083,7 +4083,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 // There is a group subtitle so show it.
                 $bs_cols = $CPR * intval(12 / $CPR);
                 echo "<div class='row mb-2'>";
-                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols' style='color:#0000ff'>" . text($subtitle) . "</div>";
+                echo "<div class='$BS_COL_CLASS-$bs_cols' style='color:#0000ff'>" . text($subtitle) . "</div>";
                 echo "</div>\n";
             }
 
@@ -4143,13 +4143,13 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
                         echo "<div class='form-row mb-2'>";
-                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols p-2 label' style='background-color: var(--gray300)'>" . text($subtitle) . "</div>";
+                        echo "<div class='$BS_COL_CLASS-$bs_cols p-2 label' style='background-color: var(--gray300)'>" . text($subtitle) . "</div>";
                         echo "</div>\n";
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
                         echo "<div class='form-row'>";
-                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols label' style='font-size:25%'>&nbsp;</div>";
+                        echo "<div class='$BS_COL_CLASS-$bs_cols label' style='font-size: 25%'>&nbsp;</div>";
                         echo "</div>\n";
                     }
                     echo "<div class='form-row'>";

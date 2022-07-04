@@ -1145,7 +1145,7 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
-                                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
+                                echo "<div class='$BS_COL_CLASS-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }
                         } else {
