@@ -1145,7 +1145,7 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
-                                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
+                                echo "<div class='$BS_COL_CLASS-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }
                         } else {
@@ -1268,7 +1268,7 @@ if (
 
                     ++$item_count;
 
-                    echo "<strong>";
+                    // This gets a font-weight-bold class so removed strong
                     if ($frow['title']) {
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
@@ -1279,7 +1279,7 @@ if (
                     } else {
                         echo "&nbsp;";
                     }
-                    echo "</strong>";
+
                     // Note the labels are not repeated in the history columns.
 
                     // Handle starting of a new data cell.

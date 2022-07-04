@@ -947,3 +947,6 @@ UPDATE list_options SET option_id='20' WHERE list_id='drug_interval' AND option_
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','19','Weekly',19,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','20','Monthly',20,0,1);
 #EndIf
+
+#IfUpdateEditOptionsNeeded remove DEM K birth_fname, pubpid, name_history
+#EndIf
