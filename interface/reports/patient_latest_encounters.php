@@ -286,10 +286,11 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         }
         $sqlArrayBind = array();
         $en_pid = $row['pid'];
+        $sqlArrayBind[] = $en_pid;
         $equery = "SELECT " .
             "facility, provider_id, reason, date " .
             "FROM form_encounter " .
-            "WHERE pid = $en_pid ";
+            "WHERE pid = ? ";
         $eres = sqlStatement($equery, $sqlArrayBind);
         // get encounter on the most recent date
         while ($erow = sqlFetchArray($eres)) {
@@ -300,7 +301,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         // get provider name
         $sqlArrayBind = array();
         $providerID = $erow['provider_id'];
-        $pquery = "SELECT " . "fname, lname FROM users WHERE id = $providerID";
+        $sqlArrayBind[] = $providerID;
+        $pquery = "SELECT " . "fname, lname FROM users WHERE id = ?";
         $pres = sqlStatement($pquery, $sqlArrayBind);
         $prow = sqlFetchArray($pres);
 
