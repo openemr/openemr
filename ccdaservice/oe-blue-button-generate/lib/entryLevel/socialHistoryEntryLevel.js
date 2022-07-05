@@ -97,7 +97,7 @@ exports.genderStatusObservation = {
             required: true,
             dataKey: "gender"
         }
-        ,fieldLevel.author
+        ,[fieldLevel.author, contentModifier.dataKey("gender_author")]
     ],
     existsWhen: function (input) {
         return input && input.gender;
