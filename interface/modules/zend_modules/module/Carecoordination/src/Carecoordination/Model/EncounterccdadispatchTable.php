@@ -380,9 +380,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $provider_details;
     }
 
-    public function getProvenanceForRecord($recordAuthor, $pid, $encounter) {
-        if (empty($recordAuthor['author_id']) || !is_numeric($recordAuthor['author_id']))
-        {
+    public function getProvenanceForRecord($recordAuthor, $pid, $encounter)
+    {
+        if (empty($recordAuthor['author_id']) || !is_numeric($recordAuthor['author_id'])) {
             $details = $this->getDocumentAuthorRecord($pid, $encounter);
         } else {
             $details = $this->getDetails(intval($recordAuthor['author_id']));
@@ -405,7 +405,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         ];
     }
 
-    public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter) {
+    public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter)
+    {
         $provenanceRecord = $this->getProvenanceForRecord($recordAuthor, $pid, $encounter);
 
         $time = $provenanceRecord['time'];
@@ -453,7 +454,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $author;
     }
 
-    private function getDocumentAuthorRecord($pid, $encounter) {
+    private function getDocumentAuthorRecord($pid, $encounter)
+    {
         $details = $this->getDetails('hie_author_id');
         if (!$details && !empty($_SESSION['authUserID'])) {
             // function expects an int
@@ -485,7 +487,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $time = $this->getAuthorDate($pid, $encounter);
         $uuid = UuidRegistry::uuidToString($details['uuid']);
 
-        if (!empty($details['provider_role_code']) ) {
+        if (!empty($details['provider_role_code'])) {
             $type_code = $details['provider_role_code'];
             $type_title = $details['provider_role_title'] ?? '';
             $type_system = CodeTypesService::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY;
@@ -850,8 +852,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 ];
             }
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
-        }
-        else { // get from CCM setup
+        } else { // get from CCM setup
             $getprovider = $this->getCarecoordinationModuleSettingValue('hie_primary_care_provider_id');
             if (!empty($getprovider)) {
                 $details = $this->getUserDetails($getprovider);
@@ -859,7 +860,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             }
             $details = !empty($getprovider) ? $this->getUserDetails($getprovider) : null;
-
         }
 
 
@@ -1412,10 +1412,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $res = $appTable->zQuery($query, $sqlBindArray);
 
         $procedure = '<procedures>';
-        foreach ($res as $row) {$provenanceRecord = [
+        foreach ($res as $row) {
+            $provenanceRecord = [
             'author_id' => $row['provenance_updated_by']
             ,'time' => $row['proc_date']
-        ];
+            ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $procedure .= "<procedure>" . $provenanceXml . "
             <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
