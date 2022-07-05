@@ -75,12 +75,22 @@ var precisionToFormat = {
 };
 
 exports.time = function (input) {
+    let result = '';
     var m = moment.parseZone(input.date);
     if (m._isValid !== true) {
         m = moment(input.date, "YYYYMMDD HH:mm:ss")
     }
-    var formatSpec = precisionToFormat[input.precision];
-    var result = m.format(formatSpec);
+    let formatSpec = precisionToFormat[input.precision];
+    if (input.precision === 'tz') {
+        formatSpec = precisionToFormat['tz'];
+        if (input.timezoneOffset) {
+            result =  m.utcOffset(input.timezoneOffset).format(formatSpec);
+        } else {
+            result =  m.format(formatSpec);
+        }
+        return result;
+    }
+    result = m.format(formatSpec);
     return result;
 };
 

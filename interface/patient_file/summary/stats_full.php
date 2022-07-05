@@ -345,7 +345,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 } elseif ($row['enddate'] == null) {
                                     $statusCompute = xlt("Active");
                                 } else {
-                                    $statusCompute = xlt("Inactive");
+                                    if ($focustype == 'medical_problem') {
+                                        // MU3 criteria, show medical problem's with end dates as a status of Completed.
+                                        $statusCompute = xlt("Completed");
+                                    } else {
+                                        $statusCompute = xlt("Inactive");
+                                    }
                                 }
 
                                 $click_class = 'statrow';

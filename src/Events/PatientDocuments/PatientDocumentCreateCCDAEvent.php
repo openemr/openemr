@@ -71,6 +71,11 @@ class PatientDocumentCreateCCDAEvent
      */
     private $dateTo;
 
+    /**
+     * @var "ccd"|"referral"|"careplan"|"toc"
+     */
+    private $documentType;
+
     public function __construct($pid)
     {
         $this->setPid($pid);
@@ -79,6 +84,7 @@ class PatientDocumentCreateCCDAEvent
         $this->setRecipient("self");
         $this->dateFrom = null;
         $this->dateTo = null;
+        $this->documentType = "ccd";
     }
 
     /**
@@ -271,5 +277,23 @@ class PatientDocumentCreateCCDAEvent
     private function getCcdaStringFormat(array $arr)
     {
         return implode("|", $arr);
+    }
+
+    /**
+     * @return string
+     */
+    public function getDocumentType()
+    {
+        return $this->documentType;
+    }
+
+    /**
+     * @param string $documentType The c-cda document type to generate options are "ccd", "careplan", "toc", "referral"
+     * @return PatientDocumentCreateCCDAEvent
+     */
+    public function setDocumentType($documentType)
+    {
+        $this->documentType = $documentType;
+        return $this;
     }
 }

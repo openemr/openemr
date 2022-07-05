@@ -10,17 +10,29 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// block of code to securely support use by the patient portal
+//   since need this class before autoloader, need to manually include it and then set it in line below with use command
+require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+
+// block of code to securely support use by the patient portal
+$patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+if ($patientPortalSession) {
+    $ignoreAuth_onsite_portal = true;
+}
+$patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
+
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-$returnurl = 'encounter_top.php';
-
 if (!empty($_GET['id'])) {
     $obj = formFetch("form_sdoh", $_GET["id"]);
     $mode = 'update';
+    // if running from patient portal, then below will ensure patient can only see their forms
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $_SESSION['pid']);
 } else {
     $mode = 'new';
 }
@@ -156,6 +168,9 @@ if (!empty($_GET['id'])) {
             document.getElementById('totalscorerender').innerHTML = totalscore;
             document.getElementById('totalscore').value = totalscore;
         }
+
+        <?php echo CoreFormToPortalUtility::javascriptSupportPortal($patientPortalSession, $patientPortalOther, $mode, $_GET['id'] ?? null); ?>
+
     </script>
 
 </head>
@@ -166,9 +181,9 @@ if (!empty($_GET['id'])) {
             <div class="col-12">
                 <h2><?php echo xlt("Social Screening Tool");?></h2>
                 <?php if ($mode == "new") { ?>
-                    <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
+                    <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=new<?php echo ($patientPortalSession) ? '&isPortal=1' : '' ?>" name="my_form" onsubmit="return top.restoreSession()">
                 <?php } else { // $mode == "update" ?>
-                    <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form" onsubmit="return top.restoreSession()">
+                    <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?><?php echo ($patientPortalSession) ? '&isPortal=1' : '' ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?>" name="my_form" onsubmit="return top.restoreSession()">
                 <?php } ?>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
@@ -1111,16 +1126,18 @@ if (!empty($_GET['id'])) {
                             </div>
                         </div>
                     </fieldset>
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-12 position-override">
-                                <div class="btn-group" role="group">
-                                    <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
-                                    <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
+                    <?php if (!$patientPortalSession && !$patientPortalOther) { ?>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12 position-override">
+                                    <div class="btn-group" role="group">
+                                        <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
+                                        <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    <?php } ?>
                 </form>
             </div>
         </div>

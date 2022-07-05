@@ -10,6 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// block of code to securely support use by the patient portal
+//   since need this class before autoloader, need to manually include it and then set it in line below with use command
+require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+
+// block of code to securely support use by the patient portal
+$patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+if ($patientPortalSession) {
+    $ignoreAuth_onsite_portal = true;
+}
+$patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
+
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
@@ -25,9 +37,13 @@ if ($encounter == "") {
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_sdoh", $_POST, ($_GET["id"] ?? ''), $userauthorized);
+    $newid = formSubmit("form_sdoh", $_POST, '', $userauthorized);
     addForm($encounter, "Social Screening Tool", $newid, "sdoh", $pid, $userauthorized);
+    $formid = $newid;
 } elseif ($_GET["mode"] == "update") {
+    // if running from patient portal, then below will ensure patient can only see their forms
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $_SESSION['pid']);
+    $formid = $_GET["id"];
     sqlStatement(
         "UPDATE form_sdoh set pid = ?,
             groupname=?,
@@ -166,7 +182,7 @@ additional_notes=?
 WHERE id=?",
         [
             $_SESSION["pid"],
-            $_SESSION["authProvider"],
+            $_SESSION["authProvider"] ?? null,
             $_SESSION["authUser"],
             $userauthorized,
             ($_POST["education"] ?? null),
@@ -302,6 +318,10 @@ WHERE id=?",
     );
 }
 
-formHeader("Redirecting....");
-formJump();
-formFooter();
+if ($patientPortalSession || $patientPortalOther) {
+    echo CoreFormToPortalUtility::formPatientPortalPostSave($formid);
+} else {
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+}

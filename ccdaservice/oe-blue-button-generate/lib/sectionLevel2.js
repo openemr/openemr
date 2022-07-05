@@ -15,6 +15,7 @@ const bbuo = bbu.object;
 const nda = "No Data Available";
 
 const condition = require('./condition');
+const dataKey = contentModifier.dataKey;
 
 var getText = function (topArrayKey, headers, values) {
     var result = {
@@ -340,21 +341,24 @@ exports.assessmentSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
-            attributes: condition.isNullFlavorSection('clinicalNoteAssessments'),
+            attributes: condition.isNullFlavorSection('description'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.8"),
                 fieldLevel.templateCode("AssessmentSection"),
                 fieldLevel.templateTitle("AssessmentSection"), {
                     key: "text",
                     text: na,
-                    existsWhen: condition.keyDoesntExist("clinicalNoteAssessments")
+                    existsWhen: condition.keyDoesntExist("description")
                 }, {
                     key: "text",
                     text: leafLevel.input,
-                    dataKey: "clinicalNoteAssessments.description"
-                }
+                    dataKey: "description"
+                },
+                fieldLevel.author
             ],
-        }]
+            dataKey: "clinicalNoteAssessments"
+        }
+        ]
     }
 };
 
@@ -412,7 +416,10 @@ exports.goalSection = function (htmlHeader, na) {
                     text: na,
                     existsWhen: condition.keyDoesntExist("goals")
                 },
-                htmlHeader, {
+                htmlHeader,
+                /*fieldLevel.author,
+                dataKey("goals"),*/
+                {
                     key: "entry",
                     attributes: {
                         "typeCode": function (input) {
@@ -619,7 +626,7 @@ exports.reasonForReferralSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
-            attributes: condition.isNullFlavorSection('referral_reason'),
+            attributes: condition.isNullFlavorSection('reason'),
             content: [
                 fieldLevel.templateIdExt("1.3.6.1.4.1.19376.1.5.3.1.3.1", "2014-06-09"),
                 fieldLevel.templateId("1.3.6.1.4.1.19376.1.5.3.1.3.1"),
@@ -627,13 +634,15 @@ exports.reasonForReferralSection = function (htmlHeader, na) {
                 fieldLevel.templateTitle("ReasonForReferralSection"), {
                     key: "text",
                     text: na,
-                    existsWhen: condition.keyDoesntExist("referral_reason")
+                    existsWhen: condition.keyDoesntExist("reason")
                 }, {
                     key: "text",
                     text: leafLevel.input,
-                    dataKey: "referral_reason.reason"
-                }
-            ]
+                    dataKey: "reason"
+                },
+                fieldLevel.author
+            ],
+            dataKey: "referral_reason"
         }]
     }
 };
@@ -643,32 +652,35 @@ exports.healthConcernSection = function (htmlHeader, na) {
         key: "component",
         content: [{
             key: "section",
-            attributes: condition.isNullFlavorSection('health_concerns'),
+            attributes: condition.isNullFlavorSection('author'),
             content: [
                 fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.58", "2015-08-01"),
                 fieldLevel.templateCode("HealthConcernSection"),
                 fieldLevel.templateTitle("HealthConcernSection"), {
                     key: "text",
                     text: "Health Concerns Not Available",
-                    existsWhen: condition.keyDoesntExist("health_concerns")
+                    existsWhen: condition.keyDoesntExist("text")
                 }, {
                     key: "text",
                     text: leafLevel.input,
-                    dataKey: "health_concerns.text"
-                }, {
+                    dataKey: "text"
+                },
+                fieldLevel.author,
+                {
                     key: "entry",
                     content: [
                         entryLevel.healthConcernObservation
                     ],
-                    dataKey: "health_concerns"
+                    existsWhen: condition.keyExists("text")
                 }, {
                     key: "entry",
                     content: [
                         [entryLevel.healthConcernActivityAct]
                     ],
-                    dataKey: "health_concerns"
+                    existsWhen: condition.keyExists("text")
                 }
-            ]
+            ],
+            dataKey: "health_concerns"
         }]
     }
 };

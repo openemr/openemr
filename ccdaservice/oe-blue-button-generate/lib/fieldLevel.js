@@ -142,6 +142,13 @@ var timeNow = exports.timeNow = {
     }
 };
 
+var timeDocumentTime = exports.timeDocumentTime = {
+    key: "time",
+    attributes: {
+        "value": leafLevel.time
+    }
+};
+
 var effectiveTime = exports.effectiveTime = {
     key: "effectiveTime",
     attributes: {
@@ -254,19 +261,24 @@ var usRealmAddress = exports.usRealmAddress = {
     content: [{
         key: "streetAddressLine",
         text: leafLevel.input,
-        dataKey: "street_lines"
+        dataKey: "street_lines",
+        existsWhen: condition.propertyNotEmpty("street_lines[0]")
     }, {
         key: "city",
-        text: leafLevel.inputProperty("city")
+        text: leafLevel.inputProperty("city"),
+        existsWhen: condition.propertyNotEmpty("city")
     }, {
         key: "state",
-        text: leafLevel.inputProperty("state")
+        text: leafLevel.inputProperty("state"),
+        existsWhen: condition.propertyNotEmpty("state")
     }, {
         key: "postalCode",
-        text: leafLevel.inputProperty("zip")
+        text: leafLevel.inputProperty("zip"),
+        existsWhen: condition.propertyNotEmpty("zip")
     }, {
         key: "country",
-        text: leafLevel.inputProperty("country")
+        text: leafLevel.inputProperty("country"),
+        existsWhen: condition.propertyNotEmpty("country")
     }, useablePeriod,
     ],
     dataKey: "address"
@@ -304,11 +316,11 @@ var telecom = exports.telecom = {
 var representedOrganization = {
     key: "representedOrganization",
     content: [
-        id, {
+        {
             key: "id",
             attributes: {
+                root: leafLevel.inputProperty("root"),
                 extension: leafLevel.inputProperty("extension"),
-                root: leafLevel.inputProperty("root")
             },
             dataKey: "identity"
         }, {
@@ -316,8 +328,8 @@ var representedOrganization = {
             text: leafLevel.input,
             dataKey: "name"
         },
-        usRealmAddress,
-        telecom
+        //usRealmAddress,
+        //telecom
     ],
     dataKey: "organization"
 };
@@ -340,14 +352,48 @@ var assignedEntity = exports.assignedEntity = {
     existsWhen: condition.eitherKeyExists("address", "identifiers", "organization", "name")
 };
 
+var associatedEntity = exports.associatedEntity = {
+    key: "associatedEntity"
+    , attributes: {
+        classCode: leafLevel.inputProperty("classCode"),
+    },
+    content: [
+        id,
+        {
+            key: "code",
+            attributes: leafLevel.code,
+            dataKey: "code"
+        },
+        usRealmAddress,
+        telecom,
+        {
+            key: "associatedPerson",
+            content: usRealmName,
+            existsWhen: condition.keyExists("name"),
+            attributes: {
+                classCode: "PSN",
+                determinerCode: "INSTANCE"
+            }
+        }
+    ]
+};
+
 exports.author = {
     key: "author",
+    attributes: {
+        typeCode: "AUT"
+    },
     content: [
         templateId("2.16.840.1.113883.10.20.22.4.119"),
         [effectiveTime, required, key("time")], {
             key: "assignedAuthor",
             content: [
                 id, {
+                    key: "code",
+                    attributes: leafLevel.code,
+                    existsWhen: condition.propertyNotEmpty('code'),
+                    dataKey: "code"
+                }, {
                     key: "assignedPerson",
                     content: usRealmName
                 },
@@ -400,5 +446,24 @@ exports.actAuthor = {
         }
     ],
     dataKey: "author"
+};
+
+var responsibleParty = exports.responsibleParty = {
+    key: "responsibleParty",
+    content: [{
+        key: "assignedEntity",
+        content: [{
+            key: "id",
+            attributes: {
+                root: leafLevel.inputProperty("root")
+            },
+        }, {
+            key: "assignedPerson",
+            content: usRealmName
+        }]
+    }
+    ],
+    dataKey: "responsible_party",
+    existsWhen: condition.propertyValueNotEmpty("name.last")
 };
 

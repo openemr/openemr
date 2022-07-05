@@ -159,6 +159,7 @@ limitations under the License.
             <xsl:call-template name="documentationOf"/>
             <xsl:call-template name="author"/>
             <xsl:call-template name="componentOf"/>
+            <xsl:call-template name="referrer-fall-back"></xsl:call-template>
             <xsl:call-template name="participant"/>
             <xsl:call-template name="informant"/>
             <xsl:call-template name="informationRecipient"/>
@@ -521,7 +522,7 @@ limitations under the License.
     <xsl:if test="n1:componentOf">
       <div class="header container-fluid">
         <xsl:for-each select="n1:componentOf/n1:encompassingEncounter">
-          <div class="container-fluid col-md-8">
+          <div class="container-fluid col-md-12">
             <div class="container-fluid">
               <h2 class="section-title col-md-10">
                 <xsl:text>Encounter</xsl:text>
@@ -936,73 +937,155 @@ limitations under the License.
       </xsl:if>
     </div>
   </xsl:template>
+  <!-- show-assigned-entity-contact -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-assigned-entity-contact">
+    <xsl:param name="asgnEntity"></xsl:param>
+    <xsl:param name="label"></xsl:param>
+    <div class="container-fluid">
+      <div class="header container-fluid">
+        <div class="col-md-6">
+          <h2 class="section-title col-md-12">
+            <xsl:value-of select="$label"></xsl:value-of>
+          </h2>
+          <div class="header-group-content col-md-8">
+            <xsl:if test="$asgnEntity">
+              <xsl:call-template name="show-assignedEntity">
+                <xsl:with-param name="asgnEntity" select="$asgnEntity"/>
+              </xsl:call-template>
+            </xsl:if>
+          </div>
+        </div>
+        <xsl:if test="$asgnEntity/n1:addr | $asgnEntity/n1:telecom">
+          <div class="col-md-6">
+            <h2 class="section-title col-md-6">
+              <xsl:text>Contact</xsl:text>
+            </h2>
+            <div class="header-group-content col-md-8">
+              <xsl:if test="$asgnEntity">
+                <xsl:call-template name="show-contactInfo">
+                  <xsl:with-param name="contact" select="$asgnEntity"/>
+                </xsl:call-template>
+              </xsl:if>
+            </div>
+          </div>
+        </xsl:if>
+      </div>
+    </div>
+  </xsl:template>
+  <!-- referrer-fall-back -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="referrer-fall-back">
+    <!-- Here is where we would check to see if we have a participant with /REF or REFB -->
+    <xsl:if test="not(/n1:ClinicalDocument/n1:participant[@typeCode='REFB']) and not(/n1:ClinicalDocument/n1:participant[@typeCode='REF'])">
+      <xsl:choose>
+        <xsl:when test="/n1:ClinicalDocument/n1:componentOf/n1:encompassingEncounter/n1:encounterParticipant[@typeCode='ATND']">
+          <xsl:call-template name="show-assigned-entity-contact">
+            <xsl:with-param name="label" select="'Referring / Transitioning Provider'" />
+            <xsl:with-param name="asgnEntity" select="/n1:ClinicalDocument/n1:componentOf/n1:encompassingEncounter/n1:encounterParticipant[@typeCode='ATND']/n1:assignedEntity" />
+          </xsl:call-template>
+        </xsl:when>
+        <!-- Primary Care Provider (PP) and Primary Care Physician (PCP) will be our referrer fall back if we have nothing else -->
+        <xsl:when test="/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer/n1:functionCode[@code='PP']|/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer/n1:functionCode[@code='PCP']">
+          <xsl:for-each select="/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer">
+            <xsl:if test="n1:functionCode[@code = 'PP'] | n1:functionCode[@code = 'PCP']">
+              <xsl:call-template name="show-assigned-entity-contact">
+                <xsl:with-param name="label" select="'Referring / Transitioning Provider'" />
+                <xsl:with-param name="asgnEntity" select="n1:assignedEntity" />
+              </xsl:call-template>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:if>
+    <!-- IF we don't we fall back to the care team member PCP -->
+  </xsl:template>
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="participant-with-title">
+    <xsl:param name="participantRole"></xsl:param>
+    <div class="col-md-6">
+      <h2 class="col-md-6 section-title">
+        <xsl:choose>
+          <xsl:when test="$participantRole">
+            <xsl:call-template name="firstCharCaseUp">
+              <xsl:with-param name="data" select="$participantRole"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Participant</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </h2>
+      <div class="header-group-content col-md-8">
+        <xsl:if test="n1:functionCode">
+          <xsl:call-template name="show-code">
+            <xsl:with-param name="code" select="n1:functionCode"/>
+          </xsl:call-template>
+        </xsl:if>
+        <xsl:call-template name="show-associatedEntity">
+          <xsl:with-param name="assoEntity" select="n1:associatedEntity"/>
+        </xsl:call-template>
+        <xsl:if test="n1:time">
+          <xsl:if test="n1:time/n1:low">
+            <xsl:text> from </xsl:text>
+            <xsl:call-template name="show-time">
+              <xsl:with-param name="datetime" select="n1:time/n1:low"/>
+            </xsl:call-template>
+          </xsl:if>
+          <xsl:if test="n1:time/n1:high">
+            <xsl:text> to </xsl:text>
+            <xsl:call-template name="show-time">
+              <xsl:with-param name="datetime" select="n1:time/n1:high"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:if>
+        <xsl:if test="position() != last()">
+          <br/>
+        </xsl:if>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <xsl:if test="n1:associatedEntity/n1:addr | n1:associatedEntity/n1:telecom">
+        <h2 class="section-title col-md-6">
+          <xsl:text>Contact</xsl:text>
+        </h2>
+        <div class="col-md-6 header-group-content">
+          <xsl:call-template name="show-contactInfo">
+            <xsl:with-param name="contact" select="n1:associatedEntity"/>
+          </xsl:call-template>
+        </div>
+      </xsl:if>
+    </div>
+  </xsl:template>
   <!-- participant -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="participant">
     <div class="container-fluid">
       <xsl:if test="n1:participant">
         <div class="header container-fluid">
           <xsl:for-each select="n1:participant">
-            <xsl:if test="not(n1:associatedEntity/@classCode = 'ECON' or n1:associatedEntity/@classCode = 'NOK')">
-              <xsl:variable name="participtRole">
-                <xsl:call-template name="translateRoleAssoCode">
-                  <xsl:with-param name="classCode" select="n1:associatedEntity/@classCode"/>
-                  <xsl:with-param name="code" select="n1:associatedEntity/n1:code"/>
+            <xsl:choose>
+              <xsl:when test="@typeCode='CALLBCK'">
+                <xsl:call-template name="participant-with-title">
+                  <xsl:with-param name="participantRole" select="'Office Contact'" />
                 </xsl:call-template>
-              </xsl:variable>
-              <div class="col-md-6">
-                <h2 class="col-md-6 section-title">
-                  <xsl:choose>
-                    <xsl:when test="$participtRole">
-                      <xsl:call-template name="firstCharCaseUp">
-                        <xsl:with-param name="data" select="$participtRole"/>
-                      </xsl:call-template>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:text>Participant</xsl:text>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </h2>
-                <div class="header-group-content col-md-8">
-                  <xsl:if test="n1:functionCode">
-                    <xsl:call-template name="show-code">
-                      <xsl:with-param name="code" select="n1:functionCode"/>
+              </xsl:when>
+              <xsl:when test="@typeCode='REFB'">
+                <xsl:call-template name="participant-with-title">
+                  <xsl:with-param name="participantRole" select="'Referring / Transitioning Provider'" />
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:if test="not(n1:associatedEntity/@classCode = 'ECON' or n1:associatedEntity/@classCode = 'NOK')">
+                  <xsl:variable name="participtRole">
+                    <xsl:call-template name="translateRoleAssoCode">
+                      <xsl:with-param name="classCode" select="n1:associatedEntity/@classCode"/>
+                      <xsl:with-param name="code" select="n1:associatedEntity/n1:code"/>
                     </xsl:call-template>
-                  </xsl:if>
-                  <xsl:call-template name="show-associatedEntity">
-                    <xsl:with-param name="assoEntity" select="n1:associatedEntity"/>
+                  </xsl:variable>
+                  <xsl:call-template name="participant-with-title">
+                    <xsl:with-param name="participantRole" select="$participtRole" />
                   </xsl:call-template>
-                  <xsl:if test="n1:time">
-                    <xsl:if test="n1:time/n1:low">
-                      <xsl:text> from </xsl:text>
-                      <xsl:call-template name="show-time">
-                        <xsl:with-param name="datetime" select="n1:time/n1:low"/>
-                      </xsl:call-template>
-                    </xsl:if>
-                    <xsl:if test="n1:time/n1:high">
-                      <xsl:text> to </xsl:text>
-                      <xsl:call-template name="show-time">
-                        <xsl:with-param name="datetime" select="n1:time/n1:high"/>
-                      </xsl:call-template>
-                    </xsl:if>
-                  </xsl:if>
-                  <xsl:if test="position() != last()">
-                    <br/>
-                  </xsl:if>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <xsl:if test="n1:associatedEntity/n1:addr | n1:associatedEntity/n1:telecom">
-                  <h2 class="section-title col-md-6">
-                    <xsl:text>Contact</xsl:text>
-                  </h2>
-                  <div class="col-md-6 header-group-content">
-                    <xsl:call-template name="show-contactInfo">
-                      <xsl:with-param name="contact" select="n1:associatedEntity"/>
-                    </xsl:call-template>
-                  </div>
                 </xsl:if>
-              </div>
-            </xsl:if>
+              </xsl:otherwise>
+            </xsl:choose>
+
           </xsl:for-each>
         </div>
       </xsl:if>
@@ -1058,7 +1141,7 @@ limitations under the License.
                 <xsl:for-each select="n1:patient/n1:languageCommunication">
                   <div class="row">
                     <div class="attribute-title col-md-6">
-                      <xsl:text>Language Communication</xsl:text>
+                      <xsl:text>Language</xsl:text>
                     </div>
                     <div class="col-md-6">
                       <xsl:value-of select="n1:proficiencyLevelCode[@displayName]" />
@@ -1961,15 +2044,15 @@ limitations under the License.
     <div class="address-group">
       <xsl:choose>
         <xsl:when test="$address">
-          <div class="address-group-header">
-            <xsl:if test="$address/@use">
-              <xsl:call-template name="translateTelecomCode">
-                <xsl:with-param name="code" select="$address/@use"/>
-              </xsl:call-template>
-            </xsl:if>
-          </div>
           <div class="address-group-content">
             <p class="tight">
+              <xsl:if test="$address/@use">
+                <xsl:text>(</xsl:text>
+                <xsl:call-template name="translateTelecomCode">
+                  <xsl:with-param name="code" select="$address/@use"/>
+                </xsl:call-template>
+                <xsl:text>) </xsl:text>
+              </xsl:if>
               <xsl:for-each select="$address/n1:streetAddressLine">
                 <xsl:value-of select="."/>
                 <xsl:text> </xsl:text>
@@ -1979,8 +2062,6 @@ limitations under the License.
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="$address/n1:houseNumber"/>
               </xsl:if>
-            </p>
-            <p class="tight">
               <xsl:if test="string-length($address/n1:city) &gt; 0">
                 <xsl:value-of select="$address/n1:city"/>
               </xsl:if>
@@ -1988,10 +2069,9 @@ limitations under the License.
                 <xsl:text>, </xsl:text>
                 <xsl:value-of select="$address/n1:state"/>
               </xsl:if>
-            </p>
-            <p class="tight">
               <xsl:if test="string-length($address/n1:postalCode) &gt; 0">
                 <!--<xsl:text>&#160;</xsl:text>-->
+                <xsl:text> </xsl:text>
                 <xsl:value-of select="$address/n1:postalCode"/>
               </xsl:if>
               <xsl:if test="string-length($address/n1:country) &gt; 0">
@@ -2617,16 +2697,18 @@ limitations under the License.
         </xsl:if>
       </xsl:if>
       <!-- time zone. Don't try getting a name for it as that will always fail parts of the year due to daylight savings -->
-      <xsl:choose>
-        <xsl:when test="contains($date, '+')">
-          <xsl:text> +</xsl:text>
-          <xsl:value-of select="substring-after($date, '+')"/>
-        </xsl:when>
-        <xsl:when test="contains($date, '-')">
-          <xsl:text> -</xsl:text>
-          <xsl:value-of select="substring-after($date, '-')"/>
-        </xsl:when>
-      </xsl:choose>
+      <xsl:if test="(string-length($hh) &gt; 1 and not($hh = '00')) or (string-length($mm) &gt; 1 and not($mm = '00'))">
+        <xsl:choose>
+          <xsl:when test="contains($date, '+')">
+            <xsl:text> +</xsl:text>
+            <xsl:value-of select="substring-after($date, '+')"/>
+          </xsl:when>
+          <xsl:when test="contains($date, '-')">
+            <xsl:text> -</xsl:text>
+            <xsl:value-of select="substring-after($date, '-')"/>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
   <!-- convert to lower case -->

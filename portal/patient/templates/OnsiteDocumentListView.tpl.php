@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
@@ -80,6 +81,8 @@ $templateService = new DocumentTemplateService();
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
+    // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
+    echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
     Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
 

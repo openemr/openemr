@@ -31,6 +31,14 @@ if ($is_module) {
     require_once(dirname(__file__) . '/../../interface/globals.php');
 } else {
     require_once(dirname(__file__) . "/../verify_session.php");
+    // ensure patient is bootstrapped (if sent)
+    if (!empty($_POST['pid'])) {
+        if ($_POST['pid'] != $_SESSION['pid']) {
+            echo xlt("illegal Action");
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            exit;
+        }
+    }
 }
 
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
