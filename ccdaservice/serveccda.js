@@ -487,40 +487,42 @@ function populateCareTeamMember(provider) {
 }
 
 function populateAuthorFromAuthorContainer(pd) {
+    let author = pd.author || {};
     return {
         "code": {
-            "name": pd.author.physician_type || '',
-            "code": pd.author.physician_type_code || '',
-            "code_system": pd.author.physician_type_system, "code_system_name": pd.author.physician_type_system_name
+            "name": author.physician_type || '',
+            "code": author.physician_type_code || '',
+            "code_system": author.physician_type_system,
+            "code_system_name": author.physician_type_system_name
         },
         "date_time": {
             "point": {
-                "date": fDate(pd.author.time),
+                "date": fDate(author.time),
                 "precision": "tz"
             }
         },
         "identifiers": [
             {
-                "identifier": pd.author.npi ? "2.16.840.1.113883.4.6" : pd.author.id,
-                "extension": pd.author.npi ? pd.author.npi : ''
+                "identifier": author.npi ? "2.16.840.1.113883.4.6" : author.id,
+                "extension": author.npi ? author.npi : ''
             }
         ],
         "name": [
             {
-                "last": pd.author.lname,
-                "first": pd.author.fname
+                "last": author.lname || "",
+                "first": author.fname || ""
             }
         ],
         "organization": [
             {
                 "identity": [
                     {
-                        "root": pd.author.facility_oid || "2.16.840.1.113883.4.6",
-                        "extension": pd.author.facility_npi || ""
+                        "root": author.facility_oid || "2.16.840.1.113883.4.6",
+                        "extension": author.facility_npi || ""
                     }
                 ],
                 "name": [
-                    pd.author.facility_name
+                    author.facility_name || ""
                 ]
             }
         ]
@@ -530,19 +532,22 @@ function populateAuthorFromAuthorContainer(pd) {
 function populateCareTeamMembers(pd) {
     let providerArray = [];
     // primary provider
-    let provider = populateCareTeamMember(pd.primary_care_provider.provider);
-    let providerSince = fDate(pd.primary_care_provider.provider.provider_since || '');
-    providerArray.push(provider);
-    let count = isOne(pd.care_team.provider);
-    if (count === 1) {
-        provider = populateCareTeamMember(pd.care_team.provider);
-        providerSince = providerSince || fDate(provider.provider_since);
+    let primaryCareProvider = pd.primary_care_provider || {provider: {}};
+    let providerSince = fDate(primaryCareProvider.provider.provider_since || '');
+    if (pd.primary_care_provider) {
+        let provider = populateCareTeamMember(pd.primary_care_provider.provider);
         providerArray.push(provider);
-    } else if (count > 1) {
-        for (let i in pd.care_team.provider) {
-            provider = populateCareTeamMember(pd.care_team.provider[i]);
+        let count = isOne(pd.care_team.provider);
+        if (count === 1) {
+            provider = populateCareTeamMember(pd.care_team.provider);
             providerSince = providerSince || fDate(provider.provider_since);
             providerArray.push(provider);
+        } else if (count > 1) {
+            for (let i in pd.care_team.provider) {
+                provider = populateCareTeamMember(pd.care_team.provider[i]);
+                providerSince = providerSince || fDate(provider.provider_since);
+                providerArray.push(provider);
+            }
         }
     }
     return {
@@ -1096,6 +1101,7 @@ function populateAllergy(pd) {
 }
 
 function populateProblem(pd) {
+    let primary_care_provider = all.primary_care_provider || {provider: {}};
     return {
         "date_time": {
             "low": {
@@ -1176,13 +1182,13 @@ function populateProblem(pd) {
                 "identifiers": [
                     {
                         "identifier": "2.16.840.1.113883.4.6",
-                        "extension": all.primary_care_provider.provider.npi || ""
+                        "extension": primary_care_provider.provider.npi || ""
                     }
                 ],
                 "name": [
                     {
-                        "last": all.primary_care_provider.provider.lname || "",
-                        "first": all.primary_care_provider.provider.fname || ""
+                        "last": primary_care_provider.provider.lname || "",
+                        "first": primary_care_provider.provider.fname || ""
                     }
                 ]
             }],
@@ -2705,6 +2711,7 @@ function populateHeader(pd) {
     }
 
     if (isOne(all.encounter_list.encounter) === 1) {
+        let primary_care_provider = pd.primary_care_provider || {provider: {}};
         head.component_of = {
             "identifiers": [
                 {
@@ -2737,8 +2744,8 @@ function populateHeader(pd) {
             "encounter_participant": {
                 "root": oidFacility,
                 "name": {
-                    "last": pd.primary_care_provider.provider.lname || "",
-                    "first": pd.primary_care_provider.provider.fname || ""
+                    "last": primary_care_provider.provider.lname || "",
+                    "first": primary_care_provider.provider.fname || ""
                 },
                 "address": [
                     {
@@ -2795,9 +2802,9 @@ function genCcda(pd) {
     let count = 0;
     let many = [];
     let theone = {};
-
+    let primary_care_provider = all.primary_care_provider || {};
     all = pd;
-    npiProvider = all.primary_care_provider.provider.npi;
+    npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
     npiFacility = all.encounter_provider.facility_npi;
     webRoot = all.serverRoot;
@@ -2818,7 +2825,9 @@ function genCcda(pd) {
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
 // This populates documentationOf. We are using providerOrganization also.
-    Object.assign(demographic, populateProviders(pd));
+    if (pd.primary_care_provider) {
+        Object.assign(demographic, populateProviders(pd));
+    }
 
     data.demographics = Object.assign(demographic);
 // Encounters
