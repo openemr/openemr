@@ -993,3 +993,6 @@ ALTER TABLE `module_configuration` ADD COLUMN `date_added` DATETIME DEFAULT NULL
 ALTER TABLE module_configuration ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
 ALTER TABLE `module_configuration` ADD COLUMN `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified';
 #EndIf
+
+#IfUpdateEditOptionsNeeded remove DEM K birth_fname, pubpid, name_history
+#EndIf

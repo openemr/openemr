@@ -183,7 +183,7 @@ if (!empty($_GET['id'])) {
                 <?php if ($mode == "new") { ?>
                     <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=new<?php echo ($patientPortalSession) ? '&isPortal=1' : '' ?>" name="my_form" onsubmit="return top.restoreSession()">
                 <?php } else { // $mode == "update" ?>
-                    <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?><?php echo ($patientPortalSession) ? '&isPortal=1' : '' ?>" name="my_form" onsubmit="return top.restoreSession()">
+                    <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?><?php echo ($patientPortalSession) ? '&isPortal=1' : '' ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?>" name="my_form" onsubmit="return top.restoreSession()">
                 <?php } ?>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>

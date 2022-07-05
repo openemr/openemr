@@ -1281,7 +1281,7 @@ function generate_form_field($frow, $currvalue)
         // show the add button if user has access to correct list
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
         $btnSize = ($smallform) ? "btn-sm" : "";
-        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-secondary $btnSize addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-secondary $btnSize mb-1 addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' value='$inputValue' $disabled /></div>";
         if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
@@ -3638,18 +3638,20 @@ function display_layout_rows($formtype, $result1, $result2 = '')
 
                 ++$item_count;
 
-                // Added 5-09 by BM - Translate label if applicable
-                if ($frow['title']) {
-                    $tmp = xl_layout_label($frow['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
-                        echo ':';
+                // Prevent title write if span entire row.
+                if (!$span_col_row) {
+                    // Added 5-09 by BM - Translate label if applicable
+                    if ($frow['title']) {
+                        $tmp = xl_layout_label($frow['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
                     }
-                } else {
-                    echo "&nbsp;";
                 }
-
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
                     disp_end_cell();
@@ -3878,20 +3880,22 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 }
 
                 $field_id_label = 'label_' . $group_fields['field_id'];
-                echo "<span id='" . attr($field_id_label) . "'>";
-                if ($skip_this_field) {
-                    // No label because skipping
-                } elseif ($group_fields['title']) {
-                    $tmp = xl_layout_label($group_fields['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
-                        echo ':';
+                if (!$span_col_row) {
+                    echo "<span id='" . attr($field_id_label) . "'>";
+                    if ($skip_this_field) {
+                        // No label because skipping
+                    } elseif ($group_fields['title']) {
+                        $tmp = xl_layout_label($group_fields['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
                     }
-                } else {
-                    echo "&nbsp;";
+                    echo "</span>";
                 }
-                echo "</span>";
 
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
@@ -4079,7 +4083,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 // There is a group subtitle so show it.
                 $bs_cols = $CPR * intval(12 / $CPR);
                 echo "<div class='row mb-2'>";
-                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols' style='color:#0000ff'>" . text($subtitle) . "</div>";
+                echo "<div class='$BS_COL_CLASS-$bs_cols' style='color:#0000ff'>" . text($subtitle) . "</div>";
                 echo "</div>\n";
             }
 
@@ -4139,13 +4143,13 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
                         echo "<div class='form-row mb-2'>";
-                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols p-2 label' style='background-color: var(--gray300)'>" . text($subtitle) . "</div>";
+                        echo "<div class='$BS_COL_CLASS-$bs_cols p-2 label' style='background-color: var(--gray300)'>" . text($subtitle) . "</div>";
                         echo "</div>\n";
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
                         echo "<div class='form-row'>";
-                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols label' style='font-size:25%'>&nbsp;</div>";
+                        echo "<div class='$BS_COL_CLASS-$bs_cols label' style='font-size: 25%'>&nbsp;</div>";
                         echo "</div>\n";
                     }
                     echo "<div class='form-row'>";
@@ -4174,15 +4178,17 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     echo "<span class='text-nowrap mr-2'>";
                 }
 
-                if ($group_fields['title']) {
-                    $tmp = xl_layout_label($group_fields['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
-                        echo ':';
+                if (!$span_col_row) {
+                    if ($group_fields['title']) {
+                        $tmp = xl_layout_label($group_fields['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
                     }
-                } else {
-                    echo "&nbsp;";
                 }
 
                 // Handle starting of a new data cell.
@@ -4628,7 +4634,7 @@ function dropdown_facility(
  * @var $fixedWidth is to flag whether width is fixed
  * @var $forceExpandAlways is a flag to force the widget to always be expanded
  *
- * @todo Convert to a modern layotu
+ * @todo Convert to a modern layout
  */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false)
 {
