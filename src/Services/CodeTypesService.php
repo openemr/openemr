@@ -33,6 +33,7 @@ class CodeTypesService
     const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
+    const CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY = "2.16.840.1.114222.4.11.1066";
     const CODE_TYPE_OID = array(
         '2.16.840.1.113883.6.96' => self::CODE_TYPE_SNOMED_CT,
         '2.16.840.1.113883.6.12' => self::CODE_TYPE_CPT4,
@@ -66,7 +67,8 @@ class CodeTypesService
         '2.16.840.1.113883.3.221.5' => "Source of Payment Typology",
         '2.16.840.1.113883.6.13' => 'CDT',
         '2.16.840.1.113883.18.2' => 'AdministrativeSex',
-        '2.16.840.1.113883.5.1' => 'AdministrativeGender'
+        '2.16.840.1.113883.5.1' => 'AdministrativeGender',
+        self::CODE_TYPE_OID_HEALTHCARE_PROVIDER_TAXONOMY => 'HealthCareProviderTaxonomy'
     );
     /**
      * @var array
