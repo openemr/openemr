@@ -949,11 +949,11 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 #EndIf
 
 #IfMissingColumn history_data created_by
-ALTER TABLE history_data ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+ALTER TABLE history_data ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
 #EndIf
 
 #IfMissingColumn patient_data created_by
-ALTER TABLE patient_data ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+ALTER TABLE patient_data ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
 #EndIf
 
 #IfNotColumnType patient_data regdate DATETIME
@@ -961,11 +961,11 @@ ALTER TABLE `patient_data` CHANGE COLUMN `regdate` `regdate` DATETIME DEFAULT NU
 #EndIf
 
 #IfMissingColumn patient_data updated_by
-ALTER TABLE patient_data ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
+ALTER TABLE patient_data ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
 #EndIf
 
 #IfMissingColumn patient_history created_by
-ALTER TABLE patient_history ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+ALTER TABLE patient_history ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
 #EndIf
 
 #IfNotColumnType prescriptions date_modified DATETIME
@@ -977,19 +977,19 @@ ALTER TABLE `prescriptions` CHANGE COLUMN `date_added` `date_added` DATETIME DEF
 #EndIf
 
 #IfMissingColumn prescriptions created_by
-ALTER TABLE prescriptions ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+ALTER TABLE prescriptions ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
 #EndIf
 
 #IfMissingColumn prescriptions updated_by
-ALTER TABLE prescriptions ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
+ALTER TABLE prescriptions ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
 #EndIf
 
 #IfMissingColumn module_configuration created_by
-ALTER TABLE module_configuration ADD COLUMN created_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
+ALTER TABLE module_configuration ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record';
 ALTER TABLE `module_configuration` ADD COLUMN `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the record was initially created';
 #EndIf
 
 #IfMissingColumn module_configuration updated_by
-ALTER TABLE module_configuration ADD COLUMN updated_by BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
+ALTER TABLE module_configuration ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record';
 ALTER TABLE `module_configuration` ADD COLUMN `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified';
 #EndIf

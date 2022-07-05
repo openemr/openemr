@@ -2829,6 +2829,7 @@ CREATE TABLE `history_data` (
   `userdate15` date DEFAULT NULL,
   `userarea11` text,
   `userarea12` text,
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -6913,6 +6914,10 @@ CREATE TABLE `module_configuration` (
   `module_id` int(10) unsigned NOT NULL,
   `field_name` varchar(45) NOT NULL,
   `field_value` varchar(255) NOT NULL,
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
+  `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the record was initially created',
+  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
+  `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified',
   PRIMARY KEY (`module_config_id`)
 ) ENGINE=InnoDB;
 
@@ -7410,7 +7415,7 @@ CREATE TABLE `patient_data` (
   `userlist6` varchar(255) NOT NULL DEFAULT '',
   `userlist7` varchar(255) NOT NULL DEFAULT '',
   `pricelevel` varchar(255) NOT NULL default 'standard',
-  `regdate`     date DEFAULT NULL COMMENT 'Registration Date',
+  `regdate`     DATETIME DEFAULT NULL COMMENT 'Registration Date',
   `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used',
   `completed_ad` VARCHAR(3) NOT NULL DEFAULT 'NO',
   `ad_reviewed` date DEFAULT NULL,
@@ -7458,6 +7463,8 @@ CREATE TABLE `patient_data` (
   `patient_groups` TEXT,
   `prevent_portal_apps` TEXT,
   `provider_since_date` TINYTEXT,
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
+  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -7481,6 +7488,7 @@ CREATE TABLE `patient_history` (
     , `previous_name_last` TEXT
     , `previous_name_suffix` TEXT
     , `previous_name_enddate` date DEFAULT NULL
+    ,`created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record'
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
     , KEY `pid_idx` (`pid`)
@@ -7692,8 +7700,8 @@ CREATE TABLE `prescriptions` (
   `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
-  `date_added` date default NULL,
-  `date_modified` date default NULL,
+  `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the prescriptions was initially created',
+  `date_modified` DATETIME DEFAULT NULL COMMENT 'Datetime the prescriptions was last modified',
   `provider_id` int(11) default NULL,
   `encounter` int(11) default NULL,
   `start_date` date default NULL,
@@ -7733,6 +7741,8 @@ CREATE TABLE `prescriptions` (
   `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
   `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
   `drug_dosage_instructions` longtext COMMENT 'Medication dosage instructions',
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
+  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE INDEX `uuid` (`uuid`)
