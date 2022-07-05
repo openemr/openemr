@@ -248,7 +248,7 @@ class CcdaServiceRequestModelGenerator
         }
 
         if (in_array('plan_of_care', $components_list)) {
-            $ccd .= $this->getEncounterccdadispatchTable()->getPlanOfCare($pid);
+            $ccd .= $this->getEncounterccdadispatchTable()->getPlanOfCare($pid, $encounter);
         }
 
         if (in_array('functional_status', $components_list)) {

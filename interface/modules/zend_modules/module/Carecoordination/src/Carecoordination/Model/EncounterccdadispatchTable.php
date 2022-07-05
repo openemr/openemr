@@ -609,6 +609,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $participant = '';
         $records = $this->getReferralRecords($pid);
+        $refer_date = date("Y-m-d");
         if (empty($records[0]['refer_from']) || !is_numeric($records[0]['refer_from'])) {
             // attempt to get the primary care physician for the patient and use that for the referral
             $providerId = $this->getProviderId($pid);
@@ -617,6 +618,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             } else {
                 $providerId = $providerId;
             }
+            $refer_date = $records[0]['refer_date'] ?? date("Y-m-d");
         } else {
             $providerId = $records[0]['refer_from'];
         }
@@ -628,13 +630,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         // referral date does not follow the global date settings.  It saves off as Y-m-d so we need to format from there
-        $referralDate = \DateTime::createFromFormat("Y-m-d", $referral['refer_date']);
+        $referralDate = \DateTime::createFromFormat("Y-m-d", $refer_date);
         if ($referralDate === false) {
             $referralDate = date('Y-m-d H:i:sO');
         } else {
             $referralDate = $referralDate->format('Y-m-d H:i:sO'); // we get it in the right format even though we have no time element...
         }
-//        $referralDate = date('YmdHisO');
+
         $participant = "<participant>
             <date_time>" . xmlEscape($referralDate) . "</date_time>
             <fname>" . xmlEscape($details['fname']) . "</fname>
@@ -643,7 +645,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <organization_id>" . xmlEscape($organization_uuid) . "</organization_id>
             <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>
             <organization_taxonomy>" . xmlEscape($details['facility_taxonomy']) . "</organization_taxonomy>
-            <organization_taxonomy_desc>" . xmlEscape($details['facility_taxonomy_description']) . "</organization_taxonomy_desc>
+            <organization_taxonomy_desc>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</organization_taxonomy_desc>
             <street>" . xmlEscape($details['street']) . "</street>
             <city>" . xmlEscape($details['city']) . "</city>
             <state>" . xmlEscape($details['state']) . "</state>
@@ -674,7 +676,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <organization_id>" . xmlEscape($organization_uuid) . "</organization_id>
             <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>
             <organization_taxonomy>" . xmlEscape($details['facility_taxonomy']) . "</organization_taxonomy>
-            <organization_taxonomy_desc>" . xmlEscape($details['facility_taxonomy_description']) . "</organization_taxonomy_desc>
+            <organization_taxonomy_desc>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</organization_taxonomy_desc>
             <street>" . xmlEscape($details['street']) . "</street>
             <city>" . xmlEscape($details['city']) . "</city>
             <state>" . xmlEscape($details['state']) . "</state>
@@ -1120,8 +1122,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     <start_date_formatted>" . xmlEscape($row['start_date']) . "</start_date_formatted>
     <end_date>" . xmlEscape('') . "</end_date>
     <status>" . xmlEscape($active) . "</status>
-    <indications>" . xmlEscape(($row['pres_erx_diagnosis_name'] ? $row['pres_erx_diagnosis_name'] : "")) . "</indications>
-    <indications_code>" . xmlEscape(($row['pres_erx_diagnosis'] ? $row['pres_erx_diagnosis'] : 0)) . "</indications_code>
+    <indications>" . xmlEscape($row['pres_erx_diagnosis_name'] ?? "") . "</indications>
+    <indications_code>" . xmlEscape($row['pres_erx_diagnosis'] ?? 0) . "</indications_code>
     <instructions>" . xmlEscape($row['note']) . "</instructions>
     <rxnorm>" . xmlEscape($row['rxnorm_drugcode']) . "</rxnorm>
     <provider_id></provider_id>
@@ -1190,9 +1192,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                 $observation = $row['observation'];
                 $observation_code = explode(':', $row['observation_code']);
-                $observation_code = $observation_code[1];
+                $observation_code = $observation_code[1] ?? null;
                 $problem_lists .= "<problem>" . $provenanceXml . "
-                <problem_id>" . ($code ? xmlEscape($row['$id']) : '') . "</problem_id>
+                <problem_id>" . ($code ? xmlEscape($row['id']) : '') . "</problem_id>
                 <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
                 <sha_extension>" . xmlEscape($row['uuid']) . "</sha_extension>
                 <title>" . xmlEscape($row['title']) . ($single_code ? " [" . xmlEscape($single_code) . "]" : '') . "</title>
@@ -1285,7 +1287,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                 $observation = $row['observation'];
                 $observation_code = explode(':', $row['observation_code']);
-                $observation_code = $observation_code[1];
+                $observation_code = $observation_code[1] ?? '';
 
                 $medical_devices .= "<device>" . $provenanceXml . "
                 <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'])) . "</extension>
@@ -1319,7 +1321,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getImmunization($pid)
     {
         $immunizations = '';
-        $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
+        $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date, 
             DATE_FORMAT(administered_date,'%Y%m%d') AS administered_formatted, lo.title as route_of_administration,
             u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1,
             f.name, f.phone, SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS route_code
@@ -1349,7 +1351,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <id>" . xmlEscape($row['id']) . "</id>
         <cvx_code>" . xmlEscape($row['cvx_code']) . "</cvx_code>
         <code_text>" . xmlEscape($row['code_text']) . "</code_text>
-        <reaction>" . xmlEscape($row['reaction']) . "</reaction>
         <npi>" . xmlEscape($row['npi']) . "</npi>
         <administered_by>" . xmlEscape($row['administered_by']) . "</administered_by>
         <fname>" . xmlEscape($row['fname']) . "</fname>
@@ -1396,7 +1397,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $procedure = '';
         // TODO: the code_types join on just the ct.ct_key is joining against the primary key of billing which is a type misconversion... not sure why we do this
         $query = "SELECT b.id, b.date as proc_date, b.code_text, b.code, fe.date,
-    u.fname, u.lname, u.mname, u.npi, u.street, u.city, u.state, u.zip, u.id AS provenance_updated_by,
+    u.fname, u.lname, u.mname, u.npi, u.street, u.city, u.state, u.zip, u.id AS provenance_updated_by, u.phonew1,
     f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone
     FROM billing as b
     LEFT JOIN code_types as ct on ct.ct_key
@@ -1483,10 +1484,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (empty($row['result_code']) && empty($row['abnormal_flag'])) {
                 continue;
             }
+            // make sure we have our provenance information
+            $results_list[$row['test_code']]['provenance_updated_by'] = $row['provenance_updated_by'];
+            $results_list[$row['test_code']]['date_modified'] = $row['result_date'] ?? $row['report_date'] ?? $row['date_ordered'];
+
             $results_list[$row['test_code']]['test_code'] = $row['test_code'];
             $results_list[$row['test_code']]['order_title'] = $row['order_title'];
             $results_list[$row['test_code']]['order_status'] = $row['order_status'];
-            $results_list[$row['test_code']]['date_modified'] = $row['result_date'] ?? $row['report_date'] ?? $row['date_ordered'];
             $results_list[$row['test_code']]['date_ordered'] = substr(str_replace("-", '', $row['date_ordered']), 0, 8);
             $results_list[$row['test_code']]['date_ordered_table'] = $row['date_ordered'];
             $results_list[$row['test_code']]['procedure_code'] = $row['procedure_code'];
@@ -1534,11 +1538,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $highlow = preg_split("/[\s,-\--]+/", $row_1['range']);
                 $results .= '
             <subtest>
-            <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row['result_code'])) . '</extension>
+            <extension>' . xmlEscape(base64_encode($_SESSION['site_id'] . $row_1['result_code'])) . '</extension>
             <root>' . xmlEscape("7d5a02b0-67a4-11db-bd13-0800200c9a66") . '</root>
             <range>' . xmlEscape($row_1['range']) . '</range>
             <low>' . xmlEscape(trim($highlow[0])) . '</low>
-            <high>' . xmlEscape(trim($highlow[1])) . '</high>
+            <high>' . xmlEscape(trim($highlow[1] ?? '')) . '</high>
             <unit>' . xmlEscape($units) . '</unit>
             <result_code>' . xmlEscape($row_1['result_code']) . '</result_code>
             <result_desc>' . xmlEscape($row_1['result_desc']) . '</result_desc>
@@ -3215,7 +3219,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // TODO: is there a way to fix it so we can choose a referral (works for single ccda generation, more problematic for multiple patient select).
             $trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", array($pid));
             $trans_cur = $trans->current();
-            $trans_id = $trans_cur['id'] ? $trans_cur['id'] : null;
+            $trans_id = $trans_cur['id'] ?? null;
         } else {
             foreach ($refs as $r) {
                 $trans_id = $r['trans_id'];
@@ -3400,7 +3404,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $pid Patient Internal Identifier.
      * @return string $planofcare  XML which contains the details collected from the patient.
      */
-    public function getPlanOfCare($pid)
+    public function getPlanOfCare($pid, $encounter)
     {
         $wherCon = '';
         $appTable = new ApplicationTable();
@@ -3419,7 +3423,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         //  We removed the care plan transaction information here as it wasn't being used here or with serveccda.  When we
         //  support codes in the transaction table we can add that back in.
         $query = "SELECT 'care_plan' AS source,fcp.encounter,fcp.code,fcp.codetext,fcp.description,fcp.date,l.`notes` AS moodCode,fcp.care_plan_type AS care_plan_type,fcp.note_related_to as note_issues
-            , u.id AS provenance_updated_by, f.date AS modifydate
+            , u.id AS provenance_updated_by, f.date AS modifydate, f.form_id
             FROM forms AS f
             LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
             LEFT JOIN codes AS c ON c.code = fcp.code
@@ -3458,7 +3462,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $row['description'] = preg_replace("/\{\|([^\]]*)\|}/", '', $row['description']);
             $tmp = explode(":", $row['code']);
             $code_type = $tmp[0];
-            $code = $tmp[1];
+            $code = $tmp[1] ?? '';
             if ($row['care_plan_type'] === 'health_concern') {
                 $issue_uuid = "<issues>\n";
                 if (!empty($row['note_issues'])) {
@@ -3610,7 +3614,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $clinical_notes = '';
-        $query = "SELECT fnote.*, u.*, fac.*,u.id AS provenance_updated_by, f.date AS modifydate FROM forms AS f
+        $query = "SELECT fnote.*, u.*, fac.*,u.id AS provenance_updated_by, f.date AS modifydate, fac.oid AS facility_oid FROM forms AS f
                 LEFT JOIN `form_clinical_notes` AS fnote ON fnote.`form_id` = f.`form_id`
                 LEFT JOIN users as u on u.username = fnote.user
                 LEFT JOIN facility as fac on fac.id = u.facility_id
