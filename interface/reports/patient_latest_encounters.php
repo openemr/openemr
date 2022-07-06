@@ -310,6 +310,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             echo csvEscape($row['pubpid']) . ',';
             // format dates by users preference
             echo csvEscape(oeFormatShortDate(substr($row['edate'], 0, 10))) . ',';
+
             echo  csvEscape($erow['facility']) . ',';
             echo csvEscape($prow['fname'] . " " . $prow['lname']) . ',';
             echo csvEscape($row['lname']) . ',';
@@ -324,7 +325,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
                 <?php echo text($row['pubpid']); ?>
             </td>
             <td>
-                <?php echo text(oeFormatShortDate(substr($row['edate'], 0, 10))); ?>
+                <?php echo text(oeFormatDateTime($row['edate'], "global", false)) ;?>
             </td>
             <td>
                 <?php echo text($erow['facility']); ?>
