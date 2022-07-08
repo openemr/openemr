@@ -672,7 +672,6 @@ class PatientService extends BaseService
 
         $insertData = [
             'pid' => $pid,
-            'created_by' => $createdBy,
             'history_type_key' => 'name_history',
             'previous_name_prefix' => $record['previous_name_prefix'],
             'previous_name_first' => $record['previous_name_first'],
@@ -697,6 +696,7 @@ class PatientService extends BaseService
             return false;
         }
         // finish up the insert
+        $insertData['created_by'] = $createdBy;
         $insertData['uuid'] = UuidRegistry::getRegistryForTable(self::PATIENT_HISTORY_TABLE)->createUuid();
         $insert = $this->buildInsertColumns($insertData);
         $sql = "INSERT INTO " . self::PATIENT_HISTORY_TABLE . " SET " . $insert['set'];
