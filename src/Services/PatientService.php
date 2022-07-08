@@ -332,7 +332,7 @@ class PatientService extends BaseService
         if (!empty($search)) {
             if (isset($puuidBind)) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $puuidBind);
-            } else if (isset($search['uuid'])) {
+            } elseif (isset($search['uuid'])) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
             $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
