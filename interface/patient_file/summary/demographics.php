@@ -851,12 +851,23 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             border-radius: 0;
         }
 
-        <?php if (!$GLOBALS['right_justify_labels_demographics']) { ?> 
-        #DEM .label_custom {
-            text-align: left !important;
+        <?php 
+        if ($GLOBALS['right_justify_labels_demographics']) { ?> 
+        div.tab td.label_custom, div.label_custom {
+            text-align: right !important;
         }
 
+        div.tab td.data, div.data {
+            padding-left: 0.5em;
+            padding-right: 2em;
+        }
+        <?php 
+        } else { ?>
+        div.tab td.label_custom, div.label_custom {
+            text-align: left !important;
+        }
         <?php } ?>
+
         <?php
         // This is for layout font size override.
         $grparr = array();
@@ -905,7 +916,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
 </head>
 
-<body id="DEM" class="mt-1 patient-demographic bg-light">
+<body class="mt-1 patient-demographic bg-light">
 
     <?php
     // Create and fire the patient demographics view event

@@ -24,19 +24,20 @@ $list_address_types = generate_list_map("address-types");
 $list_address_uses = generate_list_map("address-uses");
 ?>
 
-<div id="<?php echo attr($table_id); ?>">
-    <div class="table_text_addresses">
-        <div class ="text_addresses header label_custom row">
+<div id="<?php echo attr($table_id); ?>" class="row mt-3">
+    <div class="table_text_addresses col-12">
+        <div class ="text_addresses_header label_custom pl-1" style="text-align: left !important; background: rgba(34, 34, 34, 0.1);">
             <?php echo xlt("Additional Addresses"); ?>
         </div>
-        <div class="d-none no_addresses row">
-                <span class="text data"><?php echo xlt("NONE"); ?></span>
+        <div class="d-none no_addresses">
+                <span class="text data pl-1"><?php echo xlt("NONE"); ?></span>
+                <hr class="m-0 p-0" style="border-top-width: 2px" />
         </div>
     </div>
 
-    <template class="template_text_addresses row">
-        <div class="text_addresses_row">
-            <div class="text_addresses_subrow_1 row">
+    <template class="template_text_addresses form-row">
+        <div class="text_addresses_row form-group mb-0">
+            <div class="text_addresses_subrow_1 form-row pl-1">
                 <div class="col-2 text data">
                     <span class="text_addresses_use"></span>
                 </div>
@@ -48,7 +49,7 @@ $list_address_uses = generate_list_map("address-uses");
                 </div>
             </div>
 
-            <div class="text_addresses_subrow_2 row">
+            <div class="text_addresses_subrow_2 form-row pl-1">
                 <div class="col-2 text data">
                 </div>
                 <div class="col-6 text data">
@@ -59,6 +60,7 @@ $list_address_uses = generate_list_map("address-uses");
                 </div>
             </div>
         </div>
+        <hr class="m-0 p-0" style="border-top-width: 2px" />
     </template>
 </div>
 

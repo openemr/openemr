@@ -40,218 +40,222 @@ $widgetConstants = [
 // TODO: @adunsulag the repeating nature of this as a layout display would be problematic... we'd need some kind of repeater widget, would be a fun project.
 ?>
 
-<div class='table_edit_addresses' id="<?php echo attr($table_id); ?>">
-    <div class="display_addresses header label_custom">
-                <?php echo xlt("Additional Addresses"); ?>&nbsp;&nbsp;&nbsp;&nbsp;
-                <span class="fas fa-plus-square text-primary" onclick="addAddress(event);return false"></span>
-    </div>
-    <div class="d-none no_addresses row">
-        <div class="col-12">
-            <span class="label_custom"><?php echo xlt("NONE"); ?></span>
+<style>
+    div.table_edit_addresses div.label_custom, div.form_addresses div.label_custom {
+        text-align: left !important;
+    }
+</style>
+
+<div id="<?php echo attr($table_id); ?>" class="row mt-3">
+    <div class ="table_edit_addresses col-12">
+        <div class="display_addresses_header pl-1" style="display: flex; background: rgba(34, 34, 34, 0.1); line-height: 1.5;">
+            <div class="label_custom mb-0"><?php echo xlt("Additional Addresses"); ?></div>
+            <div class="fas fa-plus-square text-primary pl-3"  style="display: inline-block; line-height: 1.5;"onclick="addAddress(event);return false"></div>
+        </div>
+        <div class="d-none no_addresses">
+            <span class="label_custom pl-1" style="line-height: 2.0;"><?php echo xlt("NONE"); ?></span>
+            <hr class="m-0 p-0" style="border-top-width: 2px" />
         </div>
     </div>
 </div>
 
 <template class="template_add_address">
-    <div class="display_addresses row">
-        <div class="col-2 display_addresses_use_column">
-            <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address" style="width:10px"></i>
-            <span class="display_addresses_use label_custom"></span>
+    <div class="addresses_group col-12 pl-0">
+        <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+            <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
+                <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2;"></i>
+                <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-6 px-0">
+                <span class="display_addresses_full_address label_custom" style="vertical-align: 0;"></span>
+            </div>
+
+            <div class="col-3 display_addresses_period_column px-0">
+                <span class="display_addresses_period label_custom" style="vertical-align: 0;"></span>
+            </div>
+
+            <div class="fas fa-fw fa-trash-alt text-danger btn-delete-address" style="text-align: center; flex: 0 0 2em; line-height: 1.5;">
+            </div>
         </div>
 
-        <div class="col-6">
-            <span class="display_addresses_full_address label_custom"></span>
+        <div class='d-none form_addresses form-row mx-3 my-2'>
+            <input type="hidden" class="form_addresses_data_action" name="<?php echo attr($name_field_id); ?>[data_action][]" value="<?php echo xla("No Change"); ?>" />
+            <input type="hidden" class="form_addresses_id" name="<?php echo attr($name_field_id); ?>[id][]" value="" />
+            <input type="hidden" class="form_addresses_foreign_id" name="<?php echo attr($name_field_id); ?>[foreign_id][]" value="" />
+            <div class="col-12">
+
+                <!-- Header -->
+                <div class="form-row">
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("Address Use"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("Address Type"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("Start Date"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("End Date"); ?>
+                    </div>
+                </div>
+
+                <!-- Values -->
+                <div class="form-row">
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['listWithAddButton']
+                            ,'field_id' => $field_id_esc . "[use][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_uses'
+                            ,'list_id' => 'address-uses'
+                            ,'empty_name' => 'Unassigned'
+                            ,'edit_options' => $edit_options ?? null
+                        ], '');
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['listWithAddButton']
+                            ,'field_id' => $field_id_esc . "[type][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_types'
+                            ,'list_id' => 'address-types'
+                            ,'empty_name' => 'Unassigned'
+                            ,'edit_options' => $edit_options ?? null
+                        ], '');
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['textDate']
+                            ,'field_id' => $field_id_esc . "[period_start][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_period_start'
+                        ], date("Y-m-d"));
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['textDate']
+                            ,'field_id' => $field_id_esc . "[period_end][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_period_end'
+                        ], '');
+                        ?>
+                    </div>
+                </div>
+
+                <!-- Header -->
+                <div class="form-row">
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("Address"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("Address Line 2"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("City"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("County/District"); ?>
+                    </div>
+                </div>
+
+                <!-- VALUES -->
+                <div class="form-row">
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['textbox']
+                            ,'field_id' => $field_id_esc . "[line_1][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_line1'
+                        ], '');
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['textbox']
+                            ,'field_id' => $field_id_esc . "[line_2][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_line2'
+                        ], '');
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['textbox']
+                            ,'field_id' => $field_id_esc . "[city][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_city'
+                        ], '');
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['textbox']
+                            ,'field_id' => $field_id_esc . "[district][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_district'
+                        ], '');
+                        ?>
+                    </div>
+                </div>
+
+                <!-- Header -->
+                <div class="form-row">
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("State"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("Postal Code"); ?>
+                    </div>
+                    <div class="col-3 label_custom">
+                        <?php echo xlt("Country"); ?>
+                    </div>
+                </div>
+
+                <!-- Header -->
+                <div class="form-row">
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['listWithAddButton']
+                            ,'field_id' => $field_id_esc . "[state][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_state'
+                            ,'list_id' => 'state'
+                            ,'empty_name' => 'Unassigned'
+                            ,'edit_options' => $edit_options ?? null
+                        ], '');
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['textbox']
+                            ,'field_id' => $field_id_esc . "[postalcode][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_postalcode'
+                        ], '');
+                        ?>
+                    </div>
+                    <div class="col-3">
+                        <?php
+                        generate_form_field([
+                            'data_type' => $widgetConstants['listWithAddButton']
+                            ,'field_id' => $field_id_esc . "[country][]"
+                            ,'smallform' => ($smallform ?? '') . ' form_addresses_country'
+                            ,'list_id' => 'country'
+                            ,'empty_name' => 'Unassigned'
+                            ,'edit_options' => $edit_options ?? null
+                        ], '');
+                        ?>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="col-3 display_addresses_period_column">
-            <span class="display_addresses_period label_custom"></span>
-        </div>
-
-        <div class="col display_trash_column" style="text-align: right;">
-            <i class="fas fa-fw fa-trash-alt text-danger btn-delete-address"></i>
-        </div>
-
-    </div>
-    <div class='d-none form_addresses row ml-3 mr-3 mt-2 mb-2'>
-        <input type="hidden" class="form_addresses_data_action" name="<?php echo attr($name_field_id); ?>[data_action][]" value="<?php echo xla("No Change"); ?>" />
-        <input type="hidden" class="form_addresses_id" name="<?php echo attr($name_field_id); ?>[id][]" value="" />
-        <input type="hidden" class="form_addresses_foreign_id" name="<?php echo attr($name_field_id); ?>[foreign_id][]" value="" />
-        <div class="col-12">
-            <!-- Header -->
-            <div class="row">
-                <div class="col-3 label_custom">
-                    <?php echo xlt("Address Use"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("Address Type"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("Start Date"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("End Date"); ?>
-                </div>
-            </div>
-
-            <!-- Values -->
-            <div class="row">
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['listWithAddButton']
-                        ,'field_id' => $field_id_esc . "[use][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_uses'
-                        ,'list_id' => 'address-uses'
-                        ,'empty_name' => 'Unassigned'
-                        ,'edit_options' => $edit_options ?? null
-                    ], '');
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['listWithAddButton']
-                        ,'field_id' => $field_id_esc . "[type][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_types'
-                        ,'list_id' => 'address-types'
-                        ,'empty_name' => 'Unassigned'
-                        ,'edit_options' => $edit_options ?? null
-                    ], '');
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['textDate']
-                        ,'field_id' => $field_id_esc . "[period_start][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_period_start'
-                    ], date("Y-m-d"));
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['textDate']
-                        ,'field_id' => $field_id_esc . "[period_end][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_period_end'
-                    ], '');
-                    ?>
-                </div>
-            </div>
-
-            <!-- Header -->
-            <div class="row">
-                <div class="col-3 label_custom">
-                    <?php echo xlt("Address"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("Address Line 2"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("City"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("County/District"); ?>
-                </div>
-            </div>
-
-            <!-- VALUES -->
-            <div class="row">
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['textbox']
-                        ,'field_id' => $field_id_esc . "[line_1][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_line1'
-                    ], '');
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['textbox']
-                        ,'field_id' => $field_id_esc . "[line_2][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_line2'
-                    ], '');
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['textbox']
-                        ,'field_id' => $field_id_esc . "[city][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_city'
-                    ], '');
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['textbox']
-                        ,'field_id' => $field_id_esc . "[district][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_district'
-                    ], '');
-                    ?>
-                </div>
-            </div>
-
-            <!-- Header -->
-            <div class="row">
-                <div class="col-3 label_custom">
-                    <?php echo xlt("State"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("Postal Code"); ?>
-                </div>
-                <div class="col-3 label_custom">
-                    <?php echo xlt("Country"); ?>
-                </div>
-            </div>
-
-            <!-- Header -->
-            <div class="row">
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['listWithAddButton']
-                        ,'field_id' => $field_id_esc . "[state][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_state'
-                        ,'list_id' => 'state'
-                        ,'empty_name' => 'Unassigned'
-                        ,'edit_options' => $edit_options ?? null
-                    ], '');
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['textbox']
-                        ,'field_id' => $field_id_esc . "[postalcode][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_postalcode'
-                    ], '');
-                    ?>
-                </div>
-                <div class="col-3">
-                    <?php
-                    generate_form_field([
-                        'data_type' => $widgetConstants['listWithAddButton']
-                        ,'field_id' => $field_id_esc . "[country][]"
-                        ,'smallform' => ($smallform ?? '') . ' form_addresses_country'
-                        ,'list_id' => 'country'
-                        ,'empty_name' => 'Unassigned'
-                        ,'edit_options' => $edit_options ?? null
-                    ], '');
-                    ?>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    &nbsp;
-                </div>
-            </div>
-
-        </div>
+        <hr class="m-0 p-0" style="border-top-width: 2px" />
+            
     </div>
 </template>
 
@@ -346,7 +350,7 @@ $widgetConstants = [
         let form_row = row_address_clone.querySelector(".form_addresses");
         let display_row = row_address_clone.querySelector(".display_addresses");
 
-        document.getElementById(tableId).appendChild(row_address_clone);
+        document.getElementById(tableId).querySelector(".table_edit_addresses").appendChild(row_address_clone);
 
         setupAddressesRowButtonEventListeners(display_row);
         setupContainerDatePickers(form_row);
@@ -378,7 +382,7 @@ $widgetConstants = [
         // expand the element and put the cursor focus in the first element of the address
         showElement(row_form_addresses);
         row_form_addresses.querySelector('input.form_addresses_line1').focus();
- 
+
     }
 
     function changeEdit(){
@@ -411,11 +415,11 @@ $widgetConstants = [
         evt.preventDefault();
         let element = evt.currentTarget;
         if (element.className == "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address") {
-            let toggleElement = element.closest('.display_addresses').nextElementSibling;
+            let toggleElement = element.closest('.addresses_group').querySelector('.form_addresses');
             toggleElement.classList.remove('d-none');
             element.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address";
         } else {
-            let toggleElement = element.closest('.display_addresses').nextElementSibling;
+            let toggleElement = element.closest('.addresses_group').querySelector('.form_addresses');
             toggleElement.classList.add('d-none');
             element.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address";
         }
@@ -498,7 +502,7 @@ $widgetConstants = [
         if (lines > 1) {
             let i = 1;
             fullAddress[0] = fullAddress[0].replace(/(,\s*$)/g, "");
-        } 
+        }
 
         fullAddress[i] += record.city + ((isBlank(record.city) && isBlank(fullAddress[i])) ? "": ", ");
         fullAddress[i] += record.state + ((isBlank(record.state) && isBlank(fullAddress[i]) && (!isBlank(record.full_zip))) ? "": " ");

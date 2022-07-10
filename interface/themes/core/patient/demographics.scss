@@ -3,8 +3,7 @@
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
-
-@if $compact-theme == false {
+ @if $compact-theme == false {
   #DEM {
     .groupname {
       @include font-size("0.8rem");
@@ -30,121 +29,7 @@
 
     .form-control {
       display: inline;
-      height: auto;
       width: auto;
     }
   }
-}
-
-
-#DEM table {
-  width: 100%;
-}
-
-#DEM .label_custom {
-  text-align: right;
-}
-
-#DEM .data {
-  padding-left: 8px;
-  padding-right: 15px;
-}
-
-
-/* Demographics - Previous Addresses - address_list_display.php */
-
-#DEM .table_text_addresses {
-  border-bottom: 2px solid #e9ecef;
-  margin-top: 1em;
-}
-
-#DEM .text_addresses.header {
-  background: #e9ecef;
-  border-bottom: 0;
-  border-top: 2px solid #e9ecef;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 2px;
-  text-align: left;
-}
-
-#DEM .text_addresses_row {
-  border-bottom: 0;
-  border-top: 2px solid #e9ecef;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0;
-}
-
-#DEM .text_addresses_row div:nth-child(n) {
-  padding-left: 0;
-}
-
-#DEM #text_additional_addresses {
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-#DEM #text_additional_addresses .row {
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 2px;
-  padding-right: 0;
-}
-
-#DEM #text_additional_addresses .text.data {
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-
-
-/* Demographics - Previous Addresses - address_list_form.php */
-
-#DEM .display_addresses.header {
-  background: #e9ecef;
-  border-bottom: 0;
-  border-top: 2px solid #e9ecef;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 2px;
-  text-align: left;
-}
-
-#DEM .display_addresses.row {
-  border-bottom: 0;
-  border-top: 2px solid #e9ecef;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0;
-}
-
-#DEM .display_addresses.row > .col-12 {
-  padding-left: 0;
-}
-
-#DEM .table_edit_addresses {
-  border-bottom: 2px solid #e9ecef;
-}
-
-#DEM .table_edit_addresses .label_custom {
-  vertical-align: +0.15em;
-}
-
-#DEM .form_addresses .label_custom {
-  text-align: left !important;
-}
-
-#DEM .display_addresses.row > div {
-  padding-left: 2px;
-  padding-right: 0;
-  vertical-align: +0.15em;
-}
-
-#DEM .display_addresses_use_column {
-  flex: 0 0 12%;
 }
