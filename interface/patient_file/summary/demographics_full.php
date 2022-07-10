@@ -523,7 +523,7 @@ $(function () {
             line-height: 1.2;
         }
 
-        <?php 
+        <?php
         if ($GLOBALS['right_justify_labels_demographics']) { ?> 
         div.label_custom {
             text-align: right !important;
@@ -533,7 +533,7 @@ $(function () {
             padding-left: 0.5em;
             padding-right: 2em;
         }
-        <?php 
+            <?php
         } else { ?>
         div.tab td.label_custom, div.label_custom {
             text-align: left !important;

@@ -851,7 +851,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             border-radius: 0;
         }
 
-        <?php 
+        <?php
         if ($GLOBALS['right_justify_labels_demographics']) { ?> 
         div.tab td.label_custom, div.label_custom {
             text-align: right !important;
@@ -861,7 +861,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             padding-left: 0.5em;
             padding-right: 2em;
         }
-        <?php 
+            <?php
         } else { ?>
         div.tab td.label_custom, div.label_custom {
             text-align: left !important;
