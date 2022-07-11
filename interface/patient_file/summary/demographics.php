@@ -1793,6 +1793,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $("#eligibility").get(0).scrollIntoView();
                 }
             });
+            
+            
+            <?php $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_RENDER_JAVA, new RenderEvent($pid), 10); ?>
         </script>
 </body>
 
