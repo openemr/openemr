@@ -699,7 +699,7 @@ function generate_form_field($frow, $currvalue)
         }
         if ($data_type == 4) {
             $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
-            $datetimepickerclass = ($frow['validation'] ?? null) === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
+            $datetimepickerclass = ($frow['validation'] ?? null) === 'past_date' ? '-past' : ( ($frow['validation'] ?? null) === 'future_date' ? '-future' : '' );
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";
@@ -1666,6 +1666,7 @@ function generate_form_field($frow, $currvalue)
     // Previous Patient Names with add. Somewhat mirrors data types 44,45.
     } elseif ($data_type == 52) {
         global $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
         $patientService = new PatientService();
         $res = $patientService->getPatientNameHistory($pid);
         echo "<div class='input-group w-75'>";
@@ -1681,6 +1682,7 @@ function generate_form_field($frow, $currvalue)
     // Patient Encounter List Field
     } elseif ($data_type == 53) {
         global $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
         $encounterService = new EncounterService();
         $res = $encounterService->getEncountersForPatientByPid($pid);
         echo "<div class='input-group w-75'>";
