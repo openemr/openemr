@@ -574,8 +574,9 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // set flag so we don't bring in session pid data for a new pt form
                         $frow['blank_form'] = false;
                         if (
-                            $frow['field_id'] == "addtional_addresses"
-                            || $frow['field_id'] == "name_history"
+                            $frow['data_type'] == "52"
+                            || $frow['data_type'] == "53"
+                            || $frow['data_type'] == "54"
                         ) {
                             $frow['blank_form'] = true;
                         }
