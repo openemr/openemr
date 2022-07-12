@@ -19,6 +19,7 @@
 use OpenEMR\Services\ContactService;
 
 global $pid; // we need to grab our pid from our global settings.
+$pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 
 $contactService = new ContactService();
 $addresses = $contactService->getContactsForPatient($pid);
