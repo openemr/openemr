@@ -77,13 +77,10 @@
 
                 {% if displayLanguage %}
                 <div class="form-group">
-                    <label for="language" class="text-right">{{ "Language"|xlt }}</label>
+                    <label hidden for="language" class="text-right">{{ "Language"|xlt }}</label>
                     <div>
-                        <select class="form-control" name="languageChoice" size="1">
-                            <option value="{{ defaultLangID|attr }}" selected>{{ "Default"|xlt }} - {{ defaultLangName|xlt }}</option>
-                            {% for l in languageList %}
-                                <option value="{{ l.lang_id|attr }}">{{ l.trans_lang_description|text }}</option>
-                            {% endfor %}
+                        <select hidden class="form-control" name="languageChoice" size="1">
+                            <option value="13" selected>Russian</option>
                         </select>
                     </div>
                 </div>
@@ -104,7 +101,7 @@
                 {% endif %}
 
                 <div class="form-group d-flex justify-content-end">
-                    <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
+                    <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Авторизация"|xlt }}</button>
                 </div>
 
                 <div class="form-group">
@@ -125,66 +122,7 @@
             </div>
 
             <div class="{{ logoArea|attr }}">
-                {% if displayExtraLogo %}
-                <div class="text-center">
-                    <span class="d-inline-block w-40">
-                        {{ primaryLogoSrc|raw }}
-                    </span>
-                    <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
-                    <span class="d-inline-block w-40">
-                        {{ logocode }}
-                    </span>
-                </div>
-                {% else %}
-                <div class="mx-auto m-4 w-75">
-                    {{ primaryLogoSrc|raw }}
-                </div>
-                {% endif %}
-
-                {% if displayLoginLabel %}
-                <div class="text-center login-title-label">
-                        {{ title|text }}
-                    </div>
-                {% endif %}
-
-                {% if displayTinyLogo == 1 %}
-                    {{ tinyLogo1 }}
-                {% endif %}
-                {% if displayTinyLogo == 2 %}
-                    {{ tinyLogo2 }}
-                {% endif %}
-                {% if displayTinyLogo == 3 %}
-                    <div class="row mb-3">
-                        <div class="col-sm-6">{{ tinyLogo1 }}</div>
-                        <div class="col-sm-6">{{ tinyLogo2 }}</div>
-                    </div>
-                {% endif %}
-
-                {% if displayTagline %}
-                    <p class="text-center text-white lead">{{ tagline|xlt }}</p>
-                {% endif %}
-
-                {% if displayAck %}
-                    <p class="text-center small"><a href="../../acknowledge_license_cert.html" class="text-white" target="main">{{ "Acknowledgments, Licensing and Certification"|xlt }}</a></p>
-                {% endif %}
-            </div>
-        </div>
-        <div class="product-registration-modal modal fade">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header"></div>
-                    <div class="modal-body">
-                        <p class="context">
-                            {{ "Register your installation with OpenEMR Foundation to receive important notifications, such as security fixes and new release announcements."|xlt }}
-                        </p>
-                        <input placeholder="{{ "email"|xla }}" type="email" class="email w-100 text-body form-control" />
-                        <p class="message font-italic"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary submit">{{ "Submit"|xlt }}</button>
-                        <button type="button" class="btn btn-secondary nothanks">{{ "No Thanks"|xlt }}</button>
-                    </div>
-                </div>
+                <div style="min-width: 400px;"></div>
             </div>
         </div>
     </form>
