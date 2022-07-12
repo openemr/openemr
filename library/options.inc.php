@@ -1666,6 +1666,7 @@ function generate_form_field($frow, $currvalue)
     // Previous Patient Names with add. Somewhat mirrors data types 44,45.
     } elseif ($data_type == 52) {
         global $pid;
+        $pid = ($_SERVER['PHP_SELF'] == '/interface/new/new.php') ? 0 : $pid;
         $patientService = new PatientService();
         $res = $patientService->getPatientNameHistory($pid);
         echo "<div class='input-group w-75'>";
