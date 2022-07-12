@@ -19,8 +19,7 @@
 use OpenEMR\Services\ContactService;
 
 global $pid; // we need to grab our pid from our global settings.
-// if calling from the new patient form then don't bring in session pid data
-$pid = ($_SERVER['PHP_SELF'] == '/interface/new/new.php') ? 0 : $pid;
+$pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 
 $contactService = new ContactService();
 $addresses = $contactService->getContactsForPatient($pid);

@@ -570,6 +570,15 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                         // 'smallform' can be used to add arbitrary CSS classes. Note the leading space.
                         $frow['smallform'] = ' form-control-sm mw-100' . ($datacols ? '' : ' mb-1');
+
+                        // set flag so we don't bring in session pid data for a new pt form
+                        $frow['blank_form'] = false;
+                        if (
+                            $frow['field_id'] == "addtional_addresses"
+                            || $frow['field_id'] == "name_history"
+                        ) {
+                            $frow['blank_form'] = true;
+                        }
                         generate_form_field($frow, $currvalue);
 
                         if ($datacols == 0) {
