@@ -424,7 +424,7 @@ $GLOBALS_METADATA = array(
         'right_justify_labels_demographics' => array(
             xl('Right Justify Labels in Demographics'),
             'bool',                           // data type
-            '1',                              // default = true
+            '0',                              // default = false
             xl('Right justify labels in Demographics for easier readability.')
         ),
 
