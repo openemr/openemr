@@ -32,7 +32,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 
 /* Overrides go here */
 @if $compact-theme == false {
-
   .btn-secondary {
     background-color: rgba($black, 0.05) !important;
     border-color: $gray-500 !important;
