@@ -421,6 +421,13 @@ $GLOBALS_METADATA = array(
             xl('Default state of New Window checkbox in the patient list.')
         ),
 
+        'right_justify_labels_demographics' => array(
+            xl('Right Justify Labels in Demographics'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Right justify labels in Demographics for easier readability.')
+        ),
+
         'num_of_messages_displayed' => array(
             xl('Number of Messages Displayed in Patient Summary'),
             'num',
