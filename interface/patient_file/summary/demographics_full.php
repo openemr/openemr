@@ -524,7 +524,7 @@ $(function () {
         }
 
         <?php
-        if ($GLOBALS['right_justify_labels_demographics']) { ?> 
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?> 
         div.label_custom {
             text-align: right !important;
         }
@@ -534,11 +534,7 @@ $(function () {
             padding-right: 2em;
         }
             <?php
-        } else { ?>
-        div.tab td.label_custom, div.label_custom {
-            text-align: left !important;
-        }
-        <?php } ?>
+        }  ?>
 </style>
 
 </head>

@@ -852,7 +852,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         <?php
-        if ($GLOBALS['right_justify_labels_demographics']) { ?> 
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?> 
         div.tab td.label_custom, div.label_custom {
             text-align: right !important;
         }
@@ -862,12 +862,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             padding-right: 2em;
         }
             <?php
-        } else { ?>
-        div.tab td.label_custom, div.label_custom {
-            text-align: left !important;
-        }
-        <?php } ?>
-
+        } ?>
+        
         <?php
         // This is for layout font size override.
         $grparr = array();
