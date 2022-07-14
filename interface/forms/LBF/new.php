@@ -1436,7 +1436,7 @@ if (
                     echo "<select class='form-control' name='form_fs_provid'>";
                     echo FeeSheetHtml::genProviderOptionList(
                         ' ',
-                        tmp_provider_id
+                        $tmp_provider_id
                     );
                     echo "</select>\n";
                     echo "\n";
