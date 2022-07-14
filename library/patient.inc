@@ -783,8 +783,11 @@ function getPatientName($pid)
  * @var $pid int The Patient ID
  * @returns string The Full Name
  */
-function getPatientFullNameAsString(int $pid): string
+function getPatientFullNameAsString($pid): string
 {
+    if (empty($pid)) {
+        return '';
+    }
     $ptData = getPatientPID(["pid" => $pid]);
     $pt = $ptData[0];
 

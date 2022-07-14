@@ -544,7 +544,7 @@ $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (Encount
 
         $_cat = trim($item['category']);
         $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-        $item['displayText'] = (trim($item['nickname']) != '') ? trim($item['nickname']) : trim($item['name']);
+        $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
         unset($item['category']);
         unset($item['name']);
         unset($item['nickname']);
