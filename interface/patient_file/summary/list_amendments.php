@@ -22,7 +22,9 @@ use OpenEMR\Core\Header;
 <html>
 <head>
 
-<?php Header::setupHeader(); ?>
+<?php Header::setupHeader();
+echo "<title>" . xlt('Amendment List') . "</title>";
+?>
 
 <script>
     function checkForAmendments() {
@@ -48,12 +50,10 @@ use OpenEMR\Core\Header;
         });
     }
     var AddAmendment = function () {
-        var iam = top.frames.editAmendments;
-        iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
+        window.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
     };
     var ListAmendments = function () {
-        var iam = top.frames.editAmendments;
-        iam.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
+        window.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
     };
 </script>
 </head>
@@ -77,6 +77,7 @@ use OpenEMR\Core\Header;
                                     <a href="javascript:AddAmendment();" class="btn btn-primary btn-add"><?php echo xlt("Add"); ?></a>
                                     <a href="javascript:checkForAmendments();" class="btn btn-primary btn-print"><?php echo xlt("Print Amendments"); ?></a>
                                     <a href="javascript:ListAmendments();" class="btn btn-primary"><?php echo xlt("List"); ?></a>
+                                    <a href="demographics.php" class="btn btn-secondary"><?php echo xlt("Return Dashboard"); ?></a>
                                 </td>
                                 <td class="text-right">
                                     <a href="#" class="small" onClick="checkUncheck(1);"><?php echo xlt('Check All');?></a> |
