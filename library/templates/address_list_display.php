@@ -26,7 +26,7 @@ $list_address_uses = generate_list_map("address-uses");
 
 <div id="<?php echo attr($table_id); ?>" class="row mt-3">
     <div class="table_text_addresses col-12">
-        <div class ="text_addresses_header label_custom pl-1" style="text-align: left !important; padding-top: 0.1rem;; background-color: var(--gray300)">
+        <div class ="text_addresses_header label_custom pl-1" style="text-align: left !important; padding-top: 0.1rem; background-color: var(--gray300)">
             <?php echo xlt("Additional Addresses"); ?>
         </div>
         <div class="d-none no_addresses">
