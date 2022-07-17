@@ -47,15 +47,26 @@ class Contact extends ORDataObject
         }
     }
 
-    public function setContactRecord($foreign_table_name, $foreign_id)
+    public function setContactRecord(string $foreign_table_name, int $foreign_id): void
     {
         // we set our type to be patient_id and our table type here.
         $this->foreign_table_name = $foreign_table_name;
         $this->foreign_id = $foreign_id;
 
-        // if entry already exists in table, then set the id
-        $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table_name` = ? AND `foreign_id` = ?", [$foreign_table_name, $foreign_id])['id'] ?? null;
+        $this->setContactIdIfExist();
+    }
+
+    public function persist()
+    {
+        $this->setContactIdIfExist();
+        return parent::persist();
+    }
+
+    private function setContactIdIfExist(): void
+    {
+        $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table_name` = ? AND `foreign_id` = ?", [$this->foreign_table_name, $this->foreign_id])['id'] ?? null;
         if (!empty($id)) {
+            // the contact entry already exists for this foreign table name and foreign id, so set it and return true
             $this->id = $id;
         }
     }
