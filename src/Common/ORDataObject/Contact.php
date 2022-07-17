@@ -40,7 +40,7 @@ class Contact extends ORDataObject
     public function __construct($id)
     {
         parent::__construct("contact");
-        $this->_id = $id;
+        $this->id = $id;
 
         if (!empty($id)) {
             $this->populate();
