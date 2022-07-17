@@ -58,7 +58,9 @@ class Contact extends ORDataObject
 
     public function persist()
     {
-        $this->setContactIdIfExist();
+        if (empty($this->id)) {
+            $this->setContactIdIfExist();
+        }
         return parent::persist();
     }
 
@@ -66,7 +68,7 @@ class Contact extends ORDataObject
     {
         $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table_name` = ? AND `foreign_id` = ?", [$this->foreign_table_name, $this->foreign_id])['id'] ?? null;
         if (!empty($id)) {
-            // the contact entry already exists for this foreign table name and foreign id, so set it and return true
+            // the contact entry already exists for this foreign table name and foreign id, so set it
             $this->id = $id;
         }
     }
