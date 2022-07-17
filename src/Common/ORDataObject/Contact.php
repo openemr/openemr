@@ -47,11 +47,17 @@ class Contact extends ORDataObject
         }
     }
 
-    public function setPatientPid($pid)
+    public function setContactRecord($foreign_table_name, $foreign_id)
     {
         // we set our type to be patient_id and our table type here.
-        $this->foreign_table_name = 'patient_data';
-        $this->foreign_id = $pid;
+        $this->foreign_table_name = $foreign_table_name;
+        $this->foreign_id = $foreign_id;
+
+        // if entry already exists in table, then set the id
+        $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table_name` = ? AND `foreign_id` = ?", [$foreign_table_name, $foreign_id])['id'] ?? null;
+        if (!empty($id)) {
+            $this->id = $id;
+        }
     }
 
     /**
