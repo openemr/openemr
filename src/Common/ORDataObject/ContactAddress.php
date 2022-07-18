@@ -239,7 +239,7 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     /**
      * @return int
      */
-    public function get_contact_id(): int
+    public function get_contact_id(): ?int
     {
         return $this->contact_id;
     }

@@ -37,21 +37,20 @@ class Contact extends ORDataObject
     const CONTACT_TYPE_PATIENT = 'Patient';
     const CONTACT_TYPES = [self::CONTACT_TYPE_PATIENT];
 
-    public function __construct($id)
+    public function __construct($id = "")
     {
         parent::__construct("contact");
-        $this->_id = $id;
+        $this->id = $id;
 
         if (!empty($id)) {
             $this->populate();
         }
     }
-
-    public function setPatientPid($pid)
+    public function setContactRecord(string $foreign_table_name, int $foreign_id): void
     {
         // we set our type to be patient_id and our table type here.
-        $this->foreign_table_name = 'patient_data';
-        $this->foreign_id = $pid;
+        $this->foreign_table_name = $foreign_table_name;
+        $this->foreign_id = $foreign_id;
     }
 
     /**

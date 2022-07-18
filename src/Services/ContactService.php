@@ -145,9 +145,19 @@ class ContactService extends BaseService
             $address->set_postalcode($contactData['postalcode'][$i] ?? '');
             $address->set_foreign_id(null);
 
+            $contact_id = $contactAddress->get_contact_id();
+            if (is_null($contact_id)) {
+                $contact_id = $this->getContact_Id('patient_data', $pid);
+                if (!is_null($contact_id)) {
+                    $contactAddress->set_contact_id($contact_id);
+                }
+            }
+
             $contact = $contactAddress->getContact();
-            // then we will create our contacts record as well
-            $contact->setPatientPid($pid);
+            $contact_id = $contact->get_id();
+            if (is_null($contact_id)) {
+                $contact->setContactRecord('patient_data', $pid);
+            }
 
             // here we can handle all of our data actions
             if ($contactData['data_action'][$i] == 'INACTIVATE') {
@@ -189,5 +199,14 @@ class ContactService extends BaseService
             $resultSet[] = $arrAddress;
         }
         return $resultSet;
+    }
+    private function getContact_Id($foreign_table_name, $foreign_id): ?int
+    {
+        $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table_name` = ? AND `foreign_id` = ?", [$foreign_table_name, $foreign_id])['id'] ?? null;
+        if (!empty($id)) {
+            return $id;
+        } else {
+            return null;
+        }
     }
 }
