@@ -172,6 +172,11 @@ class ContactService extends BaseService
                 $contact->setContactRecord('patient_data', $pid);
             }
 
+            // here we can handle all of our data actions
+            if ($contactData['data_action'][$i] == 'INACTIVATE') {
+                $contactAddress->deactivate();
+            }
+
             // now we fill in any of our ContactAddress information if we have it
             $records[] = $contactAddress;
         }
