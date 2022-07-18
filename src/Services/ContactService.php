@@ -147,7 +147,7 @@ class ContactService extends BaseService
 
             $contact = $contactAddress->getContact();
             // then we will create our contacts record as well
-            $contact->setPatientPid($pid);
+            $contact->setContactRecord('patient_data', $pid);
 
             // here we can handle all of our data actions
             if ($contactData['data_action'][$i] == 'INACTIVATE') {

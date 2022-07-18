@@ -40,18 +40,37 @@ class Contact extends ORDataObject
     public function __construct($id)
     {
         parent::__construct("contact");
-        $this->_id = $id;
+        $this->id = $id;
 
         if (!empty($id)) {
             $this->populate();
         }
     }
 
-    public function setPatientPid($pid)
+    public function setContactRecord(string $foreign_table_name, int $foreign_id): void
     {
         // we set our type to be patient_id and our table type here.
-        $this->foreign_table_name = 'patient_data';
-        $this->foreign_id = $pid;
+        $this->foreign_table_name = $foreign_table_name;
+        $this->foreign_id = $foreign_id;
+
+        $this->setContactIdIfExist();
+    }
+
+    public function persist()
+    {
+        if (empty($this->id)) {
+            $this->setContactIdIfExist();
+        }
+        return parent::persist();
+    }
+
+    private function setContactIdIfExist(): void
+    {
+        $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table_name` = ? AND `foreign_id` = ?", [$this->foreign_table_name, $this->foreign_id])['id'] ?? null;
+        if (!empty($id)) {
+            // the contact entry already exists for this foreign table name and foreign id, so set it
+            $this->id = $id;
+        }
     }
 
     /**
