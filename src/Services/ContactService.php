@@ -160,13 +160,13 @@ class ContactService extends BaseService
             // using the id stored in the variable ContractAddress->contact_id.
             // If the id in ContractAddress->contact_id is null, it creates
             // a class with Contact->id = null.
-            
+
             $contact = $contactAddress->getContact();
-            
+
             // If ContractAddress->contact_id already had an id,
             // then instantiating the Contact class already populated
             // the Contact record and there is no need to setContactRecord.
-            
+
             $contact_id = $contact->get_id();
             if (is_null($contact_id)) {
                 $contact->setContactRecord('patient_data', $pid);
