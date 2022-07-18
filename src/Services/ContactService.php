@@ -147,21 +147,29 @@ class ContactService extends BaseService
 
             $contact_id = $contactAddress->get_contact_id();
             if (is_null($contact_id)) {
+                // If the address is new, ContactAddress->contact_id will be null.
+                // We need to find out if a contact table entry already exists for the patient
+                // and put it in ContactAddress->contact_id.
                 $contact_id = $this->getContact_Id('patient_data', $pid);
                 if (!is_null($contact_id)) {
                     $contactAddress->set_contact_id($contact_id);
                 }
             }
 
+            // ContactAddress->getContact instantiates the class Contact
+            // using the id stored in the variable ContractAddress->contact_id.
+            // If the id in ContractAddress->contact_id is null, it creates
+            // a class with Contact->id = null.
+            
             $contact = $contactAddress->getContact();
+            
+            // If ContractAddress->contact_id already had an id,
+            // then instantiating the Contact class already populated
+            // the Contact record and there is no need to setContactRecord.
+            
             $contact_id = $contact->get_id();
             if (is_null($contact_id)) {
                 $contact->setContactRecord('patient_data', $pid);
-            }
-
-            // here we can handle all of our data actions
-            if ($contactData['data_action'][$i] == 'INACTIVATE') {
-                $contactAddress->deactivate();
             }
 
             // now we fill in any of our ContactAddress information if we have it
