@@ -37,7 +37,7 @@ class Contact extends ORDataObject
     const CONTACT_TYPE_PATIENT = 'Patient';
     const CONTACT_TYPES = [self::CONTACT_TYPE_PATIENT];
 
-    public function __construct($id = "")
+    public function __construct($id)
     {
         parent::__construct("contact");
         $this->id = $id;
