@@ -852,6 +852,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         <?php
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?> 
+        div.tab td.label_custom, div.label_custom {
+            text-align: right !important;
+        }
+
+        div.tab td.data, div.data {
+            padding-left: 0.5em;
+            padding-right: 2em;
+        }
+            <?php
+        } ?>
+        
+        <?php
         // This is for layout font size override.
         $grparr = array();
         getLayoutProperties('DEM', $grparr, 'grp_size');
@@ -868,7 +881,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         #DEM .label {
             font-size: <?php echo attr($FONTSIZE); ?>rem;
         }
-
+    
         #DEM .data {
             font-size: <?php echo attr($FONTSIZE); ?>rem;
         }
@@ -1202,7 +1215,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Edit',
                             'btnLink' => $GLOBALS['webroot'] . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
-                            'btnCLass' => 'rx_modal',
+                            'btnCLass' => '',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
                             'auth' => AclMain::aclCheckCore('patients', 'amendment', '', 'write'),

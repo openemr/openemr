@@ -113,7 +113,9 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 <html>
 <head>
 
-<?php Header::setupHeader('datetime-picker'); ?>
+<?php Header::setupHeader('datetime-picker');
+echo "<title>" . xlt('Amendments') . "</title>";
+?>
 
 <script>
 
