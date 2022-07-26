@@ -247,6 +247,7 @@ class Address extends ORDataObject implements \JsonSerializable
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return [
@@ -263,4 +264,5 @@ class Address extends ORDataObject implements \JsonSerializable
             "country" => $this->get_country()
         ];
     }
-} // end of Address
+// end of Address
+}
