@@ -198,6 +198,16 @@ function buildNav($newcnt, $pid, $result)
         }
     }
 
+    if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
+        $navItems[] = [
+            'url' => '#procard',
+            'label' => xl('My Assessments'),
+            'icon' => 'fas fa-file-medical',
+            'dataToggle' => 'collapse',
+            'dataType' => 'cardgroup'
+        ];
+    }
+
     // Build sub nav items
 
     if (!empty($GLOBALS['allow_portal_chat'])) {
