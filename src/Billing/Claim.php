@@ -782,7 +782,7 @@ class Claim
     public function billingContactEmail()
     {
         if (!$this->x12_submitter_name()) {
-            return $this->x12Clean(trim($this->billing_facility['email']));
+            return $this->x12Clean(trim($this->billing_facility['email'] ?? ''));
         } else {
             $query = "SELECT email FROM users WHERE federaltaxid = ?";
             $ores = sqlQuery($query, array($this->x12_partner['id_number'] ?? ''));
@@ -1389,10 +1389,16 @@ class Claim
 
     public function frequencyTypeCode()
     {
-        $tmp = (
-            !empty($this->billing_options['replacement_claim']) &&
-            ($this->billing_options['replacement_claim'] == 1)
-        ) ? '7' : '1';
+        if (!empty($this->billing_options['replacement_claim'])) {
+            if ($this->billing_options['replacement_claim'] == 1) {
+                $tmp = '7';
+            } elseif ($this->billing_options['replacement_claim'] == 2) {
+                $tmp = '8';
+            }
+        } else {
+            $tmp = '1';
+        }
+
         return $tmp;
     }
 
