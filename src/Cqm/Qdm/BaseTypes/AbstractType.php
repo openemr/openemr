@@ -24,6 +24,7 @@ abstract class AbstractType implements \JsonSerializable
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $vars = get_object_vars($this);

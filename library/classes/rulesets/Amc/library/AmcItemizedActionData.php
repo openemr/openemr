@@ -76,6 +76,7 @@ class AmcItemizedActionData implements JsonSerializable
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->getActionData();

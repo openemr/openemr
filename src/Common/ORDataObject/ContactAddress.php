@@ -26,14 +26,14 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     // ORDataObject won't save with a numeric "0", we could change the condition but we don't know the ramifications
     // of doing that and we're short on time.  So we are switching this to string constants and letting MySQL convert it
     // TODO: Change these to numeric values once we've fixed the issue in ORDataObject
-    const STATUS_ACTIVE = 'A';
-    const STATUS_INACTIVE = 'I';
-    const IS_PRIMARY_YES = "Y";
-    const IS_PRIMARY_NO = "N";
-    const ADDRESS_TYPE_HOME = "home";
-    const DEFAULT_TYPE = "both"; // both physical and shipping address
-    const DEFAULT_USE = self::ADDRESS_TYPE_HOME;
-    const USE_OLD = "old"; // option_id for 'use' property when the address is no longer used or is incorrect.
+    private const STATUS_ACTIVE = 'A';
+    private const STATUS_INACTIVE = 'I';
+    private const IS_PRIMARY_YES = "Y";
+    private const IS_PRIMARY_NO = "N";
+    private const ADDRESS_TYPE_HOME = "home";
+    public const DEFAULT_TYPE = "both"; // both physical and shipping address
+    public const DEFAULT_USE = self::ADDRESS_TYPE_HOME;
+    public const USE_OLD = "old"; // option_id for 'use' property when the address is no longer used or is incorrect.
     private $id;
     /**
      * @var int The foreign key to the contact table
@@ -495,6 +495,7 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $result = [
