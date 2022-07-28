@@ -35,7 +35,6 @@ namespace OpenEMR\Core;
 
 use Composer\Autoload\ClassLoader;
 
-
 class ModulesClassLoader
 {
     /**
@@ -59,10 +58,10 @@ class ModulesClassLoader
      *
      * @return void
      */
-    public function registerNamespaceIfNotExists($namespace, $paths) {
+    public function registerNamespaceIfNotExists($namespace, $paths)
+    {
         $prefixes = $this->classLoader->getPrefixesPsr4();
-        if (empty($prefixes[$namespace]))
-        {
+        if (empty($prefixes[$namespace])) {
             $this->classLoader->addPsr4($namespace, $paths);
             return true;
         }
@@ -75,7 +74,8 @@ class ModulesClassLoader
      *
      * @return void
      */
-    public function registerClassmap($classMap) {
+    public function registerClassmap($classMap)
+    {
         $this->classLoader->addClassMap($classMap);
     }
 }
