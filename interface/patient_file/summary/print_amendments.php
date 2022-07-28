@@ -15,7 +15,15 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+//ensure user has proper access
+if (!AclMain::aclCheckCore('patients', 'amendment')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Print")]);
+    exit;
+}
 
 $amendments = $_REQUEST["ids"];
 $amendments = rtrim($amendments, ",");
