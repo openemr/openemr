@@ -12,7 +12,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/erx_javascript.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -26,7 +25,7 @@ if (isset($_GET["fid"])) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener']); ?>
+    <?php Header::setupHeader(['opener', 'erx']); ?>
 
     <script src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
     <script src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>

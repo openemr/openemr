@@ -74,8 +74,7 @@ if ($GLOBALS['insurance_only_one']) {
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['datetime-picker','common','select2']);
-    require_once("$srcdir/erx_javascript.inc.php");
+<?php Header::setupHeader(['datetime-picker','common','select2', 'erx']);
 ?>
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 

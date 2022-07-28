@@ -84,9 +84,8 @@ $fres = getLayoutRes();
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['common','datetime-picker','select2']); ?>
+<?php Header::setupHeader(['common','datetime-picker','select2', 'erx']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
-<?php require_once("$srcdir/erx_javascript.inc.php"); ?>
 <style>
 .form-group {
     margin-bottom: 0.25rem;
