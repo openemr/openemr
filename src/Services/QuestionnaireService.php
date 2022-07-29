@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+
 class QuestionnaireService extends BaseService
 {
     public const TABLE_NAME = 'questionnaire_repository';
@@ -22,24 +24,29 @@ class QuestionnaireService extends BaseService
             $sql = "Select * From questionnaire_repository Where uuid = ?";
             $bind =  array($uuid);
         }
-
-        $resource = sqlQuery($sql, $bind);
-        return $resource ?: [];
+        $response = sqlQuery($sql, $bind) ?: [];
+        if (is_array($response) && !empty($response['id'])) {
+            $response['uuid'] = UuidRegistry::uuidToString($response['uuid']);
+        }
+        return $response;
     }
 
     public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null)
     {
-        $sql = "Select id, version From questionnaire_repository Where (name IS NOT NULL And name = ?) Or (questionnaire_id IS NOT NULL And questionnaire_id = ?)";
+        $sql = "Select id, uuid, version From questionnaire_repository Where (name IS NOT NULL And name = ?) Or (questionnaire_id IS NOT NULL And questionnaire_id = ?)";
         $bind =  array($name, $q_id);
         if (!empty($uuid)) {
             $sql = "Select id From questionnaire_repository Where uuid = ?";
             $bind =  array($uuid);
         }
-
-        return sqlQuery($sql, $bind) ?: [];
+        $response = sqlQuery($sql, $bind) ?: [];
+        if (is_array($response) && !empty($response['id'])) {
+            $response['uuid'] = UuidRegistry::uuidToString($response['uuid']);
+        }
+        return $response;
     }
 
-    public function fetchQuestionnaireResponses($pid, $id = null, $name = null, $q_id = null): bool|array
+    public function fetchQuestionnaireResponses($pid, $id = null, $name = null, $q_id = null)
     {
         $sql = "Select * From questionnaire_response Where patient_id = ? And (name = ? Or questionnaire_id = ?)";
         $resource = sqlStatement($sql, array($pid, $name, $q_id));
@@ -70,6 +77,7 @@ class QuestionnaireService extends BaseService
                 $q = (array)$q;
             }
         }
+        $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
         if (is_array($q)) {
             $q_ob = $q;
             $q_id = $q_id ?? ($q_ob['id'] ?? null);
@@ -85,6 +93,7 @@ class QuestionnaireService extends BaseService
         }
         $content = json_encode($q_ob);
         $bind = array(
+            $q_uuid,
             $q_id,
             $_SESSION['authUserID'],
             $q_version,
@@ -97,7 +106,7 @@ class QuestionnaireService extends BaseService
             $content,
         );
 
-        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `form_js`) VALUES (NULL, NULL, ?, ?, ?, current_timestamp(), ?, ?, 'Questionnaire', ?, '1', ?, NULL, ?, ?, ?, NULL)";
+        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `form_js`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, 'Questionnaire', ?, '1', ?, NULL, ?, ?, ?, NULL)";
 
         $sql_update = "UPDATE `questionnaire_repository` SET `questionnaire_id` = ?, `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ? WHERE `questionnaire_repository`.`id` = ?";
 
