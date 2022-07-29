@@ -19,7 +19,6 @@
 require_once("../globals.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/erx_javascript.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
@@ -59,7 +58,7 @@ $iter = $result[0];
 <html>
 <head>
 
-<?php Header::setupHeader(['common','opener']); ?>
+<?php Header::setupHeader(['common','opener', 'erx']); ?>
 
 <script src="checkpwd_validation.js"></script>
 
