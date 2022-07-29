@@ -27,7 +27,7 @@ class QuestionnaireService extends BaseService
         return $resource ?: [];
     }
 
-    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null): bool|array
+    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null)
     {
         $sql = "Select id, version From questionnaire_repository Where (name IS NOT NULL And name = ?) Or (questionnaire_id IS NOT NULL And questionnaire_id = ?)";
         $bind =  array($name, $q_id);
