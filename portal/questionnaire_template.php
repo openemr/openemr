@@ -19,7 +19,6 @@ $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
 }
-$patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../interface/globals.php");
 
@@ -37,7 +36,6 @@ if (!empty($q) && empty($url)) {
     $templateService = new QuestionnaireService();
     $resource = $templateService->fetchQuestionnaireResource($q, $q);
     $q_json = $resource['questionnaire'];
-    $q_js = text($resource['form_js']);
 }
 ?>
 <head>
@@ -53,15 +51,13 @@ if (!empty($q) && empty($url)) {
             window.alert(JSON.stringify(data, null, 2));
             window.alert(JSON.stringify(qr, null, 2));
         }
-        <?php if (empty($q_js) && $q_type != 'loinc_form') { ?>
+        <?php if ($q_type != 'loinc_form') { ?>
         window.onload = function () {
             LForms.Util.addFormToPage(fhirQ, 'formContainer');
         }
-        <?php } if (!empty($q_js)) {
-            echo $q_js;
-        } ?>
+        <?php } ?>
         <?php if ($q_type == 'loinc_form') { ?>
-        let url = "<?php echo $q_url . '?loinc_num=' . urlencode($q_form_code) ?>";
+        let url = <?php echo js_escape($q_url); ?> +  '?loinc_num=' + encodeURIComponent(<?php echo js_escape($q_form_code); ?>);
         fetch(url).then((response) => {
             return response.json()
         }).then((data) => {

@@ -170,16 +170,16 @@ function doSubs($s)
             $keyLength = strlen($matches[0]);
             $src = './../questionnaire_template.php?isPortal=1&qId=' . urlencode($q_id);
             $sigfld = "<script>page.isQuestionnaire=1;page.questionnaireName=" . js_escape($q_id) . "</script>";
-            $sigfld .= "<iframe id='questionnaire' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . $src . "'></iframe>";
+            $sigfld .= "<iframe id='questionnaire' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr($s, $keyLocation), $matches)) {
             $q_url = $matches[3];
             $form_id = $matches[4];
             $form_name = $matches[2];
             $keyLength = strlen($matches[0]);
-            $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . $q_url . '&form_code=' . urlencode($form_id);
+            $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
             $sigfld = "<script>page.isQuestionnaire=1;page.questionnaireName=" . js_escape($q_id) . "</script>";
-            $sigfld .= "<iframe id='questionnaire' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . $src . "'></iframe>";
+            $sigfld .= "<iframe id='questionnaire' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
             global $templateService;

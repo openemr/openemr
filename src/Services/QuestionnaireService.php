@@ -18,7 +18,7 @@ class QuestionnaireService extends BaseService
 
     public function fetchQuestionnaireResource($name, $q_id = null, $uuid = null)
     {
-        $sql = "Select * From questionnaire_repository Where (name IS NOT NULL And name = ?) Or (questionnaire_id IS NOT NULL And questionnaire_id = ?)";
+        $sql = "Select * From `questionnaire_repository` Where (`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?)";
         $bind =  array($name, $q_id);
         if (!empty($uuid)) {
             $sql = "Select * From questionnaire_repository Where uuid = ?";
@@ -33,10 +33,10 @@ class QuestionnaireService extends BaseService
 
     public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null)
     {
-        $sql = "Select id, uuid, version From questionnaire_repository Where (name IS NOT NULL And name = ?) Or (questionnaire_id IS NOT NULL And questionnaire_id = ?)";
+        $sql = "Select `id`, `uuid`, `version` From `questionnaire_repository` Where (name IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?)";
         $bind =  array($name, $q_id);
         if (!empty($uuid)) {
-            $sql = "Select id From questionnaire_repository Where uuid = ?";
+            $sql = "Select id From `questionnaire_repository` Where `uuid` = ?";
             $bind =  array($uuid);
         }
         $response = sqlQuery($sql, $bind) ?: [];
@@ -48,7 +48,7 @@ class QuestionnaireService extends BaseService
 
     public function fetchQuestionnaireResponses($pid, $id = null, $name = null, $q_id = null)
     {
-        $sql = "Select * From questionnaire_response Where patient_id = ? And (name = ? Or questionnaire_id = ?)";
+        $sql = "Select * From `questionnaire_response` Where `patient_id` = ? And (`name` = ? Or `questionnaire_id` = ?)";
         $resource = sqlStatement($sql, array($pid, $name, $q_id));
         while ($row = sqlFetchArray($resource)) {
             $resource[] = $row;
@@ -106,7 +106,7 @@ class QuestionnaireService extends BaseService
             $content,
         );
 
-        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `form_js`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, 'Questionnaire', ?, '1', ?, NULL, ?, ?, ?, NULL)";
+        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, 'Questionnaire', ?, '1', ?, NULL, ?, ?, ?)";
 
         $sql_update = "UPDATE `questionnaire_repository` SET `questionnaire_id` = ?, `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ? WHERE `questionnaire_repository`.`id` = ?";
 
