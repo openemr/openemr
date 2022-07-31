@@ -192,7 +192,7 @@ $templateService = new DocumentTemplateService();
         function replaceTextInputs() {
             $('.templateInput').each(function () {
                 var rv = $(this).data('textvalue');
-                $(this).replaceWith(rv);
+                $(this).replaceWith(jsText(rv));
             });
         }
 
@@ -200,14 +200,14 @@ $templateService = new DocumentTemplateService();
             $('.ynuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
 
             $('.tfuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="tfradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
         }
