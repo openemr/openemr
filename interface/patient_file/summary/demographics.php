@@ -178,7 +178,7 @@ function portalAuthorized($pid)
 
     $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
     $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
-    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps']) != 'YES';
+    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps'] ?? '') != 'YES';
     if ($return['allowed']['portal'] || $return['allowed']['api']) {
         $return['isAllowed'] = true;
         $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
