@@ -24,7 +24,6 @@ define("EVENT_OTHER", 4);
  */
 class FormSOAP extends ORDataObject
 {
-
     /**
      *
      * @access public

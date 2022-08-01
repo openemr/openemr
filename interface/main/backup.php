@@ -25,7 +25,7 @@
  * @author    Bill Cernansky (www.mi-squared.com)
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2008-2014, 2016, 2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2008-2014, 2016, 2021-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -39,6 +39,7 @@ require_once("$srcdir/patient.inc");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -59,7 +60,8 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
+    exit;
 }
 
 // When automatically including lists used in selected layouts, these lists are not included.
@@ -443,6 +445,8 @@ function export_submit(step) {
 
 <?php
 $cmd = '';
+// $cmdarr exists because some commands may be too long for a single exec.
+$cmdarr = array();
 $mysql_cmd = $MYSQL_PATH . DIRECTORY_SEPARATOR . 'mysql';
 $mysql_dump_cmd = $mysql_cmd . 'dump';
 $mysql_ssl = '';
@@ -496,8 +500,8 @@ if ($form_step == 0) {
 }
 
 if ($form_step == 1) {
-    $form_status .= xla('Dumping OpenEMR database') . "...<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Dumping OpenEMR database') . "...||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     if (file_exists($TAR_FILE_PATH)) {
         if (! unlink($TAR_FILE_PATH)) {
             die(xlt("Couldn't remove old backup file:") . " " . text($TAR_FILE_PATH));
@@ -521,6 +525,7 @@ if ($form_step == 1) {
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
         " --routines" .
+        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
         " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     } else {
@@ -528,6 +533,7 @@ if ($form_step == 1) {
         " -p" . escapeshellarg($sqlconf["pass"]) .
         " -h " . escapeshellarg($sqlconf["host"]) .
         " --port=" . escapeshellarg($sqlconf["port"]) .
+        " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
         " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
         escapeshellarg($sqlconf["dbase"]);
     }
@@ -540,8 +546,8 @@ if ($form_step == 2) {
 }
 
 if ($form_step == 3) {
-    $form_status .= xla('Dumping OpenEMR web directory tree') . "...<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Dumping OpenEMR web directory tree') . "...||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     $cur_dir = getcwd();
     chdir($webserver_root);
 
@@ -582,8 +588,8 @@ if ($form_step == 4) {
 }
 
 if ($form_step == 5) {   // create the final compressed tar containing all files
-    $form_status .= xla('Backup file has been created. Will now send download.') . "<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Backup file has been created. Will now send download.') . "||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     $cur_dir = getcwd();
     chdir($BACKUP_DIR);
     $file_list = array('.');
@@ -687,8 +693,8 @@ if ($form_step == 102) {
     }
 
     if ($tables || is_array($_POST['form_sel_lists'] ?? '') || is_array($_POST['form_sel_layouts'] ?? '')) {
-        $form_status .= xla('Creating export file') . "...<br />";
-        echo nl2br($form_status);
+        $form_status .= xl('Creating export file') . "...||br-placeholder||";
+        echo brCustomPlaceholder(text($form_status));
         if (file_exists($EXPORT_FILE)) {
             if (! unlink($EXPORT_FILE)) {
                 die(xlt("Couldn't remove old export file: ") . text($EXPORT_FILE));
@@ -714,6 +720,7 @@ if ($form_step == 102) {
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
+                    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             } else {
@@ -721,15 +728,16 @@ if ($form_step == 102) {
                     " -p" . escapeshellarg($sqlconf["pass"]) .
                     " -h " . escapeshellarg($sqlconf["host"]) .
                     " --port=" . escapeshellarg($sqlconf["port"]) .
+                    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
                     escapeshellarg($sqlconf["dbase"]) . " $tables";
             }
             if (IS_WINDOWS) {
                 # The Perl script differs in windows also.
-                $cmd .= " | " . escapeshellcmd('"' . $perl . '"') . " -pe \"s/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;\"" .
+                $cmd .= " | " . escapeshellcmd('"' . $perl . '"') . " -pe \"s/ DEFAULT CHARSET=[A-Za-z0-9]*//i; s/ collate[ =][^ ;,]*//i;\"" .
                     " >> " . escapeshellarg($EXPORT_FILE) . " & ";
             } else {
-                $cmd .= " | " . escapeshellcmd($perl) . " -pe 's/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;'" .
+                $cmd .= " | " . escapeshellcmd($perl) . " -pe 's/ DEFAULT CHARSET=[A-Za-z0-9]*//i; s/ collate[ =][^ ;,]*//i;'" .
                     " > " . escapeshellarg($EXPORT_FILE) . ";";
             }
         }
@@ -738,6 +746,7 @@ if ($form_step == 102) {
                  " -p" . escapeshellarg($sqlconf["pass"]) .
                  " -h " . escapeshellarg($sqlconf["host"]) .
                  " --port=" . escapeshellarg($sqlconf["port"]) .
+                 " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
                  " --hex-blob --skip-opt --quote-names --no-tablespaces --complete-insert" .
                  " --no-create-info --skip-comments $mysql_ssl";
 
@@ -777,22 +786,21 @@ if ($form_step == 102) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
                     $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
                     $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                } else {
-                    $cmd .= "echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
-                    $cmd .= "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
-                }
-                if (IS_WINDOWS) {
                     # windows uses the & to join statements.
                     $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
                         "ORDER BY list_id != 'lists', seq, title\" " .
                         escapeshellarg($sqlconf["dbase"]) . " list_options";
                     $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
+                    $cmdarr[] = "echo 'DELETE FROM list_options WHERE list_id = \"" .
+                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                        "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" .
+                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                        $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
                         add_escape_custom($listid) . "\" OR list_id = \"" .
                         add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
-                        escapeshellarg($sqlconf["dbase"]) . " list_options";
-                    $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . ";";
+                        escapeshellarg($sqlconf["dbase"]) . " list_options" .
+                        " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
             }
         }
@@ -891,8 +899,8 @@ if ($form_step == 102) {
 }
 
 if ($form_step == 103) {
-    $form_status .= xla('Done.  Will now send download.') . "<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Done.  Will now send download.') . "||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     $auto_continue = true;
 }
 
@@ -911,8 +919,8 @@ if ($form_step == 202) {
   // Process uploaded config file.
     if (is_uploaded_file($_FILES['userfile']['tmp_name'])) {
         if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
-            $form_status .= xla('Applying') . "...<br />";
-            echo nl2br($form_status);
+            $form_status .= xl('Applying') . "...||br-placeholder||";
+            echo brCustomPlaceholder(text($form_status));
             $cmd = escapeshellcmd($mysql_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
             " -p" . escapeshellarg($sqlconf["pass"]) .
             " -h " . escapeshellarg($sqlconf["host"]) .
@@ -933,8 +941,8 @@ if ($form_step == 202) {
 }
 
 if ($form_step == 203) {
-    $form_status .= xla('Done') . ".";
-    echo nl2br($form_status);
+    $form_status .= xl('Done') . ".";
+    echo brCustomPlaceholder(text($form_status));
 }
 
 /// ViSolve : EventLog Backup
@@ -964,6 +972,7 @@ if ($form_step == 301) {
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
     " --port=" . escapeshellarg($sqlconf["port"]) .
+    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
     " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
     escapeshellarg($sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
 # Set Eventlog Flag when it is done
@@ -1017,7 +1026,7 @@ if ($form_step == 405) {
 </table>
 
 <input type='hidden' name='form_step' value='<?php echo attr($form_step); ?>' />
-<input type='hidden' name='form_status' value='<?php echo $form_status; ?>' />
+<input type='hidden' name='form_status' value='<?php echo attr($form_status); ?>' />
 
 </form>
 
@@ -1056,6 +1065,15 @@ if ($cmd) {
  //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Ends here
 }
 
+// $cmdarr exists because some commands may be too long for a single exec.
+// Note eventlog stuff does not apply here.
+foreach ($cmdarr as $acmd) {
+    $tmp0 = exec($acmd, $tmp1, $tmp2);
+    if ($tmp2) {
+        die("Error $tmp2 in: " . text($acmd));
+    }
+}
+
 // If a file was flagged to be gzip-compressed after this cmd, do it.
 if ($file_to_compress) {
     if (!gz_compress_file($file_to_compress)) {
@@ -1071,6 +1089,13 @@ if ($file_to_compress) {
     setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php }
+
+// convert ||br-placeholder|| to <br>
+// (this is because the nl2br was not working for a reason I couldn't figure out)
+function brCustomPlaceholder(string $str): string
+{
+    return str_replace("||br-placeholder||", "<br />", $str);
+}
 
 // Recursive directory remove (like an O/S insensitive "rm -rf dirname")
 function obliterate_dir($dir)

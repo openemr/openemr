@@ -15,7 +15,11 @@
 ?>
 
 <head>
-    <link rel="stylesheet" href="<?php css_src('rules.css') ?>">
+    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } else { ?>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php } ?>
     <script src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script>
         // This invokes the find-code popup.
@@ -36,7 +40,7 @@
 </head>
 
 <!-- diagnosis -->
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead req" data-fld="fld_diagnosis"><?php echo text($criteria->getTitle()); ?></span>
     <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="form-control field" onclick="sel_diagnosis()" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
 </p>

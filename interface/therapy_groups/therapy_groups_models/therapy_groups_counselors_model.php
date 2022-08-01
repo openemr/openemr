@@ -27,7 +27,6 @@
 
 class Therapy_Groups_Counselors
 {
-
     const TABLE = 'therapy_groups_counselors';
 
     public function getAllCounselors()

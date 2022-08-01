@@ -10,7 +10,7 @@ use Symfony\Component\Panther\Client;
 class MainPage
 {
     private const COLLAPSED_MENU_BUTTON = '//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]';
-    private const ADMINISTRATION_MENU = '//div[@id="mainMenu"]//div[text()="Administration"]';
+    private const ADMINISTRATION_MENU = '//div[@id="mainMenu"]//div[text()="Admin"]';
     private const USERS_SUBMENU = '//div[@id="mainMenu"]//div[text()="Users"]';
 
     private const ACTIVE_TAB = "//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]";

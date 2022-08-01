@@ -8,11 +8,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2005-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
@@ -190,7 +189,7 @@ function echoServiceLines()
             );
             echo "</td>\n";
 
-            if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
+            if (($code_types[$codetype]['claim'] ?? null) && !($code_types[$codetype]['diag'] ?? null)) {
                 echo "  <td class='billcell text-center' $usbillstyle>" .
                 text($li['notecodes']) . "</td>\n";
             } else {
@@ -491,8 +490,8 @@ $current_checksum = $fs->visitChecksum();
 // this is for a save before we open justify dialog.
 // otherwise current form state is over written in justify process.
 if (!empty($_POST['running_as_ajax']) && !empty($_POST['dx_update'])) {
-    $main_provid = 0 + $_POST['ProviderID'];
-    $main_supid = 0 + (int)$_POST['SupervisorID'];
+    $main_provid = (int) $_POST['ProviderID'];
+    $main_supid  = (int) $_POST['SupervisorID'];
     $fs->save(
         $_POST['bill'],
         $_POST['prod'],
@@ -525,7 +524,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))
 // lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
 if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
-    $main_provid = 0 + ($_POST['ProviderID'] ?? 0);
+    $main_provid = (int) ($_POST['ProviderID'] ?? 0);
     $main_supid  = 0 + (int)($_POST['SupervisorID'] ?? 0);
 
     $fs->save(
@@ -598,16 +597,24 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
 } // end save or save-and-close
 
 // Handle reopen request.  In that case no other changes will be saved.
-// If there was a checkout this will undo it.
+// If there was a checkout this will undo it unless the global 'void_checkout_reopen' is turned off
+// then it just reopens the fee sheet for editing
 if (!$alertmsg && (!empty($_POST['bn_reopen']) || !empty($_POST['form_reopen']))) {
-    BillingUtilities::doVoid(
-        $fs->pid,
-        $fs->encounter,
-        true,
-        'all',
-        $_POST['form_reason'],
-        $_POST['form_notes']
-    );
+    if ($GLOBALS['void_checkout_reopen']) {
+        BillingUtilities::doVoid(
+            $fs->pid,
+            $fs->encounter,
+            true,
+            'all',
+            $_POST['form_reason'],
+            $_POST['form_notes']
+        );
+    } else {
+        BillingUtilities::reOpenEncounterForBilling(
+            $fs->pid,
+            $fs->encounter
+        );
+    }
     $current_checksum = $fs->visitChecksum();
     // Remove the line items so they are refreshed from the database on redisplay.
     unset($_POST['bill']);
@@ -722,13 +729,13 @@ function voidwrap(form_reason, form_notes) {
 }
 
 function validate(f) {
- if (!f.ProviderID.value) {
-  alert(<?php echo xlj("Please select a default provider."); ?>);
-  return false;
- }
  if (f.bn_reopen) {
   var reopening = f.bn_reopen.clicked;
+  <?php if ($GLOBALS['void_checkout_reopen']) { ?>
   var voiding = reopening && f.bn_reopen.clicked == 2;
+  <?php } else { ?>
+  var voiding = false;
+  <?php } ?>
   f.bn_reopen.clicked = false;
   if (reopening) {
    if (voiding) {
@@ -738,10 +745,22 @@ function validate(f) {
     // Collect void reason and notes.
     dlgopen('../../patient_file/void_dialog.php', '_blank', 500, 450);
     return false;
+   } else {
+    if (!confirm(<?php echo xlj('Do you want to re-open this visit for billing?'); ?>)) {
+     return false;
+    }
+    var f = document.forms[0];
+    f.form_reopen.value = '1';
+    f.submit();
+    return false;
    }
    top.restoreSession();
    return true;
   }
+ }
+ if (!f.ProviderID.value) {
+  alert(<?php echo xlj("Please select a default provider."); ?>);
+  return false;
  }
  var refreshing = false;
  if (f.bn_refresh) {
@@ -823,6 +842,7 @@ function setSaveAndClose() {
   f.form_has_charges.value = '0';
   f.bn_save_close.value = <?php echo xlj('Save and Close'); ?>;
  }
+ f.bn_save_close.innerHTML = f.bn_save_close.value; // Required for Bootstrap 4
 }
 
 // Open the add-event dialog.
@@ -1253,7 +1273,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             if ($fs->pricesAuthorized()) {
                                                 $fee = formatMoneyNumber((trim($bline['price'] ?? 0)) * $units);
                                             }
-                                            $authorized = $bline['auth'];
+                                            $authorized = $bline['auth'] ?? null;
                                             $ndc_info   = '';
                                             if (!empty($bline['ndcnum'])) {
                                                 $ndc_info = 'N4' . trim($bline['ndcnum']) . '   ' . $bline['ndcuom'] .
@@ -1261,7 +1281,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             $justify    = $bline['justify'] ?? null;
                                             $notecodes  = trim($bline['notecodes'] ?? null);
-                                            $provider_id = 0 + (int)$bline['provid'];
+                                            $provider_id = (int) ($bline['provid'] ?? null);
                                         }
 
                                         if ($iter['code_type'] == 'COPAY') { // moved copay display to below
@@ -1664,7 +1684,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </button>
     <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen'
      onclick='return this.clicked = 2;' value='<?php echo xla('Void All Checkouts and Re-Open'); ?>'>
-                                            <?php echo xlt('Void Checkout and Re-Open'); ?>
+                                            <?php if ($GLOBALS['void_checkout_reopen']) {
+                                                echo xlt('Void Checkout and Re-Open');
+                                            } else {
+                                                echo xla('Re-Open');
+                                            }    ?>
     </button>
                                     <?php } else { ?>
     <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen'

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveDeviceRecommended extends DeviceRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveDeviceRecommended extends DeviceRecommended
 
     public $_type = 'QDM::PositiveDeviceRecommended';
 }
+

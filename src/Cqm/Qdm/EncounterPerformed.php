@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class EncounterPerformed extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -70,6 +69,11 @@ class EncounterPerformed extends QDMBaseType
     public $participant = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Encounter, Performed';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.5';
@@ -91,3 +95,4 @@ class EncounterPerformed extends QDMBaseType
 
     public $_type = 'QDM::EncounterPerformed';
 }
+

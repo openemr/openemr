@@ -20,6 +20,9 @@ require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FacilityService;
 
 /**
  * Return listing of CDR reminders in log.
@@ -81,19 +84,26 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
         echo "<div class=\"list-group-item p-1 d-flex w-100 justify-content-between\">";
 
-        // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
+        // Collect the Rule Title, Bibliographical citation, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
+        //  Show the link for Linked referential CDS (this is set via codetype:code)
         $tooltip = '';
         if (!empty($action['rule_id'])) {
             $rule_title = getListItemTitle("clinical_rules", $action['rule_id']);
-            $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version`, `web_reference` " .
+            $ruleData = sqlQuery("SELECT `bibliographic_citation`, `developer`, `funding_source`, `release_version`, `web_reference`, `linked_referential_cds` " .
                            "FROM `clinical_rules` " .
                            "WHERE  `id`=? AND `pid`=0", array($action['rule_id']));
+            $bibliographic_citation = $ruleData['bibliographic_citation'];
             $developer = $ruleData['developer'];
             $funding_source = $ruleData['funding_source'];
             $release = $ruleData['release_version'];
             $web_reference = $ruleData['web_reference'];
+            $linked_referential_cds = $ruleData['linked_referential_cds'];
             if (!empty($rule_title)) {
                   $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
+            }
+
+            if (!empty($bibliographic_citation)) {
+                $tooltip .= xla('Rule Bibliographic Citation') . ": " . attr($bibliographic_citation) . "&#013;";
             }
 
             if (!empty($developer)) {
@@ -110,9 +120,18 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
             if ((!empty($tooltip)) || (!empty($web_reference))) {
                 if (!empty($web_reference)) {
-                    $tooltip = "<a href='" . attr($web_reference) . "' rel='noopener' target='_blank' style='white-space: pre-line;' title='" . $tooltip . "'>?</a>";
+                    $tooltip = "<a href='" . attr($web_reference) . "' rel='noopener' target='_blank' style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></a>";
                 } else {
-                    $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'>?</span>";
+                    $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></span>";
+                }
+            }
+
+            if (!empty($linked_referential_cds)) {
+                $codeParse = explode(":", $linked_referential_cds);
+                $codetype = $codeParse[0] ?? null;
+                $code = $codeParse[1] ?? null;
+                if (!empty($codetype) && !empty($code)) {
+                    $tooltip .= "<a href='' title='" . xla('Link to Referential CDS') . "' onclick='referentialCdsClick(" . attr_js($codetype) . ", " . attr_js($code) . ")'><i class='fas fa-external-link-square-alt'></i></a>";
                 }
             }
         }
@@ -472,6 +491,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
+    // note for group_calculation we will have some inefficiencies here
     $totalNumPatients = (int)buildPatientArray('', $provider, $pat_prov_rel, null, null, true);
 
   // Cycle through the batches and collect/combine results
@@ -482,6 +502,11 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         // perfectly divisible
         $totalNumberBatches = floor($totalNumPatients / $batchSize);
     }
+
+    (new SystemLogger())->debug(
+        "test_rules_clinic_batch_method()",
+        ['totalNumPatients' => $totalNumPatients, 'totalNumberBatches' => $totalNumberBatches]
+    );
 
   // Fix things in the $options array(). This now stores the number of labs to be used in the denominator in the AMC report.
   // The problem with this variable is that is is added in every batch. So need to fix it by dividing this number by the number
@@ -518,7 +543,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     if (
         ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
         ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
-        ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      )
+        ( (CertificationReportTypes::isAMCReportType($type)) && ($GLOBALS['report_itemizing_amc'])      )
     ) {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
     } else {
@@ -568,12 +593,164 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         finishReportDatabase($report_id, json_encode($dataSheet));
         return $dataSheet;
     } else {
+        // make sure the report at least completes even if we have nothing here.
+        finishReportDatabase($report_id, json_encode([]));
         return [];
     }
 }
 
+function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
+{
+    $results = [];
+    if ($pat_prov_rel == "encounter") {
+        $rez = sqlStatementCdrEngine(
+            "SELECT id AS provider_id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 AND users.id IN( "
+            . " SELECT DISTINCT `provider_id` FROM `form_encounter` WHERE `provider_id` IS NOT NULL and `billing_facility` = ? "
+            . " UNION SELECT DISTINCT `supervisor_id` AS `provider_id` FROM `form_encounter` WHERE `supervisor_id` "
+                . " IS NOT NULL and `billing_facility` = ? "
+            . ") "
+            . " ORDER BY provider_id ",
+            array($billing_facility, $billing_facility)
+        );
+    } else if ($pat_prov_rel == "primary") {
+        $rez = sqlStatementCdrEngine(
+            "SELECT id AS provider_id , lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 AND users.id IN ( "
+            . "SELECT DISTINCT `providerID` AS provider_id FROM `patient_data` JOIN `users` providers ON providerID=providers.id "
+            .    " WHERE `providers`.billing_facility_id = ? "
+            . ") "
+            . " ORDER BY provider_id ",
+            array($billing_facility)
+        );
+    }
+
+    if (!empty($rez)) {
+        while ($urow = sqlFetchArray($rez)) {
+            $results[] = $urow;
+        }
+    }
+
+    return $results;
+}
+
 /**
- * Process clinic rules.
+ * Process clinic rules for the group_calculation provider method.  This will process clinical rules for each of the
+ * billing facilities in the entire organization.  Rules are applied to the entire facility where patients are connected
+ * to the billing facility either through encounters or their primary care provider.  Rules are then applied to each
+ * individual provider who is connected to the billing facility.  This satisifies regulatory requirements where rule
+ * calculations must be able to group results for one or more provider NPIs to a group tax id number (TIN).  One example
+ * of this is in the United States where providers can reassign their medicaid/medicare reimbursements to another TIN and
+ * need to report on calculations at both the group and provider group level.
+ *
+ * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
+ * @param  string/array $dateArray     Date filter to run the calculation on.  Should have two keys ('dateBegin' and 'dateTarget').
+ * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
+ * @param  integer      $patient_id    pid of patient. If blank then will check all patients.
+ * @param  string       $plan          test for specific plan only
+ * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
+ * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen.
+ * @param  integer      $start         applicable patient to start at (when batching process)
+ * @param  integer      $batchSize     number of patients to batch (when batching process)
+ * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
+ * @return array                       See above for organization structure of the results.
+ */
+function test_rules_clinic_group_calculation($type = '', array $dateArray = array(), $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+{
+    (new SystemLogger())->debug(
+        "test_rules_clinic_group_calculation()",
+        array_combine(
+            ['type', 'dateArray', 'mode', 'patient_id', 'plan', 'organize_mode'
+            ,
+            'options',
+            'pat_prov_rel',
+            'start',
+            'batchSize',
+            'user'],
+            func_get_args()
+        )
+    );
+
+    $results = [];
+    $facilityService = new FacilityService();
+    $billingLocations = $facilityService->getAllBillingLocations();
+    if (!empty($billingLocations)) {
+        //Collect applicable rules
+        // Note that due to a limitation in the this function, the patient_id is explicitly
+        //  for grouping items when not being done in real-time or for official reporting.
+        //  So for cases such as patient reminders on a clinic scale, the calling function
+        //  will actually need rather than pass in a explicit patient_id for each patient in
+        //  a separate call to this function.
+        $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
+        $filteredRules = array_filter($rules, function ($rule) {
+            return $rule['amc_flag'] || $rule['cqm_flag'];
+        });
+
+        // TODO: @adunsulag I'd prefer to use a service here, but in order to be consistent with everything else in this file we will use sqlStatementCdrEngine
+        $sql =  "SELECT id, name, federal_ein, facility_npi, tax_id_type FROM facility WHERE facility.billing_location = 1 "
+        . " AND id IN (SELECT DISTINCT billing_facility FROM form_encounter) "
+        . " ORDER BY facility.id ASC";
+        $frez = sqlStatementCdrEngine($sql);
+        while ($frow = sqlFetchArray($frez)) {
+            // we run with the encounter_billing_facility
+
+            $options['billing_facility_id'] = $frow['id'];
+            $patientData = buildPatientArray($patient_id, 'group_calculation', $pat_prov_rel, $start, $batchSize, false, $frow['id']);
+
+            (new SystemLogger())->debug(
+                "test_rules_clinic_group_calculation() patientIds retrieved for facility",
+                ['facilityId' => $frow['id'], 'patientData' => $patientData]
+            );
+
+            if (!empty($patientData)) {
+                $group_item = [];
+                $group_item['is_provider_group'] = true;
+                $group_item['name'] = $frow['name'];
+                $group_item['npi'] = $frow['facility_npi'];
+                $group_item['federaltaxid'] = $frow['federal_ein'];
+                $results[] = $group_item;
+
+                foreach ($filteredRules as $rowRule) {
+                    $tempResults = test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateArray, $options, null, $pat_prov_rel);
+                    if (!empty($tempResults)) {
+                        $results = array_merge($results, $tempResults);
+                    }
+                    (new SystemLogger())->debug(
+                        "test_rules_clinic_group_calculation() results returned for facility",
+                        ['facilityId' => $frow['id'], 'results' => $tempResults]
+                    );
+                }
+
+                // now we are going to do our providers
+                $providers = rules_clinic_get_providers($frow['id'], $pat_prov_rel);
+                if (!empty($providers)) { // should always be populated here
+                    $facility_pat_prov_rel = $pat_prov_rel . "_billing_facility";
+                    foreach ($providers as $prov) {
+                        $newResults = test_rules_clinic($prov['provider_id'], $type, $dateArray, $mode, $patient_id, $plan, $organize_mode, $options, $facility_pat_prov_rel, $start, $batchSize, $user);
+                        if (!empty($newResults)) {
+                            $provider_item['is_provider'] = true;
+                            $provider_item['is_provider_in_group'] = true;
+                            $provider_item['group'] = [
+                                'name' => $frow['name']
+                                ,'npi' => $frow['facility_npi']
+                                ,'federaltaxid' => $frow['federal_ein']
+                            ];
+                            $provider_item['prov_lname'] = $prov['lname'];
+                            $provider_item['prov_fname'] = $prov['fname'];
+                            $provider_item['npi'] = $prov['npi'];
+                            $provider_item['federaltaxid'] = $prov['federaltaxid'];
+                            $results[] = $provider_item;
+                            $results = array_merge($results, $newResults);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return $results;
+}
+
+/**
+ * Process clinic rules for the collate outer and collate inner methods
  *
  * Test the clinic rules of entire clinic and create a report or patient reminders (can also test
  * on one patient or patients of one provider). The structure of the returned results is dependent on the
@@ -602,23 +779,11 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
-
-  // If dateTarget is an array, then organize them.
-    if (is_array($dateTarget)) {
-        $dateArray = $dateTarget;
-        $dateTarget = $dateTarget['dateTarget'];
-    }
-
-  // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
-
-  // Prepare the results array
-    $results = array();
-
-  // If set the $provider to collate_outer (or collate_inner without plans organize mode),
-  // then run through this function recursively and return results.
+    $results = [];
+    // If set the $provider to collate_outer (or collate_inner without plans organize mode),
+    // then run through this function recursively and return results.
     if (($provider === "collate_outer") || ($provider === "collate_inner" && $organize_mode !== 'plans')) {
         // First, collect an array of all providers
         $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname";
@@ -641,8 +806,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         return $results;
     }
 
-  // If set organize-mode to plans, then collects active plans and run through this
-  // function recursively and return results.
+    // If set organize-mode to plans, then collects active plans and run through this
+    // function recursively and return results.
     if ($organize_mode === "plans") {
         // First, collect active plans
         $plans_resolve = resolve_plans_sql($plan, $patient_id);
@@ -687,9 +852,96 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         // done, so now can return results
         return $results;
     }
+}
+
+/**
+ * Runs the AMC or CQM calculations for a given rule.
+ * @param $rowRule The rule we are going to run calculcations against
+ * @param $patientData The list of patient pids we are going to calculate our rules on
+ * @param $dateArray The start and end date of the rule for AMC calculation purposes
+ * @param $dateTarget The end date of the rule for CQM purposes
+ * @param $options Any options needed for AMC/CQM processing
+ * @return array The list of rule calculations that have been generated
+ * @throws Exception If a rule is invalid or not found
+ */
+function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateTarget, $options, $provider, $pat_prov_rel)
+{
+    // we need to give more context to some of our rules
+    $ruleOptions = $options;
+    $ruleOptions['pat_prov_rel'] = $pat_prov_rel;
+    if (is_numeric($provider)) {
+        $ruleOptions['provider_id'] = $provider;
+    }
+    require_once(dirname(__FILE__) . "/classes/rulesets/ReportManager.php");
+    $manager = new ReportManager();
+    if ($rowRule['amc_flag']) {
+        // Send array of dates ('dateBegin' and 'dateTarget')
+        $tempResults = $manager->runReport($rowRule, $patientData, $dateArray, $ruleOptions);
+    } else {
+        // Send target date
+        $tempResults = $manager->runReport($rowRule, $patientData, $dateTarget);
+    }
+    return $tempResults;
+}
+
+/**
+ * Process clinic rules.
+ *
+ * Test the clinic rules of entire clinic and create a report or patient reminders (can also test
+ * on one patient or patients of one provider). The structure of the returned results is dependent on the
+ * $organize_mode and $mode parameters.
+ * <pre>The results are dependent on the $organize_mode parameter settings
+ *   'default' organize_mode:
+ *     Returns a two-dimensional array of results organized by rules (dependent on the following $mode settings):
+ *       'reminders-due' mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+ *       'reminders-all' mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+ *       'report' mode        - returns an array of rows for the Clinical Quality Measures (CQM) report
+ *   'plans' organize_mode:
+ *     Returns similar to default, but organizes by the active plans
+ * </pre>
+ *
+ * @param  integer      $provider      id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans  inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
+ * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
+ * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
+ * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
+ * @param  integer      $patient_id    pid of patient. If blank then will check all patients.
+ * @param  string       $plan          test for specific plan only
+ * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
+ * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  integer      $start         applicable patient to start at (when batching process)
+ * @param  integer      $batchSize     number of patients to batch (when batching process)
+ * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
+ * @return array                       See above for organization structure of the results.
+ */
+function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+{
+
+  // If dateTarget is an array, then organize them.
+    if (is_array($dateTarget)) {
+        $dateArray = $dateTarget;
+        $dateTarget = $dateTarget['dateTarget'];
+    } else {
+        $dateArray = [];
+    }
+
+  // Set date to current if not set
+    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+
+  // Prepare the results array
+    $results = array();
+
+    // we have a special mechanism for collation or plans organize method
+    if ($provider === "collate_outer" || $organize_mode === 'plans') {
+        return test_rules_clinic_collate($provider, $type, $dateTarget, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
+    }
+
+    if ($provider === "group_calculation") {
+        return test_rules_clinic_group_calculation($type, $dateArray, $mode, $patient_id, $plan, $organize_mode, $options, $pat_prov_rel, $start, $batchSize, $user);
+    }
 
   // Collect applicable patient pids
-    $patientData = buildPatientArray($patient_id, $provider, $pat_prov_rel, $start, $batchSize);
+    $patientData = buildPatientArray($patient_id, $provider, $pat_prov_rel, $start, $batchSize, false, $options['billing_facility_id'] ?? null);
 
   // Go through each patient(s)
   //
@@ -708,39 +960,19 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
   //  So for cases such as patient reminders on a clinic scale, the calling function
   //  will actually need rather than pass in a explicit patient_id for each patient in
   //  a separate call to this function.
-    if ($mode != "report") {
-        // Use per patient custom rules (if exist)
-        // Note as discussed above, this only works for single patient instances.
-        $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
-    } else { // $mode = "report"
-        // Only use default rules (do not use patient custom rules)
-        $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
-    }
+    $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
 
     foreach ($rules as $rowRule) {
         // If using cqm or amc type, then use the hard-coded rules set.
         // Note these rules are only used in report mode.
         if ($rowRule['cqm_flag'] || $rowRule['amc_flag']) {
-            require_once(dirname(__FILE__) . "/classes/rulesets/ReportManager.php");
-            $manager = new ReportManager();
-            if ($rowRule['amc_flag']) {
-                // Send array of dates ('dateBegin' and 'dateTarget')
-                $tempResults = $manager->runReport($rowRule, $patientData, $dateArray, $options);
-            } else {
-                // Send target date
-                $tempResults = $manager->runReport($rowRule, $patientData, $dateTarget);
-            }
-
-            if (!empty($tempResults)) {
-                foreach ($tempResults as $tempResult) {
-                    $results[] = $tempResult;
-                }
-            }
-
+            $tempResults = test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dateTarget, $options, $provider, $pat_prov_rel);
+            $results = array_merge($results, $tempResults);
             // Go on to the next rule
             continue;
         }
 
+        // ALL OF THE BELOW RULES ARE FOR active_alert, passive_alert,patient_reminder
         // If in reminder mode then need to collect the measurement dates
         //  from rule_reminder table
         $target_dates = array();
@@ -1036,11 +1268,21 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  * @param  integer       $start         applicable patient to start at (when batching process)
  * @param  integer       $batchSize     number of patients to batch (when batching process)
  * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
+ * @param  integer       $billing_facility id of the billing facility to constrain patient relationships to
  * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
  */
-function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false)
+function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false, $billing_facility = null)
 {
+    (new SystemLogger())->debug(
+        "buildPatientArray()",
+        ['patient_id' => $patient_id, 'provider' => $provider, 'pat_prov_rel' => $pat_prov_rel, 'start' => $start
+        ,
+        'batchSize' => $batchSize,
+        'onlyCount' => $onlyCount,
+        'billing_facility' => $billing_facility]
+    );
 
+    $patientData = [];
     if (!empty($patient_id)) {
         // only look at the selected patient
         if ($onlyCount) {
@@ -1062,18 +1304,31 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
             }
         } else {
             // Look at an individual physician
-            if ($pat_prov_rel == 'encounter') {
-                // Choose patients that are related to specific physician by an encounter
+            if ($provider == 'group_calculation' && $pat_prov_rel == 'encounter') {
+                return buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility);
+            } else if ($provider == 'group_calculation' && $pat_prov_rel == 'primary') {
+                return buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility);
+            } else if ($pat_prov_rel == 'encounter_billing_facility' && is_numeric($provider)) {
+                return buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider);
+            } else if ($pat_prov_rel == 'primary_billing_facility' && is_numeric($provider)) {
+                return buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider);
+            } else if ($pat_prov_rel == 'encounter') {
+                // Choose patients that are related to specific physician by an encounter (OR the provider was a referral originator)
+                $sql = "select DISTINCT `pid` FROM `form_encounter` WHERE `provider_id` =? OR `supervisor_id` = ? "
+                    . " UNION select DISTINCT `transactions`.`pid` FROM transactions "
+                    . "   INNER JOIN lbt_data ON lbt_data.form_id = transactions.id AND lbt_data.field_id = 'refer_from' AND lbt_data.field_value = ? "
+                    . " ORDER BY `pid`";
                 if ($start == null || $batchSize == null || $onlyCount) {
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                              " WHERE `provider_id`=? OR `supervisor_id`=? ORDER BY `pid`", array($provider,$provider));
+                    // we need to include referrals here as a referral can occur w/o there being an encounter
+
+                    $rez = sqlStatementCdrEngine($sql, array($provider, $provider, $provider));
                     if ($onlyCount) {
-                              $patientNumber = sqlNumRows($rez);
+                        $patientNumber = sqlNumRows($rez);
                     }
                 } else {
                     //batching
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
-                              " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider,$provider,($start - 1),$batchSize));
+                    $sql .= " LIMIT " . intval($start) - 1 . "," . intval($batchSize);
+                    $rez = sqlStatementCdrEngine($sql, array($provider, $provider, $provider));
                 }
             } else {  //$pat_prov_rel == 'primary'
                 // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
@@ -1105,6 +1360,125 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
         // return array of patient pids
         return $patientData;
     }
+}
+
+/**
+ * Process patient array that is to be tested. This uses the patient relationship context of encounters linked to billing facilities
+ *
+ * @param  integer       $start         applicable patient to start at (when batching process)
+ * @param  integer       $batchSize     number of patients to batch (when batching process)
+ * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
+ * @param  integer       $billing_facility id of the billing facility to constrain patient relationships to, if NULL it uses ALL billing facilities
+ * @param  integer|null  $provider_id   The id of a provider to restrict patient data to if we have one
+ * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ */
+function buildPatientArrayEncounterBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider_id = null)
+{
+    $sql = "SELECT DISTINCT `pid` FROM `form_encounter` ";
+    $binds = [];
+
+    $billing_facility = intval($billing_facility); // make sure its an integer
+    if (empty($billing_facility)) {
+        $sql .= "WHERE `form_encounter`.`billing_facility` IS NOT NULL ";
+    } else {
+        //            " WHERE (`provider_id`=? OR `supervisor_id`=?) AND `billing_facility` = ? ORDER BY `pid`", array($provider,$provider, $billing_facility));
+        $sql .= " WHERE `form_encounter`.`billing_facility` = ? ";
+        $binds[] = $billing_facility;
+    }
+    if (!empty($provider_id)) {
+        $provider_id = intval($provider_id); // make sure we convert this to a pure int
+        $sql .= " AND (`form_encounter`.`provider_id` = ? OR `form_encounter`.`supervisor_id` = ?)";
+        $binds[] = $provider_id;
+        $binds[] = $provider_id;
+    }
+    $sql .= "UNION SELECT DISTINCT `transactions`.`pid` FROM `transactions` ";
+    $sql .= "INNER JOIN `lbt_data` ON `lbt_data`.`form_id` = `transactions`.`id` AND `lbt_data`.`field_id` = 'billing_facility_id' ";
+    $sql .= "INNER JOIN lbt_data lbt_data2 ON lbt_data.form_id = transactions.id AND lbt_data2.field_id = 'refer_from' ";
+    if (!empty($billing_facility)) {
+        $sql .= " WHERE `lbt_data`.`field_value` = ? ";
+        $binds[] = $billing_facility;
+    }
+
+    if (!empty($provider_id)) {
+        $sql .= " AND `lbt_data2`.`field_value` = ? ";
+        $binds[] = $provider_id;
+    }
+    $sql .= "ORDER BY `pid`";
+    if (!($start == null || $batchSize == null || $onlyCount)) {
+        $sql .= "LIMIT " . (intval($start) - 1) . "," . intval($batchSize);
+    }
+    $rez = sqlStatementCdrEngine($sql, $binds);
+
+    if ($onlyCount) {
+        $patientNumber = sqlNumRows($rez);
+        return $patientNumber;
+    }
+
+    $patientData = [];
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        $patientData[$iter] = $row;
+    }
+    return $patientData;
+}
+
+/**
+ * Process patient array that is to be tested. This uses the patient relationship context of the primary provider who is
+ * linked to a billing facility
+ *
+ * @param  integer       $start         applicable patient to start at (when batching process)
+ * @param  integer       $batchSize     number of patients to batch (when batching process)
+ * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
+ * @param  integer       $billing_facility id of the billing facility to constrain patient relationships to, if NULL it uses ALL billing facilities
+ * @param  integer|null  $provider_id   The id of a provider to restrict patient data to if we have one
+ * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ */
+function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $onlyCount, $billing_facility, $provider_id = null)
+{
+    $sql = "SELECT DISTINCT `pid` FROM `patient_data` JOIN users providers ON `patient_data`.`providerID`=providers.id ";
+    $binds = [];
+
+    $billing_facility = intval($billing_facility); // make sure its an integer
+    if (empty($billing_facility)) {
+        $sql .= "WHERE (`providers`.`billing_facility_id` IS NOT NULL)";
+    } else {
+        $sql .= " WHERE (`providers`.`billing_facility_id`=?)";
+        $binds[] = $billing_facility;
+    }
+    if (!empty($provider_id)) {
+        $sql .= " AND `providers.id`=?";
+        $binds[] = $provider_id;
+    }
+    $sql .= "UNION SELECT DISTINCT `transactions`.`pid` FROM `transactions` ";
+    $sql .= "INNER JOIN lbt_data ON lbt_data.form_id = transactions.id AND lbt_data.field_id = 'refer_from' ";
+    $sql .= "INNER JOIN `users` providers ON `lbt_data`.`form_id` = `transactions`.`id` AND `lbt_data`.`form_value` = providers.id ";
+    if (empty($billing_facility)) {
+        $sql .= "WHERE (`providers`.`billing_facility_id` IS NOT NULL)";
+    } else {
+        $sql .= " WHERE (`providers`.`billing_facility_id`=?)";
+        $binds[] = $billing_facility;
+    }
+
+    if (!empty($provider_id)) {
+        $sql .= " AND `providers.id`=?";
+        $binds[] = $provider_id;
+    }
+
+    $sql .= "ORDER BY `pid`";
+    if (!($start == null || $batchSize == null || $onlyCount)) {
+        $sql .= "LIMIT " . (intval($start) - 1) . "," . intval($batchSize);
+    }
+    $rez = sqlStatementCdrEngine($sql, $binds);
+
+    if ($onlyCount) {
+        $patientNumber = sqlNumRows($rez);
+        return $patientNumber;
+    }
+
+    $patientData = [];
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        $patientData[$iter] = $row;
+    }
+    return $patientData;
 }
 
 /**
@@ -1471,7 +1845,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
         // Decide if use default vs custom rule (preference given to custom rule)
         if (!empty($customRule)) {
-            if ($type == "cqm" || $type == "amc") {
+            if ($type == "cqm" || CertificationReportTypes::isAMCReportType($type)) {
                 // For CQM and AMC, do not use custom rules (these are to create standard clinic wide reports)
                 $goRule = $rule;
             } else {

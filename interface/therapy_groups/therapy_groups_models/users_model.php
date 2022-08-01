@@ -27,7 +27,6 @@
 
 class Users
 {
-
     const TABLE = 'users';
     const EVENTS_TABLE = 'openemr_postcalendar_events';
 

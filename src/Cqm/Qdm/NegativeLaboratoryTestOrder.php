@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeLaboratoryTestOrder extends LaboratoryTestOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeLaboratoryTestOrder extends LaboratoryTestOrder
 
     public $_type = 'QDM::NegativeLaboratoryTestOrder';
 }
+

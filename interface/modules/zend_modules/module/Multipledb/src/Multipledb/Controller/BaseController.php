@@ -27,7 +27,6 @@ use Laminas\View\Model\ViewModel;
 
 class BaseController extends AbstractActionController
 {
-
     /**
      * path to file after base pass from ModuleconfigController
      * @var array

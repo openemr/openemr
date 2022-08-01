@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveDiagnosticStudyOrder extends DiagnosticStudyOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveDiagnosticStudyOrder extends DiagnosticStudyOrder
 
     public $_type = 'QDM::PositiveDiagnosticStudyOrder';
 }
+

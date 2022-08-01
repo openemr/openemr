@@ -23,9 +23,28 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
+
+if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
+    if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
+        exit;
+    }
+} else {
+    if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+        if (!empty($_POST['form_save'])) {
+            $pageTitle = xl("Receipt for Payment");
+        } else {
+            $pageTitle = xl("Record Payment");
+        }
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        exit;
+    }
+}
 
 $pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
 
@@ -1256,9 +1275,13 @@ function make_insurance() {
                             <div class="form-group" role="group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
                                 <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
-                                    echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
-                                    if (!empty($GLOBALS['cc_stripe_terminal'])) {
-                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
+                                    if ($GLOBALS['payment_gateway'] == 'Sphere') {
+                                        echo SpherePayment::renderSphereHtml('clinic');
+                                    } else {
+                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
+                                        if (!empty($GLOBALS['cc_stripe_terminal'])) {
+                                            echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
+                                        }
                                     }
                                 }  ?>
                                 <button type='button' class="btn btn-secondary btn-cancel" value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
@@ -1696,6 +1719,12 @@ function make_insurance() {
                 <?php } ?>
             </script>
         <?php } ?>
+
+        <?php
+        if ($GLOBALS['payment_gateway'] == 'Sphere') {
+            echo (new SpherePayment('clinic', $pid))->renderSphereJs();
+        }
+        ?>
 
     </div><!--end of container div of accept payment i.e the form-->
     <?php

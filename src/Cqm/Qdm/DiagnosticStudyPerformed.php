@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class DiagnosticStudyPerformed extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -78,6 +77,11 @@ class DiagnosticStudyPerformed extends QDMBaseType
     public $performer = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Diagnostic Study, Performed';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.23';
@@ -99,3 +103,4 @@ class DiagnosticStudyPerformed extends QDMBaseType
 
     public $_type = 'QDM::DiagnosticStudyPerformed';
 }
+

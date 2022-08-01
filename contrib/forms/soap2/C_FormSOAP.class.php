@@ -5,7 +5,6 @@ require_once("FormSOAP.class.php");
 
 class C_FormSOAP extends Controller
 {
-
     var $template_dir;
 
     function __construct($template_mod = "general")

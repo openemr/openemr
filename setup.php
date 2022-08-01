@@ -605,6 +605,7 @@ STP2TOP;
                                     <a href="#pass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                     <p>This is the Login Password that OpenEMR will use to accesses the MySQL database.</p>
                                     <p>It should be at least 12 characters long and composed of both numbers and letters.</p>
+                                    <p>It cannot contain any of these characters: \ ; ( ) < > / ' "</p>
                                 </div>
                             </div>
 STP2TBLTOP1;
@@ -1071,6 +1072,12 @@ STP2TBLBOT;
 
                         if (! $installer->password_is_valid()) {
                             echo "$error. Please pick a proper 'Password'.<br />\n";
+                            echo "Click Back in browser to re-enter.<br />\n";
+                            break;
+                        }
+
+                        if (! $installer->iuname_is_valid()) {
+                            echo "$error. Please pick a proper 'Initial User Last Name'.<br />\n";
                             echo "Click Back in browser to re-enter.<br />\n";
                             break;
                         }

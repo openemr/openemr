@@ -24,7 +24,7 @@ root {
 }
 
 .rule_row {
-  margin-#{$left}: 15px;
+  margin-#{$left}: 5px;
   padding-bottom: 2px;
 
   span {
@@ -39,17 +39,17 @@ root {
   .rule_type {
     display: inline-block;
     min-width: 70px;
-    padding-#{$left}: 10px;
+    padding-#{$left}: 5px;
   }
 
   &.header {
     font-weight: bold;
-    text-decoration: underline;
+    text-decoration: none;
   }
 }
 
 .rule_title {
-  width: 380px;
+  min-width: 380px;
 }
 
 .rule_container {
@@ -95,15 +95,15 @@ root {
   // Edit rule
   input[type='text'] {
     margin-top: -1px;
-    width: 350px;
+    min-width: 350px;
   }
 
   // Edit rule
   &.edit {
     &.summry .left_col {
       font-weight: bold;
+      min-width: 120px;
       text-align: $right;
-      width: 120px;
       margin-#{$right}: 10px;
     }
 
@@ -116,7 +116,7 @@ root {
 .left_col {
   display: block;
   float: $left;
-  width: 100px;
+  min-width: 100px;
 }
 
 .mid_col {
@@ -155,12 +155,12 @@ root {
 
 .intervals {
   .mid_col {
-    width: 100px;
+    min-width: 100px;
   }
 
   input[type='text'] {
     margin-top: -1px;
-    width: 90px;
+    min-width: 90px;
   }
 
   span select {
@@ -169,5 +169,5 @@ root {
 }
 
 input[type='text'].short {
-  width: 80px;
+  min-width: 80px;
 }

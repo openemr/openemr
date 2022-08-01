@@ -1,0 +1,20 @@
+[
+  {
+    "foreign_table_name": "patient_data"
+    ,"foreign_id": {
+      "table": "patient_data"
+      ,"columnSearch": "pubpid"
+      ,"columnSearchValue": "test-fixture-789456"
+      ,"columnReference": "pid"
+    }
+  }
+  ,{
+    "foreign_table_name": "patient_data"
+    ,"foreign_id": {
+      "table": "patient_data"
+      ,"columnSearch": "pubpid"
+      ,"columnSearchValue": "test-fixture-8"
+      ,"columnReference": "pid"
+    }
+  }
+]

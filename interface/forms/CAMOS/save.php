@@ -38,7 +38,7 @@ if ($_GET["mode"] == "delete") {
                 //   before being submitted to the database. Will also continue to support placeholder conversion on report
                 //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
                 //   version 4.0).
-                $content = $_POST['textarea_' . ${id}];
+                $content = $_POST['textarea_' . $id];
                 $content = replace($pid, $encounter, $content);
                 sqlStatement("update " . mitigateSqlTableUpperCase("form_CAMOS") . " set content=? where id=?", array($content, $id));
             }

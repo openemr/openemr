@@ -1,0 +1,82 @@
+<style>
+    <!--
+    .treeMenuDefault {
+        font-style: italic;
+    }
+
+    .treeMenuBold {
+        font-style: italic;
+        font-weight: bold;
+    }
+
+    -->
+</style>
+<script>
+    var deleteLabel={{ "Delete"|xlj }};
+    var editLabel= {{ "Edit"|xlj }};
+
+    // this function is called from find_code_popup.php when a code is selected
+    function set_related(codetype, code, selector, codedesc)
+    {
+        if (codetype !== "") {
+            document.getElementById("codes").value = (codetype + ":" + code);
+        } else {
+            document.getElementById("codes").value = "";
+        }
+        document.getElementById("displaytext").innerHTML  = codedesc;
+    }
+
+    function sel_code() {
+        window.dlgopen('{{ webroot }}/interface/patient_file/encounter/find_code_popup.php?default=LOINC', '_blank', 700, 400);
+    }
+</script>
+<script src="{{ webroot }}/library/js/CategoryTreeMenu.js?v={{ V_JS_INCLUDES }}"></script>
+<table>
+    <tr>
+        <td height="20" valign="top">{{ "Document Categories"|xlt}}</td>
+    </tr>
+    <tr>
+        <td valign="top">{{ tree_html}}</td>
+        {% if message %}
+        <td valign="top">{{ message|text}}</td>
+        {% endif %}
+
+        {% if add_node or edit_node %}
+        <td width="25"></td>
+        <td valign="top">
+            {% if add_node %}
+            {{ "This new category will be a sub-category of "|xlt }} {{ parent_name|xlt }}
+            {% endif %}
+            <form method="post" action="{{ FORM_ACTION }}" onsubmit="return top.restoreSession()">
+
+                <table>
+                    <tr>
+                        <td>{{ "Category Name"|xlt }}</td>
+                        <td><input type="text" name="name" value="{{ NAME|attr }}" onKeyDown="PreventIt(event)" /></td>
+                    </tr>
+                    <tr>
+                        <td>{{ "Value"|xlt }}</td>
+                        <td><input type="text" name="value" value="{{ VALUE|attr }}" onKeyDown="PreventIt(event)" ></td>
+                    </tr>
+                    <tr>
+                        <td>{{ "Access Control"|xlt }}</td>
+                        <td><select name="aco_spec">{{ ACO_OPTIONS }}</select></td>
+                    </tr>
+                    <tr>
+                        <td>{{ "Codes"|xlt}}</td>
+                        <td>
+                            <input id="codes" type="text" name="codes" value="{{ CODES|attr}}" onclick="sel_code(event)" >
+                            <p id="displaytext">{{ CODE_TEXT|text }}</p>
+                        </td>
+                    </tr>
+                </table>
+                &nbsp;<br />
+
+                <button type="submit" name="Add Category" class="btn btn-secondary btn-save">{{ 'Save Category'|xlt  }}</button>
+                <input type="hidden" name="parent_is" value="{{ parent_is|attr }}">
+                <input type="hidden" name="process" value="{{ PROCESS|attr }}" />
+            </form>
+        </td>
+        {% endif %}
+    </tr>
+</table>

@@ -36,7 +36,8 @@ class PatientIssuesService extends BaseService
     {
         $results = $this->search(['id' => new TokenSearchField('id', [$issueId])]);
         if (!empty($results->getData())) {
-            return array_pop($results->getData());
+            $data_results = $results->getData();
+            return array_pop($data_results);
         }
         return null;
     }

@@ -213,23 +213,28 @@ class InstModuleTable
             $fieldName,
             $moduleId,
         );
+        $createdBy = $_SESSION['authUserID'];
+        $updatedBy = $_SESSION['authUserID'];
         $result = $this->applicationTable->zQuery($sql, $params);
         if ($result->count() > 0) {
-            $sql = "UPDATE module_configuration SET field_value = ?
+            $sql = "UPDATE module_configuration SET field_value = ?, updated_by = ?
                                           WHERE module_id = ?
                                           AND field_name = ?";
             $params = array(
                 $fieldValue,
+                $updatedBy,
                 $moduleId,
                 $fieldName,
             );
             $result = $this->applicationTable->zQuery($sql, $params);
         } else {
-            $sql = "INSERT INTO module_configuration SET field_name = ?, field_value = ?, module_id = ?";
+            $sql = "INSERT INTO module_configuration SET field_name = ?, field_value = ?, module_id = ?, updated_by = ?, created_by = ?, date_created=NOW()";
             $params = array(
                 $fieldName,
                 $fieldValue,
                 $moduleId,
+                $updatedBy,
+                $createdBy
             );
             $result = $this->applicationTable->zQuery($sql, $params);
         }

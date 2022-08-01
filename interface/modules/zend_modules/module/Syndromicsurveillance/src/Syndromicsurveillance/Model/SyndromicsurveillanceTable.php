@@ -332,7 +332,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $content .= "PID|" . // [[ 3.72 ]]
             "1|" . // 1. Set id
             "|" . // 2. (B)Patient id
-            $r['patientid'] . "^^^^MR|" . // 3. (R) Patient indentifier list
+            $r['patientid'] . "^^^^MR|" . // 3. (R) Patient identifier list
             "|" . // 4. (B) Alternate PID
             "^^^^^^~^^^^^^S|" . // 5.R. Name
             "|" . // 6. Mather Maiden Name

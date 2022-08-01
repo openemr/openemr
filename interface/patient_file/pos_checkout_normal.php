@@ -55,9 +55,15 @@ require_once("../../custom/code_types.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
+
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
+    exit;
+}
 
 $facilityService = new FacilityService();
 
@@ -580,7 +586,11 @@ function generate_receipt($patient_id, $encounter = 0)
             if ($GLOBALS['discount_by_money']) {
                 $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
             } else {
-                $amount  = sprintf('%01.2f', trim($_POST['form_discount']) * $form_amount / 100);
+                $form_discount = trim($_POST['form_discount']) ?? 0;
+                if ($form_discount < 100) {
+                    $total_discount = $form_discount * $form_amount / (100 - $form_discount);
+                    $amount = sprintf('%01.2f', $total_discount);
+                }
             }
             $memo = xl('Discount');
             sqlBeginTrans();

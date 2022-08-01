@@ -173,16 +173,9 @@ exports.problemConcernAct = {
             required: true
         },
         fieldLevel.templateCode("ProblemConcernAct"),
-        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required], {
-            key: "performer",
-            attributes: {
-                typeCode: "PRF"
-            },
-            content: [
-                fieldLevel.assignedEntity
-            ],
-            dataKey: "performer"
-        }, {
+        fieldLevel.statusCodeCompleted, [fieldLevel.effectiveTime, required],
+        fieldLevel.author,
+        {
             key: "entryRelationship",
             attributes: {
                 typeCode: "SUBJ"

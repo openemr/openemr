@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class ResultComponent extends Component
 {
-
     /**
      * @property BaseTypes\Interval $referenceRange
      */
@@ -22,3 +21,4 @@ class ResultComponent extends Component
 
     public $_type = 'QDM::ResultComponent';
 }
+

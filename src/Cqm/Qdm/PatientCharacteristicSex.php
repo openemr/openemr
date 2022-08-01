@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientCharacteristicSex extends QDMBaseType
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -42,3 +41,4 @@ class PatientCharacteristicSex extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicSex';
 }
+

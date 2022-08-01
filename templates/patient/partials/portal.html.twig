@@ -1,0 +1,43 @@
+{#
+The Patient Portal card for the Medical Record Dashboard
+
+@author       Robert Down <robertdown@live.com>
+@copyright    Copyright (c) 2022 Robert Down <robertdown@live.com>
+@package      OpenEMR
+#}
+
+{% extends "patient/card/card_base.html.twig" %}
+
+{% if (prependedInjection is defined) or (appendedInjection is defined) %}
+    {% import "patient/macros/card.macro.twig" as cardMacros %}
+    {% set prepend = cardMacros.injectedContent(prependedInjection) %}
+    {% set append = cardMacros.injectedContent(appendedInjection) %}
+{% endif %}
+
+
+{% block content %}
+<div class="text d-flex pl-1">
+    {% if portalAuthorized.isAllowed == false %}
+        <div>
+        {% if portalAuthorized.authorized.api == false %}
+            <p>{{ "API Access Not Authorized"|xlt }}</p>
+        {% endif %}
+        {% if portalAuthorized.authorized.api == false %}
+            <p>{{ "Patient Portal Not Authorized"|xlt }}</p>
+        {% endif %}
+        </div>
+    {% else %}
+        {{ prepend }}
+        {% if portalAuthorized.credentials.created == true %}
+            {% set class = "fa-key" %}
+            {% set text = "Reset Credentials"|xlt %}
+        {% else %}
+            {% set class = "fa-user-plus" %}
+            {% set text = "Create Credentials"|xlt %}
+        {% endif %}
+        <a href="{{ portalLoginHref|attr }}?patient={{ pid|attr_url }}" class="btn btn-link btn-sm w-50 small_modal"><i class="fa {{ class|attr }}"></i>&nbsp;{{ text|text }}</a>
+        <button type="button" class="btn btn-link btn-sm w-50" onclick='top.assignPatientDocuments({{pid|attr_js}})'><i class="fa fa-file-signature"></i>&nbsp;{{ "Assign Documents"|xlt }}</button>
+        {{ append }}
+    {% endif %}
+</div>
+{% endblock %}

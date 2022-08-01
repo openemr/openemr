@@ -26,6 +26,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -56,6 +57,7 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 }
 
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -542,7 +544,7 @@ $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (Encount
 
         $_cat = trim($item['category']);
         $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-        $item['displayText'] = (trim($item['nickname']) != '') ? trim($item['nickname']) : trim($item['name']);
+        $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
         unset($item['category']);
         unset($item['name']);
         unset($item['nickname']);
@@ -592,36 +594,20 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres, false);
 
+// Check for group encounter
 if ($attendant_type == 'pid' && is_numeric($pid)) {
     $groupEncounter = false;
-
-    // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
     $patientName = getPatientFullNameAsString($pid);
-
-    if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        $pass_sens_squad = false;
-    }
-
-    // Check for no access to the encounter's sensitivity level.
-    $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE pid = ? AND encounter = ? LIMIT 1", [$pid, $encounter]);
-    if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
-        $pass_sens_squad = false;
-    }
-    // for therapy group
 } else {
     $groupEncounter = true;
-    // Check for no access to the patient's squad.
     $result = getGroup($groupId);
     $patientName = $result['group_name'];
-    if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        $pass_sens_squad = false;
-    }
-    // Check for no access to the encounter's sensitivity level.
-    $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE group_id = ? AND encounter = ? LIMIT 1", [$groupId, $encounter]);
-    if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
-        $pass_sens_squad = false;
-    }
+}
+
+// Check for no access to the patient's squad.
+if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
+    $pass_sens_squad = false;
 }
 
 $encounterMenuEvent = new EncounterMenuEvent();
@@ -644,7 +630,6 @@ echo $t->render('encounter/forms/navbar.html.twig', [
         <div>
             <?php
             $pass_sens_squad = true;
-
             //fetch acl for category of given encounter
             $pc_catid = fetchCategoryIdByEncounter($encounter);
             $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($pc_catid);
@@ -657,7 +642,11 @@ echo $t->render('encounter/forms/navbar.html.twig', [
                 $authPostCalendarCategoryWrite = true;
             }
 
-
+            // Check for no access to the encounter's sensitivity level.
+            $sensitivity = (new EncounterService())->getSensitivity($pid, $encounter);
+            if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity)) || (!$authPostCalendarCategory ?? '')) {
+                $pass_sens_squad = false;
+            }
             ?>
         </div>
         <div style='margin-top: 8px;'>

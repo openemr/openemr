@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class ImmunizationAdministered extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -51,6 +50,11 @@ class ImmunizationAdministered extends QDMBaseType
     public $performer = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Immunization, Administered';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.112';
@@ -72,3 +76,4 @@ class ImmunizationAdministered extends QDMBaseType
 
     public $_type = 'QDM::ImmunizationAdministered';
 }
+

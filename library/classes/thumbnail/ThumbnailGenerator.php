@@ -25,7 +25,6 @@
  */
 class ThumbnailGenerator
 {
-
     public static $types_support = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif');
     private $thumb_obj = null;
     private $couch_obj = null;

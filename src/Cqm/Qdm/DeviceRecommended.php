@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class DeviceRecommended extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -34,6 +33,11 @@ class DeviceRecommended extends QDMBaseType
      * @property BaseTypes\Any $requester
      */
     public $requester = null;
+
+    /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Device, Recommended';
 
     /**
      * @property string $hqmfOid
@@ -57,3 +61,4 @@ class DeviceRecommended extends QDMBaseType
 
     public $_type = 'QDM::DeviceRecommended';
 }
+

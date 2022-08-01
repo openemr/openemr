@@ -271,7 +271,7 @@ function bucks($amount)
 </head>
 <body>
 <?php
-$trans_id = 0 + $_GET['id'];
+$trans_id = (int) $_GET['id'];
 if (!$trans_id) {
     die(xlt("You cannot access this page directly."));
 }
@@ -281,8 +281,8 @@ $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname FROM form_encounter AS 
 if (empty($ferow)) {
     die("There is no encounter with form_encounter.id = '" . text($trans_id) . "'.");
 }
-$patient_id = 0 + $ferow['pid'];
-$encounter_id = 0 + $ferow['encounter'];
+$patient_id = (int) $ferow['pid'];
+$encounter_id = (int) $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
 $form_payer_id = (!empty($_POST['form_payer_id'])) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'] ?? null;
@@ -432,6 +432,11 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
             $form_done = 0 + $_POST['form_done'];
             $form_stmt_count = 0 + $_POST['form_stmt_count'];
             sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
+            // also update billing for aging
+            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array($form_deposit_date, $patient_id, $encounter_id));
+            if (!empty($_POST['form_secondary'])) {
+                SLEOB::arSetupSecondary($patient_id, $encounter_id, $debug);
+            }
         }
         // will reload page w/o reposting
         echo "location.replace(location)\n";
@@ -445,6 +450,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
 // Get invoice charge details.
 $codes = InvoiceSummary::arGetInvoiceSummary($patient_id, $encounter_id, true);
 $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1", array($patient_id));
+$bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND encounter = ? limit 1", array($patient_id, $encounter_id));
 ?>
 
 <div class="container-fluid">
@@ -475,7 +481,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         $tmp = sqlQuery("SELECT bill_date FROM billing WHERE " .
                             "pid = ? AND encounter = ? AND " .
                             "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1", array($patient_id, $encounter_id));
-                        $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
+                        $billdate = substr(($tmp['bill_date'] ?? '' . "Not Billed"), 0, 10);
                         ?>
                         <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value="<?php echo attr($provider); ?>" disabled />
@@ -504,8 +510,11 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         ?>
                     </div>
                 </div>
-                <div class="form-group mt-3">
-                     <textarea name="insurance_name" id="insurance_name" class="form-control" cols="5" rows="2" readonly><?php echo attr($insurance ?? ''); ?></textarea>
+                <div class="form-row">
+                    <div class="form-group col-lg">
+                        <label class="col-form-label" for="billing_note"><?php echo xlt('Billing Note'); ?>:</label>
+                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2" readonly><?php echo text(($pdrow['billing_note'] ?? '')) . "\n" . text(($bnrow['billing_note'] ?? '')); ?></textarea>
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-lg">
@@ -695,7 +704,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
                                            value="<?php echo attr($cdata['ins'] ?? ''); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
-                                           value="<?php echo attr($cdata['code_type']); ?>" /> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
+                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>

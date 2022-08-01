@@ -16,7 +16,6 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 class C_X12Partner extends Controller
 {
-
     var $template_mod;
     var $providers;
     var $x12_partners;

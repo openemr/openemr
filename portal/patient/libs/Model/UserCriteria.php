@@ -24,7 +24,6 @@ require_once("DAO/UserCriteriaDAO.php");
  */
 class UserCriteria extends UserCriteriaDAO
 {
-
     /**
      * GetFieldFromProp returns the DB column for a given class property
      *

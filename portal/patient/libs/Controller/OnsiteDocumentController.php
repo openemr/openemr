@@ -25,7 +25,6 @@ require_once("Model/OnsiteDocument.php");
  */
 class OnsiteDocumentController extends AppBasePortalController
 {
-
     /**
      * Override here for any controller-specific functionality
      *
@@ -46,7 +45,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $is_portal = GlobalConfig::$PORTAL;
         $docid = $new_filename = "";
         // get latest help template id
-        $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC', array('Help'))['id'];
+        $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC Limit 1', array('Help'))['id'] ?? 0;
 
         if (isset($_GET['pid'])) {
             $pid = (int) $_GET['pid'];
@@ -148,7 +147,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $page = RequestUtil::Get('page');
 
-            if ($page != '') {
+            if (!empty($page)) {
                 // if page is specified, use this instead (at the expense of one extra count query)
                 $pagesize = $this->GetDefaultPageSize();
 
@@ -215,7 +214,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // only allow patient to see themself
             if (!empty($GLOBALS['bootstrap_pid'])) {
-                if ($GLOBALS['bootstrap_pid'] !== $onsitedocument->Pid) {
+                if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }
@@ -302,7 +301,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // only allow patient to update themself (part 1)
             if (!empty($GLOBALS['bootstrap_pid'])) {
-                if ($GLOBALS['bootstrap_pid'] !== $onsitedocument->Pid) {
+                if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }

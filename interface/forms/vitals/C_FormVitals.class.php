@@ -16,6 +16,7 @@ require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\FormVitalDetails;
+use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
@@ -113,10 +114,15 @@ class C_FormVitals extends Controller
             $i++;
         }
 
+        $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
+        $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
+
         $this->assign("vitals", $vitals);
         $this->assign("results", ($results ?? null));
+        $this->assign("results_count", count(($results ?? [])));
 
         $this->assign('interpretation_options', $this->interpretationsList);
+        $this->assign('reasonCodeStatii', $reasonCodeStatii);
 
         $this->assign("VIEW", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -248,6 +254,25 @@ class C_FormVitals extends Controller
                     $details->clear_interpretation();
                 }
 
+                $details->set_vitals_column($column);
+                $detailsToUpdate[$column] = $details;
+            }
+        }
+
+        // now let's populate our reason codes if we have them.  Requires a reason code and a status code
+        if (isset($_POST['reasonCode'])) {
+            foreach ($_POST['reasonCode'] as $column => $value) {
+                $details = $detailsToUpdate[$column] ?? $this->vitals->get_details_for_column($column) ?? new FormVitalDetails();
+                if (empty($value) && empty($_POST['reasonCodeStatus'][$column]) && empty($details->get_id())) {
+                    continue; // nothing to do here if we don't have a code and a status
+                }
+                if (empty($value) || empty($_POST['reasonCodeStatus'][$column])) {
+                    $details->clear_reason();
+                } else {
+                    $details->set_reason_code($value);
+                    $details->set_reason_status($_POST['reasonCodeStatus'][$column] ?? '');
+                    $details->set_reason_description($_POST['reasonCodeText'][$column] ?? '');
+                }
                 $details->set_vitals_column($column);
                 $detailsToUpdate[$column] = $details;
             }

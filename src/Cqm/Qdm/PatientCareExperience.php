@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientCareExperience extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -52,3 +51,4 @@ class PatientCareExperience extends QDMBaseType
 
     public $_type = 'QDM::PatientCareExperience';
 }
+

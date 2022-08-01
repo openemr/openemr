@@ -36,9 +36,16 @@ use Mpdf\Mpdf;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EOB Posting - Search")]);
+    exit;
+}
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 $alertmsg = '';
@@ -534,6 +541,8 @@ if (
 
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
+        // grab last bill date from billing
+        $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1", array($row['pid'], $row['encounter']));
 
         $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
@@ -550,6 +559,7 @@ if (
             $line['paid'] = sprintf("%.2f", $value['chg'] - $value['bal']);
             $line['notice'] = $duncount + 1;
             $line['detail'] = $value['dtl'];
+            $line['bill_date'] = $bdrow['bill_date'];
             $stmt['lines'][] = $line;
             $stmt['amount'] = sprintf("%.2f", $stmt['amount'] + $value['bal']);
             $stmt['ins_paid'] = $stmt['ins_paid'] + ($value['ins'] ?? null);

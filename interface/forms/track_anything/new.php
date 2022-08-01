@@ -121,8 +121,8 @@ if ($formid) {
     // get submitted item-Ids
     $mylist = $_POST['liste'];
     #echo $mylist;
-    $length = count($mylist);
-    $thedate = $_POST['datetime'];
+    $length = count($mylist ?? []);
+    $thedate = $_POST['datetime'] ?? null;
     #echo $thedate;
     //check if whole input is NULL
     $all_are_null = 0;
@@ -160,11 +160,11 @@ if ($formid) {
     $old_time   = $_POST['old_time'];
     $old_value  = $_POST['old_value'];
 
-    $how_many = count($old_time);
+    $how_many = count($old_time ?? []);
     // do this for each data row
     for ($x = 0; $x <= $how_many; $x++) {
         // how many columns do we have
-        $how_many_cols = count($old_value[$x]);
+        $how_many_cols = count($old_value[$x] ?? []);
         for ($y = 0; $y < $how_many_cols; $y++) {
                 // here goes the UPDATE sql-spruch
                 $insertspell  = "UPDATE form_track_anything_results ";

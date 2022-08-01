@@ -6,7 +6,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 /* We should really try to keep this library jQuery free ie javaScript only! */
@@ -79,7 +79,7 @@ async function syncFetchFile(fileUrl, type = 'text') {
 * */
 function includeScript(srcUrl, type) {
     return new Promise(function (resolve, reject) {
-        if (type == 'script') {
+        if (type === 'script') {
             let newScriptElement = document.createElement('script');
             newScriptElement.src = srcUrl;
             newScriptElement.onload = () => resolve(newScriptElement);
@@ -101,27 +101,6 @@ function includeScript(srcUrl, type) {
         }
     });
 }
-
-/*
-*  This is where we want to decide what we need for the instance
-*  We only want to load any needed dependencies.
-*
-*/
-document.addEventListener('DOMContentLoaded', function () {
-    let isNeeded = document.querySelectorAll('.drag-action').length
-        + document.querySelectorAll('.resize-action').length
-        + document.querySelectorAll('.draggable').length
-        + document.querySelectorAll('.droppable').length;
-    if (isNeeded > 0) {
-        let isLoaded = typeof window.interact;
-        if (isLoaded !== 'function') {
-            (async (utilfn) => {
-                await includeScript(utilfn, 'script');
-            })(top.webroot_url + '/public/assets/interactjs/dist/interact.js').then(() => {
-            });
-        }
-    }
-}, false);
 
 /*
 * @function initDragResize(dragContext, resizeContext)
@@ -236,85 +215,6 @@ function initInteractors(dragContext = document, resizeContext = '') {
         target.setAttribute('data-y', y);
     });
 
-}
-
-/*
-* @function oeDragDrop(context)
-* @summary call this function from scripts you may need to use drag&drop
-*
-* @param context drag context
-*/
-function oeDragDrop(dragcontext = document, dropcontext = document) {
-
-    loadDragDrop(dragcontext, dropcontext);
-
-    function dragdropMoveListener(event) {
-        var target = event.target
-        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
-        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
-        target.style.webkitTransform =
-            target.style.transform =
-                'translate(' + x + 'px, ' + y + 'px)'
-        target.setAttribute('data-x', x)
-        target.setAttribute('data-y', y)
-        var interaction = event.interaction
-        if (interaction.pointerIsDown && !interaction.interacting()) {
-            var original = event.currentTarget,
-                clone = event.currentTarget.cloneNode(true)
-
-            target.appendChild(clone)
-            interaction.start({name: 'drag'}, event.interactable, clone)
-        }
-    }
-
-    function loadDragDrop(dragcontext, dropcontext) {
-        interact.dynamicDrop(true);
-        interact('.droppable', {context: dropContext}).dropzone({
-            accept: '.droppable',
-            overlap: 0.75,
-            ondropactivate: function (event) {
-                event.target.classList.add('drop-active')
-            },
-            ondragenter: function (event) {
-                var draggableElement = event.relatedTarget
-                var dropzoneElement = event.target
-
-                // feedback the possibility of a drop
-                dropzoneElement.classList.add('drop-target')
-                draggableElement.classList.add('can-drop')
-                draggableElement.textContent = 'Dragged in'
-            },
-            ondragleave: function (event) {
-                // remove the drop feedback style
-                event.target.classList.remove('drop-target')
-                event.relatedTarget.classList.remove('can-drop')
-                event.relatedTarget.textContent = 'Dragged out'
-            },
-            ondrop: function (event) {
-                event.relatedTarget.textContent = 'Dropped'
-            },
-            ondropdeactivate: function (event) {
-                // remove active dropzone feedback
-                event.target.classList.remove('drop-active')
-                event.target.classList.remove('drop-target')
-            }
-        });
-        /* Draggable */
-        interact(".draggable", {context: dragcontext}).unset();
-
-        interact('.draggable', {context: dragcontext}).draggable({
-            manualStart: false,
-            inertia: true,
-            modifiers: [
-                interact.modifiers.restrictRect({
-                    restriction: null,
-                    endOnly: true
-                })
-            ],
-            autoScroll: false,
-            listeners: {move: dragdropMoveListener}
-        });
-    }
 }
 
 /*

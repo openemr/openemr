@@ -1,0 +1,63 @@
+<tr>
+    <td class="detail text-left">
+        {% if row.is_main %}
+        <b>{{ row.display_field|text }}</b>
+        {% else %}
+        {{ row.display_field|text }}
+        {% endif %}{% if row.display_field_sub %}{{ row.display_field_sub|text }}{% endif %}{% if row.concatenated_label %},{{ row.concatenated_label|xlt }}{% endif %}
+    </td>
+    <td>
+        {{ row.total_patients|text }}
+    </td>
+    <td>
+        {% if row.display_pass_link %}
+        <a href='{{ row.display_pass_link|attr }}'
+           onclick='top.restoreSession()'>{{ row.pass_filter|text }}</a>
+        {% else %}
+            {{ row.pass_filter|text }}
+        {% endif %}
+    </td>
+    {% if display_excluded %}
+    <td>
+        {% if row.display_excluded_link %}
+            <a href='{{ row.display_excluded_link|attr }}'
+               onclick='top.restoreSession()'>{{ row.excluded|text }}</a>
+        {% else %}
+            {{ row.excluded|text }}
+        {% endif %}
+    </td>
+    {% endif %}
+
+    {% if display_exception %}
+    <td>
+        {% if row.display_exception_link %}
+            <a href='{{ row.display_exception_link|attr }}'
+               onclick='top.restoreSession()'>{{ row.exception|text }}</a>
+        {% else %}
+            {{ row.exception|text }}
+        {% endif %}
+    </td>
+    {% endif %}
+
+    <td>
+        {% if row.display_target_link %}
+            <a href='{{ row.display_target_link|attr }}'
+               onclick='top.restoreSession()'>{{ row.pass_target|text }}</a>
+        {% else %}
+            {{ row.pass_target|text }}
+        {% endif %}
+    </td>
+
+    <td>
+        {% if row.display_failed_link %}
+            <a href='{{ row.display_failed_link|attr }}'
+               onclick='top.restoreSession()'>{{ row.failed_items|text }}</a>
+        {% else %}
+            {{ row.failed_items|text }}
+        {% endif %}
+    </td>
+    <td>{{ row.percentage|text }}</td>
+</tr>
+{% if displayPatients %}
+    {% include "reports/cqm/_results-table-patient-details.html.twig" with {title: "Patients"|xl, details: row.itemized_patients, cardClass:'info'} %}
+{% endif %}

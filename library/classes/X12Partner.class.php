@@ -16,7 +16,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class X12Partner extends ORDataObject
 {
-
     var $id;
     var $name;
     var $x12_submitter_name; // Submitter name for TPA

@@ -14,15 +14,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
-    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $ignoreAuth_onsite_portal = true;
-    } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        exit;
-    }
+// since need this class before autoloader, need to manually include it and then set it in line below with use command
+require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+
+// block of code to securely support use by the patient portal
+$patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+if ($patientPortalSession) {
+    $ignoreAuth_onsite_portal = true;
 }
 
 require_once("../../globals.php");
@@ -114,6 +113,15 @@ if ($form_origin !== null) {
     )['pid'] ?? 0;
 }
 $is_core = !($portal_form_pid || $patient_portal || $is_portal_dashboard || $is_portal_module);
+
+if ($patientPortalSession && !empty($formid)) {
+    $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formname])['pid'];
+    if (empty($pidForm) || ($pidForm != $_SESSION['pid'])) {
+        echo xlt("illegal Action");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
+    }
+}
 
 $visitid = (int)(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
 
@@ -658,7 +666,7 @@ if (
                 top.restoreSession();
             }
 
-            return true;
+            return errMsgs.length == 0;
         }
 
         // Called to open the data entry form of a specified encounter form instance.
@@ -872,9 +880,9 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'";
-                      } ?>>
-    <div class="container-fluid">
+    echo " style='background-color:var(--white)'"; } ?>>
+    <!-- Set as a container until xl breakpoint then make fluid. -->
+    <div class="container-xl">
         <?php
         // form-inline is more consistent with the fact that LBFs are not designed for
         // small devices. In particular we prefer horizontal arrangement of multiple
@@ -885,7 +893,7 @@ if (
         ?>
         <!-- row width will size to col content width -->
         <!-- We need all possible viewport width sjp w-100 -->
-        <div class="row w-100">
+        <div class="row w-100 overflow-auto">
             <div class="col-12">
                 <?php
                 $cmsportal_login = '';
@@ -1137,7 +1145,7 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
-                                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
+                                echo "<div class='$BS_COL_CLASS-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }
                         } else {
@@ -1260,7 +1268,7 @@ if (
 
                     ++$item_count;
 
-                    echo "<strong>";
+                    // This gets a font-weight-bold class so removed strong
                     if ($frow['title']) {
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
@@ -1271,7 +1279,7 @@ if (
                     } else {
                         echo "&nbsp;";
                     }
-                    echo "</strong>";
+
                     // Note the labels are not repeated in the history columns.
 
                     // Handle starting of a new data cell.
@@ -1428,7 +1436,7 @@ if (
                     echo "<select class='form-control' name='form_fs_provid'>";
                     echo FeeSheetHtml::genProviderOptionList(
                         ' ',
-                        tmp_provider_id
+                        $tmp_provider_id
                     );
                     echo "</select>\n";
                     echo "\n";

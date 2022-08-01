@@ -14,7 +14,6 @@
  */
 class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 {
-
     /**
      * @return RuleCriteriaType
      */

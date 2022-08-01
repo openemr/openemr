@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveLaboratoryTestPerformed extends LaboratoryTestPerformed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveLaboratoryTestPerformed extends LaboratoryTestPerformed
 
     public $_type = 'QDM::PositiveLaboratoryTestPerformed';
 }
+

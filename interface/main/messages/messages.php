@@ -343,7 +343,9 @@ if (!empty($_REQUEST['go'])) { ?>
                                         $title = $result['title'];
                                     }
                                     $body = $result['body'];
-                                    if ($reply_to == "") {
+                                    // if our reply-to is 0 it breaks multi patient select and other functionality
+                                    // this most likely didn't break before due to php implicit type conversion of 0 to ""
+                                    if ($reply_to == "" && $result['pid'] != 0) {
                                         $reply_to = $result['pid'];
                                     }
                                     $form_message_status = $result['message_status'];
@@ -486,29 +488,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <div class='col-12 oe-margin-t-3'>
                                         <?php
                                         if ($noteid) {
-                                            // Get the related document IDs if any.
-                                            $tmp = sqlStatement(
-                                                "SELECT id1 FROM gprelations WHERE " .
-                                                "type1 = ? AND type2 = ? AND id2 = ?",
-                                                array('1', '6', $noteid)
-                                            );
-                                            if (sqlNumRows($tmp)) {
-                                                echo " <tr>\n";
-                                                echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked document') . ":</span>\n";
-                                                while ($gprow = sqlFetchArray($tmp)) {
-                                                    $d = new Document($gprow['id1']);
-                                                    $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-                                                        " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
-                                                    $str_dob = xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']);
-                                                    $pname = $prow['fname'] . " " . $prow['lname'];
-                                                    echo "<a href='javascript:void(0);' ";
-                                                    echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
-                                                    echo text($d->get_name()) . "-" . text($d->get_id());
-                                                    echo "</a>\n";
-                                                }
-                                                echo "  </td>\n";
-                                                echo " </tr>\n";
-                                            }
+                                            include "templates/linked_documents.php";
+
                                             // Get the related procedure order IDs if any.
                                             $tmp = sqlStatement(
                                                 "SELECT id1 FROM gprelations WHERE " .
@@ -540,8 +521,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                             if ($noteid) {
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                                $body = text(oeFormatPatientNote($body));
-                                                echo "<textarea type='text' class='form-control text oe-margin-t-3 p-2 mb-2 w-100' rows='3' readonly>" . $body . "</textarea>";
+                                                $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
+                                                echo "<div style='height: 120px; resize: vertical;' class='border overflow-auto text oe-margin-t-3 p-2 mb-2 w-100'>" . $body . "</div>";
                                             }
 
                                             ?>
@@ -567,16 +548,16 @@ if (!empty($_REQUEST['go'])) { ?>
                             <?php
                         } else {
                             for ($i = 0; $i < count($sort); $i++) {
-                                $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                                $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-down fa-lg' aria-hidden='true'></i></a>";
                             }
                             for ($i = 0; $i < count($sort); $i++) {
                                 if ($sortby == $sort[$i]) {
                                     switch ($sortorder) {
                                         case "asc":
-                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
+                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-up fa-lg' aria-hidden='true'></i></a>";
                                             break;
                                         case "desc":
-                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"  alt=\"" . xla('Sort Down') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"  alt=\"" . xla('Sort Down') . "\"><i class='fa fa-sort-down fa-lg' aria-hidden='true'></i></a>";
                                             break;
                                     } break;
                                 }
@@ -666,7 +647,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div>" .
                                                 xlt($myrow['title']) . "</div>
                                         <td>
-                                            <div>" . text(oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</div>
+                                            <div>" . text(oeFormatDateTime($myrow['date'])) . "</div>
                                         </td>
                                         <td>
                                             <div>" . text(getListItemTitle('message_status', $myrow['message_status'])) . "</div>
@@ -681,7 +662,13 @@ if (!empty($_REQUEST['go'])) { ?>
 
                                                 <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-primary btn-add\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-danger btn-delete\" onclick=\"top.restoreSession()\">" .
-                                                xlt('Delete') . "</a>
+                                                xlt('Delete') . "</a>";
+
+                            if ($GLOBALS['phimail_enable']) {
+                                echo "&nbsp; <a href='trusted-messages.php' onclick='top.restoreSession()' class='btn btn-secondary btn-mail'>" . xlt("Compose Trusted Direct Message") . "</a>";
+                                echo "&nbsp; <button class='btn btn-secondary btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
+                            }
+                            echo "
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
                                                 </div>
                                             </div>
@@ -808,10 +795,10 @@ if (!empty($_REQUEST['go'])) { ?>
     }
     ?>
     <script>
-
         var collectvalidation = <?php echo $collectthis; ?>;
 
         $(function () {
+            var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
             $("#reminders-div").hide();
             $("#recalls-div").hide();
             $("#sms-div").hide();
@@ -865,6 +852,34 @@ if (!empty($_REQUEST['go'])) { ?>
                 ,minDate : 0 //only future
             })
 
+            <?php if ($GLOBALS['phimail_enable']) : ?>
+            $('.trusted-messages-force-check').click(function() {
+                window.top.restoreSession();
+                request = new FormData;
+                request.append("ajax", "1");
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                request.append("background_service", "phimail");
+                request.append("background_force", "1");
+                fetch(webRoot + "/library/ajax/execute_background_services.php", {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: request
+                }).then((response) => {
+                    if (response.status !== 200) {
+                        console.log('Background Service refresh failed. Status Code: ' + response.status);
+                    } else {
+                        // we've refreshed give them time to reload the page
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 500);
+                    }
+                }).catch(function(error) {
+                    console.log('Background Service refresh failed: ', error);
+                    alert(window.xl("Check new messages failed. Check the server logs for more information."));
+                });
+            });
+            <?php endif; ?>
+
         });
         $(function () {
             $( "ul.navbar-nav" ).children().click(function(){
@@ -915,7 +930,7 @@ if (!empty($_REQUEST['go'])) { ?>
         })
 
         $(function () {
-            
+
             $("#newnote").click(function (event) {
                 NewNote(event);
             });
@@ -991,42 +1006,6 @@ if (!empty($_REQUEST['go'])) { ?>
             $("#task").val("");
             $("#new_note").submit();
         };
-
-        function gotoReport(doc_id, pname, pid, pubpid, str_dob) {
-            EncounterDateArray = [];
-            CalendarCategoryArray = [];
-            EncounterIdArray = [];
-            Count = 0;
-            <?php
-            if (isset($enc_list) && sqlNumRows($enc_list) > 0) {
-                while ($row = sqlFetchArray($enc_list)) {
-                    ?>
-                EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
-            EncounterDateArray[Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
-            CalendarCategoryArray[Count] = '<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
-            Count++;
-                    <?php
-                }
-            }
-            ?>
-            top.restoreSession();
-            $.ajax({
-                type: 'get',
-                url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
-                data: {
-                    set_pid: pid,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-                },
-                async: false
-            });
-            parent.left_nav.setPatient(pname, pid, pubpid, '', str_dob);
-            parent.left_nav.setPatientEncounter(EncounterIdArray, EncounterDateArray, CalendarCategoryArray);
-            var docurl = '../controller.php?document&view' + "&patient_id=" + encodeURIComponent(pid) + "&document_id=" + encodeURIComponent(doc_id) + "&";
-            var paturl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
-            parent.left_nav.loadFrame('dem1', 'pat', paturl);
-            parent.left_nav.loadFrame('doc0', 'enc', docurl);
-            top.activateTabByName('enc', true);
-        }
 
         // This is for callback by the find-patient popup.
         function setpatient(pid, lname, fname, dob) {

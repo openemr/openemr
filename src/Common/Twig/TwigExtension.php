@@ -15,8 +15,10 @@
 
 namespace OpenEMR\Common\Twig;
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
+use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalsService;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
@@ -112,6 +114,54 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     ob_start();
                     $this->kernel->getEventDispatcher()->dispatch(new GenericEvent($eventName, $eventData), $eventName);
                     return ob_get_clean();
+                }
+            ),
+            new TwigFunction(
+                'csrfToken',
+                function ($subject = 'default') {
+                    return sprintf('<input type="hidden" name="_token" value="%s">', attr(CsrfUtils::collectCsrfToken($subject)));
+                }
+            ),
+            new TwigFunction(
+                'csrfTokenRaw',
+                function ($subject = 'default') {
+                    return CsrfUtils::collectCsrfToken($subject);
+                }
+            ),
+            new TwigFunction(
+                'jqueryDateTimePicker',
+                function ($domSelector, $datetimepicker_timepicker = true, $datetimepicker_showseconds = true, $datetimepicker_formatInput = true) {
+                    ob_start();
+                    echo "$('" . $domSelector . "').datetimepicker({";
+
+                    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                    echo "})";
+                    return ob_get_clean();
+                }
+            ),
+            new TwigFunction(
+                'DateToYYYYMMDD_js',
+                function () {
+                    ob_start();
+                    require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php";
+                    return ob_get_clean();
+                }
+            ),
+            new TwigFunction(
+                'oemrUiBelowContainerDiv',
+                function ($oemr_settings) {
+                    $oemrUi = new OemrUI($oemr_settings);
+                    ob_start();
+                    $oemrUi->oeBelowContainerDiv();
+                    return ob_get_clean();
+                }
+            ),
+            new TwigFunction(
+                'oemHelpIcon',
+                function () {
+                    // this setups a variable called $help_icon... strange
+                    require $GLOBALS['srcdir'] . "/display_help_icon_inc.php";
+                    return $help_icon ?? '';
                 }
             )
         ];

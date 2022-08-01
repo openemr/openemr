@@ -41,6 +41,7 @@ exports.medicalDeviceActivityProcedure = {
             dataKey: 'device'
         },
         fieldLevel.effectiveTime,
+        fieldLevel.author,
         /*{
             key: "targetSiteCode",
             attributes: leafLevel.code,

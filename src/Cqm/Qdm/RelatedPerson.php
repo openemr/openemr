@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class RelatedPerson extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\Identifier $identifier
      */
@@ -52,3 +51,4 @@ class RelatedPerson extends QDMBaseType
 
     public $_type = 'QDM::RelatedPerson';
 }
+

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveInterventionOrder extends InterventionOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveInterventionOrder extends InterventionOrder
 
     public $_type = 'QDM::PositiveInterventionOrder';
 }
+

@@ -80,7 +80,7 @@
             </div>
             <div class="list-group list-group-flush flex-fill">
                 <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Copay"|xlt }}:</strong> <span class="text-right">{{ c.copay|text }}</span></div>
-                <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Accepts Assignment"|xlt }}:</strong> <span class="text-right">{{ c.accept_assignment == true ? "Yes"|xlt : "No"|xlt }}</span></div>
+                <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Accepts Assignment"|xlt }}:</strong> <span class="text-right">{{ c.accept_assignment == 'TRUE' ? "Yes"|xlt : "No"|xlt }}</span></div>
                 {% if c.policy_type %}
                 <div class="list-group-item d-flex justify-content-between p-1"><strong class="flex-fill">{{ "Secondary Medicare Type"|xlt }}:</strong> <span class="text-right flex-fill">{{ c.policy_type|text }}</span></div>
                 {% endif %}

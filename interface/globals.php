@@ -21,7 +21,6 @@ if ($response !== true) {
 use Dotenv\Dotenv;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
-use OpenEMR\Services\VersionService;
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -201,19 +200,6 @@ $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . "/" . $_SESSION['site_id']
 // Set a site-specific uri root path.
 $GLOBALS['OE_SITE_WEBROOT'] = $web_root . "/sites/" . $_SESSION['site_id'];
 
-// Collecting the utf8 disable flag from the sqlconf.php file in order
-// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
-// then set to iso-8859-1.
-require_once(__DIR__ . "/../library/sqlconf.php");
-if (!$disable_utf8_flag) {
-    ini_set('default_charset', 'utf-8');
-    $HTML_CHARSET = "UTF-8";
-    mb_internal_encoding('UTF-8');
-} else {
-    ini_set('default_charset', 'iso-8859-1');
-    $HTML_CHARSET = "ISO-8859-1";
-    mb_internal_encoding('ISO-8859-1');
-}
 
 // Root directory, relative to the webserver root:
 $GLOBALS['rootdir'] = "$web_root/interface";
@@ -296,12 +282,6 @@ if (file_exists("{$webserver_root}/.env")) {
     $dotenv->load();
 }
 
-// This will open the openemr mysql connection.
-require_once(__DIR__ . "/../library/sql.inc");
-
-// Include the version file
-require_once(__DIR__ . "/../version.php");
-
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
 //    - DEBUG/INFO are great for development
@@ -315,6 +295,25 @@ try {
 } catch (\Exception $e) {
     error_log(errorLogEscape($e->getMessage()));
     die();
+}
+
+// This will open the openemr mysql connection.
+require_once(__DIR__ . "/../library/sql.inc");
+
+// Include the version file
+require_once(__DIR__ . "/../version.php");
+
+// Collecting the utf8 disable flag from the sqlconf.php file in order
+// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
+// then set to iso-8859-1.
+if (!$disable_utf8_flag) {
+    ini_set('default_charset', 'utf-8');
+    $HTML_CHARSET = "UTF-8";
+    mb_internal_encoding('UTF-8');
+} else {
+    ini_set('default_charset', 'iso-8859-1');
+    $HTML_CHARSET = "ISO-8859-1";
+    mb_internal_encoding('ISO-8859-1');
 }
 
 // Defaults for specific applications.
@@ -564,25 +563,6 @@ $tmore = xl('(More)');
 //   Note this label gets translated here via the xl function
 //    -if you don't want it translated, then strip the xl function away
 $tback = xl('(Back)');
-
-$version = (new VersionService())->fetch();
-
-if (!empty($version)) {
-    //Version tag
-    $patch_appending = "";
-    //Collected below function call to a variable, since unable to directly include
-    // function calls within empty() in php versions < 5.5 .
-    $version_getrealpatch = $version['v_realpatch'];
-    if (($version['v_realpatch'] != '0') && (!(empty($version_getrealpatch)))) {
-        $patch_appending = " (" . $version['v_realpatch'] . ")";
-    }
-
-    $openemr_version = $version['v_major'] . "." . $version['v_minor'] . "." . $version['v_patch'];
-    $openemr_version .= $version['v_tag'] . $patch_appending;
-} else {
-    $openemr_version = xl('Unknown version');
-}
-$GLOBALS['openemr_version'] = $openemr_version;
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];

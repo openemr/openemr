@@ -70,6 +70,7 @@ exports.smokingStatusObservation = {
             required: true,
             dataKey: "value"
         }
+        ,fieldLevel.author
     ],
     existsWhen: function (input) {
         return input.value && input.value.indexOf("smoke") > -1;
@@ -96,6 +97,7 @@ exports.genderStatusObservation = {
             required: true,
             dataKey: "gender"
         }
+        ,[fieldLevel.author, contentModifier.dataKey("gender_author")]
     ],
     existsWhen: function (input) {
         return input && input.gender;

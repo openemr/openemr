@@ -10,11 +10,13 @@
  * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Robert DOwn <robertdown@live.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,6 +29,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 use OpenEMR\Events\User\UserUpdatedEvent;
@@ -45,7 +48,8 @@ if (!empty($_GET)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    die(xlt('Access denied'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("User / Groups")]);
+    exit;
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -149,6 +153,13 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set facility_id = ? where id = ? ", array($_POST["facility_id"], $_POST["id"]));
             //(CHEMED) Update facility name when changing the id
             sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.id = ?", array($_POST["facility_id"], $_POST["id"]));
+            //END (CHEMED)
+        }
+
+        if ($_POST["billing_facility_id"]) {
+            sqlStatement("update users set billing_facility_id = ? where id = ? ", array($_POST["billing_facility_id"], $_POST["id"]));
+            //(CHEMED) Update facility name when changing the id
+            sqlStatement("UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.id = ?", array($_POST["billing_facility_id"], $_POST["id"]));
             //END (CHEMED)
         }
 
@@ -352,6 +363,7 @@ if (isset($_POST["mode"])) {
             "', npi  = '"          . add_escape_custom(trim((isset($_POST['npi']) ? $_POST['npi'] : ''))) .
             "', taxonomy = '"      . add_escape_custom(trim((isset($_POST['taxonomy']) ? $_POST['taxonomy'] : ''))) .
             "', facility_id = '"   . add_escape_custom(trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : ''))) .
+            "', billing_facility_id = '"   . add_escape_custom(trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : ''))) .
             "', specialty = '"     . add_escape_custom(trim((isset($_POST['specialty']) ? $_POST['specialty'] : ''))) .
             "', see_auth = '"      . add_escape_custom(trim((isset($_POST['see_auth']) ? $_POST['see_auth'] : ''))) .
             "', default_warehouse = '" . add_escape_custom(trim((isset($_POST['default_warehouse']) ? $_POST['default_warehouse'] : ''))) .
@@ -383,6 +395,16 @@ if (isset($_POST["mode"])) {
                     array(
                         $uuid,
                         trim((isset($_POST['facility_id']) ? $_POST['facility_id'] : '')),
+                        trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
+                    )
+                );
+
+                //set the billing facility name from the selected billing_facility_id
+                sqlStatement(
+                    "UPDATE users, facility SET users.billing_facility = facility.name, users.uuid =? WHERE facility.id = ? AND users.username = ?",
+                    array(
+                        $uuid,
+                        trim((isset($_POST['billing_facility_id']) ? $_POST['billing_facility_id'] : '')),
                         trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
                     )
                 );
@@ -582,22 +604,22 @@ function authorized_clicked() {
 
             ?>
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped table-sm">
                     <thead>
-                    <tr>
-                        <th><?php echo xlt('Username'); ?></th>
-                        <th><?php echo xlt('Real Name'); ?></th>
-                        <th><?php echo xlt('Additional Info'); ?></th>
-                        <th><?php echo xlt('Authorized'); ?></th>
-                        <th><?php echo xlt('MFA'); ?></th>
-                        <?php
-                        $checkPassExp = false;
-                        if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
-                            $checkPassExp = true;
-                            echo '<th>' . xlt('Password Expiration') . '</th>';
-                        }
-                        ?>
-                    </tr>
+                        <tr>
+                            <th><?php echo xlt('Username'); ?></th>
+                            <th><?php echo xlt('Real Name'); ?></th>
+                            <th><?php echo xlt('Additional Info'); ?></th>
+                            <th><?php echo xlt('Authorized'); ?></th>
+                            <th><?php echo xlt('MFA'); ?></th>
+                            <?php
+                            $checkPassExp = false;
+                            if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
+                                $checkPassExp = true;
+                                echo '<th>' . xlt('Password Expiration') . '</th>';
+                            }
+                            ?>
+                        </tr>
                     <tbody>
                         <?php
                         $query = "SELECT * FROM users WHERE username != '' ";
@@ -643,23 +665,26 @@ function authorized_clicked() {
                             }
 
                             print "<tr>
-                                <td><b><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
-                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a></b>" . "&nbsp;</td>
+                                <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
+                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
                                 <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
                                 <td align='left'><span>" . text($iter["authorized"]) . "</td>
                                 <td align='left'><span>" . text($isMfa) . "</td>";
                             if ($checkPassExp) {
-                                echo '<td>';
                                 if (AuthUtils::useActiveDirectory($iter["username"]) || empty($iter["active"])) {
                                     // LDAP bypasses expired password mechanism
-                                    echo '<div class="alert alert-success" role="alert">' . xlt('Not Applicable') . '</div>';
+                                    echo '<td>';
+                                    echo xlt('Not Applicable');
                                 } elseif (strtotime($current_date) > strtotime($grace_time)) {
-                                    echo '<div class="alert alert-danger" role="alert">' . xlt('Expired') . '</div>';
+                                    echo '<td class="bg-danger text-light">';
+                                    echo xlt('Expired');
                                 } elseif (strtotime($current_date) > strtotime($pwd_expires)) {
-                                    echo '<div class="alert alert-warning" role="alert">' . xlt('Grace Period') . '</div>';
+                                    echo '<td class="bg-warning text-dark">';
+                                    echo xlt('Grace Period');
                                 } else {
-                                    echo '<div class="alert alert-success" role="alert">' . text(oeFormatShortDate($pwd_expires)) . '</div>';
+                                    echo '<td>';
+                                    echo text(oeFormatShortDate($pwd_expires));
                                 }
                                 echo '</td>';
                             }

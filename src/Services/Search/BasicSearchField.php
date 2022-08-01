@@ -22,6 +22,7 @@ class BasicSearchField implements ISearchField
     private $modifier;
     private $values;
     private $isAnd;
+    private $type;
 
     /**
      * BasicSearchField constructor.
@@ -137,6 +138,23 @@ class BasicSearchField implements ISearchField
     {
         $this->isAnd = $isAnd;
         return $this;
+    }
+
+
+    public function __clone()
+    {
+        if (!empty($this->values)) {
+            $values = $this->values;
+            $newValues = [];
+            foreach ($values as $value) {
+                if (is_object($value)) {
+                    $newValues[] = clone $value;
+                } else {
+                    $newValues[] = $value;
+                }
+            }
+            $this->values = $values;
+        }
     }
 
     /**

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativePhysicalExamRecommended extends PhysicalExamRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativePhysicalExamRecommended extends PhysicalExamRecommended
 
     public $_type = 'QDM::NegativePhysicalExamRecommended';
 }
+

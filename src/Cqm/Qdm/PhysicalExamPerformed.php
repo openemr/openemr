@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PhysicalExamPerformed extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -68,6 +67,11 @@ class PhysicalExamPerformed extends QDMBaseType
     public $performer = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Physical Exam, Performed';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.62';
@@ -89,3 +93,4 @@ class PhysicalExamPerformed extends QDMBaseType
 
     public $_type = 'QDM::PhysicalExamPerformed';
 }
+

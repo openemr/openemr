@@ -367,12 +367,17 @@ class Events extends Base
                     $timing2 = ($timing + 1) . ":1:1";
                 }
 
+                if ($info['ME_hipaa_default_override'] != '1') {
+                    $hipaa_override = " and hipaa_notice='YES' AND ";
+                }
+
                 if (!empty($prefs['ME_facilities'])) {
                     $places = str_replace("|", ",", $prefs['ME_facilities']);
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                 LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                 WHERE
                                 " . $target_lang . "
+                                " . $hipaa_override . "
                                 (
                                   (
                                     pc_eventDate > CURDATE() " . $interval . " INTERVAL " . $timing . " DAY AND

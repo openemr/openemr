@@ -9,7 +9,6 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class InsuranceNumbers extends ORDataObject
 {
-
         var $id;
         var $provider_id;
         var $insurance_company_name;

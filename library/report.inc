@@ -273,7 +273,7 @@ function printPatientTransactions($pid)
 
 function printPatientBilling($pid)
 {
-    $res = sqlStatement("select * from billing where pid=? order by date", array($pid));
+    $res = sqlStatement("select * from billing where pid=? and activity = '1' order by date", array($pid));
     while ($result = sqlFetchArray($res)) {
         echo "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) . " : </span>";
         echo "<span class='text'>(" . text($result["code_type"]) . ") ";

@@ -18,7 +18,9 @@ $id = (isset($_GET['id']) ? $_GET['id'] : '') + 0;
 $order = (isset($_GET['order']) ? $_GET['order'] : '') + 0;
 $labid = (isset($_GET['labid']) ? $_GET['labid'] : '') + 0;
 
-echo "$('#con" . attr($id) . "').html('<table class=\"table\">";
+$render = '';
+
+$render .= "<table class=\"table\">";
 // Determine indentation level for this container.
 for ($level = 0, $parentid = $id; $parentid; ++$level) {
     $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
@@ -57,62 +59,64 @@ while ($row = sqlFetchArray($res)) {
         $classes .= ' oe-pl' . ($level * 10) ;
     }
 
-    echo "<tr>";
-    echo "<td id=\"td" . attr($chid) . "\"";
-    echo " onclick=\"toggle(" . attr_js($chid) . ")\"";
-    echo " class=\"" . attr($classes) . "\">";
-    echo "<span style=\"margin: 0 4 0 " . round(($level * 9) * 1.3333) . "px\" class=\"plusminus\">";
-    echo "<span class=\"plusminus\">";
-    echo $iscontainer ? "+ " : '| ';
-    echo "</span>";
+    $render .= "<tr>";
+    $render .= "<td id=\"td" . attr($chid) . "\"";
+    $render .= " onclick=\"toggle(" . attr_js($chid) . ")\"";
+    $render .= " class=\"" . attr($classes) . "\">";
+    $render .= "<span style=\"margin: 0 4 0 " . round(($level * 9) * 1.3333) . "px\" class=\"plusminus\">";
+    $render .= "<span class=\"plusminus\">";
+    $render .= $iscontainer ? "+ " : '| ';
+    $render .= "</span>";
     if ($isOrder == 'ord') {
-        echo "<mark class=\"oe-patient-background\">" . text($row['name']) . "</mark></td>";
+        $render .= "<mark class=\"oe-patient-background\">" . text($row['name']) . "</mark></td>";
     } elseif ($isOrder == 'for') {
-        echo "<mark class=\"oe-pink-background\">" . text($row['name']) . "</mark></td>";
+        $render .= "<mark class=\"oe-pink-background\">" . text($row['name']) . "</mark></td>";
     } else {
-        echo text($row['name']) . "</td>";
+        $render .= text($row['name']) . "</td>";
     }
   //
-    echo "<td class=\"col2\">";
+    $render .= "<td class=\"col2\">";
     if ($isOrder == 'ord' || $isOrder == 'for') {
         if ($order && ($labid == 0 || $row['lab_id'] == $labid)) {
-            echo "<input type=\"radio\" name=\"form_order\" value=\"" . attr($chid) . "\"";
+            $render .= "<input type=\"radio\" name=\"form_order\" value=\"" . attr($chid) . "\"";
             if ($chid == $order) {
-                echo " checked";
+                $render .= " checked";
             }
 
-            echo " />";
+            $render .= " />";
         } else {
             if ($isOrder == 'ord') {
-                echo "<mark class=\"oe-patient-background\">" . xlt('Order') . "</mark>";
+                $render .= "<mark class=\"oe-patient-background\">" . xlt('Order') . "</mark>";
             } elseif ($isOrder == 'for') {
-                echo "<mark class=\"oe-pink-background\">" . xlt('Custom Order') . "</mark>";
+                $render .= "<mark class=\"oe-pink-background\">" . xlt('Custom Order') . "</mark>";
             }
         }
     } else {
-        //echo '&nbsp;';
+        //$render .= '&nbsp;';
         if ($isOrder == 'grp' && $row['parent'] == 0) {
-            echo  xlt('Top Group');
+            $render .=  xlt('Top Group');
         } elseif ($isOrder == 'fgp' && $row['parent'] == 0) {
-            echo "<mark class=\"oe-pink-background\">" . xlt('Custom Top Group') . "</mark>";
+            $render .= "<mark class=\"oe-pink-background\">" . xlt('Custom Top Group') . "</mark>";
         } elseif ($isOrder == 'grp') {
-             echo  xlt('Sub Group');
+             $render .=  xlt('Sub Group');
         } elseif ($isOrder == 'fgp') {
-            echo "<mark class=\"oe-pink-background\">" . xlt('Custom Sub Group') . "</mark>";
+            $render .= "<mark class=\"oe-pink-background\">" . xlt('Custom Sub Group') . "</mark>";
         } elseif ($isOrder == 'res') {
-            echo  xlt('Result');
+            $render .=  xlt('Result');
         } elseif ($isOrder == 'rec') {
-            echo  xlt('Recommendation');
+            $render .=  xlt('Recommendation');
         }
     }
 
-    echo "</td>";
+    $render .= "</td>";
     if (($isOrder != 'grp' && $isOrder != 'fgp') &&  !empty($row['procedure_code'])) {
-        echo "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
+        $render .= "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
     } elseif (($isOrder != 'grp' && $isOrder != 'fgp') &&  empty($row['procedure_code'])) {
-        echo "<td class=\"col3\" style=\"padding-left: 15px\"><span class=\"required-tooltip\" title=\"" . xla("Missing Identifying Code") . "\"><i class=\"fa fa-exclamation-triangle text-center text-danger\" aria-hidden=\"true\" > </i></span></td>";
+        $render .= "<td class=\"col3\" style=\"padding-left: 15px\"><span class=\"required-tooltip\" title=\"" .
+            xla("Missing Identifying Code") .
+            "\"><i class=\"fa fa-exclamation-triangle text-center text-danger\" aria-hidden=\"true\" ></i></span></td>";
     } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
-        echo "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
+        $render .= "<td class=\"col3\">" . text($row['procedure_code']) . "</td>";
     }
     $typeIs = 0;
     $thislab = $row['lab_id'] ? $row['lab_id'] + 0 : 0;
@@ -121,18 +125,25 @@ while ($row = sqlFetchArray($res)) {
     } elseif ($isOrder == 'for') {
         $typeIs = 2;
     }
-    echo "<td class=\"col6\">" . text($level + 1) . "</td>";
-    echo "<td class=\"col4\">" . text($row['description']) . "</td>";
-    echo "<td class=\"col5\">";
-    echo "<span onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"text-body haskids fa fa-pencil-alt fa-lg\" title=" . xla("Edit") . "></span>";
-    echo "</td>";
-    echo "<td class=\"col5\">";
+    $render .= "<td class=\"col6\">" . text($level + 1) . "</td>";
+    $render .= "<td class=\"col4\">" . text($row['description']) . "</td>";
+    $render .= "<td class=\"col5\">";
+    $render .= "<span onclick=\"handleNode(" . attr_js($chid) . "," .
+        attr_js($typeIs) . ",false," . attr_js($thislab) .
+        ")\" class=\"text-body haskids fa fa-pencil-alt fa-lg\" title=" . xla("Edit") . "></span>";
+    $render .= "</td>";
+    $render .= "<td class=\"col5\">";
     //if ($isOrder != 'for') {//RP_MODIFIED 2018-08-03 to allow for manual lab entry
-        echo "<span style=\"margin-left: 30px\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) . ")\" class=\"haskids text-body fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
+        $render .= "<span style=\"margin-left: 30px\" onclick=\"handleNode(" .
+        attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) .
+        ")\" class=\"haskids text-body fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
     //}//RP_MODIFIED 2018-08-03
-    echo "</td>";
-    echo "</tr>";
+    $render .= "</td>";
+    $render .= "</tr>";
 }
 
-echo "</table>');\n";
-echo "nextOpen();\n";
+$render .= "</table>\n";
+$rendered = "$('#con" . attr($id) . "').html(";
+$rendered .= js_escape($render) . ");";
+$rendered .= "nextOpen();\n";
+echo $rendered;

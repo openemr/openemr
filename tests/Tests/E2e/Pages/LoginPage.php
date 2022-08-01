@@ -9,7 +9,6 @@ use Symfony\Component\Panther\Client;
 
 class LoginPage
 {
-
     private $crawler;
     private $client;
     private $test;

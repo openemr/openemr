@@ -7,7 +7,6 @@
 
 class CategoryTree extends Tree
 {
-
     /*
     *   This just sits on top of the parent constructor, only a shell so that the _table var gets set
     */
@@ -15,6 +14,16 @@ class CategoryTree extends Tree
     {
         $this->_table = "categories";
         parent::__construct($root, $root_type);
+    }
+
+    public function should_translate_name()
+    {
+        return true;
+    }
+
+    public function get_translated_name($name)
+    {
+        return xl_document_category($name);
     }
 
     function _get_categories_array($patient_id, $user = '')

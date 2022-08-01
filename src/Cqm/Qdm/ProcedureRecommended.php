@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class ProcedureRecommended extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -46,6 +45,11 @@ class ProcedureRecommended extends QDMBaseType
     public $negationRationale = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Procedure, Recommended';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.68';
@@ -67,3 +71,4 @@ class ProcedureRecommended extends QDMBaseType
 
     public $_type = 'QDM::ProcedureRecommended';
 }
+

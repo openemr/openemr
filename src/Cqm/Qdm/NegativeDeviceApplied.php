@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeDeviceApplied extends DeviceApplied
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeDeviceApplied extends DeviceApplied
 
     public $_type = 'QDM::NegativeDeviceApplied';
 }
+

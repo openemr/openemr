@@ -1,0 +1,10 @@
+{{#multiple_codes}}
+  <code {{{primary_code_and_codesystem}}}>
+  {{{translation_codes_and_codesystem_list}}}
+  </code>
+{{/multiple_codes}}
+{{^multiple_codes}}
+  {{#dataElementCodes}}
+  <code {{> _code}}/>
+  {{/dataElementCodes}}
+{{/multiple_codes}}

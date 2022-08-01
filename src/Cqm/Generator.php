@@ -49,9 +49,8 @@ class Generator
         $datatypes = [];
         $extends = [];
         $hqmfOid_to_datatype_map = [];
-        $root = $GLOBALS['fileroot'];
-        $oids_file = $root . '/node_modules/cqm-models/data/oids_qdm_5.5.json';
-        $modelinfo_file = $root . '/node_modules/cqm-models/modelinfo/qdm-modelinfo-5.5.xml';
+        $oids_file = __DIR__ . '/oids_qdm_5.5.json';
+        $modelinfo_file = __DIR__ . '/qdm-modelinfo-5.5.xml';
         $modelinfo = simplexml_load_string(file_get_contents($modelinfo_file));
         $oids = json_decode(file_get_contents($oids_file), true);
 
@@ -106,7 +105,7 @@ class Generator
                 // If there's no label, check if there is a "positive" profile
                 $positive_profile_element = $modelinfo->xpath("/ns4:modelInfo/ns4:typeInfo[@xsi:type='ns4:ProfileInfo'][@identifier='Positive$datatype_name']")[0];
                 if ($positive_profile_element !== null) {
-                    $positive_profile = (string)$positive_profile_element->attributes();
+                    $positive_profile = $positive_profile_element->attributes();
                     if (!empty((string)$positive_profile->label)) {
                         $qdm_title = (string)$positive_profile->label;
                     }
@@ -133,7 +132,10 @@ class Generator
             }
 
             // Add the extra info that is manually maintained in the "oids" file
-            $extra_info = $oids[$this->underscore($datatype_name)];
+            $extra_info = null;
+            if (isset($oids[$this->underscore($datatype_name)])) {
+                $extra_info = $oids[$this->underscore($datatype_name)];
+            }
             if ($extra_info !== null) {
                 if (isset($extra_info['hqmf_oid'])) {
                     $attributes[] = [
@@ -215,8 +217,8 @@ class Generator
             foreach ($attributes as $attribute) {
                 $property = new PropertyGenerator();
                 $property->setDocBlock(DocBlockGenerator::fromArray([
-                    'shortDescription' => null,
-                    'longDescription'  => null,
+                    'shortDescription' => '',
+                    'longDescription'  => '',
                     'tags'             => [
                         new PropertyTag(
                             $attribute['name'],
@@ -247,14 +249,17 @@ class Generator
                 'classes' => [$class]
             ]);
             $code = $file->generate();
-            $dir = __DIR__;
-            // $dir = '/Users/kchapple/Dev/openemr/openemr/src/Cqm';
-            mkdir($dir . '/Qdm');
-            $filename = $dir . '/Qdm/' . $datatype . '.php';
-            file_put_contents($filename, $code);
+            $qdm_dir = __DIR__ . DIRECTORY_SEPARATOR . 'Qdm';
+            if (!file_exists($qdm_dir)) {
+                mkdir($qdm_dir);
+            }
+            $filename = $qdm_dir . DIRECTORY_SEPARATOR . $datatype . '.php';
+            if (false === file_put_contents($filename, $code)) {
+                error_log("Error writing to QDM Model file: `$filename`");
+            }
         }
 
-        file_put_contents($dir . '/hqmfOid_to_datatype_map.json', json_encode($hqmfOid_to_datatype_map));
+        file_put_contents(__DIR__ . '/hqmfOid_to_datatype_map.json', json_encode($hqmfOid_to_datatype_map));
     }
 
     public function underscore($input)

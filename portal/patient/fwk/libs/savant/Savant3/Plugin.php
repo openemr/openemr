@@ -30,7 +30,6 @@
  */
 abstract class Savant3_Plugin
 {
-
     /**
      *
      * Reference to the calling Savant object.

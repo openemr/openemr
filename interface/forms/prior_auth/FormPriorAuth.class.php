@@ -18,7 +18,6 @@
  */
 class FormPriorAuth extends ORDataObject
 {
-
     /**
      *
      * @access public

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeAssessmentPerformed extends AssessmentPerformed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeAssessmentPerformed extends AssessmentPerformed
 
     public $_type = 'QDM::NegativeAssessmentPerformed';
 }
+
