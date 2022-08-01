@@ -359,13 +359,13 @@ function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
     }
 
     if ($dateStart && $dateEnd) {
-        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
+        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC, id DESC limit 0,1", array($pid,$dateStart,$dateEnd));
     } elseif ($dateStart && !$dateEnd) {
-        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart));
+        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC, id DESC limit 0,1", array($pid,$dateStart));
     } elseif (!$dateStart && $dateEnd) {
-        $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd));
+        $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC, id DESC limit 0,1", array($pid,$dateEnd));
     } else {
-        $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC limit 0,1", array($pid));
+        $res = sqlQuery("select $given from history_data where $where pid = ? order by date DESC, id DESC limit 0,1", array($pid));
     }
 
     return $res;
