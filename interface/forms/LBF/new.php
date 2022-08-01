@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2009-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -245,6 +245,7 @@ if (
         );
     }
 
+    $newhistorydata = array();
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -273,8 +274,9 @@ if (
         if ($source == 'D' || $source == 'H') {
             // Save to patient_data, employer_data or history_data.
             if ($source == 'H') {
-                $new = array($field_id => $value);
-                updateHistoryData($pid, $new);
+                // Do not call updateHistoryData() here! That would create multiple rows
+                // in the history_data table for a single form save.
+                $newhistorydata[$field_id] = $value;
             } elseif (strpos($field_id, 'em_') === 0) {
                 $field_id = substr($field_id, 3);
                 $new = array($field_id => $value);
@@ -330,6 +332,11 @@ if (
             }
         }
     } // end while save
+
+    // Save any history data that was collected above.
+    if (!empty($newhistorydata)) {
+        updateHistoryData($pid, $newhistorydata);
+    }
 
     if ($portalid) {
         // Delete the request from the portal.
