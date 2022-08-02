@@ -58,6 +58,7 @@ class UuidRegistry
         'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
         'procedure_report' => ['table_name' => 'procedure_report', 'table_id' => 'procedure_report_id'],
         'procedure_result' => ['table_name' => 'procedure_result', 'table_id' => 'procedure_result_id'],
+        'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)

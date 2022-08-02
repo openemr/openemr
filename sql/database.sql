@@ -13150,3 +13150,26 @@ CREATE TABLE `valueset_oid` (
   `valueset_name` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`nqf_code`,`code`,`valueset`)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `questionnaire_repository`;
+CREATE TABLE `questionnaire_repository` (
+    `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `uuid` binary(16) DEFAULT NULL,
+    `questionnaire_id` varchar(255) DEFAULT NULL,
+    `provider` int(11) UNSIGNED DEFAULT NULL,
+    `version` int(11) NOT NULL DEFAULT 1,
+    `created_date` datetime DEFAULT current_timestamp(),
+    `modified_date` datetime DEFAULT current_timestamp(),
+    `name` varchar(255) DEFAULT NULL,
+    `type` varchar(63) NOT NULL DEFAULT 'Questionnaire',
+    `profile` varchar(255) DEFAULT NULL,
+    `active` tinyint(2) NOT NULL DEFAULT 1,
+    `status` varchar(31) DEFAULT NULL,
+    `source_url` text,
+    `code` varchar(255) DEFAULT NULL,
+    `code_display` text,
+    `questionnaire` longtext,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`),
+    KEY `search` (`name`,`questionnaire_id`)
+) ENGINE=InnoDB;
