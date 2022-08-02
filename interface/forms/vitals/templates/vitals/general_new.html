@@ -11,7 +11,7 @@
 <head>
 {headerTemplate assets='datetime-picker|reason-code-widget'}
 <!--Update the version (v flag) to cache bust if you modify this file -->
-<script src="{$webroot|attr}/interface/forms/vitals/vitals.js?v={assetVersionNumber}" type="text/javascript"></script>
+<script src="{$FORM_ACTION|attr}/interface/forms/vitals/vitals.js?v={assetVersionNumber}" type="text/javascript"></script>
 {literal}
 <script>
     let vitalsTranslations = {
@@ -25,7 +25,7 @@
         ,'invalidField': {/literal}{xlj t="The following field has an invalid value"}{literal}
     };
     if (window.vitalsForm) {
-        window.vitalsForm.init({/literal}{$webroot|js_url}{literal}, vitalsTranslations);
+        window.vitalsForm.init({/literal}{$FORM_ACTION|js_url}{literal}, vitalsTranslations);
     } else {
         console.error("Failed to find vitalsForm object to initialize javascript vitals form");
     }
@@ -33,7 +33,7 @@
 {/literal}
 </script>
 <!--Update the version (v flag) to cache bust if you modify this file -->
-<link rel="stylesheet" href="{$webroot|attr}/interface/forms/vitals/vitals.css?v={assetVersionNumber}" />
+<link rel="stylesheet" href="{$FORM_ACTION|attr}/interface/forms/vitals/vitals.css?v={assetVersionNumber}" />
 <title>{xlt t='Vitals'}</title>
 </head>
 <body>
