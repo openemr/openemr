@@ -178,7 +178,7 @@ function portalAuthorized($pid)
 
     $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
     $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
-    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps']) != 'YES';
+    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps'] ?? '') != 'YES';
     if ($return['allowed']['portal'] || $return['allowed']['api']) {
         $return['isAllowed'] = true;
         $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
@@ -852,7 +852,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?> 
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
         div.tab td.label_custom, div.label_custom {
             text-align: right !important;
         }
@@ -863,7 +863,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
             <?php
         } ?>
-        
+
         <?php
         // This is for layout font size override.
         $grparr = array();
@@ -881,7 +881,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         #DEM .label {
             font-size: <?php echo attr($FONTSIZE); ?>rem;
         }
-    
+
         #DEM .data {
             font-size: <?php echo attr($FONTSIZE); ?>rem;
         }
@@ -1218,7 +1218,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnCLass' => '',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
-                            'auth' => AclMain::aclCheckCore('patients', 'amendment', '', 'write'),
+                            'auth' => AclMain::aclCheckCore('patients', 'amendment', '', ['write', 'addonly']),
                             'amendments' => $amendments,
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),

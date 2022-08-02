@@ -537,7 +537,7 @@ foreach ($imageslist as $sfname) {
         $('#add-manually').on('click', function () {
             var new_type = $("#add-manually-input").val();
             if(new_type.length < 1)return;
-            $('#white-list').prepend("<option value="+new_type+">"+new_type+"</option>")
+            $('#white-list').prepend("<option value='" + jsAttr(new_type) + "'>" + jsText(new_type) + "</option>")
         })
 
         $('#submit-whitelist').on('click', function () {
