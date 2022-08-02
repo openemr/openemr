@@ -255,7 +255,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <?php if ($active == "all") { ?>
                                 <span class="font-weight-bold"><?php echo xlt('All Messages'); ?></span>
                                     <?php } else { ?>
-                                <a href="messages.php" class="link btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Show All'); ?></a>
+                                <a href="messages.php?show_all=yes" class="link btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Show All'); ?></a>
                                     <?php } ?>
                                     |
                                     <?php if ($active == '1') { ?>
@@ -973,6 +973,10 @@ if (!empty($_REQUEST['go'])) { ?>
             }
             else{
                 delete collectvalidation.assigned_to;
+            }
+
+            if(document.getElementById("form_message_status").value == 'Done'){               
+                delete collectvalidation.note;
             }
 
             $('#newnote').attr('disabled', true);
