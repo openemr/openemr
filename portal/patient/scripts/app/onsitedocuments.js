@@ -234,7 +234,7 @@ var page = {
                             page.lbfFormId = e.originalEvent.data.formid;
                             page.onsiteDocument.set('encounter', page.lbfFormId);
                             let url = '';
-                            if (page.lbfFormName.startsWith('LBF')) {
+                            if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
                                 url = webroot_url +
                                     "/interface/forms/LBF/printable.php?return_content=" +
                                     "&formname=" + encodeURIComponent(page.lbfFormName) +
@@ -304,7 +304,7 @@ var page = {
                             page.lbfFormId = e.originalEvent.data.formid;
                             page.onsiteDocument.set('encounter', page.lbfFormId);
                             let url = '';
-                            if (page.lbfFormName.startsWith('LBF')) {
+                            if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
                                 url = webroot_url +
                                     "/interface/forms/LBF/printable.php?return_content=" +
                                     "&formname=" + encodeURIComponent(page.lbfFormName) +
@@ -693,7 +693,7 @@ var page = {
                                 // a layout form
                                 if (page.lbfFormName) {
                                     let url = '';
-                                    if (page.lbfFormName.startsWith('LBF')) {
+                                    if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
                                         // iframe from template directive {EncounterDocument:LBFxxxxx} for a LBF form
                                         url = webRoot + "/interface/forms/LBF/new.php" + "" +
                                             "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
