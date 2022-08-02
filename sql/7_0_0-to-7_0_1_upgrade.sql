@@ -123,8 +123,8 @@ CREATE TABLE `questionnaire_repository` (
     `code` varchar(255) DEFAULT NULL,
     `code_display` text,
     `questionnaire` longtext,
-    `form_js` longtext,
     PRIMARY KEY (`id`),
-    KEY `search` (`uuid`,`questionnaire_id`,`name`)
+    UNIQUE KEY `uuid` (`uuid`),
+    KEY `search` (`name`,`questionnaire_id`)
 ) ENGINE=InnoDB;
 #EndIf
