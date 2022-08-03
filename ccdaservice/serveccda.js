@@ -26,6 +26,39 @@ var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
 
+class DataStack {
+    constructor(delimiter) {
+        this.delimiter = delimiter;
+        this.buffer = "";
+    }
+
+    endOfCcda() {
+        return this.buffer.length === 0 || this.buffer.indexOf(this.delimiter) === -1;
+    }
+
+    pushToStack(data) {
+        this.buffer += data;
+    }
+
+    fetchBuffer() {
+        const delimiterIndex = this.buffer.indexOf(this.delimiter);
+        if (delimiterIndex !== -1) {
+            const bufferMsg = this.buffer.slice(0, delimiterIndex);
+            this.buffer = this.buffer.replace(bufferMsg + this.delimiter, "");
+            return bufferMsg;
+        }
+        return null
+    }
+
+    returnData() {
+        return this.fetchBuffer();
+    }
+
+    clearStack() {
+        this.buffer = "";
+    }
+}
+
 function trim(s) {
     if (typeof s === 'string') return s.trim();
     return s;
@@ -982,7 +1015,7 @@ function populateEncounter(pd) {
 }
 
 function populateAllergy(pd) {
-    
+
     if (!pd) {
         return {
             "no_know_allergies": "No Known Allergies",
@@ -1654,13 +1687,13 @@ function getFunctionalStatus(pd) {
     let functionalStatusAuthor = {
         "code": {
             "name": all.author.physician_type || '',
-                "code": all.author.physician_type_code || '',
-                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
+            "code": all.author.physician_type_code || '',
+            "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
         },
         "date_time": {
             "point": {
                 "date": authorDateTime,
-                    "precision": "tz"
+                "precision": "tz"
             }
         },
         "identifiers": [
@@ -1669,13 +1702,13 @@ function getFunctionalStatus(pd) {
                 "extension": all.author.npi ? all.author.npi : ''
             }
         ],
-            "name": [
+        "name": [
             {
                 "last": all.author.lname,
                 "first": all.author.fname
             }
         ],
-            "organization": [
+        "organization": [
             {
                 "identity": [
                     {
@@ -1696,7 +1729,7 @@ function getFunctionalStatus(pd) {
         "identifiers": [{
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000"
         }],
-        
+
         "observation": {
             "value": {
                 "name": pd.code_text !== "NULL" ? cleanText(pd.code_text) : "",
@@ -2178,7 +2211,7 @@ function populateSocialHistory(pd) {
                 }
             ]
         }
-        ,"gender_author": {
+        , "gender_author": {
             "code": {
                 "name": all.patient.author.physician_type || '',
                 "code": all.patient.author.physician_type_code || '',
@@ -3244,14 +3277,14 @@ function genCcda(pd) {
                 if (err) {
                     return console.log(err);
                 }
-                console.log("Json saved!");
+                //console.log("Json saved!");
             });
 
             fs.writeFile(place + "ccda.xml", xml, function (err) {
                 if (err) {
                     return console.log(err);
                 }
-                console.log("Xml saved!");
+                //console.log("Xml saved!");
             });
         }
     }
@@ -3267,22 +3300,19 @@ function processConnection(connection) {
     let xml_complete = "";
 
     function eventData(xml) {
-        xml = xml.replace(/(\u000b|\u001c)/gm, "").trim();
-        // Sanity check from service manager
-        if (xml === 'status' || xml.length < 80) {
-            conn.write("statusok" + String.fromCharCode(28) + "\r\r");
-            conn.end('');
-            return;
-        }
-        xml_complete += xml.toString();
-        if (xml.toString().match(/<\/CCDA>$/g)) {
-            // ---------------------start--------------------------------
+        xml_complete = xml.toString();
+        //console.log("length: " + xml.length + " " + xml_complete);
+        // ensure we have an array start and end
+        if (xml_complete.match(/^<CCDA/g) && xml_complete.match(/<\/CCDA>$/g)) {
             let doc = "";
             let xslUrl = "";
+            xml_complete = xml_complete.replace(/(\u000b|\u001c)/gm, "").trim();
+            // let's not allow windows CR/LF
+            xml_complete = xml_complete.replace(/[\r\n]/gm, '').trim();
             xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
             // convert xml data set for document to json array
             to_json(xml_complete, function (error, data) {
-                // console.log(JSON.stringify(data, null, 4));
+                //console.log(JSON.stringify(data, null, 4));
                 if (error) { // need try catch
                     console.log('toJson error: ' + error + 'Len: ' + xml_complete.length);
                     return;
@@ -3296,11 +3326,10 @@ function processConnection(connection) {
 
             doc = headReplace(doc, xslUrl);
             doc = doc.toString().replace(/(\u000b|\u001c|\r)/gm, "").trim();
-            //console.log(doc);
             let chunk = "";
             let numChunks = Math.ceil(doc.length / 1024);
             for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
-                chunk = doc.substr(o, 1024);
+                chunk = doc.substring(o, o + 1024);
                 conn.write(chunk);
             }
             conn.write(String.fromCharCode(28) + "\r\r" + '');
@@ -3317,7 +3346,16 @@ function processConnection(connection) {
     }
 
 // Connection Events //
-    conn.on('data', eventData);
+    // CCM will send two File Separator characters to mark end of array.
+    let received = new DataStack(String.fromCharCode(28));
+    conn.on("data", data => {
+        received.pushToStack(data);
+        while (!received.endOfCcda() && data.length > 0) {
+            data = "";
+            eventData(received.returnData())
+        }
+    });
+
     conn.once('close', eventCloseConn);
     conn.on('error', eventErrorConn);
 }
@@ -3332,7 +3370,7 @@ function setUp(server) {
 // start up listener for requests from CCM or others.
 setUp(server);
 
-/* For future use in header. Do not remove! */
+/* ---------------------------------For future use in header. Do not remove!-------------------------------------------- */
 /*"data_enterer": {
     "identifiers": [
         {

@@ -4,7 +4,7 @@
  * CcdaServiceDocumentRequestor handles the communication with the node ccda service in sending and receiving data
  * over the socket.
  *
- * @package openemr
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
@@ -28,7 +28,6 @@ class CcdaServiceDocumentRequestor
         if ($socket === false) {
             throw new CcdaServiceConnectionException("Socket Creation Failed");
         }
-
         // Let's check if server is already running but suppress warning with @ operator
         $server_active = @socket_connect($socket, "localhost", "6661");
 
@@ -74,31 +73,38 @@ class CcdaServiceDocumentRequestor
                 throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
             }
         }
-
-        $data = chr(11) . $data . chr(28) . "\r";
-        if (strlen($data) > 1024 * 128) {
-            throw new CcdaServiceConnectionException("Export document exceeds the maximum size of 128KB");
+        // add file separator character for server end of message
+        $data = $data . chr(28) . chr(28);
+        $len = strlen($data);
+        // Set default buffer size to target data array size.
+        $good_buf = socket_set_option($socket, SOL_SOCKET, SO_SNDBUF, $len);
+        if ($good_buf === false) { // Can't set buffer
+            error_log("Failed to set socket buffer to " . $len);
         }
-        // Write to socket!
-        if (strlen($data) > 1024 * 64) {
-            $data1 = substr($data, 0, floor(strlen($data) / 2));
-            $data2 = substr($data, floor(strlen($data) / 2));
-            $out = socket_write($socket, $data1, strlen($data1));
-            // give distance a chance to clear buffer
-            // we could handshake with a little effort
-            sleep(1);
-            $out = socket_write($socket, $data2, strlen($data2));
-        } else {
-            $out = socket_write($socket, $data, strlen($data));
-        }
+        // make writeSize chunk either the size set above or the default buffer size (64Kb).
+        $writeSize = socket_get_option($socket, SOL_SOCKET, SO_SNDBUF);
+        $pos = 0;
+        $currentCounter = 0;
+        $maxLineAttempts = ($len / $writeSize) + 1;
+        do {
+            $line = substr($data, $pos, min($writeSize, $len - $pos));
+            $out = socket_write($socket, $line, strlen($line));
+            if ($out !== false) {
+                $pos += $out; // bytes written lets advance our position
+            } else {
+                break;
+            }
+            // pause for the receiving side
+            usleep(200000);
+        } while ($out !== false && $pos < $len && $currentCounter++ <= $maxLineAttempts);
 
         socket_set_nonblock($socket);
-        //Read from socket!
+        //Read back rendered document from node service!
         do {
             $line = "";
             $line = trim(socket_read($socket, 1024, PHP_NORMAL_READ));
             $output .= $line;
-        } while (!empty($line) && $line !== false);
+        } while (!empty($line));
 
         $output = substr(trim($output), 0, strlen($output) - 1);
         // Close and return.
