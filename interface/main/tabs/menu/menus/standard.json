@@ -1316,6 +1316,18 @@
             ]
           },
           {
+            "label": "Latest Encounters",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/patient_latest_encounters.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "patients",
+              "demo"
+            ]
+          },
+          {
             "label": "Rx",
             "menu_id": "rep0",
             "target": "rep",
