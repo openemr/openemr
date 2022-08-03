@@ -57,6 +57,15 @@ class DataStack {
     clearStack() {
         this.buffer = "";
     }
+
+    readStackByDelimiter(delimiter) {
+        let backup = this.delimiter;
+        let part = '';
+        this.delimiter = delimiter;
+        part = this.fetchBuffer();
+        this.delimiter = backup;
+        return part;
+    }
 }
 
 function trim(s) {
