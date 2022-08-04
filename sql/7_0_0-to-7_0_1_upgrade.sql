@@ -128,3 +128,7 @@ CREATE TABLE `questionnaire_repository` (
     KEY `search` (`name`,`questionnaire_id`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfMissingColumn patient_data nationality
+ALTER TABLE `patient_data` ADD COLUMN `nationality` TEXT;
+#EndIf
