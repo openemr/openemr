@@ -445,6 +445,13 @@ $GLOBALS_METADATA = array(
             xl('Special treatment for the Vitals form')
         ),
 
+        'gbl_vitals_max_history_cols' => array(
+            xl('Vitals Form Max Historical Columns To Display'),
+            'num',
+            '2',                              // default
+            xl('The number of historical vital columns to display on medium to large screen displays')
+        ),
+
         'gb_how_sort_list' => array(
             xl('How to sort a drop-lists'),
             array(

@@ -36,14 +36,21 @@
 <body>
 
  <div class="container mt-3">
-    <div class="row">
-        <h2>
-            {{ "Vitals"|xlt}}&nbsp;&nbsp;&nbsp;
-            <a href="../summary/demographics.php" class="text-decoration-none" onclick="window.top.restoreSession()"
-                title="{{ 'Back to patient dashboard'|xla }}">
-                    <i id="advanced-tooltip" class="readonly fas fa-arrow-circle-left fa-2x small" aria-hidden="true"></i>
-            </a>
-        </h2>
+    <div class="row no-gutters">
+        <div class="col-4">
+            <h2 class="h2-responsive">
+                {{ "Vitals"|xlt}}&nbsp;&nbsp;&nbsp;
+                <a id="vitals-screen-top" href="../summary/demographics.php" class="text-decoration-none" onclick="window.top.restoreSession()"
+                    title="{{ 'Back to patient dashboard'|xla }}">
+                        <i id="advanced-tooltip" class="readonly fas fa-arrow-circle-left fa-2x small" aria-hidden="true"></i>
+                </a>
+            </h2>
+        </div>
+        {% if hasMoreVitals %}
+        <div class="col-8 text-right">
+                <h6 class="h6-responsive"><a href="#patient-vitals-history" class="text-decoration-none">{{ "See More Vital Records History"|xlt }}</a></h6>
+        </div>
+        {% endif %}
         <div class="col-sm-12">
             <form id="vitalsForm" name="vitals" method="post" action="{{ FORM_ACTION }}/interface/forms/vitals/save.php">
                 <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
@@ -54,15 +61,15 @@
 
                             <thead class="table-head">
                                 <tr>
-                                    <th class="text-left">{{ "Name"|xlt }}</th>
+                                    <th class="text-left"><span class="vitals-title">{{ "Name"|xlt }}</span></th>
                                     <th class="text-left">{{ "Unit"|xlt }}</th>
                                     <th class='currentvalues p-2' title="{{ 'Date and time of this observation'|xla }}">
                                         <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{{ vitals.get_date|dateToTime|date("Y-m-d H:i")|attr }}' />
                                     </th>
                                     <th class="editonly">{{ "Abn"|xlt }}</th>
                                     <th class="editonly">{{ "Actions"|xlt }}</th>
-                                    {% for result in results %}
-                                        <th class='historicalvalues'>{{ result.get_date()|dateToTime|date("Y-m-d H:i")|text }}</th>
+                                    {% for result in vitalsHistoryLookback %}
+                                        <th class='historicalvalues d-none d-md-table-cell'>{{ result.get_date()|dateToTime|date("Y-m-d H:i")|text }}</th>
                                     {% endfor %}
                                 </tr>
                             </thead>
@@ -71,17 +78,17 @@
                              {# Most of these fields could be abstracted into some kind of fields array without having to specify each one of these individually #}
                              {% for field in vitalFields %}
                                 {% if field.type == "textbox_conversion" %}
-                                     {% include "vitals_textbox_conversion.html.twig" with {field: field, vitals:vitals, results: results }
+                                     {% include "vitals_textbox_conversion.html.twig" with {field: field, vitals:vitals, results: vitalsHistoryLookback, is_edit: true }
                                      %}
                                 {% endif %}
                                  {% if field.type == "textbox" %}
                                      {% include "vitals_textbox.html.twig" with {title:field.title, input:field.input
                                          , vitals:vitals, vitalsValue:field.vitalsValue, unit:field.unit,
-                                         precision:field.precision, codes:field.codes }
+                                         precision:field.precision, codes:field.codes, results: vitalsHistoryLookback, is_edit: true }
                                      %}
                                  {% endif %}
                                  {% if field.type == 'template' %}
-                                    {% include field.templateName with {vitals: vitals, field: field} %}
+                                    {% include field.templateName with {vitals: vitals, field: field, results: vitalsHistoryLookback, is_edit: true} %}
                                  {% endif %}
                              {% endfor %}
                             </tbody>
@@ -104,6 +111,7 @@
             <input type="hidden" name="process" id='process' value="true" />
             </form>
         </div>
+        {% include "vitals_historical_values_complete.html.twig" with {vitals:vitals, results:results} %}
     </div>
     </div>
 <script>

@@ -3,9 +3,10 @@
     {%else %}
 <tr>
 {% endif %}
-    <td class="graph" id="{{ field.input|attr }}">{{ field.title|text }} {% if field.codes is not empty %}<small>({{ field.codes|text}})</small>{% endif %}</td>
+    <td class="graph" id="{{ field.input|attr }}"><span class="vitals-title">{{ field.title|text }}</span> {% if field.codes is not empty %}<small>({{ field.codes|text}})</small>{% endif %}</td>
     <td>{{ unit|text }}</td>
 
+    {% if is_edit %}
     <td class='currentvalues p-2'>
         {% if field.precision is defined %}
         <input type="text" class="form-control skip-template-editor" size='5' name='{{ field.input|attr }}' id='{{ field.input|attr }}_input'
@@ -23,7 +24,10 @@
     <td class="editonly actions">
         {% include 'vitals_actions.html.twig' %}
     </td>
+    {% endif %}
     {% include 'vitals_historical_values.html.twig' with { useMetric:false, vitalsValue:field.vitalsValue,
-        vitalsValueMetric:field.vitalsValueMetric, results:results } %}
+        vitalsValueMetric:field.vitalsValueMetric, results:results, is_edit:is_edit } %}
 </tr>
-{% include 'vitals_reason_row.html.twig' with { input:field.input, title:field.title, vitalDetails:vitals.get_details_for_column(field.input) } %}
+{% if is_edit %}
+{% include 'vitals_reason_row.html.twig' with { input:field.input, title:field.title, vitalDetails:vitals.get_details_for_column(field.input), is_edit:is_edit } %}
+{% endif %}

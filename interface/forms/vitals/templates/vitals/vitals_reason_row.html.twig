@@ -46,6 +46,6 @@
     </td>
 
     {% for result in results %}
-        <td class="historicalvalues"></td>
+        <td class="historicalvalues {% if is_edit %}d-none d-md-table-cell{% endif %}"></td>
     {% endfor %}
 </tr>

@@ -1,5 +1,5 @@
 {% for result in results %}
-    <td class='historicalvalues'>
+    <td class='historicalvalues {% if is_edit %}d-none d-md-table-cell{% endif %}'>
         {% if useMetric %}
             {# we use the original value since everything is converted from metric and we want to check for the value #}
             {% if attribute(result, vitalsValue) != 0 %}

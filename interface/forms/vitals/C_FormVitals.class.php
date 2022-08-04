@@ -289,6 +289,16 @@ class C_FormVitals extends Controller
             ]
         ];
 
+        $resultsCount = count($results ?? []);
+        $hasMoreVitals = false;
+        $vitalsHistoryLookback = [];
+        $maxHistoryCols = $GLOBALS['gbl_vitals_max_history_cols'] ?? 2;
+        if ($maxHistoryCols > 0 && $resultsCount > $maxHistoryCols) {
+            $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
+            $hasMoreVitals = true;
+        } else {
+            $vitalsHistoryLookback = $results;
+        }
 
         $data = [
             'vitals' => $vitals
@@ -304,6 +314,8 @@ class C_FormVitals extends Controller
             ,'hide_circumferences' => $GLOBALS['gbl_vitals_options'] > 0
             ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken()
             ,'results' => $results ?? null
+            ,'vitalsHistoryLookback' => $vitalsHistoryLookback
+            ,'hasMoreVitals' => $hasMoreVitals
             ,'results_count' => count(($results ?? []))
             ,'reasonCodeStatii' => $reasonCodeStatii
             ,'interpretation_options' => $this->interpretationsList

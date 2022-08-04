@@ -3,9 +3,10 @@
 {% else %}
 <tr>
 {% endif %}
-    <td class="graph" id="{{ field.input|attr }}">{{ field.title|text }}</td>
+    <td class="graph" id="{{ field.input|attr }}"><span class="vitals-title">{{ field.title|text }}</span></td>
     <td></td>
 
+    {% if is_edit %}
     <td class='currentvalues p-2'>
         <textarea class="form-control" name='{{ field.input|attr}}' id='{{ field.input|attr }}_input'>{% if attribute(vitals, field.vitalsValue) != 0 %}{{ attribute(vitals, field.vitalsValue)|text }}{% endif %}</textarea>
     </td>
@@ -13,8 +14,9 @@
     </td>
     <td class="editonly actions">
     </td>
+    {% endif %}
     {% for result in results %}
-        <td  class='historicalvalues'>
+        <td  class='historicalvalues {% if is_edit %}d-none d-md-table-cell{% endif %}'>
             {% if attribute(result, field.vitalsValue) != 0 %}
                 {{ attribute(result, field.vitalsValue)|text }}
             {% endif %}
