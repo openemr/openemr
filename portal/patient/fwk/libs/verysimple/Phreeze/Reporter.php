@@ -343,7 +343,9 @@ abstract class Reporter implements Serializable
     {
     }
 
-    function __serialize() {}
+    function __serialize()
+    {}
 
-    function __unserialize($data) {}
+    function __unserialize($data)
+    {}
 }

@@ -787,8 +787,10 @@ abstract class Phreezable implements Serializable
     {
         throw new Exception("Unknown property: $key");
     }
-    
-    function __serialize() {}
 
-    function __unserialize($data) {}
+    function __serialize()
+    {}
+
+    function __unserialize($data)
+    {}
 }
