@@ -128,3 +128,29 @@ CREATE TABLE `questionnaire_repository` (
     KEY `search` (`name`,`questionnaire_id`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotTable questionnaire_response
+CREATE TABLE `questionnaire_response` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
+  `questionnaire_id` varchar(255) DEFAULT NULL,
+  `questionnaire_name` varchar(255) DEFAULT NULL,
+  `audit_user_id` int(11) DEFAULT NULL,
+  `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
+  `create_time` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `version` int(11) NOT NULL DEFAULT 1,
+  `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
+  `questionnaire` longtext COMMENT 'the subject questionnaire json',
+  `questionnaire_response` longtext COMMENT 'questionnaire response json',
+  `form_response` longtext COMMENT 'lform answers array json',
+  `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
+  `tscore` double DEFAULT NULL COMMENT 'T-Score',
+  `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
+) ENGINE=InnoDB;
+#EndIf
