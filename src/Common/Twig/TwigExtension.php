@@ -58,10 +58,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         ];
     }
 
-    public function getTests() : array {
+    public function getTests(): array
+    {
         return [
             // can be used like {% if is numeric %}...{% endif %}
-            new TwigTest('numeric', function($value) { return is_numeric($value); })
+            new TwigTest('numeric', function ($value) {
+                return is_numeric($value); })
         ];
     }
 
@@ -273,7 +275,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
             new TwigFilter(
                 'dateToTime',
-                function($str) {
+                function ($str) {
                     return strtotime($str);
                 }
             )
