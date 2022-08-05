@@ -431,7 +431,7 @@ abstract class Phreezable implements Serializable
                             break;
                         case FM_TYPE_DATE:
                         case FM_TYPE_DATETIME:
-                            if (strtotime($this->$prop) === '') {
+                            if (strtotime(($this->$prop ?? '')) === '') {
                                 $this->AddValidationError($prop, "$prop is not a valid date/time value.");
                             }
                             break;
@@ -787,4 +787,10 @@ abstract class Phreezable implements Serializable
     {
         throw new Exception("Unknown property: $key");
     }
+
+    function __serialize()
+    {}
+
+    function __unserialize($data)
+    {}
 }
