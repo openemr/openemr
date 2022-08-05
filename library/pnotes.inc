@@ -533,8 +533,7 @@ function deletePnote($id)
         return true;
     } else {
         return false;
-    }    
-
+    }
 }
 
 // Note that it is assumed that html escaping has happened before this function is called
