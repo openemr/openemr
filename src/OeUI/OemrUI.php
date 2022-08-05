@@ -341,6 +341,7 @@ JQD;
                     $(this).toggleClass('fa-expand fa-compress');
                     $(this).toggleClass('oe-expand oe-center');
                     $('#container_div').toggleClass('container container-fluid');
+                    $('#pt_table').removeClass('w-auto');
                     if ($(arrFiles).length) {
                         $.each(arrFiles, function (index, value) {
 
@@ -359,6 +360,7 @@ JQD;
                     $(this).toggleClass('fa-compress fa-expand');
                     $(this).toggleClass('oe-center oe-expand');
                     $('#container_div').toggleClass('container-fluid container');
+                    $('#pt_table').addClass('w-auto');
                     if ($(arrFiles).length) {
                         $.each(arrFiles, function (index, value) {
                             $.post(

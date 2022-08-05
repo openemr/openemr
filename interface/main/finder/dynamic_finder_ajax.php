@@ -10,14 +10,17 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2012 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(dirname(__FILE__) . "/../../globals.php");
 require_once($GLOBALS['srcdir'] . "/options.inc.php");
+require_once($GLOBALS['srcdir'] . "/column_views.inc.php");
 
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
@@ -61,7 +64,7 @@ if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
 }
 // Search parameter.  -1 means .
 //
-$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ] === "true" ?  true : false;
+$searchExactInPatientList = isset($_GET['searchExact' ]) && $_GET['searchExact' ] === "true" ?  true : false;
 
 // Column sorting parameters.
 //
@@ -76,6 +79,8 @@ if (isset($_GET['iSortCol_0'])) {
             //
             if ($aColumns[$iSortCol] == 'name') {
                 $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
+            } elseif (is_column_view($aColumns[$iSortCol])) {
+                $orderby = substr($orderby, 0, -2);
             } else {
                 $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('patient_data')) . "` $sSortDir";
             }
@@ -143,12 +148,16 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                 "lname LIKE ? OR " .
                 "fname LIKE ? OR " .
                 "mname LIKE ? ";
-            if ($searchMethodInPatientList) { // exact search
+            if ($searchExactInPatientList) { // exact search
                 array_push($srch_bind, $sSearch, $sSearch, $sSearch);
             } else {// like search
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
-        } elseif ($searchMethodInPatientList) { // exact search
+        } elseif ( is_column_view($colname) ) {
+            $where .=
+                "usertext8 LIKE ?";
+            array_push($srch_bind, ($sSearch . '%'));        
+        } elseif ($searchExactInPatientList) { // exact search
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
             array_push($srch_bind, $sSearch);
         } elseif ($searchAny) {
@@ -179,15 +188,20 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                 "lname LIKE ? OR " .
                 "fname LIKE ? OR " .
                 "mname LIKE ? ";
-            if ($searchMethodInPatientList) { // exact search
+            if ($searchExactInPatientList) { // exact search
                 array_push($srch_bind, $sSearch, $sSearch, $sSearch);
             } else {// like search
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
+        } elseif ( is_column_view($colname) ) {
+            $where .=
+                "usertext8 LIKE ?";
+                array_push($srch_bind, ($sSearch . '%'));                
         } elseif ($colname == 'DOB') {
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
             array_push($srch_bind, dateSearch($sSearch));
-        } elseif ($searchMethodInPatientList) { // exact search
+        }
+        elseif ($searchExactInPatientList) { // exact search
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE ? ";
             array_push($srch_bind, $sSearch);
         } else {
@@ -218,17 +232,20 @@ foreach ($aColumns as $colname) {
         continue;
     }
 
-    $sellist .= ", ";
-    if ($colname == 'name') {
-        $sellist .= "lname, fname, mname";
+    if (is_column_view($colname)) {
+        $select = column_view_select_list($colname);
+        $sellist .= ($select == "") ? "" : (", " .column_view_select_list($colname) . " ");
     } else {
-        $sellist .= "`" . escape_sql_column_name($colname, array('patient_data')) . "`";
+        $sellist .= ", `" . escape_sql_column_name($colname, array('patient_data')) . "`";
     }
 }
 
 // Get total number of rows in the table.
 // Include the custom filter clause and bound values, if any
-$row = sqlQuery("SELECT COUNT(id) AS count FROM patient_data WHERE $customWhere", $boundFilter->getBoundValues());
+$query = "SELECT COUNT(id) AS count 
+            FROM patient_data 
+            WHERE $customWhere";
+$row = sqlQuery($query, $boundFilter->getBoundValues());
 $iTotal = $row['count'];
 
 // Get total number of rows in the table after filtering.
@@ -264,23 +281,12 @@ while ($row = sqlFetchArray($res)) {
     // Each <tr> will have an ID identifying the patient.
     $arow = array('DT_RowId' => 'pid_' . $row['pid']);
     foreach ($aColumns as $colname) {
-        if ($colname == 'name') {
-            $name = $row['lname'];
-            if ($name && $row['fname']) {
-                $name .= ', ';
-            }
-
-            if ($row['fname']) {
-                $name .= $row['fname'];
-            }
-
-            if ($row['mname']) {
-                $name .= ' ' . $row['mname'];
-            }
-
-            $arow[] = attr($name);
+        if (is_column_view($colname)) {
+            $arow[$colname] = column_view($colname, $row);
+        } elseif ($colname == 'state') {
+            $arow[$colname] = $row[$colname];
         } else {
-            $arow[] = isset($fieldsInfo[$colname]) ? attr(generate_plaintext_field($fieldsInfo[$colname], $row[$colname])) : attr($row[$colname]);
+            $arow[$colname] = isset($fieldsInfo[$colname]) ? attr(generate_plaintext_field($fieldsInfo[$colname], $row[$colname])) : attr($row[$colname]);
         }
     }
 
@@ -292,4 +298,5 @@ while ($row = sqlFetchArray($res)) {
 // Dump the output array as JSON.
 //
 // Encoding with options for escaping a special chars - JSON_HEX_TAG (<)(>), JSON_HEX_AMP(&), JSON_HEX_APOS('), JSON_HEX_QUOT(").
-echo json_encode($out, 15);
+$json_out = json_encode($out, 15);
+echo $json_out;
