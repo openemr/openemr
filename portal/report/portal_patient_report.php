@@ -470,7 +470,7 @@ while ($prow = sqlFetchArray($pres)) {
         if ($result["form_name"] == "New Patient Encounter") {
             if ($isfirst == 0) {
                 foreach ($registry_form_name as $var) {
-                    if ($toprint = $html_strings[$var]) {
+                    if ($toprint = ($html_strings[$var] ?? '')) {
                         foreach ($toprint as $var) {
                             print $var;
                         }

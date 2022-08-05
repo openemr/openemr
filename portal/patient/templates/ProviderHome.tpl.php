@@ -13,7 +13,13 @@
 $this->assign('title', xlt("Portal Dashboard") . " | " . xlt("Home"));
 $this->assign('nav', 'home');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patientportal', 'portal')) {
+    die(xlt("Unauthorized"));
+    exit;
+}
 
 ?>
 <!DOCTYPE html>
