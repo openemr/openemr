@@ -24,7 +24,7 @@ use OpenEMR\Services\ListService;
 use OpenEMR\Common\Twig\TwigContainer;
 use Twig\Environment;
 
-class C_FormVitals extends Controller
+class C_FormVitals
 {
     /**
      * @var FormVitals
@@ -45,7 +45,6 @@ class C_FormVitals extends Controller
 
     public function __construct($template_mod = "general")
     {
-        parent::__construct();
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
         $this->template_mod = $template_mod;
