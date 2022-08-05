@@ -32,11 +32,12 @@ th.historicalvalues {
 }
 
 .vitals-complete-history .table .vitals-title {
-  margin-bottom: .5rem;
   display: block;
+  margin-bottom: 0.5rem;
 }
+
 .vitals-complete-history .table td:nth-child(3),
-.vitals-complete-history .table th:nth-child(3){
+.vitals-complete-history .table th:nth-child(3) {
   border-left: 1px solid var(--gray300);
 }
 
