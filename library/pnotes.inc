@@ -528,8 +528,15 @@ function reappearPnote($id)
 
 function deletePnote($id)
 {
-    sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
-    return true;
+    if (
+        getAssignedToById($id) == $_SESSION['authUser']
+        || getMessageStatusById($id) == 'Done'
+    ) {
+        sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
+        return true;
+    } else {
+        return false;
+    }
 }
 
 // Note that it is assumed that html escaping has happened before this function is called
@@ -542,4 +549,26 @@ function pnoteConvertLinks($note)
     } else {
         return $noteActiveLink;
     }
+}
+
+/**
+ * Retrieve assigned_to field given the note ID
+ *
+ * @param string $id the ID of the note to retrieve.
+ */
+function getAssignedToById($id)
+{
+    $result = sqlQuery("SELECT assigned_to FROM pnotes WHERE id=?", array($id));
+    return $result['assigned_to'];
+}
+
+/**
+ * Retrieve message_status field given the note ID
+ *
+ * @param string $id the ID of the note to retrieve.
+ */
+function getMessageStatusById($id)
+{
+    $result = sqlQuery("SELECT message_status FROM pnotes WHERE id=?", array($id));
+    return $result['message_status'];
 }
