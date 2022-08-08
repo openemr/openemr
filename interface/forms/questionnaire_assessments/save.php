@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Save or create an encounter questionnaire from lookup.
  * If user want to register a new form then one is added to forms registry.

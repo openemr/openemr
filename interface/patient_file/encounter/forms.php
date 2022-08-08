@@ -401,15 +401,17 @@ function refreshVisitDisplay() {
 <script>
 
 function openNewForm(sel, label) {
-  top.restoreSession();
-  var FormNameValueArray = sel.split('formname=');
-  if (FormNameValueArray[1] == 'newpatient') {
-    // TBD: Make this work when it's not the first frame.
-    parent.frames[0].location.href = sel;
-  }
-  else {
-    parent.twAddFrameTab('enctabs', label, sel);
-  }
+    top.restoreSession();
+    let FormNameValueArray = sel.split('formname=');
+    if (FormNameValueArray[1] == 'newpatient') {
+        // TBD: Make this work when it's not the first frame.
+        parent.frames[0].location.href = sel;
+    } else {
+        if (FormNameValueArray[1] == 'questionnaire_assessments') {
+            sel += "&questionnaire_form=" + encodeURIComponent(label);
+        }
+        parent.twAddFrameTab('enctabs', label, sel);
+    }
 }
 
 function toggleFrame1(fnum) {

@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -551,7 +551,7 @@ class DocumentTemplateService extends QuestionnaireService
             $content = "{Questionnaire:$template_name}" . "\n";
             $mimetype = 'application/text';
             $service = new QuestionnaireService();
-            $id = $service->saveQuestionnaireResource($q_ob, $template_name, $q_id);
+            $id = $service->saveQuestionnaireResource($q_ob, null, $template_name, $q_id);
             if (empty($id)) {
                 return $id;
             } elseif ($q_only) {
