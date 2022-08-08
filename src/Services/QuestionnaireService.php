@@ -26,6 +26,12 @@ class QuestionnaireService extends BaseService
         parent::__construct($base_table ?? self::TABLE_NAME);
     }
 
+    /**
+     * @param $name
+     * @param $q_id
+     * @param $uuid
+     * @return array
+     */
     public function fetchQuestionnaireResource($name, $q_id = null, $uuid = null)
     {
         $sql = "Select * From `questionnaire_repository` Where (`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?)";
@@ -41,7 +47,14 @@ class QuestionnaireService extends BaseService
         return $response;
     }
 
-    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null, $type = 'Questionnaire')
+    /**
+     * @param $name
+     * @param $q_id
+     * @param $uuid
+     * @param $type
+     * @return array
+     */
+    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null, $type = 'Questionnaire'): array
     {
         $sql = "Select `id`, `uuid`, `version` From `questionnaire_repository` Where ((`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?)) And `type` = ?";
         $bind = array($name, $q_id, $type);
@@ -56,6 +69,13 @@ class QuestionnaireService extends BaseService
         return $response;
     }
 
+    /**
+     * @param $pid
+     * @param $id
+     * @param $name
+     * @param $q_id
+     * @return array|\recordset
+     */
     public function fetchQuestionnaireResponses($pid, $id = null, $name = null, $q_id = null)
     {
         $sql = "Select * From `questionnaire_response` Where `patient_id` = ? And (`name` = ? Or `questionnaire_id` = ?)";
@@ -66,6 +86,14 @@ class QuestionnaireService extends BaseService
         return $resource ?: [];
     }
 
+    /**
+     * @param $q
+     * @param $lform
+     * @param $name
+     * @param $q_id
+     * @param $type
+     * @return false|int|mixed
+     */
     public function saveQuestionnaireResource($q, $lform = null, $name = null, $q_id = null, $type = null)
     {
         $type = $type ?? 'Questionnaire';
@@ -147,14 +175,17 @@ class QuestionnaireService extends BaseService
     }
 
     /* WIP */
+    /**
+     * @param $pid
+     * @param $foreign_id
+     * @param $name
+     * @param $q
+     * @param $response
+     * @param $form_response
+     * @return array|false|int|mixed
+     */
     public function saveQuestionnaireResponse($pid, $foreign_id, $name, $q, $response, $form_response = null)
     {
-        $q_version = null;
-        $q_last_date = null;
-        $q_profile = null;
-        $q_status = null;
-        $content = null;
-        $q_ob = null;
         if (is_string($q)) {
             $q_ob = json_decode($q, true);
             $is_json = json_last_error() === JSON_ERROR_NONE;
@@ -237,6 +268,11 @@ class QuestionnaireService extends BaseService
         return $id;
     }
 
+    /**
+     * @param $id
+     * @param $uuid
+     * @return array
+     */
     public function fetchQuestionnaireById($id, $uuid = null): array
     {
         $sql = "Select * From `questionnaire_repository` Where (`id` = ?) Or (`uuid` IS NOT NULL And `uuid` = ?)";
@@ -252,7 +288,11 @@ class QuestionnaireService extends BaseService
         return $response;
     }
 
-    public function fetchEncounterQuestionnaireForm($name)
+    /**
+     * @param $name
+     * @return array
+     */
+    public function fetchEncounterQuestionnaireForm($name): array
     {
         $sql = "Select `form_foreign_id` From `registry` Where `name` = ?";
         $q_id = sqlQuery($sql, array($name))['form_foreign_id'];
