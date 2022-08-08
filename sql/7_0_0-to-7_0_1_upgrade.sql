@@ -154,3 +154,34 @@ CREATE TABLE `questionnaire_response` (
   KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfMissingColumn questionnaire_repository lform
+ALTER TABLE `questionnaire_repository` ADD `lform` LONGTEXT;
+#EndIf
+
+#IfMissingColumn registry form_foreign_id
+ALTER TABLE `registry` ADD `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMENT 'An id to a form repository. Primarily questionnaire_repository.';
+#EndIf
+
+#IfNotTable form_questionnaire_assessments
+CREATE TABLE `form_questionnaire_assessments` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `create_date` datetime DEFAULT current_timestamp(),
+  `last_date` datetime DEFAULT NULL,
+  `pid` bigint(21) NOT NULL DEFAULT 0,
+  `user_id` bigint(21) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) NOT NULL DEFAULT 0,
+  `activity` tinyint(4) NOT NULL DEFAULT 1,
+  `copyright` text,
+  `form_name` varchar(255) DEFAULT NULL,
+  `code` varchar(31) DEFAULT NULL,
+  `code_type` varchar(31) DEFAULT "LOINC",
+  `questionnaire` longtext,
+  `questionnaire_response` longtext,
+  `lform` longtext,
+  `lform_response` longtext,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+INSERT INTO `registry` (`name`, `state`, `directory`, `id`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`, `form_foreign_id`) VALUES ('New Questionnaire\n', 1, 'questionnaire_assessments', 28, 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'encounters|notes', NULL);
+#EndIf

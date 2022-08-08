@@ -7807,6 +7807,7 @@ CREATE TABLE `registry` (
   `patient_encounter` TINYINT NOT NULL DEFAULT '1',
   `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
   `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
+  `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMENT 'An id to a form repository. Primarily questionnaire_repository.',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25;
 
@@ -7831,7 +7832,7 @@ INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 0
 INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes');
 INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt');
 INSERT INTO `registry` VALUES ('Clinical Notes', 1, 'clinical_notes', 24, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-
+INSERT INTO `registry` VALUES ('New Questionnaire', 1, 'questionnaire_assessments', 25, 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'encounters|notes', NULL);
 -- --------------------------------------------------------
 
 --
@@ -13169,6 +13170,7 @@ CREATE TABLE `questionnaire_repository` (
     `code` varchar(255) DEFAULT NULL,
     `code_display` text,
     `questionnaire` longtext,
+    `lform` longtext,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uuid` (`uuid`),
     KEY `search` (`name`,`questionnaire_id`)
@@ -13197,4 +13199,25 @@ CREATE TABLE `questionnaire_response` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `form_questionnaire_assessments`;
+CREATE TABLE `form_questionnaire_assessments` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `create_date` datetime DEFAULT current_timestamp(),
+  `last_date` datetime DEFAULT NULL,
+  `pid` bigint(21) NOT NULL DEFAULT 0,
+  `user_id` bigint(21) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) NOT NULL DEFAULT 0,
+  `activity` tinyint(4) NOT NULL DEFAULT 1,
+  `copyright` text,
+  `form_name` varchar(255) DEFAULT NULL,
+  `code` varchar(31) DEFAULT NULL,
+  `code_type` varchar(31) DEFAULT "LOINC",
+  `questionnaire` longtext,
+  `questionnaire_response` longtext,
+  `lform` longtext,
+  `lform_response` longtext,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
