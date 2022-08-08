@@ -166,10 +166,10 @@ ALTER TABLE `registry` ADD `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMEN
 #IfNotTable form_questionnaire_assessments
 CREATE TABLE `form_questionnaire_assessments` (
   `id` bigint(21) NOT NULL AUTO_INCREMENT,
-  `create_date` datetime DEFAULT current_timestamp(),
+  `date` datetime DEFAULT current_timestamp(),
   `last_date` datetime DEFAULT NULL,
   `pid` bigint(21) NOT NULL DEFAULT 0,
-  `user_id` bigint(21) DEFAULT NULL,
+  `user` bigint(21) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
   `authorized` tinyint(4) NOT NULL DEFAULT 0,
   `activity` tinyint(4) NOT NULL DEFAULT 1,
