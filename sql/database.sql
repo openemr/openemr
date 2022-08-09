@@ -7832,7 +7832,7 @@ INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 0
 INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes', NULL);
 INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt', NULL);
 INSERT INTO `registry` VALUES ('Clinical Notes', 1, 'clinical_notes', 24, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
-INSERT INTO `registry` VALUES ('New Questionnaire', 1, 'questionnaire_assessments', 25, 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('New Questionnaire', 1, 'questionnaire_assessments', 25, 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'admin|forms', NULL);
 -- --------------------------------------------------------
 
 --

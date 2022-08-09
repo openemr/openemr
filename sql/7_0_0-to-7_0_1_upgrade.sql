@@ -183,5 +183,5 @@ CREATE TABLE `form_questionnaire_assessments` (
   `lform_response` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-INSERT INTO `registry` (`name`, `state`, `directory`, `id`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`, `form_foreign_id`) VALUES ('New Questionnaire\n', 1, 'questionnaire_assessments', 28, 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'encounters|notes', NULL);
+INSERT INTO `registry` (`name`, `state`, `directory`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`, `form_foreign_id`) VALUES ('New Questionnaire', 1, 'questionnaire_assessments', 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'admin|forms', NULL);
 #EndIf

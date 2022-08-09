@@ -13,6 +13,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\QuestionnaireService;
@@ -24,7 +25,11 @@ if (!empty($_GET['id'] ?? 0) && empty($questionnaire_form)) {
 }
 $q_json = '';
 $lform = '';
+// for new questionnaires user must be admin
+$is_authorized = AclMain::aclCheckCore('admin', 'super');
 if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
+    // since we are here then user is authorized for a pre-approved questionnaire form.
+    $is_authorized = true;
     $service = new QuestionnaireService();
     $q = $service->fetchEncounterQuestionnaireForm($questionnaire_form);
     $q_json = $q['questionnaire'] ?: '';
@@ -33,10 +38,11 @@ if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
 }
 $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <title id="main_title"><?php echo xlt('Questionnaire'); ?></title>
-    <?php Header::setupHeader([]); ?>
+    <?php Header::setupHeader(); ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
     <script>
         function saveQR() {
@@ -134,15 +140,25 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
 </head>
 <body>
     <div class="container-xl my-2">
+        <?php if (!$is_authorized) { ?>
+            <div class="d-flex flex-column w-100 align-items-center">
+                <?php
+                echo "<h3>" . xlt("Not Authorized") . "</h3>";
+                echo "<h4>" . xlt("You must have administrator privileges.") . "</h4>";
+                echo "<h5>" . xlt("Contact an administrator to create a new questionnaire.") . "</h5>";
+                ?>
+                <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Exit'); ?></button>
+            </div>
+            <?php die(); } ?>
         <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR(this)" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid) ?>">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?: ''); ?>" />
-            <input type="hidden" id="lform_response" name="lform_response" value="<?php echo attr($form['lform_response'] ?: ''); ?>" />
-            <input type="hidden" id="code_type" name="code_type" value="<?php echo attr($form['code_type'] ?: ''); ?>" />
-            <input type="hidden" id="code" name="code" value="<?php echo attr($form['code'] ?: ''); ?>" />
-            <input type="hidden" id="copyright" name="copyright" value="<?php echo attr($form['copyright'] ?: ''); ?>" />
-            <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?: ''); ?>" />
-            <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?: ''); ?>" />
+            <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
+            <input type="hidden" id="lform_response" name="lform_response" value="<?php echo attr($form['lform_response'] ?? ''); ?>" />
+            <input type="hidden" id="code_type" name="code_type" value="<?php echo attr($form['code_type'] ?? ''); ?>" />
+            <input type="hidden" id="code" name="code" value="<?php echo attr($form['code'] ?? ''); ?>" />
+            <input type="hidden" id="copyright" name="copyright" value="<?php echo attr($form['copyright'] ?? ''); ?>" />
+            <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?? ''); ?>" />
+            <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
             <div class="form-group">
                 <div class="input-group isNew">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
@@ -152,13 +168,13 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
                     <p class="text-center"><?php echo "<span class='font-weight-bold'>" . xlt("Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); ?>
                         <a href="http://loinc.org/terms-of-use" target="_blank"><?php echo xlt("terms of use.") . "</i>"; ?></php></a></p>
                     <p id="copyrightNotice">
-                        <?php echo text($form['copyright'] ?: ''); ?>
+                        <?php echo text($form['copyright'] ?? ''); ?>
                     </p>
                 </div>
                 <div class="input-group isNew">
                     <hr />
                     <label class="font-weight-bolder" for="form_name"><?php echo xlt("Form Name") . ':'; ?></label>
-                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten or be more understandable.'); ?>" placeholder="<?php echo xla('Name of form. Edit or leave as received.'); ?>" value="<?php echo attr($form['form_name']) ?: ''; ?>" />
+                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten or be more understandable.'); ?>" placeholder="<?php echo xla('Name of form. Edit or leave as received.'); ?>" value="<?php echo attr($form['form_name']) ?? ''; ?>" />
                 </div>
             </div>
             <hr />

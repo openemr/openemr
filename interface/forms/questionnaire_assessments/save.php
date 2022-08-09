@@ -1,8 +1,17 @@
 <?php
 
+/**
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 /*
  * Save or create an encounter questionnaire from lookup.
- * If user want to register a new form then one is added to forms registry.
+ * If admin want to register a new form then one is added to forms registry.
  * If already exists then inform user and redirect back to New Questionnaire form.
 */
 
