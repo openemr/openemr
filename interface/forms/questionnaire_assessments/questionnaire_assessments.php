@@ -11,6 +11,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+require_once("$srcdir/user.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -30,13 +31,13 @@ if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
     $lform = $q['lform'] ?: '';
     $mode = 'new_form';
 }
+$do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
 ?>
 <html>
 <head>
     <title id="main_title"><?php echo xlt('Questionnaire'); ?></title>
     <?php Header::setupHeader([]); ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
-
     <script>
         function saveQR() {
             top.restoreSession();
@@ -81,7 +82,7 @@ if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
             document.getElementById('form_name').value = jsAttr(formName);
             document.getElementById('code_type').value = jsAttr('LOINC');
             document.getElementById('code').value = jsAttr(data.code);
-            if (typeof data.copyrightNotice !== 'undefined') {
+            if (typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
                 document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
                 document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
             }
@@ -90,6 +91,14 @@ if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
         }
 
         function initSearch() {
+            <?php if ($do_warning) { ?>
+            let msg = xl("OpenEMR is not responsible for any copyrights and permissions pertaining to questionnaires or assessments imported and implemented with this feature.") + "<br />";
+            msg += xl("Some, if not many, LOINC forms will display a copyright notice for information regarding permissions.") +
+                "<br /><br />";
+            msg += xl("Click Got it icon to dismiss this alert forever.");
+            // dialog alertMsg 5th parameter will set flag to disable this user seeing message
+            alertMsg(msg, 20000, 'danger', '', 'disable_form_disclaimer');
+            <?php } ?>
             const ac = new LForms.Def.Autocompleter.Search('loinc_item', 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM', {tableFormat: true, valueCols: [0, 1], colHeaders: ['Text', 'LOINC Code']});
 
             LForms.Def.Autocompleter.Event.observeListSelections('loinc_item', function () {
@@ -108,8 +117,8 @@ if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
                         document.getElementById('form_name').value = jsAttr(data.name);
                         document.getElementById('code_type').value = jsAttr(data.type);
                         document.getElementById('code').value = jsAttr(data.code);
-                        document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
-                        if (data.copyrightNotice) {
+                        if (typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
+                            document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
                             document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
                         }
                         LForms.Util.addFormToPage(data, 'formContainer');
@@ -149,13 +158,13 @@ if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
                 <div class="input-group isNew">
                     <hr />
                     <label class="font-weight-bolder" for="form_name"><?php echo xlt("Form Name") . ':'; ?></label>
-                    <input required type="text" class="form-control ml-1" id="form_name" name="form_name" title="<?php echo xla('Edit name to shorten or be more understandable is wanted.'); ?>" value="<?php echo attr($form['form_name']) ?: ''; ?>" />
+                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten or be more understandable.'); ?>" placeholder="<?php echo xla('Name of form. Edit or leave as received.'); ?>" value="<?php echo attr($form['form_name']) ?: ''; ?>" />
                 </div>
             </div>
             <hr />
             <div id="formContainer"></div>
             <div class="btn-group my-2">
-                <button type="submit" class="btn btn-primary btn-save isNew d-none" id="save_response"><?php echo xlt("Save"); ?></button>
+                <button type="submit" class="btn btn-primary btn-save isNew d-none" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save"); ?></button>
                 <button type="submit" class="btn btn-primary btn-save d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>"><?php echo xlt("or Register Form"); ?></button>
                 <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
             </div>
