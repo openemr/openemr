@@ -19,14 +19,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\QuestionnaireService;
 
 $questionnaire_form = $_GET['questionnaire_form'] ?? null;
+// for new questionnaires user must be admin. leave strict conditional.
+$is_authorized = AclMain::aclCheckCore('admin', 'forms') ||
+    ($questionnaire_form !== 'New Questionnaire' && $_GET['formname'] ?? null === 'questionnaire_assessments');
 if (!empty($_GET['id'] ?? 0) && empty($questionnaire_form)) {
     $formid = $_GET['id'];
     $form = formFetch("form_questionnaire_assessments", $formid);
 }
 $q_json = '';
 $lform = '';
-// for new questionnaires user must be admin
-$is_authorized = AclMain::aclCheckCore('admin', 'super');
 if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
     // since we are here then user is authorized for a pre-approved questionnaire form.
     $is_authorized = true;
