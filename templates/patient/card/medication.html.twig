@@ -18,24 +18,27 @@
     </div>
     {% endif %}
 {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ "Dosage"|xlt }}</th>
+                        <th>{{ "Details"|xlt }}</th>
+                    </tr>
+                </thead>
+                <tbody>
     {% for l in list %}
         {% if l.critical is defined %}
             {% set classes = "bg-danger text-light font-weight-bold" %}
         {% endif %}
-            <div class="list-group-item p-1 {{ classes|attr }}">
-                <div class="d-flex w-100 justify-content-between">
-                    <div class="flex-fill">
-                        {{ l.title|text }}
-                        {% if id == "allergy_ps_expand" %}
-                            <small class="d-block">{{ l.reactionTitle|text }}</small>
-                        {% endif %}
-                    </div>
-                    {% if id == "allergy_ps_expand" %}
-                        <div class="flex-fill text-right">{{ l.severity|text }}</div>
-                    {% endif %}
-                </div>
-            </div>
+                        <tr>
+                            <td class="{{ classes|attr }}">{{ l.title|text }}</td>
+                            <td class="{{ classes|attr }}">{{ l.drug_dosage_instructions|text }}</td>
+                        </tr>
     {% endfor %}
+                </tbody>
+            </table>
+        </div>
 {% endif %}
 </div>
 {% endblock %}
