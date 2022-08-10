@@ -7807,6 +7807,7 @@ CREATE TABLE `registry` (
   `patient_encounter` TINYINT NOT NULL DEFAULT '1',
   `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
   `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
+  `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMENT 'An id to a form repository. Primarily questionnaire_repository.',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25;
 
@@ -7814,24 +7815,24 @@ CREATE TABLE `registry` (
 -- Inserting data for table `registry`
 --
 
-INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0,'patients|appt');
-INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding');
-INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding');
-INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '',1,0,'patients|lab');
-INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes');
-INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt');
-INSERT INTO `registry` VALUES ('Clinical Notes', 1, 'clinical_notes', 24, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-
+INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0,'patients|appt', NULL);
+INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding', NULL);
+INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding', NULL);
+INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '',1,0,'patients|lab', NULL);
+INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt', NULL);
+INSERT INTO `registry` VALUES ('Clinical Notes', 1, 'clinical_notes', 24, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('New Questionnaire', 1, 'questionnaire_assessments', 25, 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'admin|forms', NULL);
 -- --------------------------------------------------------
 
 --
@@ -13169,7 +13170,54 @@ CREATE TABLE `questionnaire_repository` (
     `code` varchar(255) DEFAULT NULL,
     `code_display` text,
     `questionnaire` longtext,
+    `lform` longtext,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uuid` (`uuid`),
     KEY `search` (`name`,`questionnaire_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `questionnaire_response`;
+CREATE TABLE `questionnaire_response` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
+  `questionnaire_id` varchar(255) DEFAULT NULL,
+  `questionnaire_name` varchar(255) DEFAULT NULL,
+  `audit_user_id` int(11) DEFAULT NULL,
+  `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
+  `create_time` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `version` int(11) NOT NULL DEFAULT 1,
+  `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
+  `questionnaire` longtext COMMENT 'the subject questionnaire json',
+  `questionnaire_response` longtext COMMENT 'questionnaire response json',
+  `form_response` longtext COMMENT 'lform answers array json',
+  `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
+  `tscore` double DEFAULT NULL COMMENT 'T-Score',
+  `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `form_questionnaire_assessments`;
+CREATE TABLE `form_questionnaire_assessments` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT current_timestamp(),
+  `last_date` datetime DEFAULT NULL,
+  `pid` bigint(21) NOT NULL DEFAULT 0,
+  `user` bigint(21) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) NOT NULL DEFAULT 0,
+  `activity` tinyint(4) NOT NULL DEFAULT 1,
+  `copyright` text,
+  `form_name` varchar(255) DEFAULT NULL,
+  `code` varchar(31) DEFAULT NULL,
+  `code_type` varchar(31) DEFAULT "LOINC",
+  `questionnaire` longtext,
+  `questionnaire_response` longtext,
+  `lform` longtext,
+  `lform_response` longtext,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;

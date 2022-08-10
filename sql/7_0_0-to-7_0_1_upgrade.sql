@@ -128,3 +128,60 @@ CREATE TABLE `questionnaire_repository` (
     KEY `search` (`name`,`questionnaire_id`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotTable questionnaire_response
+CREATE TABLE `questionnaire_response` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
+  `questionnaire_id` varchar(255) DEFAULT NULL,
+  `questionnaire_name` varchar(255) DEFAULT NULL,
+  `audit_user_id` int(11) DEFAULT NULL,
+  `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
+  `create_time` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `version` int(11) NOT NULL DEFAULT 1,
+  `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
+  `questionnaire` longtext COMMENT 'the subject questionnaire json',
+  `questionnaire_response` longtext COMMENT 'questionnaire response json',
+  `form_response` longtext COMMENT 'lform answers array json',
+  `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
+  `tscore` double DEFAULT NULL COMMENT 'T-Score',
+  `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn questionnaire_repository lform
+ALTER TABLE `questionnaire_repository` ADD `lform` LONGTEXT;
+#EndIf
+
+#IfMissingColumn registry form_foreign_id
+ALTER TABLE `registry` ADD `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMENT 'An id to a form repository. Primarily questionnaire_repository.';
+#EndIf
+
+#IfNotTable form_questionnaire_assessments
+CREATE TABLE `form_questionnaire_assessments` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT current_timestamp(),
+  `last_date` datetime DEFAULT NULL,
+  `pid` bigint(21) NOT NULL DEFAULT 0,
+  `user` bigint(21) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) NOT NULL DEFAULT 0,
+  `activity` tinyint(4) NOT NULL DEFAULT 1,
+  `copyright` text,
+  `form_name` varchar(255) DEFAULT NULL,
+  `code` varchar(31) DEFAULT NULL,
+  `code_type` varchar(31) DEFAULT "LOINC",
+  `questionnaire` longtext,
+  `questionnaire_response` longtext,
+  `lform` longtext,
+  `lform_response` longtext,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+INSERT INTO `registry` (`name`, `state`, `directory`, `sql_run`, `unpackaged`, `date`, `priority`, `category`, `nickname`, `patient_encounter`, `therapy_group_encounter`, `aco_spec`, `form_foreign_id`) VALUES ('New Questionnaire', 1, 'questionnaire_assessments', 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'admin|forms', NULL);
+#EndIf
