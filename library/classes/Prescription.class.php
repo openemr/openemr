@@ -426,6 +426,8 @@ class Prescription extends ORDataObject
 
         //check if this drug is on the medication list
         $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
+        //Get dosage instructions
+        $dosageInstructions = $this->dosage . " in " . $this->form_array[$this->form] . " form " . $this->interval_array[$this->interval] . "(" . $this->size . " " . $this->unit_array[$this->unit] . ")";
 
         if ($med && !isset($dataRow['id'])) {
             $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
@@ -433,16 +435,22 @@ class Prescription extends ORDataObject
             if (!isset($dataRow['id'])) {
                 //add the record to the medication list
                 sqlStatement("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1,'" . add_escape_custom($this->patient->id) . "','" . add_escape_custom($_SESSION['authUser']) . "','" . add_escape_custom($_SESSION['authProvider']) . "','" . add_escape_custom($this->drug) . "')");
+                // Also ensure it gets added to lists_medication
+                $medListId = sqlQuery("select id from lists where type = 'medication' and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
+                sqlStatement("insert into lists_medication(list_id, drug_dosage_instructions) values ('" . add_escape_custom($medListId["id"]) . "', '" . add_escape_custom($dosageInstructions) . "')");
             } else {
                 $dataRow = sqlQuery('update lists set activity = 1'
                             . " ,user = '" . add_escape_custom($_SESSION['authUser'])
                             . "', groupname = '" . add_escape_custom($_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
+
             }
         } elseif (!$med && isset($dataRow['id'])) {
             //remove the drug from the medication list if it exists
             $dataRow = sqlQuery('update lists set activity = 0'
                             . " ,user = '" . add_escape_custom($_SESSION['authUser'])
                             . "', groupname = '" . add_escape_custom($_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
+        } elseif ($med && isset($dataRow['id'])) {
+            $medDataRow = sqlQuery("update lists_medication set drug_dosage_instructions = '" . add_escape_custom($dosageInstructions) . "' where list_id = '" . add_escape_custom($dataRow['id']) . "'");
         }
     }
 
