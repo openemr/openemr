@@ -213,11 +213,11 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $viewArgs['listTouched'] = (getListTouch($pid, $key)) ? true : false;
         }
 
-	if ($id == "medication_ps_expand") {
+        if ($id == "medication_ps_expand") {
             echo $t->render('patient/card/medication.html.twig', $viewArgs);
-	} else {
+        } else {
             echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
-	}
+        }
     }
 }
 
