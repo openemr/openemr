@@ -442,7 +442,6 @@ class Prescription extends ORDataObject
                 $dataRow = sqlQuery('update lists set activity = 1'
                             . " ,user = '" . add_escape_custom($_SESSION['authUser'])
                             . "', groupname = '" . add_escape_custom($_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
-
             }
         } elseif (!$med && isset($dataRow['id'])) {
             //remove the drug from the medication list if it exists
