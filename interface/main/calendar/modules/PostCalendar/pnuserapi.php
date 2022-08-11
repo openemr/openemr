@@ -326,13 +326,14 @@ function postcalendar_userapi_buildView($args)
 
                 //==================================
                 //FACILITY FILTERING (CHEMED)
+        $userService = new UserService();
         if ($_SESSION['pc_facility']) {
-            $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+            $provinfo = $userService->getUsersForCalender($_SESSION['pc_facility']);
             if (!$provinfo) {
-                $provinfo = getProviderInfo($_SESSION['authUserID'], 'any', '');
+                $provinfo = $userService->getUserForCalendar($_SESSION['authUserID']);
             }
         } else {
-            $provinfo = getProviderInfo();
+            $provinfo = $userService->getUsersForCalender();
         }
 
                 //EOS FACILITY FILTERING (CHEMED)
