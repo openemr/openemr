@@ -16,6 +16,7 @@ namespace OpenEMR\Events\Core;
 
 class TemplatePageEvent
 {
+    const CONTEXT_ARGUMENT_SCRIPT_NAME = "script_name";
     /**
      * Context variables used for filtering the event
      * @var array
