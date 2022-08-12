@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\User\UserEditRenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
@@ -222,6 +223,17 @@ function authorized_clicked() {
 
 <span class="font-weight-bold">&nbsp;</span>
 <table class="border-0" cellpadding='0' cellspacing='0' style="width:600px;">
+<tr>
+    <td colspan="4">
+        <?php
+        // TODO: we eventually want to move to a responsive layout and not use tables here.  So we are going to give
+        // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
+        // generate additional rows / table columns which locks us into that format.
+        $preRenderEvent = new UserEditRenderEvent('usergroup_admin_add');
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_BEFORE);
+        ?>
+    </td>
+</tr>
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
 <?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
@@ -494,6 +506,17 @@ foreach ($list_acl_groups as $value) {
         </td>
         <td></td>
     </tr>
+    <tr>
+        <td colspan="4">
+            <?php
+            // TODO: we eventually want to move to a responsive layout and not use tables here.  So we are going to give
+            // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
+            // generate additional rows / table columns which locks us into that format.
+            $preRenderEvent = new UserEditRenderEvent('usergroup_admin_add.php');
+            $GLOBALS['kernel']->getEventDispatcher()->dispatch($preRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
+            ?>
+        </td>
+    </tr>
   <tr height="25"><td colspan="4">&nbsp;</td></tr>
 
 </table>
@@ -537,7 +560,6 @@ foreach ($result as $iter) {
 </td>
 
 </tr>
-
 <tr<?php echo ($GLOBALS['disable_non_default_groups']) ? " style='display:none'" : ""; ?>>
 
 <td valign='top'>
