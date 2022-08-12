@@ -59,7 +59,7 @@ $checkEidInAppt = false;
 $patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $_SESSION['pid']);
 $checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
 
-if (!$checkEidInAppt) {
+if (!empty($eid) && !$checkEidInAppt) {
     echo js_escape("error");
     exit();
 }
