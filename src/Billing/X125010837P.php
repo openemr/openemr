@@ -39,6 +39,7 @@ class X125010837P
      * @param  $HLBillingPayToProvider Place-holder for utilizing multiple billing providers
      * @return string|string[]|null
      */
+
     public static function genX12837P(
         $pid,
         $encounter,
@@ -46,7 +47,7 @@ class X125010837P
         $encounter_claim = false,
         $SEFLAG = false,
         $HLcount = 0,
-        $edicount = 0,
+        &$edicount = 0,
         $HLBillingPayToProvider = 1
     ) {
         $today = time();
