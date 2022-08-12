@@ -624,7 +624,6 @@ foreach ($list_acl_groups as $value) {
             // module writers the ability to inject divs, tables, or whatever inside the cell instead of having them
             // generate additional rows / table columns which locks us into that format.
             $postRenderEvent = new UserEditRenderEvent('user_admin.php', $_GET['id']);
-            error_log("rendering event");
             $GLOBALS['kernel']->getEventDispatcher()->dispatch($postRenderEvent, UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER);
             ?>
         </td>
