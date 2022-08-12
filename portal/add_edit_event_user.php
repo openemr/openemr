@@ -47,7 +47,7 @@ use OpenEMR\Core\Header;
 
 // Things that might be passed by our opener.
 //
-$eid = $_GET['eid'];         // only for existing events
+$eid = $_GET['eid'] ?? null;         // only for existing events
 $date = $_GET['date'] ?? null;        // this and below only for new events
 $userid = $_GET['userid'] ?? null;
 $default_catid = ($_GET['catid'] ?? null) ? $_GET['catid'] : '5';
