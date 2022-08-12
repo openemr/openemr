@@ -1580,7 +1580,7 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
-        return $this->x12Clean(trim($tmp['npi']));
+        return $this->x12Clean(trim($tmp['npi'] ?? ''));
     }
 
     public function NPIValid($npi)
