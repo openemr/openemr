@@ -154,7 +154,7 @@ class UserService
      * @param string $facility
      * @return array|null
      */
-    public function getUsersForCalender($facility = "")
+    public function getUsersForCalendar($facility = "")
     {
         return $this->searchUsersForCalendar($facility);
     }
@@ -174,11 +174,12 @@ class UserService
         $param2 = "";
         if (!empty($facility)) {
             if ($GLOBALS['restrict_user_facility']) {
-                // so is facility a string... or is it a column name... this is very confusing here
-                $param2 = " AND (facility_id = '" . add_escape_custom($facility) . "' OR  '" . add_escape_custom($facility)
-                    . "' IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
+                $param2 = " AND (facility_id = ? OR  ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
+                $bind[] = $facility;
+                $bind[] = $facility;
             } else {
-                $param2 = " AND facility_id = '" . add_escape_custom($facility) . "' ";
+                $param2 = " AND facility_id = ? ";
+                $bind[] = $facility;
             }
         }
 
