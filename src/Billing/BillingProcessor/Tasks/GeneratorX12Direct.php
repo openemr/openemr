@@ -211,7 +211,15 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         $log = '';
         $is_last_claim = $claim->getIsLast();
         $HLCount = count($batch->getClaims());
-        $segs = explode("~\n", X125010837P::gen_x12_837_tr3($claim->getPid(), $claim->getEncounter(), $log, $this->encounter_claim, $is_last_claim, $HLCount, $edicount));
+        $segs = explode("~\n", X125010837P::genX12837P(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $log,
+            $this->encounter_claim,
+            $is_last_claim,
+            $HLCount,
+            $edicount
+        ));
         // edi count is passed by reference and incremented in the tr3 function, and we need to set it back here
         $this->edi_counts[$claim->getPartner()] = $edicount;
         $this->appendToLog($log);
