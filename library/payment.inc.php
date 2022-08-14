@@ -61,7 +61,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
     $Affected = 'no';
-    // use ceil() for payments less than $1, thanks @snailwell
+    // watch for payments less than $1, thanks @snailwell
     if (isset($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
         if (trim(formData('type_name')) == 'insurance') {
             if (trim(formData("HiddenIns$CountRow")) == 1) {
