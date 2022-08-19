@@ -78,7 +78,7 @@ if ($task == 'add_diags') {
 
     $diags = array();
     foreach ($json_diags as $diag) {
-        $diags[] = new code_info($diag->{'code'}, $diag->{'code_type'}, $diag->{'description'});
+        $diags[] = new code_info($diag->code, $diag->code_type, $diag->description);
     }
 
     $procs = array();
@@ -88,13 +88,13 @@ if ($task == 'add_diags') {
 
     foreach ($json_procs as $proc) {
         $procs[] = new procedure(
-            $proc->{'code'},
-            $proc->{'code_type'},
-            $proc->{'description'},
-            $proc->{'fee'},
-            $proc->{'justify'},
-            $proc->{'modifiers'},
-            $proc->{'units'},
+            $proc->code,
+            $proc->code_type,
+            $proc->description,
+            $proc->fee,
+            $proc->justify,
+            $proc->modifiers,
+            $proc->units,
             0
         );
     }
