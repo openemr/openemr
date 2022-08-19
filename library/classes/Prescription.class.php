@@ -412,7 +412,7 @@ class Prescription extends ORDataObject
     }
     function gen_lists_medication($id)
     {
-        $instructions = $this->size . $this->unit_array[$this->unit] . "\t" . $this->get_dosage_display();
+        $instructions = $this->size . $this->unit_array[$this->unit] . "\t\t" . $this->get_dosage_display();
         if (!empty($id)) {
             $medId = sqlQuery("select list_id from lists_medication where list_id = '" . add_escape_custom($id) . "' limit 1");
             if (isset($medId["list_id"])) {
