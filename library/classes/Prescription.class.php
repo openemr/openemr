@@ -412,7 +412,6 @@ class Prescription extends ORDataObject
     }
     function gen_lists_medication($id)
     {
-        //$instructions = $this->dosage . " in " . $this->form_array[$this->form] . " form " . $this->interval_array[$this->interval] . "(" . $this->size . " " . $this->unit_array[$this->unit] . ")";
         $instructions = $this->size . $this->unit_array[$this->unit] . "\t" . $this->get_dosage_display();
         if (!empty($id)) {
             $medId = sqlQuery("select list_id from lists_medication where list_id = '" . add_escape_custom($id) . "' limit 1");
@@ -439,8 +438,6 @@ class Prescription extends ORDataObject
 
         //check if this drug is on the medication list
         $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
-        //Get dosage instructions
-        $dosageInstructions = $this->dosage . " in " . $this->form_array[$this->form] . " form " . $this->interval_array[$this->interval] . "(" . $this->size . " " . $this->unit_array[$this->unit] . ")";
 
         if ($med && !isset($dataRow['id'])) {
             $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
