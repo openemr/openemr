@@ -35,10 +35,21 @@ $t = $twigContainer->getTwig();
  */
 function getListData($pid, $type)
 {
-    $sqlArr = [
-        "SELECT * FROM lists WHERE pid = ? AND type = ? AND",
-        dateEmptySql('enddate')
-    ];
+    if ($type == "medication") {
+        $sqlArr = [
+            "SELECT lists.*, medications.list_id, medications.drug_dosage_instructions FROM lists",
+            "LEFT JOIN ( SELECT id AS lists_medication_id, list_id, drug_dosage_instructions FROM lists_medication )",
+            "medications ON medications.list_id = id",
+            "WHERE pid = ? AND type = ? AND",
+            dateEmptySql('enddate')
+        ];
+    } else {
+        $sqlArr = [
+            "SELECT * FROM lists WHERE pid = ? AND type = ? AND",
+            dateEmptySql('enddate')
+        ];
+    }
+
 
     if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $type == 'medication') {
         $sqlArr[] = "and erx_uploaded != '1'";
@@ -202,7 +213,11 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $viewArgs['listTouched'] = (getListTouch($pid, $key)) ? true : false;
         }
 
-        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+        if ($id == "medication_ps_expand") {
+            echo $t->render('patient/card/medication.html.twig', $viewArgs);
+        } else {
+            echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+        }
     }
 }
 
