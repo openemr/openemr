@@ -730,13 +730,16 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                         preg_match('/^(.*)_(\d+)$/', $key, $res);
                         $rowid = $res[2];
-                        $irow = sqlQuery("SELECT type, title, comments, diagnosis, udi_data " .
-                            "FROM lists WHERE id = ?", array($rowid));
+                        $irow = sqlQuery("SELECT lists.type, lists.title, lists.comments, lists.diagnosis, " .
+                        "lists.udi_data, medications.drug_dosage_instructions FROM lists LEFT JOIN " .
+                        "( SELECT id AS lists_medication_id, list_id, drug_dosage_instructions " .
+                        "FROM lists_medication ) medications ON medications.list_id = id " .
+                        "WHERE id = ?", array($rowid));
                         $diagnosis = $irow['diagnosis'];
                         if ($prevIssueType != $irow['type']) {
                             // output a header for each Issue Type we encounter
                             $disptype = $ISSUE_TYPES[$irow['type']][0];
-                            echo "<div class='issue_type'>" . text($disptype) . ":</div>\n";
+                            echo "<div class='issue_type font-weight-bold'><h5>" . text($disptype) . ":</h5></div>\n";
                             $prevIssueType = $irow['type'];
                         }
 
@@ -746,14 +749,17 @@ function zip_content($source, $destination, $content = '', $create = true)
                             echo "<span class='issue_title'>" . (new MedicalDevice($irow['udi_data']))->fullOutputHtml() . "</span>";
                             echo "<span class='issue_comments'> " . text($irow['comments']) . "</span><br><br>\n";
                         } else {
-                            echo "<span class='issue_title'>" . text($irow['title']) . ":</span>";
+                            echo "<span class='issue_title font-weight-bold'>" . text($irow['title']) . ":</span>";
                             echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
+                            if ($prevIssueType == "medication") {
+                                echo "<span class='issue_dosage_instructions'> " . text($irow['drug_dosage_instructions']) . "</span>\n";
+                            }
                         }
 
                         // Show issue's chief diagnosis and its description:
                         if ($diagnosis) {
                             echo "<div class='text issue_diag'>";
-                            echo "<span class='font-weight-bold'>[" . xlt('Diagnosis') . "]</span><br />";
+                            echo "[" . xlt('Diagnosis') . "]<br />";
                             $dcodes = explode(";", $diagnosis);
                             foreach ($dcodes as $dcode) {
                                 echo "<span class='italic'>" . text($dcode) . "</span>: ";
