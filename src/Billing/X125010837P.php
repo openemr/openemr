@@ -626,7 +626,7 @@ class X125010837P
         "*" .
         "*" . sprintf('%02d', $claim->facilityPOS()) . ":" . "B" . ":" . $claim->frequencyTypeCode() .
         "*" . "Y" .
-        "*" . "A" .
+        "*" . ($claim->billingFacilityAssignment() ? 'A' : 'C') .
         "*" . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
         "*" . "Y" .
         "~\n";
