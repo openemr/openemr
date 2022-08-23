@@ -67,10 +67,12 @@ class ModulesApplication
             $db_modules[] = $row["mod_name"];
         }
 
-        $this->bootstrapCustomModules($kernel->getEventDispatcher(), $customModulePath);
+        // let's get our autoloader that people can tie into if they need it
+        $autoloader = new ModulesClassLoader($webRootPath);
+        $this->bootstrapCustomModules($autoloader, $kernel->getEventDispatcher(), $customModulePath);
     }
 
-    private function bootstrapCustomModules($eventDispatcher, $customModulePath)
+    private function bootstrapCustomModules(ModulesClassLoader $classLoader, $eventDispatcher, $customModulePath)
     {
         // we skip the audit log as it has no bearing on user activity and is core system related...
         $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules WHERE mod_active = 1 AND type != 1 ORDER BY `mod_ui_order`, `date`");
@@ -93,13 +95,13 @@ class ModulesApplication
             }
         }
         foreach ($db_modules as $module) {
-            $this->loadCustomModule($module, $eventDispatcher);
+            $this->loadCustomModule($classLoader, $module, $eventDispatcher);
         }
         // TODO: stephen we should fire an event saying we've now loaded all the modules here.
         // Unsure who'd be listening or care.
     }
 
-    private function loadCustomModule($module, $eventDispatcher)
+    private function loadCustomModule(ModulesClassLoader $classLoader, $module, $eventDispatcher)
     {
         try {
             // the only thing in scope here is $module and $eventDispatcher which is ok for our bootstrap piece.
