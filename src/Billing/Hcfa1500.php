@@ -417,7 +417,9 @@ class Hcfa1500
         // Note: Date does not apply unless the person physically signs the form.
 
         // Box 13. Insured's or Authorized Person's Signature
-        $this->putHcfa(29, 55, 17, 'Signature on File');
+        if ($claim->billingFacilityAssignment()) {
+            $this->putHcfa(29, 55, 17, 'Signature on File');
+        }
 
         // Box 14. Date of Current Illness/Injury/Pregnancy
         // this will cause onsetDate in Encounter summary to override misc billing so not perfect yet but fine for now
