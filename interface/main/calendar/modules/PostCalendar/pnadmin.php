@@ -703,23 +703,23 @@ function postcalendar_adminmenu($menuItem)
     global $bgcolor1, $bgcolor2;
 
     if (!defined('_AM_VAL')) {
-        @define('_AM_VAL', 1);
+        define('_AM_VAL', 1);
     }
 
     if (!defined('_PM_VAL')) {
-        @define('_PM_VAL', 2);
+        define('_PM_VAL', 2);
     }
 
     if (!defined('_EVENT_APPROVED')) {
-        @define('_EVENT_APPROVED', 1);
+        define('_EVENT_APPROVED', 1);
     }
 
     if (!defined('_EVENT_QUEUED')) {
-        @define('_EVENT_QUEUED', 0);
+        define('_EVENT_QUEUED', 0);
     }
 
     if (!defined('_EVENT_HIDDEN')) {
-        @define('_EVENT_HIDDEN', -1);
+        define('_EVENT_HIDDEN', -1);
     }
 
     $categoryURL  = pnModURL(__POSTCALENDAR__, 'admin', 'categories');
