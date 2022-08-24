@@ -707,7 +707,7 @@ function postcalendar_adminmenu($menuItem)
     }
 
     if (!defined('_PM_VAL')) {
-        @define('_PM_VAL', 1);
+        @define('_PM_VAL', 2);
     }
 
     if (!defined('_EVENT_APPROVED')) {
