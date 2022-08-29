@@ -1037,14 +1037,17 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         return false;
     }
-    private function hasUserScopes(array $scopes) {
+    private function hasUserScopes(array $scopes)
+    {
         return $this->scopeArrayHasString($scopes, 'user/');
     }
-    private function hasSystemScopes(array $scopes) {
+    private function hasSystemScopes(array $scopes)
+    {
         return $this->scopeArrayHasString($scopes, 'system/');
     }
 
-    private function scopeArrayHasString(array $scopes, $str) {
+    private function scopeArrayHasString(array $scopes, $str)
+    {
         foreach ($scopes as $scope) {
             if (strpos($scope, $str) !== false) {
                 return true;

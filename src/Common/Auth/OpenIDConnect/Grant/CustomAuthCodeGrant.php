@@ -114,7 +114,8 @@ class CustomAuthCodeGrant extends AuthCodeGrant
      * the code_method_challenges supported by SMART ON FHIR.
      * @param $request
      */
-    private function validateCodeChallengeMethod($request) {
+    private function validateCodeChallengeMethod($request)
+    {
 
         $codeChallenge = $this->getQueryStringParameter('code_challenge', $request);
         if ($codeChallenge !== null) {
@@ -133,5 +134,4 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             }
         }
     }
-
 }
