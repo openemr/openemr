@@ -3134,6 +3134,16 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
         ),
+        'oauth_app_manual_approval' => array(
+            xl('OAuth2 App Manual Approval Settings'),
+            array(
+                0 => xl('Patient standalone apps Auto Approved, EHR-Launch,Provider&System Apps require manual approval')
+                ,1 => xl('Manually Approve All Apps (USA jurisdictions must approve all patient standalone apps within 48 hours)')
+//                ,2 => xl('All apps Auto Approved') we could add this setting at a latter date
+            ),
+            '0',
+            xl('Approval settings for 3rd party app/api access')
+        ),
 
         'cc_front_payments' => array(
             xl('Accept Credit Card transactions from Front Payments'),

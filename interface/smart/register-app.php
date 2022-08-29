@@ -130,10 +130,9 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                 for (let scope of scopeInputs) {
                     if (appRegister.application_type != 'private')
                     {
-                        // if we are not a private app don't let offline_access or system scopes be granted
+                        // if we are not a private app don't let system scopes be granted
                         // NOTE: this is just a convenience as the server prevents it too.
-                        if (scope.value == 'offline_access'
-                            || scope.value.match(/^system\//)) {
+                        if (scope.value.match(/^system\//)) {
                             continue;
                         }
                     }
@@ -254,7 +253,7 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                 if (val === 'private')
                 {
                     toggleSystemFunctionality(true);
-                    document.querySelectorAll("input[value='offline_access']").forEach(showNodeFunction);
+                    // document.querySelectorAll("input[value='offline_access']").forEach(showNodeFunction);
                     document.querySelectorAll("#clientSecretID").forEach(showNodeFunction);
                     document.querySelectorAll("#patientTypeClient").forEach(showNodeFunction);
                     document.querySelectorAll("label[for='patientTypeClient']").forEach(showNodeFunction);
@@ -263,7 +262,7 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                 else if (val == 'public')
                 {
                     toggleSystemFunctionality(false);
-                    document.querySelectorAll("input[value='offline_access']").forEach(hideNodeFunction);
+                    // document.querySelectorAll("input[value='offline_access']").forEach(hideNodeFunction);
                     document.querySelectorAll("#clientSecretID").forEach(hideNodeFunction);
                     document.querySelectorAll("#patientTypeClient").forEach(hideNodeFunction);
                     document.querySelectorAll("label[for='patientTypeClient']").forEach(hideNodeFunction);
