@@ -332,7 +332,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 //            "patient/Account.read",
             "patient/AllergyIntolerance.read",
 //            "patient/AllergyIntolerance.write",
-//            "patient/Appointment.read",
+            "patient/Appointment.read",
 //            "patient/Appointment.write",
             "patient/CarePlan.read",
             "patient/CareTeam.read",
@@ -931,6 +931,9 @@ class ScopeRepository implements ScopeRepositoryInterface
         switch ($resource) {
             case 'AllergyIntolerance':
                 $description .= xl("allergies/adverse reactions");
+                break;
+            case 'Appointment':
+                $description .= xl("appointments");
                 break;
             case 'Observation':
                 $description .= xl("observations including laboratory,vitals, and social history records");

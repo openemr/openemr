@@ -18,14 +18,19 @@ use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
 class AppointmentService extends BaseService
 {
     const TABLE_NAME = "openemr_postcalendar_events";
+    const PATIENT_TABLE = "patient_data";
+    const PRACTITIONER_TABLE = "users";
+    const FACILITY_TABLE = "facility";
 
     /**
      * @var EncounterService
@@ -43,6 +48,8 @@ class AppointmentService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
+        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME, self::PATIENT_TABLE, self::PRACTITIONER_TABLE,
+            self::FACILITY_TABLE]);
     }
 
     public function setEncounterService(EncounterService $service)
@@ -73,7 +80,7 @@ class AppointmentService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['puuid', 'pce_aid_uuid'];
+        return ['puuid', 'pce_aid_uuid', 'pc_uuid'];
     }
 
     public function validate($appointment)
@@ -108,11 +115,76 @@ class AppointmentService extends BaseService
         return $validator->validate($appointment);
     }
 
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT pce.pc_eid,
+                       pce.pc_uuid,
+                       pd.puuid,
+                       pd.fname,
+                       pd.lname,
+                       pd.DOB,
+                       pd.pid,
+                       providers.uuid AS pce_aid_uuid,
+                       providers.npi AS pce_aid_npi,
+                       pce.pc_aid,
+                       pce.pc_apptstatus,
+                       pce.pc_eventDate,
+                       pce.pc_startTime,
+                       pce.pc_endTime,
+              	       pce.pc_facility,
+                       pce.pc_billing_location,
+                       pce.pc_catid,
+                       f1.name as facility_name,
+                       f2.name as billing_location_name
+                       FROM (
+                             SELECT 
+                               pc_eid,
+                               uuid AS pc_uuid, -- we do this because our uuid registry requires the field to be named this way
+                               pc_aid,
+                               pc_apptstatus,
+                               pc_eventDate,
+                               pc_startTime,
+                               pc_endTime,
+                               pc_facility,
+                               pc_billing_location,
+                               pc_catid,
+                               pc_pid
+                            FROM 
+                                 openemr_postcalendar_events
+                       ) pce
+                       LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
+                       LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
+                       LEFT JOIN (
+                           select uuid AS puuid
+                           ,fname
+                           ,lname
+                           ,DOB
+                           ,pid
+                           FROM 
+                                patient_data
+                      ) pd ON pd.pid = pce.pc_pid
+                       LEFT JOIN users as providers ON pce.pc_aid = providers.id";
+
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $processingResult->addData($this->createResultRecordFromDatabaseResult($row));
+        }
+
+        return $processingResult;
+    }
+
     public function getAppointmentsForPatient($pid)
     {
         $sqlBindArray = array();
 
         $sql = "SELECT pce.pc_eid,
+                       pce.uuid AS pc_uuid,
                        pd.fname,
                        pd.lname,
                        pd.DOB,
@@ -154,6 +226,7 @@ class AppointmentService extends BaseService
     public function getAppointment($eid)
     {
         $sql = "SELECT pce.pc_eid,
+                       pce.uuid AS pc_uuid,
                        pd.fname,
                        pd.lname,
                        pd.DOB,
@@ -195,8 +268,10 @@ class AppointmentService extends BaseService
         $startTime = date("H:i:s", strtotime($data['pc_startTime']));
         // TODO: Why are we adding strings with numbers?  How is this even working
         $endTime = $startTime . $data['pc_duration'];
+        $uuid = (new UuidRegistry())->createUuid();
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
+        $sql .= "     uuid=?";
         $sql .= "     pc_pid=?,";
         $sql .= "     pc_catid=?,";
         $sql .= "     pc_title=?,";
@@ -216,6 +291,7 @@ class AppointmentService extends BaseService
         $results = sqlInsert(
             $sql,
             array(
+                $uuid,
                 $pid,
                 $data["pc_catid"],
                 $data["pc_title"],
@@ -238,11 +314,6 @@ class AppointmentService extends BaseService
     {
         QueryUtils::sqlStatementThrowException("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
         return ['message' => 'record deleted'];
-    }
-
-    protected function createResultRecordFromDatabaseResult($row)
-    {
-        return parent::createResultRecordFromDatabaseResult($row); // TODO: Change the autogenerated stub
     }
 
     /**
