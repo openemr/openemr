@@ -134,6 +134,7 @@ class AppointmentService extends BaseService
               	       pce.pc_facility,
                        pce.pc_billing_location,
                        pce.pc_catid,
+                       pce.pc_pid,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM (
@@ -200,6 +201,7 @@ class AppointmentService extends BaseService
               	       pce.pc_facility,
                        pce.pc_billing_location,
                        pce.pc_catid,
+                       pce.pc_pid,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
@@ -244,6 +246,7 @@ class AppointmentService extends BaseService
                        pce.pc_billing_location,
                        pce.pc_catid,
                        pce.pc_room,
+                       pce.pc_pid,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
