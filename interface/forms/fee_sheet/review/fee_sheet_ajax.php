@@ -67,7 +67,7 @@ if ($task == 'retrieve') {
     }
 
     $retval['issues'] = $issues;
-    echo json_encode($retval);
+    echo text(json_encode($retval));
     return;
 }
 
