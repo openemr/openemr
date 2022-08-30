@@ -47,7 +47,3 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
-
-#IfMissingColumn openemr_postcalendar_events uuid
-ALTER TABLE `openemr_postcalendar_events` ADD `uuid` binary(16) DEFAULT NULL;
-#EndIf
