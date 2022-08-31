@@ -243,9 +243,8 @@ class AuthorizationController
             } elseif (
                 strpos($data['scope'], 'system/') !== false
                 || strpos($data['scope'], 'user/') !== false
-                || strpos($data['scope'], self::OFFLINE_ACCESS_SCOPE) !== false
             ) {
-                throw new OAuthServerException("system, user scopes, and offline_access are only allowed for confidential clients", 0, 'invalid_client_metadata');
+                throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
             $this->validateScopesAgainstServerApprovedScopes($data['scope']);
 
@@ -367,8 +366,7 @@ class AuthorizationController
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
         $site = $this->siteId;
         $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
-        // we do not allow a confidential app to be enabled by default;
-        $is_client_enabled = $is_confidential_client ? 0 : 1;
+
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
@@ -381,10 +379,13 @@ class AuthorizationController
         // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
         $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
 
-        // if a public app requests the launch scope we also do not let them through unless they've been manually
-        // authorized by an administrator user.
-        if ($is_client_enabled) {
-            $is_client_enabled = strpos($info['scope'], SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE) !== false ? 0 : 1;
+        $scopes = explode(" ", $info['scope']);
+        $scopeRepo = new ScopeRepository();
+
+        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes)) {
+            $is_client_enabled = 0; // disabled
+        } else {
+            $is_client_enabled = 1; // enabled
         }
 
         // encrypt the client secret
@@ -629,11 +630,6 @@ class AuthorizationController
                 new \DateInterval('PT1M'), // auth code. should be short turn around.
                 $expectedAudience
             );
-
-            // ONC Inferno does not support the code challenge PKCE standard right now so we disable it in the grant.
-            // Smart V2 http://build.fhir.org/ig/HL7/smart-app-launch/ will require PKCE with the code_challenge_method
-            // Note: this was true as of January 18th 2021
-            $grant->disableRequireCodeChallengeForPublicClients();
 
             $grant->setRefreshTokenTTL(new \DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(

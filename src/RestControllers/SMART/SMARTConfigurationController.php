@@ -99,7 +99,10 @@ class SMARTConfigurationController
             "introspection_endpoint" => $authServer->getIntrospectionUrl(),
             // we don't revoke tokens right now
             //    "revocation_endpoint" => "https://ehr.example.com/user/revoke",
-            "capabilities" => Capability::SUPPORTED_CAPABILITIES
+            "capabilities" => Capability::SUPPORTED_CAPABILITIES,
+            // added for PKCE support.
+            "code_challenge_methods_supported" => ['S256'],
+            "grant_types_supported" => ['client_credentials', 'authorization_code']
         ];
 
         return $config;

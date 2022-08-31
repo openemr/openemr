@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.
@@ -141,6 +142,10 @@ class ApiTestClient
         $clientResponseBody = json_decode($clientResponse->getBody());
         $this->client_id = $clientResponseBody->client_id;
         $this->client_secret = $clientResponseBody->client_secret;
+        // we need to enable the app otherwise we can't use it.
+        $clientRepository = new ClientRepository();
+        $client = $clientRepository->getClientEntity($this->client_id);
+        $clientRepository->saveIsEnabled($client, true);
     }
 
     /**
