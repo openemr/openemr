@@ -7311,7 +7311,8 @@ CREATE TABLE `openemr_postcalendar_events` (
   `uuid` binary(16) DEFAULT NULL,
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
-  KEY `pc_eventDate` (`pc_eventDate`)
+  KEY `pc_eventDate` (`pc_eventDate`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7;
 
 -- --------------------------------------------------------

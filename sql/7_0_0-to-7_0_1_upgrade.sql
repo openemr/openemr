@@ -189,3 +189,7 @@ INSERT INTO `registry` (`name`, `state`, `directory`, `sql_run`, `unpackaged`, `
 #IfMissingColumn openemr_postcalendar_events uuid
 ALTER TABLE `openemr_postcalendar_events` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
+
+#IfNotIndex openemr_postcalendar_events uuid
+CREATE UNIQUE INDEX `uuid` ON `openemr_postcalendar_events` (`uuid`);
+#EndIf
