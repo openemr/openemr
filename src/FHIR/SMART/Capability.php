@@ -27,7 +27,7 @@ class Capability
     const SUPPORTED_CAPABILITIES = [self::LAUNCH_EHR, self::CONTEXT_BANNER, self::CONTEXT_EHR_PATIENT
         , self::CONTEXT_STYLE, self::SSO_OPENID_CONNECTION, self::CLIENT_CONFIDENTIAL_SYMMETRIC, self::PERMISSION_USER
         , self::CONTEXT_STANDALONE_PATIENT, self::LAUNCH_STANDALONE, self::PERMISSION_PATIENT
-        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC];
+        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC, self::PERMISSION_V1];
 
     // support for SMART’s EHR Launch mode
     const LAUNCH_EHR = 'launch-ehr';
@@ -75,4 +75,14 @@ class Capability
 
     // support for user-level scopes (e.g. user/Appointment.read)
     const PERMISSION_USER = "permission-user";
+
+    /**
+     * Support for SMART v1 scopes (e.g. patient/Observation.read)
+     */
+    const PERMISSION_V1 = "permission-v1";
+
+    /**
+     * Support for SMART v2 scopes with more granular controls (e.g. patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs)
+     */
+    const PERMISSION_V2 = "permission-v2";
 }
