@@ -3605,6 +3605,80 @@ paths:
       security:
         -
           openemr_auth: []
+  /fhir/Appointment:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of Appointment resources.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the Appointment resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/AllergyIntolerance' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/fhir/Appointment/{uuid}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single Appointment resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Appointment resource.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example: []
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: []
   /fhir/CarePlan:
     get:
       tags:
@@ -6343,6 +6417,44 @@ paths:
       security:
         -
           openemr_auth: []
+  /portal/patient/appointment:
+    get:
+      tags:
+        - standard-patient
+      description: 'Retrieves all appointments for a patient'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/portal/patient/appointment/{auuid}':
+    get:
+      tags:
+        - standard-patient
+      description: 'Returns a selected appointment by its uuid.'
+      parameters:
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the appointment.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
 components:
   schemas:
     api_patient_request:
@@ -7296,6 +7408,7 @@ components:
             launch/patient: 'Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)'
             'api:fhir': 'FHIR R4 API'
             patient/AllergyIntolerance.read: 'Read allergy intolerance resources for the current patient (api:fhir)'
+            patient/Appointment.read: 'Read appointment resources for the current patient (api:fhir)'
             patient/CarePlan.read: 'Read care plan resources for the current patient (api:fhir)'
             patient/CareTeam.read: 'Read care team resources for the current patient (api:fhir)'
             patient/Condition.read: 'Read condition resources for the current patient (api:fhir)'
@@ -7413,6 +7526,7 @@ components:
             'api:port': 'Standard Patient Portal OpenEMR API'
             patient/encounter.read: 'Read encounters the patient has access to (api:port)'
             patient/patient.read: 'Write encounters the patient has access to (api:port)'
+            patient/appointment.read: 'Read appointments the patient has access to (api:port)'
 tags:
   -
     name: fhir
