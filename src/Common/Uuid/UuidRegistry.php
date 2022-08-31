@@ -38,6 +38,7 @@ class UuidRegistry
 {
     const UUID_MAX_BATCH_COUNT = 1000;
     const UUID_TABLE_DEFINITIONS = [
+
         'ccda' => ['table_name' => 'ccda'],
         'documents' => ['table_name' => 'documents'],
         'drugs' => ['table_name' => 'drugs', 'table_id' => 'drug_id'],
@@ -51,6 +52,7 @@ class UuidRegistry
         'insurance_companies' => ['table_name' => 'insurance_companies'],
         'insurance_data' => ['table_name' => 'insurance_data'],
         'lists' => ['table_name' => 'lists'],
+        'openemr_postcalendar_events' => ['table_name' => 'openemr_postcalendar_events', 'table_id' => 'pc_eid'],
         'patient_data' => ['table_name' => 'patient_data'],
         'patient_history' => ['table_name' => 'patient_history'],
         'prescriptions' => ['table_name' => 'prescriptions'],

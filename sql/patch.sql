@@ -165,4 +165,3 @@ UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID 
 #IfRow2D categories aco_spec patients|docs name Patient Photograph
 UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
 #EndIf
-
