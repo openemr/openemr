@@ -194,6 +194,6 @@ ALTER TABLE `openemr_postcalendar_events` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `openemr_postcalendar_events` (`uuid`);
 #EndIf
 
-#IfNotRow2D list_options list_id drug_route option_id "bymouth"
+#IfNotRow2D list_options list_id drug_route option_id bymouth
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `notes`, `codes`) VALUES ('drug_route', 'bymouth', 'By Mouth', 1, 0, 'PO', 'NCI-CONCEPT-ID:C38288');
 #EndIf
