@@ -724,7 +724,7 @@
     "menu_id": "admimg",
     "children": [
       {
-        "label": "Globals",
+        "label": "Config",
         "menu_id": "adm0",
         "target": "adm",
         "url": "/interface/super/edit_globals.php",
