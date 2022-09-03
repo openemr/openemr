@@ -66,6 +66,7 @@ This is a listing of scopes:
 - `launch/patient`
 - `api:fhir` (fhir which are the /fhir/ endpoints)
   - `patient/AllergyIntolerance.read`
+  - `patient/Appointment.read`
   - `patient/CarePlan.read`
   - `patient/CareTeam.read`
   - `patient/Condition.read`
@@ -187,6 +188,7 @@ This is a listing of scopes:
 - `api:port` (patient api which are the /portal/ endpoints) (EXPERIMENTAL)
   - `patient/encounter.read`
   - `patient/patient.read`
+  - `patient/appointment.read`
 
 ### Registration
 
