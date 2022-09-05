@@ -68,7 +68,7 @@ function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $pa
     $cd = new C_Document();
     $cd->manual_set_owner = $owner;
     $cd->upload_action_process();
-    $v = $cd->get_template_vars("file");
+    $v = $cd->getTemplateVars("file");
     if (!isset($v) || !$v) {
         return false;
     }

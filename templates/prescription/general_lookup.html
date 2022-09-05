@@ -14,16 +14,12 @@
 {headerTemplate}
 
 <script>
-{literal}
 		function my_process () {
 			// Pass the variable
-{/literal}
 	let rxText = document.lookup.drug[document.lookup.drug.selectedIndex].text;
     let rxcode = (rxText.split('(RxCUI:').pop().split(')')[0]).trim();
 	parent.my_process_lookup(document.lookup.drug.value, rxcode);
-{literal}
 		}
-{/literal}
 </script>
 </head>
 <body onload="javascript:document.lookup.drug.focus();">

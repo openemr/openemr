@@ -121,7 +121,7 @@ class C_Prescription extends Controller
 
         // If quantity to dispense is not already set from a POST, set its
         // default value.
-        if (! $this->get_template_vars('DISP_QUANTITY')) {
+        if (! $this->getTemplateVars('DISP_QUANTITY')) {
             $this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
         }
 

@@ -32,7 +32,7 @@ class C_FormVitals
 
     var $template_dir;
     var $form_id;
-
+    var $units_of_measurement;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;

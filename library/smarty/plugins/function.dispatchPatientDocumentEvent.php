@@ -38,7 +38,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 function smarty_function_dispatchPatientDocumentEvent($params, &$smarty)
 {
     if (empty($params['event'])) {
-        $smarty->trigger_error("dispatchPatientDocumentEvent: missing 'event' parameter");
+        trigger_error("dispatchPatientDocumentEvent: missing 'event' parameter", E_USER_WARNING);
         return;
     } else {
         $event = $params['event'];
@@ -50,7 +50,7 @@ function smarty_function_dispatchPatientDocumentEvent($params, &$smarty)
     } elseif ($event == "actions_render_fax_anchor") {
         $eventDispatcher->dispatch(PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR, new GenericEvent());
     } else {
-        $smarty->trigger_error("dispatchPatientDocumentEvent: invalid 'event' parameter");
+        trigger_error("dispatchPatientDocumentEvent: invalid 'event' parameter", E_USER_WARNING);
         return;
     }
 }
