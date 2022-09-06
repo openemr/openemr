@@ -94,13 +94,13 @@
     <form name="prescribe" id="prescribe"  method="post" action="{$FORM_ACTION}" >
         <table>
             <tr>
-                <td class="title font-weight-bold">{xlt t='Add'}/{xlt t='Edit'}&nbsp;</td>
+                <td class="title fw-bold">{xlt t='Add'}/{xlt t='Edit'}&nbsp;</td>
                 <td>
                     <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save">{xlt t='Save'}</a>
                     {if !empty($DRUG_ARRAY_VALUES)}
                     &nbsp; &nbsp; &nbsp; &nbsp;
                     {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
-                        <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 mr-1 ml-1' value="{xla t='Save and Dispense'}" />
+                        <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 me-1 ms-1' value="{xla t='Save and Dispense'}" />
                         <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY|attr}" />
                         units, {$GBL_CURRENCY_SYMBOL|text}
                         <input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE|attr}" />
@@ -114,8 +114,8 @@
         </table>
 
         {if $GLOBALS.enable_amc_prompting}
-        <div class='float-right border mr-5'>
-            <div class='float-left m-1'>
+        <div class='float-end border me-5'>
+            <div class='float-start m-1'>
             {amcCollect amc_id='e_prescribe_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
             {if not $amcCollectReturn}
                 <input type="checkbox" id="escribe_flag" name="escribe_flag" />
@@ -143,21 +143,21 @@
         </div>
         {/if}
 
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{xlt t='Currently Active'}</label>
             <input class="input-sm" type="checkbox" name="active" value="1"{if $prescription->get_active() > 0} checked{/if} />
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{xlt t='Starting Date'}</label>
             <input type="text" size="10" class="datepicker form-control" name="start_date" id="start_date" value="{$prescription->start_date|oeFormatShortDate|attr}" />
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{xlt t='Provider'}</label>
             {html_options class="input-sm form-control" name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
             <input type="hidden" name="patient_id" value="{$prescription->patient->id|attr}" />
         </div>
-        <div class="form-group mt-3">
-            <label class="mr-2">{xlt t='Drug'}</label>
+        <div class="mb-3 mt-3">
+            <label class="me-2">{xlt t='Drug'}</label>
             <div class="form-check-inline">
                 <label class="form-check-label" title="{xlt t='Search from native inventory drugs table'}">
                     <input type="radio" class="form-check-input" name="rxcui_select" checked />{xlt t='Use Default'}
@@ -177,10 +177,10 @@
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
                 ({xlt t='Search Web API'})
             </a>
-            <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display: none">&nbsp;</div>
+            <div class="p-0 mb-4 bg-light" id="hiddendiv" style="display: none">&nbsp;</div>
         </div>
         {if !empty($DRUG_ARRAY_VALUES)}
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>&nbsp; {xlt t='in-house'}</label>
             <select class="input-sm form-control" name="drug_id" onchange="drugselected(this)">
                 {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
@@ -188,15 +188,15 @@
             <input type="hidden" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode|attr}">
         </div>
         {/if}
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{xlt t='Quantity'}</label>
             <input class="input-sm form-control" type="text" name="quantity" id="quantity" size="10" maxlength="31"
                 value="{$prescription->quantity|attr}" onchange="quantityChanged()" />
         </div>
         {if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->size}
-        <div class="form-group row mt-3 d-none">
+        <div class="mb-3 row mt-3 d-none">
         {else}
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
         {/if}
             <div class="col-12">
                 <label>{xlt t='Medicine Units'}</label>
@@ -208,7 +208,7 @@
                 <select class="input-sm form-control" name="unit" id="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
             </div>
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             <div class="col-12">
                 <label>{xlt t='Directions'}</label>
             </div>
@@ -235,7 +235,7 @@
                 </div>
             {/if}
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             <div class="col-12">
                 <label>{xlt t='Refills'}</label>
             </div>
@@ -253,11 +253,11 @@
                 </div>
             {/if}
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{xlt t='Notes'}</label>
             <textarea class="form-control" name="note" cols="30" rows="1" wrap="virtual">{$prescription->note|text}</textarea>
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             {if $WEIGHT_LOSS_CLINIC}
                 <label>{xlt t='Substitution'}</label>
                 {html_options name="substitute" class="form-control" options=$prescription->substitute_array selected=$prescription->substitute}

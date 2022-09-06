@@ -456,13 +456,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 
     if (!empty($e)) {
         $output -> Text('<div class="alert alert-danger mx-1" role="alert">');
-        $output->Text('<span class="text-center font-weight-bold">' . text($e) . '</span>');
+        $output->Text('<span class="text-center fw-bold">' . text($e) . '</span>');
         $output -> Text('</div><br />');
     }
 
     if (!empty($msg)) {
         $output -> Text('<div class="alert alert-success mx-1" role="alert">');
-        $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
+        $output->Text('<span class="text-center fw-bold">' . text($msg) . '</span>');
         $output -> Text('</div><br />');
     }
 

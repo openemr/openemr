@@ -76,7 +76,7 @@ $codes = array();
 echo " <tr>\n";
 foreach ($code_types as $key => $value) {
     $codes[$key] = array();
-    echo "  <th class='text-left'>" . text($key) . " Codes</th>\n";
+    echo "  <th class='text-start'>" . text($key) . " Codes</th>\n";
 }
 
 echo " </tr>\n";

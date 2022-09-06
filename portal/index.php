@@ -392,8 +392,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                     </div>
                 <?php } ?>
-                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
-                <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
+                <input class="btn btn-secondary float-start" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
+                <input class="btn btn-primary float-end" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
         <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
@@ -401,7 +401,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <div class="text-center">
                     <fieldset>
                         <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
-                        <div class="jumbotron jumbotron-fluid px-5 py-3">
+                        <div class="p-0 mb-4 bg-light px-5 py-3">
                             <div class="form-row my-3">
                                 <label class="col-md-2 col-form-label" for="fname"><?php echo xlt('First Name') ?></label>
                                 <div class="col-md">
@@ -427,13 +427,13 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="d-flex justify-content-center">
                                 <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
                             </div>
                         </div>
-                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
-                        <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
+                        <input class="btn btn-secondary float-start" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
+                        <button id="submitRequest" class="btn btn-primary nextBtn float-end" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
                     </fieldset>
                 </div>
             </form>
@@ -443,7 +443,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
             <fieldset>
                 <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
-                <div class="jumbotron jumbotron-fluid px-5 py-3">
+                <div class="p-0 mb-4 bg-light px-5 py-3">
                     <div class="form-row my-3">
                         <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Username') ?></label>
                         <div class="col-md">
@@ -466,7 +466,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     <?php } ?>
                     <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>
-                            <div class="form-group mt-1">
+                            <div class="mb-3 mt-1">
                                 <label class="col-form-label-sm" for="selLanguage"><?php echo xlt('Language'); ?></label>
                                 <select class="form-control form-control-sm" id="selLanguage" name="languageChoice">
                                     <?php
@@ -498,12 +498,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <div class="row">
                     <div class="col-12">
                         <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
-                            <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
+                            <button class="btn btn-secondary float-start" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
                         <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Reset Credentials'); ?></button>
+                            <button class="btn btn-danger ms-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
-                        <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
+                        <button class="btn btn-success float-end" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
                 </div>
             </fieldset>
@@ -516,7 +516,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 
     <div id="alertStore" class="d-none">
         <div class="h6 alert alert-warning alert-dismissible fade show my-1 py-1" role="alert">
-            <button type="button" class="close my-1 py-0" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="close my-1 py-0" data-bs-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>

@@ -1,28 +1,13 @@
 /* Bootstrap Code */
 
+/* Import default-default variables */
+@import '../../default-variables';
+
+/* Rest of these variables are overrides of default variables */
+
 /* Default Colors */
 $blue: $darker;
-$indigo: #6610f2;
 $purple: $palepurple;
-$pink: #e83e8c;
-$red: #dc3545;
-$orange: #fd7e14;
-$yellow: #ffc107;
-$green: #28a745;
-$teal: #20c997;
-$cyan: #17a2b8;
-$black: #000;
-
-/* Default Grays */
-$gray-100: #f8f9fa;
-$gray-200: #e9ecef;
-$gray-300: #dee2e6;
-$gray-400: #ced4da;
-$gray-500: #adb5bd;
-$gray-600: #868e96;
-$gray-700: #495057;
-$gray-800: #343a40;
-$gray-900: #212529;
 
 /* Equivalents to bg-light/dark as well as default for gray */
 $light: $gray-100;
@@ -87,20 +72,11 @@ $colors: (
 
 /* Above has overrides to allow regular CSS coloring */
 
-$body-bg: $white;
-$body-color: $black;
-$font-size-base: 0.875rem;
-$rfs-base-value: 0.875rem;
 $font-family-sans-serif: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
-
-$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
-
-// Enables responsive text for Bootstrap
-$enable-responsive-font-sizes: true;
 
 // Extra stuff related to color themes
 $dropdown-bg: $paler;

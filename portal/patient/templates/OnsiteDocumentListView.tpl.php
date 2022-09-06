@@ -284,16 +284,16 @@ $templateService = new DocumentTemplateService();
     </script>
     <div class="container-xl px-1">
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
-            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("My Documents") ?></h3></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand mt-1 me-1"><h3><?php echo xlt("My Documents") ?></h3></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div id="topmenu" class="collapse navbar-collapse">
-                <ul class="navbar-nav navCollapse mr-auto">
+                <ul class="navbar-nav navCollapse me-auto">
                     <!-- Sticky actions toolbar -->
                     <div class='helpHide d-none'>
                         <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-bs-toggle="modal" data-bs-backdrop="true" data-bs-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
@@ -305,7 +305,7 @@ $templateService = new DocumentTemplateService();
                     </div>
                     <?php if (!empty($is_module) || !empty($is_portal)) { ?>
                         <div class="dropdown mb-1">
-                            <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <?php echo xlt('Select Documents') ?>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
@@ -316,7 +316,7 @@ $templateService = new DocumentTemplateService();
                     <li class='nav-item mb-1'>
                         <a class='nav-link text-success btn btn-outline-success' onclick="page.handleHistoryView()">
                             <?php echo xlt('History') ?>
-                            <i class="history-direction ml-1 fa fa-arrow-down"></i>
+                            <i class="history-direction ms-1 fa fa-arrow-down"></i>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
@@ -329,10 +329,10 @@ $templateService = new DocumentTemplateService();
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
+                        <a class='nav-link btn btn-secondary' data-bs-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
                     <li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Menu'); ?></a>
+                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon me-1'></span><?php echo xlt('Menu'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -353,7 +353,7 @@ $templateService = new DocumentTemplateService();
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
                                 <div id="templatecontent" class="template-body">
-                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ms-auto"></i></div>
                                 </div>
                             </div>
                             <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib')); ?>" />
@@ -366,12 +366,12 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="btn btn-secondary float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="btn btn-secondary float-end" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="col-form-label"></label>
                                         <div class="controls">
                                             <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
@@ -396,7 +396,7 @@ $templateService = new DocumentTemplateService();
             <div class="table-responsive pt-3">
                 <h4 class="text-sm-center"><?php echo xlt('Your Document History') ?><small> (Click on label to sort.)</small></h4>
                 <table class="collection table table-sm table-hover">
-                    <thead class='thead-dark'>
+                    <thead class='table-dark'>
                     <tr class='cursor-pointer'>
                         <th scope="col" id="header_Id"><?php echo xlt('Id'); ?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_DocType"><?php echo xlt('Document'); ?><% if (page.orderBy == 'DocType') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>

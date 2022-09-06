@@ -5,7 +5,7 @@ $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 $gray: #cdcdcd;
 
-// Import Bootstrap 4 SCSS Files before doing anything
+// Import Bootstrap SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch
 // bs4import
 
@@ -25,7 +25,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 
 :root {
   --tabTopBorderWidth: 0.2em;
-  --gray300: #cdcdcd;
+  --bs-gray300: #cdcdcd;
 }
 
 /* Overrides go here */
@@ -37,7 +37,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   }
 
   .tabSpan {
-    border-top: var(--tabTopBorderWidth) solid var(--primary) !important;
+    border-top: var(--tabTopBorderWidth) solid var(--bs-primary) !important;
     font-weight: 600 !important;
     padding: 0.25em 0.4em !important;
 
@@ -75,7 +75,7 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   .menuLabel:hover,
   .menuEntries li .menuLabel:hover,
   .menuSection:hover {
-    background-color: lighten(theme-color("primary"), 40%) !important;
+    background-color: lighten($primary, 40%) !important;
   }
 
   .acck {

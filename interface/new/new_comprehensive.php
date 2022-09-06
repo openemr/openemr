@@ -87,7 +87,7 @@ $fres = getLayoutRes();
 <?php Header::setupHeader(['common','datetime-picker','select2', 'erx']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <style>
-.form-group {
+.mb-3 {
     margin-bottom: 0.25rem;
 }
 </style>
@@ -184,7 +184,7 @@ function ins_search(ins) {
  return false;
 }
 
-function checkNum () {
+function checkNum() {
  var re= new RegExp();
  re = /^\d*\.?\d*$/;
  str=document.forms[0].monthly_income.value;
@@ -292,20 +292,22 @@ if(errMsgs.length > 0 || dateVal > currentDate) {
 function toggleSearch(elem) {
  var f = document.forms[0];
 <?php if ($WITH_SEARCH) { ?>
+  // TODO: Rethink validation code here
  // Toggle background color.
- if (elem.style.backgroundColor == '')
-  elem.style.backgroundColor = <?php echo js_escape($searchcolor); ?>;
- else
-  elem.style.backgroundColor = '';
+//  if (elem.style.backgroundColor == '') {
+//   elem.style.backgroundColor = <?php echo js_escape($searchcolor); ?>;
+//  } else {
+//   elem.style.backgroundColor = '';
+//  }
 
- if (!elem.classList.contains("is-invalid") && $.trim($(elem).val()) == '') {
-  elem.classList.add("is-invalid");
-} else {
-  if($.trim($(elem).val()) != '') {
-    elem.classList.remove("is-invalid");
-    elem.classList.remove("is-valid");
-  }
-}
+  // if (!elem.classList.contains("is-invalid") && $.trim($(elem).val()) == '') {
+  //   elem.classList.add("is-invalid");
+  // } else {
+  //   if($.trim($(elem).val()) != '') {
+  //     elem.classList.remove("is-invalid");
+  //     elem.classList.remove("is-valid");
+  //   }
+  // }
 <?php } ?>
  if (force_submit) {
   force_submit = false;
@@ -403,7 +405,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                     <table class='table table-sm w-100' cellspacing='8'>
                     <tr>
-                      <td class="text-left align-top">
+                      <td class="text-start align-top">
                     <?php
                     if ($SHORT_FORM) {
                         echo "  <div class='mx-auto'>\n";
@@ -496,8 +498,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 echo <<<HTML
                                 <div class="card">
                                     <div class="card-header p-0 bg-secondary" id="header_{$group_seq_attr}">
-                                        <h2 class="mb-0">
-                                            <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
+                                        <h2 class="d-grid gap-2 mb-0">
+                                            <button class="btn btn-link text-light text-start" type="button" data-bs-toggle="collapse" data-bs-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
                                         </h2>
                                     </div>
                                     <div id="div_{$group_seq_attr}" class="bg-light collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
@@ -514,7 +516,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       // Handle starting of a new row.
                         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
                             end_row();
-                            echo "  <div class='form-group row'>";
+                            echo "  <div class='mb-3 row'>";
                         }
 
                         if ($item_count == 0 && $titlecols == 0) {
@@ -539,7 +541,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                         if ($datacols == 0) {
                             // Data will be in the same cell, so prevent wrapping between title and data.
-                            echo "<span class='text-nowrap mr-2'>"; // mb-2 doesn't work here
+                            echo "<span class='text-nowrap me-2'>"; // mb-2 doesn't work here
                         }
 
 
@@ -609,8 +611,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         echo <<<HTML
                         <div class="card">
                             <div class="card-header p-0 bg-secondary" id="header_ins">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
+                                <h2 class="d-grid gap-2 mb-0">
+                                    <button class="btn btn-link text-light text-start" type="button" data-bs-toggle="collapse" data-bs-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
                                 </h2>
                             </div>
                             <div id="div_ins" class="bg-light collapse" aria-labelledby="header_ins" >
@@ -623,7 +625,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         <div class="row p-3">
                           <div class="col-md-12 mb-2">
                             <div class="input-group">
-                              <label class='col-form-label mr-2 required'><?php echo text($insurance_headings[$i - 1]) . ":"?></label>
+                              <label class='col-form-label me-2 required'><?php echo text($insurance_headings[$i - 1]) . ":"?></label>
                               <select name="i<?php echo attr($i); ?>provider" class="form-control">
                                   <option value=""><?php echo xlt('Unassigned'); ?></option>
                                   <?php
@@ -636,9 +638,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     }
                                     ?>
                               </select>
-                              <div class="input-group-append">
                                 <a class='btn btn-primary text-white medium_modal' href='../practice/ins_search.php' onclick='ins_search(<?php echo attr($i); ?>)'><?php echo xlt('Search/Add Insurer'); ?></a>
-                              </div>
                             </div>
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Plan Name'); ?>:</label>
@@ -785,7 +785,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     } ?>
 
                             </td>
-                            <td class="text-right align-top text-nowrap" width='1%'>
+                            <td class="text-end align-top text-nowrap" width='1%'>
                             <!-- Image upload stuff was here but got moved. -->
                             </td>
                         </tr>
@@ -940,7 +940,7 @@ while ($lrow = sqlFetchArray($lres)) {
 ?>
 
     $(".select-dropdown").select2({
-        theme: "bootstrap4",
+        theme: "bootstrap-5",
         dropdownAutoWidth: true,
         width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>

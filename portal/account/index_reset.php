@@ -195,7 +195,7 @@ if (isset($_POST['submit'])) {
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2"><br /><input class="btn btn-primary float-right" type="submit" name="submit" value="<?php echo xla('Save'); ?>" /></td>
+                    <td colspan="2"><br /><input class="btn btn-primary float-end" type="submit" name="submit" value="<?php echo xla('Save'); ?>" /></td>
                 </tr>
             </table>
             <div><strong><?php echo '* ' . xlt("All credential fields are case sensitive!") ?></strong></div>

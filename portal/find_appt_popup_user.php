@@ -290,8 +290,8 @@ if ($_REQUEST['providerid']) {
                     <input type='text' class="form-control" name='searchdays' id='searchdays' size='3' value='<?php echo attr($searchdays); ?>' title='Number of days to search from the start date' />
                 </div>
                 <label for="searchdays" class="col-auto col-form-label"><?php echo xlt('days'); ?></label>
-                <div class="col-auto">
-                    <input type='submit' class="btn btn-primary btn-sm btn-block" value='<?php echo xla('Search'); ?>' />
+                <div class="d-grid gap-2 col-auto">
+                    <input type='submit' class="btn btn-primary btn-sm" value='<?php echo xla('Search'); ?>' />
                 </div>
             </div>
     </div>

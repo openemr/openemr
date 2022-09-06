@@ -111,33 +111,33 @@ if ($result) {
             <input type="Hidden" name="SettingsId" value="<?php echo attr($SettingsId);?>">
 
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label for="Send_SMS_Before_Hours"><?php echo xlt('SMS send before')?>:</label>
                     <input class="form-control" type="num" name="Send_SMS_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_SMS_Before_Hours); ?>" placeholder="###">
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label for="Send_Email_Before_Hours"><?php echo xlt('Email send before')?>:</label>
                     <input class="form-control" type="num" name="Send_Email_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_Email_Before_Hours); ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label for="SMS_gateway_username"><?php echo xlt('Username for SMS Gateway')?>:</label>
                     <input class="form-control" type="text" name="SMS_gateway_username" size="40" value="<?php echo attr($SMS_gateway_username); ?>" placeholder="<?php echo xla('username'); ?>">
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label for="SMS_gateway_password"><?php echo xlt('Password for SMS Gateway')?>:</label>
                     <input class="form-control" type="password" name="SMS_gateway_password" size="40" value="<?php echo attr($SMS_gateway_password); ?>" placeholder="<?php echo xla('password'); ?>">
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 mb-3">
                     <label for="SMS_gateway_apikey"><?php echo xlt('SMS Gateway API key')?>:</label>
                     <input class="form-control" type="text" name="SMS_gateway_apikey" size="40" value="<?php echo attr($SMS_gateway_apikey); ?>" placeholder="<?php echo xla('key'); ?>">
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 mb-3">
                     <button class="btn btn-secondary btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>

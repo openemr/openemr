@@ -66,7 +66,7 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . xlt("Loading") . "...</span></div>";
+$loading = "<div class='spinner-border' role='status'><span class='visually-hidden'>" . xlt("Loading") . "...</span></div>";
 ?>
 <!DOCTYPE html>
 <html>
@@ -377,7 +377,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
                     <!-- Class "display" is defined in demo_table.css -->
                     <div class="table-responsive">
                         <table class="table" class="border-0 display" id="pt_table">
-                            <thead class="thead-dark">
+                            <thead class="table-dark">
                                 <tr id="advanced_search" class="hideaway"  style="display: none;">
                                     <?php echo $header0; ?>
                                 </tr>

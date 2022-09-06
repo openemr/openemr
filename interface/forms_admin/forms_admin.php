@@ -98,12 +98,12 @@ $bigdata = getRegistered("%") or $bigdata = false;
 
             <?php //ERROR REPORTING
             if (!empty($err)) {
-                echo "<span class='font-weight-bold text-danger'>" . text($err) . "</span>\n";
+                echo "<span class='fw-bold text-danger'>" . text($err) . "</span>\n";
             }
             ?>
 
             <?php //REGISTERED SECTION ?>
-            <span class="font-weight-bold"><?php echo xlt('Registered');?></span>
+            <span class="fw-bold"><?php echo xlt('Registered');?></span>
             <form method="post" action ='./forms_admin.php'>
                 <span class="font-italic">
                     <?php echo xlt('click here to update priority, category, nickname and access control settings'); ?>
@@ -136,7 +136,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     <span class='text'><?php echo text($registry['id']); ?></span>
                                 </td>
                                 <td>
-                                    <span class='font-weight-bold'>
+                                    <span class='fw-bold'>
                                         <?php
                                         echo text(xl_form_title($registry['name']));
                                         echo ($patientPortalCompliant) ? ' <i class="fas fa-cloud-arrow-up" title="' . xla('Patient Portal Compliant') . '"></i>' : '';
@@ -193,7 +193,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                 <hr>
 
                 <?php  //UNREGISTERED SECTION ?>
-                <span class="font-weight-bold"><?php echo xlt('Unregistered'); ?></span>
+                <span class="fw-bold"><?php echo xlt('Unregistered'); ?></span>
                 <div class="table-responsive mt-3">
                     <table class="table table-striped">
                         <?php
@@ -237,7 +237,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     }
                                     $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
-                                    <span class="font-weight-bold">
+                                    <span class="fw-bold">
                                         <?php
                                         echo text(xl_form_title($form_title));
                                         echo ($patientPortalCompliant) ? ' <i class="fas fa-cloud-arrow-up" title="' . xla('Patient Portal Compliant') . '"></i>' : '';

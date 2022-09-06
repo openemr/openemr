@@ -449,7 +449,7 @@ if (!empty($_POST['form_refresh'])) {
     ?>
 <div id="report_results">
 <table class='table'>
-<thead class='thead-light' align="left">
+<thead class='table-light' align="left">
 <th> <?php echo xlt('Patient ID'); ?> </th>
 <th> <?php echo xlt('Patient Name'); ?> </th>
 <th> <?php echo xlt('Diagnosis'); ?> </th>

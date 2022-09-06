@@ -78,7 +78,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                     alert(message);
                 }
 
-                $('[data-toggle="tooltip"]').tooltip();
+                $('[data-bs-toggle="tooltip"]').tooltip();
             });
         </script>
     </head>
@@ -103,7 +103,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                                 <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                                 <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" 
                                                   value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(<?php echo attr_js($GLOBALS['webroot']) ?>,
-                                                  this.parentElement.parentElement.parentElement.id);' data-toggle='tooltip' data-placement='bottom' title='<?php echo attr($obj['code']) . "'"; ?> />
+                                                  this.parentElement.parentElement.parentElement.id);' data-bs-toggle='tooltip' data-placement='bottom' title='<?php echo attr($obj['code']) . "'"; ?> />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"><?php echo text($obj["codetext"] ?? ''); ?></span>
                                                 <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
                                                 <input type="hidden" id="user_<?php echo attr($key) + 1; ?>" name="user[]" class="user" value="<?php echo attr($obj["user"]); ?>" />
@@ -183,7 +183,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 <?php } ?>
                             </div>
                         </fieldset>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="col-sm-12 position-override">
                                 <div class="btn-group" role="group">
                                     <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>

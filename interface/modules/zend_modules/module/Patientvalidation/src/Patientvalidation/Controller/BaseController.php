@@ -63,7 +63,7 @@ class BaseController extends AbstractActionController
     {
 
                 $this->jsFiles[] = '/datatables.net/js/jquery.dataTables.js';
-                $this->jsFiles[] = '/datatables.net-bs4/js/dataTables.bootstrap4.min.js';
+                $this->jsFiles[] = '/datatables.net-bs5/js/dataTables.bootstrap5.min.js';
 
         return $this->jsFiles;
     }
@@ -75,16 +75,7 @@ class BaseController extends AbstractActionController
      */
     protected function getCssFiles()
     {
-
-        //adding bootstrap rtl for rtl languages
-        if ($_SESSION['language_direction'] == 'rtl') {
-            $this->cssFiles[] = '/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
-        }
-
-
-                $this->cssFiles[] = '/datatables.net-bs4/css/dataTables.bootstrap4.min.css';
-
-
+        $this->cssFiles[] = '/datatables.net-bs5/css/dataTables.bootstrap5.min.css';
         return $this->cssFiles;
     }
 

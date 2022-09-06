@@ -212,35 +212,35 @@ if ($_POST['form_save'] ?? '') {
 <p>
 <table class="w-100 border-0">
  <tr>
-  <td class="font-weight-bold" width='1%' nowrap><?php echo xlt('Name'); ?>:</td>
+  <td class="fw-bold" width='1%' nowrap><?php echo xlt('Name'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_name' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Name of insurance company'); ?>' />
   </td>
  </tr>
 
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('Attention');?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('Attention');?>:</td>
   <td>
    <input type='text' size='20' name='form_attn' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Contact name'); ?>' />
   </td>
  </tr>
 
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('Address1'); ?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('Address1'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line' />
   </td>
  </tr>
 
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('Address2'); ?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('Address2'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any' />
   </td>
  </tr>
 
  <tr>
-     <td class="font-weight-bold" nowrap><?php echo xlt('City/State'); ?>:</td>
+     <td class="fw-bold" nowrap><?php echo xlt('City/State'); ?>:</td>
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name' />
@@ -252,7 +252,7 @@ if ($_POST['form_save'] ?? '') {
  </tr>
 
  <tr>
-     <td class="font-weight-bold" nowrap><?php echo xlt('Zip/Country:'); ?></td>
+     <td class="fw-bold" nowrap><?php echo xlt('Zip/Country:'); ?></td>
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code' />
@@ -264,20 +264,20 @@ if ($_POST['form_save'] ?? '') {
  </tr>
 
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('Phone'); ?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('Phone'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_phone' maxlength='20' class='form-control form-control-sm' title='Telephone number' />
   </td>
  </tr>
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('Payer ID'); ?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('Payer ID'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_cms_id' maxlength='15' class='form-control form-control-sm' title='Identifier assigned by CMS' />
   </td>
  </tr>
 
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('Payer Type'); ?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('Payer Type'); ?>:</td>
   <td>
    <select name='form_ins_type_code' class="form-control form-control-sm">
 <?php
@@ -291,7 +291,7 @@ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
  </tr>
 
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('X12 Partner'); ?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('X12 Partner'); ?>:</td>
   <td>
    <select name='form_partner' title='Default X12 Partner' class="form-control form-control-sm">
     <option value=""><?php echo '-- ' . xlt('None{{Partner}}') . ' --'; ?></option>
@@ -306,7 +306,7 @@ while ($xrow = sqlFetchArray($xres)) {
  </tr>
 
  <tr>
-  <td class="font-weight-bold" nowrap><?php echo xlt('CQM Source of Payment'); ?>:</td>
+  <td class="fw-bold" nowrap><?php echo xlt('CQM Source of Payment'); ?>:</td>
   <td>
    <select name='form_cqm_sop' title='CQM Source of Payment' class="form-control form-control-sm">
     <option value=""><?php echo '-- ' . xlt('None{{CQM SOP}}') . ' --'; ?></option>

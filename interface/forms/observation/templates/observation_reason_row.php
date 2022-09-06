@@ -22,7 +22,7 @@
                 </p>
             </div>
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label><?php echo xlt("Reason Code"); ?></label>
                     <input class="code-selector-popup form-control"
                            name="reasonCode[]" type="text" value="<?php echo attr($obj['ob_reason_code'] ?? ""); ?>"
@@ -31,7 +31,7 @@
                     <p class="code-selector-text-display <?php echo empty($obj['ob_reason_text']) ? "d-none" : ''; ?>"><?php echo text($obj['ob_reason_text'] ?? ""); ?></p>
                     <input type="hidden" name="reasonCodeText[]" class="code-selector-text" value="<?php echo attr($obj['ob_reason_text'] ?? ""); ?>" />
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label><?php echo xlt("Reason Status"); ?></label>
                     <select name="reasonCodeStatus[]" class="form-control">
                         <?php foreach ($reasonCodeStatii as $code => $codeDesc) : ?>

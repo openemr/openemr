@@ -28,8 +28,8 @@ assets:
         allowNoLoad: true
         # RTL only for no_main-theme which is rare
         rtl:
-            basePath: '%assets_static_relative%/bootstrap-rtl/dist/'
-            link: css/bootstrap-rtl.min.css
+            basePath: '%assets_static_relative%/bootstrap/dist/'
+            link: css/bootstrap.rtl.min.css
     # keep utility and javaScript translations near top of load order.
     i18next:
         basePath: '%assets_static_relative%/i18next/dist/umd/'
@@ -125,9 +125,9 @@ assets:
         basePath: '%assets_static_relative%/datatables.net-dt/css/'
         link: jquery.dataTables.min.css
     datatables-bs:
-        basePath: '%assets_static_relative%/datatables.net-bs4/'
-        script: js/dataTables.bootstrap4.min.js
-        link: css/dataTables.bootstrap4.min.css
+        basePath: '%assets_static_relative%/datatables.net-bs5/'
+        script: js/dataTables.bootstrap5.min.js
+        link: css/dataTables.bootstrap5.min.css
     datatables-jqui:
         basePath: '%assets_static_relative%/datatables.net-jqui/js/'
         script: dataTables.jqueryui.min.js

@@ -107,7 +107,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     echo "  <td class='text-center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
     echo "  <td class='text-center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
     echo "  <td class='text-center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
+    echo "  <td class='text-end'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
         " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
         "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
@@ -1034,7 +1034,7 @@ function make_insurance() {
                         </div>
                         <div class="col-12 oe-custom-line">
                             <label class="control-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
-                            <div class="pl-3">
+                            <div class="ps-3">
                                 <label class="radio-inline">
                                     <input id="radio_type_of_coverage1" name="radio_type_of_coverage" onclick="make_visible_radio();make_self();" type="radio" value="self"><?php echo xlt('Self'); ?>
                                 </label>
@@ -1075,18 +1075,18 @@ function make_insurance() {
                             <table class="table" id="table_display">
                                 <thead>
                                     <tr class="table-active" id="tr_head">
-                                        <th class="font-weight-bold" width="70"><?php echo xlt('DOS'); ?></td>
-                                        <th class="font-weight-bold" width="65"><?php echo xlt('Encounter'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
-                                        <th class="font-weight-bold text-center" width="50"><?php echo xlt('Paying'); ?></th>
+                                        <th class="fw-bold" width="70"><?php echo xlt('DOS'); ?></td>
+                                        <th class="fw-bold" width="65"><?php echo xlt('Encounter'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
+                                        <th class="fw-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
+                                        <th class="fw-bold text-center" width="50"><?php echo xlt('Paying'); ?></th>
                                     </tr>
                                 </thead>
                                 <?php
@@ -1254,31 +1254,31 @@ function make_insurance() {
                                 ?>
 
                                 <tr class="table-active">
-                                    <td class="font-weight-bold" id='td_total_1'></td>
-                                    <td class="font-weight-bold" id='td_total_2'></td>
-                                    <td class="font-weight-bold" id='td_total_3'></td>
-                                    <td class="font-weight-bold" id='td_total_4'></td>
-                                    <td class="font-weight-bold" id='td_total_5'></td>
-                                    <td class="font-weight-bold" id='td_total_6'></td>
-                                    <td class="font-weight-bold" id='td_total_7'></td>
-                                    <td class="font-weight-bold" id='td_total_8'></td>
-                                    <td class="font-weight-bold text-right"><?php echo xlt('Total');?></td>
-                                    <td class="font-weight-bold text-right">
+                                    <td class="fw-bold" id='td_total_1'></td>
+                                    <td class="fw-bold" id='td_total_2'></td>
+                                    <td class="fw-bold" id='td_total_3'></td>
+                                    <td class="fw-bold" id='td_total_4'></td>
+                                    <td class="fw-bold" id='td_total_5'></td>
+                                    <td class="fw-bold" id='td_total_6'></td>
+                                    <td class="fw-bold" id='td_total_7'></td>
+                                    <td class="fw-bold" id='td_total_8'></td>
+                                    <td class="fw-bold text-end"><?php echo xlt('Total');?></td>
+                                    <td class="fw-bold text-end">
                                         <input type='text' class='form-control text-success' name='form_paytotal' value='' readonly />
                                     </td>
                                 </tr>
                             </table>
                         </div>
                     </fieldset>
-                    <div class="form-group">
-                        <div class="col-sm-12 text-left position-override">
-                            <div class="form-group" role="group">
+                    <div class="mb-3">
+                        <div class="col-sm-12 text-start position-override">
+                            <div class="mb-3" role="group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
                                 <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
                                     if ($GLOBALS['payment_gateway'] == 'Sphere') {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
-                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
+                                        echo '<button type="button" class="btn btn-success btn-transmit mx-1" data-bs-toggle="modal" data-bs-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
                                         if (!empty($GLOBALS['cc_stripe_terminal'])) {
                                             echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
                                         }
@@ -1308,7 +1308,7 @@ function make_insurance() {
                         <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
                             <form id='paymentForm' method='post' action='./front_payment_cc.php'>
                                 <fieldset>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label
                                             class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                         <div class="controls">
@@ -1318,7 +1318,7 @@ function make_insurance() {
                                                 value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <label class="control-label"><?php echo xlt('Card Number'); ?></label>
@@ -1334,7 +1334,7 @@ function make_insurance() {
                                                 </span>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label
                                             class="control-label"><?php echo xlt('Card Expiry Date and Card Holders Zip'); ?></label>
                                         <div class="row">
@@ -1379,7 +1379,7 @@ function make_insurance() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="control-label"><?php echo xlt('Card CVV'); ?></label>
                                         <div class="row">
                                             <div class="col-md-3">
@@ -1410,7 +1410,7 @@ function make_insurance() {
                         if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
                             <form class="form" method="post" name="payment-form" id="payment-form">
                                 <fieldset>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label for="cardHolderName" class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                         <input name="cardHolderName" id="cardHolderName" type="text"
                                             class="form-control"
@@ -1418,9 +1418,9 @@ function make_insurance() {
                                             title="<?php echo xla('Fill your first and last name'); ?>"
                                             value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label for="card-element"><?php echo xlt('Credit or Debit Card') ?></label>
-                                        <div class="form-group" id="card-element"></div>
+                                        <div class="mb-3" id="card-element"></div>
                                         <div class="text-danger" id="card-errors" role="alert"></div>
                                     </div>
                                     <div class="form-row">
@@ -1438,7 +1438,7 @@ function make_insurance() {
                     <!-- Body  -->
                     <div class="modal-footer">
                         <div class="button-group">
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                            <button type="button" class="btn btn-default" data-bs-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                             <?php
                             if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
                                 <button id="payAurhorizeNet" class="btn btn-primary"

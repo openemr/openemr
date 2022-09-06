@@ -58,7 +58,7 @@ function getDocCats()
         <!-- Setup area !-->
         <div class="collapse" id="setup">
             <form method="post" action="<?php echo $GLOBALS['rootdir']; ?>/forms/handwritten-notes/new.php">
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="docid"><?php echo xlt("Enter the document category ID that you would like to save the notes to:"); ?></label>
                     <select class="form-control" name="docid" id="docid">
                         <?php echo getDocCats(); ?>
@@ -69,7 +69,7 @@ function getDocCats()
             </form>
         </div>
         <div class="pt-5">
-            <button class="btn btn-secondary btn-sm" type="button" data-toggle="collapse" data-target="#setup" aria-expanded="false" aria-controls="setup"><?php echo xlt("Setup"); ?></button>
+            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#setup" aria-expanded="false" aria-controls="setup"><?php echo xlt("Setup"); ?></button>
         </div>
     </div>
 </body>

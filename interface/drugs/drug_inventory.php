@@ -450,7 +450,9 @@ mapToTable($prevRow);
  </tbody>
 </table>
 
-<input class="btn btn-primary btn-block w-25 mx-auto" type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
+<div class="d-grid gap-2 w-25 mx-auto">
+    <input class="btn btn-primary" type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
+</div>
 
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" />
 

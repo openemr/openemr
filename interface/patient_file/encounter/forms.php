@@ -670,9 +670,9 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div class="float-right border border-dark mr-2">
-        <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
-        <div id="amc-requires" class="float-left m-2 collapse">
+    <div class="float-end border border-dark me-2">
+        <a class="btn btn-link p-0 m-1 float-end" data-bs-toggle="collapse" data-bs-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
+        <div id="amc-requires" class="float-start m-2 collapse">
           <table>
             <tr>
               <td>
@@ -717,7 +717,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
                     </td>
                 </tr>
                 </table>
-                <table class="ml-4">
+                <table class="ms-4">
                     <tr>
                         <td>
                             <?php if (!(empty($itemAMC['date_completed']))) { ?>
@@ -753,7 +753,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
                     </td>
                 </tr>
                 </table>
-                <table class="ml-4">
+                <table class="ms-4">
                     <tr>
                         <td>
                             <input type="checkbox" id="med_reconc_perf" disabled />
@@ -790,7 +790,7 @@ if ($attendant_type == 'pid') {
 if (!empty($docs_list) && count($docs_list) > 0) {
     ?>
 <div class='enc_docs'>
-<span class="font-weight-bold"><?php echo xlt("Document(s)"); ?>:</span>
+<span class="fw-bold"><?php echo xlt("Document(s)"); ?>:</span>
     <?php
     $doc = new C_Document();
     foreach ($docs_list as $doc_iter) {
@@ -912,7 +912,7 @@ if (
         $form_text = text($form_name);
         echo <<<HTML
         <div class="form_header">
-            <a href="#" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
+            <a href="#" data-bs-toggle="collapse" data-bs-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
                 <h5>{$form_text}</h5>
                 {$by_text} {$author_text}
             </a>
@@ -970,7 +970,7 @@ if (
             }
         }
 
-        echo "<a class='btn btn-secondary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
+        echo "<a class='btn btn-secondary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-bs-toggle='collapse' data-bs-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
         echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";

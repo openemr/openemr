@@ -25,16 +25,16 @@
         <br/>
         <br/>
     </div>
-    <div class="text font-weight-bold">
+    <div class="text fw-bold">
         {xlt t="Upload Document"} {if $category_name} {xlt t="to category"} '{$category_name|text}'{/if}
     </div>
     <div class="text">
-        <div class="form-group">
+        <div class="mb-3">
             <p>(<small>{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</small>)</p>
             <span>{xlt t="Source File Path"}:</span>
             <input type="file" class="form-control-file" name="file[]" id="source-name" multiple="true" />
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <p>(<small>{xlt t="Select below to Zip Directory of image slices."}</small>)</p>
             <input type="file" class="form-control-file" name="dicom_folder[]" id="dicom_folder" multiple directory=""  webkitdirectory="" moxdirectory="" />
         </div>
@@ -79,11 +79,9 @@
     <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
     <input type='hidden' name='patient_id' value='{$patient_id|attr}' />
     <div class='col-sm-6'>
-        <p class='text font-weight-bold'>{xlt t="Download document template for this patient and visit"}</p>
+        <p class='text fw-bold'>{xlt t="Download document template for this patient and visit"}</p>
         <div class="input-group">
-            <span class="input-group-prepend">
-                <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
-            </span>
+            <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
             <select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
         </div>
     </div>
@@ -92,17 +90,15 @@
 
 <!-- Section for portal document templates -->
 <div class='col-sm-6'>
-	<p class='text font-weight-bold'>{xlt t="Patient Document Template Forms"}</p>
+	<p class='text fw-bold'>{xlt t="Patient Document Template Forms"}</p>
 	<div class="input-group">
-		<span class="input-group-prepend">
-			<button class="btn btn-primary btn-download" onclick="callTemplateModule()">{xlt t="Open"}</button>
-		</span>
+		<button class="btn btn-primary btn-download" onclick="callTemplateModule()">{xlt t="Open"}</button>
 		<select class="form-control" id='template_filename'>{$TEMPLATES_LIST_PATIENT}</select>
 	</div>
 </div>
 
 {if !empty($file)}
-	<div class="text font-weight-bold">
+	<div class="text fw-bold">
 		<br/>
 		{xlt t='Uploaded'}
 	</div>

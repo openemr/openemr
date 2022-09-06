@@ -758,7 +758,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
          * @var e element The Button that was clicked to collapse/expand the card
          */
         async function updateUserVisibilitySetting(e) {
-            const targetID = e.target.getAttribute("data-target");
+            const targetID = e.target.getAttribute("data-bs-target");
             const target = document.querySelector(targetID);
             const targetStr = targetID.substring(1);
 
@@ -779,7 +779,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         // Update the User's visibility setting when the card header is clicked
         function cardTitleButtonClickListener() {
-            const buttons = document.querySelectorAll(".card-title a[data-toggle='collapse']");
+            const buttons = document.querySelectorAll(".card-title a[data-bs-toggle='collapse']");
             buttons.forEach((b) => {
                 b.addEventListener("click", (e) => {
                     updateUserVisibilitySetting(e);

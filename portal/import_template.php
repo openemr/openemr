@@ -363,8 +363,8 @@ function renderEditorHtml($template_id, $content)
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>
                         <textarea cols='80' rows='10' id='templateContent' name='content'><?php echo text($content) ?></textarea>
-                        <div class="row btn-group mt-1 float-right">
-                            <div class='col btn-group mt-1 float-right'>
+                        <div class="row btn-group mt-1 float-end">
+                            <div class='col btn-group mt-1 float-end'>
                                 <?php if ($authUploadTemplates) { ?>
                                     <button type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
                                 <?php } else { ?>
@@ -377,7 +377,7 @@ function renderEditorHtml($template_id, $content)
                 </div>
                 <div class="col-sm-2 px-0">
                     <div class='h4'><?php echo xlt("Directives") ?></div>
-                    <ul class='list-group list-group-flush pl-1 mb-5'>
+                    <ul class='list-group list-group-flush ps-1 mb-5'>
                         <?php
                         foreach ($lists as $list) {
                             echo '<input class="list-group-item p-1" value="' . attr($list) . '">';
@@ -567,7 +567,7 @@ function renderProfileHtml()
                             <button class='btn btn-secondary btn-cancel btn-sm' onclick='dlgclose();'><?php echo xlt('Quit'); ?></button>
                         </div>
                     </nav>
-                    <div class="border-left border-right">
+                    <div class="border-start border-end">
                         <div class='bg-dark text-light py-1 text-center'><?php echo xlt('Available Templates'); ?></div>
                         <ul id='drag_repository' class='list-group mx-2 mb-2'>
                             <?php
@@ -594,7 +594,7 @@ function renderProfileHtml()
                     </div>
                 </div>
                 <div class='col-6 col-height'>
-                    <div id="edit-profiles" class='control-group mx-1 border-left border-right'>
+                    <div id="edit-profiles" class='control-group mx-1 border-start border-end'>
                         <?php
                         foreach ($profile_list as $profile => $profiles) {
                             $profile_items_list = $templateService->getTemplateListByProfile($profile);
@@ -604,15 +604,15 @@ function renderProfileHtml()
                             $trigger = attr($events[$profile]['event_trigger'] ?? '');
                             $days = attr($events[$profile]['period'] ?? '');
                             ?>
-                            <form id="<?php echo $profile_esc ?>-form" name="<?php echo $profile_esc; ?>" class='form form-inline bg-dark text-light py-1 pl-1'>
-                                <label class='mr-1'><?php echo xlt($profiles['title']) ?></label>
-                                <div class='input-group-prepend ml-auto'>
+                            <form id="<?php echo $profile_esc ?>-form" name="<?php echo $profile_esc; ?>" class='form form-inline bg-dark text-light py-1 ps-1'>
+                                <label class='me-1'><?php echo xlt($profiles['title']) ?></label>
+                                <div class='ms-auto'>
                                     <label for="<?php echo $profile_esc ?>-recurring" class="form-check-inline"><?php echo xlt('Recurring') ?>
-                                        <input <?php echo $recurring ? 'checked' : '' ?> name="recurring" type='checkbox' class="input-control ml-1 mt-1" id="<?php echo $profile_esc ?>-recurring" />
+                                        <input <?php echo $recurring ? 'checked' : '' ?> name="recurring" type='checkbox' class="input-control ms-1 mt-1" id="<?php echo $profile_esc ?>-recurring" />
                                     </label>
                                 </div>
                                 <!-- @TODO Hide for now until sensible events can be determined. -->
-                                <div class='input-group-prepend d-none'>
+                                <div class='d-none'>
                                     <label for="<?php echo $profile_esc ?>-when"><?php echo xlt('On') ?></label>
                                     <select name="when" class='input-control-sm mx-1' id="<?php echo $profile_esc ?>-when">
                                         <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
@@ -621,11 +621,9 @@ function renderProfileHtml()
                                         <option <?php echo $trigger === 'once' ? 'selected' : ''; ?> value='once'><?php echo xlt('One time') ?></option>
                                     </select>
                                 </div>
-                                <div class='input-group-prepend'>
-                                    <label for="<?php echo $profile_esc ?>-days"><?php echo xlt('Every') ?></label>
-                                    <input name="days" type="text" style="width: 50px" class='input-control-sm ml-1' id="<?php echo $profile_esc ?>-days" placeholder="<?php echo xla('days') ?>" value="<?php echo $days ?>" />
-                                    <label class="mx-1" for="<?php echo $profile_esc ?>-days"><?php echo xlt('Days') ?></label>
-                                </div>
+                                <label for="<?php echo $profile_esc ?>-days"><?php echo xlt('Every') ?></label>
+                                <input name="days" type="text" style="width: 50px" class='input-control-sm ms-1' id="<?php echo $profile_esc ?>-days" placeholder="<?php echo xla('days') ?>" value="<?php echo $days ?>" />
+                                <label class="mx-1" for="<?php echo $profile_esc ?>-days"><?php echo xlt('Days') ?></label>
                             </form>
                             <?php
                             echo "<ul id='$profile_esc' class='list-group mx-2 mb-2' data-profile='$profile_esc'>\n";

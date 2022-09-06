@@ -113,13 +113,13 @@ function checkAll(bx) {
                             <span><?php echo xlt('Back to Patient') ?></span>
                         </a>
                     </div>
-                    <div class="col-md text-right">
+                    <div class="col-md text-end">
                         <input type='checkbox' onclick="checkAll(this)" /> <?php echo xlt('Toggle All'); ?>
                     </div>
                 </div>
                 <?php } ?>
             </div>
-            <div class='col-12 jumbotron py-4 mt-3' id='labdata'>
+            <div class='col-12 p-5 mb-4 bg-light rounded-3 py-4 mt-3' id='labdata'>
                 <?php
                 // some patient data...
                 $spell  = "SELECT * ";
@@ -138,7 +138,7 @@ function checkAll(bx) {
                         <table class="table">
                             <tr>
                                 <td><?php echo xlt('Patient'); ?></td>
-                                <td class="font-weight-bold"><?php echo text($lastname) . ", " . text($firstname) ?></td>
+                                <td class="fw-bold"><?php echo text($lastname) . ", " . text($firstname) ?></td>
                             </tr>
                             <tr>
                                 <td><?php echo xlt('Patient ID') ?></td>

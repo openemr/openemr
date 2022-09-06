@@ -119,7 +119,7 @@ if (!empty($saved)) {
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div class="table-responsive">
         <table class='table table-bordered text' cellpadding='4'>
-            <thead class='thead-light'>
+            <thead class='table-light'>
                 <tr>
                     <th align='center' colspan='2'>
                         <?php echo xlt('CSV'); ?>

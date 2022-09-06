@@ -153,7 +153,7 @@ if (!empty($_POST['form_csvexport'])) {
 </table>
 
 <table class='table border-0' cellpadding='1' cellspacing='2' width='98%'>
-<thead class='thead-light'>
+<thead class='table-light'>
  <tr>
   <th class="dehead"><?php echo xlt('Patient'); ?></th>
   <th class="dehead"><?php echo xlt('ID'); ?></th>

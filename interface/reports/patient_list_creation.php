@@ -682,15 +682,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     <?php
                     if ($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems") { ?>
                         <tr style="font-size:15px;">
-                            <td width="15%" class="font-weight-bold"><?php echo xlt('Diagnosis Date'); ?><?php echo $sortlink[0]; ?></td>
-                            <td width="15%" class="font-weight-bold"><?php echo xlt('Diagnosis'); ?><?php echo $sortlink[1]; ?></td>
-                            <td width="15%" class="font-weight-bold"><?php echo xlt('Diagnosis Name');?><?php echo $sortlink[2]; ?></td>
-                            <td width="15%" class="font-weight-bold"><?php echo xlt('Patient Name'); ?></td>
-                            <td width="5%" class="font-weight-bold"><?php echo xlt('PID');?></td>
-                            <td width="5%" class="font-weight-bold"><?php echo xlt('Age');?></td>
-                            <td width="10%" class="font-weight-bold"><?php echo xlt('Gender');?></td>
-                            <td width="10%" class="font-weight-bold"><?php echo xlt('Ethnicity');?></td>
-                            <td colspan='4' class="font-weight-bold"><?php echo xlt('Provider');?></td>
+                            <td width="15%" class="fw-bold"><?php echo xlt('Diagnosis Date'); ?><?php echo $sortlink[0]; ?></td>
+                            <td width="15%" class="fw-bold"><?php echo xlt('Diagnosis'); ?><?php echo $sortlink[1]; ?></td>
+                            <td width="15%" class="fw-bold"><?php echo xlt('Diagnosis Name');?><?php echo $sortlink[2]; ?></td>
+                            <td width="15%" class="fw-bold"><?php echo xlt('Patient Name'); ?></td>
+                            <td width="5%" class="fw-bold"><?php echo xlt('PID');?></td>
+                            <td width="5%" class="fw-bold"><?php echo xlt('Age');?></td>
+                            <td width="10%" class="fw-bold"><?php echo xlt('Gender');?></td>
+                            <td width="10%" class="fw-bold"><?php echo xlt('Ethnicity');?></td>
+                            <td colspan='4' class="fw-bold"><?php echo xlt('Provider');?></td>
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor="#CCCCCC" style="font-size:15px;">

@@ -89,7 +89,7 @@ $(function () {
     tabbify();
 
     $(".select-previous-names").select2({
-        theme: "bootstrap4",
+        theme: "bootstrap-5",
         dropdownAutoWidth: true,
         width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -136,7 +136,7 @@ $(function () {
 
     // careteam select2
     $(".select-dropdown").select2({
-        theme: "bootstrap4",
+        theme: "bootstrap-5",
         dropdownAutoWidth: true,
         width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -576,7 +576,7 @@ $condition_str = '';
 <br />
 <div class='container-xl demographicsEditContainer'>
     <div class="section-header">
-        <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
+        <span class="text fw-bold"><?php echo xlt("Demographics")?></span>
     </div>
     <ul class="tabNav">
         <?php display_layout_tabs('DEM', $result, $result2); ?>
@@ -608,7 +608,7 @@ if (! $GLOBALS['simplified_demographics']) {
 
     ?>
     <div class="section-header">
-       <span class="text font-weight-bold"><?php echo xlt("Insurance")?></span>
+       <span class="text fw-bold"><?php echo xlt("Insurance")?></span>
     </div>
     <div id="INSURANCE" class="insuranceEditContainer">
        <ul class="tabNav">
@@ -1193,7 +1193,7 @@ $use_validate_js = $GLOBALS['new_validate'];
             duplicateFieldsArray['#form_' + flds[i]] = fval;
         }
         $(".sel2").select2({
-            theme: "bootstrap4",
+            theme: "bootstrap-5",
             dropdownAutoWidth: true,
             width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>

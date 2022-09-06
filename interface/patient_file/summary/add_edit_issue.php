@@ -800,7 +800,7 @@ function getCodeText($code)
                             printf('<input name="%s" type="hidden" value="%s"/>%s', attr($fldName), attr($fldVal), PHP_EOL);
                         }
                         ?>
-                        <div class="form-group col-12">
+                        <div class="mb-3 col-12">
                             <label class="col-form-label"><?php echo xlt('Type'); ?>:</label>
                             <?php
                             $index = 0;
@@ -827,13 +827,13 @@ function getCodeText($code)
                             }
                             ?>
                         </div>
-                        <div class="form-group col-12" id='row_titles'>
+                        <div class="mb-3 col-12" id='row_titles'>
                             <label for="form_titles" class="col-form-label"> </label>
                             <select name='form_titles' id='form_titles' class="form-control" multiple size='4' onchange='set_text()'></select>
                             <p><?php echo xlt('(Select one of these, or type your own title)'); ?></p>
                         </div>
                         <?php if ($thistype == 'medical_device' || (!empty($irow['type']) && $irow['type'] == 'medical_device')) { ?>
-                            <div class="form-group col-12">
+                            <div class="mb-3 col-12">
                                 <label class="col-form-label" for="form_udi"><?php echo xlt('UDI{{Unique Device Identifier}}'); ?>:</label>
                                 <input type='text' class="form-control" name='form_udi' id='form_udi' value='<?php echo attr($irow['udi'] ?? '') ?>' />
                                 <button type="button" class="btn btn-primary btn-sm" style="margin-right:5px;" onclick='processUdi(this)'><?php echo (!empty($irow['udi_data'])) ? xlt('Re-Process UDI') : xlt('Process UDI'); ?></button>
@@ -847,17 +847,17 @@ function getCodeText($code)
                                 <input type='hidden' name='udi_data' id='udi_data' value='<?php echo attr($irow['udi_data'] ?? '') ?>' />
                             </div>
                         <?php } ?>
-                        <div class="form-group col-12">
+                        <div class="mb-3 col-12">
                             <label class="col-form-label" for="title_diagnosis"><?php echo xlt('Title'); ?>:</label>
                             <input type='text' class="form-control" name='form_title' id='form_title' value='<?php echo attr($irow['title'] ?? '') ?>' />
                             <input type='hidden' name='form_title_id' value='<?php echo attr($irow['list_option_id'] ?? '') ?>'>
                         </div>
-                        <div class="form-group col-12" id='row_active_codes'>
+                        <div class="mb-3 col-12" id='row_active_codes'>
                             <label for="form_active_codes" class="col-form-label"><?php echo xlt('Active Issue Codes'); ?>:</label>
                             <select name='form_active_codes' id='form_active_codes' class= "form-control" size='4'
                                 onchange="onActiveCodeSelected()"></select>
                         </div>
-                        <div class="form-group col-12" id='row_selected_codes'>
+                        <div class="mb-3 col-12" id='row_selected_codes'>
                             <label for="form_selected_codes" class="col-form-label"><?php echo xlt('Coding'); ?>:</label>
                             <select name='form_selected_codes' id='form_selected_codes' class= "form-control" multiple size='4'
                                 onchange="onCodeSelectionChange()">
@@ -878,40 +878,40 @@ function getCodeText($code)
                                    value='<?php echo attr($irow['diagnosis'] ?? '') ?>' onclick='onAddCode()'
                                    title='<?php echo xla('Click to select or change coding'); ?>' readonly />
                         </div>
-                        <div class="form-group col-12">
+                        <div class="mb-3 col-12">
                             <label class="col-form-label" for="form_begin"><?php echo xlt('Begin Date and Time'); ?>:</label>
                             <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(trim(oeFormatDateTime($irow['begdate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of onset, surgery or start of medication'); ?>' />
                         </div>
-                        <div class="form-group col-12" id='row_enddate'>
+                        <div class="mb-3 col-12" id='row_enddate'>
                             <label class="col-form-label" for="form_begin"><?php echo xlt('End Date and Time'); ?>:</label>
                             <input type='text' class='datepicker form-control' name='form_end' id='form_end' value='<?php echo attr(trim(oeFormatDateTime($irow['enddate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of recovery or end of medication'); ?>' />
                             &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
                         </div>
-                        <div class="form-group col-12" id='row_active'>
+                        <div class="mb-3 col-12" id='row_active'>
                             <label class="col-form-label" for="form_active"><?php echo xlt('Active{{Issue}}'); ?>: </label>
                             <div class="checkbox">
                                 <label><input type='checkbox' name='form_active' id=='form_active' value='1' <?php echo (!empty($irow['enddate'])) ? "" : "checked"; ?> onclick='activeClicked(this);' title='<?php echo xla('Indicates if this issue is currently active'); ?>'></label>
                             </div>
                         </div>
-                        <div class="form-group" id='row_returndate'>
+                        <div class="mb-3" id='row_returndate'>
                             <input type='hidden' name='form_return' id='form_return' />
                             <input type='hidden' name='row_reinjury_id' id='row_reinjury_id' />
                             <img id='img_return' />
                         </div>
-                        <div class="form-group col-12" id='row_subtype'>
+                        <div class="mb-3 col-12" id='row_subtype'>
                             <label class="col-form-label" for="form_subtype"><?php echo xlt('Classification Type'); ?>:</label>
                             <?php
                             echo generate_select_list('form_subtype', 'issue_subtypes', ($irow['subtype'] ?? null), '', 'NA', '', '');
                             ?>
                         </div>
-                        <div class="form-group col-12" id='row_occurrence'>
+                        <div class="mb-3 col-12" id='row_occurrence'>
                             <label class="col-form-label" for="form_occur"><?php echo xlt('Occurrence'); ?>:</label>
                             <?php
                             // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
                             generate_form_field(array('data_type' => 1, 'field_id' => 'occur', 'list_id' => 'occurrence', 'empty_title' => 'SKIP'), ($irow['occurrence'] ?? null));
                             ?>
                         </div>
-                        <div class="form-group col-12" id='row_classification'>
+                        <div class="mb-3 col-12" id='row_classification'>
                             <label class="col-form-label" for="form_classification"><?php echo xlt('Classification'); ?>:</label>
                             <select name='form_classification' id='form_classification' class='form-control'>
                                 <?php
@@ -926,14 +926,14 @@ function getCodeText($code)
                             </select>
                         </div>
                         <!-- Reaction For Medication Allergy -->
-                        <div class="form-group col-12" id='row_severity'>
+                        <div class="mb-3 col-12" id='row_severity'>
                             <label class="col-form-label" for="form_severity_id"><?php echo xlt('Severity'); ?>:</label>
                             <?php
                             $severity = $irow['severity_al'] ?? null;
                             generate_form_field(array('data_type' => 1, 'field_id' => 'severity_id', 'list_id' => 'severity_ccda', 'empty_title' => 'SKIP'), $severity);
                             ?>
                         </div>
-                        <div class="form-group col-12" id='row_reaction'>
+                        <div class="mb-3 col-12" id='row_reaction'>
                             <label class="col-form-label" for="form_reaction"><?php echo xlt('Reaction'); ?>:</label>
                             <?php
                             echo generate_select_list('form_reaction', 'reaction', ($irow['reaction'] ?? null), '', '', '', '');
@@ -941,7 +941,7 @@ function getCodeText($code)
                         </div>
                         <!-- End of reaction -->
                         <!-- Verification Status for Medication Allergy -->
-                        <div class="form-group col-12" id='row_verification'>
+                        <div class="mb-3 col-12" id='row_verification'>
                             <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
                             <?php
                             $codeListName = ($thistype == 'medical_problem') ? 'condition-verification' : 'allergyintolerance-verification';
@@ -949,15 +949,15 @@ function getCodeText($code)
                             ?>
                         </div>
                         <!-- End of Verification Status -->
-                        <div class="form-group col-12" id='row_referredby'>
+                        <div class="mb-3 col-12" id='row_referredby'>
                             <label class="col-form-label" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                             <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby'] ?? '') ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
                         </div>
-                        <div class="form-group col-12" id='row_comments'>
+                        <div class="mb-3 col-12" id='row_comments'>
                             <label class="col-form-label" for="form_comments"><?php echo xlt('Comments'); ?>:</label>
                             <textarea class="form-control" name='form_comments' id='form_comments' rows="4" id='form_comments'><?php echo text($irow['comments'] ?? '') ?></textarea>
                         </div>
-                        <div class="form-group col-12" <?php
+                        <div class="mb-3 col-12" <?php
                         if ($GLOBALS['ippf_specific']) {
                             echo " style='display:none;'";
                         } ?>>
@@ -966,7 +966,7 @@ function getCodeText($code)
                             echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', '', '', 'outcomeClicked(this);');
                             ?>
                         </div>
-                        <div class="form-group col-12" <?php
+                        <div class="mb-3 col-12" <?php
                         if ($GLOBALS['ippf_specific']) {
                             echo " style='display:none;'";
                         } ?>>
@@ -990,8 +990,8 @@ function getCodeText($code)
                         <br />
                         <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets
                         ?>
-                        <div class="form-group clearfix" id="button-container">
-                            <div class="col-sm-12 text-left position-override">
+                        <div class="mb-3 clearfix" id="button-container">
+                            <div class="col-sm-12 text-start position-override">
                                 <div class="btn-group" role="group">
                                     <button type='submit' name='form_save' class="btn btn-primary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-secondary btn-cancel" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>

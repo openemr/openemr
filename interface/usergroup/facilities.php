@@ -248,7 +248,7 @@ $(function () {
 
                             if (count($result2) <= 0) {?>
                             <tr height="25">
-                                <td colspan="3" class="text-center font-weight-bold"> <?php echo xlt("Currently there are no facilities."); ?></td>
+                                <td colspan="3" class="text-center fw-bold"> <?php echo xlt("Currently there are no facilities."); ?></td>
                             </tr>
                                 <?php
                             } ?>
