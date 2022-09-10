@@ -211,44 +211,141 @@ function generate_receipt($patient_id, $encounter = 0)
                 width: 1000px !Important;
             }
         }
+        body {
+            width: 100% !important;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+
+        }
+
+        #address_left {
+        text-align: left !important;
+        padding-top: 20px;
+        padding-left: 20px;
+        }
+
+        .mini_table {
+            margin-top: 15px;
+            width: 95%;
+            text-align: center;
+        }
+
+        table.mini_table>tbody>tr>th {
+            background-color: var(--secondary);
+            text-align: center;
+        }
+
+        body>table.mini_table>tbody>tr>td {
+            text-align: center;
+        }
+
+        body>table.mini_table>tbody>tr>td {
+            border: 1px solid #fff;
+        }
+
+        body>table.mini_table>tbody>tr>th {
+            border: 1px solid #93cef9;
+        }
+
+        table,
+        td,
+        th {
+            border: 1px solid #000;
+            text-align: left;
+        }
+
+        table {
+            margin-top: 30px !important;
+            border-collapse: collapse;
+            width: 98%;
+        }
+
+        th,
+        td {
+            padding: 5px;
+        }
+
+        body > div:nth-child(2) > div:nth-child(3) > div > table > thead > tr{
+            background-color: var(--secondary);
+        }
+
+        body > div:nth-child(3) > div:nth-child(3) > div > table > thead{
+            background-color: var(--secondary);
+        }
+
+        body > div:nth-child(3) > div:nth-child(3) > div > table:nth-child(1) > tbody > tr:nth-child(3){
+            border: none!important;
+        }
+
+        .bg-blue{
+            background-color:var(--secondary);
+        }
+
+        .fac-name{
+            background-color:var(--secondary);
+            width: 99px;
+        }
+        .bg-color { background-color: var(--secondary); padding: 2px; font-weight: 600; -webkit-print-color-adjust: exact; }
+        
         </style>
         <title><?php echo xlt('Patient Checkout'); ?></title>
     </head>
     <body>
-        <div class="container mt-3">
-            <div class="row text-center">
-                <p class="font-weight-bold">
+    <div class="grid-container container mt-3" id="hideonprint, showonprint">
+            <div class="grid-child" style="padding-top:20px; font-weight:600;">
+                <p style="font-weight:600;">
+                    <bold class="bg-color"><?php echo text($frow['name']) ?></bold> <br /> <br />
                     <?php
-                    if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
-                        printProviderHeader($providerrow);
-                    } else {
-                        printFacilityHeader($frow);
-                    } ?>
-                    <?php
-                    echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
-                    if ($invoice_refno) {
-                        echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
-                    }
+                        if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
+                            printProviderHeader($providerrow);
+                        } else {
+                            printFacilityHeader($frow);
+                        } ?>
+                        <?php
+                        echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
+                        if ($invoice_refno) {
+                            echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
+                        }
                     ?>
                 </p>
             </div>
+            <div class="grid-child" style="padding-left:150px;">
+                <img src=<?php echo $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png" ?> alt="" srcset="">
+
+                <table class="mini_table">
+                    <tr>
+                        <th>Invoice No.</th>
+                        <th>Date</th>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center"><?php if ($invoice_refno) { echo text($invoice_refno); } ?></td>
+                        <td style="text-align:center"><?php echo text($svcdate) ?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="container mt-3">
             <div class="row">
-                <div class="col-6 offset-lg-2">
+                <div class="col-6">
                     <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br />
                     <?php echo text($patdata['street']) ?><br />
                     <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br />
                 </div>
             </div>
-            <div class="row">
-                <div class="col-6 offset-lg-3">
-                    <table class="table">
+            <div class="">
+                <div class="">
+                    <table class="">
                         <thead>
                             <tr>
-                                <th><strong><?php echo xlt('Date'); ?></strong></th>
+                                <th><strong><?php echo xlt('Date of Service'); ?></strong></th>
                                 <th><strong><?php echo xlt('Description'); ?></strong></th>
                                 <th class='text-right'><strong><?php echo $details ? xlt('Price') : '&nbsp;'; ?></strong></th>
                                 <th class='text-right'><strong><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></strong></th>
-                                <th class='text-right'><strong><?php echo xlt('Total'); ?></strong></th>
+                                <th class='text-right' ><strong><?php echo xlt('Total'); ?></strong></th>
                             </tr>
                         </thead>
                         <?php
@@ -307,15 +404,16 @@ function generate_receipt($patient_id, $encounter = 0)
                             );
                         }
                         ?>
-                        <tr>
-                            <td colspan='5'>&nbsp;</td>
-                        </tr>
-                        <tr>
-                            <td><?php echo text(oeFormatShortDate($svcdispdate ?? '')); ?></td>
-                            <td><b><?php echo xlt('Total Charges'); ?></b></td>
-                            <td class='text-right'>&nbsp;</td>
-                            <td class='text-right'>&nbsp;</td>
-                            <td class='text-right'><?php echo text(oeFormatMoney($charges, true)) ?></td>
+                        <!--<tr>
+                            <td style="border:none !important" colspan='5'>&nbsp;</td>
+                        </tr>-->
+                        <tr style="border:none !important">
+                            <td style="border:0px solid red !important"><?php echo text(oeFormatShortDate($svcdispdate ?? '')); ?></td>
+                            <td class='text-right' style="border:none !important">&nbsp;</td>
+                            <td class='text-right' style="border:none !important">&nbsp;</td>
+                            <td class='text-right bg-blue' style="border: 1px solid;"><b><?php echo xlt('Total Charges'); ?></b></td>
+
+                            <td class='text-right bg-blue' style="border: 1px solid;"><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                         <tr>
                             <td colspan='5'>&nbsp;</td>
@@ -353,10 +451,11 @@ function generate_receipt($patient_id, $encounter = 0)
                             <td colspan='5'>&nbsp;</td>
                         </tr>
                         <tr>
-                            <td>&nbsp;</td>
-                            <td class="font-weight-bold"><?php echo xlt('Balance Due'); ?></td>
-                            <td colspan='2'>&nbsp;</td>
-                            <td class='text-right'><?php echo text(oeFormatMoney($charges, true)) ?></td>
+                            <td style="border:none !important">&nbsp;</td>
+                            <td style="border:none !important">&nbsp;</td>
+                            <td style="border:none !important">&nbsp;</td>
+                            <td class="font-weight-bold text-right bg-blue" style="border: 1px solid;"><?php echo xlt('Balance Due'); ?></td>
+                            <td class='text-right bg-blue' style="border: 1px solid;"><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                     </table>
                 </div>
