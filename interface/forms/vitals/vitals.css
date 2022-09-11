@@ -31,6 +31,16 @@ th.historicalvalues {
   text-align: right;
 }
 
+.vitals-complete-history .table .vitals-title {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.vitals-complete-history .table td:nth-child(3),
+.vitals-complete-history .table th:nth-child(3) {
+  border-left: 1px solid var(--gray300);
+}
+
 .historicalvalues:nth-child(6),
 .reasonCodeContainer .historicalvalues:nth-child(2) {
   border-left: 1px solid var(--gray300);
