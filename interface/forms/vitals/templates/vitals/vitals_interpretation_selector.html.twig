@@ -4,7 +4,7 @@
         {% if vitalDetails is not null and option.id == vitalDetails.get_interpretation_option_id() %}
                 <option selected="selected" value="{{ option.id|attr }}">{{ option.title|xlt }}</option>
         {% else %}
-            <option {% if option.is_default %}selected="selected"{% endif%} value="{{ option.id|attr }}">{{ option.title }}</option>
+            <option {% if option.is_default %}selected="selected"{% endif%} value="{{ option.id|attr }}">{{ option.title|xlt }}</option>
         {% endif %}
     {% endfor %}
 </select>
