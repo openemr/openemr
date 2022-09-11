@@ -11,7 +11,6 @@
 <head>
     <title>{{ "Vitals"|xlt }}</title>
     {{ setupHeader(["datetime-picker","reason-code-widget"]) }}
-<!--Update the version (v flag) to cache bust if you modify this file -->
 <script src="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.js?v={{ assetVersion|attr }}" type="text/javascript"></script>
 <script>
     let vitalsTranslations = {
@@ -30,7 +29,6 @@
         console.error("Failed to find vitalsForm object to initialize javascript vitals form");
     }
 </script>
-<!--Update the version (v flag) to cache bust if you modify this file -->
 <link rel="stylesheet" href="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.css?v={{ assetVersion }}" />
 </head>
 <body>
@@ -52,7 +50,7 @@
         </div>
         {% endif %}
         <div class="col-sm-12">
-            <form id="vitalsForm" name="vitals" method="post" action="{{ FORM_ACTION }}/interface/forms/vitals/save.php">
+            <form id="vitalsForm" name="vitals" method="post" action="{{ FORM_ACTION|attr }}/interface/forms/vitals/save.php">
                 <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
                 <div id="chart" class="chart-dygraphs" style="margin-left: -15px"></div>
                     <div class="table-responsive">

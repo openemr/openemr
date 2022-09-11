@@ -22,7 +22,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Common\Twig\TwigContainer;
-use Twig\Environment;
 
 class C_FormVitals
 {
