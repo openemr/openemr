@@ -3,10 +3,10 @@
 {% block head %}
     {{ parent() }}
 
-    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr }}" rel="stylesheet" />
-    <script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr }}"></script>
-    <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr }}"></script>
-    <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr }}"></script>
+    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr_url }}" rel="stylesheet" />
+    <script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr_url }}"></script>
+    <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr_url }}"></script>
+    <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr_url }}"></script>
 
     {% if payment_gateway == 'Stripe' %}
         <script src="https://js.stripe.com/v3/"></script>
