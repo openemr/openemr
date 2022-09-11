@@ -126,7 +126,7 @@ class Controller extends Smarty
         //  its classes, thus is_callable() is always true. so need to do both the is_callable
         //  and a method_exists() check.
         if (isset($_POST['process']) && ($_POST['process'] == "true")) {
-            if (is_callable(array(&$c_obj,$c_action . "_action_process")) && method_exists($c_obj,$c_action . "_action_process")) {
+            if (is_callable(array(&$c_obj, $c_action . "_action_process")) && method_exists($c_obj, $c_action . "_action_process")) {
                 //echo "ca: " . $c_action . "_action_process";
                 $output .= call_user_func_array(array(&$c_obj,$c_action . "_action_process"), $args_array);
                 if ($c_obj->_state == false) {
@@ -136,7 +136,7 @@ class Controller extends Smarty
 
             //echo "ca: " . $c_action . "_action";
             $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
-        } elseif (is_callable(array(&$c_obj,$c_action . "_action")) && method_exists($c_obj,$c_action . "_action")) {
+        } elseif (is_callable(array(&$c_obj, $c_action . "_action")) && method_exists($c_obj, $c_action . "_action")) {
             //echo "ca: " . $c_action . "_action";
             $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
         } else {
