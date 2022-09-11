@@ -2,8 +2,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedication;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRMedication;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -14,9 +14,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUnitsOfTime;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRDosage;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRTiming;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRTiming\FHIRTimingRepeat;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;

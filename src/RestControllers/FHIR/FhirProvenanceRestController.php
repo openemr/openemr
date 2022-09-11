@@ -21,12 +21,12 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Validators\ProcessingResult;
 

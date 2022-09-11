@@ -11,7 +11,7 @@
 
 namespace OpenEMR\Services\FHIR\DiagnosticReport;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRDiagnosticReport;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;

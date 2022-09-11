@@ -13,7 +13,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;

@@ -11,9 +11,9 @@
 
 namespace OpenEMR\Services\FHIR\Group;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGroup;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRGroup;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRGroup\FHIRGroupMember;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRGroup\FHIRGroupMember;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;

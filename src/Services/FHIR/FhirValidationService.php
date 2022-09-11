@@ -3,9 +3,9 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\FhirOperationOutcomeResourceService;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIROperationOutcome;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;

@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRBundle;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRBundle\FHIRBundleLink;
 use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
 require_once(__DIR__ . '/../../../_rest_config.php');

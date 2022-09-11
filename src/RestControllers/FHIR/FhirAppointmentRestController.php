@@ -12,7 +12,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
@@ -27,7 +27,7 @@ class FhirAppointmentRestController
 
     /**
      * Queries for a single FHIR appointment resource by FHIR id
-     * @param $fhirId The FHIR appointment resource id (uuid)
+     * @param $fhirId - The FHIR appointment resource id (uuid)
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */

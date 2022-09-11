@@ -3,10 +3,10 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPerson;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationInsuranceService;

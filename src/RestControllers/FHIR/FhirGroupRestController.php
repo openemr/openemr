@@ -11,8 +11,8 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGroup;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRGroup;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirGroupService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
