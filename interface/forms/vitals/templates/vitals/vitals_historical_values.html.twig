@@ -4,9 +4,9 @@
             {# we use the original value since everything is converted from metric and we want to check for the value #}
             {% if attribute(result, vitalsValue) != 0 %}
                 {% if precision is defined %}
-                    {{ attribute(result, vitalsValueMetric)|number_format(precision)|text}}
+                    {{ attribute(result, vitalsValueMetric)|number_format(precision)|text }}
                 {% else %}
-                    {{ attribute(result, vitalsValueMetric)|text}}
+                    {{ attribute(result, vitalsValueMetric)|text }}
                 {% endif %}
             {% endif %}
         {% else %}
@@ -14,7 +14,7 @@
                 {% if precision is defined %}
                     {{ attribute(result, vitalsValue)|number_format(precision)|text }}
                 {% else %}
-                    {{ attribute(result, vitalsValue)|text}}
+                    {{ attribute(result, vitalsValue)|text }}
                 {% endif %}
             {% endif %}
         {% endif %}

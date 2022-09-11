@@ -29,7 +29,7 @@
         console.error("Failed to find vitalsForm object to initialize javascript vitals form");
     }
 </script>
-<link rel="stylesheet" href="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.css?v={{ assetVersion }}" />
+<link rel="stylesheet" href="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.css?v={{ assetVersion|attr }}" />
 </head>
 <body>
 
@@ -37,7 +37,7 @@
     <div class="row no-gutters">
         <div class="col-4">
             <h2 class="h2-responsive">
-                {{ "Vitals"|xlt}}&nbsp;&nbsp;&nbsp;
+                {{ "Vitals"|xlt }}&nbsp;&nbsp;&nbsp;
                 <a id="vitals-screen-top" href="../summary/demographics.php" class="text-decoration-none" onclick="window.top.restoreSession()"
                     title="{{ 'Back to patient dashboard'|xla }}">
                         <i id="advanced-tooltip" class="readonly fas fa-arrow-circle-left fa-2x small" aria-hidden="true"></i>
@@ -103,9 +103,9 @@
                 </div>
             <br /><br />
             <input type="hidden" name="id" id='id' value="{{ vitals.get_id()|attr }}" />
-            <input type="hidden" name="uuid" id='uuid' value="{{ vitals.get_uuid_string()|attr}}" />
-            <input type="hidden" name="activity" id='activity' value="{{ vitals.get_activity()|attr}}" />
-            <input type="hidden" name="pid" id='pid' value="{{ vitals.get_pid()|attr}}" />
+            <input type="hidden" name="uuid" id='uuid' value="{{ vitals.get_uuid_string()|attr }}" />
+            <input type="hidden" name="activity" id='activity' value="{{ vitals.get_activity()|attr }}" />
+            <input type="hidden" name="pid" id='pid' value="{{ vitals.get_pid()|attr }}" />
             <input type="hidden" name="process" id='process' value="true" />
             </form>
         </div>
@@ -118,8 +118,8 @@ let formdate = {{ vitals.get_date()|dateToTime|date("Ymd")|js_escape}};
 //   date-height-weight-head_circumference
 let vitals = [];
 // get values from the current form elements
-vitals[0] = formdate + '-' + {{ vitals.get_height()|js_escape}} + '-' + {{ vitals.get_weight()|js_escape}}
-    + '-' + {{ vitals.get_head_circ()|js_escape}};
+vitals[0] = formdate + '-' + {{ vitals.get_height()|js_escape }} + '-' + {{ vitals.get_weight()|js_escape }}
+    + '-' + {{ vitals.get_head_circ()|js_escape }};
 // historic values
 {% for result in reuslts %}
 vitals[vitals.length] = {{ result.get_date()|dateToTime|date("Ymd")|js_escape }} + '-' + {{ result.get_height()|js_escape }}

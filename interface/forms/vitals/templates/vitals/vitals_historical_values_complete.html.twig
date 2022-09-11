@@ -11,7 +11,7 @@
                 </h2>
             </div>
             <div class="col-8 text-right">
-                <h6 class="h6-responsive"><a id="patient-vitals-history" href="#vitals-screen-top" class="text-decoration-none">{{ "Back to top"|xlt}}</a></h6>
+                <h6 class="h6-responsive"><a id="patient-vitals-history" href="#vitals-screen-top" class="text-decoration-none">{{ "Back to top"|xlt }}</a></h6>
             </div>
         </div>
     </div>
@@ -44,7 +44,7 @@
                         %}
                     {% endif %}
                     {% if field.type == 'template' %}
-                        {% include field.templateName with {vitals: vitals, field: field, results: results, is_edit: false} %}
+                        {% include field.templateName with {vitals: vitals, field: field, results: results, is_edit: false } %}
                     {% endif %}
                 {% endfor %}
                 </tbody>
