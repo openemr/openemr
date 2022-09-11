@@ -5,34 +5,34 @@ namespace OpenEMR\FHIR\R4\FHIRElement;
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
  * class definitions from HL7 FHIR (https://www.hl7.org/fhir/)
- *
- * Class creation date: June 14th, 2019
- *
+ * 
+ * Class creation date: September 10th, 2022 20:42+0000
+ * 
  * PHPFHIR Copyright:
- *
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
- *
+ * 
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *        http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
+ * 
  *
  * FHIR Copyright Notice:
  *
  *   Copyright (c) 2011+, HL7, Inc.
  *   All rights reserved.
- *
+ * 
  *   Redistribution and use in source and binary forms, with or without modification,
  *   are permitted provided that the following conditions are met:
- *
+ * 
  *    * Redistributions of source code must retain the above copyright notice, this
  *      list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright notice,
@@ -41,7 +41,7 @@ namespace OpenEMR\FHIR\R4\FHIRElement;
  *    * Neither the name of HL7 nor the names of its contributors may be used to
  *      endorse or promote products derived from this software without specific
  *      prior written permission.
- *
+ * 
  *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -52,45 +52,138 @@ namespace OpenEMR\FHIR\R4\FHIRElement;
  *   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *   POSSIBILITY OF SUCH DAMAGE.
- *
- *
- *   Generated on Thu, Dec 27, 2018 22:37+1100 for FHIR v4.0.0
- *
+ * 
+ * 
+ *   Generated on Fri, Nov 1, 2019 09:29+1100 for FHIR v4.0.1
+ * 
  *   Note: the schemas & schematrons do not contain all of the rules about what makes resources
  *   valid. Implementers will still need to be familiar with the content of the specification and with
  *   any profiles that apply to the resources in order to make a conformant implementation.
- *
+ * 
  */
 
 use OpenEMR\FHIR\R4\FHIRElement;
-use OpenEMR\FHIR\R4\PHPFHIRHelper;
+use OpenEMR\FHIR\R4\FHIRRaw;
+use OpenEMR\FHIR\R4\FHIRStringPrimitive;
+use OpenEMR\FHIR\R4\PHPFHIRConstants;
+use OpenEMR\FHIR\R4\PHPFHIRTypeInterface;
 
 /**
- * A human-readable summary of the resource conveying the essential clinical and business information for the resource.
- * If the element is present, it must have a value for at least one of the defined elements, an @id referenced from the Narrative, or extensions
+ * A human-readable summary of the resource conveying the essential clinical and
+ * business information for the resource.
+ * If the element is present, it must have a value for at least one of the defined
+ * elements, an \@id referenced from the Narrative, or extensions
+ *
+ * Class FHIRNarrative
+ * @package \OpenEMR\FHIR\R4\FHIRElement
  */
-class FHIRNarrative extends FHIRElement implements \JsonSerializable
+class FHIRNarrative extends FHIRElement
 {
-    /**
-     * The status of the narrative - whether it's entirely generated (from just the defined data or the extensions too), or whether a human authored it and it may contain additional data.
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus
-     */
-    public $status = null;
+    // name of FHIR type this class describes
+    const FHIR_TYPE_NAME = PHPFHIRConstants::TYPE_NAME_NARRATIVE;
+    const FIELD_STATUS = 'status';
+    const FIELD_STATUS_EXT = '_status';
+    const FIELD_DIV = 'div';
+
+    /** @var string */
+    private $_xmlns = '';
 
     /**
+     * The status of a resource narrative.
+     * If the element is present, it must have either a \@value, an \@id, or extensions
+     *
+     * The status of the narrative - whether it's entirely generated (from just the
+     * defined data or the extensions too), or whether a human authored it and it may
+     * contain additional data.
+     *
+     * @var null|\OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus
+     */
+    protected $status = null;
+
+    /**
+     * Raw type used in special cases
+     *
      * The actual narrative content, a stripped down version of XHTML.
-     * @var \string
+     *
+     * @var null|\OpenEMR\FHIR\R4\FHIRRaw
      */
-    public $div = null;
+    protected $div = null;
 
     /**
-     * @var string
+     * Validation map for fields in type Narrative
+     * @var array
      */
-    private $_fhirElementName = 'Narrative';
+    private static $_validationRules = [    ];
 
     /**
-     * The status of the narrative - whether it's entirely generated (from just the defined data or the extensions too), or whether a human authored it and it may contain additional data.
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus
+     * FHIRNarrative Constructor
+     * @param null|array $data
+     */
+    public function __construct($data = null)
+    {
+        if (null === $data || [] === $data) {
+            return;
+        }
+        if (!is_array($data)) {
+            throw new \InvalidArgumentException(sprintf(
+                'FHIRNarrative::_construct - $data expected to be null or array, %s seen',
+                gettype($data)
+            ));
+        }
+        parent::__construct($data);
+        if (isset($data[self::FIELD_STATUS]) || isset($data[self::FIELD_STATUS_EXT])) {
+            $value = isset($data[self::FIELD_STATUS]) ? $data[self::FIELD_STATUS] : null;
+            $ext = (isset($data[self::FIELD_STATUS_EXT]) && is_array($data[self::FIELD_STATUS_EXT])) ? $ext = $data[self::FIELD_STATUS_EXT] : $ext = [];
+            if (null !== $value) {
+                if ($value instanceof FHIRNarrativeStatus) {
+                    $this->setStatus($value);
+                } else if (is_array($value)) {
+                    $this->setStatus(new FHIRNarrativeStatus(array_merge($ext, $value)));
+                } else {
+                    $this->setStatus(new FHIRNarrativeStatus([FHIRNarrativeStatus::FIELD_VALUE => $value] + $ext));
+                }
+            } elseif ([] !== $ext) {
+                $this->setStatus(new FHIRNarrativeStatus($ext));
+            }
+        }
+        if (isset($data[self::FIELD_DIV])) {
+            if ($data[self::FIELD_DIV] instanceof FHIRRaw) {
+                $this->setDiv($data[self::FIELD_DIV]);
+            } else {
+                $this->setDiv(new FHIRRaw($data[self::FIELD_DIV]));
+            }
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function _getFHIRTypeName()
+    {
+        return self::FHIR_TYPE_NAME;
+    }
+
+    /**
+     * @return string
+     */
+    public function _getFHIRXMLElementDefinition()
+    {
+        $xmlns = $this->_getFHIRXMLNamespace();
+        if ('' !==  $xmlns) {
+            $xmlns = " xmlns=\"{$xmlns}\"";
+        }
+        return "<Narrative{$xmlns}></Narrative>";
+    }
+
+    /**
+     * The status of a resource narrative.
+     * If the element is present, it must have either a \@value, an \@id, or extensions
+     *
+     * The status of the narrative - whether it's entirely generated (from just the
+     * defined data or the extensions too), or whether a human authored it and it may
+     * contain additional data.
+     *
+     * @return null|\OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus
      */
     public function getStatus()
     {
@@ -98,19 +191,29 @@ class FHIRNarrative extends FHIRElement implements \JsonSerializable
     }
 
     /**
-     * The status of the narrative - whether it's entirely generated (from just the defined data or the extensions too), or whether a human authored it and it may contain additional data.
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus $status
-     * @return $this
+     * The status of a resource narrative.
+     * If the element is present, it must have either a \@value, an \@id, or extensions
+     *
+     * The status of the narrative - whether it's entirely generated (from just the
+     * defined data or the extensions too), or whether a human authored it and it may
+     * contain additional data.
+     *
+     * @param null|\OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus $status
+     * @return static
      */
-    public function setStatus($status)
+    public function setStatus(FHIRNarrativeStatus $status = null)
     {
+        $this->_trackValueSet($this->status, $status);
         $this->status = $status;
         return $this;
     }
 
     /**
+     * Raw type used in special cases
+     *
      * The actual narrative content, a stripped down version of XHTML.
-     * @return \string
+     *
+     * @return null|\OpenEMR\FHIR\R4\FHIRRaw
      */
     public function getDiv()
     {
@@ -118,48 +221,190 @@ class FHIRNarrative extends FHIRElement implements \JsonSerializable
     }
 
     /**
+     * Raw type used in special cases
+     *
      * The actual narrative content, a stripped down version of XHTML.
-     * @param \string $div
-     * @return $this
+     *
+     * @param null|\OpenEMR\FHIR\R4\FHIRRaw $div
+     * @return static
      */
-    public function setDiv($div)
+    public function setDiv(FHIRRaw $div = null)
     {
+        $this->_trackValueSet($this->div, $div);
         $this->div = $div;
         return $this;
     }
 
     /**
-     * @return string
+     * Returns the validation rules that this type's fields must comply with to be considered "valid"
+     * The returned array is in ["fieldname[.offset]" => ["rule" => {constraint}]]
+     *
+     * @return array
      */
-    public function get_fhirElementName()
+    public function _getValidationRules()
     {
-        return $this->_fhirElementName;
+        return self::$_validationRules;
     }
 
     /**
-     * @param mixed $data
+     * Validates that this type conforms to the specifications set forth for it by FHIR.  An empty array must be seen as
+     * passing.
+     *
+     * @return array
      */
-    public function __construct($data = [])
+    public function _getValidationErrors()
     {
-        if (is_array($data)) {
-            if (isset($data['status'])) {
-                $this->setStatus($data['status']);
+        $errs = parent::_getValidationErrors();
+        $validationRules = $this->_getValidationRules();
+        if (null !== ($v = $this->getStatus())) {
+            if ([] !== ($fieldErrs = $v->_getValidationErrors())) {
+                $errs[self::FIELD_STATUS] = $fieldErrs;
             }
-            if (isset($data['div'])) {
-                $this->setDiv($data['div']);
-            }
-        } elseif (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
-        parent::__construct($data);
+        if (null !== ($v = $this->getDiv())) {
+            if ([] !== ($fieldErrs = $v->_getValidationErrors())) {
+                $errs[self::FIELD_DIV] = $fieldErrs;
+            }
+        }
+        if (isset($validationRules[self::FIELD_STATUS])) {
+            $v = $this->getStatus();
+            foreach($validationRules[self::FIELD_STATUS] as $rule => $constraint) {
+                $err = $this->_performValidation(PHPFHIRConstants::TYPE_NAME_NARRATIVE, self::FIELD_STATUS, $rule, $constraint, $v);
+                if (null !== $err) {
+                    if (!isset($errs[self::FIELD_STATUS])) {
+                        $errs[self::FIELD_STATUS] = [];
+                    }
+                    $errs[self::FIELD_STATUS][$rule] = $err;
+                }
+            }
+        }
+        if (isset($validationRules[self::FIELD_DIV])) {
+            $v = $this->getDiv();
+            foreach($validationRules[self::FIELD_DIV] as $rule => $constraint) {
+                $err = $this->_performValidation(PHPFHIRConstants::TYPE_NAME_NARRATIVE, self::FIELD_DIV, $rule, $constraint, $v);
+                if (null !== $err) {
+                    if (!isset($errs[self::FIELD_DIV])) {
+                        $errs[self::FIELD_DIV] = [];
+                    }
+                    $errs[self::FIELD_DIV][$rule] = $err;
+                }
+            }
+        }
+        if (isset($validationRules[self::FIELD_EXTENSION])) {
+            $v = $this->getExtension();
+            foreach($validationRules[self::FIELD_EXTENSION] as $rule => $constraint) {
+                $err = $this->_performValidation(PHPFHIRConstants::TYPE_NAME_ELEMENT, self::FIELD_EXTENSION, $rule, $constraint, $v);
+                if (null !== $err) {
+                    if (!isset($errs[self::FIELD_EXTENSION])) {
+                        $errs[self::FIELD_EXTENSION] = [];
+                    }
+                    $errs[self::FIELD_EXTENSION][$rule] = $err;
+                }
+            }
+        }
+        if (isset($validationRules[self::FIELD_ID])) {
+            $v = $this->getId();
+            foreach($validationRules[self::FIELD_ID] as $rule => $constraint) {
+                $err = $this->_performValidation(PHPFHIRConstants::TYPE_NAME_ELEMENT, self::FIELD_ID, $rule, $constraint, $v);
+                if (null !== $err) {
+                    if (!isset($errs[self::FIELD_ID])) {
+                        $errs[self::FIELD_ID] = [];
+                    }
+                    $errs[self::FIELD_ID][$rule] = $err;
+                }
+            }
+        }
+        return $errs;
     }
 
     /**
-     * @return string
+     * @param null|string|\DOMElement $element
+     * @param null|\OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative $type
+     * @param null|int $libxmlOpts
+     * @return null|\OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative
      */
-    public function __toString()
+    public static function xmlUnserialize($element = null, PHPFHIRTypeInterface $type = null, $libxmlOpts = 591872)
     {
-        return $this->get_fhirElementName();
+        if (null === $element) {
+            return null;
+        }
+        if (is_string($element)) {
+            libxml_use_internal_errors(true);
+            $dom = new \DOMDocument();
+            $dom->loadXML($element, $libxmlOpts);
+            if (false === $dom) {
+                throw new \DomainException(sprintf('FHIRNarrative::xmlUnserialize - String provided is not parseable as XML: %s', implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))));
+            }
+            libxml_use_internal_errors(false);
+            $element = $dom->documentElement;
+        }
+        if (!($element instanceof \DOMElement)) {
+            throw new \InvalidArgumentException(sprintf('FHIRNarrative::xmlUnserialize - $node value must be null, \\DOMElement, or valid XML string, %s seen', is_object($element) ? get_class($element) : gettype($element)));
+        }
+        if (null === $type) {
+            $type = new FHIRNarrative(null);
+        } elseif (!is_object($type) || !($type instanceof FHIRNarrative)) {
+            throw new \RuntimeException(sprintf(
+                'FHIRNarrative::xmlUnserialize - $type must be instance of \OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative or null, %s seen.',
+                is_object($type) ? get_class($type) : gettype($type)
+            ));
+        }
+        if ('' === $type->_getFHIRXMLNamespace() && (null === $element->parentNode || $element->namespaceURI !== $element->parentNode->namespaceURI)) {
+            $type->_setFHIRXMLNamespace($element->namespaceURI);
+        }
+        for($i = 0; $i < $element->childNodes->length; $i++) {
+            $n = $element->childNodes->item($i);
+            if (!($n instanceof \DOMElement)) {
+                continue;
+            }
+            if (self::FIELD_STATUS === $n->nodeName) {
+                $type->setStatus(FHIRNarrativeStatus::xmlUnserialize($n));
+            } elseif (self::FIELD_DIV === $n->nodeName) {
+                $type->setDiv(FHIRRaw::xmlUnserialize($n));
+            } elseif (self::FIELD_EXTENSION === $n->nodeName) {
+                $type->addExtension(FHIRExtension::xmlUnserialize($n));
+            } elseif (self::FIELD_ID === $n->nodeName) {
+                $type->setId(FHIRStringPrimitive::xmlUnserialize($n));
+            }
+        }
+        $n = $element->attributes->getNamedItem(self::FIELD_ID);
+        if (null !== $n) {
+            $pt = $type->getId();
+            if (null !== $pt) {
+                $pt->setValue($n->nodeValue);
+            } else {
+                $type->setId($n->nodeValue);
+            }
+        }
+        return $type;
+    }
+
+    /**
+     * @param null|\DOMElement $element
+     * @param null|int $libxmlOpts
+     * @return \DOMElement
+     */
+    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = 591872)
+    {
+        if (null === $element) {
+            $dom = new \DOMDocument();
+            $dom->loadXML($this->_getFHIRXMLElementDefinition(), $libxmlOpts);
+            $element = $dom->documentElement;
+        } elseif (null === $element->namespaceURI && '' !== ($xmlns = $this->_getFHIRXMLNamespace())) {
+            $element->setAttribute('xmlns', $xmlns);
+        }
+        parent::xmlSerialize($element);
+        if (null !== ($v = $this->getStatus())) {
+            $telement = $element->ownerDocument->createElement(self::FIELD_STATUS);
+            $element->appendChild($telement);
+            $v->xmlSerialize($telement);
+        }
+        if (null !== ($v = $this->getDiv())) {
+            $telement = $element->ownerDocument->createElement(self::FIELD_DIV);
+            $element->appendChild($telement);
+            $v->xmlSerialize($telement);
+        }
+        return $element;
     }
 
     /**
@@ -167,36 +412,29 @@ class FHIRNarrative extends FHIRElement implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        $json = parent::jsonSerialize();
-        if (isset($this->status)) {
-            $json['status'] = $this->status;
+        $a = parent::jsonSerialize();
+        if (null !== ($v = $this->getStatus())) {
+            if (null !== ($val = $v->getValue())) {
+                $a[self::FIELD_STATUS] = $val;
+            }
+            $ext = $v->jsonSerialize();
+            unset($ext[FHIRNarrativeStatus::FIELD_VALUE]);
+            if ([] !== $ext) {
+                $a[self::FIELD_STATUS_EXT] = $ext;
+            }
         }
-        if (isset($this->div)) {
-            $json['div'] = $this->div;
+        if (null !== ($v = $this->getDiv())) {
+            $a[self::FIELD_DIV] = $v;
         }
-        return $json;
+        return $a;
     }
 
+
     /**
-     * @param boolean $returnSXE
-     * @param \SimpleXMLElement $sxe
-     * @return string|\SimpleXMLElement
+     * @return string
      */
-    public function xmlSerialize($returnSXE = false, $sxe = null)
+    public function __toString()
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Narrative xmlns="http://hl7.org/fhir"></Narrative>');
-        }
-        parent::xmlSerialize(true, $sxe);
-        if (isset($this->status)) {
-            $this->status->xmlSerialize(true, $sxe->addChild('status'));
-        }
-        if (isset($this->div)) {
-            PHPFHIRHelper::recursiveXMLImport($sxe, $this->div);
-        }
-        if ($returnSXE) {
-            return $sxe;
-        }
-        return $sxe->saveXML();
+        return self::FHIR_TYPE_NAME;
     }
 }
