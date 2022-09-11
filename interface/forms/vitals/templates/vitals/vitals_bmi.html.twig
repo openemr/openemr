@@ -1,7 +1,7 @@
-<tr><td class="graph" id="BMI"><span class="vitals-title">{{ "BMI"|xlt  }}</span> <small>(LOINC:39156-5)</small></td><td>{{ "kg/m^2"|xlt }}</td>
+<tr><td class="graph" id="BMI"><span class="vitals-title">{{ "BMI"|xlt }}</span> <small>(LOINC:39156-5)</small></td><td>{{ "kg/m^2"|xlt }}</td>
     {% if is_edit %}
         <td class='currentvalues p-2'><input type="text" class="form-control" size='5'
-            name='BMI' id='BMI_input' value="{% if vitals.get_BMI() != 0 %}{{vitals.get_BMI()|slice(0,5)|attr}}{% endif %}"/></td>
+            name='BMI' id='BMI_input' value="{% if vitals.get_BMI() != 0 %}{{ vitals.get_BMI()|slice(0,5)|attr }}{% endif %}"/></td>
         <td class="editonly"></td>
         <td class="editonly actions">
             {% include 'vitals_actions.html.twig' with {input:'BMI'} %}

@@ -3,7 +3,7 @@
 <tr class="hide">
     <td>
         <input type="hidden" class="vitals-conv-unit-save-value" id='{{ field.input|attr }}_input' name="{{ field.input|attr }}"
-               value="{% if attribute(vitals,field.vitalsValue) is numeric %}{{ attribute(vitals,field.vitalsValue)|attr}}{% endif %}" />
+               value="{% if attribute(vitals,field.vitalsValue) is numeric %}{{ attribute(vitals,field.vitalsValue)|attr }}{% endif %}" />
     </td>
     {% for result in results %}
         <td class="historicalvalues"></td>
@@ -39,16 +39,16 @@
         {% endif %}
 
             <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_usa'
-                   value="{% if attribute(vitals, field.vitalsValue) is numeric %} {{ attribute(vitals, field.vitalsValue)|number_format(field.precision)|attr}}{% endif %}"
+                   value="{% if attribute(vitals, field.vitalsValue) is numeric %} {{ attribute(vitals, field.vitalsValue)|number_format(field.precision)|attr }}{% endif %}"
                    data-system="usa" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
                    data-target-input-conv="{{ field.input|attr }}_input_metric"
-                   title='{{ field.vitalsValueUSAHelpTitle|default('')|text }}'/>
+                   title='{{ field.vitalsValueUSAHelpTitle|default('')|attr }}'/>
         </td>
         <td class="editonly">
-            {% include 'vitals_interpretation_selector.html.twig' with {input: field.input, vitalDetails:vitals.get_details_for_column(field.input) } %}
+            {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input) } %}
         </td>
         <td class="editonly actions">
-            {% include 'vitals_actions.html.twig' with {input: field.input} %}
+            {% include 'vitals_actions.html.twig' with { input: field.input } %}
         </td>
     {% endif %}
     {% include 'vitals_historical_values.html.twig' with { useMetric:false, vitalsValue:field.vitalsValue,
@@ -84,19 +84,19 @@
 
             <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
             <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_metric'
-                   value="{% if attribute(vitals, field.vitalsValue)  is numeric %}{{ attribute(vitals, field.vitalsValueMetric)|number_format(field.precision)|attr }}{% endif %}"
+                   value="{% if attribute(vitals, field.vitalsValue) is numeric %}{{ attribute(vitals, field.vitalsValueMetric)|number_format(field.precision)|attr }}{% endif %}"
                    data-system="metric" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
                    data-target-input-conv="{{ field.input|attr }}_input_usa" />
         </td>
         <td class="editonly">
             {% if units_of_measurement == MEASUREMENT_METRIC_ONLY %}
                 <!-- we only show the selector if this the only row being displayed -->
-                {% include 'vitals_interpretation_selector.html.twig' with {input: field.input, vitalDetails:vitals.get_details_for_column(field.input), input: field.input } %}
+                {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input), input: field.input } %}
             {% endif %}
         </td>
         <td class="editonly actions">
             {% if units_of_measurement == MEASUREMENT_METRIC_ONLY %}
-                {% include 'vitals_actions.html.twig' with {input: field.input} %}
+                {% include 'vitals_actions.html.twig' with { input: field.input } %}
             {% endif %}
         </td>
     {% endif %}
