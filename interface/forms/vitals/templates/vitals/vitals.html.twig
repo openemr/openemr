@@ -11,7 +11,7 @@
 <head>
     <title>{{ "Vitals"|xlt }}</title>
     {{ setupHeader(["datetime-picker","reason-code-widget"]) }}
-<script src="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.js?v={{ assetVersion|attr }}" type="text/javascript"></script>
+<script src="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.js?v={{ assetVersion|attr_url }}" type="text/javascript"></script>
 <script>
     let vitalsTranslations = {
         'weight_input': window.xl("Weight") + ' (' + window.xl("lbs") + ')'
@@ -29,7 +29,7 @@
         console.error("Failed to find vitalsForm object to initialize javascript vitals form");
     }
 </script>
-<link rel="stylesheet" href="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.css?v={{ assetVersion|attr }}" />
+<link rel="stylesheet" href="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.css?v={{ assetVersion|attr_url }}" />
 </head>
 <body>
 
