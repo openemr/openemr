@@ -46,7 +46,7 @@ $prescription_id = $_REQUEST['prescription'];
 $quantity        = $_REQUEST['quantity'];
 $fee             = $_REQUEST['fee'];
 $user            = $_SESSION['authUser'];
-$encounter       = $_SESSION['encounter'] :: 0;
+$encounter       = $_SESSION['encounter'] ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
