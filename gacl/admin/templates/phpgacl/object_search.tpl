@@ -1,6 +1,6 @@
 {include file="phpgacl/header.tpl"}
     <style type="text/css">
-    {literal}
+
     input.search {
     	width: 99%;
     }
@@ -8,7 +8,7 @@
     	margin-top: 0px;
     	width: 99%;
     }
-    {/literal}
+
     </style>
 {include file="phpgacl/acl_admin_js.tpl"}
   </head>

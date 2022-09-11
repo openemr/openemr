@@ -57,17 +57,17 @@ class C_FormROS extends Controller
             return;
         }
 
-        $this->ros = new FormROS($_POST['id']);
+        $this->form = new FormROS($_POST['id']);
 
-        parent::populate_object($this->ros);
-        $this->ros->persist();
+        parent::populate_object($this->form);
+        $this->form->persist();
 
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Review Of Systems", $this->ros->id, "ros", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm($GLOBALS['encounter'], "Review Of Systems", $this->form->id, "ros", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
         }
 
