@@ -2,7 +2,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIROrganization;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;

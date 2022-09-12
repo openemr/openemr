@@ -14,7 +14,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
 use PHPUnit\Framework\TestCase;

@@ -6,7 +6,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPatient;
 
 /**
  * FHIR Patient Service Query Tests

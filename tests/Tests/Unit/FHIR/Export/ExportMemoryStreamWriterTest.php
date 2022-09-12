@@ -13,7 +13,7 @@
 namespace OpenEMR\Tests\Unit\FHIR\Export;
 
 use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;

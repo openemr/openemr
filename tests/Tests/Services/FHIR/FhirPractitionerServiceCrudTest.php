@@ -6,7 +6,7 @@ use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPractitioner;
 
 /**
  * FHIR Practitioner Service Crud Tests
