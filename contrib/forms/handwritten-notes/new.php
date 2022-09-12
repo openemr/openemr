@@ -60,7 +60,7 @@ function getDocCats()
             <form method="post" action="<?php echo $GLOBALS['rootdir']; ?>/forms/handwritten-notes/new.php">
                 <div class="mb-3">
                     <label for="docid"><?php echo xlt("Enter the document category ID that you would like to save the notes to:"); ?></label>
-                    <select class="form-control" name="docid" id="docid">
+                    <select class="form-select" name="docid" id="docid">
                         <?php echo getDocCats(); ?>
                     </select>
                 </div>

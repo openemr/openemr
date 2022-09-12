@@ -120,7 +120,7 @@ $sms_gateway = array ('CLICKATELL','TMB4');
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="sms_gateway_type"><?php echo xlt('SMS Gateway') ?>:</label>
-                    <select name="sms_gateway_type" class="form-control">
+                    <select name="sms_gateway_type" class="form-select">
                         <option value=""><?php echo xlt('Select SMS Gateway'); ?></option>
                         <?php foreach ($sms_gateway as $value) { ?>
                             <option value="<?php echo attr($value); ?>"

@@ -667,7 +667,7 @@ STP2TBLTOP1;
                                         <label class="fw-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
-                                        <select name='collate' id=='collate' class='form-control'>
+                                        <select name='collate' id=='collate' class='form-select'>
                                             <option selected value='utf8mb4_general_ci'>
                                                 General (Recommended)
                                             </option>
@@ -803,7 +803,7 @@ STP2TBLTOP2;
                                         <a href="#source_site_id_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
-                                        <select name='source_site_id'id='source_site_id' class='form-control'>
+                                        <select name='source_site_id'id='source_site_id' class='form-select'>
 SOURCESITETOP;
                                                 echo $source_site_top . "\r\n";
                             foreach ($siteslist as $sfname) {

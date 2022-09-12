@@ -165,7 +165,7 @@ if (!empty($row)) {
             <div class="form-row">
                 <label for="form_out_to" class='col-form-label col-sm-3'><?php echo xlt('Our Out To') . ":"; ?></label>
                 <div class='col-sm-9'>
-                    <select name='form_newuser' class='form-control' onchange='userSelect()'>
+                    <select name='form_newuser' class='form-select' onchange='userSelect()'>
                         <option value=''></option>
                         <?php
                         $users = $userService->getActiveUsers();

@@ -300,7 +300,7 @@ function pausePoll(othis) {
         <form class="form-inline" method='post' action='sql_upgrade.php'>
             <div class="mb-3 mb-1">
                 <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
-                <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">
+                <select class='mx-3 form-select' name='form_old_version' onchange="setWarnings(this)">
                     <?php
                     $cnt_versions = count($versions);
                     foreach ($versions as $version => $filename) {

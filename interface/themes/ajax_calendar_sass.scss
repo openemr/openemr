@@ -42,20 +42,31 @@ $side-calendar-date-padding: 0.3rem !default;
   }
 
   #functions {
-    @extend .col-md-3;
+    @include make-col-ready();
+
     text-align: $left;
+
+    @include media-breakpoint-up(md) {
+      @include make-col(3);
+    }
   }
 
   #topToolbarRight {
-    @extend .row;
+    @include make-row();
+
     border-bottom: 1px solid $gray-300;
     padding: 0.3125rem 0 0.1875rem;
     z-index: 3;
   }
 
   #dateNAV {
-    @extend .col-md-6;
+    @include make-col-ready();
+
     @include font-size("1.5rem");
+
+    @include media-breakpoint-up(md) {
+      @include make-col(6);
+    }
   }
 
   #dateDisplay {
@@ -64,8 +75,13 @@ $side-calendar-date-padding: 0.3rem !default;
   }
 
   #viewPicker {
-    @extend .col-md-3;
+    @include make-col-ready();
+
     text-align: $right;
+
+    @include media-breakpoint-up(md) {
+      @include make-col(3);
+    }
   }
 
   #bigCalHeader {
@@ -452,8 +468,8 @@ $side-calendar-date-padding: 0.3rem !default;
     }
 
     &_time {
-
       @extend %highlight;
+      
       cursor: pointer;
 
       &:hover {

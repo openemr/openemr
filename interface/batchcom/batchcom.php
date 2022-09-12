@@ -191,7 +191,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
         <div class="row">
             <div class="col-md card p-3 m-1 mb-3">
                 <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>
-                <select name="process_type" class="form-control">
+                <select name="process_type" class="form-select">
                     <?php
                     foreach ($process_choices as $choice) {
                         echo "<option>" . text($choice) . "</option>";
@@ -201,7 +201,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             </div>
             <div class="col-md card p-3 m-1 mb-3">
                 <label for="hipaa_choice"><?php echo xlt("Override HIPAA choice") . ":"; ?></label>
-                <select name="hipaa_choice" class="form-control">
+                <select name="hipaa_choice" class="form-select">
                     <?php
                     foreach ($hipaa_choices as $choice) {
                         echo "<option>" . text($choice) . "</option>";
@@ -211,7 +211,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             </div>
             <div class="col-md card p-3 m-1 mb-3">
                 <label for="sort_by"><?php echo xlt("Sort by"); ?></label>
-                <select name="sort_by" class="form-control">
+                <select name="sort_by" class="form-select">
                     <?php
                     foreach ($sort_by_choices as $choice => $sorting_code) {
                         echo "<option value=\"$sorting_code\">" . text($choice) . "</option>";
@@ -221,7 +221,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             </div>
             <div class="col-md card p-3 m-1 mb-3">
                 <label for="gender"><?php echo xlt('Gender') ?>:</label>
-                <select name="gender" class="form-control">
+                <select name="gender" class="form-select">
                     <?php
                     foreach ($gender_choices as $choice) {
                         echo "<option>" . text($choice) . "</option>";
