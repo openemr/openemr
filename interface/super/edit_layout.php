@@ -892,7 +892,9 @@ function writeFieldLine($linedata)
          attr($linedata['datacols']) . "' size='3' maxlength='10' class='form-control optin' />";
     echo "</td>\n";
     /* Below for compatibility with existing string modifiers. */
-    if (!str_contains($linedata['edit_options'], ',') && isset($linedata['edit_options'])) {
+    //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+    if (((!function_exists('str_contains') && strpos($linedata['edit_options'], ',') !== false) || (function_exists('str_contains') && str_contains($linedata['edit_options'], ',')))
+        && isset($linedata['edit_options'])) {
         $t = json_decode($linedata['edit_options']);
         if (json_last_error() !== JSON_ERROR_NONE || $t === 0) { // hopefully string of characters and 0 handled.
             $t = str_split(trim($linedata['edit_options']));

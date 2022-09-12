@@ -62,7 +62,8 @@ while ($frow = sqlFetchArray($fres)) {
     $field_id = $frow['field_id'];
     $colname = $field_id;
     $table = 'patient_data';
-    if (str_starts_with($field_id, 'em_')) {
+    //ensure compliant wth php 7.4 (no str_starts_with() function in 7.4)
+    if ((!function_exists('str_starts_with') && strpos($field_id, 'em_') === 0) || (function_exists('str_starts_with') && str_starts_with($field_id, 'em_'))) {
         $colname = substr($field_id, 3);
         $table = 'employer_data';
     }

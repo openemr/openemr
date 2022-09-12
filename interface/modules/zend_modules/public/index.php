@@ -48,8 +48,15 @@ if (php_sapi_name() === 'cli' && count($argv) != 0) {
     $ignoreAuth = true;
     $siteDefault = 'default';
     foreach ($argv as $arg) {
-        if (str_contains($arg, "--site=")) {
-            $siteDefault = explode("=", $arg)[1];
+        //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+        if (!function_exists('str_contains')) {
+            if (strpos($arg, "--site=") !== false) {
+                $siteDefault = explode("=", $arg)[1];
+            }
+        } else { // function_exists('str_contains')
+            if (str_contains($arg, "--site=")) {
+                $siteDefault = explode("=", $arg)[1];
+            }
         }
     }
     $_GET['site'] = $siteDefault;

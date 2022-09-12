@@ -147,26 +147,58 @@ class RxList
         $hash = [];
         unset($all);
         for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
-            if ((bool)str_contains($tokens[$pos], "<name>") && $pos !== 3) {
-                // found a brand line 'token'
-                $type = "name";
-                $record = $pos;
-                $ending = "</name>";
+
+            //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+            if (!function_exists('str_contains')) {
+                if ((strpos($tokens[$pos], "<name>") !== false) && $pos !== 3) {
+                    // found a brand line 'token'
+                    $type = "name";
+                    $record = $pos;
+                    $ending = "</name>";
+                }
+            } else { // function_exists('str_contains')
+                if ((str_contains($tokens[$pos], "<name>")) && $pos !== 3) {
+                    // found a brand line 'token'
+                    $type = "name";
+                    $record = $pos;
+                    $ending = "</name>";
+                }
             }
 
-            if ((bool)str_contains($tokens[$pos], "<synonym>")) {
-                // found a generic line 'token'
-                $type = "synonym";
-                //print "generic_name record start at $pos<BR>\n";
-                $ending = "</synonym>";
-                $record = $pos;
+            //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+            if (!function_exists('str_contains')) {
+                if (strpos($tokens[$pos], "<synonym>") !== false) {
+                    // found a generic line 'token'
+                    $type = "synonym";
+                    //print "generic_name record start at $pos<BR>\n";
+                    $ending = "</synonym>";
+                    $record = $pos;
+                }
+            } else { // function_exists('str_contains')
+                if (str_contains($tokens[$pos], "<synonym>")) {
+                    // found a generic line 'token'
+                    $type = "synonym";
+                    //print "generic_name record start at $pos<BR>\n";
+                    $ending = "</synonym>";
+                    $record = $pos;
+                }
             }
 
-            if ((bool)str_contains($tokens[$pos], "<rxcui>")) {
-                // found a drug-class 'token'
-                $type = "rxcui";
-                $ending = "</rxcui>";
-                $record = $pos;
+            //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+            if (!function_exists('str_contains')) {
+                if (strpos($tokens[$pos], "<rxcui>") !== false) {
+                    // found a drug-class 'token'
+                    $type = "rxcui";
+                    $ending = "</rxcui>";
+                    $record = $pos;
+                }
+            } else { // function_exists('str_contains')
+                if (str_contains($tokens[$pos], "<rxcui>")) {
+                    // found a drug-class 'token'
+                    $type = "rxcui";
+                    $ending = "</rxcui>";
+                    $record = $pos;
+                }
             }
 
             if (isset($hash["synonym"])) {

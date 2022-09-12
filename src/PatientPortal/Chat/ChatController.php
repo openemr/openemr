@@ -82,12 +82,21 @@ class ChatController extends ChatDispatcher
 
     private function _parseAdminCommand($message)
     {
-        if (str_contains($message, '/clear')) {
-            $this->getModel()->removeMessages();
-            return true;
+        //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+        if (!function_exists('str_contains')) {
+            if (strpos($message, '/clear') !== false) {
+                $this->getModel()->removeMessages();
+                return true;
+            }
+        } else { // function_exists('str_contains')
+            if (str_contains($message, '/clear')) {
+                $this->getModel()->removeMessages();
+                return true;
+            }
         }
 
-        if (str_contains($message, '/online')) {
+        //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+        if ((!function_exists('str_contains') && strpos($message, '/online') !== false) || (function_exists('str_contains') && str_contains($message, '/online'))) {
             $online = $this->getModel()->getOnline(false);
             $ipArr = array();
             foreach ($online as $item) {

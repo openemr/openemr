@@ -3890,8 +3890,15 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                         $tmp = xl_layout_label($group_fields['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
-                            echo ':';
+                        //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
+                        if (!function_exists('str_contains')) {
+                            if (strpos('?!.,:-=', $tmp[strlen($tmp) - 1]) !== false) {
+                                echo ':';
+                            }
+                        } else { // function_exists('str_contains')
+                            if (str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
+                                echo ':';
+                            }
                         }
                     } else {
                         echo "&nbsp;";
