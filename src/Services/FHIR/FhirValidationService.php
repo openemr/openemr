@@ -2,7 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Services\FhirOperationOutcomeResourceService;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIROperationOutcome\FHIROperationOutcomeIssue;
@@ -18,7 +18,7 @@ class FhirValidationService
             return $this->operationOutcomeResourceService('error', 'invalid', false, 'resourceType Not Found');
         }
         if ($data['resourceType']) {
-            $class = 'OpenEMR\FHIR\R4\FHIRDomainResource\FHIR' . $data['resourceType'];
+            $class = 'OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIR' . $data['resourceType'];
             unset($data['resourceType']);
             try {
                 $patientResource = new $class($data);
@@ -26,8 +26,7 @@ class FhirValidationService
                 return $this->
                 operationOutcomeResourceService('fatal', 'invalid', false, $e->getMessage());
             } catch (\Error $e) {
-                return $this->
-                operationOutcomeResourceService('fatal', 'invalid', false, 'resourceType Not Found');
+                return $this->operationOutcomeResourceService('fatal', 'invalid', false, 'resourceType Not Found');
             }
             $diff = array_diff_key($data, (array) $patientResource);
             if ($diff) {
@@ -67,7 +66,7 @@ class FhirValidationService
             $diagnostics->setValue($diagnostics_value);
             $issue->setDiagnostics($diagnostics);
         }
-        if ($expression_value) {
+        if ($expression_value ?? null) {
             $expression = new FHIRCodeableConcept();
             $expression->setText($expression_value);
             $issue->setExpression($expression);
