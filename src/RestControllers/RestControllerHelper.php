@@ -17,6 +17,7 @@ use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRCapabilityStatement\FHIRCapabilityStatementSearchParam;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRSearchParamType;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -189,6 +190,7 @@ class RestControllerHelper
             $capResource->addSearchRevInclude(self::FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE);
         }
         $searchParams = $service->getSearchParams();
+
         $searchParams = is_array($searchParams) ? $searchParams : [];
         foreach ($searchParams as $fhirSearchField => $searchDefinition) {
 
@@ -207,7 +209,7 @@ class RestControllerHelper
             if (!$paramExists) {
                 $param = new FHIRCapabilityStatementSearchParam();
                 $param->setName($fhirSearchField);
-                $param->setType($type);
+                $param->setType(new FHIRSearchParamType($type));
                 $capResource->addSearchParam($param);
             }
         }
@@ -217,7 +219,7 @@ class RestControllerHelper
     /**
      * Retrieves the fully qualified service class name for a given FHIR resource.  It will only return a class that
      * actually exists.
-     * @param $resource The name of the FHIR resource that we attempt to find the service class for.
+     * @param $resource -The name of the FHIR resource that we attempt to find the service class for.
      * @param string $serviceClassNameSpace  The namespace to find the class in.  Defaults to self::FHIR_SERVICES_NAMESPACE
      * @return string|null  Returns the fully qualified name if the class is found, otherwise it returns null.
      */

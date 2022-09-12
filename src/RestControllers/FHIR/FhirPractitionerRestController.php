@@ -41,7 +41,7 @@ class FhirPractitionerRestController
 
     /**
      * Creates a new FHIR practitioner resource
-     * @param $fhirJson The FHIR practitioner resource
+     * @param $fhirJson - The FHIR practitioner resource
      * @returns 201 if the resource is created, 400 if the resource is invalid
      */
     public function post($fhirJson)

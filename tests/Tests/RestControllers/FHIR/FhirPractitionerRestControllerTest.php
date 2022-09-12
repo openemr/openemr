@@ -59,7 +59,7 @@ class FhirPractitionerRestControllerTest extends TestCase
 
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $this->assertEquals(400, http_response_code());
-        $this->assertGreaterThan(0, count($actualResult['validationErrors']));
+        $this->assertGreaterThan(0, count($actualResult['validationErrors'] ?? []));
     }
 
     /**
