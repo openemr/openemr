@@ -147,7 +147,6 @@ class RxList
         $hash = [];
         unset($all);
         for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
-
             //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
             if (!function_exists('str_contains')) {
                 if ((strpos($tokens[$pos], "<name>") !== false) && $pos !== 3) {
