@@ -3892,11 +3892,11 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                         // Append colon only if label does not end with punctuation.
                         //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
                         if (!function_exists('str_contains')) {
-                            if (strpos('?!.,:-=', $tmp[strlen($tmp) - 1]) !== false) {
+                            if (strpos('?!.,:-=', $tmp[strlen($tmp) - 1]) === false) {
                                 echo ':';
                             }
                         } else { // function_exists('str_contains')
-                            if (str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
+                            if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
                                 echo ':';
                             }
                         }

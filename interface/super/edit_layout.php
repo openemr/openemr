@@ -894,7 +894,7 @@ function writeFieldLine($linedata)
     /* Below for compatibility with existing string modifiers. */
     //ensure compliant wth php 7.4 (no str_contains() function in 7.4)
     if (
-        ((!function_exists('str_contains') && strpos($linedata['edit_options'], ',') !== false) || (function_exists('str_contains') && str_contains($linedata['edit_options'], ',')))
+        ((!function_exists('str_contains') && strpos($linedata['edit_options'], ',') === false) || (function_exists('str_contains') && !str_contains($linedata['edit_options'], ',')))
         && isset($linedata['edit_options'])
     ) {
         $t = json_decode($linedata['edit_options']);
