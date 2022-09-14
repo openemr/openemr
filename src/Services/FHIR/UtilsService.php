@@ -26,9 +26,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNameUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRRaw;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class UtilsService
@@ -284,10 +286,10 @@ class UtilsService
     {
         $div = "<div xmlns='http://www.w3.org/1999/xhtml'>" . $message . "</div>";
         $narrative = new FHIRNarrative();
-        $code = new FHIRCode();
+        $code = new FHIRNarrativeStatus();
         $code->setValue($status);
         $narrative->setStatus($code);
-        $narrative->setDiv($div);
+        $narrative->setDiv(new FHIRRaw($div));
         return $narrative;
     }
 }

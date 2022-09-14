@@ -155,11 +155,11 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $this->assertNotEmpty($actualResult->getData(), "Get All should have returned a result");
 
         $this->assertInstanceOf(FHIRAllergyIntolerance::class, $actualResult->getData()[0], "Instance returned should have been the correct AllergyIntolerance class");
-        $expectedId = $actualResult->getData()[0]->getId()->getValue();
+        $expectedId = $actualResult->getData()[0]->getId()->getValue()->getValue();
 
         $actualResult = $this->fhirService->getOne($expectedId);
         $this->assertGreaterThan(0, count($actualResult->getData()), "Data array should have at least one record");
-        $actualId = $actualResult->getData()[0]->getId()->getValue();
+        $actualId = $actualResult->getData()[0]->getId()->getValue()->getValue();
 
         $this->assertEquals($expectedId, $actualId);
     }

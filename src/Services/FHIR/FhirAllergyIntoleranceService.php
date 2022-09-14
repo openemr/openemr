@@ -128,11 +128,11 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
         $clinical_Status = new FHIRCodeableConcept();
         $clinical_Status->addCoding(
-            array(
+            new FHIRCoding(array(
             'system' => "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
             'code' => $clinicalStatus,
             'display' => ucwords($clinicalStatus),
-            )
+            ))
         );
         $allergyIntoleranceResource->setClinicalStatus($clinical_Status);
 
@@ -238,7 +238,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 'display' => $dataRecord['verification_title']
             );
         }
-        $verificationStatus->addCoding($verificationCoding);
+        $verificationStatus->addCoding(new FHIRCoding($verificationCoding));
         $allergyIntoleranceResource->setVerificationStatus($verificationStatus);
 
         if ($encode) {

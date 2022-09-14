@@ -12,6 +12,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNameUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
@@ -200,7 +202,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
             );
-            $patientResource->setText($text);
+            $patientResource->setText(new FHIRNarrative($text));
         }
     }
 
@@ -215,7 +217,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
 
         $name = new FHIRHumanName();
-        $name->setUse('official');
+        $name->setUse(new FHIRNameUse('official'));
 
         if (!empty($dataRecord['title'])) {
             $name->addPrefix($dataRecord['title']);
@@ -241,7 +243,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if (!empty($dataRecord['previous_names'])) {
             foreach ($dataRecord['previous_names'] as $prevName) {
                 $previousHumanName = new FHIRHumanName();
-                $previousHumanName->setUse("old");
+                $previousHumanName->setUse(new FHIRNameUse("old"));
                 if (!empty($prevName['previous_name_first'])) {
                     $previousHumanName->addGiven($prevName['previous_name_first']);
                 }
@@ -352,7 +354,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         $textExtension = new FHIRExtension();
         $textExtension->setUrl("text");
-        $textExtension->setValueString(new FHIRString($ombCategoryCoding->getDisplay()));
+        $textExtension->setValueString(new FHIRString($ombCategoryCoding->getDisplay()->getValue()->getValue()));
         $raceExtension->addExtension($textExtension);
         $patientResource->addExtension($raceExtension);
     }
@@ -497,7 +499,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
             foreach ($fhirResource->getName() as $sub_name) {
-                if ((string)$sub_name->getUse() === 'official') {
+                if ((string)$sub_name->getUse()->getValue()->getValue() === 'official') {
                     $name = $sub_name;
                     break;
                 }

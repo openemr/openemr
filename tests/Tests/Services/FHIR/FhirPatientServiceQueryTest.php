@@ -223,11 +223,11 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->assertNotEmpty($actualResult->getData(), "Get All should have returned a result");
 
         $this->assertInstanceOf(FhirPatient::class, $actualResult->getData()[0], "Instance returned should have been the correct patient class");
-        $expectedId = $actualResult->getData()[0]->getId()->getValue();
+        $expectedId = $actualResult->getData()[0]->getId()->getValue()->getValue();
 
         $actualResult = $this->fhirPatientService->getOne($expectedId);
         $this->assertGreaterThan(0, $actualResult->getData());
-        $actualId = $actualResult->getData()[0]->getId()->getValue();
+        $actualId = $actualResult->getData()[0]->getId()->getValue()->getValue();
 
         $this->assertEquals($expectedId, $actualId);
     }

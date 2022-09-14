@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR\Organization;
 
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -173,7 +174,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
             );
-            $organizationResource->setText($text);
+            $organizationResource->setText(new FHIRNarrative($text));
         }
 
         $id = new FHIRId();
