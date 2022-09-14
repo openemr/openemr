@@ -1599,7 +1599,8 @@ function poll_hl7_results(&$info, $labs = 0)
 
             $files = $sftp->nlist($pathname);
             foreach ($files as $file) {
-                if (str_starts_with($file, '.')) {
+                //ensure compliant wth php 7.4 (no str_starts_with() function in 7.4)
+                if ((!function_exists('str_starts_with') && strpos($file, '.') === 0) || (function_exists('str_starts_with') && str_starts_with($file, '.'))) {
                     continue;
                 }
 
@@ -1723,7 +1724,8 @@ function poll_hl7_results(&$info, $labs = 0)
             // Sort by filename just because.
             $files = array();
             while (false !== ($file = readdir($dh))) {
-                if (str_starts_with($file, '.')) {
+                //ensure compliant wth php 7.4 (no str_starts_with() function in 7.4)
+                if ((!function_exists('str_starts_with') && strpos($file, '.') === 0) || (function_exists('str_starts_with') && str_starts_with($file, '.'))) {
                     continue;
                 }
                 if (is_dir($file)) {

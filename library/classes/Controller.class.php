@@ -49,7 +49,11 @@ class Controller extends Smarty
         foreach ($_POST as $varname => $var) {
             $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
             $func = "set_" . $varname;
-            if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
+            //ensure compliant wth php 7.4 (no str_starts_with() function in 7.4)
+            if (
+                ((!function_exists('str_starts_with') && !(strpos("_", $varname) === 0)) || (function_exists('str_starts_with') && !(str_starts_with("_", $varname))))
+                && is_callable(array($obj,$func))
+            ) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
                 $obj->$func($var, $_POST);

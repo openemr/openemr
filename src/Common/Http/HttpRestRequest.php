@@ -541,7 +541,12 @@ class HttpRestRequest
     public function isFhirSearchRequest(): bool
     {
         if ($this->isFhir() && $this->getRequestMethod() == "POST") {
-            return str_ends_with($this->getRequestPath(), '_search') !== false;
+            //ensure compliant wth php 7.4 (no str_ends_with() function in 7.4)
+            if (!function_exists('str_ends_with')) {
+                return substr($this->getRequestPath(), -7) === '_search';
+            } else { // function_exists('str_ends_with')
+                return str_ends_with($this->getRequestPath(), '_search') !== false;
+            }
         }
         return false;
     }
