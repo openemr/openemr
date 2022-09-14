@@ -4,7 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRDomainResource;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;

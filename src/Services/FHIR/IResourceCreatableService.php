@@ -11,7 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRDomainResource;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Validators\ProcessingResult;
 
 interface IResourceCreatableService

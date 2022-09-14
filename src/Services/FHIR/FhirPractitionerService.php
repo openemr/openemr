@@ -4,7 +4,8 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIRDomainResource;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -106,7 +107,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
             );
-            $practitionerResource->setText($text);
+            $practitionerResource->setText(new FHIRNarrative($text));
 
             $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
         }
@@ -181,7 +182,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
             foreach ($fhirResource->getName() as $sub_name) {
-                if ((string)$sub_name->getUse() === 'official') {
+                if ((string)$sub_name->getUse()->getValue()->getValue() === 'official') {
                     $name = $sub_name;
                     break;
                 }

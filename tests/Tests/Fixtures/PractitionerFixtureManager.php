@@ -36,7 +36,7 @@ class PractitionerFixtureManager
 
     /**
      * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
+     * @param $fileName -The file name to load.
      * @return array of records.
      */
     private function loadJsonFile($fileName)
@@ -51,8 +51,8 @@ class PractitionerFixtureManager
      *
      * This will return a recorded uuid (recorded in uuid_registry)
      *
-     * @param $tableName The target OpenEMR DB table name.
-     * @return uuid.
+     * @param $tableName - The target OpenEMR DB table name.
+     * @return string.
      */
     private function getUuid($tableName)
     {
@@ -60,7 +60,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return the next available practitioner id/identifier.
+     * @return -the next available practitioner id/identifier.
      */
     private function getNextId()
     {
@@ -73,9 +73,9 @@ class PractitionerFixtureManager
     /**
      * Installs fixtures into the OpenEMR DB.
      *
-     * @param $tableName The target OpenEMR DB table name.
-     * @param $fixtures Array of fixture objects to install.
-     * @return the number of fixtures installed.
+     * @param $tableName -The target OpenEMR DB table name.
+     * @param $fixtures -Array of fixture objects to install.
+     * @return -the number of fixtures installed.
      */
     private function installFixtures($tableName, $fixtures)
     {
@@ -114,7 +114,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return single/random fhir practitioner fixture
+     * @return -single/random fhir practitioner fixture
      */
     public function getSingleFhirPractitionerFixture()
     {
@@ -130,7 +130,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return random single entry from an array.
+     * @return -random single entry from an array.
      */
     private function getSingleEntry($array)
     {
@@ -157,7 +157,7 @@ class PractitionerFixtureManager
     /**
      * Installs a single Practitioner Fixtures into the OpenEMR DB.
      * @param $practitionerFixture - The fixture to install.
-     * @return count of records inserted.
+     * @return -count of records inserted.
      */
     public function installSinglePractitionerFixture($practitionerFixture)
     {
@@ -185,7 +185,7 @@ class PractitionerFixtureManager
 
     /**
      * Returns an unregistered/unlogged UUID for use in testing fixtures
-     * @return uuid4 string value
+     * @return -uuid4 string value
      */
     public function getUnregisteredUuid()
     {

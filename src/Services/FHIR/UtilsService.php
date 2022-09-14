@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNameUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
@@ -214,7 +215,7 @@ class UtilsService
     public static function createHumanNameFromRecord($dataRecord): FHIRHumanName
     {
         $name = new FHIRHumanName();
-        $name->setUse('official');
+        $name->setUse(new FHIRNameUse('official'));
 
         if (!empty($dataRecord['title'])) {
             $name->addPrefix($dataRecord['title']);

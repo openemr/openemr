@@ -9,9 +9,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRBackboneElement\FHIROperationOutcome\FHIROpe
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\Services\QuestionnaireTraits;
 
 class FhirValidationService
 {
+    use QuestionnaireTraits;
+
     public function validate($data)
     {
         if (!array_key_exists('resourceType', $data)) {
@@ -28,7 +31,7 @@ class FhirValidationService
             } catch (\Error $e) {
                 return $this->operationOutcomeResourceService('fatal', 'invalid', false, 'resourceType Not Found');
             }
-            $diff = array_diff_key($data, (array) $patientResource);
+            $diff = array_diff_key($data, $this->fhirObjectToArray($patientResource));
             if ($diff) {
                 return $this->operationOutcomeResourceService(
                     'error',
@@ -46,7 +49,7 @@ class FhirValidationService
         $encode = true,
         $details_value = '',
         $diagnostics_value = '',
-        $expression = ''
+        $expression = null
     ) {
         $resource = new FHIROperationOutcome();
         $issue = new FHIROperationOutcomeIssue();
