@@ -2427,6 +2427,9 @@ function generate_display_field($frow, $currvalue)
     $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
     $list_id    = $frow['list_id'];
     $backup_list = isset($frow['list_backup_id']) ? $frow['list_backup_id'] : null;
+    $show_unchecked_arr = array();
+    getLayoutProperties($frow['form_id'], $show_unchecked_arr, 'grp_unchecked');
+    $show_unchecked = $show_unchecked_arr['grp_unchecked'] == 0 ? false : true;
 
     $s = '';
 
@@ -2564,7 +2567,7 @@ function generate_display_field($frow, $currvalue)
         $s = htmlspecialchars($crow['pc_catname'], ENT_NOQUOTES);
     } elseif ($data_type == 21) { // a single checkbox or set of labeled checkboxes
         if (!$list_id) {
-            $s .= $currvalue ? '[ x ]' : '[ &nbsp;&nbsp; ]';
+            $s .= $currvalue ? '&#9745;' : '&#9744;';
         } else {
             // In this special case, fld_length is the number of columns generated.
             $cols = max(1, $frow['fld_length']);
@@ -2581,11 +2584,17 @@ function generate_display_field($frow, $currvalue)
                     }
                     $s .= "<tr>";
                 }
-                $s .= "<td nowrap>";
                 $checked = in_array($option_id, $avalue);
-                $s .= $checked ? '[ x ]' : '[ &nbsp;&nbsp; ]';
-                $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
-                $s .= "</td>";
+                if (!$show_unchecked && $checked) {
+                    $s .= "<td nowrap>";
+                    $s .= text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                    $s .= "</td>";
+                } elseif ($show_unchecked) {
+                    $s .= "<td nowrap>";
+                    $s .= $checked ? '&#9745;' : '&#9744;';
+                    $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                    $s .= "</td>";
+                }
             }
             if ($count) {
                 $s .= "</tr>";
@@ -2711,12 +2720,18 @@ function generate_display_field($frow, $currvalue)
                 }
                 $s .= "<tr>";
             }
-            $s .= "<td nowrap>";
             $checked = ((strlen($currvalue) == 0 && $lrow['is_default']) ||
                 (strlen($currvalue)  > 0 && $option_id == $currvalue));
-            $s .= $checked ? '[ x ]' : '[ &nbsp;&nbsp; ]';
-            $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
-            $s .= "</td>";
+            if (!$show_unchecked && $checked) {
+                $s .= "<td nowrap>";
+                $s .= text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                $s .= "</td>";
+            } elseif ($show_unchecked) {
+                $s .= "<td nowrap>";
+                $s .= $checked ? '&#9745;' : '&#9744;';
+                $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                $s .= "</td>";
+            }
         }
         if ($count) {
             $s .= "</tr>";
