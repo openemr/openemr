@@ -3,7 +3,16 @@ services:
   mysql:
     restart: always
     image: mariadb:10.6
-    command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    command: [
+      'mysqld',
+      '--character-set-server=utf8mb4',
+      '--ssl-ca=/etc/ssl/ca.pem',
+      '--ssl_cert=/etc/ssl/server-cert.pem',
+      '--ssl_key=/etc/ssl/server-key.pem',
+      '--innodb_page_size=64k',
+      '--innodb_log_buffer_size=32M',
+      '--innodb_buffer_pool_size=512M'
+    ]
     ports:
     - 8320:3306
     volumes:
