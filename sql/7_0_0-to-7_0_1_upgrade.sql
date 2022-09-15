@@ -216,7 +216,7 @@ UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'inhale' AND list
 #EndIf
 #IfRow2D list_options list_id drug_route option_id bymouth
 Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
-UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'bymouth' AND list_id = 'drug_route';
+DELETE FROM list_options WHERE list_id="drug_route" AND option_id='bymouth';
 #EndIf
 
 #IfNotRow2D list_options list_id drug_route title By Mouth
