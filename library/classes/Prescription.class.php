@@ -656,7 +656,7 @@ class Prescription extends ORDataObject
         if (!empty($this->drug) && $this->medication) {
             $dataRow = sqlQuery("select id from lists where type = 'medication' and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
             if (isset($dataRow['id'])) {
-                $dataRow = sqlQuery('update lists set activity = 1'
+                $updatedDataRow = sqlQuery('update lists set activity = 1'
                             . " ,user = '" . add_escape_custom($_SESSION['authUser'])
                            . "', groupname = '" . add_escape_custom($_SESSION['authProvider'])
                            . "', title = '" . add_escape_custom($drug)

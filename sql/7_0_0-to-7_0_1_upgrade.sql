@@ -194,6 +194,32 @@ ALTER TABLE `openemr_postcalendar_events` ADD `uuid` binary(16) DEFAULT NULL;
 CREATE UNIQUE INDEX `uuid` ON `openemr_postcalendar_events` (`uuid`);
 #EndIf
 
-#IfNotRow2D list_options list_id drug_route option_id bymouth
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `notes`, `codes`) VALUES ('drug_route', 'bymouth', 'By Mouth', 1, 0, 'PO', 'NCI-CONCEPT-ID:C38288');
+#IfRow2D list_options list_id drug_route option_id intradermal
+Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
+UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'intradermal' AND list_id = 'drug_route';
+#EndIf
+#IfRow2D list_options list_id drug_route option_id other
+Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
+UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'other' AND list_id = 'drug_route';
+#EndIf
+#IfRow2D list_options list_id drug_route option_id transdermal
+Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
+UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'transdermal' AND list_id = 'drug_route';
+#EndIf
+#IfRow2D list_options list_id drug_route option_id intramuscular
+Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
+UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'intramuscular' AND list_id = 'drug_route';
+#EndIf
+#IfRow2D list_options list_id drug_route option_id inhale
+Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
+UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'inhale' AND list_id = 'drug_route';
+#EndIf
+#IfRow2D list_options list_id drug_route option_id bymouth
+Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
+UPDATE `list_options` SET option_id = @max+1 WHERE option_id = 'bymouth' AND list_id = 'drug_route';
+#EndIf
+
+#IfNotRow2D list_options list_id drug_route title By Mouth
+Set @max = (SELECT MAX(Convert(option_id, Signed Integer)) FROM list_options WHERE list_id = 'drug_route');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `notes`, `codes`) VALUES ('drug_route', @max+1, 'By Mouth', 1, 0, 'PO', 'NCI-CONCEPT-ID:C38288');
 #EndIf
