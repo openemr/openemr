@@ -54,8 +54,8 @@ $comarr = array
     "allow_email" => xl("Allow Email")
 );
 
-// get array of all insurance companies from function in patient.inc.php
-$insarr = getInsuranceProviders();
+// get array of all insurance companies from function in patient.inc
+$insarr = getInsuranceProvidersExtra();
 
 $_POST['form_details'] = true;
 

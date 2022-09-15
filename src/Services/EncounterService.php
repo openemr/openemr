@@ -21,10 +21,13 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Search\{
+    DateSearchField,
+    FhirSearchWhereClauseBuilder,
+    SearchFieldException,
+    TokenSearchField,
+    TokenSearchValue
+};
 use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
@@ -617,7 +620,6 @@ class EncounterService extends BaseService
         $validator->optional('assessment')->lengthBetween(2, 65535);
         $validator->optional('plan')->lengthBetween(2, 65535);
 
-        return $validator->validate($soapNote);
     }
 
     public function validateVital($vital)
@@ -701,6 +703,24 @@ class EncounterService extends BaseService
         $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
         if ($encounterResult->hasData()) {
             return $encounterResult->getData()[0]['referring_provider_id'] ?? '';
+        }
+        return [];
+    }
+
+    /**
+     * Return an array of encounters within a date range
+     *
+     * @param  $start_date  Any encounter starting on this date
+     * @param  $end_date  Any encounter ending on this date
+     * @return Array Encounter data payload.
+     */
+    public function getEncountersByDateRange($startDate, $endDate)
+    {
+        $dateField = new DateSearchField('date', ['ge' . $startDate, 'le' . $endDate], DateSearchField::DATE_TYPE_DATE, $isAnd = true);
+        $encounterResult = $this->search(['date' => $dateField]);
+        if ($encounterResult->hasData()) {
+            $result = $encounterResult->getData();
+            return $result;
         }
         return [];
     }

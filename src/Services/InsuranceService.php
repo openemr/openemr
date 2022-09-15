@@ -17,9 +17,21 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\AddressService;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Validators\CoverageValidator;
+
+use OpenEMR\Services\Search\{
+    CompositeSearchField,
+    DateSearchField,
+    FhirSearchWhereClauseBuilder,
+    SearchModifier,
+    TokenSearchField,
+    TokenSearchValue,
+};
+
+use OpenEMR\Validators\{
+    ProcessingResult,
+    CoverageValidator,
+};
+
 use Particle\Validator\Validator;
 
 class InsuranceService extends BaseService
@@ -100,6 +112,7 @@ class InsuranceService extends BaseService
                     `uuid` as `puuid`
                     FROM `patient_data`
                 ) `patient_data` ON `insurance_data`.`pid` = `patient_data`.`patient_data_pid` ";
+    
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
@@ -360,4 +373,55 @@ class InsuranceService extends BaseService
             )
         );
     }
+    public function getPidsForPayerByEffectiveDate($provider, $type, $effectiveDate)
+    {
+        // most common case of null in effective date which signifies is only type of insurance (primary)
+        $dateMissing = new TokenSearchField('date', [new TokenSearchValue(null)]);
+        $dateMissing->setModifier(SearchModifier::MISSING);
+
+        // set up composite search with false signifying an OR condition for the effective date
+        $composite = new CompositeSearchField('date', [], false); 
+        $dateField = new DateSearchField('date', ['ge' . $effectiveDate], DateSearchField::DATE_TYPE_DATE);
+        $composite->addChild($dateMissing);
+        $composite->addChild($dateField);
+
+        $insuranceDataResult = $this->search(
+            [
+                'provider' => $provider,
+                'type' => $type,
+                'date' => $composite,
+            ]
+        );
+        if ($insuranceDataResult->hasData()) {
+            $result = $insuranceDataResult->getData();
+        } else {
+            $result = [];
+        }
+
+    
+        /* $query = "SELECT id.pid AS pid " .
+            "FROM insurance_data AS id WHERE " .
+            "id.provider = ? AND " .
+            "id.type = ? AND " .
+            "(id.date <= ? OR id.date IS NULL) ";
+
+        $rez = sqlStatement(
+            $query,
+            array(
+            $provider,
+            $type,
+            $effectiveDate
+            )
+        );
+
+        while ($row = sqlFetchArray($rez)) {
+            $result[] = $row;
+        } */
+
+
+        //var_dump($result_array);
+        return $result;
+        
+    }
+    
 }
