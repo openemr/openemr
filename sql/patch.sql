@@ -47,3 +47,8 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfNotColumnType prescriptions route VARCHAR(100)
+ALTER TABLE `prescriptions` CHANGE `route` `route` VARCHAR(100) NULL DEFAULT NULL Comment 'Max size 100 characters is same max as immunizations';
+#EndIf
+
