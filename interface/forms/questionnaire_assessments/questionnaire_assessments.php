@@ -18,7 +18,10 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\QuestionnaireService;
 
+$service = new QuestionnaireService();
 $questionnaire_form = $_GET['questionnaire_form'] ?? null;
+$repository_item = $_POST['select_item'] ?? null;
+
 // for new questionnaires user must be admin. leave strict conditional.
 $is_authorized = AclMain::aclCheckCore('admin', 'forms') ||
     ($questionnaire_form !== 'New Questionnaire' && $_GET['formname'] ?? null === 'questionnaire_assessments');
@@ -26,18 +29,31 @@ if (!empty($_GET['id'] ?? 0) && empty($questionnaire_form)) {
     $formid = $_GET['id'];
     $form = formFetch("form_questionnaire_assessments", $formid);
 }
+
 $q_json = '';
 $lform = '';
+$form_name = '';
+
 if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
     // since we are here then user is authorized for a pre-approved questionnaire form.
     $is_authorized = true;
-    $service = new QuestionnaireService();
     $q = $service->fetchEncounterQuestionnaireForm($questionnaire_form);
     $q_json = $q['questionnaire'] ?: '';
     $lform = $q['lform'] ?: '';
     $mode = 'new_form';
 }
+if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
+    $is_authorized = true;
+    $q = $service->fetchQuestionnaireById($repository_item);
+    $q_json = $q['questionnaire'] ?: '';
+    $lform = $q['lform'] ?: '';
+    $form_name = $q['name'] ?: '';
+    $mode = 'new_repository_form';
+}
 $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
+
+$q_list = $service->getQuestionnaireList(true);
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -89,7 +105,7 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
             } else {
                 alert(xl('Form response data missing or corrupt. Resetting form.'))
             }
-            $(".isNew").toggleClass('d-none');
+
             if (responseData > '') {
                 LForms.Util.addFormToPage(responseData, 'formContainer', formOptions);
             } else {
@@ -97,7 +113,7 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
             }
         }
 
-        function initNewForm() {
+        function initNewForm(flag = false) {
             let lform = <?php echo js_escape($lform); ?>;
             let qFhir = <?php echo js_escape($q_json); ?>;
             let formName = <?php echo js_escape($questionnaire_form); ?>;
@@ -113,7 +129,9 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
             }
             document.getElementById('questionnaire').value = qFhir;
             document.getElementById('lform').value = JSON.stringify(data);
-            document.getElementById('form_name').value = jsAttr(formName);
+            if (!flag) {
+                document.getElementById('form_name').value = jsAttr(formName);
+            }
             document.getElementById('code_type').value = jsAttr('LOINC');
             document.getElementById('code').value = jsAttr(data.code);
             if (typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
@@ -121,7 +139,6 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
                 document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
             }
             LForms.Util.addFormToPage(data, 'formContainer', formOptions);
-            $(".isNew").toggleClass('d-none');
         }
 
         function initSearch() {
@@ -133,8 +150,23 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
             // dialog alertMsg 5th parameter will set flag to disable this user seeing message
             alertMsg(msg, 20000, 'danger', '', 'disable_form_disclaimer');
             <?php } ?>
+            $(".isNew").toggleClass('d-none');
 
-            const ac = new LForms.Def.Autocompleter.Search('loinc_item', 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM', {tableFormat: true, valueCols: [0, 1], colHeaders: ['Text', 'LOINC Code']});
+            document.getElementById('select_item').addEventListener('change', function(){
+                let el = document.getElementById('select_item');
+                let formName = el.options[el.selectedIndex].text;
+                document.getElementById('form_name').value = formName;
+                document.qa_form.action = "#";
+                document.qa_form.submit();
+            });
+
+            let ac;
+            ac = new LForms.Def.Autocompleter.Search(
+                'loinc_item',
+                'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM',
+                {tableFormat: true, valueCols: [0, 1],
+                colHeaders: ['Text', 'LOINC Code']}
+            );
             LForms.Def.Autocompleter.Event.observeListSelections('loinc_item', function () {
                 let formCode = ac.getSelectedCodes()[0];
                 if (formCode) {
@@ -164,6 +196,60 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
                 }
             });
         }
+
+        function initSearchForm() {
+            $(".isNew").toggleClass('d-none');
+
+            document.getElementById('select_item').addEventListener('change', function(){
+                let el = document.getElementById('select_item');
+                let formName = el.options[el.selectedIndex].text;
+                document.getElementById('form_name').value = formName;
+                document.qa_form.action = "#";
+                document.qa_form.submit();
+            });
+
+            let ac;
+            ac = new LForms.Def.Autocompleter.Search(
+                'loinc_item',
+                'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM',
+                {tableFormat: true, valueCols: [0, 1],
+                    colHeaders: ['Text', 'LOINC Code']}
+            );
+            LForms.Def.Autocompleter.Event.observeListSelections('loinc_item', function () {
+                let formCode = ac.getSelectedCodes()[0];
+                if (formCode) {
+                    top.restoreSession();
+                    let url = "https://clinicaltables.nlm.nih.gov/loinc_form_definitions?loinc_num=" + encodeURIComponent(formCode);
+                    fetch(url).then((form) => {
+                        return form.json();
+                    }).then((data) => {
+                        let saveButton = document.getElementById('save_response');
+                        let registryButton = document.getElementById('save_registry');
+                        saveButton.classList.remove("d-none");
+                        registryButton.classList.remove("d-none");
+                        document.getElementById('lform').value = JSON.stringify(data);
+                        document.getElementById('form_name').value = jsAttr(data.name);
+                        document.getElementById('code_type').value = jsAttr(data.type);
+                        document.getElementById('code').value = jsAttr(data.code);
+                        if (typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
+                            document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
+                            document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
+                        }
+                        LForms.Util.addFormToPage(data, 'formContainer', formOptions);
+                        return data;
+                    }).then((data) => {
+                        let qFhir = LForms.Util.getFormFHIRData("Questionnaire", 'R4', data);
+                        document.getElementById('questionnaire').value = JSON.stringify(qFhir);
+                    });
+                }
+            });
+
+            initNewForm(true);
+            let saveButton = document.getElementById('save_response');
+            let registryButton = document.getElementById('save_registry');
+            saveButton.classList.remove("d-none");
+            registryButton.classList.remove("d-none");
+        }
     </script>
 </head>
 <body>
@@ -187,10 +273,26 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
             <input type="hidden" id="copyright" name="copyright" value="<?php echo attr($form['copyright'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
-            <div class="form-group">
-                <div class="input-group isNew">
+            <div class="mb-3">
+                <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
                     <input class="form-control search_field" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">
+                </div>
+                <div class="input-group isNew d-none">
+                    <label for="select_item" class="font-weight-bold my-3 mr-1"><?php echo xlt("Select new from Questionnaire Repository") . ': '; ?></label>
+                    <select class="form-control my-2" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false">
+                    <option value=""></option>
+                    <?php
+                    foreach ($q_list as $item) {
+                        $id = attr($item['id']);
+                        if ($id == $repository_item) {
+                            echo "<option selected value='$id'>" .  text($item['name']) . "</option>";
+                            continue;
+                        }
+                        echo "<option value='$id'>" .  text($item['name']) . "</option>";
+                    }
+                    ?>
+                    </select>
                 </div>
                 <div>
                     <p class="text-center"><?php echo "<span class='font-weight-bold'>" . xlt("Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); ?>
@@ -199,17 +301,17 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
                         <?php echo text($form['copyright'] ?? ''); ?>
                     </p>
                 </div>
-                <div class="input-group isNew">
+                <div class="input-group isNew d-none">
                     <hr />
-                    <label class="font-weight-bolder" for="form_name"><?php echo xlt("Form Name") . ':'; ?></label>
-                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten or be more understandable.'); ?>" placeholder="<?php echo xla('Name of form. Edit or leave as received.'); ?>" value="<?php echo attr($form['form_name']) ?? ''; ?>" />
+                    <label class="font-weight-bold my-2" for="form_name"><?php echo xlt("Form Name") . ':'; ?></label>
+                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten to be more understandable.'); ?>" placeholder="<?php echo xla('Name of new Encounter form. You may change or leave as displayed.'); ?>" value="<?php echo attr($form['form_name'] ?: $form_name); ?>" />
                 </div>
             </div>
             <hr />
             <div id="formContainer"></div>
             <div class="btn-group my-2">
-                <button type="submit" class="btn btn-primary btn-save isNew d-none" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save"); ?></button>
-                <button type="submit" class="btn btn-primary btn-save d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>"><?php echo xlt("or Register Form"); ?></button>
+                <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
+                <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>"><?php echo xlt("or Register New"); ?></button>
                 <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
             </div>
         </form>
@@ -229,6 +331,8 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
         window.onload = initSearch();
         <?php } elseif ($mode == 'new_form') { ?>
         window.onload = initNewForm();
+        <?php } elseif ($mode == 'new_repository_form') { ?>
+        window.onload = initSearchForm();
         <?php } ?>
     </script>
 </body>

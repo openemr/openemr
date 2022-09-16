@@ -171,6 +171,28 @@ class QuestionnaireService extends BaseService
         return $this->fetchQuestionnaireById($q_id) ?: [];
     }
 
+    public function getQuestionnaireList($encounter_exist_delimit = false): array
+    {
+        $response = array();
+        $sql = "Select  `id`, `name`  From `questionnaire_repository` Where (`active` = ?)";
+        $bind = array(1);
+        if ($encounter_exist_delimit) {
+            $sql = "Select `id`, `name` From `questionnaire_repository`" .
+                " Where `id` NOT IN (SELECT `form_foreign_id` FROM `registry` Where `form_foreign_id` > 0 And `directory` = ?)" .
+                " And `active` = ?";
+            $bind = array('questionnaire_assessments', 1);
+        }
+        $r = sqlStatement($sql, $bind) ?: [];
+        while ($row = sqlFetchArray($r)) {
+            if (is_array($row) && !empty($row['uuid'])) {
+                $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            }
+            $response[] = $row;
+        }
+
+        return $response;
+    }
+
     /**
      * @param $id
      * @param $uuid
