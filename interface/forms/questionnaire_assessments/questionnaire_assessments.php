@@ -46,6 +46,10 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
     <?php Header::setupHeader(); ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
     <script>
+        let formOptions = {
+            questionLayout: "vertical",
+            hideTreeLine: true
+        };
         function saveQR() {
             top.restoreSession();
             let qr = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4');
@@ -63,11 +67,34 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
 
         function initUpdate() {
             // Merge QuestionnaireResponse
-            let qResponse = JSON.parse(document.getElementById('questionnaire_response').value);
-            let lForm = JSON.parse(document.getElementById('lform').value);
-            let responseData = LForms.Util.mergeFHIRDataIntoLForms("QuestionnaireResponse", qResponse, lForm, "R4");
+            let lForm = null;
+            let qFhir = null;
+            if (document.getElementById('lform').value) {
+                lForm = JSON.parse(document.getElementById('lform').value);
+            }
+            if (document.getElementById('questionnaire').value) {
+                qFhir = document.getElementById('questionnaire').value;
+            }
+            let qr = document.getElementById('questionnaire_response').value;
+            let qResponse;
+            let responseData;
+            if (!lForm && qFhir > '') {
+                let qData = JSON.parse(qFhir);
+                lForm = LForms.Util.convertFHIRQuestionnaireToLForms(qData, 'R4');
+                document.getElementById('lform').value = JSON.stringify(lForm);
+            }
+            if (qr > '') {
+                qResponse = JSON.parse(qr);
+                responseData = LForms.Util.mergeFHIRDataIntoLForms("QuestionnaireResponse", qResponse, lForm, "R4");
+            } else {
+                alert(xl('Form response data missing or corrupt. Resetting form.'))
+            }
             $(".isNew").toggleClass('d-none');
-            LForms.Util.addFormToPage(responseData, 'formContainer');
+            if (responseData > '') {
+                LForms.Util.addFormToPage(responseData, 'formContainer', formOptions);
+            } else {
+                LForms.Util.addFormToPage(lForm, 'formContainer', formOptions);
+            }
         }
 
         function initNewForm() {
@@ -84,7 +111,7 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
                 alert(xl('Error Missing Form.'));
                 parent.closeTab(window.name, false);
             }
-            document.getElementById('questionnaire').value = JSON.stringify(qFhir);
+            document.getElementById('questionnaire').value = qFhir;
             document.getElementById('lform').value = JSON.stringify(data);
             document.getElementById('form_name').value = jsAttr(formName);
             document.getElementById('code_type').value = jsAttr('LOINC');
@@ -93,7 +120,7 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
                 document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
                 document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
             }
-            LForms.Util.addFormToPage(data, 'formContainer');
+            LForms.Util.addFormToPage(data, 'formContainer', formOptions);
             $(".isNew").toggleClass('d-none');
         }
 
@@ -106,8 +133,8 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
             // dialog alertMsg 5th parameter will set flag to disable this user seeing message
             alertMsg(msg, 20000, 'danger', '', 'disable_form_disclaimer');
             <?php } ?>
-            const ac = new LForms.Def.Autocompleter.Search('loinc_item', 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM', {tableFormat: true, valueCols: [0, 1], colHeaders: ['Text', 'LOINC Code']});
 
+            const ac = new LForms.Def.Autocompleter.Search('loinc_item', 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM', {tableFormat: true, valueCols: [0, 1], colHeaders: ['Text', 'LOINC Code']});
             LForms.Def.Autocompleter.Event.observeListSelections('loinc_item', function () {
                 let formCode = ac.getSelectedCodes()[0];
                 if (formCode) {
@@ -128,7 +155,7 @@ $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
                             document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
                             document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
                         }
-                        LForms.Util.addFormToPage(data, 'formContainer');
+                        LForms.Util.addFormToPage(data, 'formContainer', formOptions);
                         return data;
                     }).then((data) => {
                         let qFhir = LForms.Util.getFormFHIRData("Questionnaire", 'R4', data);
