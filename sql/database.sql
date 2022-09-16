@@ -7716,7 +7716,7 @@ CREATE TABLE `prescriptions` (
   `quantity` varchar(31) default NULL,
   `size` varchar(25) DEFAULT NULL,
   `unit` int(11) default NULL,
-  `route` int(11) default NULL,
+  `route` varchar(100) default NULL COMMENT 'Max size 100 characters is same max as immunizations',
   `interval` int(11) default NULL,
   `substitute` int(11) default NULL,
   `refills` int(11) default NULL,
