@@ -11,10 +11,28 @@
 
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Services\QuestionnaireResponseService;
+use OpenEMR\Services\QuestionnaireService;
+
+/**
+ * @throws Exception
+ */
 function questionnaire_assessments_report($pid, $encounter, $cols, $id)
 {
-    $count = 0;
-    $data = formFetch("form_questionnaire_assessments", $id);
-    if ($data) {
+    $form = formFetch("form_questionnaire_assessments", $id);
+    if (!$form) {
+        die(xlt('Nothing to report.'));
+    }
+    $responseService = new QuestionnaireResponseService();
+    try {
+        $qr = json_decode($form['questionnaire_response'], true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            die(xlt('Nothing to report. Parse error.'));
+        }
+        $answers = $responseService->flattenQuestionnaireResponse($qr, '|', '');
+        $html = $responseService->buildQuestionnaireResponseHtml($answers, '|');
+        echo $html;
+    } catch (Exception $e) {
+        die(xlt('Nothing to report. Rendering Exception error.'));
     }
 }

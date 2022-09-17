@@ -30,7 +30,8 @@ $formid = $_GET["form_id"] ?? 0;
 $form_name = $_POST['form_name'] ?? "";
 $q = $_POST['questionnaire'] ?? '';
 $lform = $_POST['lform'] ?? '';
-
+// so form save will work
+unset($_POST['select_item']);
 // register new form
 if (isset($_POST['save_registry'])) {
     unset($_POST['save_registry']);
