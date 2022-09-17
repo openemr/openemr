@@ -25,6 +25,7 @@ $repository_item = $_POST['select_item'] ?? null;
 // for new questionnaires user must be admin. leave strict conditional.
 $is_authorized = AclMain::aclCheckCore('admin', 'forms') ||
     ($questionnaire_form !== 'New Questionnaire' && $_GET['formname'] ?? null === 'questionnaire_assessments');
+
 if (!empty($_GET['id'] ?? 0) && empty($questionnaire_form)) {
     $formid = $_GET['id'];
     $form = formFetch("form_questionnaire_assessments", $formid);
@@ -42,8 +43,8 @@ if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
     $lform = $q['lform'] ?: '';
     $mode = 'new_form';
 }
+// This is for newly selected questionnaire from repository dropdown.
 if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
-    $is_authorized = true;
     $q = $service->fetchQuestionnaireById($repository_item);
     $q_json = $q['questionnaire'] ?: '';
     $lform = $q['lform'] ?: '';
@@ -62,6 +63,27 @@ $q_list = $service->getQuestionnaireList(true);
     <?php Header::setupHeader(); ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
     <script>
+        function initSelect() {
+            let ourSelect = $('.select-dropdown');
+            ourSelect.select2({
+                multiple: false,
+                placeholder: xl('Type to search.'),
+                theme: 'bootstrap4',
+                dropdownAutoWidth: true,
+                width: 'resolve',
+                closeOnSelect: true,
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            });
+            $(document).on('select2:open', () => {
+                document.querySelector('.select2-search__field').focus();
+            });
+            ourSelect.on("change", function(e) {
+                let el = document.getElementById('select_item');
+                document.getElementById('form_name').value = e.text;
+                document.qa_form.action = "#";
+                document.qa_form.submit();
+            });
+        }
         let formOptions = {
             questionLayout: "vertical",
             hideTreeLine: true
@@ -142,24 +164,16 @@ $q_list = $service->getQuestionnaireList(true);
         }
 
         function initSearch() {
+            initSelect();
             <?php if ($do_warning) { ?>
-            let msg = xl("OpenEMR is not responsible for any copyrights and permissions pertaining to questionnaires or assessments imported and implemented with this feature.") + "<br />";
-            msg += xl("Some, if not many, LOINC forms will display a copyright notice for information regarding permissions.") +
-                "<br /><br />";
-            msg += xl("Click Got it icon to dismiss this alert forever.");
+            let msg = xl("OpenEMR is not responsible for any copyright and or permissions pertaining to questionnaires or assessments imported from external sources and then implemented and used by this feature.");
+            msg += "<br />" + xl("Some, if not many, LOINC forms will display a copyright notice for information regarding permissions.");
+            msg += "<br /><br />" + xl("Click Got it icon to dismiss this alert forever.");
             // dialog alertMsg 5th parameter will set flag to disable this user seeing message
             alertMsg(msg, 20000, 'danger', '', 'disable_form_disclaimer');
             <?php } ?>
             $(".isNew").toggleClass('d-none');
-
-            document.getElementById('select_item').addEventListener('change', function(){
-                let el = document.getElementById('select_item');
-                let formName = el.options[el.selectedIndex].text;
-                document.getElementById('form_name').value = formName;
-                document.qa_form.action = "#";
-                document.qa_form.submit();
-            });
-
+            // setup LOINC search listener
             let ac;
             ac = new LForms.Def.Autocompleter.Search(
                 'loinc_item',
@@ -198,6 +212,7 @@ $q_list = $service->getQuestionnaireList(true);
         }
 
         function initSearchForm() {
+            initSelect();
             $(".isNew").toggleClass('d-none');
 
             document.getElementById('select_item').addEventListener('change', function(){
@@ -254,12 +269,13 @@ $q_list = $service->getQuestionnaireList(true);
 </head>
 <body>
     <div class="container-xl my-2">
+        <div class="header"><h3>Questionnaires</h3></div>
         <?php if (!$is_authorized) { ?>
             <div class="d-flex flex-column w-100 align-items-center">
                 <?php
                 echo "<h3>" . xlt("Not Authorized") . "</h3>";
                 echo "<h4>" . xlt("You must have administrator privileges.") . "</h4>";
-                echo "<h5>" . xlt("Contact an administrator to create a new questionnaire.") . "</h5>";
+                echo "<h5>" . xlt("Contact an administrator to use this feature.") . "</h5>";
                 ?>
                 <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Exit'); ?></button>
             </div>
@@ -273,14 +289,21 @@ $q_list = $service->getQuestionnaireList(true);
             <input type="hidden" id="copyright" name="copyright" value="<?php echo attr($form['copyright'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
+            <div>
+                <p class="text-center"><?php echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); ?>
+                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php echo xlt("terms of use.") . "</i>"; ?></php></a></p>
+                <p id="copyrightNotice">
+                    <?php echo text($form['copyright'] ?? ''); ?>
+                </p>
+            </div>
             <div class="mb-3">
                 <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
                     <input class="form-control search_field" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">
                 </div>
-                <div class="input-group isNew d-none">
-                    <label for="select_item" class="font-weight-bold my-3 mr-1"><?php echo xlt("Select new from Questionnaire Repository") . ': '; ?></label>
-                    <select class="form-control my-2" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false">
+                <div class="input-group isNew d-none mt-2">
+                    <label for="select_item" class="font-weight-bold my-2 mr-1"><?php echo xlt("Select new from Questionnaire Repository") . ': '; ?></label>
+                    <select class="select-dropdown my-2" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false">
                     <option value=""></option>
                     <?php
                     foreach ($q_list as $item) {
@@ -293,13 +316,6 @@ $q_list = $service->getQuestionnaireList(true);
                     }
                     ?>
                     </select>
-                </div>
-                <div>
-                    <p class="text-center"><?php echo "<span class='font-weight-bold'>" . xlt("Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); ?>
-                        <a href="http://loinc.org/terms-of-use" target="_blank"><?php echo xlt("terms of use.") . "</i>"; ?></php></a></p>
-                    <p id="copyrightNotice">
-                        <?php echo text($form['copyright'] ?? ''); ?>
-                    </p>
                 </div>
                 <div class="input-group isNew d-none">
                     <hr />
@@ -323,17 +339,19 @@ $q_list = $service->getQuestionnaireList(true);
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/polyfills-es2015.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/main-es2015.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/fhir/R4/lformsFHIR.min.js"></script>
-    <script>
-        let formMode = <?php echo js_escape($mode); ?>;
-        <?php if ($mode == 'update') { ?>
-        window.onload = initUpdate();
-        <?php } elseif ($mode == 'new') { ?>
-        window.onload = initSearch();
-        <?php } elseif ($mode == 'new_form') { ?>
-        window.onload = initNewForm();
-        <?php } elseif ($mode == 'new_repository_form') { ?>
-        window.onload = initSearchForm();
-        <?php } ?>
-    </script>
+    <!-- Dependency scopes seem strange using the way we have to implement the necessary web components. -->
+    <?php Header::setupAssets(['select2']); ?>
 </body>
+<script>
+    let formMode = <?php echo js_escape($mode); ?>;
+    <?php if ($mode == 'update') { ?>
+    window.onload = initUpdate();
+    <?php } elseif ($mode == 'new') { ?>
+    window.onload = initSearch();
+    <?php } elseif ($mode == 'new_form') { ?>
+    window.onload = initNewForm();
+    <?php } elseif ($mode == 'new_repository_form') { ?>
+    window.onload = initSearchForm();
+    <?php } ?>
+</script>
 </html>
