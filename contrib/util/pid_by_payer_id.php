@@ -27,7 +27,8 @@ foreach ($incos_by_payer_id as $key => $insco) {
     $pids_by_payer_id_array[] = (new InsuranceService())->getPidsForPayerByEffectiveDate(
         $insco['id'], 
         $type = 'primary', 
-        $effectiveDate = '2022-01-01'
+        $startDate = '2020-12-31',
+        $endDate = '2022-01-01'
     );
 
     $pids_by_payer_id = array_merge(...$pids_by_payer_id_array);        
@@ -55,8 +56,14 @@ $encs_by_date_range = (new EncounterService())->getEncountersByDateRange($start_
 // var_dump($encs_by_date_range_array);
 
 $encs_result = array_intersect(array_column($pids_by_payer_id, 'pid'), array_column($encs_by_date_range, 'pid'));
-print_r($encs_result);
-echo count($encs_result) . "/n";
+//print_r($encs_result);
+asort($encs_result);
+foreach ($encs_result as $key => $value) {
+    $output .= "$value, ";
+}
+echo $output;
+echo "\n" . count($encs_result) . "\n";
+
 //exit;
 
 

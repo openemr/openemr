@@ -373,7 +373,7 @@ class InsuranceService extends BaseService
             )
         );
     }
-    public function getPidsForPayerByEffectiveDate($provider, $type, $effectiveDate)
+    public function getPidsForPayerByEffectiveDate($provider, $type, $startDate, $endDate)
     {
         // most common case of null in effective date which signifies is only type of insurance (primary)
         $dateMissing = new TokenSearchField('date', [new TokenSearchValue(null)]);
@@ -381,7 +381,7 @@ class InsuranceService extends BaseService
 
         // set up composite search with false signifying an OR condition for the effective date
         $composite = new CompositeSearchField('date', [], false); 
-        $dateField = new DateSearchField('date', ['ge' . $effectiveDate], DateSearchField::DATE_TYPE_DATE);
+        $dateField = new DateSearchField('date', ['ge' . $startDate, 'le' . $endDate], DateSearchField::DATE_TYPE_DATE);
         $composite->addChild($dateMissing);
         $composite->addChild($dateField);
 
