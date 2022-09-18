@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3a5dde7dcfc26ae6c7e106670af6f39",
+    "content-hash": "20eabf25d19f6c93a57149c5d093213b",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -247,32 +247,36 @@
         },
         {
             "name": "bacon/bacon-qr-code",
-            "version": "1.0.3",
+            "version": "2.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Bacon/BaconQrCode.git",
-                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee"
+                "reference": "d70c840f68657ce49094b8d91f9ee0cc07fbf66c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/5a91b62b9d37cee635bbf8d553f4546057250bee",
-                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/d70c840f68657ce49094b8d91f9ee0cc07fbf66c",
+                "reference": "d70c840f68657ce49094b8d91f9ee0cc07fbf66c",
                 "shasum": ""
             },
             "require": {
+                "dasprid/enum": "^1.0.3",
                 "ext-iconv": "*",
-                "php": "^5.4|^7.0"
+                "php": "^7.1 || ^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8"
+                "phly/keep-a-changelog": "^2.1",
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "spatie/phpunit-snapshot-assertions": "^4.2.9",
+                "squizlabs/php_codesniffer": "^3.4"
             },
             "suggest": {
-                "ext-gd": "to generate QR code images"
+                "ext-imagick": "to generate QR code images"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "BaconQrCode": "src/"
+                "psr-4": {
+                    "BaconQrCode\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -283,7 +287,7 @@
                 {
                     "name": "Ben Scholzen 'DASPRiD'",
                     "email": "mail@dasprids.de",
-                    "homepage": "http://www.dasprids.de",
+                    "homepage": "https://dasprids.de/",
                     "role": "Developer"
                 }
             ],
@@ -291,9 +295,9 @@
             "homepage": "https://github.com/Bacon/BaconQrCode",
             "support": {
                 "issues": "https://github.com/Bacon/BaconQrCode/issues",
-                "source": "https://github.com/Bacon/BaconQrCode/tree/master"
+                "source": "https://github.com/Bacon/BaconQrCode/tree/2.0.7"
             },
-            "time": "2017-10-17T09:59:25+00:00"
+            "time": "2022-03-14T02:02:36+00:00"
         },
         {
             "name": "brick/math",
@@ -469,6 +473,53 @@
                 }
             ],
             "time": "2022-02-21T13:15:14+00:00"
+        },
+        {
+            "name": "dasprid/enum",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DASPRiD/Enum.git",
+                "reference": "5abf82f213618696dda8e3bf6f64dd042d8542b2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DASPRiD/Enum/zipball/5abf82f213618696dda8e3bf6f64dd042d8542b2",
+                "reference": "5abf82f213618696dda8e3bf6f64dd042d8542b2",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DASPRiD\\Enum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "https://dasprids.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP 7.1 enum implementation",
+            "keywords": [
+                "enum",
+                "map"
+            ],
+            "support": {
+                "issues": "https://github.com/DASPRiD/Enum/issues",
+                "source": "https://github.com/DASPRiD/Enum/tree/1.0.3"
+            },
+            "time": "2020-10-02T16:03:48+00:00"
         },
         {
             "name": "defuse/php-encryption",
@@ -844,16 +895,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.265.0",
+            "version": "v0.266.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "a23754daa452e26a8dd31a7848863c67a2e3d67e"
+                "reference": "27ead5edc8ba4a17ddd211ad03216c313a57411f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/a23754daa452e26a8dd31a7848863c67a2e3d67e",
-                "reference": "a23754daa452e26a8dd31a7848863c67a2e3d67e",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/27ead5edc8ba4a17ddd211ad03216c313a57411f",
+                "reference": "27ead5edc8ba4a17ddd211ad03216c313a57411f",
                 "shasum": ""
             },
             "require": {
@@ -882,9 +933,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.265.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.266.0"
             },
-            "time": "2022-09-04T00:58:12+00:00"
+            "time": "2022-09-12T01:28:14+00:00"
         },
         {
             "name": "google/auth",
@@ -1495,16 +1546,16 @@
         },
         {
             "name": "laminas/laminas-code",
-            "version": "4.6.0",
+            "version": "4.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-code.git",
-                "reference": "16ec7577ff315d53ac2e1b1f03a344d8fe680a6e"
+                "reference": "0337d9265bc2e6376babad8c511500821620cb30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-code/zipball/16ec7577ff315d53ac2e1b1f03a344d8fe680a6e",
-                "reference": "16ec7577ff315d53ac2e1b1f03a344d8fe680a6e",
+                "url": "https://api.github.com/repos/laminas/laminas-code/zipball/0337d9265bc2e6376babad8c511500821620cb30",
+                "reference": "0337d9265bc2e6376babad8c511500821620cb30",
                 "shasum": ""
             },
             "require": {
@@ -1557,7 +1608,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2022-07-28T22:46:52+00:00"
+            "time": "2022-09-13T10:33:30+00:00"
         },
         {
             "name": "laminas/laminas-config",
@@ -2628,16 +2679,16 @@
         },
         {
             "name": "laminas/laminas-modulemanager",
-            "version": "2.11.0",
+            "version": "2.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-modulemanager.git",
-                "reference": "6acf5991d10b0b38a2edb08729ed48981b2a5dad"
+                "reference": "cd2dd3b3dc59e75a9f2117374222c0d84b25bf19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-modulemanager/zipball/6acf5991d10b0b38a2edb08729ed48981b2a5dad",
-                "reference": "6acf5991d10b0b38a2edb08729ed48981b2a5dad",
+                "url": "https://api.github.com/repos/laminas/laminas-modulemanager/zipball/cd2dd3b3dc59e75a9f2117374222c0d84b25bf19",
+                "reference": "cd2dd3b3dc59e75a9f2117374222c0d84b25bf19",
                 "shasum": ""
             },
             "require": {
@@ -2656,7 +2707,9 @@
                 "laminas/laminas-loader": "^2.8",
                 "laminas/laminas-mvc": "^3.1.1",
                 "laminas/laminas-servicemanager": "^3.7",
-                "phpunit/phpunit": "^9.5.5"
+                "phpunit/phpunit": "^9.5.5",
+                "psalm/plugin-phpunit": "^0.16.1",
+                "vimeo/psalm": "^4.10"
             },
             "suggest": {
                 "laminas/laminas-console": "Laminas\\Console component",
@@ -2694,7 +2747,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2021-10-13T17:05:17+00:00"
+            "time": "2022-09-07T11:22:27+00:00"
         },
         {
             "name": "laminas/laminas-mvc",
@@ -3411,16 +3464,16 @@
         },
         {
             "name": "laminas/laminas-validator",
-            "version": "2.23.0",
+            "version": "2.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-validator.git",
-                "reference": "6d61b6cc3b222f13807a18d9247cdfb084958b03"
+                "reference": "f2ad7de3f92b443f31447a37e061116f701d150a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/6d61b6cc3b222f13807a18d9247cdfb084958b03",
-                "reference": "6d61b6cc3b222f13807a18d9247cdfb084958b03",
+                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/f2ad7de3f92b443f31447a37e061116f701d150a",
+                "reference": "f2ad7de3f92b443f31447a37e061116f701d150a",
                 "shasum": ""
             },
             "require": {
@@ -3432,20 +3485,20 @@
                 "zendframework/zend-validator": "*"
             },
             "require-dev": {
-                "laminas/laminas-coding-standard": "~2.3.0",
-                "laminas/laminas-db": "^2.7",
-                "laminas/laminas-filter": "^2.14.0",
-                "laminas/laminas-http": "^2.14.2",
-                "laminas/laminas-i18n": "^2.15.0",
-                "laminas/laminas-session": "^2.12.1",
+                "laminas/laminas-coding-standard": "^2.4.0",
+                "laminas/laminas-db": "^2.15.0",
+                "laminas/laminas-filter": "^2.18.0",
+                "laminas/laminas-http": "^2.16.0",
+                "laminas/laminas-i18n": "^2.17.0",
+                "laminas/laminas-session": "^2.13.0",
                 "laminas/laminas-uri": "^2.9.1",
                 "phpspec/prophecy-phpunit": "^2.0",
-                "phpunit/phpunit": "^9.5.21",
+                "phpunit/phpunit": "^9.5.24",
                 "psalm/plugin-phpunit": "^0.17.0",
                 "psr/http-client": "^1.0",
                 "psr/http-factory": "^1.0",
                 "psr/http-message": "^1.0",
-                "vimeo/psalm": "^4.24.0"
+                "vimeo/psalm": "^4.27.0"
             },
             "suggest": {
                 "laminas/laminas-db": "Laminas\\Db component, required by the (No)RecordExists validator",
@@ -3493,7 +3546,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2022-07-27T19:17:59+00:00"
+            "time": "2022-09-13T07:40:10+00:00"
         },
         {
             "name": "laminas/laminas-view",
@@ -4132,16 +4185,16 @@
         },
         {
             "name": "league/uri",
-            "version": "6.7.1",
+            "version": "6.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri.git",
-                "reference": "2d7c87a0860f3126a39f44a8a9bf2fed402dcfea"
+                "reference": "d3b50812dd51f3fbf176344cc2981db03d10fe06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri/zipball/2d7c87a0860f3126a39f44a8a9bf2fed402dcfea",
-                "reference": "2d7c87a0860f3126a39f44a8a9bf2fed402dcfea",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/d3b50812dd51f3fbf176344cc2981db03d10fe06",
+                "reference": "d3b50812dd51f3fbf176344cc2981db03d10fe06",
                 "shasum": ""
             },
             "require": {
@@ -4219,7 +4272,7 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri/issues",
-                "source": "https://github.com/thephpleague/uri/tree/6.7.1"
+                "source": "https://github.com/thephpleague/uri/tree/6.7.2"
             },
             "funding": [
                 {
@@ -4227,7 +4280,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-06-29T09:48:18+00:00"
+            "time": "2022-09-13T19:50:42+00:00"
         },
         {
             "name": "league/uri-interfaces",
@@ -5333,134 +5386,6 @@
                 "source": "https://github.com/openemr/mustache.php/tree/v2.15.2"
             },
             "time": "2022-03-03T14:53:09+00:00"
-        },
-        {
-            "name": "paragonie/constant_time_encoding",
-            "version": "v2.6.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/paragonie/constant_time_encoding.git",
-                "reference": "58c3f47f650c94ec05a151692652a868995d2938"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/58c3f47f650c94ec05a151692652a868995d2938",
-                "reference": "58c3f47f650c94ec05a151692652a868995d2938",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7|^8"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^6|^7|^8|^9",
-                "vimeo/psalm": "^1|^2|^3|^4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "ParagonIE\\ConstantTime\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Paragon Initiative Enterprises",
-                    "email": "security@paragonie.com",
-                    "homepage": "https://paragonie.com",
-                    "role": "Maintainer"
-                },
-                {
-                    "name": "Steve 'Sc00bz' Thomas",
-                    "email": "steve@tobtu.com",
-                    "homepage": "https://www.tobtu.com",
-                    "role": "Original Developer"
-                }
-            ],
-            "description": "Constant-time Implementations of RFC 4648 Encoding (Base-64, Base-32, Base-16)",
-            "keywords": [
-                "base16",
-                "base32",
-                "base32_decode",
-                "base32_encode",
-                "base64",
-                "base64_decode",
-                "base64_encode",
-                "bin2hex",
-                "encoding",
-                "hex",
-                "hex2bin",
-                "rfc4648"
-            ],
-            "support": {
-                "email": "info@paragonie.com",
-                "issues": "https://github.com/paragonie/constant_time_encoding/issues",
-                "source": "https://github.com/paragonie/constant_time_encoding"
-            },
-            "time": "2022-06-14T06:56:20+00:00"
-        },
-        {
-            "name": "paragonie/multi-factor",
-            "version": "v0.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/paragonie/multi_factor.git",
-                "reference": "20dd0ba8fdb56cfe1eb727fef1efd96ee55fcdc6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/multi_factor/zipball/20dd0ba8fdb56cfe1eb727fef1efd96ee55fcdc6",
-                "reference": "20dd0ba8fdb56cfe1eb727fef1efd96ee55fcdc6",
-                "shasum": ""
-            },
-            "require": {
-                "bacon/bacon-qr-code": "^1",
-                "paragonie/constant_time_encoding": "^2",
-                "php": "^7"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.*|5.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "ParagonIE\\MultiFactor\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-3.0+",
-                "MIT",
-                "proprietary"
-            ],
-            "authors": [
-                {
-                    "name": "Paragon Initiative Enterprises",
-                    "email": "security@paragonie.com",
-                    "homepage": "https://paragonie.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Vendor-agnostic two-factor authentication library",
-            "keywords": [
-                "2fa",
-                "MFA",
-                "Two-factor Authentication",
-                "hotp",
-                "multi-factor",
-                "multi-factor authentication",
-                "tfa",
-                "totp",
-                "two-factor"
-            ],
-            "support": {
-                "email": "info@paragonie.com",
-                "issues": "https://github.com/paragonie/multi_factor/issues",
-                "source": "https://github.com/paragonie/multi_factor"
-            },
-            "time": "2016-06-17T23:34:58+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -7226,6 +7151,76 @@
                 }
             ],
             "time": "2021-09-25T23:10:38+00:00"
+        },
+        {
+            "name": "robthree/twofactorauth",
+            "version": "1.8.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/RobThree/TwoFactorAuth.git",
+                "reference": "65681de5a324eae05140ac58b08648a60212afc0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/RobThree/TwoFactorAuth/zipball/65681de5a324eae05140ac58b08648a60212afc0",
+                "reference": "65681de5a324eae05140ac58b08648a60212afc0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpunit/phpunit": "@stable"
+            },
+            "suggest": {
+                "bacon/bacon-qr-code": "Needed for BaconQrCodeProvider provider",
+                "endroid/qr-code": "Needed for EndroidQrCodeProvider"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "RobThree\\Auth\\": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rob Janssen",
+                    "homepage": "http://robiii.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Two Factor Authentication",
+            "homepage": "https://github.com/RobThree/TwoFactorAuth",
+            "keywords": [
+                "Authentication",
+                "MFA",
+                "Multi Factor Authentication",
+                "Two Factor Authentication",
+                "authenticator",
+                "authy",
+                "php",
+                "tfa"
+            ],
+            "support": {
+                "issues": "https://github.com/RobThree/TwoFactorAuth/issues",
+                "source": "https://github.com/RobThree/TwoFactorAuth"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/robiii",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/RobThree",
+                    "type": "github"
+                }
+            ],
+            "time": "2022-03-22T16:11:07+00:00"
         },
         {
             "name": "rospdf/pdf-php",
@@ -10890,16 +10885,16 @@
         },
         {
             "name": "sebastian/comparator",
-            "version": "4.0.6",
+            "version": "4.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/comparator.git",
-                "reference": "55f4261989e546dc112258c7a75935a81a7ce382"
+                "reference": "fa0f136dd2334583309d32b62544682ee972b51a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/55f4261989e546dc112258c7a75935a81a7ce382",
-                "reference": "55f4261989e546dc112258c7a75935a81a7ce382",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/fa0f136dd2334583309d32b62544682ee972b51a",
+                "reference": "fa0f136dd2334583309d32b62544682ee972b51a",
                 "shasum": ""
             },
             "require": {
@@ -10952,7 +10947,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/comparator/issues",
-                "source": "https://github.com/sebastianbergmann/comparator/tree/4.0.6"
+                "source": "https://github.com/sebastianbergmann/comparator/tree/4.0.8"
             },
             "funding": [
                 {
@@ -10960,7 +10955,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-26T15:49:45+00:00"
+            "time": "2022-09-14T12:41:17+00:00"
         },
         {
             "name": "sebastian/complexity",
@@ -11150,16 +11145,16 @@
         },
         {
             "name": "sebastian/exporter",
-            "version": "4.0.4",
+            "version": "4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/exporter.git",
-                "reference": "65e8b7db476c5dd267e65eea9cab77584d3cfff9"
+                "reference": "ac230ed27f0f98f597c8a2b6eb7ac563af5e5b9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/65e8b7db476c5dd267e65eea9cab77584d3cfff9",
-                "reference": "65e8b7db476c5dd267e65eea9cab77584d3cfff9",
+                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/ac230ed27f0f98f597c8a2b6eb7ac563af5e5b9d",
+                "reference": "ac230ed27f0f98f597c8a2b6eb7ac563af5e5b9d",
                 "shasum": ""
             },
             "require": {
@@ -11215,7 +11210,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/exporter/issues",
-                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.4"
+                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.5"
             },
             "funding": [
                 {
@@ -11223,7 +11218,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-11-11T14:18:36+00:00"
+            "time": "2022-09-14T06:03:37+00:00"
         },
         {
             "name": "sebastian/global-state",
@@ -11578,16 +11573,16 @@
         },
         {
             "name": "sebastian/type",
-            "version": "3.1.0",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/type.git",
-                "reference": "fb44e1cc6e557418387ad815780360057e40753e"
+                "reference": "fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/type/zipball/fb44e1cc6e557418387ad815780360057e40753e",
-                "reference": "fb44e1cc6e557418387ad815780360057e40753e",
+                "url": "https://api.github.com/repos/sebastianbergmann/type/zipball/fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e",
+                "reference": "fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e",
                 "shasum": ""
             },
             "require": {
@@ -11599,7 +11594,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -11622,7 +11617,7 @@
             "homepage": "https://github.com/sebastianbergmann/type",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/type/issues",
-                "source": "https://github.com/sebastianbergmann/type/tree/3.1.0"
+                "source": "https://github.com/sebastianbergmann/type/tree/3.2.0"
             },
             "funding": [
                 {
@@ -11630,7 +11625,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-08-29T06:55:37+00:00"
+            "time": "2022-09-12T14:47:03+00:00"
         },
         {
             "name": "sebastian/version",
