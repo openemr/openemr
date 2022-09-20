@@ -13,7 +13,6 @@ $core_modules = [
     'Laminas\Validator',  // Handles validations....
     'Laminas\Mvc\I18n', // TODO: since translations seem to be using the OPENEMR translations we may not need this anymore though we load it as a factory
     'Laminas\Form', // needed for the formHelper view plugin.
-    'Laminas\Mvc\Console', // Used for console commands. TODO: Deprecated and plan to remove in the future (plan to upgrade to zf-console)
     'Application', // Main application module starting point.
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
