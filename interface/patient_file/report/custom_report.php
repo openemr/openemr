@@ -262,7 +262,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $practice_logo = $plogo[$k];
                 }
 
-                echo "<div class='table-responsive'><table class='table'><tbody><tr><td>";
+                echo "<div class='table-responsive'><table class='table'><tbody><tr><td class='text-left align-middle'>";
+                ?>
+                <a href="javascript:window.close();"><h1><?php echo text($titleres['lname']) . ", " . text($titleres['fname']); ?></h1></a>
+                <?php
+                echo "</td><td class='text-right'>";
                 if (file_exists($practice_logo)) {
                     $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
                     echo "<img class='h-auto' style='max-width:250px;' src='$logo_path'>"; // keep size within reason
@@ -274,7 +278,6 @@ function zip_content($source, $destination, $content = '', $create = true)
                 <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?><?php echo text($facility['postal_code']); ?><br clear='all'>
                 <?php echo text($facility['phone']); ?><br />
 
-                <a href="javascript:window.close();"><span class='title'><?php echo xlt('Patient') . ": " . text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br />
                 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
                 <?php echo "</td></tr></tbody></table></div>"; ?>
 
