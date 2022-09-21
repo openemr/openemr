@@ -249,7 +249,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
                 // in HTML view it's just one line at the top of page 1
-                echo '<page_header class="custom-tag text-right"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
+                echo '<page_header class="custom-tag text-right"> ' . xlt("PATIENT") . ': ' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
                 echo '<page_footer class="custom-tag text-right">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
@@ -278,7 +278,6 @@ function zip_content($source, $destination, $content = '', $create = true)
                 <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?><?php echo text($facility['postal_code']); ?><br clear='all'>
                 <?php echo text($facility['phone']); ?><br />
 
-                <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
                 <?php echo "</td></tr></tbody></table></div>"; ?>
 
             <?php } else { // not printable
