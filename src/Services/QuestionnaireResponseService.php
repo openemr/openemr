@@ -14,6 +14,8 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 
 class QuestionnaireResponseService extends BaseService
 {
@@ -87,11 +89,12 @@ class QuestionnaireResponseService extends BaseService
      */
     public function buildQuestionnaireResponseHtml($source, $delimiter = '|'): string
     {
+        // TODO make pure HTML no BS for API generated
         $html = <<<head
         <html>
         <body>
-        <div class='container-fluid'>
-        <form class='form'>
+        <div>
+        <form>
         head;
         $title = true;
         foreach ($source as $k => $value) {
@@ -325,93 +328,117 @@ class QuestionnaireResponseService extends BaseService
         return $question_results;
     }
 
-    /* WIP */
     /**
-     * @param $pid
-     * @param $foreign_id
-     * @param $name
-     * @param $q
-     * @param $response
-     * @param $form_response
+     * @param       $response
+     * @param       $pid
+     * @param null  $encounter
+     * @param null  $qr_id
+     * @param null  $qr_record_id
+     * @param null  $q
+     * @param null  $q_id
+     * @param null  $form_response
+     * @param array $scores
      * @return array|false|int|mixed
+     * @throws Exception
      */
-    public function saveQuestionnaireResponse($pid, $foreign_id, $name, $q, $response, $form_response = null)
-    {
+    public function saveQuestionnaireResponse(
+        $response,
+        $pid,
+        $encounter = null,
+        $qr_id = null,
+        $qr_record_id = null,
+        $q = null,
+        $q_id = null,
+        $form_response = null,
+        $scores = []
+    ): mixed {
+        $q_content = null;
+        $q_title = null;
+        $q_record_id = null;
+        $update_flag = false;
+
+        // questionnaire. If isJason let's not reformat and use passed in json
         if (is_string($q)) {
-            $q_ob = json_decode($q, true);
-            $is_json = json_last_error() === JSON_ERROR_NONE;
-            if (!$is_json) {
-                return false;
-            }
-            $q = $q_ob;
+            $fhirQuestionnaireOb = $this->parse($q);
+            $q_content = $q;
         } else {
-            if (is_object($q)) {
-                $q = (array)$q;
-            }
+            $fhirQuestionnaireOb = $this->parse($q);
+            $q_content = $this->jsonSerialize($q);
+        }
+        // response
+        if (!empty($response)) {
+            $fhirResponseOb = $this->parse($response, true);
+        } else {
+            throw new Exception(xlt("Questinnaire response is empty"));
         }
 
-        if (is_string($response)) {
-            $r_ob = json_decode($q, true);
-            $is_json = json_last_error() === JSON_ERROR_NONE;
-            if (!$is_json) {
-                return false;
-            }
-            $r = $r_ob;
-        } else {
-            if (is_object($response)) {
-                $r = (array)$response;
-            }
+        if (!empty($fhirQuestionnaireOb)) {
+            $q_id = $q_id ?: $this->getValue($fhirQuestionnaireOb->id);
+            $q_title = $this->getValue($fhirQuestionnaireOb->title);
+            $q_name = $this->getValue($fhirQuestionnaireOb->name);
+            $q_record_id = $this->questionnaireService->getQuestionnaireIdAndVersion($q_title, $q_id)['id'] ?? null;
         }
-        $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_response']))->createUuid();
-        if (is_array($q)) {
-            $q_ob = $q;
-            $q_id = $q_id ?? ($q_ob['id'] ?? null);
-            $q_version = $q_ob['meta']['versionId'] ?? 1;
-            $q_last_date = $q_ob['meta']['lastUpdated'] ?? null;
-            $name = $name ?? ($q_ob['title'] ?? null);
-            $q_profile = $q_ob['meta']['profile'][0] ?? null;
-            $q_status = $q_ob['status'] ?? null;
+
+        if (!empty($qr_id)) {
+            $update_flag = true;
         } else {
-            return false;
+            $qr_id = $this->getValue($fhirResponseOb->id);
         }
-        $q_content = json_encode($q_ob);
-        $r_content = json_encode($r_ob);
+        if (empty($qr_id)) {
+            $qr_uuid = (new UuidRegistry(['table_name' => 'questionnaire_response']))->createUuid();
+            // unique id for this set of answers
+            $qr_id = UuidRegistry::uuidToString((new UuidRegistry(['table_name' => 'questionnaire_response']))->createUuid());
+            $update_flag = false;
+        }
+        if ($update_flag) {
+            $id = $this->fetchQuestionnaireResponseById($qr_record_id, $q_id, null);
+        }
+        $fhirResponseOb->setId(new FHIRId($qr_id));
+        $fhirResponseOb->setQuestionnaire(new FHIRUri('fhir/Questionnaire/' . $qr_id));
+        if (is_numeric($encounter)) {
+            $encounter = $this::getUuidById($encounter, 'form_encounter', 'id') ?: $encounter;
+        }
+        if ($encounter) {
+            $fhirResponseOb->setEncounter(('fhir/Encounter/' . $encounter));
+        }
+        $r_status = $fhirResponseOb->getStatus()->getValue();
+        // todo add author and other meta
+        $r_content = $this->jsonSerialize($fhirResponseOb);
+
         $bind = array(
-            $q_uuid,
+            $qr_uuid,
+            $qr_id,
+            $q_record_id,
             $q_id,
+            $q_title,
             $_SESSION['authUserID'],
-            $q_version,
-            $q_last_date,
-            $name,
-            $q_profile,
-            $q_status,
+            $pid,
+            $r_status ?: 'in-progress',
             $q_content,
             $r_content,
+            $form_response
         );
 
-        $sql_insert = "INSERT INTO `questionnaire_response` (`uuid`, `questionnaire_foreign_id`, `questionnaire_id`, `questionnaire_name`, `audit_user_id`, `creator_user_id `, `create_time`, `last_updated`, `patient_id`, `version`, `status`, `questionnaire`, `questionnaire_response`, `form_response`, `form_score`, `tscore`, `error`) VALUES (?, ?, ?, ?, NULL, current_timestamp(), current_timestamp(), ?, ?, NULL, ?, ?, ?, ?, ?, ?)";
+        $sql_insert = "INSERT INTO `questionnaire_response` (`uuid`, `response_id`, `questionnaire_foreign_id`, `questionnaire_id`, `questionnaire_name`, `audit_user_id`, `creator_user_id`, `create_time`, `last_updated`, `patient_id`, `version`, `status`, `questionnaire`, `questionnaire_response`, `form_response`, `form_score`, `tscore`, `error`) VALUES (?, ?, ?, ?, ?, NULL, ?, current_timestamp(), current_timestamp(), ?, 1, ?, ?, ?, ?, NULL, NULL, NULL)";
 
-        $sql_update = "UPDATE `questionnaire_response` SET `audit_user_id` = ?,`version` = ?, `modified_date` = ?, `questionnaire_name` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `questionnaire_response` = ?, `form_response` = ? WHERE `id` = ?";
+        $sql_update = "UPDATE `questionnaire_response` SET `id` = ?, `audit_user_id` = ?,`version` = ?, `modified_date` = ?, `questionnaire_name` = ?, `status` = ?,`questionnaire` = ?, `questionnaire_response` = ?, `form_response` = ? WHERE `id` = ?";
 
-        $id = $this->questionnaireService->getQuestionnaireIdAndVersion($name, $q_id);
-
-        if (!empty($id)) {
+        if ($update_flag) {
             $version_update = (int)$id['version'] + 1;
             $bind = array(
                 $q_id,
                 $_SESSION['authUserID'],
                 $version_update,
                 date("Y-m-d H:i:s"),
-                $name,
-                $q_profile,
-                $q_status,
-                //$q_code,
-                //$q_display,
-                //$content,
+                $q_name,
+                $r_status,
+                $q_content,
+                $r_content,
+                $form_response,
                 $id['id']
             );
             $result = sqlQuery($sql_update, $bind);
-            $id = $result ?: $id['id'];
+            $id = $id['id'];
         } else {
             $id = sqlInsert($sql_insert, $bind) ?: 0;
         }
@@ -424,14 +451,15 @@ class QuestionnaireResponseService extends BaseService
      * @param $uuid
      * @return array
      */
-    public function fetchQuestionnaireResponseById($id, $uuid = null): array
+    public function fetchQuestionnaireResponseById($id, $qr_id, $uuid = null): array
     {
         $id = $id ?: 0;
-        $sql = "Select * From `questionnaire_response` Where (`id` = ?) Or (`uuid` IS NOT NULL And `uuid` = ?)";
-        $bind = array($id, $uuid);
         if (!empty($uuid)) {
             $sql = "Select * From `questionnaire_response` Where `uuid` = ?";
             $bind = array($uuid);
+        } else {
+            $sql = "Select * From `questionnaire_response` Where (`id` = ?) Or (`response_id` IS NOT NULL And `response_id` = ?)";
+            $bind = array($id, $qr_id);
         }
         $response = sqlQuery($sql, $bind) ?: [];
         if (is_array($response) && !empty($response['uuid'])) {

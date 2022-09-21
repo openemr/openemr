@@ -129,30 +129,11 @@ CREATE TABLE `questionnaire_repository` (
 ) ENGINE=InnoDB;
 #EndIf
 
-#IfNotTable questionnaire_response
-CREATE TABLE `questionnaire_response` (
-  `id` bigint(21) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
-  `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
-  `questionnaire_id` varchar(255) DEFAULT NULL,
-  `questionnaire_name` varchar(255) DEFAULT NULL,
-  `audit_user_id` int(11) DEFAULT NULL,
-  `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
-  `create_time` datetime DEFAULT current_timestamp(),
-  `last_updated` datetime DEFAULT NULL,
-  `patient_id` int(11) DEFAULT NULL,
-  `version` int(11) NOT NULL DEFAULT 1,
-  `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
-  `questionnaire` longtext COMMENT 'the subject questionnaire json',
-  `questionnaire_response` longtext COMMENT 'questionnaire response json',
-  `form_response` longtext COMMENT 'lform answers array json',
-  `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
-  `tscore` double DEFAULT NULL COMMENT 'T-Score',
-  `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
-) ENGINE=InnoDB;
+-- At this point below table was never used. Simply recreating with additions
+#IfMissingColumn questionnaire_response response_id
+#IfMissingColumn questionnaire_response encounter
+DROP TABLE `questionnaire_response`;
+#EndIf
 #EndIf
 
 #IfMissingColumn questionnaire_repository lform
@@ -204,10 +185,37 @@ ALTER TABLE `prescriptions` CHANGE `route` `route` VARCHAR(100) NULL DEFAULT NUL
 
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2022-10-01 load_filename 2023 Code Descriptions in Tabular Order.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2022-10-01', '2023 Code Descriptions in Tabular Order.zip', 'a2bd2e87d6fac3f861b03dba9ca87cbc');
+    ('ICD10', 'CMS', '2022-10-01', '2023 Code Descriptions in Tabular Order.zip', 'a2bd2e87d6fac3f861b03dba9ca87cbc');
 #EndIf
 
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2022-10-01 load_filename Zip File 3 2023 ICD-10-PCS Codes File.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2022-10-01', 'Zip File 3 2023 ICD-10-PCS Codes File.zip', 'a4c0e6026557d770dc3d994718acaa21');
+    ('ICD10', 'CMS', '2022-10-01', 'Zip File 3 2023 ICD-10-PCS Codes File.zip', 'a4c0e6026557d770dc3d994718acaa21');
+
+#IfNotTable questionnaire_response
+CREATE TABLE `questionnaire_response` (
+ `id` bigint(21) NOT NULL AUTO_INCREMENT,
+ `uuid` binary(16) DEFAULT NULL,
+ `response_id` varchar(255) DEFAULT NULL COMMENT 'A globally unique id for answer set. String version of UUID',
+ `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
+ `questionnaire_id` varchar(255) DEFAULT NULL COMMENT 'Id for questionnaire content. String version of UUID',
+ `questionnaire_name` varchar(255) DEFAULT NULL,
+ `patient_id` int(11) DEFAULT NULL,
+ `encounter` int(11) DEFAULT NULL COMMENT 'May or may not be associated with an encounter',
+ `audit_user_id` int(11) DEFAULT NULL,
+ `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
+ `create_time` datetime DEFAULT current_timestamp(),
+ `last_updated` datetime DEFAULT NULL,
+ `version` int(11) NOT NULL DEFAULT 1,
+ `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
+ `questionnaire` longtext COMMENT 'the subject questionnaire json',
+ `questionnaire_response` longtext COMMENT 'questionnaire response json',
+ `form_response` longtext COMMENT 'lform answers array json',
+ `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
+ `tscore` double DEFAULT NULL COMMENT 'T-Score',
+ `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `uuid` (`uuid`),
+ KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
+) ENGINE=InnoDB;
 #EndIf

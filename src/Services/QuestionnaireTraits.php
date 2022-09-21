@@ -116,12 +116,16 @@ trait QuestionnaireTraits
 
     /**
      * @param $data
-     * @return \OpenEMR\FHIR\R4\PHPFHIRTypeInterface|null
+     * @return array|object|string
+     * @throws Exception
      */
     public function parse($data)
     {
-        $parser = new PHPFHIRResponseParser();
-
+        $parser = new PHPFHIRResponseParser(true);
+        if (is_array(($data) || is_object($data))) {
+            // this is so the parser can set up necessary namespaces
+            $data = $this->jsonSerialize($data);
+        }
         return $parser->parse($data);
     }
 
