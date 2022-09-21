@@ -2428,8 +2428,8 @@ function generate_display_field($frow, $currvalue)
     $list_id    = $frow['list_id'];
     $backup_list = isset($frow['list_backup_id']) ? $frow['list_backup_id'] : null;
     $show_unchecked_arr = array();
-    getLayoutProperties($frow['form_id'], $show_unchecked_arr, 'grp_unchecked');
-    $show_unchecked = $show_unchecked_arr['grp_unchecked'] == 0 ? false : true;
+    getLayoutProperties($frow['form_id'], $show_unchecked_arr, 'grp_unchecked', "1");
+    $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked']) == "0" ? false : true;
 
     $s = '';
 
@@ -3513,13 +3513,14 @@ function isSkipped(&$frow, $currvalue)
 }
 
 // Load array of names of the given layout and its groups.
-function getLayoutProperties($formtype, &$grparr, $sel = "grp_title")
+function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = null)
 {
     if ($sel != '*' && strpos($sel, 'grp_group_id') === false) {
         $sel = "grp_group_id, $sel";
     }
     $gres = sqlStatement("SELECT $sel FROM layout_group_properties WHERE grp_form_id = ? " .
-        "ORDER BY grp_group_id", array($formtype));
+        " ORDER BY grp_group_id " .
+        ($limit ? "LIMIT " . $limit : ""), array($formtype));
     while ($grow = sqlFetchArray($gres)) {
         // TBD: Remove this after grp_init_open column is implemented.
         if ($sel == '*' && !isset($grow['grp_init_open'])) {
