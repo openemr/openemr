@@ -262,11 +262,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $practice_logo = $plogo[$k];
                 }
 
-                echo "<div class='table-responsive'><table class='table'><tbody><tr><td class='text-left align-middle'>";
+                echo "<div class='table-responsive'><table class='table' style='width:100%;'><tbody><tr><td align='left' class='align-middle'>";
                 ?>
                 <a href="javascript:window.close();"><h1><?php echo text($titleres['lname']) . ", " . text($titleres['fname']); ?></h1></a>
                 <?php
-                echo "</td><td class='text-right'>";
+                echo "<br clear='all' /></td><td align='right'>";
                 if (file_exists($practice_logo)) {
                     $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
                     echo "<img class='h-auto' style='max-width:250px;' src='$logo_path'>"; // keep size within reason
