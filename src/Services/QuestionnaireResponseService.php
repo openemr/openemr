@@ -297,7 +297,7 @@ class QuestionnaireResponseService extends BaseService
             $answers = $this->flattenQuestionnaireResponse($response_array, '|', '');
             $html = $this->buildQuestionnaireResponseHtml($answers, '|');
             $report = new FHIRNarrative();
-            $report->setStatus(new FHIRNarrativeStatus('generated'));
+            $report->setStatus(new FHIRNarrativeStatus(['value' => 'generated']));
             $report->setDiv($html);
             $fhirResponseOb->setText($report);
         }
@@ -411,7 +411,7 @@ class QuestionnaireResponseService extends BaseService
     public function buildQuestionnaireResponseHtml($source, $delimiter = '|'): string
     {
         $html = <<<head
-        <div style="display: flex;flex-direction: column;flex-basis: 100%;>
+        <div style="display: flex;flex-direction: column;flex-basis: 100%;">
         <form>
         head;
         $title = true;
@@ -423,14 +423,14 @@ class QuestionnaireResponseService extends BaseService
             $margin = attr($margin_count * 1.5 . 'rem');
             if ($item === 'text') {
                 if ($title) {
-                    $html .= "<h4>" . text($value) . "</h4>";
+                    $html .= "<h4>" . text($value) . "</h4>\n";
                     $title = false;
                 } else {
-                    $html .= "<div style='width:100%;margin:0 0;padding:0 0;'><h5 style='margin:0.25rem auto 0.25rem $margin;'>" . text($value) . "</h5></div>";
+                    $html .= "<div style='width:100%;margin:0 0;padding:0 0;'>\n<h5 style='margin:0.25rem auto 0.25rem $margin;'>" . text($value) . "</h5></div>\n";
                 }
             }
             if ($item === 'question') {
-                $html .= "<div style='margin: 0 auto 0;'><label style='margin: 0 auto 0 $margin;'><strong>" . text($value) . ":</strong></label>";
+                $html .= "<div style='margin: 0 auto 0;'>\n<label style='margin: 0 auto 0 $margin;'><strong>" . text($value) . ":</strong></label>\n";
             }
             if ($item === 'answer') {
                 if (is_array($value ?? null)) {
@@ -444,7 +444,7 @@ class QuestionnaireResponseService extends BaseService
                         $value = trim($v);
                     }
                 }
-                $html .= "<span style='margin: 0 auto 0 0.5rem;'>" . text($value) . "</span></div>";
+                $html .= "<span style='margin: 0 auto 0 0.5rem;'>" . text($value) . "</span></div>\n";
             }
         }
         $html .= <<<foot
