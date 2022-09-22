@@ -78,6 +78,7 @@ $q_list = $service->getQuestionnaireList(true);
                 document.querySelector('.select2-search__field').focus();
             });
             ourSelect.on("change", function(e) {
+                top.restoreSession();
                 let el = document.getElementById('select_item');
                 document.getElementById('form_name').value = e.text;
                 document.qa_form.action = "#";
@@ -217,8 +218,7 @@ $q_list = $service->getQuestionnaireList(true);
 
             document.getElementById('select_item').addEventListener('change', function(){
                 let el = document.getElementById('select_item');
-                let formName = el.options[el.selectedIndex].text;
-                document.getElementById('form_name').value = formName;
+                document.getElementById('form_name').value = el.options[el.selectedIndex].text;
                 document.qa_form.action = "#";
                 document.qa_form.submit();
             });

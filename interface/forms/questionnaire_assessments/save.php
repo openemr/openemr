@@ -38,7 +38,7 @@ if (isset($_POST['save_registry'])) {
     $check = sqlQuery("select id from registry where `directory` = ? And `name` = ? And `form_foreign_id` > 0", array("questionnaire_assessments", $form_name));
     if (empty($check['id'])) {
         $service = new QuestionnaireService();
-        $form_foreign_id = $service->saveQuestionnaireResource($q, $lform, $form_name, null, 'encounter');
+        $form_foreign_id = $service->saveQuestionnaireResource($q, $form_name, null, null, $lform, 'encounter');
         $rtn = sqlInsert("insert into `registry` set
         `name`=?,
         `state`=?,

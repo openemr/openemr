@@ -33,6 +33,6 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id)
         $html = $responseService->buildQuestionnaireResponseHtml($answers, '|');
         echo $html;
     } catch (Exception $e) {
-        die(xlt('Nothing to report. Rendering Exception error.'));
+        echo xlt("Error") . " " . text($e->getMessage());
     }
 }
