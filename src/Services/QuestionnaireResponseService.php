@@ -15,6 +15,8 @@ namespace OpenEMR\Services;
 use Exception;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 
 class QuestionnaireResponseService extends BaseService
@@ -83,63 +85,6 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * @param $source array - flattened
-     * @param $delimiter
-     * @return string
-     */
-    public function buildQuestionnaireResponseHtml($source, $delimiter = '|'): string
-    {
-        // TODO make pure HTML no BS for API generated
-        $html = <<<head
-        <html>
-        <body>
-        <div>
-        <form>
-        head;
-        $title = true;
-        foreach ($source as $k => $value) {
-            $v = explode($delimiter, $k);
-            $last = count($v ?? []) - 1;
-            $item = $v[$last];
-            $margin_count = max(substr_count($k, 'item') - 1, 0);
-            $margin = attr($margin_count * 2 . 'rem');
-            if ($item === 'text') {
-                if ($title) {
-                    $html .= "<h4>" . text($value) . "</h4>";
-                    $title = false;
-                } else {
-                    $html .= "<div class='w-100 m-0 p-0'><h5 class='my-1' style='margin-left: $margin;'>" . text($value) . "</h5></div>";
-                }
-            }
-            if ($item === 'question') {
-                $html .= "<div class='form-group my-0'><label class='my-0 font-weight-bold' style='margin-left: $margin;'>" . text($value) . ":</label>";
-            }
-            if ($item === 'answer') {
-                if (is_array($value ?? null)) {
-                    if ($value['unit'] ?? null) {
-                        $value = $value['value'] . ' ' . $value['unit'];
-                    } else {
-                        $v = '';
-                        foreach ($value as $a) {
-                            $v .= $a . ' ';
-                        }
-                        $value = trim($v);
-                    }
-                }
-                $html .= "<span class='my-0 ml-1'>" . text($value) . "</span></div>";
-            }
-        }
-        $html .= <<<foot
-        </form>
-        </div>
-        </body>
-        </html>
-        foot;
-
-        return $html;
-    }
-
-    /**
      * @param $source
      * @param $delimiter
      * @return string
@@ -193,40 +138,6 @@ class QuestionnaireResponseService extends BaseService
         foot;
 
         return $html;
-    }
-
-    /**
-     * @param $items
-     * @param $delimiter
-     * @param $prepend
-     * @return array
-     */
-    public function flattenQuestionnaireResponse($items, $delimiter = '.', $prepend = ''): array
-    {
-        $flatArray = [];
-        if (empty($items)) {
-            return [];
-        }
-        foreach ($items as $key => $value) {
-            if (is_array($value) && $value !== []) {
-                if ($key === 'answer') {
-                    $flatArray[] = [$prepend . $key => $this->setAnswer($value, true)];
-                    continue;
-                }
-                $flatArray[] = $this->flattenQuestionnaireResponse($value, $delimiter, $prepend . $key . $delimiter);
-            } else {
-                if ($key === 'text' && isset($items['answer'])) {
-                    $key = 'question';
-                }
-                $flatArray[] = [$prepend . $key => $value];
-            }
-        }
-
-        if (count($flatArray ?? []) === 0) {
-            return [];
-        }
-
-        return array_merge_recursive([], ...$flatArray);
     }
 
     /**
@@ -337,6 +248,7 @@ class QuestionnaireResponseService extends BaseService
      * @param null  $q
      * @param null  $q_id
      * @param null  $form_response
+     * @param bool  $add_report
      * @param array $scores
      * @return array|false|int|mixed
      * @throws Exception
@@ -350,6 +262,7 @@ class QuestionnaireResponseService extends BaseService
         $q = null,
         $q_id = null,
         $form_response = null,
+        $add_report = false,
         $scores = []
     ): mixed {
         $q_content = null;
@@ -377,6 +290,16 @@ class QuestionnaireResponseService extends BaseService
             $q_title = $this->getValue($fhirQuestionnaireOb->title);
             $q_name = $this->getValue($fhirQuestionnaireOb->name);
             $q_record_id = $this->questionnaireService->getQuestionnaireIdAndVersion($q_title, $q_id)['id'] ?? null;
+        }
+
+        if ($add_report) {
+            $response_array = $this->fhirObjectToArray($fhirResponseOb);
+            $answers = $this->flattenQuestionnaireResponse($response_array, '|', '');
+            $html = $this->buildQuestionnaireResponseHtml($answers, '|');
+            $report = new FHIRNarrative();
+            $report->setStatus(new FHIRNarrativeStatus('generated'));
+            $report->setDiv($html);
+            $fhirResponseOb->setText($report);
         }
 
         if (!empty($qr_id)) {
@@ -444,6 +367,92 @@ class QuestionnaireResponseService extends BaseService
         }
 
         return $id;
+    }
+
+    /**
+     * @param $items
+     * @param $delimiter
+     * @param $prepend
+     * @return array
+     */
+    public function flattenQuestionnaireResponse($items, $delimiter = '.', $prepend = ''): array
+    {
+        $flatArray = [];
+        if (empty($items)) {
+            return [];
+        }
+        foreach ($items as $key => $value) {
+            if (is_array($value) && $value !== []) {
+                if ($key === 'answer') {
+                    $flatArray[] = [$prepend . $key => $this->setAnswer($value, true)];
+                    continue;
+                }
+                $flatArray[] = $this->flattenQuestionnaireResponse($value, $delimiter, $prepend . $key . $delimiter);
+            } else {
+                if ($key === 'text' && isset($items['answer'])) {
+                    $key = 'question';
+                }
+                $flatArray[] = [$prepend . $key => $value];
+            }
+        }
+
+        if (count($flatArray ?? []) === 0) {
+            return [];
+        }
+
+        return array_merge_recursive([], ...$flatArray);
+    }
+
+    /**
+     * @param $source array - flattened
+     * @param $delimiter
+     * @return string
+     */
+    public function buildQuestionnaireResponseHtml($source, $delimiter = '|'): string
+    {
+        $html = <<<head
+        <div style="display: flex;flex-direction: column;flex-basis: 100%;>
+        <form>
+        head;
+        $title = true;
+        foreach ($source as $k => $value) {
+            $v = explode($delimiter, $k);
+            $last = count($v ?? []) - 1;
+            $item = $v[$last];
+            $margin_count = max(substr_count($k, 'item') - 1, 0);
+            $margin = attr($margin_count * 1.5 . 'rem');
+            if ($item === 'text') {
+                if ($title) {
+                    $html .= "<h4>" . text($value) . "</h4>";
+                    $title = false;
+                } else {
+                    $html .= "<div style='width:100%;margin:0 0;padding:0 0;'><h5 style='margin:0.25rem auto 0.25rem $margin;'>" . text($value) . "</h5></div>";
+                }
+            }
+            if ($item === 'question') {
+                $html .= "<div style='margin: 0 auto 0;'><label style='margin: 0 auto 0 $margin;'><strong>" . text($value) . ":</strong></label>";
+            }
+            if ($item === 'answer') {
+                if (is_array($value ?? null)) {
+                    if ($value['unit'] ?? null) {
+                        $value = $value['value'] . ' ' . $value['unit'];
+                    } else {
+                        $v = '';
+                        foreach ($value as $a) {
+                            $v .= $a . ' ';
+                        }
+                        $value = trim($v);
+                    }
+                }
+                $html .= "<span style='margin: 0 auto 0 0.5rem;'>" . text($value) . "</span></div>";
+            }
+        }
+        $html .= <<<foot
+        </form>
+        </div>
+        foot;
+
+        return $html;
     }
 
     /**
