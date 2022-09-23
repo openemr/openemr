@@ -236,7 +236,7 @@ if (isset($_GET["fid"])) {
                             <?php
                                 $disabled = '';
                                 $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-                            if ($resPBE) {
+                            if ($resPBE && ($GLOBALS['erx_enable'] ?? null)) {
                                 $disabled = 'disabled';
                             }
                             ?>
