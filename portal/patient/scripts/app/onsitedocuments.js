@@ -25,9 +25,9 @@ var page = {
     isLocked: false,
     isCharted: false,
     isDashboard: (!isModule && !isPortal),
-    lbfFormId: 0,
+    encounterFormId: 0,
     isFrameForm: 0,
-    lbfFormName: "",
+    encounterFormName: "",
     formOrigin: 0, // default portal
     presentPatientSignature: false,
     presentAdminSignature: false,
@@ -205,7 +205,7 @@ var page = {
                 if (page.isCharted || page.isLocked) {
                     $("#chartTemplate").hide();
                     $("#chartHistory").hide();
-                    page.lbfFormName = '';
+                    page.encounterFormName = '';
                     page.isFrameForm = 0;
                 } else {
                     $("#chartTemplate").show();
@@ -217,12 +217,12 @@ var page = {
                 isModule ? $("#dismissOnsiteDocumentButton").show() : $("#dismissOnsiteDocumentButton").hide();
                 ((isModule || page.isFrameForm) && !page.isLocked) ? $("#saveTemplate").show() : $("#saveTemplate").hide();
                 isModule ? $("#homeTemplate").show() : $("#homeTemplate").hide();
-                (page.lbfFormName === 'HIS' && !page.isLocked) ? $("#chartHistory").show() : $("#chartHistory").hide();
+                (page.encounterFormName === 'HIS' && !page.isLocked) ? $("#chartHistory").show() : $("#chartHistory").hide();
 
                 $("#chartTemplate").unbind().on('click', function (e) {
                     e.preventDefault();
                     if (page.isFrameForm) {
-                        let formFrame = document.getElementById('lbfForm');
+                        let formFrame = document.getElementById('encounterForm');
                         $(window).one("message onmessage", (e) => {
                             if (event.origin !== window.location.origin) {
                                 signerAlertMsg("Remote is not same origin!)", 15000);
@@ -231,30 +231,30 @@ var page = {
                             if (isModule || page.isFrameForm) {
                                 model.reloadCollectionOnModelUpdate = false;
                             }
-                            page.lbfFormId = e.originalEvent.data.formid;
-                            page.onsiteDocument.set('encounter', page.lbfFormId);
+                            page.encounterFormId = e.originalEvent.data.formid;
+                            page.onsiteDocument.set('encounter', page.encounterFormId);
                             let url = '';
-                            if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
+                            if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
                                 url = webroot_url +
                                     "/interface/forms/LBF/printable.php?return_content=" +
-                                    "&formname=" + encodeURIComponent(page.lbfFormName) +
-                                    "&formid=" + encodeURIComponent(page.lbfFormId) +
+                                    "&formname=" + encodeURIComponent(page.encounterFormName) +
+                                    "&formid=" + encodeURIComponent(page.encounterFormId) +
                                     "&visitid=0&patientid=" + encodeURIComponent(cpid);
                             } else {
                                 // first, ensure form name is valid
                                 let formNameValid = false;
-                                for (let k=0; k < formNamesWhitelist.length; k++) {
-                                   if (formNamesWhitelist[k] == page.lbfFormName) {
-                                      formNameValid = true;
-                                   }
+                                for (let k = 0; k < formNamesWhitelist.length; k++) {
+                                    if (formNamesWhitelist[k] == page.encounterFormName) {
+                                        formNameValid = true;
+                                    }
                                 }
                                 if (!formNameValid) {
                                     signerAlertMsg("There is an issue loading form. Form does not exist.");
                                     return false;
                                 }
                                 url = webroot_url +
-                                    "/interface/forms/" + encodeURIComponent(page.lbfFormName) + "/patient_portal.php" +
-                                    "?formid=" + encodeURIComponent(page.lbfFormId);
+                                    "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php" +
+                                    "?formid=" + encodeURIComponent(page.encounterFormId);
                             }
                             fetch(url).then(response => {
                                 if (!response.ok) {
@@ -290,7 +290,7 @@ var page = {
                     // is necessary. I know eventually, I can do better:)
                     e.preventDefault();
                     if (page.isFrameForm) {
-                        let formFrame = document.getElementById('lbfForm');
+                        let formFrame = document.getElementById('encounterForm');
                         let frameDocument = formFrame.contentDocument || formFrame.contentWindow.document;
                         // we don't want events piling up so this is a one shot.
                         $(window).one("message onmessage", (e) => {
@@ -301,30 +301,30 @@ var page = {
                             if (isModule || page.isFrameForm) {
                                 model.reloadCollectionOnModelUpdate = false;
                             }
-                            page.lbfFormId = e.originalEvent.data.formid;
-                            page.onsiteDocument.set('encounter', page.lbfFormId);
+                            page.encounterFormId = e.originalEvent.data.formid;
+                            page.onsiteDocument.set('encounter', page.encounterFormId);
                             let url = '';
-                            if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
+                            if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
                                 url = webroot_url +
                                     "/interface/forms/LBF/printable.php?return_content=" +
-                                    "&formname=" + encodeURIComponent(page.lbfFormName) +
-                                    "&formid=" + encodeURIComponent(page.lbfFormId) +
+                                    "&formname=" + encodeURIComponent(page.encounterFormName) +
+                                    "&formid=" + encodeURIComponent(page.encounterFormId) +
                                     "&visitid=0&patientid=" + encodeURIComponent(cpid);
                             } else {
                                 // first, ensure form name is valid
                                 let formNameValid = false;
-                                for (let k=0; k < formNamesWhitelist.length; k++) {
-                                   if (formNamesWhitelist[k] == page.lbfFormName) {
-                                      formNameValid = true;
-                                   }
+                                for (let k = 0; k < formNamesWhitelist.length; k++) {
+                                    if (formNamesWhitelist[k] == page.encounterFormName) {
+                                        formNameValid = true;
+                                    }
                                 }
                                 if (!formNameValid) {
                                     signerAlertMsg("There is an issue loading form. Form does not exist.");
                                     return false;
                                 }
                                 url = webroot_url +
-                                    "/interface/forms/" + encodeURIComponent(page.lbfFormName) + "/patient_portal.php" +
-                                    "?formid=" + encodeURIComponent(page.lbfFormId);
+                                    "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php" +
+                                    "?formid=" + encodeURIComponent(page.encounterFormId);
                             }
                             fetch(url).then(response => {
                                 if (!response.ok) {
@@ -362,7 +362,7 @@ var page = {
                         let documentContents = document.getElementById('templatecontent').innerHTML;
                         $("#content").val(documentContents);
                         $("#template").submit();
-                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg' );
+                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg');
 
                         page.renderModelView(false);
                     }
@@ -379,16 +379,16 @@ var page = {
             $("#saveTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
                 if (page.isFrameForm) {
-                    let formFrame = document.getElementById('lbfForm');
-                    page.lbfFormId = 0;
+                    let formFrame = document.getElementById('encounterForm');
+                    page.encounterFormId = 0;
                     $(window).one("message onmessage", (e) => {
                         if (event.origin !== window.location.origin) {
                             signerAlertMsg("Remote is not same origin!)", 15000);
                             return false;
                         }
                         model.reloadCollectionOnModelUpdate = false;
-                        page.lbfFormId = e.originalEvent.data.formid;
-                        page.onsiteDocument.set('encounter', page.lbfFormId);
+                        page.encounterFormId = e.originalEvent.data.formid;
+                        page.onsiteDocument.set('encounter', page.encounterFormId);
                         if (page.onsiteDocument.get('denialReason') === 'In Review') {
                             pageAudit.onsitePortalActivity.set('status', 'waiting');
                         } else {
@@ -415,7 +415,7 @@ var page = {
             $("#sendTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
                 if (page.isFrameForm) {
-                    let formFrame = document.getElementById('lbfForm');
+                    let formFrame = document.getElementById('encounterForm');
                     let frameDocument = formFrame.contentDocument || formFrame.contentWindow.document;
                     $(window).one("message onmessage", (e) => {
                         if (event.origin !== window.location.origin) {
@@ -423,8 +423,8 @@ var page = {
                             return false;
                         }
                         model.reloadCollectionOnModelUpdate = false;
-                        page.lbfFormId = e.originalEvent.data.formid;
-                        page.onsiteDocument.set('encounter', page.lbfFormId);
+                        page.encounterFormId = e.originalEvent.data.formid;
+                        page.onsiteDocument.set('encounter', page.encounterFormId);
                         pageAudit.onsitePortalActivity.set('status', 'waiting');
                         page.onsiteDocument.set('denialReason', 'In Review');
                         // save lbf iframe template
@@ -461,8 +461,8 @@ var page = {
 
             $("#chartHistory").unbind().on('click', function () {
                 if (page.isFrameForm) {
-                    let formFrame = document.getElementById('lbfForm');
-                    page.lbfFormId = 0;
+                    let formFrame = document.getElementById('encounterForm');
+                    page.encounterFormId = 0;
                     $(window).one("message onmessage", (e) => {
                         if (event.origin !== window.location.origin) {
                             signerAlertMsg("Remote is not same origin!)", 15000);
@@ -476,11 +476,11 @@ var page = {
                 }
             });
 
-            $('.navCollapse .dropdown-menu>a').on('click', function(){
+            $('.navCollapse .dropdown-menu>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
 
-            $('.navCollapse li.nav-item>a').on('click', function(){
+            $('.navCollapse li.nav-item>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
         });
@@ -514,7 +514,7 @@ var page = {
         page.showDetailDialog(m);
     },
     chartHistory: function () {
-        let formFrame = document.getElementById('lbfForm');
+        let formFrame = document.getElementById('encounterForm');
         formFrame.contentWindow.postMessage({submitForm: 'history'}, window.location.origin);
     },
     chartTemplate: function (documentContents = '', type = '') {
@@ -546,7 +546,7 @@ var page = {
             $("#chartHistory").hide();
             $("#saveTemplate").hide();
             page.isFrameForm = false;
-            page.lbfFormName = '';
+            page.encounterFormName = '';
             if (isModule || page.isFrameForm) {
                 model.reloadCollectionOnModelUpdate = false;
             }
@@ -616,8 +616,8 @@ var page = {
             $("#dismissOnsiteDocumentButton").removeClass("d-none");
         }
         page.isFrameForm = 0;
-        page.lbfFormId = 0;
-        page.lbfFormName = '';
+        page.encounterFormId = 0;
+        page.encounterFormName = '';
         if (docid !== 'Help') {
             $("#topnav").hide();
         }
@@ -626,15 +626,15 @@ var page = {
             $("#docid").val(currentName);
             // get document template
             let templateContents = page.onsiteDocument.get('fullDocument');
-            page.lbfFormId = page.onsiteDocument.get("encounter") ?? 0;
+            page.encounterFormId = page.onsiteDocument.get("encounter") ?? 0;
             page.isFrameForm = templateContents.includes("</iframe>");
             if (page.isFrameForm) {
                 $("#saveTemplate").show();
                 // @todo v6.0 add form name to table on create
-                const regex = /^.*(page.lbfFormName)="(\w+)/s;
+                const regex = /^.*(page.encounterFormName)="(\w+)/s;
                 let m;
                 if ((m = regex.exec(templateContents)) !== null) {
-                    page.lbfFormName = m[2];
+                    page.encounterFormName = m[2];
                 } else {
                     signerAlertMsg("There is an issue loading document. Missing Name Error.");
                     return false;
@@ -686,38 +686,38 @@ var page = {
                         }
                         // new encounter form
                         // lbf has own signer instance. no binding here.
-                        // page.lbfFormName & page.isFrameForm is set from template directive
+                        // page.encounterFormName & page.isFrameForm is set from template directive
                         $(function () {
                             // an iframe in <form><iframe src=???></iframe> this page.
                             if (page.isFrameForm) {
                                 // a layout form
-                                if (page.lbfFormName) {
+                                if (page.encounterFormName) {
                                     let url = '';
-                                    if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
+                                    if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
                                         // iframe from template directive {EncounterDocument:LBFxxxxx} for a LBF form
                                         url = webRoot + "/interface/forms/LBF/new.php" + "" +
                                             "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
                                             "&formOrigin=" + encodeURIComponent(page.formOrigin) +
-                                            "&formname=" + encodeURIComponent(page.lbfFormName) + "&id=0";
+                                            "&formname=" + encodeURIComponent(page.encounterFormName) + "&id=0";
                                     } else {
                                         // iframe from template directive {EncounterDocument:xxxxx} for a native form
                                         // first, ensure form name is valid
                                         let formNameValid = false;
-                                        for (let k=0; k < formNamesWhitelist.length; k++) {
-                                           if (formNamesWhitelist[k] == page.lbfFormName) {
-                                              formNameValid = true;
-                                           }
+                                        for (let k = 0; k < formNamesWhitelist.length; k++) {
+                                            if (formNamesWhitelist[k] == page.encounterFormName) {
+                                                formNameValid = true;
+                                            }
                                         }
                                         if (!formNameValid) {
                                             signerAlertMsg("There is an issue loading form. Form does not exist.");
                                             return false;
                                         }
-                                        url = webRoot + "/interface/forms/" + encodeURIComponent(page.lbfFormName) + "/new.php" +
+                                        url = webRoot + "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/new.php" +
                                             "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
                                             "&formOrigin=" + encodeURIComponent(page.formOrigin) +
-                                            "&formname=" + encodeURIComponent(page.lbfFormName) + "&id=0";
+                                            "&formname=" + encodeURIComponent(page.encounterFormName) + "&id=0";
                                     }
-                                    document.getElementById('lbfForm').src = url;
+                                    document.getElementById('encounterForm').src = url;
                                 }
                             }
                         });
@@ -837,10 +837,10 @@ var page = {
         page.formOrigin = isPortal ? 0 : 1;
         page.formOrigin = isModule ? 2 : page.formOrigin;
         let templateContent = document.getElementById('templatecontent').innerHTML;
-        if (page.lbfFormName && page.lbfFormId) {
+        if (page.encounterFormName && page.encounterFormId) {
             // lbf templates are saved as iframe tag with src url for fetch content on doc load.
             // no frame content is maintained in onsite document activity but template directives are.
-            templateContent = templateContent.replace("id=0", "id=" + page.lbfFormId);
+            templateContent = templateContent.replace("id=0", "id=" + page.encounterFormId);
         }
         page.onsiteDocument.save({
             'pid': cpid,
