@@ -73,8 +73,8 @@ use OpenEMR\Core\Header;
             <td align="left" class="forms" class="forms"><strong><?php echo xlt('Client Name'); ?>:</strong></td>
             <td class="forms">
                 <label class="forms-data"> <?php if (is_numeric($pid)) {
-                        $result = getPatientData($pid, "fname,lname,squad");
-                        echo text($result['fname']) . " " . text($result['lname']);
+                                                $result = getPatientData($pid, "fname,lname,squad");
+                                                echo text($result['fname']) . " " . text($result['lname']);
                                            }
 
                                            $patient_name = ($result['fname']) . " " . ($result['lname']);
