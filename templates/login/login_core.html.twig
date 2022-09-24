@@ -1,14 +1,15 @@
+{% set srOnly = (showLabels == true) ? "" : "sr-only" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     {% if displayGoogleSignin %}
         <meta name="google-signin-client_id" content="{{ googleSigninClientID|attr }}">
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <div id="g_id_onload"
+           data-client_id="{{ googleSigninClientID|attr }}"
+           data-callback="onSignInSuccess" data-auto_prompt="false">
+        </div>
     {% endif %}
-   <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <div id="g_id_onload"
-         data-client_id="{{ googleSigninClientID }}"
-         data-callback="onSignInSuccess" data-auto_prompt="false"> 
-   </div>
  
     <title>{{ title|text }} {{ "Login"|xlt }}</title>
     {% block head %}{% endblock %}
