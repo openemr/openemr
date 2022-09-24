@@ -3520,7 +3520,7 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = n
     }
     $gres = sqlStatement("SELECT $sel FROM layout_group_properties WHERE grp_form_id = ? " .
         " ORDER BY grp_group_id " .
-        ($limit ? "LIMIT " . $limit : ""), array($formtype));
+        ($limit ? "LIMIT " . escape_limit($limit) : ""), array($formtype));
     while ($grow = sqlFetchArray($gres)) {
         // TBD: Remove this after grp_init_open column is implemented.
         if ($sel == '*' && !isset($grow['grp_init_open'])) {
