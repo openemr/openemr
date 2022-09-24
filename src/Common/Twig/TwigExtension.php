@@ -217,6 +217,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             new TwigFilter(
+                'javascriptStringRemove',
+                function ($string) {
+                    return javascriptStringRemove($string);
+                }
+            ),
+            new TwigFilter(
                 'xl',
                 function ($string) {
                     return xl($string);
