@@ -168,17 +168,17 @@ function doSubs($s)
         } elseif (preg_match('/^{(Questionnaire):(.*)}/', substr($s, $keyLocation), $matches)) {
             $q_id = $matches[2];
             $keyLength = strlen($matches[0]);
-            $src = './../../interface/forms/questionnaire_assessments/questionnaire_assessments.php?isPortal=1&qId=' . urlencode($q_id);
-            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.questionnaireName=" . js_escape($q_id) . "</script>";
-            $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
+            $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src=''></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr($s, $keyLocation), $matches)) {
+            // deprecated 09/23/2022 Unsure this directive is useful!
             $q_url = $matches[3];
             $form_id = $matches[4];
             $form_name = $matches[2];
             $keyLength = strlen($matches[0]);
             $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
-            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.questionnaireName=" . js_escape($q_id) . "</script>";
+            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
             $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
@@ -448,7 +448,7 @@ function doSubs($s)
                 $currentdate = oeFormatShortDate(date('Y-m-d'), true);
             } elseif (
                 /* there's an overiding format */
-            preg_match('/YYYY-MM-DD/i', $matched, $matches)
+                preg_match('/YYYY-MM-DD/i', $matched, $matches)
             ) {
                 /* nothing to do here as this is the default format */
             } elseif (preg_match('[MM/DD/YYYY]i', $matched, $matches)) {

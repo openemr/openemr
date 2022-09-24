@@ -25,6 +25,7 @@ var page = {
     isLocked: false,
     isCharted: false,
     isDashboard: (!isModule && !isPortal),
+    isQuestionnaire: '',
     encounterFormId: 0,
     isFrameForm: 0,
     encounterFormName: "",
@@ -70,14 +71,6 @@ var page = {
             if (page.isDashboard) {
                 $("#topnav").hide();
             }
-            // No dups - turn off buttons if doc exist
-            // Currently not needed.
-            /*this.collection.each(function (model, index, list) {
-                let tplname = model.get('filePath')
-                if (model.get('denialReason') !== '' && tplname !== '') {
-                    $('#' + tplname).hide();
-                }
-            });*/
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
                 e.preventDefault();
@@ -106,7 +99,6 @@ var page = {
             $('.template-item').unbind().on('click', function (e) {
                 if (!isModule) {
                     $("#topnav").hide();
-                    //$("#dropdownMenu").removeClass('d-none');
                     parent.document.getElementById('topNav').classList.add('collapse');
                 }
             });
@@ -242,19 +234,18 @@ var page = {
                                     "&visitid=0&patientid=" + encodeURIComponent(cpid);
                             } else {
                                 // first, ensure form name is valid
-                                let formNameValid = false;
-                                for (let k = 0; k < formNamesWhitelist.length; k++) {
-                                    if (formNamesWhitelist[k] == page.encounterFormName) {
-                                        formNameValid = true;
-                                    }
-                                }
-                                if (!formNameValid) {
+                                if (!page.verifyValidEncounterForm(page.encounterFormName)) {
                                     signerAlertMsg("There is an issue loading form. Form does not exist.");
                                     return false;
                                 }
                                 url = webroot_url +
                                     "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php" +
                                     "?formid=" + encodeURIComponent(page.encounterFormId);
+                                if (page.isQuestionnaire) {
+                                    url = webroot_url +
+                                        "/interface/forms/questionnaire_assessments/patient_portal.php" +
+                                        "?formid=" + encodeURIComponent(page.encounterFormId);
+                                }
                             }
                             fetch(url).then(response => {
                                 if (!response.ok) {
@@ -312,19 +303,18 @@ var page = {
                                     "&visitid=0&patientid=" + encodeURIComponent(cpid);
                             } else {
                                 // first, ensure form name is valid
-                                let formNameValid = false;
-                                for (let k = 0; k < formNamesWhitelist.length; k++) {
-                                    if (formNamesWhitelist[k] == page.encounterFormName) {
-                                        formNameValid = true;
-                                    }
-                                }
-                                if (!formNameValid) {
+                                if (!page.verifyValidEncounterForm(page.encounterFormName)) {
                                     signerAlertMsg("There is an issue loading form. Form does not exist.");
                                     return false;
                                 }
                                 url = webroot_url +
                                     "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php" +
                                     "?formid=" + encodeURIComponent(page.encounterFormId);
+                                if (page.isQuestionnaire) {
+                                    url = webroot_url +
+                                        "/interface/forms/questionnaire_assessments/patient_portal.php" +
+                                        "?formid=" + encodeURIComponent(page.encounterFormId);
+                                }
                             }
                             fetch(url).then(response => {
                                 if (!response.ok) {
@@ -493,6 +483,18 @@ var page = {
         page.formOrigin = isPortal ? 0 : isModule ? 2 : 1;
     },
 // page scoped functions
+    verifyValidEncounterForm: function (form) {
+        let formNameValid = false;
+        if (page.isQuestionnaire) {
+            form = 'questionnaire_assessments';
+        }
+        for (let k = 0; k < formNamesWhitelist.length; k++) {
+            if (formNamesWhitelist[k] == form) {
+                formNameValid = true;
+            }
+        }
+        return formNameValid;
+    },
     handleHistoryView: function () {
         let historyHide = $('.historyHide');
         historyHide.toggleClass('d-none');
@@ -608,6 +610,9 @@ var page = {
         $('.modelContainer').removeClass("d-none");
         $("#editorContainer").removeClass('w-auto').addClass('w-100');
         let currentName = page.onsiteDocument.get('docType');
+        if (page.onsiteDocument.get('fileName') === '') {
+            page.onsiteDocument.set('fileName', currentName);
+        }
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
         if (currentName === 'Help') {
@@ -630,7 +635,7 @@ var page = {
             page.isFrameForm = templateContents.includes("</iframe>");
             if (page.isFrameForm) {
                 $("#saveTemplate").show();
-                // @todo v6.0 add form name to table on create
+                // modify the iFrames url in embedded content
                 const regex = /^.*(page.encounterFormName)="(\w+)/s;
                 let m;
                 if ((m = regex.exec(templateContents)) !== null) {
@@ -650,7 +655,7 @@ var page = {
                 // set/reset cursor default for all
                 $(this).css('cursor', 'pointer');
                 if (isModule) {
-                    // Make sure current user witness signature
+                    // Make sure current user is set so can witness patient signature
                     $(this).attr('data-user', cuser);
                 }
             });
@@ -666,6 +671,7 @@ var page = {
                 },
                 success: function (templateHtml, textStatus, jqXHR) {
                     $("#docid").val(templateName);
+                    page.onsiteDocument.set('fileName', templateName);
                     $('#templatecontent').html(templateHtml);
                     if (page.isNewDoc) {
                         page.isNewDoc = false;
@@ -702,13 +708,7 @@ var page = {
                                     } else {
                                         // iframe from template directive {EncounterDocument:xxxxx} for a native form
                                         // first, ensure form name is valid
-                                        let formNameValid = false;
-                                        for (let k = 0; k < formNamesWhitelist.length; k++) {
-                                            if (formNamesWhitelist[k] == page.encounterFormName) {
-                                                formNameValid = true;
-                                            }
-                                        }
-                                        if (!formNameValid) {
+                                        if (!page.verifyValidEncounterForm(page.encounterFormName)) {
                                             signerAlertMsg("There is an issue loading form. Form does not exist.");
                                             return false;
                                         }
@@ -716,6 +716,12 @@ var page = {
                                             "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
                                             "&formOrigin=" + encodeURIComponent(page.formOrigin) +
                                             "&formname=" + encodeURIComponent(page.encounterFormName) + "&id=0";
+                                        if (page.isQuestionnaire) {
+                                            url = webRoot + "/interface/forms/questionnaire_assessments/questionnaire_assessments.php" +
+                                                "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
+                                                "&formOrigin=" + encodeURIComponent(page.formOrigin) +
+                                                "&formname=" + encodeURIComponent(page.encounterFormName) + "&id=0";
+                                        }
                                     }
                                     document.getElementById('encounterForm').src = url;
                                 }
@@ -896,7 +902,7 @@ var page = {
                     page.fetchOnsiteDocuments(page.fetchParams, true);
                     page.showDetailDialog(page.onsiteDocument);
                 }
-                signerAlertMsg(msgSuccess, 3000, 'success');
+                signerAlertMsg(msgSuccess, 2000, 'success');
                 if (page.isCharted && isModule) {
                     $("#a_docReturn").click();
                     return;
@@ -923,7 +929,7 @@ var page = {
         page.onsiteDocument.destroy({
             wait: true,
             success: function () {
-                signerAlertMsg(msgDelete, 3000, 'success');
+                signerAlertMsg(msgDelete, 2000, 'success');
                 app.hideProgress('modelLoader');
                 pageAudit.onsitePortalActivity.set('status', 'deleted');
                 pageAudit.onsitePortalActivity.set('pendingAction', 'none');

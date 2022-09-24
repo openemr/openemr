@@ -10,23 +10,46 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+
+// block of code to securely support use by the patient portal
+$isPortal = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+if ($isPortal) {
+    $ignoreAuth_onsite_portal = true;
+}
+$patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
+
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/user.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 $service = new QuestionnaireService();
+$responseService = new QuestionnaireResponseService();
 $questionnaire_form = $_GET['questionnaire_form'] ?? null;
 $repository_item = $_POST['select_item'] ?? null;
-
+$portal_mode = null;
+if ($isPortal) {
+    $questionnaire_form = $_GET['formname'] ?? null;
+    $q_uuid = $_GET['qUuid'] ?? null;
+    $qr_uuid = $_GET['qrUuid'] ?? null;
+    $formid = $_GET['id'] ?? null;
+    $portal_mode = $questionnaire_form && $q_uuid && $qr_uuid ? 'portal_update' : 'portal_new';
+    if (!empty($formid)) {
+    }
+}
 // for new questionnaires user must be admin. leave strict conditional.
 $is_authorized = AclMain::aclCheckCore('admin', 'forms') ||
     ($questionnaire_form !== 'New Questionnaire' && $_GET['formname'] ?? null === 'questionnaire_assessments');
 
-if (!empty($_GET['id'] ?? 0) && empty($questionnaire_form)) {
+if (!empty($_GET['id'] ?? 0)) {
+    $mode = 'update';
     $formid = $_GET['id'];
     $form = formFetch("form_questionnaire_assessments", $formid);
 }
@@ -35,10 +58,14 @@ $q_json = '';
 $lform = '';
 $form_name = '';
 
-if (!empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
+if (empty($formid) && !empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
     // since we are here then user is authorized for a pre-approved questionnaire form.
     $is_authorized = true;
-    $q = $service->fetchEncounterQuestionnaireForm($questionnaire_form);
+    if ($isPortal) {
+        $q = $service->fetchQuestionnaireResource($questionnaire_form, $q_uuid);
+    } else {
+        $q = $service->fetchEncounterQuestionnaireForm($questionnaire_form);
+    }
     $q_json = $q['questionnaire'] ?: '';
     $lform = $q['lform'] ?: '';
     $mode = 'new_form';
@@ -51,10 +78,13 @@ if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
     $form_name = $q['name'] ?: '';
     $mode = 'new_repository_form';
 }
-$do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
 
-$q_list = $service->getQuestionnaireList(true);
-
+if (!$isPortal) {
+    $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
+}
+if ($questionnaire_form == 'New Questionnaire') {
+    $q_list = $service->getQuestionnaireList(true);
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -63,6 +93,8 @@ $q_list = $service->getQuestionnaireList(true);
     <?php Header::setupHeader(); ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
     <script>
+        let isPortal = <?php echo js_escape($isPortal); ?>;
+        let portalOther = <?php echo js_escape($patientPortalOther); ?>;
         function initSelect() {
             let ourSelect = $('.select-dropdown');
             ourSelect.select2({
@@ -90,7 +122,9 @@ $q_list = $service->getQuestionnaireList(true);
             hideTreeLine: true
         };
         function saveQR() {
-            top.restoreSession();
+            if (!isPortal) {
+                top.restoreSession();
+            }
             let qr = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4');
             let formElement = document.getElementById("formContainer");
             let data = LForms.Util.getUserData(formElement, true, true, true);
@@ -101,6 +135,7 @@ $q_list = $service->getQuestionnaireList(true);
                 let qFhir = LForms.Util.getFormFHIRData("Questionnaire", 'R4', data);
                 document.getElementById('questionnaire').value = JSON.stringify(qFhir);
             }
+
             return true;
         }
 
@@ -284,7 +319,7 @@ $q_list = $service->getQuestionnaireList(true);
                 <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Exit'); ?></button>
             </div>
             <?php die(); } ?>
-        <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR(this)" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid) ?>">
+        <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid); ?><?php echo ($isPortal) ? '&isPortal=1' : '' ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?>">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
             <input type="hidden" id="lform_response" name="lform_response" value="<?php echo attr($form['lform_response'] ?? ''); ?>" />
@@ -329,11 +364,13 @@ $q_list = $service->getQuestionnaireList(true);
             </div>
             <hr />
             <div id="formContainer"></div>
+            <?php if (!$isPortal && !$patientPortalOther) { ?>
             <div class="btn-group my-2">
                 <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
                 <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>"><?php echo xlt("or Register New"); ?></button>
                 <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
             </div>
+            <?php } ?>
         </form>
     </div>
     <!-- Below scripts must be in body. -->
@@ -345,6 +382,31 @@ $q_list = $service->getQuestionnaireList(true);
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/fhir/R4/lformsFHIR.min.js"></script>
     <!-- Dependency scopes seem strange using the way we have to implement the necessary web components. -->
     <?php Header::setupAssets(['select2']); ?>
+    <script>
+        <?php if ($isPortal || $patientPortalOther) { ?>
+        $(function () {
+            window.addEventListener("message", (e) => {
+                if (e.origin !== window.location.origin) {
+                    syncAlertMsg(<?php echo xlj("Request is not same origin!") ?>, 15000);
+                    return false;
+                }
+                if (e.data.submitForm === true) {
+                    let pass = saveQR();
+                    if (pass) {
+                        e.preventDefault();
+                        document.forms[0].submit();
+                    } else {
+                        syncAlertMsg(<?php echo xlj("Form validation failed.") ?>);
+                        return false;
+                    }
+                }
+            });
+        });
+        <?php }
+        if (($mode == "update") && $patientPortalOther && !empty($formid)) { ?>
+        parent.postMessage({formid:<?php echo attr($formid) ?>}, window.location.origin);
+        <?php } ?>
+    </script>
 </body>
 <script>
     let formMode = <?php echo js_escape($mode); ?>;
