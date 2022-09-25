@@ -92,6 +92,14 @@ function xmlEscape($text)
 }
 
 /**
+ * Special function to remove the 'javascript' string (case insensitive) for when including a variable within a html link
+ */
+function javascriptStringRemove($text)
+{
+    return str_ireplace('javascript', '', $text ?? '');
+}
+
+/**
  * Escape a PHP string for use as (part of) an HTML / XML text node.
  *
  * It only escapes a few special chars: the ampersand (&) and both the left-
