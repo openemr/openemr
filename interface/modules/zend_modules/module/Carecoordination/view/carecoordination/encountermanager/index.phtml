@@ -19,6 +19,31 @@ foreach ($this->status_details as $row_status) {
     $status_details[$row_status['pid']][] = $row_status;
 }
 ?>
+<style>
+    .ap-st-st-13.search_date_type_container input {
+        width: 2vw;
+        height: 2.5vh;
+        border: none;
+        box-shadow: none;
+    }
+    .search_date_type_container {
+        display: flex;
+        line-height: 3vh;
+        text-align: center;
+    }
+    .d-none {
+        display: none;
+    }
+    .advanced-button-toggle {
+        cursor: pointer;
+    }
+    .advance-opt-icon {
+        height: 12px;
+        width: 24px;
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///9mZmaO7mygAAAAAXRSTlMAQObYZgAAABtJREFUCB1jwATyPxj4PzCwP2BgPsDA2MCACgBiNwRCJW+9iwAAAABJRU5ErkJggg==) right center no-repeat;
+        display: inline-block;
+    }
+</style>
 <script>
     $(function () {
         srcset = false;
@@ -30,6 +55,11 @@ foreach ($this->status_details as $row_status) {
         $(".search_button2").click(function (e) {
             $(".ap-st-st-12").css("left", Number(e.pageX) + "px");
             $(".ap-st-st-12").toggle();
+        });
+
+        $(".advanced-button-toggle").click(function (e) {
+            $(".advanced-button-toggle").toggleClass('d-none');
+            $(".advanced-tab").toggleClass('d-none');
         });
 
         $(document).mouseup(function (e) {
@@ -172,8 +202,15 @@ foreach ($this->status_details as $row_status) {
                                     <input readonly maxlength="10" style="cursor:pointer;width: 42%;" type="text" name="form_date_to" id="form_date_to" class="dateClass" />
                                     <script>
                                         $(function () {
-                                            $("#form_date_from").datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
-                                            $("#form_date_to").datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
+                                            <?php
+                                            $display_format = \Application\Model\ApplicationTable::datePickerFormat($GLOBALS['date_display_format']);
+                                            $from_format = $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                            $to_format = $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                            ?>
+                                            $( "#form_date_from" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
+                                            $( "#form_date_to" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
+                                            $("#form_date_from").datepicker("setDate", '<?php echo $from_format;?>');
+                                            $("#form_date_to").datepicker("setDate", '<?php echo $to_format;?>');
                                         });
                                     </script>
                                 </td>
@@ -208,6 +245,57 @@ foreach ($this->status_details as $row_status) {
                                             ?>
                                         </select>
                                     </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p class="advanced-button-toggle"><?php echo $this->listenerObject->z_xlt('Advanced'); ?><i class="advance-opt-icon"></i></p>
+                                    <p class="d-none advanced-button-toggle"><?php echo $this->listenerObject->z_xlt('Advanced'); ?><i class="advance-opt-icon"></i></p>
+                                </td>
+                            </tr>
+                            <tr class="d-none advanced-tab">
+                                <td>
+                                    <p><?php echo $this->listenerObject->z_xlt('Search By'); ?>:</p>
+                                    <div class="ap-st-st-13 search_date_type_container">
+                                        <label for="form_search_type_date_encounter">
+                                            <?php echo $this->listenerObject->z_xlt('Encounter Date'); ?>
+                                        </label>
+                                        <input type="radio" id="form_search_type_date_encounter" name="form_search_type_date" value="encounter" <?php echo ($this->form_data['search_type_date'] == "encounter" ? "checked": ""); ?> />
+                                        <label for="form_search_type_date_patient_creation">
+                                            <?php echo $this->listenerObject->z_xlt('Patient Creation Date'); ?>
+                                        </label>
+                                        <input type="radio" id="form_search_type_date_patient_creation" name="form_search_type_date" value="date_patient_creation" <?php echo ($this->form_data['search_type_date'] == "date_patient_creation" ? "checked": ""); ?> />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="d-none advanced-tab">
+                                <td>
+                                    <label id="form_encounter_provider"><?php echo $this->listenerObject->z_xlt('Provider (Encounter Relationship)'); ?>:</label>
+                                    <select id="form_encounter_provider" name="form_provider_id">
+                                        <option value="">--<?php echo xlt("All providers"); ?>--</option>
+                                        <?php foreach ($this->providers as $provider) : ?>
+                                        <option value="<?php echo attr($provider['id']); ?>"
+                                        <?php echo text(($this->form_data['provider_id'] == $provider['id'] ? "selected" : "")); ?>
+                                        ><?php
+                                            echo text(implode(",", [$provider['lname'] ?? "", $provider['fname'] ?? ""]));
+                                        ?> (<?php echo xlt("NPI"); ?>: <?php echo text($provider['npi'] ?? ""); ?>)
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="d-none advanced-tab">
+                                <td>
+                                    <label id="form_billing_facility"><?php echo $this->listenerObject->z_xlt('Billing Facility (Encounter Relationship)'); ?>:</label>
+                                    <select id="form_encounter_provider" name="form_billing_facility_id">
+                                        <option value="">--<?php echo xlt("All Facilities"); ?>--</option>
+                                        <?php foreach ($this->billing_facilities as $facility) : ?>
+                                            <option value="<?php echo attr($facility['id']); ?>"
+                                                <?php echo ($this->form_data['billing_facility_id'] == $facility['id'] ? "selected" : ""); ?>
+                                            ><?php echo text($facility['name'] ?? ""); ?> (<?php echo xlt("TIN"); ?>: <?php echo text($facility['federal_ein'] ?? ""); ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </td>
                             </tr>
                             <tr>
@@ -321,6 +409,7 @@ foreach ($this->status_details as $row_status) {
                                     <th><label><?php echo $this->listenerObject->z_xlt('Total Transfers'); ?></label></th>
                                     <th><label><?php echo $this->listenerObject->z_xlt('Successful Transfers'); ?></label></th>
                                     <th><label><?php echo $this->listenerObject->z_xlt('Last Visit'); ?></label></th>
+                                    <th><label><?php echo $this->listenerObject->z_xlt("Creation Date"); ?></label></th>
                                     <th width="3%"><input type="checkbox" value="1" name="form_select_all" id="form_select_all" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?> /></th>
                                     <th width="4%"><label><?php echo $this->listenerObject->z_xlt('Views'); ?></label></th>
                                 </tr>
@@ -345,6 +434,7 @@ foreach ($this->status_details as $row_status) {
                                         <td><label><?php echo $this->escapeHtml($row['ccda_transfer_count']); ?></label></td>
                                         <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']); ?></label></td>
                                         <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
+                                        <td><label><?php echo $this->commonplugin->date_format($row['patient_creation_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
                                         <td nowrap>
                                             <?php if ($qualified) { ?>
                                                 <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?>>

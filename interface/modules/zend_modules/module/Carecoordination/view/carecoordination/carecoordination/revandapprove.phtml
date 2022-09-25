@@ -1353,7 +1353,8 @@ $insert = $this->listenerObject->z_xlt('Insert');
             }
         }
         foreach ($this->lab_results_audit['procedure_result'] as $key => $val) {
-            $j = count($arr_sub_lab_result[$val['extension']]) + 1;
+            $j = is_countable($arr_sub_lab_result[$val['extension']]) ?
+                count($arr_sub_lab_result[$val['extension']]) + 1 : 0;
             $arr_sub_lab_result[$val['extension']]['proc_text'] = $val['proc_text'];
             $arr_sub_lab_result[$val['extension']]['date'] = $val['date'];
             $arr_sub_lab_result[$val['extension']]['proc_code'] = $val['proc_code'];

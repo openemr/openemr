@@ -1,0 +1,11 @@
+{% extends 'error/general_http_error.json.twig' %}
+{% set statusCode = 404 %}
+{% block title %}
+"location": {{ "OpenEMR 404 Error"|xl|json_encode }},
+{% endblock %}
+{% block statusCode %}
+"code": 404,
+{% endblock %}
+{% block message %}
+"message": {{ errorMessage|default("The page or data you requested could not be found in the system")|xl|json_encode }}
+{% endblock %}

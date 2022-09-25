@@ -20,6 +20,7 @@ require_once("$srcdir/layout.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Indicates if deactivated layouts are included in the dropdown.
@@ -253,7 +254,8 @@ function isColumnReserved($tablename, $field_id)
             'care_team_facility',
             'name_history',
             'care_team_status',
-            'patient_groups'
+            'patient_groups',
+            'additional_addresses'
             ))
         ) {
             return true;
@@ -391,7 +393,8 @@ function encodeModifier($jsonArray)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
+    exit;
 }
 
 // Make a sorted version of the $datatypes array.

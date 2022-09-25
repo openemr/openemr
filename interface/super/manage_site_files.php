@@ -17,10 +17,12 @@ require_once('../globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("File management")]);
+    exit;
 }
 
 $imagedir     = "$OE_SITE_DIR/images";
@@ -535,7 +537,7 @@ foreach ($imageslist as $sfname) {
         $('#add-manually').on('click', function () {
             var new_type = $("#add-manually-input").val();
             if(new_type.length < 1)return;
-            $('#white-list').prepend("<option value="+new_type+">"+new_type+"</option>")
+            $('#white-list').prepend("<option value='" + jsAttr(new_type) + "'>" + jsText(new_type) + "</option>")
         })
 
         $('#submit-whitelist').on('click', function () {

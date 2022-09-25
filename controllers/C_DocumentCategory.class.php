@@ -48,12 +48,11 @@ class C_DocumentCategory extends Controller
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $this->assign("tree_html", $treeMenu->toHTML());
-
-        $this->_tpl_vars['add_node'] = ($this->_tpl_vars['add_node'] ?? false) == true;
-        $this->_tpl_vars['edit_node'] = ($this->_tpl_vars['edit_node'] ?? false) == true;
+        $this->assign('add_node', (($this->getTemplateVars('add_node') ?? false) == true));
+        $this->assign('edit_node', (($this->getTemplateVars('edit_node') ?? false) == true));
 
         $twig = new TwigContainer(null, $GLOBALS['kernel']);
-        return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->_tpl_vars);
+        return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
     }
 
     function add_node_action($parent_is)

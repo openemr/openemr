@@ -39,6 +39,56 @@
         }
     }
 
+    function convInputElement(evt) {
+        let node = evt.currentTarget;
+        if (!node) {
+            console.error("Missing node from event");
+            return;
+        }
+        let system = node.dataset.system || "usa";
+        let unit = node.dataset.unit || "";
+        let targetSaveUnit = node.dataset.targetInput || "";
+        let targetInputConv = node.dataset.targetInputConv || "";
+        let precision = vitalsGetPrecision(node, 2);
+
+        // we need to convert the value and store the original value in the hidden input field that we end up saving
+
+        // we then need to show a two digit representation of the value
+        let value = node.value;
+        let inputSave = document.getElementById(targetSaveUnit);
+        if (!inputSave) {
+            console.error("Failed to find node with data-target-input of ", targetSaveUnit);
+            return;
+        }
+        let inputConv = document.getElementById(targetInputConv);
+        if (!inputConv) {
+            console.error("Failed to find node with data-target-input-conv of ", targetInputConv);
+            return;
+        }
+
+        if (value != "") {
+            let convValue = convUnit(system, unit, value);
+            if (!isNaN(convValue)) {
+                inputConv.value = convValue.toFixed(precision);
+                // all values are saved in usa system units
+                if (system !== "usa") {
+                    inputSave.value = inputSave.value = convValue;
+                } else {
+                    inputSave.value = value;
+                }
+            } else {
+                console.error("Failed to get valid number for input with id ", node.id, " with value ", value);
+            }
+        } else {
+            inputSave.value = "";
+            inputConv.value = "";
+        }
+
+        if (targetSaveUnit == "weight_input" || targetSaveUnit == "height_input") {
+            calculateBMI();
+        }
+    }
+
     function initDOMEvents() {
         let vitalsForm = document.getElementById('vitalsForm');
         if (!vitalsForm) {
@@ -54,6 +104,11 @@
             console.error("Missing required dependency reason-code-widget");
             return;
         }
+
+        let vitalsConvInputs = vitalsForm.querySelectorAll(".vitals-conv-unit");
+        vitalsConvInputs.forEach(function(node) {
+            node.addEventListener('change', convInputElement);
+        });
     }
     function init(webRootParam, vitalsTranslations) {
         webroot = webRootParam;
@@ -67,18 +122,25 @@
     window.vitalsForm = vitalsForm;
 })(window, window.oeUI || {});
 
+function vitalsGetPrecision(node, defaultValue) {
+    defaultValue = defaultValue || 2;
+    let precision = parseInt(node.dataset.precision || defaultValue);
+    precision = !isNaN(precision) ? precision : defaultValue;
+    return precision;
+}
+
 // TODO: we need to move all of these functions into the anonymous function and connect the events via event listeners
-function convUnit(system, unit, name)
+function convUnit(system, unit, value)
 {
     if (unit == 'kg' || unit == 'lbs')
     {
         if (system == 'metric')
         {
-            return convKgtoLb(name);
+            return convKgtoLb(value);
         }
         else
         {
-            return convLbtoKg(name);
+            return convLbtoKg(value);
         }
     }
 
@@ -86,11 +148,11 @@ function convUnit(system, unit, name)
     {
         if (system == 'metric')
         {
-            return convCmtoIn(name);
+            return convCmtoIn(value);
         }
         else
         {
-            return convIntoCm(name);
+            return convIntoCm(value);
         }
     }
 
@@ -98,17 +160,17 @@ function convUnit(system, unit, name)
     {
         if (system == 'metric')
         {
-            return convCtoF(name);
+            return convCtoF(value);
         }
         else
         {
-            return convFtoC(name);
+            return convFtoC(value);
         }
     }
 }
 
-function convLbtoKg(name) {
-    var lb = $("#"+name).val();
+function convLbtoKg(value) {
+    var lb = value;
     var hash_loc=lb.indexOf("#");
     if(hash_loc>=0)
     {
@@ -116,109 +178,88 @@ function convLbtoKg(name) {
         var ounces=lb.substr(hash_loc+1);
         var num=parseInt(pounds)+parseInt(ounces)/16;
         lb=num;
-        $("#"+name).val(lb);
+        return lb;
     }
     if (lb == "0") {
-        $("#"+name+"_metric").val("0");
+        return 0;
     }
     else if (lb == parseFloat(lb)) {
         kg = lb*0.45359237;
-        kg = kg.toFixed(2);
-        $("#"+name+"_metric").val(kg);
+        return kg;
     }
     else {
-        $("#"+name+"_metric").val("");
-    }
-
-    if (name == "weight_input") {
-        calculateBMI();
+        return 0;
     }
 }
 
-function convKgtoLb(name) {
-    var kg = $("#"+name+"_metric").val();
+function convKgtoLb(value) {
+    var kg = value;
 
     if (kg == "0") {
-        $("#"+name).val("0");
+        return 0;
     }
     else if (kg == parseFloat(kg)) {
         lb = kg/0.45359237;
-        lb = lb.toFixed(2);
-        $("#"+name).val(lb);
+        return lb;
     }
     else {
-        $("#"+name).val("");
-    }
-
-    if (name == "weight_input") {
-        calculateBMI();
+        return 0;
     }
 }
 
-function convIntoCm(name) {
-    var inch = $("#"+name).val();
+function convIntoCm(value) {
+    var inch = value;
 
     if (inch == "0") {
-        $("#"+name+"_metric").val("0");
+        return 0;
     }
     else if (inch == parseFloat(inch)) {
         cm = inch*2.54;
-        cm = cm.toFixed(2);
-        $("#"+name+"_metric").val(cm);
+        return cm;
     }
     else {
-        $("#"+name+"_metric").val("");
-    }
-
-    if (name == "height_input") {
-        calculateBMI();
+        return 0;
     }
 }
 
-function convCmtoIn(name) {
-    var cm = $("#"+name+"_metric").val();
+function convCmtoIn(value) {
+    var cm = value
 
     if (cm == "0") {
-        $("#"+name).val("0");
+        return 0;
     }
     else if (cm == parseFloat(cm)) {
         inch = cm/2.54;
-        inch = inch.toFixed(2);
-        $("#"+name).val(inch);
+        return inch;
     }
     else {
-        $("#"+name).val("");
-    }
-
-    if (name == "height_input") {
-        calculateBMI();
+        return 0;
     }
 }
 
-function convFtoC(name) {
-    var Fdeg = $("#"+name).val();
+function convFtoC(value) {
+    var Fdeg = value;
     if (Fdeg == "0") {
-        $("#"+name+"_metric").val("0");
+        return 0;
     }
     else if (Fdeg == parseFloat(Fdeg)) {
-        Cdeg = (Fdeg-32)*0.5556;
-        Cdeg = Cdeg.toFixed(2);
-        $("#"+name+"_metric").val(Cdeg);
+        let Cdeg = (Fdeg-32)*5/9; // originally 0.5556 which is not precise!
+        return Cdeg;
     }
     else {
-        $("#"+name+"_metric").val("");
+        return 0;
     }
 }
 
-function convCtoF(name) {
-    var Cdeg = $("#"+name+"_metric").val();
+function convCtoF(value) {
+    var Cdeg = value;
     if (Cdeg == "0") {
-        $("#"+name).val("0");
+        return 0;
     }
     else if (Cdeg == parseFloat(Cdeg)) {
-        Fdeg = (Cdeg/0.5556)+32;
-        Fdeg = Fdeg.toFixed(2);
-        $("#"+name).val(Fdeg);
+        Cdeg = parseFloat(Cdeg);
+        let Fdeg = (Cdeg*9/5)+32; // originally 0.5556 which is not precise when working with 2 digit decimal conversions!
+        return Fdeg;
     }
     else {
         $("#"+name).val("");
@@ -227,17 +268,35 @@ function convCtoF(name) {
 
 function calculateBMI() {
     var bmi = 0;
-    var height = $("#height_input").val();
-    var weight = $("#weight_input").val();
-    if(height == 0 || weight == 0) {
-        $("#BMI").val("");
+    let bmiNode = document.getElementById("BMI_input");
+    if (!bmiNode) {
+        console.error("Failed to find node with id BMI_input");
+        return;
+    }
+
+    let precision = vitalsGetPrecision(bmiNode, 2);
+
+    let heightNode = document.getElementById("height_input");
+    if (!heightNode) {
+        console.error("Failed to find node with id height_input");
+        return;
+    }
+    let weightNode = document.getElementById("weight_input");
+    if (!weightNode) {
+        console.error("Failed to find node with id weight_input");
+        return;
+    }
+    var height = parseFloat(heightNode.value);
+    var weight = parseFloat(weightNode.value);
+    if(isNaN(height) || height == 0 || isNaN(weight) || weight == 0) {
+        bmiNode.value = "";
     }
     else if((height == parseFloat(height)) && (weight == parseFloat(weight))) {
         bmi = weight/height/height*703;
-        bmi = bmi.toFixed(1);
-        $("#BMI_input").val(bmi);
+        bmi = bmi.toFixed(precision);
+        bmiNode.value = bmi;
     }
     else {
-        $("#BMI_input").val("");
+        bmiNode.value = "";
     }
 }

@@ -23,6 +23,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -34,7 +35,7 @@ if (!empty($_POST)) {
 // Below allows the list to default to the first item on the list
 //   when list_id is blank.
 $blank_list_id = '';
-if (empty($_REQUEST['list_id'])) {
+if (empty($_REQUEST['list_id'] ?? null) && empty($_REQUEST['list_id_container'] ?? null)) {
     $list_id = 'language';
     $blank_list_id = true;
 } else {
@@ -44,7 +45,8 @@ if (empty($_REQUEST['list_id'])) {
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("List Editor")]);
+    exit;
 }
 
 // Compute a current checksum of the data from the database for the given list.

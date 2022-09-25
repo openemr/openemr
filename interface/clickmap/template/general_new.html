@@ -3,7 +3,7 @@
     <head>
     {headerTemplate}
 {/if}
-<script src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
+<script src="{$GLOBALS.webroot}/library/js/clickmap.js"></script>
 <link rel="stylesheet" href="{$form->template_dir}/css/clickmap.css" />
 {if !$reportMode}
 	</head>
@@ -44,12 +44,12 @@
 </div>
 
 <script>
-{literal}
+
     $(function () {
-		var optionsLabel = {/literal}{$form->optionsLabel}{literal};
-		var options = {/literal}{$form->optionList}{literal};
-		var data = {/literal}{$form->data}{literal};
-		var hideNav = {/literal}{$form->hideNav}{literal};
+		var optionsLabel = {$form->optionsLabel};
+		var options = {$form->optionList};
+		var data = {$form->data};
+		var hideNav = {$form->hideNav};
 
 		clickmap({
             hideNav: hideNav,
@@ -58,7 +58,7 @@
 			container: $("#container")
 		});
 	});
-{/literal}
+
 </script>
 
 {if !$reportMode}

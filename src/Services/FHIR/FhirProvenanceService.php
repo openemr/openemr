@@ -417,7 +417,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
             );
         } else {
-            $lastUpdated = \DateTime::createFromFormat(DATE_ISO8601, $resource->getMeta()->getLastUpdated());
+            // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
+            $lastUpdated = \DateTime::createFromFormat(DATE_ATOM, $resource->getMeta()->getLastUpdated());
 
             if ($lastUpdated !== false && $lastUpdated->getTimestamp() < self::V2_TIMESTAMP) {
                 $separator = self::SURROGATE_KEY_SEPARATOR_V1;

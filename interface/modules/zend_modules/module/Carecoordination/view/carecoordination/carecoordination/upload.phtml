@@ -276,7 +276,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             // if we have a file extension and it is not an XML file... then we're going to error out.
             // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
             let nameArr = files[i].name.split(".");
-            if (nameArr.length > 1 && nameArr.pop() !== 'xml') {
+            let extension = nameArr.pop();
+            if (nameArr.length > 1 && (extension !== 'xml' && extension !== 'zip')) {
                 if (fnames == '') {
                     fnames = files[i].name;
                 } else {
@@ -408,7 +409,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                         <?php
                         $slno = 0;
                         foreach ($this->records as $row) {
-                            if ($slno === 0 || in_array($slno + 12, [12,24,36,48,60])) {
+                            if ($slno % 12 == 0) {
                             ?>
                             <tr class="se_in_9">
                             <th>&nbsp;</th>

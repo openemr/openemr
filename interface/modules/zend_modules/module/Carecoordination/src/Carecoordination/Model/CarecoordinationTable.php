@@ -39,9 +39,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function __construct()
     {
-        $this->documentData = [];
-        $this->is_qrda_import = false;
-        $this->parseTemplates = new CdaTemplateParse();
+        $this->resetData();
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
@@ -227,6 +225,10 @@ class CarecoordinationTable extends AbstractTableGateway
                 if ($iValue['use'] === 'L') {
                     $index = $i;
                 }
+                if ($iValue['given'][0]['qualifier'] ?? '' === 'BR') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['birth_fname'] = $iValue['given'][0]['_'] ?? null;
+                    $this->documentData['field_name_value_array']['patient_data'][1]['birth_lname'] = $iValue['family'] ?? null;
+                }
             }
             $name = $xml['recordTarget']['patientRole']['patient']['name'][$index];
         } else {
@@ -243,9 +245,10 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
         $this->documentData['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : ($name['given'] ?? null);
+        $this->documentData['field_name_value_array']['patient_data'][1]['mname'] = is_array($name['given']) ? $name['given'][1] ?? '' : '';
         $this->documentData['field_name_value_array']['patient_data'][1]['lname'] = $name['family'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? '');
         $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
@@ -253,10 +256,30 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['country_code'] = $xml['recordTarget']['patientRole']['addr']['country'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
+
+        if (is_array($xml['recordTarget']['patientRole']['telecom'][0] ?? null)) {
+            foreach ($xml['recordTarget']['patientRole']['telecom'] as $tel) {
+                if ($tel['use'] == 'MC') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                }
+                if ($tel['use'] == 'HP') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                }
+                if ($tel['use'] == 'WP') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                }
+            }
+        } else {
+            $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
+        }
+
         $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;
+        if (is_array($xml['recordTarget']['patientRole']['patient']['raceCode'][0])) {
+            $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['code'] ?? null;
+        } else {
+            $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;
+        }
         $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = ($xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code']) ?? null;
 
         //Author details
@@ -832,6 +855,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function getOptionId($list_id, $title, $codes = null)
     {
         $appTable = new ApplicationTable();
+        $res_cur = null;
         if ($title) {
             $query = "SELECT option_id
                 FROM list_options
@@ -840,7 +864,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        if (!empty($codes)) {
+        if (!empty($codes && empty($res_cur))) {
             $query = "SELECT option_id
                   FROM list_options
                   WHERE list_id=? AND (codes=? || notes=?)";
@@ -854,6 +878,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function getListTitle(string $option_id = null, $list_id, $codes = '')
     {
         $appTable = new ApplicationTable();
+        $res_cur = null;
         if ($option_id) {
             $query = "SELECT title
                   FROM list_options
@@ -862,7 +887,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        if ($codes) {
+        if (!empty($codes) && empty($res_cur)) {
             $query = "SELECT title
                   FROM list_options
                   WHERE list_id=? AND (codes=? OR option_id=?) AND activity=?";
@@ -918,6 +943,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function import($document_id)
     {
+        $this->resetData();
         $xml_content = $this->getDocument($document_id);
         $this->importCore($xml_content, $document_id);
         $audit_master_approval_status = 1;
@@ -1971,6 +1997,16 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         return $res_cur['codes'] ?? '';
+    }
+
+    /**
+     * Initialize or reset our private member variables used for importing.
+     */
+    private function resetData()
+    {
+        $this->documentData = [];
+        $this->is_qrda_import = false;
+        $this->parseTemplates = new CdaTemplateParse();
     }
 }
 // Below was removed as couldn't find it used anywhere! Will keep for a minute or two...

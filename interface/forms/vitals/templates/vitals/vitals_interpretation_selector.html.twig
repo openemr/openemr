@@ -1,0 +1,10 @@
+<select name="interpretation[{{ input|attr }}]" class="form-control" id='interpretation_{{ input|attr }}'>
+    <option value=""> </option>
+    {% for option in interpretation_options %}
+        {% if vitalDetails is not null and option.id == vitalDetails.get_interpretation_option_id() %}
+                <option selected="selected" value="{{ option.id|attr }}">{{ option.title|xlt }}</option>
+        {% else %}
+            <option {% if option.is_default %}selected="selected"{% endif%} value="{{ option.id|attr }}">{{ option.title|xlt }}</option>
+        {% endif %}
+    {% endfor %}
+</select>

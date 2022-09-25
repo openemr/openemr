@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
@@ -80,6 +81,8 @@ $templateService = new DocumentTemplateService();
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
+    // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
+    echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
     Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
 
@@ -189,7 +192,7 @@ $templateService = new DocumentTemplateService();
         function replaceTextInputs() {
             $('.templateInput').each(function () {
                 var rv = $(this).data('textvalue');
-                $(this).replaceWith(rv);
+                $(this).replaceWith(jsText(rv));
             });
         }
 
@@ -197,14 +200,14 @@ $templateService = new DocumentTemplateService();
             $('.ynuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
 
             $('.tfuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="tfradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
         }

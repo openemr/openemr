@@ -198,6 +198,16 @@ function buildNav($newcnt, $pid, $result)
         }
     }
 
+    if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
+        $navItems[] = [
+            'url' => '#procard',
+            'label' => xl('My Assessments'),
+            'icon' => 'fas fa-file-medical',
+            'dataToggle' => 'collapse',
+            'dataType' => 'cardgroup'
+        ];
+    }
+
     // Build sub nav items
 
     if (!empty($GLOBALS['allow_portal_chat'])) {
@@ -296,7 +306,7 @@ echo $twig->render('portal/home.html.twig', [
     'appointments' => $appointments,
     'appts' => $appts,
     'appointmentLimit' => $apptLimit,
-    'appointmentCount' => $count,
+    'appointmentCount' => $count ?? null,
     'displayLimitLabel' => xl('Display limit reached'),
     'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
     'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds

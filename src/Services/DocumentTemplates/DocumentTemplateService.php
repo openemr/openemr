@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,14 +14,16 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
 use RuntimeException;
+use OpenEMR\Services\QuestionnaireService;
 
 /**
  *
  */
-class DocumentTemplateService
+class DocumentTemplateService extends QuestionnaireService
 {
-    public function __construct()
+    public function __construct($base_table = null)
     {
+        parent::__construct($base_table ?? null);
     }
 
     public function uniqueByKey($source, $key): array
@@ -524,7 +526,7 @@ class DocumentTemplateService
      * @param array $pids
      * @return int
      */
-    public function uploadTemplate($template_name, $category, $file, $pids = []): int
+    public function uploadTemplate($template_name, $category, $file, $pids = [], $q_only = false): int
     {
         $mimetype = null;
         if (function_exists('finfo_open')) {
@@ -540,6 +542,22 @@ class DocumentTemplateService
         }
 
         $content = file_get_contents($file);
+
+        $q_ob = json_decode($content, true); // only pass array
+        $is_json = json_last_error() === JSON_ERROR_NONE;
+        if ($is_json) {
+            $template_name = $template_name ?: $q_ob['title'];
+            $q_id = $q_ob['id'] ?? null;
+            $content = "{Questionnaire:$template_name}" . "\n";
+            $mimetype = 'application/text';
+            $service = new QuestionnaireService();
+            $id = $service->saveQuestionnaireResource($q_ob, null, $template_name, $q_id);
+            if (empty($id)) {
+                return $id;
+            } elseif ($q_only) {
+                return $id;
+            }
+        }
         $id = 0;
         foreach ($pids as $pid) {
             $id = $this->insertTemplate($pid, $category, $template_name, $content, $mimetype);

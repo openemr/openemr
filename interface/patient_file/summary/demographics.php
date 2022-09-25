@@ -178,7 +178,7 @@ function portalAuthorized($pid)
 
     $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
     $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
-    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps']) != 'YES';
+    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps'] ?? '') != 'YES';
     if ($return['allowed']['portal'] || $return['allowed']['api']) {
         $return['isAllowed'] = true;
         $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
@@ -852,6 +852,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         <?php
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
+        div.tab td.label_custom, div.label_custom {
+            text-align: right !important;
+        }
+
+        div.tab td.data, div.data {
+            padding-left: 0.5em;
+            padding-right: 2em;
+        }
+            <?php
+        } ?>
+
+        <?php
         // This is for layout font size override.
         $grparr = array();
         getLayoutProperties('DEM', $grparr, 'grp_size');
@@ -1202,10 +1215,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Edit',
                             'btnLink' => $GLOBALS['webroot'] . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
-                            'btnCLass' => 'rx_modal',
+                            'btnCLass' => '',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
-                            'auth' => AclMain::aclCheckCore('patients', 'amendment', '', 'write'),
+                            'auth' => AclMain::aclCheckCore('patients', 'amendment', '', ['write', 'addonly']),
                             'amendments' => $amendments,
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),

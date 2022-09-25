@@ -316,8 +316,7 @@ function sendToEmrDirect() {
             url: ccdaUrl,
             dataType: "html",
             data: {},
-        })
-        .done(function() {
+        }).done(function () {
             $.ajax({
                 type: "POST",
                 url: emrDirectBaseUrl + "&combination=" + combination + "&recipients=" + recipients,
@@ -336,8 +335,7 @@ function sendToEmrDirect() {
                     alert(resultTranslated.msg);
                 }
             });
-        })
-        .fail(function() {
+        }).fail(function () {
             $('.ap-st-st-12').fadeOut();
             $('.activity_indicator').css({"display": "none"});
             var resultTranslated = js_xl("Failed to send");
@@ -443,6 +441,11 @@ function sendToDownloadAll() {
         $('.ap-st-st-12').fadeOut();
         $('.activity_indicator').css({"display": "none"});
     }
+}
+
+function sendFiltered() {
+    $("#form_filter_content").val('1');
+    send();
 }
 
 function send() {

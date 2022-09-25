@@ -39,6 +39,7 @@ require_once("$srcdir/patient.inc");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -59,7 +60,8 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
+    exit;
 }
 
 // When automatically including lists used in selected layouts, these lists are not included.
@@ -498,8 +500,8 @@ if ($form_step == 0) {
 }
 
 if ($form_step == 1) {
-    $form_status .= xla('Dumping OpenEMR database') . "...<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Dumping OpenEMR database') . "...||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     if (file_exists($TAR_FILE_PATH)) {
         if (! unlink($TAR_FILE_PATH)) {
             die(xlt("Couldn't remove old backup file:") . " " . text($TAR_FILE_PATH));
@@ -544,8 +546,8 @@ if ($form_step == 2) {
 }
 
 if ($form_step == 3) {
-    $form_status .= xla('Dumping OpenEMR web directory tree') . "...<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Dumping OpenEMR web directory tree') . "...||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     $cur_dir = getcwd();
     chdir($webserver_root);
 
@@ -586,8 +588,8 @@ if ($form_step == 4) {
 }
 
 if ($form_step == 5) {   // create the final compressed tar containing all files
-    $form_status .= xla('Backup file has been created. Will now send download.') . "<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Backup file has been created. Will now send download.') . "||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     $cur_dir = getcwd();
     chdir($BACKUP_DIR);
     $file_list = array('.');
@@ -691,8 +693,8 @@ if ($form_step == 102) {
     }
 
     if ($tables || is_array($_POST['form_sel_lists'] ?? '') || is_array($_POST['form_sel_layouts'] ?? '')) {
-        $form_status .= xla('Creating export file') . "...<br />";
-        echo nl2br($form_status);
+        $form_status .= xl('Creating export file') . "...||br-placeholder||";
+        echo brCustomPlaceholder(text($form_status));
         if (file_exists($EXPORT_FILE)) {
             if (! unlink($EXPORT_FILE)) {
                 die(xlt("Couldn't remove old export file: ") . text($EXPORT_FILE));
@@ -897,8 +899,8 @@ if ($form_step == 102) {
 }
 
 if ($form_step == 103) {
-    $form_status .= xla('Done.  Will now send download.') . "<br />";
-    echo nl2br($form_status);
+    $form_status .= xl('Done.  Will now send download.') . "||br-placeholder||";
+    echo brCustomPlaceholder(text($form_status));
     $auto_continue = true;
 }
 
@@ -917,8 +919,8 @@ if ($form_step == 202) {
   // Process uploaded config file.
     if (is_uploaded_file($_FILES['userfile']['tmp_name'])) {
         if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
-            $form_status .= xla('Applying') . "...<br />";
-            echo nl2br($form_status);
+            $form_status .= xl('Applying') . "...||br-placeholder||";
+            echo brCustomPlaceholder(text($form_status));
             $cmd = escapeshellcmd($mysql_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
             " -p" . escapeshellarg($sqlconf["pass"]) .
             " -h " . escapeshellarg($sqlconf["host"]) .
@@ -939,8 +941,8 @@ if ($form_step == 202) {
 }
 
 if ($form_step == 203) {
-    $form_status .= xla('Done') . ".";
-    echo nl2br($form_status);
+    $form_status .= xl('Done') . ".";
+    echo brCustomPlaceholder(text($form_status));
 }
 
 /// ViSolve : EventLog Backup
@@ -1024,7 +1026,7 @@ if ($form_step == 405) {
 </table>
 
 <input type='hidden' name='form_step' value='<?php echo attr($form_step); ?>' />
-<input type='hidden' name='form_status' value='<?php echo $form_status; ?>' />
+<input type='hidden' name='form_status' value='<?php echo attr($form_status); ?>' />
 
 </form>
 
@@ -1087,6 +1089,13 @@ if ($file_to_compress) {
     setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php }
+
+// convert ||br-placeholder|| to <br>
+// (this is because the nl2br was not working for a reason I couldn't figure out)
+function brCustomPlaceholder(string $str): string
+{
+    return str_replace("||br-placeholder||", "<br />", $str);
+}
 
 // Recursive directory remove (like an O/S insensitive "rm -rf dirname")
 function obliterate_dir($dir)

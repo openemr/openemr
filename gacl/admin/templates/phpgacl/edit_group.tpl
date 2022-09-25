@@ -1,13 +1,13 @@
 {include file="phpgacl/header.tpl"}
     <style type="text/css">
-    {literal}
+
       select {
         margin-top: 0px;
       }
       input.group-name, input.group-value {
         width: 99%;
       }
-    {/literal}
+
     </style>
   </head>
   <body>

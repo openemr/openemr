@@ -131,7 +131,7 @@ class MainMenuRole extends MenuRole
         $regrows = getFormsByCategory('1', false);
         foreach ($regrows as $entry) {
             $option_id = $entry['directory'];
-            $title = trim($entry['nickname']);
+            $title = trim($entry['nickname'] ?? '');
             if (empty($title)) {
                 $title = $entry['name'];
             }
@@ -182,7 +182,7 @@ class MainMenuRole extends MenuRole
         $regrows = getFormsByCategory('1', true);
         foreach ($regrows as $entry) {
             $option_id = $entry['directory'];
-            $title = trim($entry['nickname']);
+            $title = trim($entry['nickname'] ?? '');
             if (empty($title)) {
                 $title = $entry['name'];
             }

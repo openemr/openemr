@@ -31,8 +31,10 @@
  *          scopes={
  *              "openid": "Generic mandatory scope",
  *              "offline_access": "Will signal server to provide a refresh token",
+ *              "launch/patient": "Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)",
  *              "api:fhir": "FHIR R4 API",
  *              "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
+ *              "patient/Appointment.read": "Read appointment resources for the current patient (api:fhir)",
  *              "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
  *              "patient/CareTeam.read": "Read care team resources for the current patient (api:fhir)",
  *              "patient/Condition.read": "Read condition resources for the current patient (api:fhir)",
@@ -149,7 +151,8 @@
  *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
  *              "patient/encounter.read": "Read encounters the patient has access to (api:port)",
- *              "patient/patient.read": "Write encounters the patient has access to (api:port)"
+ *              "patient/patient.read": "Write encounters the patient has access to (api:port)",
+ *              "patient/appointment.read": "Read appointments the patient has access to (api:port)"
  *          }
  *      )
  *  )
@@ -7065,6 +7068,7 @@ RestConfig::$ROUTE_MAP = array(
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
+use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
 use OpenEMR\RestControllers\FHIR\FhirCarePlanRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
 use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
@@ -7282,6 +7286,137 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         } else {
             RestConfig::authorization_check("patients", "med");
             $return = (new FhirAllergyIntoleranceRestController($request))->getOne($uuid);
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Appointment",
+     *      description="Returns a list of Appointment resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Appointment resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/AllergyIntolerance"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Appointment" => function (HttpRestRequest $request) {
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirAppointmentRestController($request))->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "appt");
+            $return = (new FhirAppointmentRestController($request))->getAll($getParams);
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Appointment/{uuid}",
+     *      description="Returns a single Appointment resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Appointment resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={}
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Appointment/:uuid" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirAppointmentRestController($request))->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "appt");
+            $return = (new FhirAppointmentRestController($request))->getOne($uuid);
         }
         RestConfig::apiLog($return);
         return $return;
@@ -8456,10 +8591,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
-     *  @OA\Get(
+     *  @OA\POST(
      *      path="/fhir/DocumentReference/$docref",
-     *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details",
+     *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.",
      *      tags={"fhir"},
+     *      @OA\ExternalDocumentation(description="Detailed documentation on this operation", url="https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API"),
      *      @OA\Parameter(
      *          name="patient",
      *          in="query",
@@ -8511,7 +8647,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /fhir/DocumentReference/$docref' => function (HttpRestRequest $request) {
+    'POST /fhir/DocumentReference/$docref' => function (HttpRestRequest $request) {
 
         // NOTE: The order of this route is IMPORTANT as it needs to come before the DocumentReference single request.
         if ($request->isPatientRequest()) {
@@ -8640,7 +8776,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Document/{id}/Binary",
-     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+     *      description="Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="id",
@@ -8653,7 +8789,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
+     *          description="The documentation for working with BULK FHIR or $docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -12591,6 +12727,68 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
      */
     "GET /portal/patient/encounter/:euuid" => function ($euuid, HttpRestRequest $request) {
         $return = (new EncounterRestController())->getOne($request->getPatientUUIDString(), $euuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+     /**
+      *  @OA\Get(
+      *      path="/portal/patient/appointment",
+      *      description="Retrieves all appointments for a patient",
+      *      tags={"standard-patient"},
+      *      @OA\Response(
+      *          response="200",
+      *          ref="#/components/responses/standard"
+      *      ),
+      *      @OA\Response(
+      *          response="400",
+      *          ref="#/components/responses/badrequest"
+      *      ),
+      *      @OA\Response(
+      *          response="401",
+      *          ref="#/components/responses/unauthorized"
+      *      ),
+      *      security={{"openemr_auth":{}}}
+      *  )
+      */
+    "GET /portal/patient/appointment" => function (HttpRestRequest $request) {
+        $return = (new AppointmentRestController())->getAllForPatientByUuid($request->getPatientUUIDString());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+
+     /**
+      *  @OA\Get(
+      *      path="/portal/patient/appointment/{auuid}",
+      *      description="Returns a selected appointment by its uuid.",
+      *      tags={"standard-patient"},
+      *      @OA\Parameter(
+      *          name="auuid",
+      *          in="path",
+      *          description="The uuid for the appointment.",
+      *          required=true,
+      *          @OA\Schema(
+      *          type="string"
+      *          )
+      *      ),
+      *      @OA\Response(
+      *          response="200",
+      *          ref="#/components/responses/standard"
+      *      ),
+      *      @OA\Response(
+      *          response="400",
+      *          ref="#/components/responses/badrequest"
+      *      ),
+      *      @OA\Response(
+      *          response="401",
+      *          ref="#/components/responses/unauthorized"
+      *      ),
+      *      security={{"openemr_auth":{}}}
+      *  )
+      */
+    "GET /portal/patient/appointment/:auuid" => function ($auuid, HttpRestRequest $request) {
+        $return = (new AppointmentRestController())->getOneForPatient($auuid, $request->getPatientUUIDString());
         RestConfig::apiLog($return);
         return $return;
     }

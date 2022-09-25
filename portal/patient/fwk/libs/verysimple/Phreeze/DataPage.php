@@ -46,10 +46,12 @@ class DataPage implements Iterator
      *
      * @return Phreezable
      */
+    #[\ReturnTypeWillChange]
     public function Next()
     {
         return next($this->Rows);
     }
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         reset($this->Rows);
@@ -59,14 +61,17 @@ class DataPage implements Iterator
      *
      * @return Phreezable
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return current($this->Rows);
     }
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return key($this->Rows);
     }
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         return $this->current() !== false;

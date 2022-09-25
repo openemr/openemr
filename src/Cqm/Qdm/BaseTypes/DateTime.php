@@ -16,6 +16,7 @@ class DateTime extends AbstractType implements \JsonSerializable
 {
     public $date;
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $formatted = DateHelper::format_datetime_cqm($this->date);

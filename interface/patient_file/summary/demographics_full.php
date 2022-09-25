@@ -74,8 +74,7 @@ if ($GLOBALS['insurance_only_one']) {
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['datetime-picker','common','select2']);
-    require_once("$srcdir/erx_javascript.inc.php");
+<?php Header::setupHeader(['datetime-picker','common','select2', 'erx']);
 ?>
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 
@@ -315,7 +314,7 @@ function checkNum () {
 function address_verify() {
     top.restoreSession();
     var f = document.demographics_form;
-    
+
     dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(f.form_street.value) +
     '&address2=' + encodeURIComponent(f.form_street_line_2.value) +
     '&city=' + encodeURIComponent(f.form_city.value) +
@@ -323,7 +322,7 @@ function address_verify() {
     '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0,5)) +
     '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5,9))
     , '_blank', 400, 150, '', xl('Address Verify'));
-    
+
     return false;
 }
 
@@ -504,6 +503,39 @@ $(function () {
 });
 
 </script>
+
+<style>
+        div.demographicsEditContainer div.label_custom {
+            font-size: 0.8rem;
+            display: grid;
+            align-items: center;
+            line-height: 1.2;
+            padding-top: 0 !important;
+            margin-bottom: 0.2rem;
+        }
+
+        div.insuranceEditContainer div.label_custom span {
+            font-size: 0.8rem;
+            display: inline-flex;
+            height: 100%;
+            align-items: center;
+            line-height: 1.2;
+        }
+
+        <?php
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?> 
+        div.label_custom {
+            text-align: right !important;
+        }
+
+        div.tab td.data, div.data {
+            padding-left: 0.5em;
+            padding-right: 2em;
+        }
+            <?php
+        }  ?>
+</style>
+
 </head>
 
 <?php
@@ -542,7 +574,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 $condition_str = '';
 ?>
 <br />
-<div class='container-xl'>
+<div class='container-xl demographicsEditContainer'>
     <div class="section-header">
         <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
     </div>
@@ -578,7 +610,7 @@ if (! $GLOBALS['simplified_demographics']) {
     <div class="section-header">
        <span class="text font-weight-bold"><?php echo xlt("Insurance")?></span>
     </div>
-    <div id="INSURANCE">
+    <div id="INSURANCE" class="insuranceEditContainer">
        <ul class="tabNav">
         <?php
         foreach ($insurance_array as $instype) {
@@ -599,8 +631,8 @@ if (! $GLOBALS['simplified_demographics']) {
         <div class="col-md-6"><!-- start left column -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
+            <div class="col-md-3 label_custom pb-3">
+              <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
             </div>
             <div class="col-md-9">
               <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
@@ -621,8 +653,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Plan Name'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Plan Name'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='20'
@@ -633,8 +665,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Effective Date'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom ">
+              <span class='required'><?php echo xlt('Effective Date'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' size='16' class='datepicker form-control form-control-sm mb-1'
@@ -645,8 +677,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Policy Number'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Policy Number'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='16'
@@ -657,8 +689,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Group Number'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom ">
+              <span class='required'><?php echo xlt('Group Number'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type="text" class='form-control form-control-sm mb-1' size='16'
@@ -669,8 +701,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Subscriber Employer (SE)'); ?>:</span>
+            <div class="col-md-3 pb-4 label_custom">
+              <span class='required'><?php echo xlt('Subscriber Employer (SE)'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm' size='25'
@@ -683,8 +715,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('SE Address'); ?></span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('SE Address'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='25'
@@ -692,8 +724,8 @@ if (! $GLOBALS['simplified_demographics']) {
                value="<?php echo attr($result3["subscriber_employer_street"] ?? ''); ?>"
                onchange="capitalizeMe(this);" />
             </div>
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('SE Address Line 2'); ?></span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('SE Address Line 2'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='25'
@@ -704,8 +736,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('SE City'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('SE City'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='15'
@@ -716,8 +748,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>:</span>
             </div>
             <div class="col-md-9">
               <?php
@@ -738,8 +770,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='15'
@@ -749,8 +781,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('SE Country'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('SE Country'); ?>:</span>
             </div>
             <div class="col-md-9">
               <?php
@@ -776,8 +808,8 @@ if (! $GLOBALS['simplified_demographics']) {
         <div class="col-md-6"><!-- start right column -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Relationship'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Relationship'); ?>:</span>
             </div>
             <div class="col-md-9">
               <?php
@@ -799,8 +831,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Subscriber'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Subscriber'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='10'
@@ -819,8 +851,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom'><?php echo xlt('D.O.B.'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span><?php echo xlt('D.O.B.'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='datepicker form-control form-control-sm mb-1 mw-100'
@@ -831,8 +863,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom'><?php echo xlt('Sex'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span><?php echo xlt('Sex'); ?>:</span>
             </div>
             <div class="col-md-9">
               <?php
@@ -851,8 +883,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom'><?php echo xlt('S.S.'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span><?php echo xlt('S.S.'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='11'
@@ -862,8 +894,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Subscriber Address'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Subscriber Address'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='20'
@@ -874,8 +906,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Address Line 2'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Address Line 2'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='20'
@@ -886,8 +918,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('City'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('City'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1 mw-100' size='11'
@@ -898,8 +930,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>:</span>
             </div>
             <div class="col-md-9">
               <?php
@@ -921,8 +953,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='entry' class='form-control form-control-sm mb-1' size='15'
@@ -932,8 +964,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Country'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Country'); ?>:</span>
             </div>
             <div class="col-md-9">
               <?php
@@ -955,8 +987,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom'><?php echo xlt('Subscriber Phone'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span><?php echo xlt('Subscriber Phone'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='text' class='form-control form-control-sm mb-1' size='20'
@@ -967,8 +999,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom'><?php echo xlt('CoPay'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span><?php echo xlt('CoPay'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='text' class='form-control form-control-sm mb-1' size="6"
@@ -978,8 +1010,8 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom required'><?php echo xlt('Accept Assignment'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Accept Assignment'); ?>:</span>
             </div>
             <div class="col-md-9">
               <select class='form-control form-control-sm mb-1'
@@ -995,18 +1027,20 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
-            <div class="col-md-3 pt-1">
-              <span class='label_custom'><?php echo xlt('Secondary Medicare Type'); ?>:</span>
+            <div class="col-md-3 pb-1 label_custom">
+              <span><?php echo xlt('Secondary Medicare Type'); ?>:</span>
             </div>
             <div class="col-md-9">
               <select class='form-control form-control-sm mb-1 sel2' name='i<?php echo attr($i); ?>policy_type'>
                 <?php
-                foreach ($policy_types as $key => $value) {
-                    echo "            <option value ='" . attr($key) . "'";
-                    if (!empty($result3['policy_type']) && ($key == $result3['policy_type'])) {
-                        echo " selected";
+                if (!empty($policy_types)) {
+                    foreach ($policy_types as $key => $value) {
+                        echo "            <option value ='" . attr($key) . "'";
+                        if (!empty($result3['policy_type']) && ($key == $result3['policy_type'])) {
+                            echo " selected";
+                        }
+                        echo ">" . text($value) . "</option>\n";
                     }
-                    echo ">" . text($value) . "</option>\n";
                 }
                 ?>
               </select>
@@ -1164,7 +1198,7 @@ $use_validate_js = $GLOBALS['new_validate'];
             width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
         });
-        
+
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");

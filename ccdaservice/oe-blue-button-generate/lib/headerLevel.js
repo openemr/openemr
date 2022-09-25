@@ -187,52 +187,13 @@ var provider = exports.provider = [{
                 attributes: leafLevel.code,
                 content: [{key: "originalText", text: "Care Team Member"}],
                 dataKey: "type"
-            }, {
-                key: "addr",
-                attributes: {
-                    use: leafLevel.use("use")
-                },
-                content: [{
-                    key: "country",
-                    text: leafLevel.inputProperty("country")
-                }, {
-                    key: "state",
-                    text: leafLevel.inputProperty("state")
-                }, {
-                    key: "city",
-                    text: leafLevel.inputProperty("city")
-                }, {
-                    key: "postalCode",
-                    text: leafLevel.inputProperty("zip")
-                }, {
-                    key: "streetAddressLine",
-                    text: leafLevel.input,
-                    dataKey: "street_lines"
-                }],
-                dataKey: "address"
-            }, {
-                key: "telecom",
-                attributes: [{
-                    use: "WP",
-                    value: function (input) {
-                        return input.value.number;
-                    }
-                }],
-                dataKey: "phone"
-            }, {
-                key: "assignedPerson",
-                content: [{
-                    key: "name",
-                    content: [{
-                        key: "given",
-                        text: leafLevel.inputProperty("first")
-                    }, {
-                        key: "family",
-                        text: leafLevel.inputProperty("last")
-                    }],
-                    dataKey: "name"
-                }]
-            }
+            },
+                fieldLevel.usRealmAddress,
+                fieldLevel.telecom,
+                {
+                    key: "assignedPerson",
+                    content: fieldLevel.usRealmName
+                }
             ]
         }
     ],
@@ -262,6 +223,19 @@ var providers = exports.providers = {
     },
     dataKey: "data.demographics"
 };
+
+var participants = exports.participant = [{
+    key: "participant"
+    , attributes: {
+        typeCode: leafLevel.inputProperty("typeCode")
+    }
+    , content: [
+        [fieldLevel.effectiveTime, required, key("time")],
+        // associatedEntity
+        , fieldLevel.associatedEntity
+    ]
+    , dataKey: "meta.ccda_header.participants"
+}];
 
 var attributed_provider = exports.attributed_provider = {
     key: "providerOrganization",
@@ -340,6 +314,11 @@ var headerAuthor = exports.headerAuthor = {
                 },
                 dataKey: 'identifiers',
             }, {
+                key: "code",
+                attributes: leafLevel.code,
+                existsWhen: condition.propertyNotEmpty('code'),
+                dataKey: "code"
+            }, {
                 key: "addr",
                 attributes: {
                     use: leafLevel.use("use")
@@ -365,11 +344,10 @@ var headerAuthor = exports.headerAuthor = {
             }, {
                 key: "telecom",
                 attributes: {
-                    value: leafLevel.inputProperty("number"),
-                    use: leafLevel.inputProperty("type")
+                    value: leafLevel.inputProperty("value"),
+                    use: leafLevel.inputProperty("use")
                 },
-                dataKey: "phone",
-                //dataTransform: translate.telecom
+                dataTransform: translate.telecom
             }, {
                 key: "assignedPerson",
                 content: {
@@ -567,7 +545,6 @@ var headerInformationRecipient = exports.headerInformationRecipient = {
                     text: leafLevel.inputProperty("name"),
                     dataKey: "organization"
                 }],
-
             }]
     },
     dataKey: "meta.ccda_header.information_recipient"
@@ -581,3 +558,45 @@ var headerInformationRecipient = exports.headerInformationRecipient = {
         dataKey: "organization"
     }],
 }*/
+
+var headerComponentOf = exports.headerComponentOf = {
+    key: "componentOf",
+    content: {
+        key: "encompassingEncounter",
+        content: [
+            fieldLevel.id,
+            {
+                key: "code",
+                attributes: leafLevel.code,
+                existsWhen: condition.propertyNotEmpty('code'),
+                dataKey: "code"
+            },
+            [fieldLevel.effectiveTime, key("effectiveTime"), dataKey("date_time"), required],
+            fieldLevel.responsibleParty,
+            {
+                key: "encounterParticipant",
+                attributes: {
+                    "typeCode": "ATND"
+                },
+                content: [{
+                    key: "assignedEntity",
+                    content: [{
+                        key: "id",
+                        attributes: {
+                            root: leafLevel.inputProperty("root")
+                        }
+                    }
+                        , fieldLevel.usRealmAddress
+                        , fieldLevel.telecom
+                        , {
+                            key: "assignedPerson",
+                            content: fieldLevel.usRealmName
+                        }]
+                }],
+                dataKey: "encounter_participant",
+                existsWhen: condition.propertyValueNotEmpty("name.last")
+            }
+        ]
+    },
+    dataKey: "meta.ccda_header.component_of"
+};

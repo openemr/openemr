@@ -64,7 +64,7 @@ exports.ccd2 = function (html_renderer) {
                 text: leafLevel.inputProperty("title"),
                 dataKey: "meta.ccda_header"
             },
-            [fieldLevel.effectiveDocumentTime, required], {
+            [fieldLevel.effectiveTime, required, dataKey("meta.ccda_header.date_time")], {
                 key: "confidentialityCode",
                 attributes: leafLevel.codeFromName("2.16.840.1.113883.5.25"),
                 dataKey: "meta.confidentiality"
@@ -92,11 +92,14 @@ exports.ccd2 = function (html_renderer) {
             headerLevel.headerInformant,
             headerLevel.headerCustodian,
             headerLevel.headerInformationRecipient,
-            headerLevel.providers, {
+            headerLevel.participant,
+            headerLevel.providers,
+            headerLevel.headerComponentOf, {
                 key: "component",
                 content: {
                     key: "structuredBody",
                     content: [
+                        sectionLevel2.careTeamSection(html_renderer.careTeamSectionHtmlHeader, html_renderer.careTeamSectionHtmlHeaderNA),
                         [sectionLevel2.allergiesSectionEntriesRequired(html_renderer.allergiesSectionEntriesRequiredHtmlHeader, html_renderer.allergiesSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.medicationsSectionEntriesRequired(html_renderer.medicationsSectionEntriesRequiredHtmlHeader, html_renderer.medicationsSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.problemsSectionEntriesRequired(html_renderer.problemsSectionEntriesRequiredHtmlHeader, html_renderer.problemsSectionEntriesRequiredHtmlHeaderNA), required],

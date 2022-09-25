@@ -332,7 +332,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 //            "patient/Account.read",
             "patient/AllergyIntolerance.read",
 //            "patient/AllergyIntolerance.write",
-//            "patient/Appointment.read",
+            "patient/Appointment.read",
 //            "patient/Appointment.write",
             "patient/CarePlan.read",
             "patient/CareTeam.read",
@@ -932,6 +932,9 @@ class ScopeRepository implements ScopeRepositoryInterface
             case 'AllergyIntolerance':
                 $description .= xl("allergies/adverse reactions");
                 break;
+            case 'Appointment':
+                $description .= xl("appointments");
+                break;
             case 'Observation':
                 $description .= xl("observations including laboratory,vitals, and social history records");
                 break;
@@ -999,5 +1002,60 @@ class ScopeRepository implements ScopeRepositoryInterface
             $description .= ". " . xl("Application is requesting access to all data in entire system for this resource");
         }
         return $description;
+    }
+
+    /**
+     * Checks if the given scopes array requires any manual approval by an administrator before an oauth2 client can be authorized
+     * @param bool $is_confidential_client Whether the client is confidential (can keep a secret safe) or a public app
+     * @param array $scopes The scopes to be checked to see if we need manual approval
+     * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
+     */
+    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes)
+    {
+        // note eventually this method could have a db lookup to check against if admins want to vet this
+        // possibly we could have an event dispatched here as well if we want someone to provide / extend that kind of functionality
+
+        // if a public app requests the launch scope we also do not let them through unless they've been manually
+        // authorized by an administrator user.
+        if (!$is_confidential_client) {
+            if (array_search("launch", $scopes) !== false) {
+                return true;
+            }
+        }
+        // as not all jurisdictions have to comply with ONC rules we will still check against the globals flag in case
+        // a user has turned off auto-enabling of apps and wants to lock down their installation
+        if (($GLOBALS['oauth_app_manual_approval'] ?? '0') == '1') {
+            return true;
+        }
+
+        if ($is_confidential_client) {
+            // ONC requires that a patient be allowed to use an app of their choice and as long as it does not use user/system scopes there can be
+            // no prohibiting the patient app selection due to Information Blocking Rule, EMRs must authorize the app within 2 business days
+            // to deal with this we auto-enable confidential apps that ONLY use patient/* scopes even if they request offline_access scope
+            // we still prohibit any confidential app that is allowing an in-EHR context to be auto-enabled since they are listed inside
+            // the patient demographics screen (and other locations possibly in the future)
+            if ($this->hasUserScopes($scopes) || $this->hasSystemScopes($scopes)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private function hasUserScopes(array $scopes)
+    {
+        return $this->scopeArrayHasString($scopes, 'user/');
+    }
+    private function hasSystemScopes(array $scopes)
+    {
+        return $this->scopeArrayHasString($scopes, 'system/');
+    }
+
+    private function scopeArrayHasString(array $scopes, $str)
+    {
+        foreach ($scopes as $scope) {
+            if (strpos($scope, $str) !== false) {
+                return true;
+            }
+        }
+        return false;
     }
 }

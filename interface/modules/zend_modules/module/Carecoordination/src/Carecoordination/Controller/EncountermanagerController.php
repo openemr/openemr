@@ -16,6 +16,9 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Model\CcdaDocumentTemplateOids;
+use Carecoordination\Model\CcdaGlobalsConfiguration;
+use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use Carecoordination\Model\EncountermanagerTable;
 use DOMDocument;
 use Laminas\Filter\Compress\Zip;
@@ -23,8 +26,15 @@ use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
+use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
+use OpenEMR\Services\UserService;
+use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
@@ -32,6 +42,9 @@ class EncountermanagerController extends AbstractActionController
     // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for
     // the document types.  We should probably extract these into a model somewhere...
     const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan'];
+
+    const DEFAULT_DATE_SEARCH_TYPE = "encounter";
+    const DATE_SEARCH_TYPE_PATIENT_CREATION = "patient_date_created";
     /**
      * @var EncountermanagerTable
      */
@@ -51,13 +64,19 @@ class EncountermanagerController extends AbstractActionController
         $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
         $toDate = $request->getPost('form_date_to', null);
         $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        // encounter_date
+        // patient_date_created
+
+        $form_search_type_date = $request->getPost('form_search_type_date', "encounter");
+        $form_provider_id = $request->getPost("form_provider_id", null);
+        $form_billing_facility_id = $request->getPost("form_billing_facility_id", null);
         $pid = $request->getPost('form_pid', null);
         $encounter = $request->getPost('form_encounter', null);
         $status = $request->getPost('form_status', null);
 
         if (!$pid && !$encounter && !$status) {
-            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7 * 52 * 8)); // TODO give wide 8 year range for testing
-            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime('2022-12-31')); // TODO remove date adjustment production
+            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 14));
+            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         }
 
         $results = $request->getPost('form_results', 500);
@@ -148,6 +167,9 @@ class EncountermanagerController extends AbstractActionController
             'expand_all' => $expand_all,
             'sl_no' => $form_sl_no,
             'measures' => $form_measures,
+            'search_type_date' => $form_search_type_date,
+            'provider_id' => $form_provider_id,
+            "billing_facility_id" => $form_billing_facility_id
         );
         if ($new_search) {
             $count = $this->getEncountermanagerTable()->getEncounters($params, 1);
@@ -166,6 +188,12 @@ class EncountermanagerController extends AbstractActionController
         $layout = $this->layout();
         $layout->setTemplate('carecoordination/layout/encountermanager');
 
+        $practitionerService = new PractitionerService();
+        $practitioners = ProcessingResult::extractDataArray($practitionerService->getAll()) ?? [];
+
+        $facilityService = new FacilityService();
+        $billingLocations = $facilityService->getAllBillingLocations();
+
         $index = new ViewModel(array(
             'details' => $details,
             'form_data' => $params,
@@ -174,8 +202,73 @@ class EncountermanagerController extends AbstractActionController
             'status_details' => $status_details,
             'listenerObject' => $this->listenerObject,
             'commonplugin' => $this->CommonPlugin(),
+            'providers' => $practitioners,
+            'billing_facilities' => $billingLocations
         ));
         return $index;
+    }
+
+    /**
+     * Action handle for previewing a ccda document.  Given the id of a document in
+     * @return ViewModel
+     */
+    public function previewDocumentAction()
+    {
+
+        $request = $this->getRequest();
+        $docId = $request->getQuery("docId");
+
+        $document = new \Document($docId);
+        try {
+            $twig = new TwigContainer(null, $GLOBALS['kernel']);
+            // can_access will check session if no params are passed.
+            if (!$document->can_access()) {
+                echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
+                exit;
+            } else if ($document->is_deleted()) {
+                echo $twig->getTwig()->render("templates/error/404.html.twig");
+                exit;
+            }
+
+            $content = $document->get_data();
+            if (empty($content)) {
+                echo $twig->getTwig()->render("templates/error/404.html.twig");
+                exit;
+            }
+            $content = $document->get_data();
+
+            $ccdaGlobalsConfiguration = new CcdaGlobalsConfiguration();
+            $ccdaUserPreferencesTransformer = new CcdaUserPreferencesTransformer(
+                $ccdaGlobalsConfiguration->getMaxSections(),
+                $ccdaGlobalsConfiguration->getSectionDisplayOrder()
+            );
+            $updatedContent = $ccdaUserPreferencesTransformer->transform($content);
+
+            // time to use our stylesheets
+            // TODO: @adunsulag we need to put this transformation process into its own class that we can reuse
+            $stylesheet = dirname(__FILE__) . "/../../../../../public/xsl/cda.xsl";
+
+            if (!file_exists($stylesheet)) {
+                throw new \RuntimeException("Could not find stylesheet file at location: " . $stylesheet);
+            }
+            $xmlDom = new DOMDocument();
+            $xmlDom->loadXML($updatedContent);
+            $ss = new DOMDocument();
+            $ss->load($stylesheet);
+            $proc = new XSLTProcessor();
+            $proc->importStylesheet($ss);
+            $updatedContent = $proc->transformToXml($xmlDom);
+            echo $updatedContent;
+        } catch (\Exception $exception) {
+            echo "Failed to generate preview for docId " . text($docId);
+            (new SystemLogger())->errorLogCaller(
+                "Failed to generate preview for ccda document",
+                ['docId' => $docId, 'message' => $exception, 'trace' => $exception->getTraceAsString()]
+            );
+        }
+        $view = new ViewModel();
+        $view->setTerminal(true);
+        return $view;
     }
 
     public function buildCCDAHtml($content)
@@ -200,7 +293,8 @@ class EncountermanagerController extends AbstractActionController
         $zip_dir = sys_get_temp_dir() . "/";
         $zip_name = "CCDA_$id.zip";
 
-        $content = $this->getEncountermanagerTable()->getFile($id);
+        $ccdaDocument = new \Document($id);
+        $content = $ccdaDocument->get_data();
         $f = fopen($dir . $filename, "w");
         fwrite($f, $content);
         fclose($f);
@@ -223,6 +317,10 @@ class EncountermanagerController extends AbstractActionController
         header("Content-Type: application/download");
         header("Content-Transfer-Encoding: binary");
         readfile($zip_dir . $zip_name);
+
+        // we need to unlink both the directory and the zip file once are done... as its a security hazard
+        // to have these files just hanging around in a tmp folder
+        unlink($zip_dir . $zip_name);
 
         $view = new ViewModel();
         $view->setTerminal(true);
@@ -263,7 +361,8 @@ class EncountermanagerController extends AbstractActionController
                     chmod($dir, 0777);
                 }
                 // xml version for parsing or transfer.
-                $content = $this->getEncountermanagerTable()->getFile($id);
+                $ccdaDocuments = \Document::getDocumentsForForeignReferenceId('ccda', $id);
+                $content = !empty($ccdaDocuments) ? $ccdaDocuments[0]->get_data() : ""; // nothing here to export
                 $f2 = fopen($dir . $filename, "w");
                 fwrite($f2, $content);
                 fclose($f2);
@@ -293,6 +392,10 @@ class EncountermanagerController extends AbstractActionController
             header("Content-Type: application/download");
             header("Content-Transfer-Encoding: binary");
             readfile($zip_dir . $zip_name);
+
+            // we need to unlink both the directory and the zip file once are done... as its a security hazard
+            // to have these files just hanging around in a tmp folder
+            unlink($zip_dir . $zip_name);
 
             $view = new ViewModel();
             $view->setTerminal(true);

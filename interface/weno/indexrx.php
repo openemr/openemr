@@ -11,11 +11,12 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Rx\Weno\Container;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo xlt('ACL Administration Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
     exit;
 }
 

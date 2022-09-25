@@ -188,7 +188,7 @@ if (isset($_POST["mode"])) {
                 //==============================================================================================================================
 
                 $where = "$where1 AND adj_amount != 0";
-                if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"] * 1 !== 0) {
+                if (isset($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
                     if (trim($_POST['type_name']) == 'insurance') {
                         $AdjustString = "Ins adjust Ins" . trim($_POST["HiddenIns$CountRow"]);
                         $AccountCode = "IA";
@@ -939,7 +939,7 @@ $ResultSearchSub = sqlStatement(
                                     $ReasonCodeDB = $rowPayment['reason_code'];
 
                                     if ($Ins == 1) {
-                                        $AllowedDB = number_format($Fee - $AdjAmountDB, 2);
+                                        $AllowedDB = number_format($Fee - floatval($AdjAmountDB), 2);
                                     } else {
                                         $AllowedDB = 0;
                                     }

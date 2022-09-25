@@ -4,7 +4,7 @@
  * CcdaServiceDocumentRequestor handles the communication with the node ccda service in sending and receiving data
  * over the socket.
  *
- * @package openemr
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
@@ -28,7 +28,6 @@ class CcdaServiceDocumentRequestor
         if ($socket === false) {
             throw new CcdaServiceConnectionException("Socket Creation Failed");
         }
-
         // Let's check if server is already running but suppress warning with @ operator
         $server_active = @socket_connect($socket, "localhost", "6661");
 
@@ -74,24 +73,47 @@ class CcdaServiceDocumentRequestor
                 throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
             }
         }
-
-        $data = chr(11) . $data . chr(28) . "\r";
-        // Write to socket!
-        $out = socket_write($socket, $data, strlen($data));
+        // add file separator character for server end of message
+        $data = $data . chr(28) . chr(28);
+        $len = strlen($data);
+        // Set default buffer size to target data array size.
+        $good_buf = socket_set_option($socket, SOL_SOCKET, SO_SNDBUF, $len);
+        if ($good_buf === false) { // Can't set buffer
+            error_log("Failed to set socket buffer to " . $len);
+        }
+        // make writeSize chunk either the size set above or the default buffer size (64Kb).
+        $writeSize = socket_get_option($socket, SOL_SOCKET, SO_SNDBUF);
+        $pos = 0;
+        $currentCounter = 0;
+        $maxLineAttempts = ($len / $writeSize) + 1;
+        do {
+            $line = substr($data, $pos, min($writeSize, $len - $pos));
+            $out = socket_write($socket, $line, strlen($line));
+            if ($out !== false) {
+                $pos += $out; // bytes written lets advance our position
+            } else {
+                break;
+            }
+            // pause for the receiving side
+            usleep(200000);
+        } while ($out !== false && $pos < $len && $currentCounter++ <= $maxLineAttempts);
 
         socket_set_nonblock($socket);
-        //Read from socket!
+        //Read back rendered document from node service!
         do {
             $line = "";
             $line = trim(socket_read($socket, 1024, PHP_NORMAL_READ));
             $output .= $line;
-        } while (!empty($line) && $line !== false);
+        } while (!empty($line));
 
         $output = substr(trim($output), 0, strlen($output) - 1);
         // Close and return.
         socket_close($socket);
         if ($output == "Authentication Failure") {
             throw new CcdaServiceConnectionException("Authentication Failure");
+        }
+        if (empty(trim($output))) {
+            throw new CcdaServiceConnectionException("Ccda document generated was empty.  Check node service logs.");
         }
         return $output;
     }

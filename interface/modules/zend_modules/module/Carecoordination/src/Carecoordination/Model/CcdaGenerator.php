@@ -58,12 +58,35 @@ class CcdaGenerator
      * @param $recipients
      * @param $params
      * @param $document_type
+     * @param $referral_reason
+     * @param $date_options has the format of ['date_start' => 'YYYY-MM-DD HH:mm:ss', 'date_end' => 'YYYY-MM-DD HH:mm:ss', 'filter_content' => boolean]
      * @return GeneratedCcdaResult
      * @throws \Exception
      */
-    public function generate($patient_id, $encounter_id, $sent_by, $send, $view, $emr_transfer, $components, $sections, $recipients, $params, $document_type): GeneratedCcdaResult
-    {
+    public function generate(
+        $patient_id,
+        $encounter_id,
+        $sent_by,
+        $send,
+        $view,
+        $emr_transfer,
+        $components,
+        $sections,
+        $recipients,
+        $params,
+        $document_type,
+        $referral_reason,
+        $date_options = []
+    ): GeneratedCcdaResult {
 
+        // we need to make sure we don't accidently stuff in the debug logs any PHI so we'll only report on the presence of certain variables
+        (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
+                , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
+                , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
+                , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . (is_array($recipients) ? count($recipients) : "1") : "No recipients"
+                , 'params' => $params, 'document_type' => $document_type
+                , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
+                , 'date_options' => $date_options]);
         if ($sent_by != '') {
             $_SESSION['authUserID'] = $sent_by;
         }
@@ -95,7 +118,18 @@ class CcdaGenerator
             }
             $components = $str1;
         }
-        $data = $this->create_data($patient_id, $encounter_id, $sections, $components, $recipients, $params, $document_type, $send);
+        $data = $this->create_data(
+            $patient_id,
+            $encounter_id,
+            $sections,
+            $components,
+            $recipients,
+            $params,
+            $document_type,
+            $referral_reason,
+            $send,
+            $date_options
+        );
         $content = $this->socket_get($data);
         $content = trim($content);
         $generatedResult = $this->getEncounterccdadispatchTable()->logCCDA(
@@ -121,10 +155,21 @@ class CcdaGenerator
     }
 
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, int $send = null)
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = [])
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
-        $modelGenerator->create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $send);
+        $modelGenerator->create_data(
+            $pid,
+            $encounter,
+            $sections,
+            $components,
+            $recipients,
+            $params,
+            $document_type,
+            $referral_reason,
+            $send,
+            $date_options
+        );
         $this->createdtime = $modelGenerator->getCreatedTime();
         $this->data = $modelGenerator->getData();
         return $this->data;

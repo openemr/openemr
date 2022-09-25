@@ -64,7 +64,7 @@ if (($_POST['saveCALLback'] ?? '') == "Save") {
 //set default start date of flow board to value based on globals
 if (!$GLOBALS['ptkr_date_range']) {
     $from_date = date('Y-m-d');
-} elseif (!is_null($_REQUEST['form_from_date'])) {
+} elseif (!is_null($_REQUEST['form_from_date'] ?? null)) {
     $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
 } elseif (($GLOBALS['ptkr_start_date']) == 'D0') {
     $from_date = date('Y-m-d');
@@ -101,13 +101,13 @@ if ($GLOBALS['ptkr_date_range']) {
     }
 
     $to_date = date('Y-m-d', $ptkr_future_time);
-    $to_date = !is_null($_REQUEST['form_to_date']) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+    $to_date = !is_null($_REQUEST['form_to_date'] ?? null) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 } else {
     $to_date = date('Y-m-d');
 }
 
-$form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
-$form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
+$form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? $_POST['form_patient_name'] : null;
+$form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? $_POST['form_patient_id'] : null;
 
 
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
@@ -143,7 +143,7 @@ if ($GLOBALS['medex_enable'] == '1') {
     }
 }
 
-if (!$_REQUEST['flb_table']) {
+if (!($_REQUEST['flb_table'] ?? null)) {
     ?>
 <html>
 <head>
@@ -188,7 +188,7 @@ if (!$_REQUEST['flb_table']) {
                                     echo "<option value=''>" . xlt("Visit Categories") . "</option>";
                                     while ($cat = sqlFetchArray($categories)) {
                                         echo "<option value='" . attr($cat['id']) . "'";
-                                        if ($cat['id'] == $_POST['form_apptcat']) {
+                                        if ($cat['id'] == ($_POST['form_apptcat'] ?? null)) {
                                             echo " selected='true' ";
                                         }
                                         echo ">" . xlt($cat['category']) . "</option>";
@@ -204,7 +204,7 @@ if (!$_REQUEST['flb_table']) {
                                     $apptstats = sqlStatement("SELECT * FROM list_options WHERE list_id = 'apptstat' AND activity = 1 ORDER BY seq");
                                     while ($apptstat = sqlFetchArray($apptstats)) {
                                         echo "<option value='" . attr($apptstat['option_id']) . "'";
-                                        if ($apptstat['option_id'] == $_POST['form_apptstatus']) {
+                                        if ($apptstat['option_id'] == ($_POST['form_apptstatus'] ?? null)) {
                                             echo " selected='true' ";
                                         }
                                         echo ">" . xlt($apptstat['title']) . "</option>";
@@ -218,8 +218,10 @@ if (!$_REQUEST['flb_table']) {
                                       <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         while ($fac = sqlFetchArray($fac_sql)) {
-                                            $true = ($fac['id'] == $_POST['form_facility']) ? "selected=true" : '';
+                                            $true = ($fac['id'] == ($_POST['form_facility'] ?? null)) ? "selected=true" : '';
+                                            ($select_facs ?? null) ? $select_facs : $select_facs = '';
                                             $select_facs .= "<option value=" . attr($fac['id']) . " " . $true . ">" . text($fac['name']) . "</option>\n";
+                                            ($count ?? null) ? $count_facs : $count_facs = 0;
                                             $count_facs++;
                                         }
                                         if ($count_facs < '1') {
@@ -238,6 +240,7 @@ if (!$_REQUEST['flb_table']) {
                                 $ures = sqlStatement($query);
                                 while ($urow = sqlFetchArray($ures)) {
                                     $provid = $urow['id'];
+                                    ($select_provs ?? null) ? $select_provs : $select_provs = '';
                                     $select_provs .= "    <option value='" . attr($provid) . "'";
                                     if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
                                         $select_provs .= " selected";
@@ -245,6 +248,7 @@ if (!$_REQUEST['flb_table']) {
                                         $select_provs .= " selected";
                                     }
                                     $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                                    ($count_provs ?? null) ? $count_provs : $count_provs = 0;
                                     $count_provs++;
                                 }
                                 ?>
@@ -284,7 +288,7 @@ if (!$_REQUEST['flb_table']) {
 
                               <div class="col-sm-12 mt-3 mx-auto">
                                   <button id="filter_submit" class="btn btn-primary btn-sm btn-filter"><?php echo xlt('Filter'); ?></button>
-                                  <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
+                                  <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk'] ?? ''); ?>" />
                               </div>
                             </div>
                             <div class="col-4 mt-3 row">
@@ -464,7 +468,7 @@ if (!$_REQUEST['flb_table']) {
                         // Collect appt date and set up squashed date for use below
                         $date_appt = $appointment['pc_eventDate'];
                         $date_squash = str_replace("-", "", $date_appt);
-                        if (empty($appointment['room']) && ($logged_in) && ($setting_bootstrap_submenu != 'hide')) {
+                        if (empty($appointment['room']) && ($logged_in ?? null) && ($setting_bootstrap_submenu != 'hide')) {
                             //Patient has not arrived yet, display MedEx Reminder info
                             //one icon per type of response.
                             //If there was a SMS dialog, display it as a mouseover/title
@@ -697,11 +701,11 @@ if (!$_REQUEST['flb_table']) {
                             $to_time = strtotime($newend);
                             $yestime = '0';
                         } else {
-                            $from_time = strtotime($appointment['start_datetime']);
+                            $from_time = (($appointment['start_datetime'] ?? null) ? strtotime($appointment['start_datetime']) : null);
                             $yestime = '1';
                         }
 
-                        $timecheck = round(abs($to_time - $from_time) / 60, 0);
+                        $timecheck = round(abs($to_time - ($from_time ?? null)) / 60, 0);
                         if ($timecheck >= $statalert && ($statalert > '0')) { // Determine if the time in status limit has been reached.
                             echo "<td class='text-center  js-blink-infinite small' nowrap>  "; // and if so blink
                         } else {
@@ -709,9 +713,9 @@ if (!$_REQUEST['flb_table']) {
                         }
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
-                        } elseif ($icon_here || $icon2_here || $icon_CALL) {
+                        } elseif (($icon_here ?? null) || ($icon2_here ?? null) || ($icon_CALL ?? null)) {
                             echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
-                        } elseif ($logged_in) {
+                        } elseif ($logged_in ?? null) {
                             $pat = $MedEx->display->possibleModalities($appointment);
                             echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
                         }
@@ -743,7 +747,7 @@ if (!$_REQUEST['flb_table']) {
                                 echo text($timecheck2 . ' ' . ($timecheck2 >= 2 ? xl('minutes') : xl('minute')));
                             }
                             // end total time in practice
-                            echo text($appointment['pc_time']); ?>
+                            echo text($appointment['pc_time'] ?? ''); ?>
                         </td>
                         <td class="detail text-center">
                             <?php
@@ -803,7 +807,7 @@ if (!$_REQUEST['flb_table']) {
 
     <?php
 }
-if (!$_REQUEST['flb_table']) { ?>
+if (!($_REQUEST['flb_table'] ?? null)) { ?>
                 </div>
             </div>
         </div>
@@ -1014,10 +1018,10 @@ function myLocalJS()
          */
         function SMS_bot(pid) {
             top.restoreSession();
-            var from = <?php echo js_escape($from_date); ?>;
-            var to = <?php echo js_escape($to_date); ?>;
-            var oefrom = <?php echo js_escape(oeFormatShortDate($from_date)); ?>;
-            var oeto = <?php echo js_escape(oeFormatShortDate($to_date)); ?>;
+            var from = <?php echo js_escape($from_date ?? ''); ?>;
+            var to = <?php echo js_escape($to_date ?? ''); ?>;
+            var oefrom = <?php echo js_escape(oeFormatShortDate($from_date ?? null)); ?>;
+            var oeto = <?php echo js_escape(oeFormatShortDate($to_date ?? null)); ?>;
             window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&to=' + encodeURIComponent(to) + '&from=' + encodeURIComponent(from) + '&oeto=' + encodeURIComponent(oeto) + '&oefrom=' + encodeURIComponent(oefrom), 'SMS_bot', 'width=370,height=600,resizable=0');
             return false;
         }

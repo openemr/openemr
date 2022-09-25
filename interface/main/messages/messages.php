@@ -255,7 +255,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <?php if ($active == "all") { ?>
                                 <span class="font-weight-bold"><?php echo xlt('All Messages'); ?></span>
                                     <?php } else { ?>
-                                <a href="messages.php" class="link btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Show All'); ?></a>
+                                <a href="messages.php?show_all=yes" class="link btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Show All'); ?></a>
                                     <?php } ?>
                                     |
                                     <?php if ($active == '1') { ?>
@@ -488,35 +488,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <div class='col-12 oe-margin-t-3'>
                                         <?php
                                         if ($noteid) {
-                                            // Get the related document IDs if any.
-                                            $tmp = sqlStatement(
-                                                "SELECT id1 FROM gprelations WHERE " .
-                                                "type1 = ? AND type2 = ? AND id2 = ?",
-                                                array('1', '6', $noteid)
-                                            );
-                                            if (sqlNumRows($tmp)) {
-                                                echo " <tr>\n";
-                                                echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked document') . ":</span>\n";
-                                                while ($gprow = sqlFetchArray($tmp)) {
-                                                    $d = new Document($gprow['id1']);
-                                                    echo "<a href='javascript:void(0);' ";
-                                                    if (empty($prow)) {
-                                                        // when a direct message is received we can't open the document unless its linked to a patient.
-                                                        echo "onClick=\"previewDocument(" . attr_js($d->get_id()) . ");\">";
-                                                    } else {
-                                                        $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-                                                            " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
-                                                        $str_dob = xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']);
-                                                        $pname = $prow['fname'] . " " . $prow['lname'];
+                                            include "templates/linked_documents.php";
 
-                                                        echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'] ?? $prow['pid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
-                                                    }
-                                                    echo text($d->get_name()) . "-" . text($d->get_id());
-                                                    echo "</a>\n";
-                                                }
-                                                echo "  </td>\n";
-                                                echo " </tr>\n";
-                                            }
                                             // Get the related procedure order IDs if any.
                                             $tmp = sqlStatement(
                                                 "SELECT id1 FROM gprelations WHERE " .
@@ -674,7 +647,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div>" .
                                                 xlt($myrow['title']) . "</div>
                                         <td>
-                                            <div>" . text(oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</div>
+                                            <div>" . text(oeFormatDateTime($myrow['date'])) . "</div>
                                         </td>
                                         <td>
                                             <div>" . text(getListItemTitle('message_status', $myrow['message_status'])) . "</div>
@@ -693,6 +666,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                             if ($GLOBALS['phimail_enable']) {
                                 echo "&nbsp; <a href='trusted-messages.php' onclick='top.restoreSession()' class='btn btn-secondary btn-mail'>" . xlt("Compose Trusted Direct Message") . "</a>";
+                                echo "&nbsp; <button class='btn btn-secondary btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
                             }
                             echo "
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
@@ -821,10 +795,10 @@ if (!empty($_REQUEST['go'])) { ?>
     }
     ?>
     <script>
-
         var collectvalidation = <?php echo $collectthis; ?>;
 
         $(function () {
+            var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
             $("#reminders-div").hide();
             $("#recalls-div").hide();
             $("#sms-div").hide();
@@ -877,6 +851,34 @@ if (!empty($_REQUEST['go'])) { ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
+
+            <?php if ($GLOBALS['phimail_enable']) : ?>
+            $('.trusted-messages-force-check').click(function() {
+                window.top.restoreSession();
+                request = new FormData;
+                request.append("ajax", "1");
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                request.append("background_service", "phimail");
+                request.append("background_force", "1");
+                fetch(webRoot + "/library/ajax/execute_background_services.php", {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: request
+                }).then((response) => {
+                    if (response.status !== 200) {
+                        console.log('Background Service refresh failed. Status Code: ' + response.status);
+                    } else {
+                        // we've refreshed give them time to reload the page
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 500);
+                    }
+                }).catch(function(error) {
+                    console.log('Background Service refresh failed: ', error);
+                    alert(window.xl("Check new messages failed. Check the server logs for more information."));
+                });
+            });
+            <?php endif; ?>
 
         });
         $(function () {
@@ -973,6 +975,10 @@ if (!empty($_REQUEST['go'])) { ?>
                 delete collectvalidation.assigned_to;
             }
 
+            if(document.getElementById("form_message_status").value == 'Done'){               
+                delete collectvalidation.note;
+            }
+
             $('#newnote').attr('disabled', true);
 
             var submit = submitme(1, event, 'new_note', collectvalidation);
@@ -1004,54 +1010,6 @@ if (!empty($_REQUEST['go'])) { ?>
             $("#task").val("");
             $("#new_note").submit();
         };
-
-        /**
-         * Given a document that we don't know what patient to attach the document to we need to look at a preview of
-         * the document.  This loads up the document from the Miscellaneous -> New Documents page.  To access the page
-         * the user must have the following ACLs:  "patients","docs","write","addonly"
-         * @param doc_id The id of the document we want to preview in OpenEMR
-         */
-        function previewDocument(doc_id) {
-            top.restoreSession();
-            var docurl = '../controller.php?document&view' + "&patient_id=0&document_id=" + encodeURIComponent(doc_id) + "&";
-            parent.left_nav.loadFrame('adm0', 'msc', docurl);
-        }
-
-        function gotoReport(doc_id, pname, pid, pubpid, str_dob) {
-            EncounterDateArray = [];
-            CalendarCategoryArray = [];
-            EncounterIdArray = [];
-            Count = 0;
-            <?php
-            if (isset($enc_list) && sqlNumRows($enc_list) > 0) {
-                while ($row = sqlFetchArray($enc_list)) {
-                    ?>
-                EncounterIdArray[Count] = '<?php echo attr($row['encounter']); ?>';
-            EncounterDateArray[Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
-            CalendarCategoryArray[Count] = '<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
-            Count++;
-                    <?php
-                }
-            }
-            ?>
-            top.restoreSession();
-            $.ajax({
-                type: 'get',
-                url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
-                data: {
-                    set_pid: pid,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-                },
-                async: false
-            });
-            parent.left_nav.setPatient(pname, pid, pubpid, '', str_dob);
-            parent.left_nav.setPatientEncounter(EncounterIdArray, EncounterDateArray, CalendarCategoryArray);
-            var docurl = '../controller.php?document&view' + "&patient_id=" + encodeURIComponent(pid) + "&document_id=" + encodeURIComponent(doc_id) + "&";
-            var paturl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
-            parent.left_nav.loadFrame('dem1', 'pat', paturl);
-            parent.left_nav.loadFrame('doc0', 'enc', docurl);
-            top.activateTabByName('enc', true);
-        }
 
         // This is for callback by the find-patient popup.
         function setpatient(pid, lname, fname, dob) {

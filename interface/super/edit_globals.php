@@ -28,6 +28,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -43,7 +44,8 @@ if (!$userMode) {
   // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        die(xlt('Not authorized'));
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
+        exit;
     }
 }
 
@@ -328,7 +330,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     echo "</script>";
 }
 
-$title = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
+$title = ($userMode) ? xlt("User Settings") : xlt("Configuration");
 ?>
 <title><?php  echo $title; ?></title>
 <?php Header::setupHeader(['common','jscolor']); ?>
@@ -350,7 +352,7 @@ $title = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
 }
 </style>
 <?php
-$heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Global Settings");
+$heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Configuration");
 
 $arrOeUiSettings = array(
     'heading_title' => $heading_title,
@@ -393,7 +395,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="input-group col-sm-4 oe-pull-away">
                         <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
                         if (!$userMode) {
-                            $placeholder = xla('Search global settings');
+                            $placeholder = xla('Search configuration');
                         } else {
                             $placeholder = xla('Search user settings');
                         }

@@ -566,6 +566,9 @@ class Gacl {
 			} else {
                                 if ($return_all) {
 			                // Permission denied.
+                            if(!is_array($retarr)) {
+                                $retarr = [];
+                            }
 			                $retarr[] = array('acl_id' => NULL, 'return_value' => NULL, 'allow' => FALSE);
                                 }
                                 else {

@@ -29,7 +29,7 @@ class InterventionService extends AbstractQdmService implements QdmServiceInterf
                     OC.reason_status
                 FROM procedure_order O
                     LEFT JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
-                WHERE O.procedure_order_type = 'intervention'
+                WHERE O.procedure_order_type = 'intervention' AND O.activity != 0
                 ";
 
         return $sql;

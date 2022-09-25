@@ -6,6 +6,7 @@ var sections = {
     "AnesthesiaSection": "2.16.840.1.113883.10.20.22.2.25",
     "AssessmentAndPlanSection": "2.16.840.1.113883.10.20.22.2.9",
     "AssessmentSection": "2.16.840.1.113883.10.20.22.2.8",
+    "CareTeamSection": "2.16.840.1.113883.10.20.22.2.500",
     "ChiefComplaintAndReasonForVisitSection": "2.16.840.1.113883.10.20.22.2.13",
     "ChiefComplaintSection": "1.3.6.1.4.1.19376.1.5.3.1.1.13.2.1",
     "ComplicationsSection": "2.16.840.1.113883.10.20.22.2.37",

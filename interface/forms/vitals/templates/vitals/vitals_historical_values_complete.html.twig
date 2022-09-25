@@ -1,0 +1,58 @@
+<div class="card vitals-complete-history col-12">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-4">
+                <h2 class="h2-responsive">
+                    {{ "Vitals History"|xlt }}
+                    <a id="vitals-screen-top" href="../summary/demographics.php" class="text-decoration-none" onclick="window.top.restoreSession()"
+                       title="{{ 'Back to patient dashboard'|xla }}">
+                        <i id="advanced-tooltip" class="readonly fas fa-arrow-circle-left fa-2x small" aria-hidden="true"></i>
+                    </a>
+                </h2>
+            </div>
+            <div class="col-8 text-right">
+                <h6 class="h6-responsive"><a id="patient-vitals-history" href="#vitals-screen-top" class="text-decoration-none">{{ "Back to top"|xlt }}</a></h6>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if results|length > 0 %}
+        <div class="table-responsive">
+            <table class="table">
+
+                <thead class="table-head">
+                <tr>
+                    <th class="text-left">{{ "Name"|xlt }}</th>
+                    <th class="text-left">{{ "Unit"|xlt }}</th>
+                    {% for result in results %}
+                        <th class='historicalvalues d-none d-md-table-cell'>{{ result.get_date()|dateToTime|date("Y-m-d H:i")|text }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+
+                <tbody>
+                {# Most of these fields could be abstracted into some kind of fields array without having to specify each one of these individually #}
+                {% for field in vitalFields %}
+                    {% if field.type == "textbox_conversion" %}
+                        {% include "vitals_textbox_conversion.html.twig" with {field: field, vitals:vitals, results: results, is_edit: false }
+                        %}
+                    {% endif %}
+                    {% if field.type == "textbox" %}
+                        {% include "vitals_textbox.html.twig" with {title:field.title, input:field.input
+                            , vitals:vitals, vitalsValue:field.vitalsValue, unit:field.unit,
+                            precision:field.precision, codes:field.codes, results: results, is_edit: false }
+                        %}
+                    {% endif %}
+                    {% if field.type == 'template' %}
+                        {% include field.templateName with {vitals: vitals, field: field, results: results, is_edit: false } %}
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+        {% else %}
+        <p class="alert alert-info">{{ "Patient has no other vital history to display"|xlt }}</p>
+        {% endif %}
+    </div>
+</div>

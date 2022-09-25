@@ -177,7 +177,7 @@ function &postcalendar_makeValidURL($s)
 }
 function postcalendar_removeScriptTags($in)
 {
-    return preg_replace("/<script.*?>(.*?)<\/script>/", "", $in);
+    return preg_replace("/<script.*?>(.*?)<\/script>/", "", ($in ?? ''));
 }
 
 function postcalendar_getDate($format = 'Ymd')

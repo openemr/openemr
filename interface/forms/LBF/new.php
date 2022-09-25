@@ -8,21 +8,20 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2009-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
-    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $ignoreAuth_onsite_portal = true;
-    } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        exit;
-    }
+// since need this class before autoloader, need to manually include it and then set it in line below with use command
+require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+
+// block of code to securely support use by the patient portal
+$patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+if ($patientPortalSession) {
+    $ignoreAuth_onsite_portal = true;
 }
 
 require_once("../../globals.php");
@@ -114,6 +113,15 @@ if ($form_origin !== null) {
     )['pid'] ?? 0;
 }
 $is_core = !($portal_form_pid || $patient_portal || $is_portal_dashboard || $is_portal_module);
+
+if ($patientPortalSession && !empty($formid)) {
+    $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formname])['pid'];
+    if (empty($pidForm) || ($pidForm != $_SESSION['pid'])) {
+        echo xlt("illegal Action");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
+    }
+}
 
 $visitid = (int)(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
 
@@ -237,6 +245,7 @@ if (
         );
     }
 
+    $newhistorydata = array();
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -265,8 +274,9 @@ if (
         if ($source == 'D' || $source == 'H') {
             // Save to patient_data, employer_data or history_data.
             if ($source == 'H') {
-                $new = array($field_id => $value);
-                updateHistoryData($pid, $new);
+                // Do not call updateHistoryData() here! That would create multiple rows
+                // in the history_data table for a single form save.
+                $newhistorydata[$field_id] = $value;
             } elseif (strpos($field_id, 'em_') === 0) {
                 $field_id = substr($field_id, 3);
                 $new = array($field_id => $value);
@@ -322,6 +332,11 @@ if (
             }
         }
     } // end while save
+
+    // Save any history data that was collected above.
+    if (!empty($newhistorydata)) {
+        updateHistoryData($pid, $newhistorydata);
+    }
 
     if ($portalid) {
         // Delete the request from the portal.
@@ -1137,7 +1152,7 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
-                                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
+                                echo "<div class='$BS_COL_CLASS-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }
                         } else {
@@ -1260,7 +1275,7 @@ if (
 
                     ++$item_count;
 
-                    echo "<strong>";
+                    // This gets a font-weight-bold class so removed strong
                     if ($frow['title']) {
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
@@ -1271,7 +1286,7 @@ if (
                     } else {
                         echo "&nbsp;";
                     }
-                    echo "</strong>";
+
                     // Note the labels are not repeated in the history columns.
 
                     // Handle starting of a new data cell.
@@ -1428,7 +1443,7 @@ if (
                     echo "<select class='form-control' name='form_fs_provid'>";
                     echo FeeSheetHtml::genProviderOptionList(
                         ' ',
-                        tmp_provider_id
+                        $tmp_provider_id
                     );
                     echo "</select>\n";
                     echo "\n";

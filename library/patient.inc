@@ -23,6 +23,7 @@ use OpenEMR\Services\SocialHistoryService;
 
 require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
+global $facilityService;
 $facilityService = new FacilityService();
 
 // These are for sports team use:
@@ -358,13 +359,13 @@ function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
     }
 
     if ($dateStart && $dateEnd) {
-        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
+        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC, id DESC limit 0,1", array($pid,$dateStart,$dateEnd));
     } elseif ($dateStart && !$dateEnd) {
-        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart));
+        $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC, id DESC limit 0,1", array($pid,$dateStart));
     } elseif (!$dateStart && $dateEnd) {
-        $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd));
+        $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC, id DESC limit 0,1", array($pid,$dateEnd));
     } else {
-        $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC limit 0,1", array($pid));
+        $res = sqlQuery("select $given from history_data where $where pid = ? order by date DESC, id DESC limit 0,1", array($pid));
     }
 
     return $res;
@@ -782,8 +783,11 @@ function getPatientName($pid)
  * @var $pid int The Patient ID
  * @returns string The Full Name
  */
-function getPatientFullNameAsString(int $pid): string
+function getPatientFullNameAsString($pid): string
 {
+    if (empty($pid)) {
+        return '';
+    }
     $ptData = getPatientPID(["pid" => $pid]);
     $pt = $ptData[0];
 

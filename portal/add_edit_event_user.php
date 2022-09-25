@@ -41,17 +41,28 @@ global $ignoreAuth_onsite_portal;
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
+require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Core\Header;
 
 // Things that might be passed by our opener.
 //
-$eid = $_GET['eid'];         // only for existing events
-$date = $_GET['date'];        // this and below only for new events
-$userid = $_GET['userid'];
-$default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
-$patientid = $_GET['patid'];
+$eid = $_GET['eid'] ?? null;         // only for existing events
+$date = $_GET['date'] ?? null;        // this and below only for new events
+$userid = $_GET['userid'] ?? null;
+$default_catid = ($_GET['catid'] ?? null) ? $_GET['catid'] : '5';
+$patientid = $_GET['patid'] ?? null;
 //
+
+// did someone tamper with eid?
+$checkEidInAppt = false;
+$patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $_SESSION['pid']);
+$checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
+
+if (!empty($eid) && !$checkEidInAppt) {
+    echo js_escape("error");
+    exit();
+}
 
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -118,7 +129,7 @@ if ($eid) {
 
 // If we are saving, then save and close the window.
 //
-if ($_POST['form_action'] == "save") {
+if (($_POST['form_action'] ?? null) == "save") {
 //print_r($_POST);
 //exit();
     $event_date = fixDate($_POST['form_date']);
@@ -455,7 +466,7 @@ if ($_POST['form_action'] == "save") {
                 "1, " . (int)$_POST['facility'] . ")"); // FF stuff
         } // INSERT single
     } // else - insert
-} elseif ($_POST['form_action'] == "delete") {
+} elseif (($_POST['form_action'] ?? null) == "delete") {
 // =======================================
 //  multi providers case
 // =======================================
@@ -696,7 +707,7 @@ if ($userid) {
                             // default to the currently logged-in user
                             while ($urow = sqlFetchArray($ures)) {
                                 echo "<option value='" . attr($urow['id']) . "'";
-                                if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
+                                if (($urow['id'] == ($_GET['userid'] ?? null)) || ($urow['id'] == $userid)) {
                                     echo " selected";
                                 }
                                 echo ">" . text($urow['lname']);

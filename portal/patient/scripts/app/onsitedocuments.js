@@ -233,11 +233,29 @@ var page = {
                             }
                             page.lbfFormId = e.originalEvent.data.formid;
                             page.onsiteDocument.set('encounter', page.lbfFormId);
-                            let url = webroot_url +
-                                "/interface/forms/LBF/printable.php?return_content=" +
-                                "&formname=" + encodeURIComponent(page.lbfFormName) +
-                                "&formid=" + encodeURIComponent(page.lbfFormId) +
-                                "&visitid=0&patientid=" + encodeURIComponent(cpid);
+                            let url = '';
+                            if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
+                                url = webroot_url +
+                                    "/interface/forms/LBF/printable.php?return_content=" +
+                                    "&formname=" + encodeURIComponent(page.lbfFormName) +
+                                    "&formid=" + encodeURIComponent(page.lbfFormId) +
+                                    "&visitid=0&patientid=" + encodeURIComponent(cpid);
+                            } else {
+                                // first, ensure form name is valid
+                                let formNameValid = false;
+                                for (let k=0; k < formNamesWhitelist.length; k++) {
+                                   if (formNamesWhitelist[k] == page.lbfFormName) {
+                                      formNameValid = true;
+                                   }
+                                }
+                                if (!formNameValid) {
+                                    signerAlertMsg("There is an issue loading form. Form does not exist.");
+                                    return false;
+                                }
+                                url = webroot_url +
+                                    "/interface/forms/" + encodeURIComponent(page.lbfFormName) + "/patient_portal.php" +
+                                    "?formid=" + encodeURIComponent(page.lbfFormId);
+                            }
                             fetch(url).then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network Error.');
@@ -285,11 +303,29 @@ var page = {
                             }
                             page.lbfFormId = e.originalEvent.data.formid;
                             page.onsiteDocument.set('encounter', page.lbfFormId);
-                            let url = webroot_url +
-                                "/interface/forms/LBF/printable.php?return_content=" +
-                                "&formname=" + encodeURIComponent(page.lbfFormName) +
-                                "&formid=" + encodeURIComponent(page.lbfFormId) +
-                                "&visitid=0&patientid=" + encodeURIComponent(cpid);
+                            let url = '';
+                            if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
+                                url = webroot_url +
+                                    "/interface/forms/LBF/printable.php?return_content=" +
+                                    "&formname=" + encodeURIComponent(page.lbfFormName) +
+                                    "&formid=" + encodeURIComponent(page.lbfFormId) +
+                                    "&visitid=0&patientid=" + encodeURIComponent(cpid);
+                            } else {
+                                // first, ensure form name is valid
+                                let formNameValid = false;
+                                for (let k=0; k < formNamesWhitelist.length; k++) {
+                                   if (formNamesWhitelist[k] == page.lbfFormName) {
+                                      formNameValid = true;
+                                   }
+                                }
+                                if (!formNameValid) {
+                                    signerAlertMsg("There is an issue loading form. Form does not exist.");
+                                    return false;
+                                }
+                                url = webroot_url +
+                                    "/interface/forms/" + encodeURIComponent(page.lbfFormName) + "/patient_portal.php" +
+                                    "?formid=" + encodeURIComponent(page.lbfFormId);
+                            }
                             fetch(url).then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network Error LBF Render.');
@@ -656,12 +692,31 @@ var page = {
                             if (page.isFrameForm) {
                                 // a layout form
                                 if (page.lbfFormName) {
-                                    // iframe from template directive {EncounterDocument:LBFxxxxx}
-                                    let url = webRoot + "/interface/forms/LBF/new.php" + "" +
-                                        "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
-                                        "&formOrigin=" + encodeURIComponent(page.formOrigin) +
-                                        "&formname=" + encodeURIComponent(page.lbfFormName) + "&id=0";
-
+                                    let url = '';
+                                    if (page.lbfFormName.startsWith('LBF') || page.lbfFormName.startsWith('HIS')) {
+                                        // iframe from template directive {EncounterDocument:LBFxxxxx} for a LBF form
+                                        url = webRoot + "/interface/forms/LBF/new.php" + "" +
+                                            "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
+                                            "&formOrigin=" + encodeURIComponent(page.formOrigin) +
+                                            "&formname=" + encodeURIComponent(page.lbfFormName) + "&id=0";
+                                    } else {
+                                        // iframe from template directive {EncounterDocument:xxxxx} for a native form
+                                        // first, ensure form name is valid
+                                        let formNameValid = false;
+                                        for (let k=0; k < formNamesWhitelist.length; k++) {
+                                           if (formNamesWhitelist[k] == page.lbfFormName) {
+                                              formNameValid = true;
+                                           }
+                                        }
+                                        if (!formNameValid) {
+                                            signerAlertMsg("There is an issue loading form. Form does not exist.");
+                                            return false;
+                                        }
+                                        url = webRoot + "/interface/forms/" + encodeURIComponent(page.lbfFormName) + "/new.php" +
+                                            "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
+                                            "&formOrigin=" + encodeURIComponent(page.formOrigin) +
+                                            "&formname=" + encodeURIComponent(page.lbfFormName) + "&id=0";
+                                    }
                                     document.getElementById('lbfForm').src = url;
                                 }
                             }
