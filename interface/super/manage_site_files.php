@@ -20,6 +20,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use GuzzleHttp\Client;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("File management")]);
@@ -99,25 +100,27 @@ if (isset($_POST['generate_thumbnails'])) {
 if ($GLOBALS['secure_upload']) {
     $mime_types  = array('image/*', 'text/*', 'audio/*', 'video/*');
 
-    // Get cURL resource
-    $curl = curl_init();
+    $responseError = false;
+    $responseErrorAsString = "";
+    try {
+        $resp = (new GuzzleHttp\Client())->get('https://cdn.rawgit.com/jshttp/mime-db/master/db.json', [
+            'timeout' => 5
+        ]);
+    } catch (GuzzleHttp\Exception\ClientException $e) {
+        $responseErrorAsString = $e->getResponse()->getBody()->getContents();
+        $responseError = true;
+    }
 
-    curl_setopt_array($curl, array(
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'https://cdn.rawgit.com/jshttp/mime-db/master/db.json',
-        CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 5
-    ));
-   // Send the request & save response to $resp
-    $resp = curl_exec($curl);
-    $httpinfo = curl_getinfo($curl);
-    if ($resp && $httpinfo['http_code'] == 200 && $httpinfo['content_type'] == 'application/json;charset=utf-8') {
-        $all_mime_types = json_decode($resp, true);
+    if (!$responseError && empty($responseErrorAsString) && !empty($resp) && ($resp->getStatusCode() == 200) && $resp->getBody()) {
+        $all_mime_types = json_decode($resp->getBody(), true);
         foreach ($all_mime_types as $name => $value) {
             $mime_types[] = $name;
         }
     } else {
-        error_log('Get list of mime-type error: "' . errorLogEscape(curl_error($curl)) . '" - Code: ' . errorLogEscape(curl_errno($curl)));
+        if (!empty($resp)) {
+            $errorStatusCode = $resp->getStatusCode();
+        }
+        error_log('Get list of mime-type error: "' . errorLogEscape($responseErrorAsString) . '" - Code: ' . errorLogEscape($errorStatusCode ?? 0));
         $mime_types_list = array(
             'application/pdf',
             'image/jpeg',
@@ -129,8 +132,6 @@ if ($GLOBALS['secure_upload']) {
         );
         $mime_types = array_merge($mime_types, $mime_types_list);
     }
-
-    curl_close($curl);
 
     if (isset($_POST['submit_form'])) {
         //verify csrf
