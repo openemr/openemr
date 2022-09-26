@@ -5298,34 +5298,34 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
                         $count = 0;
                         $hideme = '';
-                        foreach ($priors as $visit) {
-                            if (($visit['ODKTHICKNESS'] > " ") || ($visit['OSKTHICKNESS'] > " ")) { // something is here
-                                if ($count > 0) {
-                                    $hideme = "hideme_kthickness nodisplay";// show the first only, hide the rest for now
-                                }
+                    foreach ($priors as $visit) {
+                        if (($visit['ODKTHICKNESS'] > " ") || ($visit['OSKTHICKNESS'] > " ")) { // something is here
+                            if ($count > 0) {
+                                $hideme = "hideme_kthickness nodisplay";// show the first only, hide the rest for now
+                            }
 
-                                $pachymetry .= "<tr><td class='GFS_td_1 " . $hideme . "'>" . $visit['exam_date'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['ODKTHICKNESS'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['OSKTHICKNESS'] . "</td></tr>";
-                                if (!empty($KTHICKNESS_chart)) {
-                                    $KTHICKNESS_chart .= '"1",';
-                                } else {
-                                    $KTHICKNESS_chart = '"1",';
-                                }
-                                $count++;
+                            $pachymetry .= "<tr><td class='GFS_td_1 " . $hideme . "'>" . $visit['exam_date'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['ODKTHICKNESS'] . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . $visit['OSKTHICKNESS'] . "</td></tr>";
+                            if (!empty($KTHICKNESS_chart)) {
+                                $KTHICKNESS_chart .= '"1",';
                             } else {
-                                if (!empty($KTHICKNESS_chart)) {
-                                    $KTHICKNESS_chart .= ',';
-                                } else {
-                                    $KTHICKNESS_chart = '"1",';
-                                }
+                                $KTHICKNESS_chart = '"1",';
+                            }
+                            $count++;
+                        } else {
+                            if (!empty($KTHICKNESS_chart)) {
+                                $KTHICKNESS_chart .= ',';
+                            } else {
+                                $KTHICKNESS_chart = '"1",';
                             }
                         }
-                        if (!empty($KTHICKNESS[$i]['list'])) {
-                            $KTHICKNESS = chop(($KTHICKNESS[$i]['list']), ",");
-                        }
-                        if ($count == 0) {
-                            $pachymetry = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
-                        }
-                        ?>
+                    }
+                    if (!empty($KTHICKNESS[$i]['list'])) {
+                        $KTHICKNESS = chop(($KTHICKNESS[$i]['list']), ",");
+                    }
+                    if ($count == 0) {
+                        $pachymetry = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
+                    }
+                    ?>
                 <tr>
                     <td class="GFS_title_1" id="GFS_kthickness" name="GFS_kthickness" style="position:relative;"><?php echo xlt('Pachymetry'); ?>:</td>
                     <?php
