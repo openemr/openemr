@@ -14,8 +14,10 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRElement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 
 class QuestionnaireService extends BaseService
@@ -33,18 +35,17 @@ class QuestionnaireService extends BaseService
     }
 
     /**
-     * @param $name
-     * @param $q_id
-     * @param $uuid
-     * @param $type
+     * @param      $name
+     * @param null $q_id
+     * @param null $uuid
      * @return array
      */
-    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null, $type = 'Questionnaire'): array
+    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null): array
     {
-        $sql = "Select `id`, `uuid`, `version` From `questionnaire_repository` Where ((`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?))";
+        $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where ((`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?))";
         $bind = array($name, $q_id);
         if (!empty($uuid)) {
-            $sql = "Select `id`, `uuid`, `version` From `questionnaire_repository` Where `uuid` = ?";
+            $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where `uuid` = ?";
             $bind = array($uuid);
         }
         $response = sqlQuery($sql, $bind) ?: [];
@@ -90,7 +91,14 @@ class QuestionnaireService extends BaseService
         $type = $type ?? 'Questionnaire';
         $id = 0;
         $fhir_ob = null;
-        $fhir_ob = $this->parse($q);
+        if (is_string($q)) {
+            $q = json_decode($q, true);
+            $is_json = json_last_error() === JSON_ERROR_NONE;
+            if (!$is_json) {
+                throw new Exception(xlt("Questionnaire json is invalid"));
+            }
+        }
+        $fhir_ob = new FHIRQuestionnaire($q);
         $q_ob = $this->fhirObjectToArray($fhir_ob);
 
         if (empty($q_id)) {
@@ -98,7 +106,12 @@ class QuestionnaireService extends BaseService
                 $q_id = $q_ob['id'];
             }
         }
+
         $name = $name ?: ($q_ob['title'] ?? null);
+        if (empty($name)) {
+            $name = $q_ob['name'] ?? null;
+        }
+        $name = trim($name);
         if (empty($q_record_id)) {
             $id = $this->getQuestionnaireIdAndVersion($name, $q_id);
         } else {
@@ -110,6 +123,8 @@ class QuestionnaireService extends BaseService
             $q_url = 'fhir/Questionnaire/' . $q_id;
             $fhir_ob->setId(new FHIRId($q_id));
             $fhir_ob->setUrl(new FHIRUri($q_url));
+            $fhir_ob->setTitle(new FHIRString($name));
+            $fhir_ob->setName(new FHIRString(strtolower(str_replace(' ', '', $name))));
         }
 
         $q_version = $q_ob['meta']['versionId'] ?? 1;
