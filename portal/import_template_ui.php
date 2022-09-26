@@ -433,8 +433,8 @@ $none_message = xlt("Nothing to show for current actions.");
                             <div class='form-group'>
                                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
                                 <input type='file' class='btn btn-outline-info' id="fetch_files" name='template_files[]' multiple />
-                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit'><i class='fa fa-upload' aria-hidden='true' mr-1></i><?php echo xlt("Templates"); ?></button>
-                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit_questionnaire' id='upload_submit_questionnaire'><i class='fa fa-upload aria-hidden='true' mr-1'></i><?php echo xlt("Questionnaires Only"); ?></button>
+                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xlt("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
+                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xlt("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
                             </div>
                         </div>
                         <input type='hidden' name='upload_pid' value='<?php echo attr(json_encode([-1])); ?>' />
