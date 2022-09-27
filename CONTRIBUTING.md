@@ -10,6 +10,10 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
 ### Starting with OpenEMR Development Docker Environment
 
+For the Video Tutorial, click below:
+
+- [![Getting Started Video Tutorial](Documentation/images/easy-dev-intro.jpg)](https://youtu.be/D4tXP5G9-sY)
+
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
 	- (optional) If you want to set up the base services(e.g. git, docker, docker-compose, openemr-cmd, minkube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
