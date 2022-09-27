@@ -53,7 +53,7 @@ if ($_REQUEST['go'] == 'Preferences') {
         $facilities = implode("|", $_REQUEST['facilities']);
         $providers = implode("|", $_REQUEST['providers']);
         $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ? $_REQUEST['ME_hipaa_default_override'] : '');
-        $MSGS = ($_REQUEST['MSGS_default_yes'] ? $_REQUEST['MSGS_default_yes'] : '');
+        $MSGS = ($_REQUEST['MSGS_default_yes'] ? $_REQUEST['MSGS_default_yes'] : '1');
         $country_code = ($_REQUEST['PHONE_country_code'] ? $_REQUEST['PHONE_country_code'] : '1');
 
         $myValues = array($facilities, $providers, $HIPAA, $country_code, $MSGS, $_REQUEST['POSTCARDS_local'], $_REQUEST['POSTCARDS_remote'], $_REQUEST['LABELS_local'], $_REQUEST['chart_label_type'], $_REQUEST['combine_time'], $_REQUEST['postcard_top']);
