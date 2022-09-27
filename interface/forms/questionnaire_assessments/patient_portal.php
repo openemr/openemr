@@ -18,11 +18,11 @@ if (empty($formid)) {
     exit;
 }
 
-$formMetaData = sqlQuery("SELECT `date` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, 'questionnaire_assessments']);
+$formMetaData = sqlQuery("SELECT `date`, `form_name` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, 'questionnaire_assessments']);
 
 ob_start();
 echo "<h3>" . text($formMetaData['form_name']) . "</h3>";
-echo xlt("Completed on") . ' ' . text(oeFormatShortDate($formMetaData['date'])) . "<br><br>";
+echo xlt("Dated") . ' ' . text(oeFormatShortDate($formMetaData['date'])) . "<br><br>";
 try {
     questionnaire_assessments_report('', '', '', $formid);
 } catch (Exception $e) {
