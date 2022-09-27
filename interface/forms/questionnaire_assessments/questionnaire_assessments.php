@@ -35,15 +35,8 @@ $responseService = new QuestionnaireResponseService();
 $questionnaire_form = $_GET['questionnaire_form'] ?? null;
 $repository_item = $_POST['select_item'] ?? null;
 
-$portal_mode = null;
 if ($isPortal) {
     $questionnaire_form = $_GET['formname'] ?? null;
-    $q_uuid = $_GET['qUuid'] ?? null;
-    $qr_uuid = $_GET['qrUuid'] ?? null;
-    $formid = $_GET['id'] ?? null;
-    $portal_mode = $questionnaire_form && $q_uuid && $qr_uuid ? 'portal_update' : 'portal_new';
-    if (!empty($formid)) {
-    }
 }
 // for new questionnaires user must be admin. leave strict conditional.
 $is_authorized = AclMain::aclCheckCore('admin', 'forms') ||
@@ -53,7 +46,7 @@ if (!empty($_GET['id'] ?? 0)) {
     $mode = 'update';
     $formid = $_GET['id'];
     $form = formFetch("form_questionnaire_assessments", $formid);
-
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
     $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
     // if empty form will revert to the backup response stored with form.
     if (!empty($qr)) {
