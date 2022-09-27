@@ -11169,6 +11169,7 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','Document_Template_Categories','Document Template Categories',0,1,0,'',NULL,'',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',1,1,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('lists','Clinical_Note_Type','Clinical Note Type',0,1,0,'',NULL,'',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','evaluation_note','Evaluation Note',5,0,0,'','LOINC:51848-0','',0,0,1,'',1);
@@ -13185,14 +13186,16 @@ DROP TABLE IF EXISTS `questionnaire_response`;
 CREATE TABLE `questionnaire_response` (
   `id` bigint(21) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) DEFAULT NULL,
+  `response_id` varchar(255) DEFAULT NULL COMMENT 'A globally unique id for answer set. String version of UUID',
   `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
-  `questionnaire_id` varchar(255) DEFAULT NULL,
+  `questionnaire_id` varchar(255) DEFAULT NULL COMMENT 'Id for questionnaire content. String version of UUID',
   `questionnaire_name` varchar(255) DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `encounter` int(11) DEFAULT NULL COMMENT 'May or may not be associated with an encounter',
   `audit_user_id` int(11) DEFAULT NULL,
   `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
   `create_time` datetime DEFAULT current_timestamp(),
   `last_updated` datetime DEFAULT NULL,
-  `patient_id` int(11) DEFAULT NULL,
   `version` int(11) NOT NULL DEFAULT 1,
   `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
   `questionnaire` longtext COMMENT 'the subject questionnaire json',
@@ -13203,14 +13206,14 @@ CREATE TABLE `questionnaire_response` (
   `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
-  KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
+  KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `form_questionnaire_assessments`;
 CREATE TABLE `form_questionnaire_assessments` (
   `id` bigint(21) NOT NULL AUTO_INCREMENT,
   `date` datetime DEFAULT current_timestamp(),
-  `last_date` datetime DEFAULT NULL,
+  `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository',
   `pid` bigint(21) NOT NULL DEFAULT 0,
   `user` bigint(21) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
@@ -13218,8 +13221,8 @@ CREATE TABLE `form_questionnaire_assessments` (
   `activity` tinyint(4) NOT NULL DEFAULT 1,
   `copyright` text,
   `form_name` varchar(255) DEFAULT NULL,
-  `code` varchar(31) DEFAULT NULL,
-  `code_type` varchar(31) DEFAULT "LOINC",
+  `response_meta` text COMMENT 'json meta data for the response resource',
+  `questionnaire_id` TEXT COMMENT 'The foreign id to the questionnaire_repository',
   `questionnaire` longtext,
   `questionnaire_response` longtext,
   `lform` longtext,

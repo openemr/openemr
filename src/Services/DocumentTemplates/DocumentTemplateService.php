@@ -525,6 +525,7 @@ class DocumentTemplateService extends QuestionnaireService
      * @param       $file
      * @param array $pids
      * @return int
+     * @throws Exception
      */
     public function uploadTemplate($template_name, $category, $file, $pids = [], $q_only = false): int
     {
@@ -543,22 +544,28 @@ class DocumentTemplateService extends QuestionnaireService
 
         $content = file_get_contents($file);
 
+        $id = 0;
         $q_ob = json_decode($content, true); // only pass array
         $is_json = json_last_error() === JSON_ERROR_NONE;
         if ($is_json) {
-            $template_name = $template_name ?: $q_ob['title'];
-            $q_id = $q_ob['id'] ?? null;
+            if (($q_ob['resourceType'] ?? '') != 'Questionnaire') {
+                throw new Exception(xlt("Not a valid Questionnaire resource!"));
+            }
+            if (empty($category)) {
+                $category = 'questionnaire';
+            }
+            $template_name = $template_name ?: $q_ob['title'] ?? $q_ob['name'];
+            $q_id = null;
             $content = "{Questionnaire:$template_name}" . "\n";
             $mimetype = 'application/text';
             $service = new QuestionnaireService();
-            $id = $service->saveQuestionnaireResource($q_ob, null, $template_name, $q_id);
+            $id = $service->saveQuestionnaireResource(json_encode($q_ob), $template_name, null, $q_id, null);
             if (empty($id)) {
                 return $id;
             } elseif ($q_only) {
                 return $id;
             }
         }
-        $id = 0;
         foreach ($pids as $pid) {
             $id = $this->insertTemplate($pid, $category, $template_name, $content, $mimetype);
         }

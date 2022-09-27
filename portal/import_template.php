@@ -148,7 +148,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         exit;
     }
     die(xlt('Invalid Request Parameters'));
-} elseif (!empty($_FILES["template_files"])) {
+} elseif (!empty($_FILES["template_files"]) && !isset($_POST['blank-nav-button'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
         CsrfUtils::csrfNotVerified();
     }
@@ -162,7 +162,7 @@ if (($_POST['mode'] ?? null) === 'save') {
     for ($i = 0; $i < $total; $i++) {
         if ($_FILES['template_files']['error'][$i] !== UPLOAD_ERR_OK) {
             header('refresh:3;url= import_template_ui.php');
-            echo '<title>' . xlt('Error') . " ...</title><h4 style='color:red;'>" .
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 xlt('An error occurred: Missing file to upload. Returning to form.') . '</h4>';
             exit;
         }
@@ -177,9 +177,51 @@ if (($_POST['mode'] ?? null) === 'save') {
             $patient = ['-1'];
         }
         // get em and dispose
-        $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient, isset($_POST['upload_submit_questionnaire']));
-        if (!$success) {
-            echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
+        try {
+            $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient, isset($_POST['upload_submit_questionnaire']));
+            if (!$success) {
+                echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
+                exit;
+            }
+        } catch (Exception $e) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                text($e->getMessage()) . '</h4>';
+            exit;
+        }
+    }
+    header("location: " . $_SERVER['HTTP_REFERER']);
+    die();
+}
+
+if (isset($_POST['blank-nav-button'])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        xlt("Not Authorized to Upload Templates");
+        exit;
+    }
+    // so it is a template file import. create record(s).
+    $is_blank = isset($_POST['blank-nav-button']);
+    $upload_name = $_POST['upload_name'] ?? '';
+    $category = $_POST['template_category'] ?? '';
+    $patient = '-1';
+    if (!empty($upload_name)) {
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", $upload_name);
+        $name = ucwords(strtolower($name));
+        try {
+            $content = "{ParseAsHTML}";
+            $success = $templateService->insertTemplate($patient, $category, $upload_name, $content, 'application/text');
+            if (!$success) {
+                header('refresh:3;url= import_template_ui.php');
+                echo "<h4 style='color:red;'>" . xlt("New template save failed. Try again.") . "</h4>";
+                exit;
+            }
+        } catch (Exception $e) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                text($e->getMessage()) . '</h4>';
             exit;
         }
     }
@@ -214,7 +256,7 @@ function renderEditorHtml($template_id, $content)
     global $authUploadTemplates;
 
     $lists = [
-        '{ParseAsHTML}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{QuestionnaireURLLoinc|name|https://clinicaltables.nlm.nih.gov/loinc_form_definitions|LOINC code}',  '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
+        '{ParseAsHTML}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
     ];
     ?>
     <!DOCTYPE html>
@@ -500,7 +542,7 @@ function renderProfileHtml()
                                 <div class='input-group-prepend d-none'>
                                     <label for="<?php echo $profile_esc ?>-when"><?php echo xlt('On') ?></label>
                                     <select name="when" class='input-control-sm mx-1' id="<?php echo $profile_esc ?>-when">
-                                        <!--<option value=""><?php /*echo xlt('Unassigned') */?></option>-->
+                                        <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
                                         <option <?php echo $trigger === 'completed' ? 'selected' : ''; ?> value="completed"><?php echo xlt('Completed') ?></option>
                                         <option <?php echo $trigger === 'always' ? 'selected' : ''; ?> value='always'><?php echo xlt('Always') ?></option>
                                         <option <?php echo $trigger === 'once' ? 'selected' : ''; ?> value='once'><?php echo xlt('One time') ?></option>
