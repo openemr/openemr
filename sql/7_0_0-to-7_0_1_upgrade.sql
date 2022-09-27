@@ -131,9 +131,7 @@ CREATE TABLE `questionnaire_repository` (
 
 -- At this point below table was never used. Simply recreating with additions
 #IfMissingColumn questionnaire_response response_id
-#IfMissingColumn questionnaire_response encounter
 DROP TABLE `questionnaire_response`;
-#EndIf
 #EndIf
 
 #IfMissingColumn questionnaire_repository lform
@@ -227,5 +225,5 @@ ALTER TABLE `form_questionnaire_assessments` CHANGE `code_type` `questionnaire_i
 #EndIf
 
 #IfNotRow2D list_options list_id Document_Template_Categories option_id questionnaire
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',101,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
 #EndIf

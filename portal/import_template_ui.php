@@ -447,9 +447,9 @@ $none_message = xlt("Nothing to show for current actions.");
                                 <div class='form-group'>
                                     <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
                                     <input type='file' class='btn btn-outline-info' id="fetch_files" name='template_files[]' multiple />
-                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xlt("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
+                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
                                         <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
-                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xlt("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>">
+                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>">
                                         <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
                                     <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();"><?php echo xlt('New Blank Template') ?></button>
                                 </div>
