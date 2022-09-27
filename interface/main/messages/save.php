@@ -52,7 +52,7 @@ if ($_REQUEST['go'] == 'Preferences') {
 
         $facilities = implode("|", $_REQUEST['facilities']);
         $providers = implode("|", $_REQUEST['providers']);
-        $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ? $_REQUEST['ME_hipaa_default_override'] : '');
+        $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ? $_REQUEST['ME_hipaa_default_override'] : '1');
         $MSGS = ($_REQUEST['MSGS_default_yes'] ? $_REQUEST['MSGS_default_yes'] : '1');
         $country_code = ($_REQUEST['PHONE_country_code'] ? $_REQUEST['PHONE_country_code'] : '1');
 
