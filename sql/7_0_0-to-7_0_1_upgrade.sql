@@ -219,3 +219,13 @@ CREATE TABLE `questionnaire_response` (
  KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfMissingColumn form_questionnaire_assessments response_id
+ALTER TABLE `form_questionnaire_assessments` CHANGE `last_date` `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository';
+ALTER TABLE `form_questionnaire_assessments` CHANGE `code` `response_meta` TEXT COMMENT 'json meta data for the response resource';
+ALTER TABLE `form_questionnaire_assessments` CHANGE `code_type` `questionnaire_id` TEXT COMMENT 'The foreign id to the questionnaire_repository';
+#EndIf
+
+#IfNotRow2D list_options list_id Document_Template_Categories option_id questionnaire
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',101,0,0,'','','',0,0,1);
+#EndIf

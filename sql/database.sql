@@ -11169,6 +11169,7 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','Document_Template_Categories','Document Template Categories',0,1,0,'',NULL,'',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',1,1,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('lists','Clinical_Note_Type','Clinical Note Type',0,1,0,'',NULL,'',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','evaluation_note','Evaluation Note',5,0,0,'','LOINC:51848-0','',0,0,1,'',1);
@@ -13212,7 +13213,7 @@ DROP TABLE IF EXISTS `form_questionnaire_assessments`;
 CREATE TABLE `form_questionnaire_assessments` (
   `id` bigint(21) NOT NULL AUTO_INCREMENT,
   `date` datetime DEFAULT current_timestamp(),
-  `last_date` datetime DEFAULT NULL,
+  `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository',
   `pid` bigint(21) NOT NULL DEFAULT 0,
   `user` bigint(21) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
@@ -13220,8 +13221,8 @@ CREATE TABLE `form_questionnaire_assessments` (
   `activity` tinyint(4) NOT NULL DEFAULT 1,
   `copyright` text,
   `form_name` varchar(255) DEFAULT NULL,
-  `code` varchar(31) DEFAULT NULL,
-  `code_type` varchar(31) DEFAULT "LOINC",
+  `response_meta` text COMMENT 'json meta data for the response resource',
+  `questionnaire_id` TEXT COMMENT 'The foreign id to the questionnaire_repository',
   `questionnaire` longtext,
   `questionnaire_response` longtext,
   `lform` longtext,
