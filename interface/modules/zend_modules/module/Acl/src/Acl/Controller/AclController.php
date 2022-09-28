@@ -13,7 +13,6 @@
 
 namespace Acl\Controller;
 
-use Laminas\Console\Request as ConsoleRequest;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
@@ -362,7 +361,8 @@ class AclController extends AbstractActionController
     public function aclModifyCommandAction()
     {
         $request = $this->getRequest();
-        if (!$request instanceof ConsoleRequest) {
+
+        if (php_sapi_name() !== 'cli') {
             throw new RuntimeException('You can only use this action from a console!');
         }
 

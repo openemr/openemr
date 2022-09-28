@@ -26,7 +26,6 @@ use Installer\Model\InstModuleTable;
 use Laminas\Db\Adapter\Adapter;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\RandomGenUtils;
-use Laminas\Console\Request as ConsoleRequest;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstallerController extends AbstractActionController
@@ -672,7 +671,7 @@ class InstallerController extends AbstractActionController
                 // TODO: This is a wierd error... why is it written like this?
                 $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
             }
-        } else if ($modType == InstModuleTable::MODULE_TYPE_ZEND) {
+        } elseif ($modType == InstModuleTable::MODULE_TYPE_ZEND) {
             $fullDirectory = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule;
             if ($this->getInstallerTable()->installSQL($modId, $modType, $fullDirectory)) {
                 $sqlInstalled = true;
@@ -749,7 +748,7 @@ class InstallerController extends AbstractActionController
     public function commandInstallModuleAction()
     {
         $request = $this->getRequest();
-        if (!$request instanceof ConsoleRequest) {
+        if (php_sapi_name() !== 'cli') {
             throw new RuntimeException('You can only use this action from a console!');
         }
 
