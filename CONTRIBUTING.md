@@ -10,9 +10,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
 ### Starting with OpenEMR Development Docker Environment
 
-For the Video Tutorial, click below:
+- For the Video Tutorial, click below:
 
-- [![Getting Started Video Tutorial](Documentation/images/easy-dev-intro.jpg)](https://youtu.be/D4tXP5G9-sY)
+    [![Getting Started Video Tutorial](Documentation/images/easy-dev-intro.png)](https://youtu.be/D4tXP5G9-sY)
 
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
@@ -259,7 +259,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools upgrade 5.0.2'
           ```
 10. <a name="dev_tools_randompatients"></a>Create and add random patient data. This will use synthea to create random patients that are then imported into OpenEMR. You can choose the number of patients. Note that each patient will take several seconds.
-     - Create and add 100 random patients (defaults to development mode set to true, which is set be default to true; development mode will markedly improve performance by bypassing the import of the ccda document and bypassing the use of the audit_master and audit_details tables and will directly import the new patient data from the ccda. Note this should never be done on sites that already contain real data/use, and it will also turn off the audit log during the import.):
+    - For the Video Tutorial, click below:
+
+        [![Creating Random Patients Video Tutorial](Documentation/images/easy-dev-random-pat.png)](https://youtu.be/cFBFXFm_Psg)
+
+    - Create and add 100 random patients (defaults to development mode set to true, which is set be default to true; development mode will markedly improve performance by bypassing the import of the ccda document and bypassing the use of the audit_master and audit_details tables and will directly import the new patient data from the ccda. Note this should never be done on sites that already contain real data/use, and it will also turn off the audit log during the import.):
        ```sh
        docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools import-random-patients 100'
        ```
