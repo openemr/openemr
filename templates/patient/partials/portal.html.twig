@@ -26,6 +26,11 @@ The Patient Portal card for the Medical Record Dashboard
             <p>{{ "Patient Portal Not Authorized"|xlt }}</p>
         {% endif %}
         </div>
+    {% elseif ( portalAuthorized.allowed.portal == false ) %}
+    <div class="alert alert-warning" role="alert">
+        <p class="font-weight-bold">{{  "Portal Access"|xlt }}</p>
+        {{ "Allow Patient Portal is Required in Demographics Choices."|xlt }}
+    </div>    
     {% else %}
         {{ prepend }}
         {% if portalAuthorized.credentials.created == true %}
