@@ -13,7 +13,6 @@ namespace OpenEMR\Services;
 
 class ImmunizationSpreadsheet extends SpreadSheetServices
 {
-
     public function generateSpreadsheetArray($res, $filename)
     {
         if (!empty($res)) {
@@ -36,4 +35,3 @@ class ImmunizationSpreadsheet extends SpreadSheetServices
         }
     }
 }
-
