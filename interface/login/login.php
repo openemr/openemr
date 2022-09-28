@@ -25,6 +25,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// prevent UI redressing
+Header("X-Frame-Options: DENY");
+Header("Content-Security-Policy: frame-ancestors 'none'");
+
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 
@@ -94,7 +98,7 @@ if (count($emr_app)) {
 // This code allows configurable positioning in the login page
 $logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-primary";
 $formarea = "py-3 px-2 p-sm-5 bg-white order-2";
-$loginrow = "row login-row bg-white shadow-lg align-items-center my-sm-5";
+$loginrow = "row login-row bg-primary shadow-lg align-items-center m-0 my-sm-5";
 
 // Apply these classes to the logo area if the login page is left or right
 $lrArr = ['left', 'right'];

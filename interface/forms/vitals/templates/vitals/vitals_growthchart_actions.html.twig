@@ -1,0 +1,17 @@
+{% if field.hide %}
+<tr class="hide">
+{% else %}
+<tr>
+{% endif %}
+    {% if is_edit %}
+    <td colspan='5' class="text-center pt-2">
+    {% else %}
+    <td colspan='2' class="text-center pt-2">
+    {% endif %}
+        <input type="button" class="btn btn-primary" id="pdfchart" value='{{ "Growth-Chart"|xla }} ({{ "PDF"|xla }})'>
+        <input type="button" class="btn btn-primary" id="htmlchart" value='{{ "Growth-Chart"|xla }} ({{ "HTML"|xla }})'>
+    </td>
+{% for result in results %}
+    <td class="historicalvalues {% if is_edit %}d-none d-md-table-cell{% endif %}"></td>
+{% endfor %}
+</tr>

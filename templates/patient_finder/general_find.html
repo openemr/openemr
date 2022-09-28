@@ -11,7 +11,7 @@
 <head>
 
 
-{literal}
+
  <style>
 <!--
 td {
@@ -37,7 +37,7 @@ a {
 }
 -->
 </style>
-{/literal}
+
 <link rel="stylesheet" href="{$GLOBALS.css_header}">
 </head>
 <body class="body_top">
@@ -69,7 +69,7 @@ a {
 {foreach  name="search_results" from=$result_set  item=result}
 	<tr>
 		<td>
-			<a href="javascript:{literal}{}{/literal}" onclick="window.opener.document.{$form_id|attr}.value='{if $ispub == true }{$result.pubpid|attr}{else}{$result.pid|attr}{/if}'; window.opener.document.{$form_name|attr}.value='{$result.name|attr}'; window.close();">{$result.name|text}</a>
+			<a href="javascript:{}" onclick="window.opener.document.{$form_id|attr}.value='{if $ispub == true}{$result.pubpid|attr}{else}{$result.pid|attr}{/if}'; window.opener.document.{$form_name|attr}.value='{$result.name|attr}'; window.close();">{$result.name|text}</a>
 		</td>
 		<td>{$result.DOB|text}</td>
 		<td>{$result.pubpid|text}</td>

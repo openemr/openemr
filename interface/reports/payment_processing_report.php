@@ -15,6 +15,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
@@ -26,7 +27,8 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    die(xlt("Unauthorized access."));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Payment Processing")]);
+    exit;
 }
 
 // If from date is empty, default to 1 week ago.

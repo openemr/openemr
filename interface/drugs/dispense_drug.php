@@ -12,6 +12,7 @@ require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -45,9 +46,11 @@ $prescription_id = $_REQUEST['prescription'];
 $quantity        = $_REQUEST['quantity'];
 $fee             = $_REQUEST['fee'];
 $user            = $_SESSION['authUser'];
+$encounter       = $_SESSION['encounter'] ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    die(xl('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
+    exit;
 }
 
 if (!$drug_id) {
@@ -76,7 +79,7 @@ if (! $sale_id) {
   // Post the order and update inventory, deal with errors.
   //
     if ($drug_id) {
-        $sale_id = sellDrug($drug_id, $quantity, $fee, $pid, 0, $prescription_id, $today, $user);
+        $sale_id = sellDrug($drug_id, $quantity, $fee, $pid, $encounter, $prescription_id, $today, $user);
         if (!$sale_id) {
             die(xlt('Inventory is not available for this order.'));
         }

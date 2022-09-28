@@ -198,6 +198,7 @@ abstract class AbstractAmcReport implements RsReportIF
         $denominatorObjects = 0;
 
         foreach ($this->_amcPopulation as $patient) {
+            $pass = 0;
             $numeratorResultItemDetails = new AmcItemizedActionData();
             $denominatorResultItemDetails = new AmcItemizedActionData();
 

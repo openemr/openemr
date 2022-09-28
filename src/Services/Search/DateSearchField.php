@@ -44,7 +44,7 @@ class DateSearchField extends BasicSearchField
     const DATE_TYPES = [self::DATE_TYPE_DATE, self::DATE_TYPE_DATETIME];
 
     /**
-     * @var Tracks the type of search date this is.  Must be a value contined in the DATE_TYPES constant
+     * @var Tracks the type of search date this is.  Must be a value contained in the DATE_TYPES constant
      */
     private $dateType;
 
@@ -55,12 +55,13 @@ class DateSearchField extends BasicSearchField
      * @param $values
      * @param bool $isAnd
      */
-    public function __construct($field, $values, $dateType = self::DATE_TYPE_DATETIME)
+    public function __construct($field, $values, $dateType = self::DATE_TYPE_DATETIME, $isAnd = false)
     {
         $this->setDateType($dateType);
 
         $modifier = null;
         parent::__construct($field, SearchFieldType::DATE, $field, $values, $modifier);
+        $this->setIsAnd($isAnd);
     }
 
     public function getDateType()

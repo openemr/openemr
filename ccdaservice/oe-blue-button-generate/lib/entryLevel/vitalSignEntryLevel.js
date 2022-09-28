@@ -56,11 +56,6 @@ var vitalSignObservation = {
             dataKey: "interpretations"
         },
         fieldLevel.author
-    ],
-    notImplemented: [
-        "constant statusCode",
-        "methodCode",
-        "targetSiteCode"
     ]
 };
 
@@ -100,8 +95,5 @@ exports.vitalSignsOrganizer = {
             existsWhen: condition.propertyNotEmpty("value"),
             required: true
         }]
-    ],
-    notImplemented: [
-        "constant statusCode"
     ]
 };

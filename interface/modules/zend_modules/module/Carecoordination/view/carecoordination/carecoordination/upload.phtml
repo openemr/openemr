@@ -129,7 +129,48 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             $('#patient_select').hide('scale', '', 500, '');
         });
         var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
+
+        $('.delete-audit-record-btn').click(deleteAuditRecordHandler);
+
+        $('#sort_direction_check').click(function (e) {
+            let current = document.getElementById('sort_direction').value;
+            if (current.length > 0) {
+                document.getElementById('sort_direction').value = '';
+            } else {
+                document.getElementById('sort_direction').value = 'DESC';
+            }
+        });
     });
+
+    function deleteAuditRecordHandler(event) {
+        event.preventDefault();
+        let target = event.currentTarget;
+        if (!target) {
+            console.error("Failed to find event target");
+            return;
+        }
+        let amid = target.dataset.amid;
+        let name = target.dataset.name;
+        console.log("dataset is ", target.dataset);
+        console.log("amid ", amid, "name", name);
+        deleteAuditRecord(amid, name);
+    }
+
+    function deleteAuditRecord(amid, name) {
+        let status = confirm('<?php echo $this->listenerObject->z_xlt("Do You Really Want to Remove Duplicate");?>' + ' ' + name + '?');
+        if (status !== true) {
+            return;
+        }
+        let url = "<?php echo $this->basePath();?>/carecoordination/deleteAudit";
+        let fd = new FormData();
+        fd.append('am_id', amid);
+        fetch(url, {
+            method: "POST",
+            body: fd
+        }).then((response) => {
+            $('#form_ccda_import').submit();
+        });
+    }
 
     function sendFileToServer(formData, status) {
         var uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload"; //Upload URL
@@ -164,8 +205,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     $('#status1').hide('clip', '', 500, '');
                     $('#form_ccda_import').submit();
                 }
-            }
-            , error: function (data) {
+            },
+            error: function (data) {
                 console.error("Error uploading one or more files. Data returned ", data);
                 $('#status1').hide('clip', '', 500, '');
                 alert("There was an error in uploading one or more of your files.  Please check your server logs")
@@ -235,7 +276,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             // if we have a file extension and it is not an XML file... then we're going to error out.
             // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
             let nameArr = files[i].name.split(".");
-            if (nameArr.length > 1 && nameArr.pop() !== 'xml') {
+            let extension = nameArr.pop();
+            if (nameArr.length > 1 && (extension !== 'xml' && extension !== 'zip')) {
                 if (fnames == '') {
                     fnames = files[i].name;
                 } else {
@@ -250,6 +292,9 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             }).then((response) => {
                 response.text();
             }).then(function (data) {
+                $("html, body").animate({
+                    scrollTop: $('html, body').get(0).scrollHeight
+                }, 500);
                 status.setProgress(100);
                 $('#status1').show('clip', '', 500, '');
             });
@@ -299,7 +344,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     }
 </script>
 <body id="dragandrophandler" style="min-height: 600px">
-    <form method="post" enctype="multipart/form-data" id="form_ccda_import">
+    <form class="form-inline" method="post" enctype="multipart/form-data" id="form_ccda_import">
         <input type="hidden" name="action" id="action">
         <input type="hidden" name="am_id" id="am_id">
         <input type="hidden" name="document_id" id="document_id">
@@ -336,7 +381,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 <div id="uploader">
                     <input type="file" id="file_uploader" multiple>
                 </div>
-                <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
+                <div id="refresh" onclick="document.getElementById('form_ccda_import').submit();">&nbsp;</div>
                 <?php if (!empty($records)) { ?>
                 <span style="margin-left:10px;">
                     <button type="submit" id="chart_all_imports" class="btn btn-secondary" name="chart_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Chart all pending imports"); ?>'>
@@ -344,6 +389,10 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     </button>
                 </span>
                 <?php } ?>
+                <label for="sort_direction_check" class="checkbox" style="margin-left: 1rem;"><?php echo xlt('Ascending Order'); ?>
+                    <input class="checkbox" type="checkbox" id="sort_direction_check" <?php echo empty($_REQUEST['sort_direction'] ?? 'DESC') ? text('checked') : ''; ?> />
+                </label>
+                <input type="hidden" id="sort_direction" name="sort_direction" value="<?php echo attr($_REQUEST['sort_direction'] ?? 'DESC'); ?>" />
             </div>
             <div class="clear"></div>
 
@@ -357,33 +406,52 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 if (count($this->records) > 0) {
                     ?>
                     <table class="responsive">
-                        <tr class="se_in_9">
+                        <?php
+                        $slno = 0;
+                        foreach ($this->records as $row) {
+                            if ($slno % 12 == 0) {
+                            ?>
+                            <tr class="se_in_9">
                             <th>&nbsp;</th>
                             <th style="height: 20px;">#</th>
                             <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Race'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Ethnic'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Enc'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('CP'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('OB'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Proc'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Prob'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Med'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Duplicate'); ?></th>
                             <th nowrap><?php echo $this->listenerObject->z_xlt('Type'); ?></th>
                             <th>
                                 <button type="submit" id="delete_all_imports" class="btn btn-secondary" name="delete_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Undo all pending imports"); ?>'>
                                     <img src="<?php echo $this->basePath(); ?>/css/icons/undo.png"><span style="margin-left: 5px;"><?php echo $this->listenerObject->z_xlt("Undo Imports"); ?></span>
                                 </button>
                             </th>
-                        </tr>
-                        <?php
-                        $slno = 0;
-                        foreach ($this->records as $row) {
-                            ?>
+                            </tr>
+                            <?php } ?>
                             <tr>
                                 <td id="expandAuditDetails_<?php echo $this->escapeHtml($row['amid']) . '-' . $this->escapeHtml($row['pid']); ?>" class="expandAuditDetails se_in_23"></td>
                                 <td style="height: 20px;"><?php echo ++$slno; ?></td>
-                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'], 'mm/dd/yyyy', 'yyyy-mm-dd'); ?></td>
                                 <td><?php echo $this->escapeHtml($row['fname'] . " " . $row['lname']); ?></td>
                                 <td><?php echo $this->escapeHtml($row['pat_name']); ?></td>
-                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'], 'mm/dd/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td><?php echo $this->escapeHtml($row['race']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['ethnicity']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['enc_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['cp_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['ob_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['proc_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['prb_count']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['med_count']); ?></td>
                                 <td>
                                     <?php
                                     if ($row['imported'] == 1) {
@@ -396,7 +464,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                     ?>
                                 </td>
                                 <td>
-                                    <?php echo $this->escapeHtml($row['matched_patient']); ?>
+                                    <span><strong style="color: red;"><?php echo $this->escapeHtml($row['matched_patient']); ?></strong></span>
+                                </td>
+                                <td>
+                                    <a href="#" class="delete-audit-record-btn" data-amid="<?php echo attr($row['amid']); ?>"
+                                        data-name="<?php echo attr($row['pat_name']); ?>"><span style="color: red;"><?php echo $this->escapeHtml($row['dupl_patient'] ?? ''); ?></span></a>
                                 </td>
                                 <td>
                                     <?php
@@ -440,13 +512,12 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <tr>
                                 <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['amid']) . '-' . $this->escapeHtml($row['pid']); ?>" class="imported_ccda_details" style="display: none;"></td>
                             </tr>
-                            <?php
-                        }
-                        ?>
+                        <?php } ?>
                     </table>
-                    <?php
-                } else {
-                    ?>
+                <div style="text-align: center;">
+                    <button type="button" class="btn btn-primary" style="margin-top: .250rem;" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"><?php echo xlt('Scroll to Top'); ?></button>
+                </div>
+                <?php } else { ?>
                     <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->records) > 0) { ?>display: none; <?php } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display'); ?>
                     </div>

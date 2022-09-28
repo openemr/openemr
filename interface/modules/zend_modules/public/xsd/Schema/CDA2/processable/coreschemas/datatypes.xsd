@@ -1,0 +1,1375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+   <xs:annotation>
+     <xs:documentation>XML schema for message type POCD_MT000040.</xs:documentation>
+     <xs:documentation>
+       Copyright (c) 2015 Health Level Seven.
+       All rights reserved.
+       
+       Redistribution and use in source and binary forms, with or
+       without modification, are permitted provided that the following
+       conditions are met:
+       1. Redistributions of source code must retain the above
+       copyright notice, this list of conditions and the following
+       disclaimer.
+       2. Redistributions in binary form must reproduce the above
+       copyright notice, this list of conditions and the following
+       disclaimer in the documentation and/or other materials
+       provided with the distribution.
+       3. All advertising materials mentioning features or use of this
+       software must display the following acknowledgement:
+       
+       This product includes software developed by Health Level Seven.
+       
+       THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS
+       ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+       NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+       FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT
+       SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+       INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+       DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+       GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+       INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+       WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+       NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+       OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+       DAMAGE.
+     </xs:documentation>
+     <xs:documentation>Manually edited to include the datatypes-base_SCTC.xsd file which contains SDTC extensions</xs:documentation>      
+   </xs:annotation>
+   <xs:include schemaLocation="datatypes-base_SDTC.xsd"/>
+<!--
+      Instantiated templates
+    -->
+   <xs:complexType name="PIVL_TS">
+      <xs:annotation>
+         <xs:documentation>
+            Note: because this type is defined as an extension of SXCM_T,
+            all of the attributes and elements accepted for T are also
+            accepted by this definition.  However, they are NOT allowed
+            by the normative description of this type.  Unfortunately,
+            we cannot write a general purpose schematron contraints to
+            provide that extra validation, thus applications must be
+            aware that instance (fragments) that pass validation with
+            this might might still not be legal.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="SXCM_TS">
+            <xs:sequence>
+               <xs:element name="phase" minOccurs="0" maxOccurs="1" type="IVL_TS">
+                  <xs:annotation>
+                     <xs:documentation>
+                        A prototype of the repeating interval specifying the
+                        duration of each occurrence and anchors the periodic
+                        interval sequence at a certain point in time.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="period" minOccurs="0" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        A time duration specifying a reciprocal measure of
+                        the frequency at which the periodic interval repeats.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+            <xs:attribute name="alignment" type="CalendarCycle" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies if and how the repetitions are aligned to
+                     the cycles of the underlying calendar (e.g., to
+                     distinguish every 30 days from "the 5th of every
+                     month".) A non-aligned periodic interval recurs
+                     independently from the calendar. An aligned periodic
+                     interval is synchronized with the calendar.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="institutionSpecified" type="bl" use="optional" default="false">
+               <xs:annotation>
+                  <xs:documentation>
+                     Indicates whether the exact timing is up to the party
+                     executing the schedule (e.g., to distinguish "every 8
+                     hours" from "3 times a day".)
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="EIVL_TS">
+      <xs:annotation>
+         <xs:documentation>
+            Note: because this type is defined as an extension of SXCM_T,
+            all of the attributes and elements accepted for T are also
+            accepted by this definition.  However, they are NOT allowed
+            by the normative description of this type.  Unfortunately,
+            we cannot write a general purpose schematron contraints to
+            provide that extra validation, thus applications must be
+            aware that instance (fragments) that pass validation with
+            this might might still not be legal.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="SXCM_TS">
+            <xs:sequence>
+               <xs:element name="event" type="EIVL.event" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        A code for a common (periodical) activity of daily
+                        living based on which the event related periodic
+                        interval is specified.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="offset" minOccurs="0" maxOccurs="1" type="IVL_PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        An interval of elapsed time (duration, not absolute
+                        point in time) that marks the offsets for the
+                        beginning, width and end of the event-related periodic
+                        interval measured from the time each such event
+                        actually occurred.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVL_PQ">
+      <xs:complexContent>
+         <xs:extension base="SXCM_PQ">
+            <xs:choice minOccurs="0">
+               <xs:sequence>
+                  <xs:element name="low" minOccurs="1" maxOccurs="1" type="IVXB_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The low limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:choice minOccurs="0">
+                     <xs:element name="width" minOccurs="0" maxOccurs="1" type="PQ">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                     <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_PQ">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                  </xs:choice>
+               </xs:sequence>
+               <xs:element name="high" minOccurs="1" maxOccurs="1" type="IVXB_PQ">
+                  <xs:annotation>
+                     <xs:documentation/>
+                  </xs:annotation>
+               </xs:element>
+               <xs:sequence>
+                  <xs:element name="width" minOccurs="1" maxOccurs="1" type="PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+               <xs:sequence>
+                  <xs:element name="center" minOccurs="1" maxOccurs="1" type="PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The arithmetic mean of the interval (low plus high
+                           divided by 2). The purpose of distinguishing the center
+                           as a semantic property is for conversions of intervals
+                           from and to point values.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="width" minOccurs="0" maxOccurs="1" type="PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+            </xs:choice>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXCM_PQ">
+      <xs:complexContent>
+         <xs:extension base="PQ">
+            <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVXB_PQ">
+      <xs:complexContent>
+         <xs:extension base="PQ">
+            <xs:attribute name="inclusive" type="bl" use="optional" default="true">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies whether the limit is included in the
+                     interval (interval is closed) or excluded from the
+                     interval (interval is open).
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="PPD_TS">
+      <xs:annotation>
+         <xs:appinfo>
+            <diff>PPD_PQ</diff>
+         </xs:appinfo>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="TS">
+            <xs:sequence>
+               <xs:element name="standardDeviation" minOccurs="0" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The primary measure of variance/uncertainty of the
+                        value (the square root of the sum of the squares of
+                        the differences between all data points and the mean).
+                        The standard deviation is used to normalize the data
+                        for computing the distribution function. Applications
+                        that cannot deal with probability distributions can
+                        still get an idea about the confidence level by looking
+                        at the standard deviation.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+            <xs:attribute name="distributionType" type="ProbabilityDistributionType" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying the type of probability distribution.
+                     Possible values are as shown in the attached table.
+                     The NULL value (unknown) for the type code indicates
+                     that the probability distribution type is unknown. In
+                     that case, the standard deviation has the meaning of an
+                     informal guess.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="PPD_PQ">
+      <xs:annotation>
+         <xs:appinfo>
+            <diff>PPD_PQ</diff>
+         </xs:appinfo>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="PQ">
+            <xs:sequence>
+               <xs:element name="standardDeviation" minOccurs="0" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The primary measure of variance/uncertainty of the
+                        value (the square root of the sum of the squares of
+                        the differences between all data points and the mean).
+                        The standard deviation is used to normalize the data
+                        for computing the distribution function. Applications
+                        that cannot deal with probability distributions can
+                        still get an idea about the confidence level by looking
+                        at the standard deviation.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+            <xs:attribute name="distributionType" type="ProbabilityDistributionType" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying the type of probability distribution.
+                     Possible values are as shown in the attached table.
+                     The NULL value (unknown) for the type code indicates
+                     that the probability distribution type is unknown. In
+                     that case, the standard deviation has the meaning of an
+                     informal guess.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="PIVL_PPD_TS">
+      <xs:annotation>
+         <xs:documentation>
+            Note: because this type is defined as an extension of SXCM_T,
+            all of the attributes and elements accepted for T are also
+            accepted by this definition.  However, they are NOT allowed
+            by the normative description of this type.  Unfortunately,
+            we cannot write a general purpose schematron contraints to
+            provide that extra validation, thus applications must be
+            aware that instance (fragments) that pass validation with
+            this might might still not be legal.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="SXCM_PPD_TS">
+            <xs:sequence>
+               <xs:element name="phase" minOccurs="0" maxOccurs="1" type="IVL_PPD_TS">
+                  <xs:annotation>
+                     <xs:documentation>
+                        A prototype of the repeating interval specifying the
+                        duration of each occurrence and anchors the periodic
+                        interval sequence at a certain point in time.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="period" minOccurs="0" maxOccurs="1" type="PPD_PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        A time duration specifying a reciprocal measure of
+                        the frequency at which the periodic interval repeats.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+            <xs:attribute name="alignment" type="CalendarCycle" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies if and how the repetitions are aligned to
+                     the cycles of the underlying calendar (e.g., to
+                     distinguish every 30 days from "the 5th of every
+                     month".) A non-aligned periodic interval recurs
+                     independently from the calendar. An aligned periodic
+                     interval is synchronized with the calendar.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="institutionSpecified" type="bl" use="optional" default="false">
+               <xs:annotation>
+                  <xs:documentation>
+                     Indicates whether the exact timing is up to the party
+                     executing the schedule (e.g., to distinguish "every 8
+                     hours" from "3 times a day".)
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXCM_PPD_TS">
+      <xs:complexContent>
+         <xs:extension base="PPD_TS">
+            <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVL_PPD_TS">
+      <xs:complexContent>
+         <xs:extension base="SXCM_PPD_TS">
+            <xs:choice minOccurs="0">
+               <xs:sequence>
+                  <xs:element name="low" minOccurs="1" maxOccurs="1" type="IVXB_PPD_TS">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The low limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:choice minOccurs="0">
+                     <xs:element name="width" minOccurs="0" maxOccurs="1" type="PPD_PQ">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                     <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_PPD_TS">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                  </xs:choice>
+               </xs:sequence>
+               <xs:element name="high" minOccurs="1" maxOccurs="1" type="IVXB_PPD_TS">
+                  <xs:annotation>
+                     <xs:documentation/>
+                  </xs:annotation>
+               </xs:element>
+               <xs:sequence>
+                  <xs:element name="width" minOccurs="1" maxOccurs="1" type="PPD_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_PPD_TS">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+               <xs:sequence>
+                  <xs:element name="center" minOccurs="1" maxOccurs="1" type="PPD_TS">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The arithmetic mean of the interval (low plus high
+                           divided by 2). The purpose of distinguishing the center
+                           as a semantic property is for conversions of intervals
+                           from and to point values.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="width" minOccurs="0" maxOccurs="1" type="PPD_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+            </xs:choice>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVXB_PPD_TS">
+      <xs:complexContent>
+         <xs:extension base="PPD_TS">
+            <xs:attribute name="inclusive" type="bl" use="optional" default="true">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies whether the limit is included in the
+                     interval (interval is closed) or excluded from the
+                     interval (interval is open).
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="EIVL_PPD_TS">
+      <xs:annotation>
+         <xs:documentation>
+            Note: because this type is defined as an extension of SXCM_T,
+            all of the attributes and elements accepted for T are also
+            accepted by this definition.  However, they are NOT allowed
+            by the normative description of this type.  Unfortunately,
+            we cannot write a general purpose schematron contraints to
+            provide that extra validation, thus applications must be
+            aware that instance (fragments) that pass validation with
+            this might might still not be legal.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="SXCM_PPD_TS">
+            <xs:sequence>
+               <xs:element name="event" type="EIVL.event" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        A code for a common (periodical) activity of daily
+                        living based on which the event related periodic
+                        interval is specified.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="offset" minOccurs="0" maxOccurs="1" type="IVL_PPD_PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        An interval of elapsed time (duration, not absolute
+                        point in time) that marks the offsets for the
+                        beginning, width and end of the event-related periodic
+                        interval measured from the time each such event
+                        actually occurred.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVL_PPD_PQ">
+      <xs:complexContent>
+         <xs:extension base="SXCM_PPD_PQ">
+            <xs:choice minOccurs="0">
+               <xs:sequence>
+                  <xs:element name="low" minOccurs="1" maxOccurs="1" type="IVXB_PPD_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The low limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:choice minOccurs="0">
+                     <xs:element name="width" minOccurs="0" maxOccurs="1" type="PPD_PQ">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                     <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_PPD_PQ">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                  </xs:choice>
+               </xs:sequence>
+               <xs:element name="high" minOccurs="1" maxOccurs="1" type="IVXB_PPD_PQ">
+                  <xs:annotation>
+                     <xs:documentation/>
+                  </xs:annotation>
+               </xs:element>
+               <xs:sequence>
+                  <xs:element name="width" minOccurs="1" maxOccurs="1" type="PPD_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_PPD_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+               <xs:sequence>
+                  <xs:element name="center" minOccurs="1" maxOccurs="1" type="PPD_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The arithmetic mean of the interval (low plus high
+                           divided by 2). The purpose of distinguishing the center
+                           as a semantic property is for conversions of intervals
+                           from and to point values.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="width" minOccurs="0" maxOccurs="1" type="PPD_PQ">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+            </xs:choice>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXCM_PPD_PQ">
+      <xs:complexContent>
+         <xs:extension base="PPD_PQ">
+            <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVXB_PPD_PQ">
+      <xs:complexContent>
+         <xs:extension base="PPD_PQ">
+            <xs:attribute name="inclusive" type="bl" use="optional" default="true">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies whether the limit is included in the
+                     interval (interval is closed) or excluded from the
+                     interval (interval is open).
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXPR_TS">
+      <xs:complexContent>
+         <xs:extension base="SXCM_TS">
+            <xs:sequence>
+               <xs:element name="comp" minOccurs="2" maxOccurs="unbounded" type="SXCM_TS">
+                  <xs:annotation>
+                     <xs:documentation/>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXCM_CD">
+      <xs:complexContent>
+         <xs:extension base="CD">
+            <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXCM_MO">
+      <xs:complexContent>
+         <xs:extension base="MO">
+            <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXCM_INT">
+      <xs:complexContent>
+         <xs:extension base="INT">
+            <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SXCM_REAL">
+      <xs:complexContent>
+         <xs:extension base="REAL">
+            <xs:attribute name="operator" type="SetOperator" use="optional" default="I">
+               <xs:annotation>
+                  <xs:documentation>
+                     A code specifying whether the set component is included
+                     (union) or excluded (set-difference) from the set, or
+                     other set operations with the current set component and
+                     the set as constructed from the representation stream
+                     up to the current point.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVL_INT">
+      <xs:complexContent>
+         <xs:extension base="SXCM_INT">
+            <xs:choice minOccurs="0">
+               <xs:sequence>
+                  <xs:element name="low" minOccurs="1" maxOccurs="1" type="IVXB_INT">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The low limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:choice minOccurs="0">
+                     <xs:element name="width" minOccurs="0" maxOccurs="1" type="INT">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                     <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_INT">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                  </xs:choice>
+               </xs:sequence>
+               <xs:element name="high" minOccurs="1" maxOccurs="1" type="IVXB_INT">
+                  <xs:annotation>
+                     <xs:documentation/>
+                  </xs:annotation>
+               </xs:element>
+               <xs:sequence>
+                  <xs:element name="width" minOccurs="1" maxOccurs="1" type="INT">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_INT">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+               <xs:sequence>
+                  <xs:element name="center" minOccurs="1" maxOccurs="1" type="INT">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The arithmetic mean of the interval (low plus high
+                           divided by 2). The purpose of distinguishing the center
+                           as a semantic property is for conversions of intervals
+                           from and to point values.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="width" minOccurs="0" maxOccurs="1" type="INT">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+            </xs:choice>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVXB_INT">
+      <xs:complexContent>
+         <xs:extension base="INT">
+            <xs:attribute name="inclusive" type="bl" use="optional" default="true">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies whether the limit is included in the
+                     interval (interval is closed) or excluded from the
+                     interval (interval is open).
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVL_REAL">
+      <xs:complexContent>
+         <xs:extension base="SXCM_REAL">
+            <xs:choice minOccurs="0">
+               <xs:sequence>
+                  <xs:element name="low" minOccurs="1" maxOccurs="1" type="IVXB_REAL">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The low limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:choice minOccurs="0">
+                     <xs:element name="width" minOccurs="0" maxOccurs="1" type="REAL">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                     <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_REAL">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                  </xs:choice>
+               </xs:sequence>
+               <xs:element name="high" minOccurs="1" maxOccurs="1" type="IVXB_REAL">
+                  <xs:annotation>
+                     <xs:documentation/>
+                  </xs:annotation>
+               </xs:element>
+               <xs:sequence>
+                  <xs:element name="width" minOccurs="1" maxOccurs="1" type="REAL">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_REAL">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+               <xs:sequence>
+                  <xs:element name="center" minOccurs="1" maxOccurs="1" type="REAL">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The arithmetic mean of the interval (low plus high
+                           divided by 2). The purpose of distinguishing the center
+                           as a semantic property is for conversions of intervals
+                           from and to point values.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="width" minOccurs="0" maxOccurs="1" type="REAL">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+            </xs:choice>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVXB_REAL">
+      <xs:complexContent>
+         <xs:extension base="REAL">
+            <xs:attribute name="inclusive" type="bl" use="optional" default="true">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies whether the limit is included in the
+                     interval (interval is closed) or excluded from the
+                     interval (interval is open).
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVL_MO">
+      <xs:complexContent>
+         <xs:extension base="SXCM_MO">
+            <xs:choice minOccurs="0">
+               <xs:sequence>
+                  <xs:element name="low" minOccurs="1" maxOccurs="1" type="IVXB_MO">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The low limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:choice minOccurs="0">
+                     <xs:element name="width" minOccurs="0" maxOccurs="1" type="MO">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                     <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_MO">
+                        <xs:annotation>
+                           <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                        </xs:annotation>
+                     </xs:element>
+                  </xs:choice>
+               </xs:sequence>
+               <xs:element name="high" minOccurs="1" maxOccurs="1" type="IVXB_MO">
+                  <xs:annotation>
+                     <xs:documentation/>
+                  </xs:annotation>
+               </xs:element>
+               <xs:sequence>
+                  <xs:element name="width" minOccurs="1" maxOccurs="1" type="MO">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="high" minOccurs="0" maxOccurs="1" type="IVXB_MO">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The high limit of the interval.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+               <xs:sequence>
+                  <xs:element name="center" minOccurs="1" maxOccurs="1" type="MO">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The arithmetic mean of the interval (low plus high
+                           divided by 2). The purpose of distinguishing the center
+                           as a semantic property is for conversions of intervals
+                           from and to point values.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+                  <xs:element name="width" minOccurs="0" maxOccurs="1" type="MO">
+                     <xs:annotation>
+                        <xs:documentation>
+                           The difference between high and low boundary. The
+                           purpose of distinguishing a width property is to
+                           handle all cases of incomplete information
+                           symmetrically. In any interval representation only
+                           two of the three properties high, low, and width need
+                           to be stated and the third can be derived.
+                        </xs:documentation>
+                     </xs:annotation>
+                  </xs:element>
+               </xs:sequence>
+            </xs:choice>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="IVXB_MO">
+      <xs:complexContent>
+         <xs:extension base="MO">
+            <xs:attribute name="inclusive" type="bl" use="optional" default="true">
+               <xs:annotation>
+                  <xs:documentation>
+                     Specifies whether the limit is included in the
+                     interval (interval is closed) or excluded from the
+                     interval (interval is open).
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="HXIT_PQ">
+      <xs:complexContent>
+         <xs:extension base="PQ">
+            <xs:sequence>
+               <xs:element name="validTime" minOccurs="0" maxOccurs="1" type="IVL_TS">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The time interval during which the given information
+                        was, is, or is expected to be valid. The interval can
+                        be open or closed, as well as infinite or undefined on
+                        either side.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="HXIT_CE">
+      <xs:complexContent>
+         <xs:extension base="CE">
+            <xs:sequence>
+               <xs:element name="validTime" minOccurs="0" maxOccurs="1" type="IVL_TS">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The time interval during which the given information
+                        was, is, or is expected to be valid. The interval can
+                        be open or closed, as well as infinite or undefined on
+                        either side.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="BXIT_CD">
+      <xs:complexContent>
+         <xs:extension base="CD">
+            <xs:attribute name="qty" type="int" use="optional" default="1">
+               <xs:annotation>
+                  <xs:documentation>
+                     The quantity in which the bag item occurs in its containing bag.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="BXIT_IVL_PQ">
+      <xs:complexContent>
+         <xs:extension base="IVL_PQ">
+            <xs:attribute name="qty" type="int" use="optional" default="1">
+               <xs:annotation>
+                  <xs:documentation>
+                     The quantity in which the bag item occurs in its containing bag.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="SLIST_PQ">
+      <xs:complexContent>
+         <xs:extension base="ANY">
+            <xs:sequence>
+               <xs:element name="origin" minOccurs="1" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                     The origin of the list item value scale, i.e., the
+                     physical quantity that a zero-digit in the sequence
+                     would represent.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="scale" minOccurs="1" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                     A ratio-scale quantity that is factored out of the
+                     digit sequence.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="digits" minOccurs="1" maxOccurs="1" type="list_int">
+                  <xs:annotation>
+                     <xs:documentation>
+                     A sequence of raw digits for the sample values. This is
+                     typically the raw output of an A/D converter.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:simpleType name="list_int">
+      <xs:list itemType="int"/>
+   </xs:simpleType>
+   <xs:complexType name="SLIST_TS">
+      <xs:complexContent>
+         <xs:extension base="ANY">
+            <xs:sequence>
+               <xs:element name="origin" minOccurs="1" maxOccurs="1" type="TS">
+                  <xs:annotation>
+                     <xs:documentation>
+                     The origin of the list item value scale, i.e., the
+                     physical quantity that a zero-digit in the sequence
+                     would represent.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="scale" minOccurs="1" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                     A ratio-scale quantity that is factored out of the
+                     digit sequence.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="digits" minOccurs="1" maxOccurs="1" type="list_int">
+                  <xs:annotation>
+                     <xs:documentation>
+                     A sequence of raw digits for the sample values. This is
+                     typically the raw output of an A/D converter.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GLIST_TS">
+      <xs:complexContent>
+         <xs:extension base="ANY">
+            <xs:sequence>
+               <xs:element name="head" minOccurs="1" maxOccurs="1" type="TS">
+                  <xs:annotation>
+                     <xs:documentation>
+                     This is the start-value of the generated list. 
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="increment" minOccurs="1" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                     The difference between one value and its previous
+                     different value. For example, to generate the sequence
+                     (1; 4; 7; 10; 13; ...) the increment is 3; likewise to
+                     generate the sequence (1; 1; 4; 4; 7; 7; 10; 10; 13;
+                     13; ...) the increment is also 3.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+            <xs:attribute name="period" type="int" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     If non-NULL, specifies that the sequence alternates,
+                     i.e., after this many increments, the sequence item
+                     values roll over to start from the initial sequence
+                     item value. For example, the sequence (1; 2; 3; 1; 2;
+                     3; 1; 2; 3; ...) has period 3; also the sequence
+                     (1; 1; 2; 2; 3; 3; 1; 1; 2; 2; 3; 3; ...) has period
+                     3 too.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="denominator" type="int" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     The integer by which the index for the sequence is
+                     divided, effectively the number of times the sequence
+                     generates the same sequence item value before
+                     incrementing to the next sequence item value. For
+                     example, to generate the sequence (1; 1; 1; 2; 2; 2; 3; 3;
+                     3; ...)  the denominator is 3.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GLIST_PQ">
+      <xs:complexContent>
+         <xs:extension base="ANY">
+            <xs:sequence>
+               <xs:element name="head" minOccurs="1" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                     This is the start-value of the generated list. 
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="increment" minOccurs="1" maxOccurs="1" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                     The difference between one value and its previous
+                     different value. For example, to generate the sequence
+                     (1; 4; 7; 10; 13; ...) the increment is 3; likewise to
+                     generate the sequence (1; 1; 4; 4; 7; 7; 10; 10; 13;
+                     13; ...) the increment is also 3.
+                  </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+            <xs:attribute name="period" type="int" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     If non-NULL, specifies that the sequence alternates,
+                     i.e., after this many increments, the sequence item
+                     values roll over to start from the initial sequence
+                     item value. For example, the sequence (1; 2; 3; 1; 2;
+                     3; 1; 2; 3; ...) has period 3; also the sequence
+                     (1; 1; 2; 2; 3; 3; 1; 1; 2; 2; 3; 3; ...) has period
+                     3 too.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="denominator" type="int" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     The integer by which the index for the sequence is
+                     divided, effectively the number of times the sequence
+                     generates the same sequence item value before
+                     incrementing to the next sequence item value. For
+                     example, to generate the sequence (1; 1; 1; 2; 2; 2; 3; 3;
+                     3; ...)  the denominator is 3.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="RTO_PQ_PQ">
+      <xs:annotation>
+         <xs:appinfo>
+            <diff>RTO_PQ_PQ</diff>
+         </xs:appinfo>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="QTY">
+            <xs:sequence>
+               <xs:element name="numerator" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The quantity that is being divided in the ratio.  The
+                        default is the integer number 1 (one).
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="denominator" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The quantity that devides the numerator in the ratio.
+                        The default is the integer number 1 (one).
+                        The denominator must not be zero.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="RTO_MO_PQ">
+      <xs:annotation>
+         <xs:appinfo>
+            <diff>RTO_MO_PQ</diff>
+         </xs:appinfo>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="QTY">
+            <xs:sequence>
+               <xs:element name="numerator" type="MO">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The quantity that is being divided in the ratio.  The
+                        default is the integer number 1 (one).
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="denominator" type="PQ">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The quantity that devides the numerator in the ratio.
+                        The default is the integer number 1 (one).
+                        The denominator must not be zero.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="UVP_TS">
+      <xs:complexContent>
+         <xs:extension base="TS">
+            <xs:attribute name="probability" type="probability" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+               The probability assigned to the value, a decimal number
+               between 0 (very uncertain) and 1 (certain).
+            </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+</xs:schema>

@@ -30,7 +30,17 @@ use Twig\Token;
 
 class CarePlanService extends BaseService
 {
-    const SURROGATE_KEY_SEPARATOR = "_";
+    // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
+    // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
+    // numerals, "-" and ".".  Logical ids are opaque to the resource server and should NOT be changed once they've
+    // been issued by the resource server
+    // Up to OpenEMR 6.1.0 patch 0 we used underscores as our separator
+    const SURROGATE_KEY_SEPARATOR_V1 = "_";
+    // use the abbreviation SK for Surrogate key and hyphens.  Since Logical ids are opaque we can do this as long as
+    // our UUID NEVER generates a two digit hyphenated id which none of the standards currently do.
+    // the best approach would be to completely overhaul Careplan but for historical reasons we aren't doing that right now.
+    const SURROGATE_KEY_SEPARATOR_V2 = "-SK-";
+    const V2_TIMESTAMP = 1649476800; // strtotime("2022-04-09");
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const CARE_PLAN_TABLE = "form_care_plan";
@@ -52,7 +62,7 @@ class CarePlanService extends BaseService
 
     function getUuidFields(): array
     {
-        return ['puuid', 'euuid'];
+        return ['puuid', 'euuid', 'provider_uuid'];
     }
 
     public function __construct($carePlanType = self::TYPE_PLAN_OF_CARE)
@@ -134,7 +144,9 @@ class CarePlanService extends BaseService
                 ,patients.pid
                 ,encounters.euuid
                 ,encounters.eid
-                ,fcp.form_id
+                ,fcp_forms.form_id
+                ,fcp_forms.creation_date
+                ,UNIX_TIMESTAMP(fcp_forms.creation_date) AS 'creation_timestamp'
                 ,fcp.code
                 ,fcp.codetext
                 ,fcp.description
@@ -147,7 +159,7 @@ class CarePlanService extends BaseService
                  FROM
                  (
                     select
-                        id AS form_id
+                        id
                         ,code
                         ,codetext
                         ,description
@@ -171,6 +183,16 @@ class CarePlanService extends BaseService
                     FROM
                         form_encounter
                  ) encounters ON fcp.encounter = encounters.eid
+                -- we need the form date information
+                 JOIN (
+                      SELECT
+                      id
+                      ,form_id
+                      ,encounter AS form_encounter
+                      ,date AS creation_date
+                      FROM forms
+                      WHERE form_name = 'Care Plan Form'
+                 ) fcp_forms ON fcp.id = fcp_forms.form_id AND encounters.eid = fcp_forms.form_encounter
                  LEFT JOIN (
                     select
                         pid
@@ -270,9 +292,15 @@ class CarePlanService extends BaseService
      */
     public function getSurrogateKeyForRecord(array $record)
     {
+        // note that logical ids are allowed to be 64 characters.  Our UUID is 32 characters so as long as
+        // the form_id + separator never exceeds 64 characters we are good here.
         $form_id = $record['form_id'] ?? '';
         $encounter = $record['euuid'] ?? '';
-        return $encounter . self::SURROGATE_KEY_SEPARATOR . $form_id;
+        $separator = self::SURROGATE_KEY_SEPARATOR_V2;
+        if (intval($record['creation_timestamp'] ?? 0) <= self::V2_TIMESTAMP) {
+            $separator = self::SURROGATE_KEY_SEPARATOR_V1;
+        }
+        return $encounter . $separator . $form_id;
     }
 
     /**
@@ -282,7 +310,11 @@ class CarePlanService extends BaseService
      */
     public function splitSurrogateKeyIntoParts($key)
     {
-        $parts = explode(self::SURROGATE_KEY_SEPARATOR, $key);
+        $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
+        if (strpos($key, self::SURROGATE_KEY_SEPARATOR_V1) !== false) {
+            $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
+        }
+        $parts = explode($delimiter, $key);
         $key = [
             "euuid" => $parts[0] ?? ""
             ,"form_id" => $parts[1] ?? ""

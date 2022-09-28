@@ -45,14 +45,10 @@ class ResultsCalculator
     {
         $patient_id = $patient->id->value;
         $this->patient_sup_map[$patient_id] = [];
-        $sex = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'gender')), true);
-        $this->patient_sup_map[$patient_id]['SEX'] = $sex['code'];
-        $race = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'race')), true);
-        $this->patient_sup_map[$patient_id]['RACE'] = $race['code'];
-        $ethnicity = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'ethnicity')), true);
-        $this->patient_sup_map[$patient_id]['ETHNICITY'] = $ethnicity['code'];
-        $payer = json_decode(json_encode($patient->get_data_elements('patient_characteristic', 'payer')), true);
-        $this->patient_sup_map[$patient_id]['PAYER'] = $payer['code'];
+        $this->patient_sup_map[$patient_id]['SEX'] = $patient->extract_first_code('patient_characteristic', 'gender');
+        $this->patient_sup_map[$patient_id]['RACE'] = $patient->extract_first_code('patient_characteristic', 'race');
+        $this->patient_sup_map[$patient_id]['ETHNICITY'] = $patient->extract_first_code('patient_characteristic', 'ethnicity');
+        $this->patient_sup_map[$patient_id]['PAYER'] = $patient->extract_first_code('patient_characteristic', 'payer');
     }
 
     //https://github.com/projectcypress/cypress/blob/ef09517b96b269c60671e3af651eb52df2ff22fa/lib/ext/measure.rb#L27
@@ -137,10 +133,10 @@ class ResultsCalculator
             }
             $key = $individual_result->population_set_key;
             foreach ($measure->population_keys() as $pop) {
-                if (empty($individual_result->$pop)) {
+                if (empty($individual_result->{$pop})) {
                     continue;
                 }
-                $this->measure_result_hash[$measure->hqmf_id][$key][$pop] += $individual_result->$pop;
+                $this->measure_result_hash[$measure->hqmf_id][$key][$pop] += $individual_result->{$pop};
                 $this->increment_sup_info(
                     $this->patient_sup_map[$individual_result->patient_id->value],
                     $pop,
@@ -198,7 +194,7 @@ class ResultsCalculator
 
     public function increment_sup_info($patient_sup, $pop, array &$single_measure_result_hash)
     {
-        if (!empty($single_measure_result_hash['supplemental_data'][$pop])) {
+        if (!is_array($single_measure_result_hash['supplemental_data'][$pop])) {
             $single_measure_result_hash['supplemental_data'][$pop] = ['RACE' => [], 'ETHNICITY' => [], 'SEX' => [], 'PAYER' => []];
         }
         foreach ($patient_sup as $sup_type => $code) {
@@ -252,7 +248,8 @@ class ResultsCalculator
             /**
              * @var PopulationSet
              */
-            $pop_set = reset($measure->population_set_for_key($key)); // grab the first item
+            $pop_set = $measure->population_set_for_key($key);
+            $pop_set = reset($pop_set); // grab the first item
             $observation = null;
             foreach ($pop_set->observations as $obs) {
                 if ($obs['observation_parameter']['statement_name'] == $observation_map['statement_name']) {

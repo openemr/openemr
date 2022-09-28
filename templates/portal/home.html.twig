@@ -3,10 +3,10 @@
 {% block head %}
     {{ parent() }}
 
-    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr }}" rel="stylesheet" />
-    <script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr }}"></script>
-    <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr }}"></script>
-    <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr }}"></script>
+    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr_url }}" rel="stylesheet" />
+    <script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr_url }}"></script>
+    <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr_url }}"></script>
+    <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr_url }}"></script>
 
     {% if payment_gateway == 'Stripe' %}
         <script src="https://js.stripe.com/v3/"></script>
@@ -32,7 +32,7 @@
             webroot_url = webRoot,
             tab_mode = true,
             isPortal = 1;
-        
+
         function restoreSession() {
             return true;
         }
@@ -162,6 +162,11 @@
             });
             {% endif %}
 
+            {% if isEasyPro %}
+            $("#pro").load("./get_pro.php", {}, function () {
+            });
+            {% endif %}
+
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
             });
@@ -278,10 +283,6 @@
         }
 
         {% if isEasyPro %}
-
-        $("#pro").load("./get_pro.php", {}, function () {
-        });
-
         function writeResult(score, stdErr, assessmentOID) {
             $.ajax({
                 url: '../library/ajax/easipro_util.php',
@@ -312,6 +313,7 @@
                 success: function (data) {
                     if (data.DateFinished != '') {
                         document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
+                        $('.assessment-row').toggleClass('d-none');
                         document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
                         document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
                         $.ajax({
@@ -333,16 +335,16 @@
                     var screen = "";
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = `<div style="height: 30px>${data.Items[0].Elements[j].Description}</div>`
+                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
+                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
                             }
                         }
                     }
                     document.getElementById("Content").innerHTML = screen;
                 },
-                error: function (jqXHR, textStatus, errorThrown) { // document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+                error: function (jqXHR, textStatus, errorThrown) {
                     alert("An error occurred");
                 }
             });
@@ -362,24 +364,24 @@
                 dataType: "json",
                 success: function (data) {
                     var screen = "";
+                    let title = $("#" + "hide_assessment_" + assessmentOID).closest('tr').children('td:first').text();
+                    document.getElementById("ContentTitle").innerHTML = "<h5>" + jsText(title) + "</h5>";
+                    $('.assessment-row').toggleClass('d-none');
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = `<div style="height: 30px">${data.Items[0].Elements[j].Description}</div>`;
+                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                screen = `<div style="height: 50px"><input type="button" class='btn-submit' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this, ${assessmentOID})/></div>`;
+                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
                             }
                         }
                     }
 
                     document.getElementById("Content").innerHTML = screen;
-
-                    param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
+                    param.innerHTML = jsText({{ 'Assessment Started' | xlj }});
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
-
-                    // document.write(jqXHR.responseText);
                     alert("An error occurred");
                 }
             });

@@ -12,7 +12,7 @@
     <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
     if it were called last, the settings from the form would be overwritten with the old information-->
     <input type="hidden" name="form_id" value="{$insurancecompany->id|attr}">
-    {if $insurancecompany->get_inactive() eq 1 }
+    {if $insurancecompany->get_inactive() eq 1}
     <div class="form-row my-sm-2">
         <label for="inactive" class="col-form-label col-sm-2">{xlt t='Reactivate'}</label>
         <div class="col-sm-8">
@@ -20,7 +20,7 @@
         </div>
     </div>
     {/if}
-    {if $insurancecompany->get_inactive() eq 0 }
+    {if $insurancecompany->get_inactive() eq 0}
     <div class="form-row my-sm-2">
         <label for="inactive" class="col-form-label col-sm-2">{xlt t='Deactivate'}</label>
         <div class="col-sm-8">
@@ -121,6 +121,14 @@
             </select>
         </div>
     </div>
+    <div class="form-row my-sm-2">
+        <label for="cqm_sop" class="col-form-label col-sm-2">{xlt t='CQM Source of Payment'}</label>
+        <div class="col-sm-8">
+            <select id="cqm_sop" name="cqm_sop" class="form-control">
+                {html_options options=$insurancecompany->cqm_sop_array selected=$insurancecompany->get_cqm_sop()}
+            </select>
+        </div>
+    </div>
     {if $SUPPORT_ELIGIBILITY_REQUESTS}
     <div class="form-row my-sm-2">
         <label for="x12_default_eligibility_id" class="col-form-label col-sm-2">{xlt t='Default Eligibility X12 Partner'}</label>
@@ -143,7 +151,6 @@
     <input type="hidden" name="process" value="{$PROCESS|attr}" />
 </form>
 
-{literal}
 <script>
     function submit_insurancecompany() {
         if(document.insurancecompany.name.value.length>0) {
@@ -164,4 +171,3 @@
         } while ((endTime - startTime) < delay);
     }
 </script>
-{/literal}

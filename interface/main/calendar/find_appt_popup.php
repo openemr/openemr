@@ -23,6 +23,7 @@ require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 ?>
@@ -30,7 +31,8 @@ use OpenEMR\Core\Header;
 <?php
  // check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
-    die(xlt('Access not allowed'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
+    exit;
 }
 
 // If the caller is updating an existing event, then get its ID so

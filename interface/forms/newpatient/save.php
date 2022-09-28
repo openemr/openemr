@@ -18,8 +18,10 @@ require_once("$srcdir/encounter.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -27,8 +29,8 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 $facilityService = new FacilityService();
 
-$date = isset($_POST['form_date']) ? DateToYYYYMMDD($_POST['form_date']) : null;
-$onset_date = isset($_POST['form_onset_date']) ? DateToYYYYMMDD($_POST['form_onset_date']) : null;
+$date = isset($_POST['form_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_date']) : null;
+$onset_date = isset($_POST['form_onset_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_onset_date']) : null;
 $sensitivity = $_POST['form_sensitivity'] ?? null;
 $pc_catid = $_POST['pc_catid'] ?? null;
 $facility_id = $_POST['facility_id'] ?? null;
@@ -57,6 +59,24 @@ $nexturl = $normalurl;
 $provider_id = $_SESSION['authUserID'] ? $_SESSION['authUserID'] : 0;
 $provider_id = $encounter_provider ? $encounter_provider : $provider_id;
 
+$encounter_type = $_POST['encounter_type'] ?? '';
+$encounter_type_code = null;
+$encounter_type_description = null;
+// we need to lookup the codetype and the description from this if we have one
+if (!empty($encounter_type)) {
+    $listService = new ListService();
+    $option = $listService->getListOption('encounter-types', $encounter_type);
+    $encounter_type_code = $option['codes'] ?? null;
+    if (!empty($encounter_type_code)) {
+        $codeService = new CodeTypesService();
+        $encounter_type_description = $codeService->lookup_code_description($encounter_type_code) ?? null;
+    } else {
+        // we don't have any codes installed here so we will just use the encounter_type
+        $encounter_type_code = $encounter_type;
+        $encounter_type_description = $option['title'];
+    }
+}
+
 if ($mode == 'new') {
     $encounter = generate_id();
     addForm(
@@ -81,7 +101,9 @@ if ($mode == 'new') {
                 parent_encounter_id = ?,
                 provider_id = ?,
                 discharge_disposition = ?,
-                referring_provider_id = ?",
+                referring_provider_id = ?,
+                encounter_type_code = ?,
+                encounter_type_description = ?",
             [
                 $date,
                 $onset_date,
@@ -100,7 +122,9 @@ if ($mode == 'new') {
                 $parent_enc_id,
                 $provider_id,
                 $discharge_disposition,
-                $referring_provider_id
+                $referring_provider_id,
+                $encounter_type_code,
+                $encounter_type_description
             ]
         ),
         "newpatient",
@@ -138,6 +162,8 @@ if ($mode == 'new') {
         $pos_code,
         $discharge_disposition,
         $referring_provider_id,
+        $encounter_type_code,
+        $encounter_type_description,
         $id
     );
     sqlStatement(
@@ -155,7 +181,10 @@ if ($mode == 'new') {
             class_code = ?,
             pos_code = ?,
             discharge_disposition = ?,
-            referring_provider_id = ? WHERE id = ?",
+            referring_provider_id = ?,
+            encounter_type_code = ?,
+            encounter_type_description = ?
+            WHERE id = ?",
         $sqlBindArray
     );
 } else {

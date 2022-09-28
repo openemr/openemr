@@ -30,8 +30,6 @@ class Measure extends AbstractType
      */
     public $description;
 
-    protected $_measure;
-
     /**
      * @var string
      */
@@ -73,6 +71,8 @@ class Measure extends AbstractType
      */
     public $measure_path;
 
+    public $calculation_method;
+
     /**
      * Measure constructor.
      *
@@ -83,9 +83,26 @@ class Measure extends AbstractType
     public function __construct($measure)
     {
         parent::__construct($measure);
-        $this->id = ($measure['_id'] ?? [])['oid'] ?? '';
+        //$this->id = ($measure['_id'] ?? [])['oid'] ?? '';
 
-        $this->_measure = $measure;
+        $this->calculation_method = 'EPISODE_OF_CARE';
+        // CMS22v10 is EPISODE_OF_CARE, which seems to be default in measure file, but these measures
+        // require PATIENT
+        if (
+            $measure['cms_id'] == 'CMS122v10' ||
+            $measure['cms_id'] == 'CMS69v10' ||
+            $measure['cms_id'] == 'CMS124v10' ||
+            $measure['cms_id'] == 'CMS125v10' ||
+            $measure['cms_id'] == 'CMS127v10' ||
+            $measure['cms_id'] == 'CMS130v10' ||
+            $measure['cms_id'] == 'CMS138v10' ||
+            $measure['cms_id'] == 'CMS147v11' ||
+            $measure['cms_id'] == 'CMS165v10'
+        ) {
+            $this->calculation_method = 'PATIENT';
+        }
+
+        //$this->_measure = $measure;
         $this->population_sets  = [];
         if ($measure['population_sets']) {
             foreach ($measure['population_sets'] as $population_set) {

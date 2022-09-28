@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
@@ -74,10 +76,13 @@ $templateService = new DocumentTemplateService();
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
+    echo "<script>var csrfTokenDoclib=" . js_escape(CsrfUtils::collectCsrfToken('doc-lib')) . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
+    // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
+    echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
     Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
 
@@ -187,7 +192,7 @@ $templateService = new DocumentTemplateService();
         function replaceTextInputs() {
             $('.templateInput').each(function () {
                 var rv = $(this).data('textvalue');
-                $(this).replaceWith(rv);
+                $(this).replaceWith(jsText(rv));
             });
         }
 
@@ -195,14 +200,14 @@ $templateService = new DocumentTemplateService();
             $('.ynuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
 
             $('.tfuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="tfradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
         }
@@ -351,6 +356,7 @@ $templateService = new DocumentTemplateService();
                                     <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib')); ?>" />
                             <input type="hidden" name="content" id="content" value="" />
                             <input type="hidden" name="cpid" id="cpid" value="" />
                             <input type="hidden" name="docid" id="docid" value="" />

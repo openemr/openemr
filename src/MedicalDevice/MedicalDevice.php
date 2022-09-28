@@ -19,6 +19,9 @@ class MedicalDevice
 {
     private $udi_data;
 
+    // if we have other issuing agencies we can add them here.
+    const ISSUING_AGENCY_FDA_AUTHORITY = ['GS1', 'HIBCC', 'ICCBBA'];
+
     public function __construct($udi_data)
     {
         $this->udi_data = json_decode($udi_data, true);
@@ -77,7 +80,13 @@ class MedicalDevice
             $html .= '<span class="font-weight-bold">' . xlt('This device is labeled as a Human Cell, Tissue or Cellular or Tissue-Based Product (HCT/P).') . '</span><br>';
         }
         if (!empty($this->udi_data['standard_elements']['issuingAgency'])) {
-            $html .= '<span class="font-weight-bold">' . xlt('Issuing Agency') . ': </span>' . text($this->udi_data['standard_elements']['issuingAgency']) . '<br>';
+            $html .= '<span class="font-weight-bold">' . xlt('Issuing Agency') . ': </span>' . text($this->udi_data['standard_elements']['issuingAgency']);
+            $html .= '<br>';
+
+            if (in_array($this->udi_data['standard_elements']['issuingAgency'], self::ISSUING_AGENCY_FDA_AUTHORITY)) {
+                // we don't translate the FDA as its a US agency.
+                $html .= '<span class="font-weight-bold">' . xlt('Assigning Authority') . ': </span>FDA<br />';
+            }
         }
         if ($showUdi && !empty($this->udi_data['standard_elements']['udi'])) {
             $html .= '<span class="font-weight-bold">' . xlt('UDI (Unique Device Identifier)') . ': </span>' . text($this->udi_data['standard_elements']['udi']) . '<br>';
@@ -103,6 +112,7 @@ class MedicalDevice
         $js .= 'if (' . $jsVal . '.standard_elements.labeledContainsNRL) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("This device is required to be labeled as containing natural rubber latex or dry natural rubber.")) + \'</span><br>\';}';
         $js .= 'if (' . $jsVal . '.standard_elements.deviceHCTP) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("This device is labeled as a Human Cell, Tissue or Cellular or Tissue-Based Product (HCT/P).")) + \'</span><br>\';}';
         $js .= 'if (' . $jsVal . '.standard_elements.issuingAgency) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Issuing Agency")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.issuingAgency) + \'<br>\';}';
+        $js .= 'if (' . $jsVal . '.standard_elements.issuingAuthority) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("Assigning Authority")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.issuingAuthority) + \'<br>\';}';
         if ($showUdi) {
             $js .= 'if (' . $jsVal . '.standard_elements.udi) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsText(xl("UDI (Unique Device Identifier)")) + \': </span>\' + jsText(' . $jsVal . '.standard_elements.udi) + \'<br>\';}';
         }
@@ -138,6 +148,7 @@ class MedicalDevice
                 'labeledContainsNRL' => $udiData['gudid']['device']['labeledContainsNRL'],
                 'deviceHCTP' => $udiData['gudid']['device']['deviceHCTP'],
                 'issuingAgency' => $udiData['udi']['issuingAgency']
+                ,'issuingAuthority' => in_array($udiData['udi']['issuingAgency'], self::ISSUING_AGENCY_FDA_AUTHORITY) ? "FDA" : ""
             ],
             'raw_search' => $udiData
         ];

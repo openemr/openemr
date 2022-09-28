@@ -11,9 +11,10 @@
 namespace OpenEMR\Services\Qdm\Services;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\DateTime;
-use OpenEMR\Cqm\Qdm\InterventionPerformed;
+use OpenEMR\Cqm\Qdm\BaseTypes\Quantity;
 use OpenEMR\Cqm\Qdm\ProcedurePerformed;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
+use OpenEMR\Services\Qdm\QdmRecord;
 
 class ProcedureService extends AbstractQdmService implements QdmServiceInterface
 {
@@ -25,15 +26,17 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
                     O.procedure_order_type,
                     O.date_ordered,
                     OC.procedure_code,
+                    OC.reason_status,
+                    OC.reason_code,
                     RES.date AS result_date,
                     RES.result_code,
                     RES.units as result_units,
                     RES.result as result_value
                 FROM procedure_order O
-                    JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
-                    JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
-                    JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
-                WHERE O.procedure_order_type = 'order'
+                    LEFT JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                    LEFT JOIN procedure_report REP ON O.procedure_order_id = REP.procedure_order_id
+                    LEFT JOIN procedure_result RES ON REP.procedure_report_id = RES.procedure_report_id
+                WHERE O.procedure_order_type = 'order' AND O.activity != 0
                 ";
 
         return $sql;
@@ -44,23 +47,35 @@ class ProcedureService extends AbstractQdmService implements QdmServiceInterface
         return 'O.patient_id';
     }
 
-    public function makeQdmModel(array $record)
+    public function makeQdmModel(QdmRecord $recordObj)
     {
-        $qdmModel = new ProcedurePerformed(
-            [
-            'relevantDatetime' => new DateTime(
-                [
+        $record = $recordObj->getData();
+        $id = parent::convertToObjectIdBSONFormat($recordObj->getEntityCount());
+        $qdmModel = new ProcedurePerformed([
+            '_id' => $id,
+            'id' => $id,
+            'relevantDatetime' => new DateTime([
                 'date' => $record['date_ordered']
-                ]
-            ),
-            'result' => new Quantity(
-                [
-                'value' => $record['result_value'],
+            ]),
+            'authorDatetime' => new DateTime([
+                'date' => $record['date_ordered']
+            ])
+        ]);
+
+        if (!empty($record['result_value']) && !empty($record['result_units'])) {
+            $qdmModel->result = new Quantity([
+                'value' => (int)$record['result_value'],
                 'unit' => $record['result_units']
-                ]
-            ),
-            ]
-        );
+            ]);
+        }
+
+        if (!empty($record['reason_code'])) {
+            if ($record['reason_status'] === parent::NEGATED) {
+                $qdmModel->negationRationale = $this->makeQdmCode($record['reason_code']);
+            } else {
+                $qdmModel->reason = $this->makeQdmCode($record['reason_code']);
+            }
+        }
 
         $codes = $this->explodeAndMakeCodeArray($record['procedure_code']);
         foreach ($codes as $code) {

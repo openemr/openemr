@@ -45,16 +45,27 @@
       margin-bottom: 0;
     }
 
-    table td {
+    table {
+      width: 100%;
+    }
+
+    td,
+    div {
       padding-bottom: 0;
 
       &.label_custom {
+        font-size: 0.8rem !important;
+        font-weight: 700;
         min-width: 80px;
+        text-align: left;
       }
 
       &.data {
-        min-width: 120px;
+        font-size: 0.8rem !important;
+        font-weight: 400;
+        min-width: 80px;
       }
+
       padding-#{$right}: 1px;
     }
 

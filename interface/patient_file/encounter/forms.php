@@ -401,15 +401,17 @@ function refreshVisitDisplay() {
 <script>
 
 function openNewForm(sel, label) {
-  top.restoreSession();
-  var FormNameValueArray = sel.split('formname=');
-  if (FormNameValueArray[1] == 'newpatient') {
-    // TBD: Make this work when it's not the first frame.
-    parent.frames[0].location.href = sel;
-  }
-  else {
-    parent.twAddFrameTab('enctabs', label, sel);
-  }
+    top.restoreSession();
+    let FormNameValueArray = sel.split('formname=');
+    if (FormNameValueArray[1] == 'newpatient') {
+        // TBD: Make this work when it's not the first frame.
+        parent.frames[0].location.href = sel;
+    } else {
+        if (FormNameValueArray[1] == 'questionnaire_assessments') {
+            sel += "&questionnaire_form=" + encodeURIComponent(label);
+        }
+        parent.twAddFrameTab('enctabs', label, sel);
+    }
 }
 
 function toggleFrame1(fnum) {
@@ -544,7 +546,7 @@ $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (Encount
 
         $_cat = trim($item['category']);
         $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-        $item['displayText'] = (trim($item['nickname']) != '') ? trim($item['nickname']) : trim($item['name']);
+        $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
         unset($item['category']);
         unset($item['name']);
         unset($item['nickname']);
@@ -669,7 +671,8 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
     <div class="float-right border border-dark mr-2">
-        <div class="float-left m-2">
+        <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
+        <div id="amc-requires" class="float-left m-2 collapse">
           <table>
             <tr>
               <td>
@@ -791,7 +794,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
     <?php
     $doc = new C_Document();
     foreach ($docs_list as $doc_iter) {
-        $doc_url = $doc->_tpl_vars['CURRENT_ACTION'] . "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
+        $doc_url = $doc->getTemplateVars('CURRENT_ACTION') . "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
         // Get notes for this document.
         $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";

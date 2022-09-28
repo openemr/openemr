@@ -22,6 +22,7 @@ use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
+use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\CodeTypesService;
 
 class CarecoordinationTable extends AbstractTableGateway
@@ -34,14 +35,14 @@ class CarecoordinationTable extends AbstractTableGateway
     private $parseTemplates;
     private $codeService;
     private $importService;
+    protected $validateDocument;
 
     public function __construct()
     {
-        $this->documentData = [];
-        $this->is_qrda_import = false;
-        $this->parseTemplates = new CdaTemplateParse();
+        $this->resetData();
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
+        $this->validateDocument = new CdaValidateDocuments();
     }
 
     /*
@@ -98,36 +99,48 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function document_fetch($data): array
     {
+        $direction = $_REQUEST['sort_direction'] ?? 'DESC';
         $query = "SELECT am.id as amid,
-                        cat.name,
-                        u.fname,
-                        u.lname,
-                        d.imported,
-                        d.size,
-                        d.date,
-                        d.couch_docid,
-                        d.couch_revid,
-                        d.url AS file_url,
-                        d.id AS document_id,
-                        am.is_qrda_document,
-                        ad.field_value,
-                        ad1.field_value,
-                        ad2.field_value,
-                        pd.pid,
-                        CONCAT(ad.field_value,' ',ad1.field_value) as pat_name,
-                        DATE(ad2.field_value) as dob,
-                        CONCAT_WS(' ',pd.lname, pd.fname) as matched_patient
-                     FROM documents AS d
-                     JOIN categories AS cat ON cat.name = ?
-                     JOIN categories_to_documents AS cd ON cd.document_id = d.id AND cd.category_id = cat.id
-                     LEFT JOIN audit_master AS am ON am.type = ? AND am.approval_status = '1' AND d.audit_master_id = am.id
-                     LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname'
-                     LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname'
-                     LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
-                     LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
-                     LEFT JOIN users AS u ON u.id = d.owner
-                     WHERE d.audit_master_approval_status = 1
-                     ORDER BY date DESC";
+            cat.name,
+            u.fname,
+            u.lname,
+            d.imported,
+            d.size,
+            d.date,
+            d.couch_docid,
+            d.couch_revid,
+            d.url AS file_url,
+            d.id AS document_id,
+            d.document_data,
+            am.is_qrda_document,
+            ad.field_value as ad_lname,
+            ad1.field_value as ad_fname,
+            ad2.field_value as dob_raw,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'encounter' AND field_name = 'date') as enc_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'lists1' AND field_name = 'type' AND field_value = 'medical_problem') as prb_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'form_care_plan' AND field_name = 'date') as cp_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'observation_preformed' AND field_name = 'date') as ob_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'procedure' AND field_name = 'date') as proc_count,
+            (Select COUNT(field_name) From `audit_details` Where audit_master_id = am.id AND table_name = 'lists3' AND field_name = 'type' AND field_value = 'medication') as med_count,
+            ad5.field_value as race,
+            ad6.field_value as ethnicity,
+            pd.pid,
+            CONCAT(ad.field_value,' ',ad1.field_value) as pat_name,
+            DATE(ad2.field_value) as dob,
+            CONCAT_WS(' ',pd.lname, pd.fname) as matched_patient
+        FROM documents AS d
+        JOIN categories AS cat ON cat.name = ?
+        JOIN categories_to_documents AS cd ON cd.document_id = d.id AND cd.category_id = cat.id
+        LEFT JOIN audit_master AS am ON am.type = ? AND am.approval_status = '1' AND d.audit_master_id = am.id
+        LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname'
+        LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname'
+        LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
+        LEFT JOIN audit_details ad5 ON ad5.audit_master_id = am.id AND ad5.table_name = 'patient_data' AND ad5.field_name = 'race'
+        LEFT JOIN audit_details ad6 ON ad6.audit_master_id = am.id AND ad6.table_name = 'patient_data' AND ad6.field_name = 'ethnicity'
+        LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
+        LEFT JOIN users AS u ON u.id = d.owner
+        WHERE d.audit_master_approval_status = 1 AND am.id >= 0
+        ORDER BY date " . escape_sort_order($direction); // DESC is default
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($data['cat_title'], $data['type']));
         $records = array();
@@ -161,7 +174,7 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param   $document_id    Document id
      */
 
-    public function importCore($xml_content): void
+    public function importCore($xml_content, $doc_id = null)
     {
         $xml_content_new = preg_replace('#<br />#', '', $xml_content);
         $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
@@ -176,15 +189,27 @@ class CarecoordinationTable extends AbstractTableGateway
 
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
+        $qrda_log['message'] = $validation_log = null;
         // test if a QRDA QDM CAT I document type from header OIDs
         $qrda = $xml['templateId'][2]['root'] ?? null;
         if ($qrda === '2.16.840.1.113883.10.20.24.1.2') {
-            $this->is_qrda_import = true;
+            $this->is_qrda_import = 1;
+            if (!empty($doc_id)) {
+                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'qrda1');
+            }
+            if (count($components[2]["section"]["entry"] ?? []) < 2) {
+                $name = $xml["recordTarget"]["patientRole"]["patient"]["name"]["given"] . ' ' .
+                    $xml["recordTarget"]["patientRole"]["patient"]["name"]["family"];
+                error_log("No QDMs for patient: " . $name);
+                $validation_log['xsd'][] = xl("QRDA is empty of content.") . ' ' . text($name);
+                $this->is_qrda_import = 2;
+            }
             // Offset to Patient Data section
             $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
         } else {
-            // A CCDA document. Generally a CCD or ToC
-            // @todo add OID test for ToC, CCD or Referral document type then parse per OID
+            if (!empty($doc_id)) {
+                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'ccda');
+            }
             $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
         }
 
@@ -199,6 +224,10 @@ class CarecoordinationTable extends AbstractTableGateway
             foreach ($xml['recordTarget']['patientRole']['patient']['name'] as $i => $iValue) {
                 if ($iValue['use'] === 'L') {
                     $index = $i;
+                }
+                if ($iValue['given'][0]['qualifier'] ?? '' === 'BR') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['birth_fname'] = $iValue['given'][0]['_'] ?? null;
+                    $this->documentData['field_name_value_array']['patient_data'][1]['birth_lname'] = $iValue['family'] ?? null;
                 }
             }
             $name = $xml['recordTarget']['patientRole']['patient']['name'][$index];
@@ -216,9 +245,10 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
         $this->documentData['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : ($name['given'] ?? null);
+        $this->documentData['field_name_value_array']['patient_data'][1]['mname'] = is_array($name['given']) ? $name['given'][1] ?? '' : '';
         $this->documentData['field_name_value_array']['patient_data'][1]['lname'] = $name['family'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = $xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? '');
         $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
@@ -226,10 +256,30 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['country_code'] = $xml['recordTarget']['patientRole']['addr']['country'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
+
+        if (is_array($xml['recordTarget']['patientRole']['telecom'][0] ?? null)) {
+            foreach ($xml['recordTarget']['patientRole']['telecom'] as $tel) {
+                if ($tel['use'] == 'MC') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                }
+                if ($tel['use'] == 'HP') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                }
+                if ($tel['use'] == 'WP') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                }
+            }
+        } else {
+            $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
+        }
+
         $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;
+        if (is_array($xml['recordTarget']['patientRole']['patient']['raceCode'][0])) {
+            $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['code'] ?? null;
+        } else {
+            $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;
+        }
         $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = ($xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code']) ?? null;
 
         //Author details
@@ -288,13 +338,16 @@ class CarecoordinationTable extends AbstractTableGateway
         // test if patient is deceased
         if ($this->is_qrda_import) {
             foreach ($components[2]["section"]["entry"] as $entry_search) {
-                if ($entry_search["observation"]["value"]["code"] == '419099009') {
+                if (($entry_search["observation"]["value"]["code"] ?? null) == '419099009') {
                     $deceased_date = $entry_search["observation"]["effectiveTime"]["low"]["value"];
                     $this->documentData['field_name_value_array']['patient_data'][1]['deceased_date'] = date('Y-m-d H:i:s', strtotime($deceased_date));
                     $this->documentData['field_name_value_array']['patient_data'][1]['deceased_reason'] = 'SNOMED-CT:419099009';
                     break;
                 }
             }
+        }
+        if (!empty($doc_id)) {
+            $this->validateDocument->saveValidationLog($doc_id, $validation_log);
         }
     }
 
@@ -319,6 +372,8 @@ class CarecoordinationTable extends AbstractTableGateway
         $e = 1;
         $f = 1;
         $g = 1;
+        $h = 1;
+        $p = 1; // payer QRDA
 
         $arr_procedure_res = array();
         $arr_encounter = array();
@@ -432,6 +487,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $newdata['referral'][$rowfield['field_name']] = $rowfield['field_value'];
                 } elseif ($table == 'observation_preformed') {
                     $newdata['observation_preformed'][$rowfield['field_name']] = $rowfield['field_value'];
+                } elseif ($table == 'payer') {
+                    $newdata['payer'][$rowfield['field_name']] = $rowfield['field_value'];
                 }
             }
 
@@ -449,6 +506,10 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_immunization['immunization'][$a]['amount_administered_unit'] = $newdata['immunization']['amount_administered_unit'];
                 $arr_immunization['immunization'][$a]['manufacturer'] = $newdata['immunization']['manufacturer'];
                 $arr_immunization['immunization'][$a]['completion_status'] = $newdata['immunization']['completion_status'];
+                // reason
+                $arr_immunization['immunization'][$a]['reason_code'] = $newdata['immunization']['reason_code'] ?? null;
+                $arr_immunization['immunization'][$a]['reason_description'] = $newdata['immunization']['reason_description'] ?? null;
+                $arr_immunization['immunization'][$a]['reason_status'] = $newdata['immunization']['reason_status'] ?? null;
 
                 $arr_immunization['immunization'][$a]['provider_npi'] = $newdata['immunization']['provider_npi'];
                 $arr_immunization['immunization'][$a]['provider_name'] = $newdata['immunization']['provider_name'];
@@ -498,6 +559,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_med_pblm['lists1'][$d]['status'] = $newdata['lists1']['status'];
                 $arr_med_pblm['lists1'][$d]['observation_text'] = $newdata['lists1']['observation_text'];
                 $arr_med_pblm['lists1'][$d]['observation_code'] = $newdata['lists1']['observation'];
+                $arr_med_pblm['lists1'][$d]['subtype'] = $newdata['lists1']['subtype'];
                 $d++;
             } elseif ($table == 'lists2' && !empty($newdata['lists2']['list_code'])) {
                 $arr_allergies['lists2'][$c]['extension'] = $newdata['lists2']['extension'];
@@ -516,6 +578,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_encounter['encounter'][$k]['extension'] = $newdata['encounter']['extension'];
                 $arr_encounter['encounter'][$k]['root'] = $newdata['encounter']['root'];
                 $arr_encounter['encounter'][$k]['date'] = $newdata['encounter']['date'];
+                $arr_encounter['encounter'][$k]['date_end'] = $newdata['encounter']['date_end'] ?? null;
 
                 $arr_encounter['encounter'][$k]['provider_npi'] = $newdata['encounter']['provider_npi'];
                 $arr_encounter['encounter'][$k]['provider_name'] = $newdata['encounter']['provider_name'];
@@ -553,6 +616,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_vitals['vitals'][$q]['respiration'] = $newdata['vital_sign']['respiration'] ?? null;
                 $arr_vitals['vitals'][$q]['weight'] = $newdata['vital_sign']['weight'] ?? null;
                 $arr_vitals['vitals'][$q]['BMI'] = $newdata['vital_sign']['BMI'] ?? null;
+                $arr_vitals['vitals'][$q]['vital_column'] = $newdata['vital_sign']['vital_column'] ?? '';
+                $arr_vitals['vitals'][$q]['reason_code'] = $newdata['vital_sign']['reason_code'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_code_text'] = $newdata['vital_sign']['reason_code_text'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_description'] = $newdata['vital_sign']['reason_description'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_date_low'] = $newdata['vital_sign']['reason_date_low'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_date_high'] = $newdata['vital_sign']['reason_date_high'] ?? null;
+                $arr_vitals['vitals'][$q]['reason_status'] = $newdata['vital_sign']['reason_status'] ?? null;
                 $q++;
             } elseif ($table == 'social_history') {
                 $tobacco_status = array(
@@ -643,9 +713,9 @@ class CarecoordinationTable extends AbstractTableGateway
             } elseif ($table == 'procedure') {
                 $arr_procedures['procedure'][$y]['extension'] = $newdata['procedure']['extension'];
                 $arr_procedures['procedure'][$y]['root'] = $newdata['procedure']['root'];
-                $arr_procedures['procedure'][$y]['codeSystemName'] = $newdata['procedure']['codeSystemName'];
-                $arr_procedures['procedure'][$y]['code'] = $newdata['procedure']['code'];
-                $arr_procedures['procedure'][$y]['code_text'] = $newdata['procedure']['code_text'];
+                $arr_procedures['procedure'][$y]['codeSystemName'] = $newdata['procedure']['codeSystemName'] ?? '';
+                $arr_procedures['procedure'][$y]['code'] = $newdata['procedure']['code'] ?? '';
+                $arr_procedures['procedure'][$y]['code_text'] = $newdata['procedure']['code_text'] ?? '';
                 $arr_procedures['procedure'][$y]['date'] = $newdata['procedure']['date'];
 
                 $arr_procedures['procedure'][$y]['status'] = $newdata['procedure']['status'];
@@ -665,10 +735,17 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_procedures['procedure'][$y]['represented_organization_state2'] = $newdata['procedure']['represented_organization_state2'];
                 $arr_procedures['procedure'][$y]['represented_organization_postalcode2'] = $newdata['procedure']['represented_organization_postalcode2'];
                 $arr_procedures['procedure'][$y]['represented_organization_country2'] = $newdata['procedure']['represented_organization_country2'];
+                // reason
+                $arr_procedures['procedure'][$y]['reason_code'] = $newdata['procedure']['reason_code'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_code_text'] = $newdata['procedure']['reason_code_text'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_description'] = $newdata['procedure']['reason_description'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_date_low'] = $newdata['procedure']['reason_date_low'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_date_high'] = $newdata['procedure']['reason_date_high'] ?? null;
+                $arr_procedures['procedure'][$y]['reason_status'] = $newdata['procedure']['reason_status'] ?? null;
                 $y++;
             } elseif ($table == 'care_plan') {
                 $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'];
-                $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'];
+                $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'] ?? null;
                 $arr_care_plan['care_plan'][$e]['root'] = $newdata['care_plan']['root'];
                 $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'];
                 $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];
@@ -681,6 +758,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_description'] = $newdata['care_plan']['reason_description'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_date_low'] = $newdata['care_plan']['reason_date_low'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_date_high'] = $newdata['care_plan']['reason_date_high'] ?? null;
+                $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
@@ -698,6 +776,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_observation_preformed['observation_preformed'][$h]['extension'] = $newdata['observation_preformed']['extension'];
                 $arr_observation_preformed['observation_preformed'][$h]['root'] = $newdata['observation_preformed']['root'];
                 $arr_observation_preformed['observation_preformed'][$h]['date'] = $newdata['observation_preformed']['date'];
+                $arr_observation_preformed['observation_preformed'][$h]['date_end'] = $newdata['observation_preformed']['date_end'];
 
                 $arr_observation_preformed['observation_preformed'][$h]['observation'] = $newdata['observation_preformed']['observation'];
                 $arr_observation_preformed['observation_preformed'][$h]['observation_type'] = $newdata['observation_preformed']['observation_type'];
@@ -714,6 +793,12 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_observation_preformed['observation_preformed'][$h]['reason_code'] = $newdata['observation_preformed']['reason_code'];
                 $arr_observation_preformed['observation_preformed'][$h]['reason_code_text'] = $newdata['observation_preformed']['reason_code_text'];
                 $h++;
+            } elseif ($table == 'payer') {
+                $arr_payer['payer'][$p]['code'] = $newdata['payer']['code'];
+                $arr_payer['payer'][$p]['status'] = $newdata['payer']['status'];
+                $arr_payer['payer'][$p]['low_date'] = $newdata['payer']['low_date'];
+                $arr_payer['payer'][$p]['high_date'] = $newdata['payer']['high_date'];
+                $p++;
             }
         }
 
@@ -730,6 +815,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertFunctionalCognitiveStatus(($arr_functional_cognitive_status['functional_cognitive_status'] ?? null), $pid, $this, 0);
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
+        $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master
@@ -769,6 +855,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function getOptionId($list_id, $title, $codes = null)
     {
         $appTable = new ApplicationTable();
+        $res_cur = null;
         if ($title) {
             $query = "SELECT option_id
                 FROM list_options
@@ -777,7 +864,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        if (!empty($codes)) {
+        if (!empty($codes && empty($res_cur))) {
             $query = "SELECT option_id
                   FROM list_options
                   WHERE list_id=? AND (codes=? || notes=?)";
@@ -791,6 +878,7 @@ class CarecoordinationTable extends AbstractTableGateway
     public function getListTitle(string $option_id = null, $list_id, $codes = '')
     {
         $appTable = new ApplicationTable();
+        $res_cur = null;
         if ($option_id) {
             $query = "SELECT title
                   FROM list_options
@@ -799,7 +887,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        if ($codes) {
+        if (!empty($codes) && empty($res_cur)) {
             $query = "SELECT title
                   FROM list_options
                   WHERE list_id=? AND (codes=? OR option_id=?) AND activity=?";
@@ -853,10 +941,11 @@ class CarecoordinationTable extends AbstractTableGateway
         return $lab_results;
     }
 
-    public function import($document_id): void
+    public function import($document_id)
     {
+        $this->resetData();
         $xml_content = $this->getDocument($document_id);
-        $this->importCore($xml_content);
+        $this->importCore($xml_content, $document_id);
         $audit_master_approval_status = 1;
         $documentationOf = $this->documentData['field_name_value_array']['documentationOf'][1]['assignedPerson'];
         $audit_master_id = CommonPlugin::insert_ccr_into_audit_data($this->documentData, $this->is_qrda_import);
@@ -1735,6 +1824,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
     /**
      * Method for review discard. Soft delete.
+     *
      * @param $data
      * @return void
      */
@@ -1749,8 +1839,10 @@ class CarecoordinationTable extends AbstractTableGateway
                       SET audit_master_approval_status='3'
                       WHERE audit_master_id=?", array($data['audit_master_id']));
     }
+
     /**
      * Method hard delete audit data.
+     *
      * @param $data
      * @return void
      */
@@ -1851,7 +1943,7 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getCCDAComponents($type)
     {
-        $components = array();
+        $components = array('schematron' => 'Errors');
         $query = "select * from ccda_components where ccda_type = ?";
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($type));
@@ -1905,6 +1997,16 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         return $res_cur['codes'] ?? '';
+    }
+
+    /**
+     * Initialize or reset our private member variables used for importing.
+     */
+    private function resetData()
+    {
+        $this->documentData = [];
+        $this->is_qrda_import = false;
+        $this->parseTemplates = new CdaTemplateParse();
     }
 }
 // Below was removed as couldn't find it used anywhere! Will keep for a minute or two...

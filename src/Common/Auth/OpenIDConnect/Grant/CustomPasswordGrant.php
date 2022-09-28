@@ -21,11 +21,24 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\System\System;
 use Psr\Http\Message\ServerRequestInterface;
 
 class CustomPasswordGrant extends PasswordGrant
 {
+    /**
+     * @var SystemLogger
+     */
+    private $logger;
+
+    public function __construct(UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
+    {
+        $this->logger = new SystemLogger();
+        parent::__construct($userRepository, $refreshTokenRepository);
+    }
+
     /**
      * @param ServerRequestInterface $request
      * @param ClientEntityInterface  $client
@@ -78,7 +91,7 @@ class CustomPasswordGrant extends PasswordGrant
                 $clientVars = ['id' => $client->getIdentifier(), 'name' => $client->getName(), 'redirectUri' => $client->getRedirectUri()];
             }
 
-            (new SystemLogger())->debug(
+            $this->logger->debug(
                 "CustomPasswordGrant->validateUser() Failed to find user for request",
                 ['userrole' => $userrole,'username' => $username, 'email' => $email, 'identifier' => $identifier
                 ,
@@ -92,5 +105,20 @@ class CustomPasswordGrant extends PasswordGrant
         $_SESSION['pass_user_email'] = $email;
 
         return $user;
+    }
+
+    protected function validateClient(ServerRequestInterface $request)
+    {
+        $client = parent::validateClient($request);
+        if (!($client instanceof ClientEntity)) {
+            $this->logger->errorLogCaller("client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
+            throw OAuthServerException::invalidClient($request);
+        }
+
+        if (!$client->isEnabled()) {
+            $this->logger->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
+            throw OAuthServerException::invalidClient($request);
+        }
+        return $client;
     }
 }

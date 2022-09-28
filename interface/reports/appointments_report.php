@@ -29,6 +29,7 @@ require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Acl\AclMain;
 
@@ -39,7 +40,8 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
-    die(xlt("Unauthorized access."));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
+    exit;
 }
 
 # Clear the pidList session whenever load this page.

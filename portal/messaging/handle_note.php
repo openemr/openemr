@@ -17,21 +17,54 @@ require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+    // ensure patient is bootstrapped (if sent)
+    if (!empty($_POST['pid'])) {
+        if ($_POST['pid'] != $_SESSION['pid']) {
+            echo "illegal Action";
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            exit;
+        }
+    }
     $ignoreAuth_onsite_portal = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    if (empty($_SESSION['portal_username'])) {
+        echo xlt("illegal Action");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
+    }
+    // owner is the patient portal_username
+    $owner = $_SESSION['portal_username'];
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    if (! isset($_SESSION['authUserID'])) {
+    if (!isset($_SESSION['authUserID']) || empty($_SESSION['authUser'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
     }
+    //owner is the user authUser
+    $owner = $_SESSION['authUser'];
 }
 
 require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
 require_once("$srcdir/pnotes.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+    echo xlt('Patient Portal is turned off');
+    exit;
+}
+// confirm csrf (from both portal and core)
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'messages-portal')) {
+    CsrfUtils::csrfNotVerified();
+}
+
+if (empty($owner)) {
+    echo xlt('Critical error, so exiting');
+    exit;
+}
 
 $task = $_POST['task'];
 if (! $task) {
@@ -41,7 +74,6 @@ if (! $task) {
 $noteid = ($_POST['noteid'] ?? null) ?: 0;
 $notejson = ($_POST['notejson'] ?? null) ? json_decode($_POST['notejson'], true) : 0;
 $reply_noteid = $_POST['replyid'] ?? null ?: 0;
-$owner = $_POST['owner'] ?? $_SESSION['pid'];
 $note = $_POST['inputBody'] ?? null;
 $title = $_POST['title'] ?? null;
 $sid = $_POST['sender_id'] ?? null;
@@ -54,7 +86,7 @@ switch ($task) {
     case "forward":
         $pid = isset($_POST['pid']) ? $_POST['pid'] : 0;
         addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
-        updatePortalMailMessageStatus($noteid, 'Sent');
+        updatePortalMailMessageStatus($noteid, 'Sent', $owner);
         if (empty($_POST["submit"])) {
             echo 'ok';
         }
@@ -76,14 +108,14 @@ switch ($task) {
         }
         break;
     case "delete":
-        updatePortalMailMessageStatus($noteid, 'Delete');
+        updatePortalMailMessageStatus($noteid, 'Delete', $owner);
         if (empty($_POST["submit"])) {
             echo 'ok';
         }
         break;
     case "massdelete":
         foreach ($notejson as $deleteid) {
-            updatePortalMailMessageStatus($deleteid, 'Delete');
+            updatePortalMailMessageStatus($deleteid, 'Delete', $owner);
             if (empty($_POST["submit"])) {
                 echo 'ok';
             }
@@ -91,7 +123,7 @@ switch ($task) {
         break;
     case "setread":
         if ($noteid > 0) {
-            updatePortalMailMessageStatus($noteid, 'Read');
+            updatePortalMailMessageStatus($noteid, 'Read', $owner);
             if (empty($_POST["submit"])) {
                 echo 'ok';
             }

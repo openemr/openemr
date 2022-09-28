@@ -282,11 +282,10 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
         });
 
 
-        $("div.mytopdiv").html("<form name='myform'><label for='form_new_window' id='form_new_window_label'><input type='checkbox' id='form_new_window' name='form_new_window' value='1'<?php
-        if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
-            echo ' checked';
-        }
-        ?> /><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
+        <?php
+        $checked = (!empty($GLOBALS['gbl_pt_list_new_window'])) ? 'checked' : '';
+        ?>
+        $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Window'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
 
         // This is to support column-specific search fields.
         // Borrowed from the multi_filter.html example.
@@ -369,21 +368,20 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 <body>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
          <div class="w-100">
-
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
                 <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
             <?php } ?>
-            <div class="jumbotron mt-3 p-4">
+            <div>
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
                     <!-- Class "display" is defined in demo_table.css -->
                     <div class="table-responsive">
-                        <table class="table" cellpadding="0" cellspacing="0" class="border-0 display" id="pt_table">
-                            <thead>
+                        <table class="table" class="border-0 display" id="pt_table">
+                            <thead class="thead-dark">
                                 <tr id="advanced_search" class="hideaway"  style="display: none;">
                                     <?php echo $header0; ?>
                                 </tr>
-                                <tr class="table-primary">
+                                <tr class="">
                                     <?php echo $header; ?>
                                 </tr>
                             </thead>

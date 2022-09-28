@@ -10,12 +10,40 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Services\Qrda\QrdaReportService;
+
 $status_title = array('0' => 'Pending', '1' => 'Completed', '2' => 'Secure Transfer', '3' => 'View');
 $status_details = array();
 foreach ($this->status_details as $row_status) {
     $status_details[$row_status['pid']][] = $row_status;
 }
 ?>
+<style>
+    .ap-st-st-13.search_date_type_container input {
+        width: 2vw;
+        height: 2.5vh;
+        border: none;
+        box-shadow: none;
+    }
+    .search_date_type_container {
+        display: flex;
+        line-height: 3vh;
+        text-align: center;
+    }
+    .d-none {
+        display: none;
+    }
+    .advanced-button-toggle {
+        cursor: pointer;
+    }
+    .advance-opt-icon {
+        height: 12px;
+        width: 24px;
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///9mZmaO7mygAAAAAXRSTlMAQObYZgAAABtJREFUCB1jwATyPxj4PzCwP2BgPsDA2MCACgBiNwRCJW+9iwAAAABJRU5ErkJggg==) right center no-repeat;
+        display: inline-block;
+    }
+</style>
 <script>
     $(function () {
         srcset = false;
@@ -27,6 +55,11 @@ foreach ($this->status_details as $row_status) {
         $(".search_button2").click(function (e) {
             $(".ap-st-st-12").css("left", Number(e.pageX) + "px");
             $(".ap-st-st-12").toggle();
+        });
+
+        $(".advanced-button-toggle").click(function (e) {
+            $(".advanced-button-toggle").toggleClass('d-none');
+            $(".advanced-tab").toggleClass('d-none');
         });
 
         $(document).mouseup(function (e) {
@@ -64,6 +97,7 @@ foreach ($this->status_details as $row_status) {
                         iFrame.src = dataSrc;
                 }
             }
+            $("#import_start").click();
             $('.main-tab-' + mainIndex).fadeIn();
         });
 
@@ -78,8 +112,9 @@ foreach ($this->status_details as $row_status) {
             if (iFrame) {
                 var src = iFrame.getAttribute('src');
                 var dataSrc = iFrame.getAttribute('data-src');
-                if (src == '')
+                if (src == '') {
                     iFrame.src = dataSrc;
+                }
             }
             $('.child-tab-' + mainIndex).fadeIn();
         });
@@ -107,7 +142,14 @@ foreach ($this->status_details as $row_status) {
         });
 
         $("#download_qrda").click(function () {
+            $('#downloadqrda3').val('');
             $('#downloadqrda').val('download_qrda');
+            $('#theform').submit();
+        });
+
+        $("#download_qrda3").click(function () {
+            $('#downloadqrda').val('');
+            $('#downloadqrda3').val('download_qrda3');
             $('#theform').submit();
         });
 
@@ -160,8 +202,15 @@ foreach ($this->status_details as $row_status) {
                                     <input readonly maxlength="10" style="cursor:pointer;width: 42%;" type="text" name="form_date_to" id="form_date_to" class="dateClass" />
                                     <script>
                                         $(function () {
-                                            $("#form_date_from").datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
-                                            $("#form_date_to").datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
+                                            <?php
+                                            $display_format = \Application\Model\ApplicationTable::datePickerFormat($GLOBALS['date_display_format']);
+                                            $from_format = $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                            $to_format = $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                            ?>
+                                            $( "#form_date_from" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
+                                            $( "#form_date_to" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
+                                            $("#form_date_from").datepicker("setDate", '<?php echo $from_format;?>');
+                                            $("#form_date_to").datepicker("setDate", '<?php echo $to_format;?>');
                                         });
                                     </script>
                                 </td>
@@ -174,11 +223,88 @@ foreach ($this->status_details as $row_status) {
                                 <td><label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label></td>
                                 <td><input maxlength="10" type="text" onkeypress="return isNumber(event)" name="form_encounter" value="<?php echo $this->escapeHtml($this->form_data['encounter']); ?>" /><br /></td>
                             </tr>
-                            <tr>
-                                <td></td>
-                                <td><input type="submit" onclick="clearCount();return validate_search();" value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" /></td>
-                            </tr>
                         </table> <!-- table -->
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div id="componentsForQRDASearch" style="height:300px !important;" class="ap-st-st-13">
+                                        <label for="search_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
+                                        <select size="12" id="search_measures" name="form_measures[]" style="width:100%;">
+                                            <option value=""><?php echo $this->listenerObject->z_xlt('Not QRDA Search'); ?></option>
+                                            <?php
+                                            foreach ($this->current_measures as $measure) {
+                                                $help = attr($measure['title']);
+                                                $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
+                                                $select = '';
+                                                if ($this->form_data['measures'][0] ?? null == $measure['measure_path']) {
+                                                    $select = 'selected';
+                                                }
+                                                echo '<option ' . $select . ' value="' . attr($measure['measure_path']) . '" title="' . $help . '">' . $title . '</option>';
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p class="advanced-button-toggle"><?php echo $this->listenerObject->z_xlt('Advanced'); ?><i class="advance-opt-icon"></i></p>
+                                    <p class="d-none advanced-button-toggle"><?php echo $this->listenerObject->z_xlt('Advanced'); ?><i class="advance-opt-icon"></i></p>
+                                </td>
+                            </tr>
+                            <tr class="d-none advanced-tab">
+                                <td>
+                                    <p><?php echo $this->listenerObject->z_xlt('Search By'); ?>:</p>
+                                    <div class="ap-st-st-13 search_date_type_container">
+                                        <label for="form_search_type_date_encounter">
+                                            <?php echo $this->listenerObject->z_xlt('Encounter Date'); ?>
+                                        </label>
+                                        <input type="radio" id="form_search_type_date_encounter" name="form_search_type_date" value="encounter" <?php echo ($this->form_data['search_type_date'] == "encounter" ? "checked": ""); ?> />
+                                        <label for="form_search_type_date_patient_creation">
+                                            <?php echo $this->listenerObject->z_xlt('Patient Creation Date'); ?>
+                                        </label>
+                                        <input type="radio" id="form_search_type_date_patient_creation" name="form_search_type_date" value="date_patient_creation" <?php echo ($this->form_data['search_type_date'] == "date_patient_creation" ? "checked": ""); ?> />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="d-none advanced-tab">
+                                <td>
+                                    <label id="form_encounter_provider"><?php echo $this->listenerObject->z_xlt('Provider (Encounter Relationship)'); ?>:</label>
+                                    <select id="form_encounter_provider" name="form_provider_id">
+                                        <option value="">--<?php echo xlt("All providers"); ?>--</option>
+                                        <?php foreach ($this->providers as $provider) : ?>
+                                        <option value="<?php echo attr($provider['id']); ?>"
+                                        <?php echo text(($this->form_data['provider_id'] == $provider['id'] ? "selected" : "")); ?>
+                                        ><?php
+                                            echo text(implode(",", [$provider['lname'] ?? "", $provider['fname'] ?? ""]));
+                                        ?> (<?php echo xlt("NPI"); ?>: <?php echo text($provider['npi'] ?? ""); ?>)
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="d-none advanced-tab">
+                                <td>
+                                    <label id="form_billing_facility"><?php echo $this->listenerObject->z_xlt('Billing Facility (Encounter Relationship)'); ?>:</label>
+                                    <select id="form_encounter_provider" name="form_billing_facility_id">
+                                        <option value="">--<?php echo xlt("All Facilities"); ?>--</option>
+                                        <?php foreach ($this->billing_facilities as $facility) : ?>
+                                            <option value="<?php echo attr($facility['id']); ?>"
+                                                <?php echo ($this->form_data['billing_facility_id'] == $facility['id'] ? "selected" : ""); ?>
+                                            ><?php echo text($facility['name'] ?? ""); ?> (<?php echo xlt("TIN"); ?>: <?php echo text($facility['federal_ein'] ?? ""); ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button type="submit" onclick="clearCount();return validate_search();" value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter"><?php echo $this->listenerObject->z_xlt('Search'); ?></button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div><!-- se in 15 -->
 
                     <div class="body_inner_wrapper">
@@ -189,6 +315,8 @@ foreach ($this->status_details as $row_status) {
                                 <input type="hidden" name="downloadccda" id="downloadccda" value="">
                                 <div id="download_qrda" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadqrda" id="downloadqrda" value="">
+                                <div id="download_qrda3" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
+                                <input type="hidden" name="downloadqrda3" id="downloadqrda3" value="">
                                 <input type="hidden" name="components" id="components" value="">
                                 <div style="display:none;" id="download_ccr"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadccr" id="downloadccr" value="">
@@ -281,24 +409,36 @@ foreach ($this->status_details as $row_status) {
                                     <th><label><?php echo $this->listenerObject->z_xlt('Total Transfers'); ?></label></th>
                                     <th><label><?php echo $this->listenerObject->z_xlt('Successful Transfers'); ?></label></th>
                                     <th><label><?php echo $this->listenerObject->z_xlt('Last Visit'); ?></label></th>
+                                    <th><label><?php echo $this->listenerObject->z_xlt("Creation Date"); ?></label></th>
                                     <th width="3%"><input type="checkbox" value="1" name="form_select_all" id="form_select_all" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?> /></th>
                                     <th width="4%"><label><?php echo $this->listenerObject->z_xlt('Views'); ?></label></th>
                                 </tr>
                                 <?php
                                 $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
+
                                 foreach ($this->details as $row) {
+                                    $qualified = true;
+                                    if (is_array($this->form_data['measures']) && !empty($this->form_data['measures'][0])) {
+                                        if (empty($reportService ?? null)) {
+                                            $reportService = new QrdaReportService();
+                                        }
+                                        $qualified = $reportService->qualifyPatientMeasure($row['pid'], $this->form_data['measures']);
+                                    }
                                     $slno++; ?>
                                     <tr>
                                         <td id="expand_details_<?php echo $this->escapeHtml($row['pid']); ?>" class="expand_details se_in_23" style="cursor: pointer;"></td>
                                         <td><label><?php echo $slno; ?>)</label></td>
                                         <td><label><?php echo $this->escapeHtml($row['pid']); ?></label></td>
-                                        <td><label><?php echo $this->escapeHtml($row['fname']) . " " . $this->escapeHtml($row['mname']) . " " . $this->escapeHtml($row['lname']); ?></label></td>
+                                        <td><label style="<?php echo !$qualified ? 'color: red;' : '' ?>"><?php echo $this->escapeHtml($row['fname']) . " " . $this->escapeHtml($row['mname']) . " " . $this->escapeHtml($row['lname']); ?></label></td>
                                         <td><label><?php echo $this->escapeHtml($row['enc_count']); ?></label></td>
                                         <td><label><?php echo $this->escapeHtml($row['ccda_transfer_count']); ?></label></td>
                                         <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']); ?></label></td>
                                         <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
+                                        <td><label><?php echo $this->commonplugin->date_format($row['patient_creation_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
                                         <td nowrap>
-                                            <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?>>
+                                            <?php if ($qualified) { ?>
+                                                <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?>>
+                                            <?php } ?>
                                         </td>
                                         <td style="padding: 5px;">
                                             <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=ccda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
@@ -331,11 +471,12 @@ foreach ($this->status_details as $row_status) {
                                                         <tr>
                                                             <td><?php echo $slno_sub; ?>)</td>
                                                             <td><?php echo $this->escapeHtml($row_status['encounter']); ?></td>
-                                                            <td><?php echo $this->commonplugin->date_format($row_status['dos'],
-                                                                    $GLOBALS['date_display_format'],
-                                                                    'yyyy-mm-dd'); ?></td>
-                                                            <td><?php echo $this->commonplugin->date_format(date('Y-m-d H:i:s',
-                                                                    $row_status['time']),
+                                                            <td><?php echo $this->commonplugin->date_format(
+                                                                    $row_status['dos'],
+                                                                    $GLOBALS['date_display_format'], 'yyyy-mm-dd'
+                                                                ); ?></td>
+                                                            <td><?php echo $this->commonplugin->date_format(
+                                                                    date('Y-m-d H:i:s', $row_status['time']),
                                                                     $GLOBALS['date_display_format'],
                                                                     'yyyy-mm-dd'); ?></td>
                                                             <td><?php echo($row_status['user_id'] == 'Scheduler' ? $this->listenerObject->z_xlt('Auto Transfer') : $this->escapeHtml($row_status['user_name'])); ?></td>
@@ -396,7 +537,7 @@ foreach ($this->status_details as $row_status) {
         <ul class="child-tab-head-import">
             <li class='child_active'><?php echo $this->listenerObject->z_xlt('CCD'); ?></li>
             <li><?php echo $this->listenerObject->z_xlt('CCR'); ?></li>
-            <li><?php echo $this->listenerObject->z_xlt('CCDA or QRDA Cat I'); ?></li>
+            <li id="import_start"><?php echo $this->listenerObject->z_xlt('CCDA or QRDA Cat I'); ?></li>
         </ul>
         <div class="clear"></div>
         <!--CCD Tab-->

@@ -12,8 +12,17 @@
 
 require_once("../interface/globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+
+if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+    echo xlt('Patient Portal is turned off');
+    exit;
+}
+
+$authUploadTemplates = AclMain::aclCheckCore('admin', 'forms');
 
 $templateService = new DocumentTemplateService();
 
@@ -102,6 +111,12 @@ if (($_POST['mode'] ?? null) === 'send') {
 }
 
 if (($_POST['mode'] ?? null) === 'save') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-save')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        die(xlt('Not authorized to edit template'));
+    }
     if ($_POST['docid']) {
         if (stripos($_POST['content'], "<?php") === false) {
             $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
@@ -115,6 +130,12 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Invalid File'));
     }
 } elseif (($_POST['mode'] ?? null) === 'delete') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-delete')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        die(xlt('Not authorized to delete template'));
+    }
     if ($_POST['docid']) {
         $template = $templateService->deleteTemplate($_POST['docid'], ($_POST['template'] ?? null));
         exit($template);
@@ -127,14 +148,21 @@ if (($_POST['mode'] ?? null) === 'save') {
         exit;
     }
     die(xlt('Invalid Request Parameters'));
-} elseif (!empty($_FILES["template_files"])) {
+} elseif (!empty($_FILES["template_files"]) && !isset($_POST['blank-nav-button'])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        xlt("Not Authorized to Upload Templates");
+        exit;
+    }
     // so it is a template file import. create record(s).
     $import_files = $_FILES["template_files"];
     $total = count($_FILES['template_files']['name']);
     for ($i = 0; $i < $total; $i++) {
         if ($_FILES['template_files']['error'][$i] !== UPLOAD_ERR_OK) {
             header('refresh:3;url= import_template_ui.php');
-            echo '<title>' . xlt('Error') . " ...</title><h4 style='color:red;'>" .
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
                 xlt('An error occurred: Missing file to upload. Returning to form.') . '</h4>';
             exit;
         }
@@ -149,9 +177,51 @@ if (($_POST['mode'] ?? null) === 'save') {
             $patient = ['-1'];
         }
         // get em and dispose
-        $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient);
-        if (!$success) {
-            echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
+        try {
+            $success = $templateService->uploadTemplate($name, $_POST['template_category'], $_FILES['template_files']['tmp_name'][$i], $patient, isset($_POST['upload_submit_questionnaire']));
+            if (!$success) {
+                echo "<p>" . xlt("Unable to save files. Use back button!") . "</p>";
+                exit;
+            }
+        } catch (Exception $e) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                text($e->getMessage()) . '</h4>';
+            exit;
+        }
+    }
+    header("location: " . $_SERVER['HTTP_REFERER']);
+    die();
+}
+
+if (isset($_POST['blank-nav-button'])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        xlt("Not Authorized to Upload Templates");
+        exit;
+    }
+    // so it is a template file import. create record(s).
+    $is_blank = isset($_POST['blank-nav-button']);
+    $upload_name = $_POST['upload_name'] ?? '';
+    $category = $_POST['template_category'] ?? '';
+    $patient = '-1';
+    if (!empty($upload_name)) {
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", $upload_name);
+        $name = ucwords(strtolower($name));
+        try {
+            $content = "{ParseAsHTML}";
+            $success = $templateService->insertTemplate($patient, $category, $upload_name, $content, 'application/text');
+            if (!$success) {
+                header('refresh:3;url= import_template_ui.php');
+                echo "<h4 style='color:red;'>" . xlt("New template save failed. Try again.") . "</h4>";
+                exit;
+            }
+        } catch (Exception $e) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                text($e->getMessage()) . '</h4>';
             exit;
         }
     }
@@ -183,8 +253,10 @@ if ($_REQUEST['mode'] === 'editor_render_html') {
  */
 function renderEditorHtml($template_id, $content)
 {
+    global $authUploadTemplates;
+
     $lists = [
-        '{ParseAsHTML}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
+        '{ParseAsHTML}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
     ];
     ?>
     <!DOCTYPE html>
@@ -213,13 +285,18 @@ function renderEditorHtml($template_id, $content)
             <div class="row">
                 <div class="col-10 px-1 sticky-top">
                     <form class="sticky-top" action='./import_template.php' method='post'>
+                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-save')); ?>" />
                         <input type="hidden" name="docid" value="<?php echo attr($template_id) ?>">
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>
                         <textarea cols='80' rows='10' id='templateContent' name='content'><?php echo text($content) ?></textarea>
                         <div class="row btn-group mt-1 float-right">
                             <div class='col btn-group mt-1 float-right'>
-                                <button type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
+                                <?php if ($authUploadTemplates) { ?>
+                                    <button type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
+                                <?php } else { ?>
+                                    <button disabled title="<?php echo xla("Not Authorized to Edit Templates") ?>" type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
+                                <?php } ?>
                                 <button type='button' class='btn btn-sm btn-secondary' onclick='parent.window.close() || parent.dlgclose()'><?php echo xlt('Cancel'); ?></button>
                             </div>
                         </div>
@@ -465,7 +542,7 @@ function renderProfileHtml()
                                 <div class='input-group-prepend d-none'>
                                     <label for="<?php echo $profile_esc ?>-when"><?php echo xlt('On') ?></label>
                                     <select name="when" class='input-control-sm mx-1' id="<?php echo $profile_esc ?>-when">
-                                        <!--<option value=""><?php /*echo xlt('Unassigned') */?></option>-->
+                                        <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
                                         <option <?php echo $trigger === 'completed' ? 'selected' : ''; ?> value="completed"><?php echo xlt('Completed') ?></option>
                                         <option <?php echo $trigger === 'always' ? 'selected' : ''; ?> value='always'><?php echo xlt('Always') ?></option>
                                         <option <?php echo $trigger === 'once' ? 'selected' : ''; ?> value='once'><?php echo xlt('One time') ?></option>

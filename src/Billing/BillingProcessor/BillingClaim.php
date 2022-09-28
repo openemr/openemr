@@ -223,6 +223,7 @@ class BillingClaim implements \JsonSerializable
         $this->is_last = $is_last;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $vars = get_object_vars($this);

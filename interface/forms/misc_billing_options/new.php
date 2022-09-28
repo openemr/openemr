@@ -56,14 +56,14 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 //only one misc billing form per encounter so grab if exists
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
 if (empty($formid)) {
     $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                           INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
                           `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
                           `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($encounter));
     if (!empty($mboquery['id'])) {
-        $formid = 0 + $mboquery['id'];
+        $formid = (int) $mboquery['id'];
     }
 }
 $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
@@ -266,12 +266,26 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('X12 only: Replacement Claim'); ?>:</label>
-                                <input type="checkbox" name="replacement_claim" id="replacement_claim" value="1"
+                                <input type="radio" class="btn-check" name="replacement_claim" id="replacement_claim" autocomplete="Off" value="1"
                                     <?php
                                     if (!empty($obj['replacement_claim']) && ($obj['replacement_claim'] == "1")) {
                                         echo "checked";
                                     } ?> />
+                                <label class="btn btn-secondary" for="replacement_claim"><?php echo xlt('X12 only: Replacement Claim'); ?>:</label>
+    
+                                <input type="radio" class="btn-check" name="replacement_claim" id="void_claim" autocomplete="Off" value="2"
+                                    <?php
+                                    if (!empty($obj['replacement_claim']) && ($obj['replacement_claim'] == "2")) {
+                                        echo "checked";
+                                    } ?> />    
+                                <label class="btn btn-secondary" for="void_claim"><?php echo xlt('Void Claim'); ?>:</label>    
+
+                                <input type="radio" class="btn-check" name="replacement_claim" id="new_claim" autocomplete="Off" value="0"
+                                    <?php
+                                    if (empty($obj['replacement_claim'])) {
+                                        echo "checked";
+                                    } ?> />    
+                                <label class="btn btn-secondary" for="new_claim"><?php echo xlt('New Claim'); ?>:</label>    
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('X12 only ICN resubmission No.'); ?>:</label>

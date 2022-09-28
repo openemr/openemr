@@ -38,6 +38,16 @@
   Revision History: 2017-03-31 Eric Parapini - Whitespace issues fixing
   Revision History: 2017-04-05 Eric Parapini - Whitespace tweaking in the header, added patient ID highlighting
   Revision History: 2017-04-06 Eric Parapini - Tweaked encounter whitespace organization
+  Revision History: 2022-06-09 Stephen Nielson - Added better support for assignedAuthor.softwareName
+                                                 Added back the timezone component display
+                                                 Added the oid display for patient ids
+                                                 Added a single section display component and a hide all/show all feature
+  Revision History: 2022-06-23 Stephen Nielson - Made patient display name be the Legal name if available
+                                                 Added display of additional patient names in header
+                                                 Added display of sdtcRace and sdtcEthnicity values
+                                                 Added multiple address display, multiple telecom display
+                                                 Added support for Mobile Contact telecom
+                                                 Added service event performer function and display name
 
   This style sheet is based on a major revision of the original CDA XSL, which was made possible thanks to the contributions of:
   - Jingdong Li
@@ -60,7 +70,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
---><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+--><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sdtc="urn:hl7-org:sdtc" version="1.0">
   <!-- This is where all the styles are loaded -->
   
   
@@ -120,6 +130,8 @@ limitations under the License.
         <xsl:call-template name="bootstrap-javascript"/>
         <xsl:call-template name="lantana-js"/>
         <xsl:call-template name="lantana-css"/>
+        <xsl:call-template name="openemr-css"/>
+        <xsl:call-template name="openemr-js"/>
       </head>
       <body data-spy="scroll" data-target="#navbar-cda">
 
@@ -147,6 +159,7 @@ limitations under the License.
             <xsl:call-template name="documentationOf"/>
             <xsl:call-template name="author"/>
             <xsl:call-template name="componentOf"/>
+            <xsl:call-template name="referrer-fall-back"></xsl:call-template>
             <xsl:call-template name="participant"/>
             <xsl:call-template name="informant"/>
             <xsl:call-template name="informationRecipient"/>
@@ -156,6 +169,14 @@ limitations under the License.
 
           <!-- produce human readable document content -->
           <div class="middle" id="doc-clinical-info">
+            <xsl:if test="n1:component/n1:structuredBody">
+              <div class="cda-section-empty container-fluid header cda-section hidden">
+                <h1 class="section-title">No Clinical Sections</h1>
+                <div class="section-text">
+                  <p>No clinical sections were selected to be included in this document.</p>
+                </div>
+              </div>
+            </xsl:if>
             <xsl:apply-templates select="n1:component/n1:structuredBody | n1:component/n1:nonXMLBody"/>
           </div>
           <!-- Footer -->
@@ -190,9 +211,21 @@ limitations under the License.
         </xsl:if>
         <div class="cda-render toc-header">
           <xsl:for-each select="/n1:ClinicalDocument/n1:recordTarget/n1:patientRole">
-            <xsl:call-template name="show-name">
-              <xsl:with-param name="name" select="n1:patient/n1:name"/>
-            </xsl:call-template>
+            <xsl:choose>
+              <xsl:when test="n1:patient/n1:name[@use] ='L'">
+                <xsl:call-template name="show-name">
+                  <xsl:with-param name="name" select="n1:patient/n1:name[@use='L']"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:call-template name="show-name">
+                  <xsl:with-param name="name" select="n1:patient/n1:name"/>
+                </xsl:call-template>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:if test="n1:patient/n1:name[@use='L']">
+            </xsl:if>
+
           </xsl:for-each>
         </div>
         <div class="cda-render toc-header">
@@ -210,11 +243,19 @@ limitations under the License.
           <a class="cda-render lantana-toc" href="#author-performer">AUTHORING DETAILS</a>
         </li>
         <li>
-          <a class="cda-render lantana-toc bold" href="#doc-clinical-info">Clinical Sections</a>
+          <a class="cda-render lantana-toc bold" href="#doc-clinical-info">
+            <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
+            <svg class="toc-icon toc-icon-container toc-icon-show hidden" xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 640 512"><path d="M150.7 92.77C195 58.27 251.8 32 320 32C400.8 32 465.5 68.84 512.6 112.6C559.4 156 590.7 207.1 605.5 243.7C608.8 251.6 608.8 260.4 605.5 268.3C592.1 300.6 565.2 346.1 525.6 386.7L630.8 469.1C641.2 477.3 643.1 492.4 634.9 502.8C626.7 513.2 611.6 515.1 601.2 506.9L9.196 42.89C-1.236 34.71-3.065 19.63 5.112 9.196C13.29-1.236 28.37-3.065 38.81 5.112L150.7 92.77zM223.1 149.5L313.4 220.3C317.6 211.8 320 202.2 320 191.1C320 180.5 316.1 169.7 311.6 160.4C314.4 160.1 317.2 159.1 320 159.1C373 159.1 416 202.1 416 255.1C416 269.7 413.1 282.7 407.1 294.5L446.6 324.7C457.7 304.3 464 280.9 464 255.1C464 176.5 399.5 111.1 320 111.1C282.7 111.1 248.6 126.2 223.1 149.5zM320 480C239.2 480 174.5 443.2 127.4 399.4C80.62 355.1 49.34 304 34.46 268.3C31.18 260.4 31.18 251.6 34.46 243.7C44 220.8 60.29 191.2 83.09 161.5L177.4 235.8C176.5 242.4 176 249.1 176 255.1C176 335.5 240.5 400 320 400C338.7 400 356.6 396.4 373 389.9L446.2 447.5C409.9 467.1 367.8 480 320 480H320z"/></svg>
+            <svg class="toc-icon toc-icon-container toc-icon-hide" xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 576 512"><path d="M279.6 160.4C282.4 160.1 285.2 160 288 160C341 160 384 202.1 384 256C384 309 341 352 288 352C234.1 352 192 309 192 256C192 253.2 192.1 250.4 192.4 247.6C201.7 252.1 212.5 256 224 256C259.3 256 288 227.3 288 192C288 180.5 284.1 169.7 279.6 160.4zM480.6 112.6C527.4 156 558.7 207.1 573.5 243.7C576.8 251.6 576.8 260.4 573.5 268.3C558.7 304 527.4 355.1 480.6 399.4C433.5 443.2 368.8 480 288 480C207.2 480 142.5 443.2 95.42 399.4C48.62 355.1 17.34 304 2.461 268.3C-.8205 260.4-.8205 251.6 2.461 243.7C17.34 207.1 48.62 156 95.42 112.6C142.5 68.84 207.2 32 288 32C368.8 32 433.5 68.84 480.6 112.6V112.6zM288 112C208.5 112 144 176.5 144 256C144 335.5 208.5 400 288 400C367.5 400 432 335.5 432 256C432 176.5 367.5 112 288 112z"/></svg>
+            Clinical Sections
+          </a>
           <ul class="cda-render nav nav-stacked fixed" id="navbar-list-cda-sortable">
             <xsl:for-each select="n1:component/n1:structuredBody/n1:component/n1:section/n1:title">
               <li>
-                <a class="cda-render lantana-toc" href="#{generate-id(.)}">
+                <a class="cda-render lantana-toc openemr-toggle-section cda-clinical-section" href="#{generate-id(.)}">
+                  <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
+                  <svg class="openemr-toggle-display-mode toc-icon toc-icon-section toc-icon-show hidden" xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 640 512"><path d="M150.7 92.77C195 58.27 251.8 32 320 32C400.8 32 465.5 68.84 512.6 112.6C559.4 156 590.7 207.1 605.5 243.7C608.8 251.6 608.8 260.4 605.5 268.3C592.1 300.6 565.2 346.1 525.6 386.7L630.8 469.1C641.2 477.3 643.1 492.4 634.9 502.8C626.7 513.2 611.6 515.1 601.2 506.9L9.196 42.89C-1.236 34.71-3.065 19.63 5.112 9.196C13.29-1.236 28.37-3.065 38.81 5.112L150.7 92.77zM223.1 149.5L313.4 220.3C317.6 211.8 320 202.2 320 191.1C320 180.5 316.1 169.7 311.6 160.4C314.4 160.1 317.2 159.1 320 159.1C373 159.1 416 202.1 416 255.1C416 269.7 413.1 282.7 407.1 294.5L446.6 324.7C457.7 304.3 464 280.9 464 255.1C464 176.5 399.5 111.1 320 111.1C282.7 111.1 248.6 126.2 223.1 149.5zM320 480C239.2 480 174.5 443.2 127.4 399.4C80.62 355.1 49.34 304 34.46 268.3C31.18 260.4 31.18 251.6 34.46 243.7C44 220.8 60.29 191.2 83.09 161.5L177.4 235.8C176.5 242.4 176 249.1 176 255.1C176 335.5 240.5 400 320 400C338.7 400 356.6 396.4 373 389.9L446.2 447.5C409.9 467.1 367.8 480 320 480H320z"/></svg>
+                  <svg class="openemr-toggle-display-mode toc-icon toc-icon-section toc-icon-hide" xmlns="http://www.w3.org/2000/svg" focusable="false" viewBox="0 0 576 512"><path d="M279.6 160.4C282.4 160.1 285.2 160 288 160C341 160 384 202.1 384 256C384 309 341 352 288 352C234.1 352 192 309 192 256C192 253.2 192.1 250.4 192.4 247.6C201.7 252.1 212.5 256 224 256C259.3 256 288 227.3 288 192C288 180.5 284.1 169.7 279.6 160.4zM480.6 112.6C527.4 156 558.7 207.1 573.5 243.7C576.8 251.6 576.8 260.4 573.5 268.3C558.7 304 527.4 355.1 480.6 399.4C433.5 443.2 368.8 480 288 480C207.2 480 142.5 443.2 95.42 399.4C48.62 355.1 17.34 304 2.461 268.3C-.8205 260.4-.8205 251.6 2.461 243.7C17.34 207.1 48.62 156 95.42 112.6C142.5 68.84 207.2 32 288 32C368.8 32 433.5 68.84 480.6 112.6V112.6zM288 112C208.5 112 144 176.5 144 256C144 335.5 208.5 400 288 400C367.5 400 432 335.5 432 256C432 176.5 367.5 112 288 112z"/></svg>
                   <xsl:value-of select="."/>
                 </a>
               </li>
@@ -222,7 +263,7 @@ limitations under the License.
           </ul>
         </li>
         <li>
-          <a class="cda-render lantana-toc" href="#doc-info">SIGNATURES</a>
+          <a class="cda-render lantana-toc openemr-toggle-section" href="#doc-info">SIGNATURES</a>
         </li>
       </ul>
     </nav>
@@ -315,9 +356,32 @@ limitations under the License.
                     </xsl:if>
                   </xsl:when>
                   <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName">
-                    <xsl:call-template name="show-code">
-                      <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
-                    </xsl:call-template>
+                    <xsl:choose>
+                      <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName/n1:originalText">
+                        <xsl:call-template name="show-code">
+                          <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                        </xsl:call-template>
+                      </xsl:when>
+                      <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName/@code">
+                        <xsl:call-template name="show-code">
+                          <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                        </xsl:call-template>
+                      </xsl:when>
+                      <xsl:when test="n1:assignedAuthoringDevice/n1:softwareName/@displayName">
+                        <xsl:call-template name="show-code">
+                          <xsl:with-param name="code" select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                        </xsl:call-template>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <div class="row">
+                          <div class="attribute-title col-md-6">Software Name</div>
+                          <div class="col-md-6">
+                            <xsl:value-of select="n1:assignedAuthoringDevice/n1:softwareName"/>
+                          </div>
+                        </div>
+                      </xsl:otherwise>
+                    </xsl:choose>
+
 
                   </xsl:when>
                   <xsl:when test="n1:representedOrganization">
@@ -458,7 +522,7 @@ limitations under the License.
     <xsl:if test="n1:componentOf">
       <div class="header container-fluid">
         <xsl:for-each select="n1:componentOf/n1:encompassingEncounter">
-          <div class="container-fluid col-md-8">
+          <div class="container-fluid col-md-12">
             <div class="container-fluid">
               <h2 class="section-title col-md-10">
                 <xsl:text>Encounter</xsl:text>
@@ -713,6 +777,10 @@ limitations under the License.
               <div class="container-fluid">
                 <h2 class="section-title col-md-6" id="service-event">
                   <xsl:text>Service Event</xsl:text>
+                  <xsl:if test="$displayName">
+                    <xsl:text> - </xsl:text>
+                    <xsl:value-of select="$displayName" />
+                  </xsl:if>
                 </h2>
                 <div class="header-group-content col-md-8">
                   <xsl:call-template name="show-assignedEntity">
@@ -869,73 +937,155 @@ limitations under the License.
       </xsl:if>
     </div>
   </xsl:template>
+  <!-- show-assigned-entity-contact -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-assigned-entity-contact">
+    <xsl:param name="asgnEntity"></xsl:param>
+    <xsl:param name="label"></xsl:param>
+    <div class="container-fluid">
+      <div class="header container-fluid">
+        <div class="col-md-6">
+          <h2 class="section-title col-md-12">
+            <xsl:value-of select="$label"></xsl:value-of>
+          </h2>
+          <div class="header-group-content col-md-8">
+            <xsl:if test="$asgnEntity">
+              <xsl:call-template name="show-assignedEntity">
+                <xsl:with-param name="asgnEntity" select="$asgnEntity"/>
+              </xsl:call-template>
+            </xsl:if>
+          </div>
+        </div>
+        <xsl:if test="$asgnEntity/n1:addr | $asgnEntity/n1:telecom">
+          <div class="col-md-6">
+            <h2 class="section-title col-md-6">
+              <xsl:text>Contact</xsl:text>
+            </h2>
+            <div class="header-group-content col-md-8">
+              <xsl:if test="$asgnEntity">
+                <xsl:call-template name="show-contactInfo">
+                  <xsl:with-param name="contact" select="$asgnEntity"/>
+                </xsl:call-template>
+              </xsl:if>
+            </div>
+          </div>
+        </xsl:if>
+      </div>
+    </div>
+  </xsl:template>
+  <!-- referrer-fall-back -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="referrer-fall-back">
+    <!-- Here is where we would check to see if we have a participant with /REF or REFB -->
+    <xsl:if test="not(/n1:ClinicalDocument/n1:participant[@typeCode='REFB']) and not(/n1:ClinicalDocument/n1:participant[@typeCode='REF'])">
+      <xsl:choose>
+        <xsl:when test="/n1:ClinicalDocument/n1:componentOf/n1:encompassingEncounter/n1:encounterParticipant[@typeCode='ATND']">
+          <xsl:call-template name="show-assigned-entity-contact">
+            <xsl:with-param name="label" select="'Referring / Transitioning Provider'" />
+            <xsl:with-param name="asgnEntity" select="/n1:ClinicalDocument/n1:componentOf/n1:encompassingEncounter/n1:encounterParticipant[@typeCode='ATND']/n1:assignedEntity" />
+          </xsl:call-template>
+        </xsl:when>
+        <!-- Primary Care Provider (PP) and Primary Care Physician (PCP) will be our referrer fall back if we have nothing else -->
+        <xsl:when test="/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer/n1:functionCode[@code='PP']|/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer/n1:functionCode[@code='PCP']">
+          <xsl:for-each select="/n1:ClinicalDocument/n1:documentationOf/n1:serviceEvent/n1:performer">
+            <xsl:if test="n1:functionCode[@code = 'PP'] | n1:functionCode[@code = 'PCP']">
+              <xsl:call-template name="show-assigned-entity-contact">
+                <xsl:with-param name="label" select="'Referring / Transitioning Provider'" />
+                <xsl:with-param name="asgnEntity" select="n1:assignedEntity" />
+              </xsl:call-template>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:if>
+    <!-- IF we don't we fall back to the care team member PCP -->
+  </xsl:template>
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="participant-with-title">
+    <xsl:param name="participantRole"></xsl:param>
+    <div class="col-md-6">
+      <h2 class="col-md-6 section-title">
+        <xsl:choose>
+          <xsl:when test="$participantRole">
+            <xsl:call-template name="firstCharCaseUp">
+              <xsl:with-param name="data" select="$participantRole"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Participant</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </h2>
+      <div class="header-group-content col-md-8">
+        <xsl:if test="n1:functionCode">
+          <xsl:call-template name="show-code">
+            <xsl:with-param name="code" select="n1:functionCode"/>
+          </xsl:call-template>
+        </xsl:if>
+        <xsl:call-template name="show-associatedEntity">
+          <xsl:with-param name="assoEntity" select="n1:associatedEntity"/>
+        </xsl:call-template>
+        <xsl:if test="n1:time">
+          <xsl:if test="n1:time/n1:low">
+            <xsl:text> from </xsl:text>
+            <xsl:call-template name="show-time">
+              <xsl:with-param name="datetime" select="n1:time/n1:low"/>
+            </xsl:call-template>
+          </xsl:if>
+          <xsl:if test="n1:time/n1:high">
+            <xsl:text> to </xsl:text>
+            <xsl:call-template name="show-time">
+              <xsl:with-param name="datetime" select="n1:time/n1:high"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:if>
+        <xsl:if test="position() != last()">
+          <br/>
+        </xsl:if>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <xsl:if test="n1:associatedEntity/n1:addr | n1:associatedEntity/n1:telecom">
+        <h2 class="section-title col-md-6">
+          <xsl:text>Contact</xsl:text>
+        </h2>
+        <div class="col-md-6 header-group-content">
+          <xsl:call-template name="show-contactInfo">
+            <xsl:with-param name="contact" select="n1:associatedEntity"/>
+          </xsl:call-template>
+        </div>
+      </xsl:if>
+    </div>
+  </xsl:template>
   <!-- participant -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="participant">
     <div class="container-fluid">
       <xsl:if test="n1:participant">
         <div class="header container-fluid">
           <xsl:for-each select="n1:participant">
-            <xsl:if test="not(n1:associatedEntity/@classCode = 'ECON' or n1:associatedEntity/@classCode = 'NOK')">
-              <xsl:variable name="participtRole">
-                <xsl:call-template name="translateRoleAssoCode">
-                  <xsl:with-param name="classCode" select="n1:associatedEntity/@classCode"/>
-                  <xsl:with-param name="code" select="n1:associatedEntity/n1:code"/>
+            <xsl:choose>
+              <xsl:when test="@typeCode='CALLBCK'">
+                <xsl:call-template name="participant-with-title">
+                  <xsl:with-param name="participantRole" select="'Office Contact'" />
                 </xsl:call-template>
-              </xsl:variable>
-              <div class="col-md-6">
-                <h2 class="col-md-6 section-title">
-                  <xsl:choose>
-                    <xsl:when test="$participtRole">
-                      <xsl:call-template name="firstCharCaseUp">
-                        <xsl:with-param name="data" select="$participtRole"/>
-                      </xsl:call-template>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:text>Participant</xsl:text>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </h2>
-                <div class="header-group-content col-md-8">
-                  <xsl:if test="n1:functionCode">
-                    <xsl:call-template name="show-code">
-                      <xsl:with-param name="code" select="n1:functionCode"/>
+              </xsl:when>
+              <xsl:when test="@typeCode='REFB'">
+                <xsl:call-template name="participant-with-title">
+                  <xsl:with-param name="participantRole" select="'Referring / Transitioning Provider'" />
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:if test="not(n1:associatedEntity/@classCode = 'ECON' or n1:associatedEntity/@classCode = 'NOK')">
+                  <xsl:variable name="participtRole">
+                    <xsl:call-template name="translateRoleAssoCode">
+                      <xsl:with-param name="classCode" select="n1:associatedEntity/@classCode"/>
+                      <xsl:with-param name="code" select="n1:associatedEntity/n1:code"/>
                     </xsl:call-template>
-                  </xsl:if>
-                  <xsl:call-template name="show-associatedEntity">
-                    <xsl:with-param name="assoEntity" select="n1:associatedEntity"/>
+                  </xsl:variable>
+                  <xsl:call-template name="participant-with-title">
+                    <xsl:with-param name="participantRole" select="$participtRole" />
                   </xsl:call-template>
-                  <xsl:if test="n1:time">
-                    <xsl:if test="n1:time/n1:low">
-                      <xsl:text> from </xsl:text>
-                      <xsl:call-template name="show-time">
-                        <xsl:with-param name="datetime" select="n1:time/n1:low"/>
-                      </xsl:call-template>
-                    </xsl:if>
-                    <xsl:if test="n1:time/n1:high">
-                      <xsl:text> to </xsl:text>
-                      <xsl:call-template name="show-time">
-                        <xsl:with-param name="datetime" select="n1:time/n1:high"/>
-                      </xsl:call-template>
-                    </xsl:if>
-                  </xsl:if>
-                  <xsl:if test="position() != last()">
-                    <br/>
-                  </xsl:if>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <xsl:if test="n1:associatedEntity/n1:addr | n1:associatedEntity/n1:telecom">
-                  <h2 class="section-title col-md-6">
-                    <xsl:text>Contact</xsl:text>
-                  </h2>
-                  <div class="col-md-6 header-group-content">
-                    <xsl:call-template name="show-contactInfo">
-                      <xsl:with-param name="contact" select="n1:associatedEntity"/>
-                    </xsl:call-template>
-                  </div>
                 </xsl:if>
-              </div>
-            </xsl:if>
+              </xsl:otherwise>
+            </xsl:choose>
+
           </xsl:for-each>
         </div>
       </xsl:if>
@@ -988,6 +1138,30 @@ limitations under the License.
                     </xsl:for-each>
                   </div>
                 </div>
+                <xsl:for-each select="n1:patient/n1:languageCommunication">
+                  <div class="row">
+                    <div class="attribute-title col-md-6">
+                      <xsl:text>Language</xsl:text>
+                    </div>
+                    <div class="col-md-6">
+                      <xsl:value-of select="n1:proficiencyLevelCode[@displayName]" />
+                      <xsl:choose>
+                        <xsl:when test="n1:languageCode[@code]">
+                          <xsl:value-of select="n1:languageCode/@code" />
+                          <xsl:if test="n1:proficiencyLevelCode[@displayName]">
+                            Proficiency <xsl:value-of select="n1:proficiencyLevelCode/@displayName" />
+                          </xsl:if>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <span class="generated-text">
+                            <xsl:text>Information not available</xsl:text>
+                          </span>
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </div>
+                  </div>
+                </xsl:for-each>
+
                 <xsl:if test="n1:patient/n1:raceCode | (n1:patient/n1:ethnicGroupCode)">
                   <div class="row">
                     <div class="attribute-title col-md-6">
@@ -998,6 +1172,7 @@ limitations under the License.
                         <xsl:when test="n1:patient/n1:raceCode">
                           <xsl:for-each select="n1:patient/n1:raceCode">
                             <xsl:call-template name="show-race-ethnicity"/>
+                            <xsl:text> </xsl:text>
                           </xsl:for-each>
                         </xsl:when>
                         <xsl:otherwise>
@@ -1008,15 +1183,29 @@ limitations under the License.
                       </xsl:choose>
                     </div>
                   </div>
+                  <xsl:if test="n1:patient/sdtc:raceCode">
+                    <xsl:for-each select="n1:patient/sdtc:raceCode">
+                    <div class="row">
+                      <div class="attribute-title col-md-6">
+                        <xsl:text>Additional Race(s)</xsl:text>
+                      </div>
+                      <div class="col-md-6">
+                          <xsl:call-template name="show-race-ethnicity"/>
+                          <xsl:text> </xsl:text>
+                      </div>
+                    </div>
+                    </xsl:for-each>
+                  </xsl:if>
                   <div class="row">
                     <div class="attribute-title col-md-6">
                       <xsl:text>Ethnicity</xsl:text>
                     </div>
                     <div class="col-md-6">
                       <xsl:choose>
-                        <xsl:when test="n1:patient/n1:ethnicGroupCode">
-                          <xsl:for-each select="n1:patient/n1:ethnicGroupCode">
+                        <xsl:when test="n1:patient/n1:ethnicGroupCode | n1:patient/sdtc:ethnicGroupCode">
+                          <xsl:for-each select="n1:patient/n1:ethnicGroupCode | n1:patient/sdtc:ethnicGroupCode">
                             <xsl:call-template name="show-race-ethnicity"/>
+                            <xsl:text> </xsl:text>
                           </xsl:for-each>
                         </xsl:when>
                         <xsl:otherwise>
@@ -1027,6 +1216,9 @@ limitations under the License.
                       </xsl:choose>
                     </div>
                   </div>
+                  <xsl:if test="count(n1:patient/n1:name) > 1">
+                    <xsl:call-template name="show-names-other-list"></xsl:call-template>
+                  </xsl:if>
                 </xsl:if>
               </div>
             </div>
@@ -1240,7 +1432,7 @@ limitations under the License.
       and process any nested component/sections
     -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="section">
-    <div class="container-fluid header">
+    <div class="container-fluid header cda-section">
       <xsl:call-template name="section-title">
         <xsl:with-param name="title" select="n1:title"/>
       </xsl:call-template>
@@ -1721,6 +1913,9 @@ limitations under the License.
       <xsl:when test="$sig/@code = 'X'">
         <xsl:text>signature required</xsl:text>
       </xsl:when>
+      <xsl:otherwise>
+        <h1>No signatures found</h1>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
   <!--  show-id -->
@@ -1760,8 +1955,11 @@ limitations under the License.
           <xsl:value-of select="$name/n1:prefix"/>
           <xsl:text> </xsl:text>
         </xsl:if>
-        <xsl:value-of select="$name/n1:given"/>
-        <xsl:text> </xsl:text>
+        <!-- Make sure we are displaying the whole name -->
+        <xsl:for-each select="$name[1]/n1:given">
+          <xsl:value-of select="."/>
+          <xsl:text> </xsl:text>
+        </xsl:for-each>
         <xsl:value-of select="$name/n1:family"/>
         <xsl:if test="$name/n1:suffix">
           <xsl:text>, </xsl:text>
@@ -1798,15 +1996,47 @@ limitations under the License.
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  <!-- show-names-other-list -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-names-other-list">
+    <xsl:for-each select="n1:patient/n1:name[not(@use = 'L')]">
+      <div class="row">
+        <div class="attribute-title col-md-6">
+          <xsl:choose>
+            <xsl:when test="n1:family[@qualifier = 'BR'] | n1:given[@qualifier = 'BR']">
+              Birth Name
+            </xsl:when>
+            <xsl:otherwise>
+              Previous Name
+            </xsl:otherwise>
+          </xsl:choose>
+        </div>
+        <div class="col-md-6">
+          <xsl:call-template name="show-name">
+            <xsl:with-param name="name" select="current()"/>
+          </xsl:call-template>
+        </div>
+      </div>
+    </xsl:for-each>
+  </xsl:template>
   <!-- show-contactInfo -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-contactInfo">
     <xsl:param name="contact"/>
-    <xsl:call-template name="show-address">
-      <xsl:with-param name="address" select="$contact/n1:addr"/>
-    </xsl:call-template>
-    <xsl:call-template name="show-telecom">
-      <xsl:with-param name="telecom" select="$contact/n1:telecom"/>
-    </xsl:call-template>
+    <xsl:for-each select="$contact/n1:addr">
+      <xsl:if test="position() > 1">
+        <hr />
+      </xsl:if>
+      <xsl:call-template name="show-address">
+        <xsl:with-param name="address" select="."/>
+      </xsl:call-template>
+    </xsl:for-each>
+    <xsl:if test="$contact/n1:addr and $contact/n1:telecom">
+      <hr />
+    </xsl:if>
+    <xsl:for-each select="$contact/n1:telecom">
+      <xsl:call-template name="show-telecom">
+        <xsl:with-param name="telecom" select="."/>
+      </xsl:call-template>
+    </xsl:for-each>
   </xsl:template>
   <!-- show-address -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-address">
@@ -1814,15 +2044,15 @@ limitations under the License.
     <div class="address-group">
       <xsl:choose>
         <xsl:when test="$address">
-          <div class="adress-group-header">
-            <xsl:if test="$address/@use">
-              <xsl:call-template name="translateTelecomCode">
-                <xsl:with-param name="code" select="$address/@use"/>
-              </xsl:call-template>
-            </xsl:if>
-          </div>
           <div class="address-group-content">
             <p class="tight">
+              <xsl:if test="$address/@use">
+                <xsl:text>(</xsl:text>
+                <xsl:call-template name="translateTelecomCode">
+                  <xsl:with-param name="code" select="$address/@use"/>
+                </xsl:call-template>
+                <xsl:text>) </xsl:text>
+              </xsl:if>
               <xsl:for-each select="$address/n1:streetAddressLine">
                 <xsl:value-of select="."/>
                 <xsl:text> </xsl:text>
@@ -1832,8 +2062,6 @@ limitations under the License.
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="$address/n1:houseNumber"/>
               </xsl:if>
-            </p>
-            <p class="tight">
               <xsl:if test="string-length($address/n1:city) &gt; 0">
                 <xsl:value-of select="$address/n1:city"/>
               </xsl:if>
@@ -1841,10 +2069,9 @@ limitations under the License.
                 <xsl:text>, </xsl:text>
                 <xsl:value-of select="$address/n1:state"/>
               </xsl:if>
-            </p>
-            <p class="tight">
               <xsl:if test="string-length($address/n1:postalCode) &gt; 0">
                 <!--<xsl:text>&#160;</xsl:text>-->
+                <xsl:text> </xsl:text>
                 <xsl:value-of select="$address/n1:postalCode"/>
               </xsl:if>
               <xsl:if test="string-length($address/n1:country) &gt; 0">
@@ -1863,7 +2090,37 @@ limitations under the License.
           </div>
         </xsl:otherwise>
       </xsl:choose>
+      <xsl:if test="$address/n1:useablePeriod">
+        <xsl:for-each select="$address/n1:useablePeriod">
+          <p>
+            Period of Use
+            <xsl:call-template name="show-period">
+              <xsl:with-param name="period" select="." />
+            </xsl:call-template>
+          </p>
+        </xsl:for-each>
+      </xsl:if>
     </div>
+  </xsl:template>
+  <!-- show-period -->
+  <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-period">
+    <xsl:variable name="period" />
+    <xsl:call-template name="show-time">
+      <xsl:with-param name="datetime" select="n1:low"/>
+    </xsl:call-template>
+    <xsl:if test="n1:low">
+      <xsl:text> - </xsl:text>
+    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="n1:high">
+        <xsl:call-template name="show-time">
+          <xsl:with-param name="datetime" select="n1:high"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        Now
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <!-- show-telecom -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="show-telecom">
@@ -1938,6 +2195,9 @@ limitations under the License.
       </xsl:when>
       <xsl:when test="$code = 'WP'">
         <xsl:text>Work Place</xsl:text>
+      </xsl:when>
+      <xsl:when test="$code = 'MC'">
+        <xsl:text>Mobile Contact</xsl:text>
       </xsl:when>
       <xsl:when test="$code = 'PUB'">
         <xsl:text>Pub</xsl:text>
@@ -2436,6 +2696,19 @@ limitations under the License.
           <xsl:value-of select="$mm"/>
         </xsl:if>
       </xsl:if>
+      <!-- time zone. Don't try getting a name for it as that will always fail parts of the year due to daylight savings -->
+      <xsl:if test="(string-length($hh) &gt; 1 and not($hh = '00')) or (string-length($mm) &gt; 1 and not($mm = '00'))">
+        <xsl:choose>
+          <xsl:when test="contains($date, '+')">
+            <xsl:text> +</xsl:text>
+            <xsl:value-of select="substring-after($date, '+')"/>
+          </xsl:when>
+          <xsl:when test="contains($date, '-')">
+            <xsl:text> -</xsl:text>
+            <xsl:value-of select="substring-after($date, '-')"/>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
   <!-- convert to lower case -->
@@ -2896,11 +3169,9 @@ limitations under the License.
       <xsl:when test="$id-oid = '2.16.840.1.113883.19.5.99999.2'">
         <xsl:text>Meaningless identifier, not to be used for any actual entities. Examples only.</xsl:text>
       </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>OID: </xsl:text>
-        <xsl:value-of select="$id-oid"/>
-      </xsl:otherwise>
     </xsl:choose>
+    <xsl:text> OID: </xsl:text>
+    <xsl:value-of select="$id-oid"/>
   </xsl:template>
 
 <xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lantana-css">
@@ -3029,6 +3300,20 @@ limitations under the License.
       }
     </style>
   </xsl:template>
+<xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="openemr-css">
+  <style>
+    .toc-icon {
+      width: 1em;
+      height: 1em;
+      vertical-align: -.125em;
+      margin-right: .5em;
+
+    }
+    .toc-icon-section {
+      margin-left: .75em;
+    }
+  </style>
+</xsl:template>
 <xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="lantana-js">
     <script type="text/javascript">
       
@@ -3082,19 +3367,127 @@ $( function() {
     $nav.sortable( {
         update: function ( e ) {
             $content.empty( );
+            $originalContent.find('.cda-section-empty').each(function(index, elem) {
+                $content.append( $(elem).clone());
+            });
             $nav.find( 'a' ).each( function ( ) {
                 $content.append( $originalContent.clone( ).find( $( this ).attr( 'href' ) ).parent ( ) );
             } );
 
               $('[data-spy="scroll"]').each(function () {
-  var $spy = $(this).scrollspy('refresh')
-})
+                var $spy = $(this).scrollspy('refresh')
+              });
+            if (window.openemr) {
+                window.openemr.refreshDisplay();
+            }
         }
     } );
   } );
-
-
       
+    </script>
+  </xsl:template>
+  <xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="openemr-js">
+    <script type="text/javascript">
+      (function() {
+        var sections = [];
+
+        window.openemr = {
+          init: function() {
+              sections = [];
+              let elements = document.querySelectorAll(".cda-clinical-section");
+              elements.forEach(function(elem) {
+                  // we grab original href for our ids
+                  sections.push({ id: elem.getAttribute("href"), visible: true });
+              });
+          },
+
+          refreshDisplay: function() {
+              let hasVisibleSection = false;
+              sections.forEach(function(section) {
+                    hasVisibleSection = hasVisibleSection || section.visible;
+                    let elem = document.querySelector(section.id); // already has # in id
+                    if (!elem) {
+                        console.error("Failed to find element with id ", section.id);
+                    }
+                    let tocLink = document.querySelector("a[href*='" + section.id + "']");
+                    if (section.visible) {
+                      tocLink.querySelector(".toc-icon-hide").classList.remove("hidden");
+                      tocLink.querySelector(".toc-icon-show").classList.add("hidden");
+                      window.openemr.showSectionForId(section.id);
+                    } else {
+                      tocLink.querySelector(".toc-icon-hide").classList.add("hidden");
+                      tocLink.querySelector(".toc-icon-show").classList.remove("hidden");
+                      window.openemr.hideSectionForId(section.id);
+                    }
+              });
+
+              if (hasVisibleSection) {
+                document.querySelector(".toc-icon-container.toc-icon-show").classList.add("hidden");
+                document.querySelector(".toc-icon-container.toc-icon-hide").classList.remove("hidden");
+                document.querySelector(".cda-section-empty").classList.add("hidden");
+              } else {
+                document.querySelector(".toc-icon-container.toc-icon-show").classList.remove("hidden");
+                document.querySelector(".toc-icon-container.toc-icon-hide").classList.add("hidden");
+                document.querySelector(".cda-section-empty").classList.remove("hidden");
+              }
+          },
+          setSectionDisplay: function(id, show) {
+              sections.filter(function(section) { return section.id == id })
+                      .forEach(function(section) { section.visible = show; });
+
+          },
+          showSectionForId: function(id) {
+            if (id) {
+              // find the fragment and display it
+              $(id).closest(".cda-section").removeClass("hidden");
+            }
+          },
+          hideSectionForId: function(id) {
+            if (id) {
+              // find the fragment and display it
+              $(id).closest(".cda-section").addClass("hidden");
+            }
+          },
+          hideAllSections: function() {
+            sections.forEach(function(section) { window.openemr.setSectionDisplay(section.id, false); });
+            window.openemr.refreshDisplay();
+          },
+          displayAllSections: function() {
+            sections.forEach(function(section) { window.openemr.setSectionDisplay(section.id, true); });
+            window.openemr.refreshDisplay();
+          }
+        };
+      })(window);
+
+      $(document).ready(function() {
+        window.openemr.init(); // setup our section values
+
+      $(".toc-icon-container.toc-icon-hide").click(function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.openemr.hideAllSections();
+      });
+      $(".toc-icon-section.toc-icon-hide").click(function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          let href = $(this).parent().attr("href") || "";
+          window.openemr.setSectionDisplay(href, false);
+          window.openemr.refreshDisplay();
+        });
+
+      $(".toc-icon-container.toc-icon-show").click(function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.openemr.displayAllSections();
+      });
+      $(".toc-icon-section.toc-icon-show").click(function(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        let href = $(this).parent().attr("href") || "";
+        window.openemr.setSectionDisplay(href, true);
+        window.openemr.refreshDisplay();
+      });
+      });
     </script>
   </xsl:template>
 <xsl:template xmlns:xs="http://www.w3.org/2001/XMLSchema" name="jquery">

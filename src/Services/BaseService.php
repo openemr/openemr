@@ -89,8 +89,8 @@ class BaseService
      */
     public function getSelectFields(): array
     {
-        // since we are often joining a bunch of fields we need to make sure we normalize our regular field array by adding
-        // the table name for our own table values.
+        // since we are often joining a bunch of fields we need to make sure we normalize our regular field array
+        // by adding the table name for our own table values.
         $fields = $this->getFields();
         $normalizedFields = [];
         // processing is cheap
@@ -115,7 +115,8 @@ class BaseService
      * ]
      *
      * An example of a join on the users table joining against list_options like so:
-     * ['table' => 'list_options', 'alias' => 'abook', 'type' => 'LEFT JOIN', 'column' => 'abook_type', 'join_column' => 'option_id']
+     * ['table' => 'list_options', 'alias' => 'abook', 'type' => 'LEFT JOIN',
+     *     'column' => 'abook_type', 'join_column' => 'option_id']
      *
      * @return array
      */
@@ -157,7 +158,8 @@ class BaseService
      * Build an insert set and bindings
      *
      * @param array $passed_in
-     * @param array $options configuration options for building.  null_value defines what NULL should be stored as in the table, default is empty string ''
+     * @param array $options configuration options for building.
+     *                  null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
     protected function buildInsertColumns($passed_in = array(), $options = array())
@@ -178,16 +180,25 @@ class BaseService
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
                 $value = "";
-            } else if ($value === "NULL") {
-                // make it consistent with our update columns... I really don't like this magic string constant, if someone
-                // intends to actually store the value NULL as a string this will break....
+            } elseif ($value === "NULL") {
+                // make it consistent with our update columns... I really don't like this magic string constant
+                // if someone intends to actually store the value NULL as a string this will break....
                 $value = $null_value;
             }
             if ($value === null || $value === false) {
                 $value = $null_value;
             }
+
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            // for dates which should be saved as null
+            if (
+                empty($value) &&
+                (strpos($key, 'date') !== false)
+            ) {
+                $bind[] = null;
+            } else {
+                $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            }
         }
 
         $result['set'] = $keyset;
@@ -201,7 +212,8 @@ class BaseService
      * Build an update set and bindings
      *
      * @param array $passed_in
-     * @param array $options configuration options for building.  null_value defines what NULL should be stored as in the table, default is empty string ''
+     * @param array $options configuration options for building.
+     *                       null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
     protected function buildUpdateColumns($passed_in = array(), $options = array())
@@ -238,7 +250,14 @@ class BaseService
             }
 
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value == 'NULL') ? $null_value : $value;
+            if (
+                empty($value) &&
+                (strpos($key, 'date') !== false)
+            ) {
+                $bind[] = null;
+            } else {
+                $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            }
         }
 
         $result['set'] = $keyset;
@@ -419,10 +438,11 @@ class BaseService
      * The search will grab the intersection of all possible values if $isAndCondition is true, otherwise it returns
      * the union (logical OR) of the search.
      *
-     * More complicated searches with various sub unions / intersections can be accomplished through a CompositeSearchField
-     * that allows you to combine multiple search clauses on a single search field.
+     * More complicated searches with various sub unions / intersections can be accomplished
+     * through a CompositeSearchField that allows you to combine multiple search clauses on a single search field.
      *
-     * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
+     * @param ISearchField[] $search Hashmap of string => ISearchField
+     *                                   where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
      * @return ProcessingResult The results of the search.
      */
@@ -432,7 +452,10 @@ class BaseService
         try {
             $selectFields = $this->getSelectFields();
 
-            $selectFields = array_combine($selectFields, $selectFields); // make it a dictionary so we can add/remove this.
+            $selectFields = array_combine(
+                $selectFields,
+                $selectFields
+            ); // make it a dictionary so we can add/remove this.
             $from = [$this->getTable()];
             $sql = "SELECT " . implode(",", array_keys($selectFields)) . " FROM " . implode(",", $from);
             $join = $this->getSelectJoinClauses();
@@ -483,7 +506,8 @@ class BaseService
      * Convert Diagnosis Codes String to Code:Description Array
      *
      * @param string $diagnosis                 - All Diagnosis Codes
-     * @return array Array of Code as Key mapped to an array containing the code, code_type, description, and system (URI or OID if found)
+     * @return array Array of Code as Key mapped to an array containing the code,
+     *                   code_type, description, and system (URI or OID if found)
      */
     protected function addCoding($diagnosis)
     {

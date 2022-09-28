@@ -132,9 +132,9 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             $docReference->setContext($context);
         }
 
-        // populate our clinical narrative notes
-        if (!empty($dataRecord['id'])) {
-            $url = $this->getFhirApiURL() . '/fhir/Document/' . $dataRecord['id'] . '/Binary';
+        // populate the link to download the patient document
+        if (!empty($dataRecord['uuid'])) {
+            $url = $this->getFhirApiURL() . '/fhir/Document/' . $dataRecord['uuid'] . '/Binary';
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType($dataRecord['mimetype']);
@@ -160,29 +160,32 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             $docReference->setSubject(UtilsService::createDataMissingExtension());
         }
 
-        // the category is extensible so we are going to use our own code set, this is just a uniquely identifying URL
-        // which is extensible so we are going to put this here
-        // if we have a way of translating LOINC to category we could do this, but for now we don't
-        // TODO: @adunsulag check with @brady.miller is there anyway to translate our document categories into LOINC codes?
-
-        $docCategoryValueSetSystem = $this->getFhirApiURL() . "/fhir/ValueSet/openemr-document-types";
-        $docReference->addCategory(UtilsService::createCodeableConcept(
-            ['openemr-document' => ['code' => 'openemr-document', 'description' => 'OpenEMR Document', 'system' => $docCategoryValueSetSystem]
-            ]
-        ));
+        if (!empty($dataRecord['codes'])) {
+            foreach ($dataRecord['codes'] as $code => $codeableConcept) {
+                $docReference->addCategory(UtilsService::createCodeableConcept($codeableConcept));
+            }
+        } else {
+            // although the category is extensible, ONC inferno fails to validate with an extended code set so we are
+            // going to create data absent reasons.  The codes come from the document categories codes column.  If we are
+            // missing the codes we will just go with a Data Absent Reason (DAR)
+            $docReference->addCategory(UtilsService::createDataAbsentUnknownCodeableConcept());
+        }
 
         $fhirOrganizationService = new FhirOrganizationService();
         $orgReference = $fhirOrganizationService->getPrimaryBusinessEntityReference();
         $docReference->setCustodian($orgReference);
 
+        // if we don't have a practitioner reference then it is the business owner that will be the author on
+        // the clinical notes
+        $authorReference = $orgReference;
         if (!empty($dataRecord['user_uuid'])) {
             if (!empty($dataRecord['user_npi'])) {
-                $docReference->addAuthor(UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']));
-            } else {
-                // if we don't have a practitioner reference then it is the business owner that will be the author on
-                // the clinical notes
-                $docReference->addAuthor($orgReference);
+                $authorReference = UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']);
             }
+        }
+
+        if (!empty($authorReference)) {
+            $docReference->addAuthor($authorReference);
         }
 
         if (!empty($dataRecord['deleted'])) {
@@ -212,7 +215,12 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         }
 
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
+        $authors = $dataRecord->getAuthor();
+        $author = null;
+        if (!empty($authors)) {
+            $author = reset($authors); // grab the first one, as we only populate one anyways.
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

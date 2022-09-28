@@ -25,6 +25,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\UserService;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\OeUI\RenderFormFieldHelper;
 
 $facilityService = new FacilityService();
 
@@ -79,6 +80,20 @@ if ($viewmode) {
         echo "</body>\n</html>\n";
         exit();
     }
+}
+
+$displayMode = ($viewmode && $mode !== "followup") ? "edit" : "new";
+
+/**
+ * Helper function to show or hide a field based on the configuration setting.
+ *
+ * @param string $field
+ * @return string
+ */
+function displayOption($field)
+{
+    global $displayMode;
+    echo RenderFormFieldHelper::shouldDisplayFormField($GLOBALS[$field], $displayMode) ? '' : 'd-none';
 }
 
 // Sort comparison for sensitivities by their order attribute.
@@ -157,7 +172,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             });
 
             $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
@@ -303,6 +318,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             </div>
         </div>
         <form class="mt-3" id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
+            <?php if ($mode === "followup") { ?>
+                <input type="hidden" name="facility_id" value="<?php echo attr($result['facility_id']); ?>" />
+            <?php } ?>
             <?php if ($viewmode && $mode !== "followup") { ?>
                 <input type='hidden' name='mode' value='update' />
                 <input type='hidden' name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
@@ -321,362 +339,371 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         <?php echo (!empty($encounter_followup)) ? (xlt("Follow up for") . ": " . text($encounter_followup) . " " . xlt("Dated") . ": " . text($followup_date)) : ''; ?>
                     </small>
                 </legend>
-                <div id="visit-details" class="px-5">
+                <div id="visit-details" class="px-3">
                     <div class="form-row align-items-center">
-                        <div class="col-sm-2">
-                            <label for="pc_catid" class="text-right"><?php echo xlt('Visit Category:'); ?></label>
+                        <div class="col-sm <?php displayOption('enc_enable_visit_category'); ?>">
+                            <div class="form-group">
+                                <label for="pc_catid" class="text-right"><?php echo xlt('Visit Category:'); ?></label>
+                                <select name='pc_catid' id='pc_catid' class='form-control' <?php echo ($mode === "followup") ? 'disabled' : ''; ?>>
+                                    <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
+                                    <?php
+                                    //Bring only patient and group categories
+                                    $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
+                                                   FROM openemr_postcalendar_categories
+                                                   WHERE pc_active = 1 and pc_cattype IN (0,3) and pc_constant_id  != 'no_show' ORDER BY pc_seq";
+
+                                    $visitResult = sqlStatement($visitSQL);
+                                    $therapyGroupCategories = [];
+
+                                    while ($row = sqlFetchArray($visitResult)) {
+                                        $catId = $row['pc_catid'];
+                                        $name = $row['pc_catname'];
+
+                                        if ($row['pc_cattype'] == 3) {
+                                            $therapyGroupCategories[] = $catId;
+                                        }
+
+                                        if ($catId === "_blank") {
+                                            continue;
+                                        }
+
+                                        if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                                            continue;
+                                        }
+
+                                        // Fetch acl for category of given encounter. Only if has write auth for a category, then can create an encounter of that category.
+                                        $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($catId);
+                                        if ($postCalendarCategoryACO) {
+                                            $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                                            $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+                                        } else { // if no aco is set for category
+                                            $authPostCalendarCategoryWrite = true;
+                                        }
+
+                                        //if no permission for category write, don't show in drop-down
+                                        if (!$authPostCalendarCategoryWrite) {
+                                            continue;
+                                        }
+
+                                        $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
+                                        $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
+                                        $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
+                                        if ($viewmode) {
+                                            $selected = ($result['pc_catid'] == $catId) ? " selected" : "";
+                                        } else {
+                                            $selected = ($GLOBALS['default_visit_category'] == $catId) ? " selected" : "";
+                                        }
+
+                                        $optionStr = str_replace("%selected%", $selected, $optionStr);
+                                        echo $optionStr;
+                                    }
+                                    ?>
+                                </select>
+                                <?php if ($mode === "followup") { ?>
+                                    <input name="pc_catid" value="<?php echo attr($result['pc_catid']); ?>" hidden />
+                                <?php } ?>
+                            </div>
                         </div>
-                        <div class="col-sm">
-                            <select name='pc_catid' id='pc_catid' class='form-control' <?php echo ($mode === "followup") ? 'disabled' : ''; ?>>
-                                <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
+                        <div class="col-sm <?php displayOption('enc_enable_class');?>">
+                            <div class="form-group">
+                                <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
+                                <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php displayOption('enc_enable_type');?>">
+                            <div class="form-group">
+                                <label for='encounter_type' class="text-right"><?php echo xlt('Type'); ?>:</label>
                                 <?php
-                                //Bring only patient and group categories
-                                $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
-                                               FROM openemr_postcalendar_categories
-                                               WHERE pc_active = 1 and pc_cattype IN (0,3) and pc_constant_id  != 'no_show' ORDER BY pc_seq";
-
-                                $visitResult = sqlStatement($visitSQL);
-                                $therapyGroupCategories = [];
-
-                                while ($row = sqlFetchArray($visitResult)) {
-                                    $catId = $row['pc_catid'];
-                                    $name = $row['pc_catname'];
-
-                                    if ($row['pc_cattype'] == 3) {
-                                        $therapyGroupCategories[] = $catId;
-                                    }
-
-                                    if ($catId === "_blank") {
-                                        continue;
-                                    }
-
-                                    if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
-                                        continue;
-                                    }
-
-                                    // Fetch acl for category of given encounter. Only if has write auth for a category, then can create an encounter of that category.
-                                    $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($catId);
-                                    if ($postCalendarCategoryACO) {
-                                        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
-                                        $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
-                                    } else { // if no aco is set for category
-                                        $authPostCalendarCategoryWrite = true;
-                                    }
-
-                                    //if no permission for category write, don't show in drop-down
-                                    if (!$authPostCalendarCategoryWrite) {
-                                        continue;
-                                    }
-
-                                    $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
-                                    $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
-                                    $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
-                                    if ($viewmode) {
-                                        $selected = ($result['pc_catid'] == $catId) ? " selected" : "";
+                                // we need to convert from our selected code if we have one to our list type
+                                $encounter_type_option = $result['encounter_type_code'] ?? '';
+                                if (!empty($encounter_type_option)) {
+                                    $listService = new ListService();
+                                    $codes = $listService->getOptionsByListName('encounter-types', ['codes' => $result['encounter_type_code']]);
+                                    if (empty($codes[0])) {
+                                        // we may not have code types installed, in that case we will just use the option-id so we can remember the data
+                                        $option = $listService->getListOption('encounter-types', $encounter_type_option);
+                                        $encounter_type_option = $option['option_id'] ?? '';
                                     } else {
-                                        $selected = ($GLOBALS['default_visit_category'] == $catId) ? " selected" : "";
+                                        $encounter_type_option = $codes[0]['option_id'];
                                     }
-
-                                    $optionStr = str_replace("%selected%", $selected, $optionStr);
-                                    echo $optionStr;
                                 }
                                 ?>
-                            </select>
-                            <?php if ($mode === "followup") { ?>
-                                <input name="pc_catid" value="<?php echo attr($result['pc_catid']); ?>" hidden />
-                            <?php } ?>
+                                <?php echo generate_select_list('encounter_type', 'encounter-types', $viewmode ? $encounter_type_option : '', '', '--' . xl('Select One') . '--'); ?>
+                            </div>
                         </div>
                         <?php
                         $sensitivities = AclExtended::aclGetSensitivities();
-                        if ($sensitivities && count($sensitivities)) {
+                        if ($sensitivities && count($sensitivities)) :
                             usort($sensitivities, "sensitivity_compare");
                             ?>
-                        <div class="col-sm-2">
-                            <label for="pc_catid" class="text-right"><?php echo xlt('Sensitivity:'); ?> <i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
-                        </div>
-                        <div class="col-sm">
-                            <select name='form_sensitivity' id='form_sensitivity' class='form-control'>
-                                <?php
-                                foreach ($sensitivities as $value) {
-                                    // Omit sensitivities to which this user does not have access.
-                                    if (AclMain::aclCheckCore('sensitivities', $value[1])) {
-                                        echo "       <option value='" . attr($value[1]) . "'";
-                                        if ($viewmode && $result['sensitivity'] == $value[1]) {
-                                            echo " selected";
-                                        }
+                            <div class="col-sm <?php displayOption('enc_sensitivity_visibility');?>">
+                                <div class="form-group">
+                                    <label for="pc_catid" class="text-right"><?php echo xlt('Sensitivity:'); ?> <i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                                    <select name='form_sensitivity' id='form_sensitivity' class='form-control'>
+                                        <?php
+                                        foreach ($sensitivities as $value) {
+                                            // Omit sensitivities to which this user does not have access.
+                                            if (!AclMain::aclCheckCore('sensitivities', $value[1])) {
+                                                continue;
+                                            }
 
-                                        echo ">" . xlt($value[3]) . "</option>\n";
-                                    }
-                                }
-                                echo "       <option value=''";
-                                if ($viewmode && !$result['sensitivity']) {
-                                    echo " selected";
-                                }
-                                echo ">" . xlt('None{{Sensitivity}}') . "</option>\n";
-                                ?>
-                            </select>
-                            <?php } ?>
-                        </div>
-                    </div>
-                    <div class="form-row align-items-center mt-2">
-                        <div class="col-sm-2">
-                            <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
-                        </div>
-                        <div class="col-sm">
-                            <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>' />
-                        </div>
-                        <div class="col-sm-2" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
-                            <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
-                        </div>
-                        <div class="col-sm" <?php echo empty($GLOBALS['gbl_visit_onset_date']) ? "style='visibility:hidden;'" : ""; ?>>
-                            <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
-                        </div>
-                    </div>
-                    <div class="form-row align-items-center mt-2"
-                        <?php
-                        if (!$GLOBALS['gbl_visit_referral_source']) {
-                            echo "style='display:none' ";
-                        } ?>>
-                        <div class="col-sm-2">
-                            <label for="form_referral_source" class="text-right"><?php echo xlt('Referral Source'); ?>:</label>
-                        </div>
-                        <div class="col-sm">
-                            <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', ''); ?>
-                        </div>
-                    </div>
-                    <?php if ($GLOBALS['enable_group_therapy']) { ?>
-                    <div class="form-group mx-auto mt-2" id="therapy_group_name" style="display: none">
-                        <div class="col-sm-2">
-                            <label for="form_group" class="text-right"><?php echo xlt('Group name'); ?>:</label>
-                        </div>
-                        <div class="col-sm">
-                            <input type='text' name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
-                            <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
-                        </div>
-                    </div>
-                    <?php } ?>
-                    <div class="form-row align-items-center mt-2">
-                        <div class="col-sm-2">
-                            <label for='provider_id' class="text-right"><?php echo xlt('Encounter Provider'); ?>:</label>
-                        </div>
-                        <div class="col-sm">
-                            <select name='provider_id' id='provider_id' class='form-control' onChange="newUserSelected()">
-                                <?php
-                                if ($viewmode) {
-                                    $provider_id = $result['provider_id'];
-                                }
-                                $userService = new UserService();
-                                $users = $userService->getActiveUsers();
-                                foreach ($users as $activeUser) {
-                                    $p_id = (int)$activeUser['id'];
-                                    // Check for the case where an encounter is created by non-auth user
-                                    // but has permissions to create/edit encounter.
-                                    $flag_it = "";
-                                    if ($activeUser['authorized'] != 1) {
-                                        if ($p_id === (int)($result['provider_id'] ?? null)) {
-                                            $flag_it = " (" . xlt("Non Provider") . ")";
-                                        } else {
-                                            continue;
+                                            $selected = ($viewmode && $result['sensitivity'] == $value[1]) ? 'selected' : '';
+                                            $value = attr($value[1]);
+                                            $display = xlt($value);
+                                            echo "<option value=\"$value\" $selected>$display</option>\n";
                                         }
-                                    }
-                                    echo "<option value='" . attr($p_id) . "'";
-                                    if ((int)$provider_id === $p_id) {
-                                        echo "selected";
-                                    }
-                                    echo ">" . text($activeUser['lname']) . ' ' .
-                                        text($activeUser['fname']) . ' ' . text($activeUser['mname']) . $flag_it . "</option>\n";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="col-sm-2">
-                            <label for='referring_provider_id' class="text-right"><?php echo xlt('Referring Provider'); ?>:</label>
-                        </div>
-                        <div class="col-sm">
-                            <?php
-                            if ($viewmode && !empty($result["referring_provider_id"])) {
-                                $MBO->genReferringProviderSelect('referring_provider_id', '-- ' . xl("Please Select") . ' --', $result["referring_provider_id"]);
-                            } else { // defalut to the patient's referring provider from Demographics->Choices
-                                $MBO->genReferringProviderSelect('referring_provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
-                            } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row align-items-center mt-2">
-                        <div class="col-sm-2">
-                            <label for='facility_id' class="text-right"><?php echo xlt('Facility'); ?>:</label>
-                        </div>
-                        <div class="col-sm">
-                            <select name='facility_id' id='facility_id' class='form-control' onChange="getPOS()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
-                                <?php
-                                if ($viewmode) {
-                                    $def_facility = $result['facility_id'];
-                                } elseif (!empty($default_fac_override)) {
-                                    $def_facility = $default_fac_override;
-                                } else {
-                                    $def_facility = ($user_facility['id'] ?? null);
-                                }
-                                $posCode = '';
-                                $facilities = $facilityService->getAllServiceLocations();
-                                foreach ($facilities as $iter) {
-                                    $selected_fac = '';
-                                    if ($def_facility === $iter['id']) {
-                                        $selected_fac = " selected";
-                                        if (!$viewmode) {
-                                            $posCode = $iter['pos_code'];
-                                        }
-                                    } ?>
-                                <option value="<?php echo attr($iter['id']); ?>"<?php echo $selected_fac; ?>><?php echo text($iter['name']); ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                        <?php if ($mode === "followup") { ?>
-                            <input type="hidden" name="facility_id" value="<?php echo attr($result['facility_id']); ?>" />
-                        <?php } ?>
-                        <div class="col-sm-2">
-                            <label for='billing_facility' class="text-right"><?php echo xlt('Billing Facility'); ?>:</label>
-                        </div>
-                        <div id="ajaxdiv" class="col-sm">
-                            <?php
-                            if (!empty($default_bill_fac_override)) {
-                                $default_bill_fac = $default_bill_fac_override;
-                            } elseif (!$viewmode && $mode !== "followup") {
-                                if ($user_facility['billing_location'] == '1') {
-                                    $default_bill_fac =  $user_facility['id'] ;
-                                } else {
-                                    $tmp_be = $facilityService->getPrimaryBusinessEntity();
-                                    $tmp_bl =  $facilityService->getPrimaryBillingLocation();
-                                    $tmp = !empty($tmp_be['id']) ? $tmp_be['id'] : (!empty($tmp_bl['id']) ? $tmp_bl['id'] : null);
-                                    $default_bill_fac = !empty($tmp) ? $tmp : $def_facility;
-                                }
-                            } else {
-                                $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;
-                            }
-                            billing_facility('billing_facility', $default_bill_fac);
-                            ?>
-                        </div>
-                    </div>
-                    <!-- Discharge Disposition -->
-                    <div class="form-row align-items-center mt-2">
-                        <div class="col-sm-2">
-                            <label for='facility_id' class="text-right"><?php echo xlt('Discharge Disposition'); ?>:</label>
-                        </div>
-                        <div class="col-sm">
-                            <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
-                                <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
-                                <?php
-                                $dischargeListDisposition = new ListService();
-                                $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
-                                foreach ($dischargeDisposiitons as $dispositon) {
-                                    $selected = ($result['discharge_disposition'] ?? null) == $dispositon['option_id'] ? "selected='selected'" : "";
-                                    ?>
-                                <option value="<?php echo attr($dispositon['option_id']); ?>" <?php echo $selected; ?> ><?php echo text($dispositon['title']); ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                        <div class="col-sm-2">
-                            <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
-                        </div>
-                        <div class="col-sm">
-                            <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
-                        </div>
-                    </div>
-                    <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
-                    <div class="form-row align-items-center mt-2">
-                        <div class="col-sm-2">
-                            <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
-                        </div>
-                        <div class="col-sm-6">
-                            <select name="pos_code" id="pos_code" class='form-control'>
-                                <?php
-                                $pc = new POSRef();
-                                foreach ($pc->get_pos_ref() as $pos) {
-                                    echo "<option value=\"" . attr($pos["code"]) . "\"";
-                                    if (($pos["code"] == ($result['pos_code'] ?? '') && $viewmode) || ($pos["code"] == $posCode && !$viewmode)) {
-                                        echo " selected";
-                                    }
-                                    echo ">" . text($pos['code']) . ": " . xlt($pos['title']);
-                                    echo "</option>\n";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    <?php } ?>
-                </div>
-            </fieldset>
-            <fieldset>
-                <legend><?php echo xlt('Reason for Visit') ?></legend>
-                <div class="form-row mx-5">
-                    <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
-                </div>
-            </fieldset>
-            <?php
-            // To see issues stuff user needs write access to all issue types.
-            $issuesauth = true;
-            foreach ($ISSUE_TYPES as $type => $dummy) {
-                if (!AclMain::aclCheckIssue($type, '', 'write')) {
-                    $issuesauth = false;
-                    break;
-                }
-            }
-            if ($issuesauth) {
-                ?>
-                <fieldset>
-                    <legend><?php echo xlt('Link/Add Issues (Injuries/Medical/Allergy) to Current Visit') ?></legend>
-                    <div id="visit-issues">
-                        <div class="form-row px-5">
-                            <div class="pb-1">
-                                <div class="btn-group" role="group">
-                                    <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
-                                        <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-primary btn-add btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
-                                    <?php } ?>
+                                        $selected = ($viewmode && !$result['sensitivity']) ? "selected" : "";
+                                        echo "<option value='' $selected>" . xlt('None{{Sensitivity}}') . "</option>\n";
+                                        ?>
+                                    </select>
                                 </div>
                             </div>
-                            <select multiple name='issues[]' class='form-control' title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>' size='6'>
-                                <?php
-                                while ($irow = sqlFetchArray($ires)) {
-                                    $list_id = $irow['id'];
-                                    $tcode = $irow['type'];
-                                    if ($ISSUE_TYPES[$tcode]) {
-                                        $tcode = $ISSUE_TYPES[$tcode][2];
-                                    }
-                                    echo "    <option value='" . attr($list_id) . "'";
-                                    if ($viewmode) {
-                                        $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-                                            "pid = ? AND encounter = ? AND list_id = ?", array($pid, $encounter, $list_id));
-                                        if ($perow['count']) {
+                        <?php endif; ?>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-sm <?php displayOption('enc_service_date');?>">
+                            <div class="form-group">
+                                <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
+                                <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatDateTime($result['date'])) : attr(oeFormatDateTime(date('Y-m-d H:i:00'))); ?>' title='<?php echo xla('Date of service'); ?>' />
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['gbl_visit_onset_date'] == 1) ?: 'd-none'; ?>">
+                            <div class="form-group">
+                                <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                                <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatDateTime($result['onset_date'])) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['gbl_visit_referral_source'] == 1) ?: 'd-none';?>">
+                            <div class="form-group">
+                                <label for="form_referral_source" class="text-right"><?php echo xlt('Referral Source'); ?>:</label>
+                                <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', ''); ?>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['set_pos_code_encounter'] == 1) ?: 'd-none';?>">
+                            <div class="form-group">
+                                <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
+                                <select name="pos_code" id="pos_code" class='form-control'>
+                                    <?php
+                                    $pc = new POSRef();
+                                    foreach ($pc->get_pos_ref() as $pos) {
+                                        echo "<option value=\"" . attr($pos["code"]) . "\"";
+                                        if (
+                                            ($pos["code"] == ($result['pos_code'] ?? '') && $viewmode)
+                                            || ($pos["code"] == ($posCode ?? '') && !$viewmode)
+                                        ) {
                                             echo " selected";
                                         }
-                                    } else {
-                                        // For new encounters the invoker may pass an issue ID.
-                                        if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) {
-                                            echo " selected";
-                                        }
+                                        echo ">" . text($pos['code']) . ": " . xlt($pos['title']);
+                                        echo "</option>\n";
                                     }
-                                    echo ">" . text($tcode) . ": " . text($irow['begdate']) . " " .
-                                        text(substr($irow['title'], 0, 40)) . "</option>\n";
-                                }
-                                ?>
-                            </select>
-                            <p><i><?php echo xlt('To link this encounter/consult to an existing issue, click the '
-                                        . 'desired issue above to highlight it and then click [Save]. '
-                                        . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
+                                    ?>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </fieldset>
-                <?php
-            }
-            ?>
+
+                    <div class="form-row align-items-center">
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for='provider_id' class="text-right"><?php echo xlt('Encounter Provider'); ?>:</label>
+                                <select name='provider_id' id='provider_id' class='form-control' onChange="newUserSelected()">
+                                    <?php
+                                    if ($viewmode) {
+                                        $provider_id = $result['provider_id'];
+                                    }
+                                    $userService = new UserService();
+                                    $users = $userService->getActiveUsers();
+                                    foreach ($users as $activeUser) {
+                                        $p_id = (int)$activeUser['id'];
+                                        // Check for the case where an encounter is created by non-auth user
+                                        // but has permissions to create/edit encounter.
+                                        $flag_it = "";
+                                        if ($activeUser['authorized'] != 1) {
+                                            if ($p_id === (int)($result['provider_id'] ?? null)) {
+                                                $flag_it = " (" . xlt("Non Provider") . ")";
+                                            } else {
+                                                continue;
+                                            }
+                                        }
+                                        echo "<option value='" . attr($p_id) . "'";
+                                        if ((int)$provider_id === $p_id) {
+                                            echo "selected";
+                                        }
+                                        echo ">" . text($activeUser['lname']) . ' ' .
+                                            text($activeUser['fname']) . ' ' . text($activeUser['mname']) . $flag_it . "</option>\n";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php displayOption('enc_enable_referring_provider');?>">
+                            <div class="form-group">
+                                <label for='referring_provider_id' class="text-right"><?php echo xlt('Referring Provider'); ?>:</label>
+                                <?php
+                                if ($viewmode && !empty($result["referring_provider_id"])) {
+                                    $MBO->genReferringProviderSelect('referring_provider_id', '-- ' . xl("Please Select") . ' --', $result["referring_provider_id"]);
+                                } else { // defalut to the patient's referring provider from Demographics->Choices
+                                    $MBO->genReferringProviderSelect('referring_provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
+                                } ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php displayOption('enc_enable_facility'); ?>">
+                            <div class="form-group">
+                                <label for='facility_id' class="text-right"><?php echo xlt('Facility'); ?>:</label>
+                                <select name='facility_id' id='facility_id' class='form-control' onChange="getPOS()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
+                                    <?php
+                                    if ($viewmode) {
+                                        $def_facility = $result['facility_id'];
+                                    } elseif (!empty($default_fac_override)) {
+                                        $def_facility = $default_fac_override;
+                                    } else {
+                                        $def_facility = ($user_facility['id'] ?? null);
+                                    }
+                                    $posCode = '';
+                                    $facilities = $facilityService->getAllServiceLocations();
+                                    foreach ($facilities as $iter) {
+                                        $selected_fac = '';
+                                        if ($def_facility === $iter['id']) {
+                                            $selected_fac = " selected";
+                                            if (!$viewmode) {
+                                                $posCode = $iter['pos_code'];
+                                            }
+                                        } ?>
+                                    <option value="<?php echo attr($iter['id']); ?>"<?php echo $selected_fac; ?>><?php echo text($iter['name']); ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['hide_billing_widget'] != 1) ?: 'd-none'; ?>">
+                            <div class="form-group">
+                                <label for='billing_facility' class="text-right"><?php echo xlt('Billing Facility'); ?>:</label>
+                                <?php
+                                if (!empty($default_bill_fac_override)) {
+                                    $default_bill_fac = $default_bill_fac_override;
+                                } elseif (!$viewmode && $mode !== "followup") {
+                                    if ($user_facility['billing_location'] == '1') {
+                                        $default_bill_fac =  $user_facility['id'] ;
+                                    } else {
+                                        $tmp_be = $facilityService->getPrimaryBusinessEntity();
+                                        $tmp_bl =  $facilityService->getPrimaryBillingLocation();
+                                        $tmp = !empty($tmp_be['id']) ? $tmp_be['id'] : (!empty($tmp_bl['id']) ? $tmp_bl['id'] : null);
+                                        $default_bill_fac = !empty($tmp) ? $tmp : $def_facility;
+                                    }
+                                } else {
+                                    $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;
+                                }
+                                billing_facility('billing_facility', $default_bill_fac);
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <!-- Discharge Disposition -->
+                        <div class="col-sm <?php displayOption('enc_enable_discharge_disposition'); ?>">
+                            <div class="form-group">
+                                <label for='facility_id' class="text-right"><?php echo xlt('Discharge Disposition'); ?>:</label>
+                                <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
+                                    <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
+                                    <?php
+                                    $dischargeListDisposition = new ListService();
+                                    $dischargeDisposiitons = $dischargeListDisposition->getOptionsByListName('discharge-disposition') ?? [];
+                                    foreach ($dischargeDisposiitons as $dispositon) {
+                                        $selected = ($result['discharge_disposition'] ?? null) == $dispositon['option_id'] ? "selected='selected'" : "";
+                                        ?>
+                                    <option value="<?php echo attr($dispositon['option_id']); ?>" <?php echo $selected; ?> ><?php echo text($dispositon['title']); ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['enable_group_therapy'] == 1) ?: 'd-none'; ?>">
+                            <div class="form-group">
+                                <label for="form_group" class="text-right"><?php echo xlt('Group name'); ?>:</label>
+                                <input type='text' name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+                                <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="form-row">
+                <div class="col-sm">
+                    <fieldset>
+                        <legend><?php echo xlt('Reason for Visit') ?></legend>
+                        <div class="form-row mx-3 h-100">
+                            <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-sm <?php displayOption('enc_enable_issues');?>">
+                    <?php
+                    // Before we even check for auth, see if we will even display
+                    // To see issues stuff user needs write access to all issue types.
+                    $issuesauth = true;
+                    foreach ($ISSUE_TYPES as $type => $dummy) {
+                        if (!AclMain::aclCheckIssue($type, '', 'write')) {
+                            $issuesauth = false;
+                            break;
+                        }
+                    }
+                    if ($issuesauth) {
+                        ?>
+                        <fieldset>
+                            <legend>
+                                <?php echo xlt('Link/Add Issues to This Visit') ?>
+                            </legend>
+                            <div id="visit-issues">
+                                <div class="form-row px-3">
+                                    <div class="pb-1 col-sm">
+                                        <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
+                                            <a href="../../patient_file/summary/add_edit_issue.php" class="btn d-block btn-primary btn-add btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
+                                        <?php } ?>
+                                    </div>
+                                    <select multiple name='issues[]' class='form-control' title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>' size='4'>
+                                        <?php
+                                        while ($irow = sqlFetchArray($ires)) {
+                                            $list_id = $irow['id'];
+                                            $tcode = $irow['type'];
+                                            if ($ISSUE_TYPES[$tcode]) {
+                                                $tcode = $ISSUE_TYPES[$tcode][2];
+                                            }
+                                            echo "<option value='" . attr($list_id) . "'";
+                                            if ($viewmode) {
+                                                $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
+                                                    "pid = ? AND encounter = ? AND list_id = ?", array($pid, $encounter, $list_id));
+                                                if ($perow['count']) {
+                                                    echo " selected";
+                                                }
+                                            } else {
+                                                // For new encounters the invoker may pass an issue ID.
+                                                if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) {
+                                                    echo " selected";
+                                                }
+                                            }
+                                            echo ">" . text($tcode) . ": " . text($irow['begdate']) . " " .
+                                                text(substr($irow['title'], 0, 40)) . "</option>\n";
+                                        }
+                                        ?>
+                                    </select>
+                                    <p><i><?php echo xlt('To link this encounter/consult to an existing issue, click the '
+                                                . 'desired issue above to highlight it and then click [Save]. '
+                                                . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <?php
+                    }
+                    ?>
+                </div>
+            </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-row">
-                <div class="col-sm-12 text-left position-override">
+                <div class="col-sm-12 text-left position-override pl-3">
                     <div class="btn-group" role="group">
+                        <?php $link_submit = ($viewmode || empty($_GET['autoloaded'])) ? '' : 'link_submit'; ?>
                         <button type="button" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save'); ?></button>
-                        <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                            <button type="button" class="btn btn-secondary btn-cancel" onClick="return cancelClickedOld()"><?php echo xlt('Cancel'); ?></button>
-                        <?php } else { // not $viewmode ?>
-                            <button class="btn btn-secondary btn-cancel link_submit" onClick="return cancelClickedNew()"><?php echo xlt('Cancel'); ?></button>
-                        <?php } // end not $viewmode ?>
+                        <button type="button" class="btn btn-cancel <?php echo $link_submit; ?>" onClick="return cancelClickedOld()"><?php echo xlt('Cancel'); ?></button>
                     </div>
                 </div>
             </div>

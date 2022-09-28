@@ -20,7 +20,7 @@ class DateHelper
      */
     public static function format_datetime_cqm($datetime)
     {
-        return gmdate('Y-m-d\TH:i:s.u', date('U', strtotime($datetime)));
+        return !empty($datetime) ? date('Y-m-d\TH:i:s', strtotime($datetime)) . ".000+00:00" : null;
     }
 
     /**
@@ -31,7 +31,7 @@ class DateHelper
      */
     public static function format_datetime($datetime)
     {
-        return gmdate('YmdHis', date('U', strtotime($datetime)));
+        return !empty($datetime) ? date('YmdHis', strtotime($datetime)) : null;
     }
 
     public static function format_date($date)

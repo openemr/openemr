@@ -147,6 +147,7 @@ $download_format = $this->download_format;
                 <tr>
                     <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_ccda" value="ccda" checked>&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('CCDA') ?></span></td>
                     <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda" value="qrda">&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA I') ?></span></td>
+                    <td nowrap><input class="export-document" type="radio" name="downloadformat" id="downloadformat_qrda3" value="qrda3">&nbsp;<span style="font-size: 13px"><?php echo $this->listenerObject->z_xlt('QRDA III') ?></span></td>
                 </tr>
             </table>
         </div>
@@ -163,19 +164,35 @@ $download_format = $this->download_format;
                 echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
             }
             ?>
-
+        </select>
+    </div>
+    <div id="componentsForQRDA3" style="height:300px !important;display:none;" class="ap-st-st-13">
+        <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
+        <select size="12" id="report_measures_cat3" name="report_measures_cat3[]" style="width:100%;">
+            <option value="" selected><?php echo $this->listenerObject->z_xlt('All Measures All Patients'); ?></option>
+            <!--<option value="all"><?php /*echo $this->listenerObject->z_xlt('Patient with all Measures'); */ ?></option>-->
+            <?php
+            foreach ($this->current_measures as $measure) {
+                $help = attr($measure['title']);
+                $title = $this->escapeHtml($measure['measure_id'] . ' - ' . $measure['title']);
+                echo '<option value="' . attr($measure['measure_id']) . '" title="' . $help . '">' . $title . '</option>';
+            }
+            ?>
         </select>
     </div>
     <div id="componentsForCCDA" style="height:300px !important;display:none;" class="ap-st-st-13">
         <div style="display:inline-flex;width:100%;">
-            <div style="width:33%">
-                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_toc" value="toc checked" checked>&nbsp;<?php echo $this->listenerObject->z_xlt('Transistion of Care') ?></label>
-            </div>
             <div style="width:15%">
-                <label style="margin:1px 2px;"><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_ccd" value="ccd">&nbsp;<?php echo $this->listenerObject->z_xlt('CCD') ?></label>
+                <label style="margin:1px 2px;"><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_ccd" value="ccd" checked>&nbsp;<?php echo $this->listenerObject->z_xlt('CCD') ?></label>
             </div>
-            <div style="width:33%">
+            <div style="width:35%">
+                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_toc" value="toc" >&nbsp;<?php echo $this->listenerObject->z_xlt('Transistion of Care') ?></label>
+            </div>
+            <div style="width:25%">
                 <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_careplan" value="careplan">&nbsp;<?php echo $this->listenerObject->z_xlt('Careplan') ?></label>
+            </div>
+            <div style="width:25%">
+                <label><input class="ap-st-st-3" type="radio" name="downloadformat_type" id="downloadformat_referral" value="referral">&nbsp;<?php echo $this->listenerObject->z_xlt('Referral') ?></label>
             </div>
         </div>
         <div>
@@ -204,7 +221,9 @@ $download_format = $this->download_format;
     <!--End Download All-->
     <div class="ap-st-st-6">
         <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
-        <div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('SEND'); ?></div>
+        <div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('Send'); ?></div>
+        <input type="hidden" name="form_filter_content" id="form_filter_content" value="" />
+        <div class="ap-st-st-7" onclick="sendFiltered();"><?php echo $this->listenerObject->z_xlt('Send Filtered'); ?></div>
     </div>
 </div>
 <?php $this->headScript()->captureStart() ?>

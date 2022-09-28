@@ -31,4 +31,4 @@ $fso = load_fee_sheet_options($pricelevel);
 $retval = array();
 $retval['fee_sheet_options'] = $fso;
 $retval['pricelevel'] = $pricelevel;
-echo json_encode($retval);
+echo text(json_encode($retval));

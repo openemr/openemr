@@ -26,6 +26,8 @@ use Carecoordination\Model\CarecoordinationTable;
 use C_Document;
 use Document;
 use CouchDB;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Cda\CdaValidateDocuments;
 use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
@@ -61,6 +63,31 @@ class CarecoordinationController extends AbstractActionController
         $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
     }
 
+    /**
+     * delete an audit record
+     *
+     * @return ViewModel
+     */
+    public function deleteAuditAction()
+    {
+        $request = $this->getRequest();
+        $amid = $request->getPost('am_id') ?? null;
+        if ($amid) {
+            $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $amid));
+        }
+        $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        $view = new ViewModel(array(
+            'records' => $records,
+            'category_id' => $category_details[0]['id'],
+            'file_location' => basename($_FILES['file']['name'] ?? ''),
+            'patient_id' => '00',
+            'listenerObject' => $this->listenerObject
+        ));
+
+        return $view;
+    }
+
     /*
     * Upload CCDA file
     */
@@ -79,7 +106,7 @@ class CarecoordinationController extends AbstractActionController
             foreach ($records as $record) {
                 if (!empty($record['matched_patient'])) {
                     // @todo figure out a way to make this auto. $data is array of doc changes.
-                    //$this->getCarecoordinationTable()->insertApprovedData($data);
+                    // $this->getCarecoordinationTable()->insertApprovedData($data);
                     // meantime make user approve changes.
                     continue;
                 }
@@ -99,13 +126,18 @@ class CarecoordinationController extends AbstractActionController
         if ($upload == 1) {
             $time_start = date('Y-m-d H:i:s');
             $obj_doc = $this->documentsController;
-            $cdoc = $obj_doc->uploadAction($request);
-            $uploaded_documents = array();
-            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
-            if ($uploaded_documents[0]['id'] > 0) {
-                $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
-                $_REQUEST["batch_import"] = 'YES';
-                $this->importAction();
+            if ($obj_doc->isZipUpload($request)) {
+                $this->importZipUpload($request);
+            } else {
+                $cdoc = $obj_doc->uploadAction($request);
+                $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
+                    array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s'))
+                );
+                if ($uploaded_documents[0]['id'] > 0) {
+                    $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
+                    $_REQUEST["batch_import"] = 'YES';
+                    $this->importAction();
+                }
             }
         } else {
             $result = $this->Documents()->fetchXmlDocuments();
@@ -119,6 +151,60 @@ class CarecoordinationController extends AbstractActionController
         }
 
         $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        foreach ($records as $key => $r) {
+            if (!empty($records[$key]['dupl_patient'] ?? null)) {
+                continue;
+            }
+            $name = $r['pat_name'];
+            foreach ($records as $k => $r1) {
+                $f = false;
+                $why = '';
+                if (!empty($r1['dupl_patient'] ?? null) || $key == $k) {
+                    continue;
+                }
+                $n = $r1['pat_name'];
+                $fn = $r1['ad_fname'] == $r['ad_fname'];
+                $ln = $r1['ad_lname'] == $r['ad_lname'];
+                $dob = $r1['dob_raw'] == $r['dob_raw'];
+                if ($dob) {
+                    $f = true;
+                    $why = xlt('Match DOB');
+                }
+                if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
+                    if ($f) {
+                        $why = xlt('Matched Demo and DOB');
+                    } else {
+                        $why = xlt('Matched Demo');
+                    }
+                    if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
+                        $why .= ' ' . xlt('with Mismatched Components');
+                    }
+                    $f = true;
+                }
+                if (
+                    (($ln && !$fn || $fn && !$ln) && $dob)
+                    && ($r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])
+                ) {
+                    $why = xlt('Name Misspelled');
+                    if (
+                        $r1['enc_count'] != $r['enc_count']
+                        || $r1['cp_count'] != $r['cp_count']
+                        || $r1['ob_count'] != $r['ob_count']
+                    ) {
+                        $why .= ' ' .  xlt('with Mismatched Components');
+                    }
+                    $f = true;
+                }
+                if (($r1['is_qrda_document'] ?? 0) === 2) {
+                    $f = false;
+                    $records[$k]['dupl_patient'] = xlt('Empty Report. No QDM content.');
+                }
+                if ($f) {
+                    $records[$key]['dupl_patient'] = $records[$k]['dupl_patient'] = $why;
+                }
+            }
+        }
+
         $view = new ViewModel(array(
             'records' => $records,
             'category_id' => $category_details[0]['id'],
@@ -127,7 +213,9 @@ class CarecoordinationController extends AbstractActionController
             'listenerObject' => $this->listenerObject
         ));
         // I haven't a clue why this delay is needed to allow batch to work from fetch.
-        sleep(1);
+        if (!empty($upload)) {
+            sleep(1);
+        }
         return $view;
     }
 
@@ -367,6 +455,10 @@ class CarecoordinationController extends AbstractActionController
         $temp = '';
 
         switch ($component) {
+            case 'schematron':
+                $validate = new CdaValidateDocuments();
+                $temp .= $validate->createSchematronHtml($amid);
+                break;
             case 'allergies':
                 $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');
                 if (count($allergies_audit) > 0) {
@@ -821,5 +913,150 @@ class CarecoordinationController extends AbstractActionController
             $audit[$table_name] = []; // leave it empty so we don't fail in the template
         }
         return $audit;
+    }
+
+
+    private function sanitizeZip($zipLocation)
+    {
+
+        // TODO: @adunsulag NOTE that zip files can be in any order... so we can't assume that this is alphabetical
+        // to fix this may involve extracting the zip and re-ordering all of the entries...
+        // another one would be to just create hash map indexes with patient names mapped to nested documents...
+        // this will only be an issue if we are migrating documents as the CCDA files themselves are self-contained
+
+
+        // TODO: fire off an event about sanitizing the zip file
+        // should have sanitization settings and let someone filter them...
+        // event response should have a boolean for skipSanitization in case a module has already done the sanitization
+
+        $z = new \ZipArchive();
+        // if a zip file exist we want to overwrite it when we save
+        $z->open($zipLocation);
+        $z->setArchiveComment(""); // remove any comments so we don't deal with buffer overflows on the zip extraction
+        $patientCountHash = [];
+        $patientCount = 0;
+        $patientNameIndex = 2;
+        $patientDocumentsIndex = 3;
+        $maxPatients = 500;
+        $maxDocuments = 500;
+        $maxFileComponents = 5;
+
+        for ($i = 0; $i < $z->numFiles; $i++) {
+            $stat = $z->statIndex($i);
+            // explode and make sure we have our three parts
+            // our max directory structure is 4... anything more than that and we will bail
+            $fileComponents = explode("/", $stat['name'], $maxFileComponents);
+            $componentCount = count($fileComponents);
+            $shouldDeleteIndex = false;
+
+            // now we need to do our document import for our ccda for this patient
+            if ($componentCount <= $patientNameIndex) {
+                $shouldDeleteIndex = false; // we don't want to delete if we are in folders before our patient name index
+            } else if ($componentCount == ($patientNameIndex + 1)) {
+                // if they have more than maxDocuments in ccd files we need to break out of someone trying to directory
+                // bomb the file system
+                $patientCountHash[$patientNameIndex] = $patientCountHash[$patientNameIndex] ?? 0;
+
+                // let's check for ccda
+                if ($patientCount > $maxPatients) {
+                    $shouldDeleteIndex = true; // no more processing of patient ccdas as we've reached our max import size
+                } else if ($patientCountHash[$patientNameIndex] > $maxDocuments) {
+                    $shouldDeleteIndex = true;
+                // can fire off events for modifying what files we keep / process...
+                // we don't process anything but xml ccds
+                } else if (strrpos($fileComponents[$patientNameIndex], '.xml') === false) {
+                    $shouldDeleteIndex = true;
+                    // if we have a ccd we need to set our document count and increment our patient count
+                    // note this logic allows multiple patient ccds to be here as long as they are in the same folder
+                } else if (!isset($patientCountHash[$fileComponents[$patientNameIndex]])) {
+                    $patientCountHash[$patientNameIndex] = 0;
+                    $patientCount++;
+                } else {
+                    $patientCountHash[$patientNameIndex];
+                }
+            } else if ($componentCount == ($patientDocumentsIndex + 1)) {
+                if ($patientCountHash[$patientNameIndex] > $maxDocuments) {
+                    $shouldDeleteIndex = true;
+                } else {
+                    $patientCountHash[$patientNameIndex] += 1;
+                }
+            } else {
+                $shouldDeleteIndex = true;
+            }
+
+            // TODO: fire off an event with the patient name, current index, file name, and zip archive object
+            // we can filter on whether we should keep this and let module writers do their own thing if they want to
+            // retain any of the documents or not for their own custom processing.
+            if ($shouldDeleteIndex) {
+                $z->deleteIndex($i);
+            }
+        }
+        $z->close();
+    }
+
+    private function printZipContents($zipLocation)
+    {
+        $z = new \ZipArchive();
+        $z->open($zipLocation);
+        for ($i = 0; $i < $z->numFiles; $i++) {
+            $stat = $z->statIndex($i);
+            (new SystemLogger())->error("File in zip is " . $stat['name']);
+        }
+        $z->close();
+    }
+
+    private function importZipUpload($request)
+    {
+
+
+        // our file structure is
+        // import_name / patient_name / ccda.xml
+        // import_name / patient_name / ccda.html
+        // import_name / patient_name / ccda.xsl
+
+        // we will need to have these limit options configurable but we have to be careful to
+        // we will limit our docsToImport to 500
+        // we will limit our patientsToImport to 500
+
+        $z = new \ZipArchive();
+        $tmpFile = reset($_FILES);
+        $tmpFileName = $tmpFile['tmp_name'];
+        $this->printZipContents($tmpFileName);
+
+        // make sure we only have our documents folder and our ccda file
+        $this->sanitizeZip($tmpFileName);
+        $z->open($tmpFileName);
+        $category_details          = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+        $catId = $category_details[0]['id'] ?? null;
+        if (empty($catId)) {
+            throw new \RuntimeException("Could not find document category id for category of CCDA");
+        }
+        $auditMasterRecordByPatients = [];
+        for ($i = 0; $i < $z->numFiles; $i++) {
+            $stat = $z->statIndex($i);
+            // explode and make sure we have our three parts
+            // our max directory structure is 4... anything more than that and we will bail
+            $fileComponents = explode("/", $stat['name'], 5);
+            $componentCount = count($fileComponents);
+
+            // now we need to do our document import for our ccda for this patient
+            if ($componentCount == 3) {
+                // let's process the ccda
+                $file_name = basename($stat['name']);
+
+                $pid = '00';
+                $ob = new Document();
+                $contents = $z->getFromIndex($i);
+                $ret = $ob->createDocument($pid, $catId, $file_name, 'text/xml', $contents);
+                if (!empty($ret)) {
+                    throw new \RuntimeException("Failed to create document from zip file " . $file_name . " error returned was " . $ret);
+                }
+
+                $auditMasterRecordId = $this->getCarecoordinationTable()->import($ob->get_id());
+                // we can use this to do any other processing as the files should be in order
+                $auditMasterRecordByPatients[$fileComponents[2]] = $auditMasterRecordId;
+            }
+        }
+        $z->close();
     }
 }

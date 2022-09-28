@@ -70,7 +70,7 @@ class SurgeryService extends BaseService
                         ,`uuid`
                         ,`pid`
                         ,`comments`
-                        ,`username` as surgery_recorder
+                        ,`user` as surgery_recorder
                     FROM lists
                     WHERE
                         `type` = 'surgery'
@@ -85,7 +85,7 @@ class SurgeryService extends BaseService
                         patient_data
                 ) patient ON surgeries.pid = patient.pid
                 LEFT JOIN (
-                    select 
+                    select
                            uuid AS recorder_uuid
                             ,username AS recorder_username
                             ,id AS recorder_id
@@ -97,16 +97,16 @@ class SurgeryService extends BaseService
                         pid AS ie_pid
                         ,list_id AS ie_list_id
                         ,encounter AS ie_encounter_id
-                    FROM 
+                    FROM
                         issue_encounter
                 ) list_encounters ON list_encounters.ie_list_id = surgeries.id
                                          AND list_encounters.ie_pid = patient.pid
                 LEFT JOIN (
-                    SELECT 
+                    SELECT
                         id AS eid
                         ,uuid AS euuid
                         ,pid AS encounter_pid
-                    FROM form_encounter 
+                    FROM form_encounter
                 ) encounter
                 ON list_encounters.ie_encounter_id = encounter.eid";
 

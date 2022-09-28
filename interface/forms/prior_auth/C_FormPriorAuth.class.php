@@ -57,17 +57,17 @@ class C_FormPriorAuth extends Controller
             return;
         }
 
-        $this->prior_auth = new FormPriorAuth($_POST['id']);
-        parent::populate_object($this->prior_auth);
+        $this->form = new FormPriorAuth($_POST['id']);
+        parent::populate_object($this->form);
 
 
-        $this->prior_auth->persist();
+        $this->form->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Prior Authorization", $this->prior_auth->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm($GLOBALS['encounter'], "Prior Authorization", $this->form->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
         }
         return;

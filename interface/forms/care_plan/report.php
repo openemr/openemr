@@ -17,6 +17,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 function care_plan_report($pid, $encounter, $cols, $id)
 {
@@ -47,7 +48,7 @@ function care_plan_report($pid, $encounter, $cols, $id)
                 ?>
                 <tr>
                     <td class="border p-1"><span class='text'><?php echo text($value['user']); ?></span></td>
-                    <td class="border p-1"><span class='text'><?php echo text($value['care_plan_type']); ?></span></td>
+                    <td class="border p-1"><span class='text'><?php echo text(getListItemTitle('Plan_of_Care_Type', $value['care_plan_type'])); ?></span></td>
                     <td class="border p-1"><span class=text><?php echo text($value['code']); ?></span></td>
                     <td class="border p-1"><span class=text><?php echo text($value['codetext']); ?></span></td>
                     <td class="border p-1"><span class=text><?php echo text($value['description']); ?></span></td>

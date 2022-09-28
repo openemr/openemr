@@ -5,6 +5,7 @@
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 // Copyright (c) 2017 - 2021 Jerry Padgett <sjpadgett@gmail.com>
 // Copyright (c) 2021 Robert Down <robertdown@live.com>
+// Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -130,7 +131,8 @@ function generate_select_list(
     $multiple = false,  // new #10
     $backup_list = '',  // new #11
     $ignore_default = false,
-    $include_inactive = false
+    $include_inactive = false,
+    $tabIndex = false
 ) {
     $s = '';
 
@@ -141,6 +143,10 @@ function generate_select_list(
     }
 
     $s .= "<select name='$tag_name_esc'";
+
+    if ($tabIndex !== false) {
+        $s .= " tabindex='" . attr($tabIndex) . "' '";
+    }
 
     if ($multiple) {
         $s .= " multiple='multiple'";
@@ -619,8 +625,8 @@ function generate_form_field($frow, $currvalue)
                 " value='" . attr($comment) . "'/>";
         }
     } elseif ($data_type == 2) { // simple text field
-        $fldlength = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
-        $maxlength = $frow['max_length'];
+        $fldlength = htmlspecialchars($frow['fld_length'] ?? '', ENT_QUOTES);
+        $maxlength = $frow['max_length'] ?? '';
         $string_maxlength = "";
         // if max_length is set to zero, then do not set a maxlength
         if ($maxlength) {
@@ -693,7 +699,7 @@ function generate_form_field($frow, $currvalue)
         }
         if ($data_type == 4) {
             $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
-            $datetimepickerclass = $frow['validation'] === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
+            $datetimepickerclass = ($frow['validation'] ?? null) === 'past_date' ? '-past' : ( ($frow['validation'] ?? null) === 'future_date' ? '-future' : '' );
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";
@@ -1275,7 +1281,7 @@ function generate_form_field($frow, $currvalue)
         // show the add button if user has access to correct list
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
         $btnSize = ($smallform) ? "btn-sm" : "";
-        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-secondary $btnSize addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+        $outputAddButton = "<div class='input-group-append'><input type='button' class='btn btn-secondary $btnSize mb-1 addtolist' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' value='$inputValue' $disabled /></div>";
         if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
@@ -1660,6 +1666,7 @@ function generate_form_field($frow, $currvalue)
     // Previous Patient Names with add. Somewhat mirrors data types 44,45.
     } elseif ($data_type == 52) {
         global $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
         $patientService = new PatientService();
         $res = $patientService->getPatientNameHistory($pid);
         echo "<div class='input-group w-75'>";
@@ -1673,8 +1680,9 @@ function generate_form_field($frow, $currvalue)
         echo "</select>";
         echo "<button type='button' class='btn btn-primary btn-sm' id='type_52_add' onclick='return specialtyFormDialog()'>" . xlt('Add') . "</button></div>";
     // Patient Encounter List Field
-    } else if ($data_type == 53) {
+    } elseif ($data_type == 53) {
         global $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
         $encounterService = new EncounterService();
         $res = $encounterService->getEncountersForPatientByPid($pid);
         echo "<div class='input-group w-75'>";
@@ -1691,6 +1699,8 @@ function generate_form_field($frow, $currvalue)
             }
         }
         echo "</select>";
+    } elseif ($data_type == 54) {
+        include "templates/address_list_form.php";
     }
 }
 
@@ -2372,7 +2382,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
         }
 
     // Patient selector field.
-    } else if ($data_type == 51) {
+    } elseif ($data_type == 51) {
         if (!empty($currvalue)) {
             $tmp = text(getPatientDescription($currvalue));
         } else {
@@ -2894,6 +2904,8 @@ function generate_display_field($frow, $currvalue)
                 $s = text($encounter['date'] ?? '');
             }
         }
+    } elseif ($data_type == 54) {
+        include "templates/address_list_display.php";
     }
 
     return $s;
@@ -3230,7 +3242,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
 
     // Patient selector field.
-    } else if ($data_type == 51) {
+    } elseif ($data_type == 51) {
         if (!empty($currvalue)) {
             $s .= getPatientDescription($currvalue);
         }
@@ -3548,6 +3560,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
             $jump_new_row = isOption($frow['edit_options'], 'J');
             $prepend_blank_row = isOption($frow['edit_options'], 'K');
             $portal_exclude = (!empty($_SESSION["patient_portal_onsite_two"]) && isOption($frow['edit_options'], 'EP')) ?? null;
+            $span_col_row = isOption($frow['edit_options'], 'SP');
 
             if (!empty($portal_exclude)) {
                 continue;
@@ -3614,37 +3627,39 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new label cell.
-                if ($titlecols > 0) {
+                if ($titlecols > 0 || $span_col_row) {
                     disp_end_cell();
-                    //echo "<td class='label_custom align-top' colspan='$titlecols'";
+                    $titlecols = $span_col_row ? 0 : $titlecols;
                     $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
-                    echo "<td class='label_custom' colspan='$titlecols_esc' ";
-                    //if ($cell_count == 2) echo " style='padding-left:10pt'";
-                    echo ">";
+                    if (!$span_col_row) {
+                        echo "<td class='label_custom' colspan='$titlecols_esc' ";
+                        echo ">";
+                    }
                     $cell_count += $titlecols;
                 }
 
                 ++$item_count;
 
-                // Added 5-09 by BM - Translate label if applicable
-                if ($frow['title']) {
-                    $tmp = xl_layout_label($frow['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
-                        echo ':';
+                // Prevent title write if span entire row.
+                if (!$span_col_row) {
+                    // Added 5-09 by BM - Translate label if applicable
+                    if ($frow['title']) {
+                        $tmp = xl_layout_label($frow['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
                     }
-                } else {
-                    echo "&nbsp;";
                 }
-
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
                     disp_end_cell();
-                    //echo "<td class='text data align-top' colspan='$datacols'";
+                    $datacols = $span_col_row ? $CPR : $datacols;
                     $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
                     echo "<td class='text data' colspan='$datacols_esc'";
-                    //if ($cell_count > 0) echo " style='padding-left:5pt'";
                     echo ">";
                     $cell_count += $datacols;
                 }
@@ -3751,7 +3766,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
         while ($frow = sqlFetchArray($fres)) {
             $this_group = isset($frow['group_id']) ? $frow['group_id'] : "" ;
 
-            if ($grparr[$this_group]['grp_columns'] === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -3784,6 +3799,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 $edit_options  = $group_fields['edit_options'];
                 $jump_new_row = isOption($edit_options, 'J');
                 $prepend_blank_row = isOption($edit_options, 'K');
+                $span_col_row = isOption($edit_options, 'SP');
 
                 if ($formtype == 'DEM') {
                     if (strpos($field_id, 'em_') === 0) {
@@ -3846,12 +3862,15 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new label cell.
-                if ($titlecols > 0) {
+                if ($titlecols > 0 || $span_col_row) {
                     disp_end_cell();
+                    $titlecols = $span_col_row ? 0 : $titlecols;
                     $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
                     $field_id_label = 'label_' . $group_fields['field_id'];
-                    echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
-                    echo ">";
+                    if (!$span_col_row) {
+                        echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
+                        echo ">";
+                    }
                     $cell_count += $titlecols;
                 }
 
@@ -3863,24 +3882,27 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 }
 
                 $field_id_label = 'label_' . $group_fields['field_id'];
-                echo "<span id='" . attr($field_id_label) . "'>";
-                if ($skip_this_field) {
-                    // No label because skipping
-                } elseif ($group_fields['title']) {
-                    $tmp = xl_layout_label($group_fields['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
-                        echo ':';
+                if (!$span_col_row) {
+                    echo "<span id='" . attr($field_id_label) . "'>";
+                    if ($skip_this_field) {
+                        // No label because skipping
+                    } elseif ($group_fields['title']) {
+                        $tmp = xl_layout_label($group_fields['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (!str_contains('?!.,:-=', $tmp[strlen($tmp) - 1])) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
                     }
-                } else {
-                    echo "&nbsp;";
+                    echo "</span>";
                 }
-                echo "</span>";
 
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
                     disp_end_cell();
+                    $datacols = $span_col_row ? $CPR : $datacols;
                     $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
                     $field_id = 'text_' . $group_fields['field_id'];
                     echo "<td class='text data' colspan='$datacols_esc' id='" . attr($field_id) . "'  data-value='" . attr($currvalue) . "'";
@@ -4063,7 +4085,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 // There is a group subtitle so show it.
                 $bs_cols = $CPR * intval(12 / $CPR);
                 echo "<div class='row mb-2'>";
-                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols' style='color:#0000ff'>" . text($subtitle) . "</div>";
+                echo "<div class='$BS_COL_CLASS-$bs_cols' style='color:#0000ff'>" . text($subtitle) . "</div>";
                 echo "</div>\n";
             }
 
@@ -4079,6 +4101,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 $action     = 'skip';
                 $jump_new_row = isOption($group_fields['edit_options'], 'J');
                 $prepend_blank_row = isOption($group_fields['edit_options'], 'K');
+                $span_col_row = isOption($group_fields['edit_options'], 'SP');
 
                 // Accumulate action conditions into a JSON expression for the browser side.
                 accumActionConditions($group_fields, $condition_str);
@@ -4122,13 +4145,13 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
                         echo "<div class='form-row mb-2'>";
-                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols p-2 label' style='background-color: var(--gray300)'>" . text($subtitle) . "</div>";
+                        echo "<div class='$BS_COL_CLASS-$bs_cols p-2 label' style='background-color: var(--gray300)'>" . text($subtitle) . "</div>";
                         echo "</div>\n";
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
                         echo "<div class='form-row'>";
-                        echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols label' style='font-size:25%'>&nbsp;</div>";
+                        echo "<div class='$BS_COL_CLASS-$bs_cols label' style='font-size: 25%'>&nbsp;</div>";
                         echo "</div>\n";
                     }
                     echo "<div class='form-row'>";
@@ -4139,8 +4162,9 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new label cell.
-                if ($titlecols > 0) {
+                if ($titlecols > 0 || $span_col_row) {
                     bs_disp_end_cell();
+                    $titlecols = $span_col_row ? 0 : $titlecols;
                     $bs_cols = $titlecols * intval(12 / $CPR);
                     echo "<div class='$BS_COL_CLASS-$bs_cols pt-1 label_custom' ";
                     echo "id='label_id_" . attr($field_id) . "'";
@@ -4156,21 +4180,24 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     echo "<span class='text-nowrap mr-2'>";
                 }
 
-                if ($group_fields['title']) {
-                    $tmp = xl_layout_label($group_fields['title']);
-                    echo text($tmp);
-                    // Append colon only if label does not end with punctuation.
-                    if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
-                        echo ':';
+                if (!$span_col_row) {
+                    if ($group_fields['title']) {
+                        $tmp = xl_layout_label($group_fields['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
                     }
-                } else {
-                    echo "&nbsp;";
                 }
 
                 // Handle starting of a new data cell.
                 if ($datacols > 0) {
                     bs_disp_end_cell();
                     $field_id = 'text_' . $group_fields['field_id'];
+                    $datacols = $span_col_row ? $CPR : $datacols;
                     $bs_cols = $datacols * intval(12 / $CPR);
                     echo "<div class='$BS_COL_CLASS-$bs_cols'";
                     echo " id='value_id_" . attr($field_id) . "'";
@@ -4357,7 +4384,11 @@ function get_layout_form_value($frow, $prefix = 'form_')
         ":<br />&nbsp;<br />" . htmlspecialchars($value, ENT_NOQUOTES));
     }
 
-    return trim($value);
+    if (is_string($value)) {
+        return trim($value);
+    } else {
+        return $value;
+    }
 }
 
 // Generate JavaScript validation logic for the required fields.
@@ -4605,7 +4636,7 @@ function dropdown_facility(
  * @var $fixedWidth is to flag whether width is fixed
  * @var $forceExpandAlways is a flag to force the widget to always be expanded
  *
- * @todo Convert to a modern layotu
+ * @todo Convert to a modern layout
  */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false)
 {

@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7;
 class MeasureService
 {
     public static $measure_sources = [
-        'openemr/oe-cqm-parsers' => '/node_modules/oe-cqm-parsers/json_measures',
+        'openemr/oe-cqm-parsers' => '/ccdaservice/node_modules/oe-cqm-parsers/json_measures',
         'contrib' => '/contrib/ecqm/EP-EC-eCQM-2020-05'
     ];
 

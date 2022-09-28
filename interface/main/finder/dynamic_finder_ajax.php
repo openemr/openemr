@@ -41,8 +41,9 @@ $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['sea
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(
-        "SELECT field_id FROM layout_options WHERE form_id = 'DEM' AND field_id not like ? AND uor !=0",
-        array('em\_%')
+        "SELECT field_id FROM layout_options WHERE form_id = 'DEM'
+            AND field_id not like ? AND field_id not like ? AND uor !=0",
+        array('em\_%', 'add%')
     );
     for ($iter = 0; $row = sqlFetchArray($layoutCols); $iter++) {
         $aColumns[] = $row['field_id'];

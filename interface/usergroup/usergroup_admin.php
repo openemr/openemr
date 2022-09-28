@@ -29,6 +29,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 use OpenEMR\Events\User\UserUpdatedEvent;
@@ -47,7 +48,8 @@ if (!empty($_GET)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    die(xlt('Access denied'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("User / Groups")]);
+    exit;
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {

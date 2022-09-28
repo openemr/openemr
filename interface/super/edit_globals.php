@@ -9,10 +9,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,6 +28,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -41,7 +44,8 @@ if (!$userMode) {
   // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        die(xlt('Not authorized'));
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
+        exit;
     }
 }
 
@@ -326,7 +330,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     echo "</script>";
 }
 
-$title = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
+$title = ($userMode) ? xlt("User Settings") : xlt("Configuration");
 ?>
 <title><?php  echo $title; ?></title>
 <?php Header::setupHeader(['common','jscolor']); ?>
@@ -348,7 +352,7 @@ $title = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
 }
 </style>
 <?php
-$heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Global Settings");
+$heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Configuration");
 
 $arrOeUiSettings = array(
     'heading_title' => $heading_title,
@@ -363,6 +367,7 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
+<script src="edit_globals.js" type="text/javascript"></script>
 </head>
 
 <body <?php if ($userMode) {
@@ -390,7 +395,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="input-group col-sm-4 oe-pull-away">
                         <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
                         if (!$userMode) {
-                            $placeholder = xla('Search global settings');
+                            $placeholder = xla('Search configuration');
                         } else {
                             $placeholder = xla('Search user settings');
                         }
@@ -440,6 +445,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     foreach ($grparr as $fldid => $fldarr) {
                                         if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
                                             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+
+                                            // if the setting defines field options for our global setting we grab it, otherwise we default empty
+                                            $fldoptions = $fldarr[4] ?? [];
+
                                             // mdsupport - Check for matches
                                             $srch_cl = '';
                                             $highlight_search = false;
@@ -730,6 +739,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                 echo "  </select>\n";
+                                            } else if ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
+                                                include 'templates/field_multi_sorted_list_selector.php';
                                             }
 
                                             if ($userMode) {

@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\ContactService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -50,6 +51,8 @@ $newdata['patient_data']['id'] = $_POST['db_id'];
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_id, seq");
+
+$addressFieldsToSave = array();
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
     if ((int)$data_type === 52) {
@@ -67,13 +70,30 @@ while ($frow = sqlFetchArray($fres)) {
     // Get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
     // *unless* the data_type is a checkbox ("21"), because if the checkbox is unchecked, then it will not
     // have a value set on the form, it will be empty.
-    if (isset($_POST["form_$field_id"]) || $data_type == 21) {
+    if ($data_type == 54) { // address list
+        $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
+    } else if (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }
 
+// TODO: All of this should be bundled up inside a transaction...
+
 updatePatientData($pid, $newdata['patient_data']);
-updateEmployerData($pid, $newdata['employer_data']);
+if (!$GLOBALS['omit_employers']) {
+    updateEmployerData($pid, $newdata['employer_data']);
+}
+
+if (!empty($addressFieldsToSave)) {
+    // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
+    // address information
+    // TODO: how are error messages supposed to display if the save fails?
+    foreach ($addressFieldsToSave as $field => $addressFieldData) {
+        // if we need to save other kinds of addresses we could do that here with our field column...
+        $contactService = new ContactService();
+        $contactService->saveContactsForPatient($pid, $addressFieldData);
+    }
+}
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));

@@ -12,19 +12,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("gad7.inc.php");
 
+$gad7_total = 0;
+$pdf_as_string = '';
+$data;
+$exp = '';
+
+$str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
 
 function gad7_report($pid, $encounter, $cols, $id)
 {
+    global $str_test, $str_nervous,$gad7_total, $pdf_as_string, $str_values,$str_difficulty_values, $data, $exp, $file_name, $str_generate_pdf;
+
     $count = 0;
-    $gad7_total = 0;
     $value = 0;
-
-    $str_values = [0 => xl('Not at all') . ' (0)',1 => xl('Several days') . ' (1)',2 => xl('More than half of days') . ' (2)',3 => xl('Nearly every day') . ' (3)'];
-
-    $str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
+    $gad7_total = 0; /* initialise back to zero */
 
     $str_issues = ["nervous_score" => xl('Feeling nervous'),"control_worry_score" => xl('Not controlling worry'),"worry_score" => xl('Worrying'),"relax_score" => xl('Trouble relaxing'),"restless_score" => xl('Being restless'),"irritable_score" => xl('Being irritable'),"fear_score" => xl('Feeling afraid'), "difficulty" => xl('Difficulty working etc.'),"total" => xl('Total GAD-7 score')];
 
@@ -68,6 +71,7 @@ function gad7_report($pid, $encounter, $cols, $id)
 
           print "<td><span class=bold>" . text($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . text($exp) . "</span></td>";
     }
+
 
     print "</tr></table>";
 }

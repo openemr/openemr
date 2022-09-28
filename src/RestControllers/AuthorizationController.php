@@ -53,6 +53,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -75,11 +76,11 @@ class AuthorizationController
 {
     use CryptTrait;
 
-    const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
+    public const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
 
-    const GRANT_TYPE_PASSWORD = 'password';
-    const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
-    const OFFLINE_ACCESS_SCOPE = 'offline_access';
+    public const GRANT_TYPE_PASSWORD = 'password';
+    public const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
+    public const OFFLINE_ACCESS_SCOPE = 'offline_access';
 
     public $authBaseUrl;
     public $authBaseFullUrl;
@@ -156,7 +157,10 @@ class AuthorizationController
             $this->passphrase = $oauth2KeyConfig->getPassPhrase();
         } catch (OAuth2KeyException $exception) {
             $this->logger->error("OpenEMR error - " . $exception->getMessage() . ", so forced exit");
-            $serverException = OAuthServerException::serverError("Security error - problem with authorization server keys.", $exception);
+            $serverException = OAuthServerException::serverError(
+                "Security error - problem with authorization server keys.",
+                $exception
+            );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($serverException->generateHttpResponse($response));
             exit;
@@ -236,12 +240,11 @@ class AuthorizationController
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
             // don't allow user, system scopes, and offline_access for public apps
-            } else if (
+            } elseif (
                 strpos($data['scope'], 'system/') !== false
                 || strpos($data['scope'], 'user/') !== false
-                || strpos($data['scope'], self::OFFLINE_ACCESS_SCOPE) !== false
             ) {
-                throw new OAuthServerException("system, user scopes, and offline_access are only allowed for confidential clients", 0, 'invalid_client_metadata');
+                throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
             $this->validateScopesAgainstServerApprovedScopes($data['scope']);
 
@@ -363,8 +366,7 @@ class AuthorizationController
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
         $site = $this->siteId;
         $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
-        // we do not allow a confidential app to be enabled by default;
-        $is_client_enabled = $is_confidential_client ? 0 : 1;
+
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
         $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
@@ -377,10 +379,13 @@ class AuthorizationController
         // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
         $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
 
-        // if a public app requests the launch scope we also do not let them through unless they've been manually
-        // authorized by an administrator user.
-        if ($is_client_enabled) {
-            $is_client_enabled = strpos($info['scope'], SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE) !== false ? 0 : 1;
+        $scopes = explode(" ", $info['scope']);
+        $scopeRepo = new ScopeRepository();
+
+        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes)) {
+            $is_client_enabled = 0; // disabled
+        } else {
+            $is_client_enabled = 1; // enabled
         }
 
         // encrypt the client secret
@@ -511,7 +516,7 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
 
-        if ($nonce = $request->getQueryParams()['nonce']) {
+        if ($nonce = $request->getQueryParams()['nonce'] ?? null) {
             $_SESSION['nonce'] = $request->getQueryParams()['nonce'];
         }
 
@@ -625,11 +630,6 @@ class AuthorizationController
                 new \DateInterval('PT1M'), // auth code. should be short turn around.
                 $expectedAudience
             );
-
-            // ONC Inferno does not support the code challenge PKCE standard right now so we disable it in the grant.
-            // Smart V2 http://build.fhir.org/ig/HL7/smart-app-launch/ will require PKCE with the code_challenge_method
-            // Note: this was true as of January 18th 2021
-            $grant->disableRequireCodeChallengeForPublicClients();
 
             $grant->setRefreshTokenTTL(new \DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(
@@ -824,6 +824,17 @@ class AuthorizationController
 
 
         $claims = $_SESSION['claims'] ?? [];
+
+        $clientRepository = new ClientRepository();
+        $client = $clientRepository->getClientEntity($_SESSION['client_id']);
+        $clientName = "<" . xl("Client Name Not Found") . ">";
+        if (!empty($client)) {
+            $clientName =  $client->getName();
+        }
+
+        $uuidToUser = new UuidUserAccount($_SESSION['user_id']);
+        $userRole = $uuidToUser->getUserRole();
+        $userAccount = $uuidToUser->getUserAccount();
         require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
     }
 
@@ -854,6 +865,7 @@ class AuthorizationController
             $this->logger->debug("AuthorizationController->verifyLogin() login attempt failed", ['username' => $username, 'email' => $email, 'type' => $type]);
             return false;
         }
+        // TODO: should user_id be set to be a uuid here?
         if ($this->userId = $auth->getUserId()) {
             $_SESSION['user_id'] = $this->getUserUuid($this->userId, 'users');
             $this->logger->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $_SESSION['user_id'],
@@ -861,10 +873,13 @@ class AuthorizationController
             return true;
         }
         if ($id = $auth->getPatientId()) {
-            $_SESSION['user_id'] = $this->getUserUuid($id, 'patient');
+            $puuid = $this->getUserUuid($id, 'patient');
+            // TODO: @adunsulag check with @sjpadgett on where this user_id is even used as we are assigning it to be a uuid
+            $_SESSION['user_id'] = $puuid;
             $this->logger->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $_SESSION['user_id']
                 , 'username' => $username, 'email' => $email, 'type' => $type]);
-            $_SESSION['pid'] = $_SESSION['user_id'];
+            $_SESSION['pid'] = $id;
+            $_SESSION['puuid'] = $puuid;
             return true;
         }
 

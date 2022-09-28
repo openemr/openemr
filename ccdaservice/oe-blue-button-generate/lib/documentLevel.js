@@ -34,21 +34,37 @@ exports.ccd2 = function (html_renderer) {
             },
             fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.1", "2015-08-01"),
             fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.1"),
-            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.2", "2015-08-01"),
-            fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.2"), [fieldLevel.id, dataKey("meta.identifiers")], {
+            {
+                key: "templateId",
+                attributes: {
+                    "root": leafLevel.inputProperty("root"),
+                    "extension": leafLevel.inputProperty("extension")
+                },
+                dataKey: 'meta.ccda_header.template',
+            },
+            {
+                key: "templateId",
+                attributes: {
+                    "root": leafLevel.inputProperty("root")
+                },
+                dataKey: 'meta.ccda_header.template',
+            },
+            [fieldLevel.id, dataKey("meta.identifiers")],
+            {
                 key: "code",
                 attributes: {
                     codeSystem: "2.16.840.1.113883.6.1",
                     codeSystemName: "LOINC",
-                    code: "34133-9",
-                    displayName: "Summarization of Episode Note"
-                }
+                    code: leafLevel.inputProperty("code"),
+                    displayName: leafLevel.inputProperty("name")
+                },
+                dataKey: 'meta.ccda_header.code',
             }, {
                 key: "title",
                 text: leafLevel.inputProperty("title"),
                 dataKey: "meta.ccda_header"
             },
-            [fieldLevel.effectiveDocumentTime, required], {
+            [fieldLevel.effectiveTime, required, dataKey("meta.ccda_header.date_time")], {
                 key: "confidentialityCode",
                 attributes: leafLevel.codeFromName("2.16.840.1.113883.5.25"),
                 dataKey: "meta.confidentiality"
@@ -75,11 +91,15 @@ exports.ccd2 = function (html_renderer) {
             headerLevel.headerAuthor,
             headerLevel.headerInformant,
             headerLevel.headerCustodian,
-            headerLevel.providers, {
+            headerLevel.headerInformationRecipient,
+            headerLevel.participant,
+            headerLevel.providers,
+            headerLevel.headerComponentOf, {
                 key: "component",
                 content: {
                     key: "structuredBody",
                     content: [
+                        sectionLevel2.careTeamSection(html_renderer.careTeamSectionHtmlHeader, html_renderer.careTeamSectionHtmlHeaderNA),
                         [sectionLevel2.allergiesSectionEntriesRequired(html_renderer.allergiesSectionEntriesRequiredHtmlHeader, html_renderer.allergiesSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.medicationsSectionEntriesRequired(html_renderer.medicationsSectionEntriesRequiredHtmlHeader, html_renderer.medicationsSectionEntriesRequiredHtmlHeaderNA), required],
                         [sectionLevel2.problemsSectionEntriesRequired(html_renderer.problemsSectionEntriesRequiredHtmlHeader, html_renderer.problemsSectionEntriesRequiredHtmlHeaderNA), required],

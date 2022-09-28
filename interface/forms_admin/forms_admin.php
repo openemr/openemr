@@ -12,9 +12,17 @@
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('admin', 'forms')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Forms Administration")]);
+    exit;
+}
 
 if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -40,7 +48,12 @@ if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    registerForm($_GET['name']) or $err = xl('error while registering form!');
+    $newRegisteredFormId = registerForm($_GET['name']) or $err = xl('error while registering form!');
+    if (empty($err)) {
+        // below block of code will insert the patient portal template (if it has not yet already been added) if the
+        //  form is patient portal compliant
+        CoreFormToPortalUtility::insertPatientPortalTemplate($newRegisteredFormId);
+    }
 }
 
 $bigdata = getRegistered("%") or $bigdata = false;
@@ -116,13 +129,19 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     "select priority, category, nickname, aco_spec from registry where id = ?",
                                     array($registry['id'])
                                 );
+                                $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
                                 ?>
                             <tr>
                                 <td>
                                     <span class='text'><?php echo text($registry['id']); ?></span>
                                 </td>
                                 <td>
-                                    <span class='font-weight-bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
+                                    <span class='font-weight-bold'>
+                                        <?php
+                                        echo text(xl_form_title($registry['name']));
+                                        echo ($patientPortalCompliant) ? ' <i class="fas fa-cloud-arrow-up" title="' . xla('Patient Portal Compliant') . '"></i>' : '';
+                                        ?>
+                                    </span>
                                 </td>
                                 <?php
                                 if ($registry['sql_run'] == 0) {
@@ -210,14 +229,20 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <tr>
                                 <td colspan="2">
                                     <?php
-                                        $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
+                                    $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
                                     if ($form_title_file) {
                                             $form_title = $form_title_file[0];
                                     } else {
                                         $form_title = $fname;
                                     }
+                                    $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
-                                    <span class="font-weight-bold"><?php echo text(xl_form_title($form_title)); ?></span>
+                                    <span class="font-weight-bold">
+                                        <?php
+                                        echo text(xl_form_title($form_title));
+                                        echo ($patientPortalCompliant) ? ' <i class="fas fa-cloud-arrow-up" title="' . xla('Patient Portal Compliant') . '"></i>' : '';
+                                        ?>
+                                    </span>
                                 </td>
                                 <td>
                                     <?php

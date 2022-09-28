@@ -61,15 +61,15 @@ class C_FormEvaluation extends Controller
             return;
         }
 
-        $this->evaluation = new FormEvaluation($_POST['id']);
-        parent::populate_object($this->evaluation);
+        $this->form = new FormEvaluation($_POST['id']);
+        parent::populate_object($this->form);
 
-        $this->evaluation->persist();
+        $this->form->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
 
-        addForm($GLOBALS['encounter'], "Evaluation Form", $this->evaluation->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
+        addForm($GLOBALS['encounter'], "Evaluation Form", $this->form->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
             $sql = "select * from codes where code = ? ORDER BY id";
