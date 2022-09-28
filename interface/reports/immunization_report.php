@@ -32,6 +32,8 @@ if (!empty($_POST)) {
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $form_to_date = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
+$export_res = '';
+$export_bindings = '';
 
 function tr($a)
 {
@@ -352,6 +354,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         <div id="report_parameters">
             <input type='hidden' name='form_refresh' id='form_refresh' value='' />
             <input type='hidden' name='form_get_hl7' id='form_get_hl7' value='' />
+            <input type="hidden" name="form_export" id="form_export" value="" />
             <table>
                 <tr>
                     <td class='w-50'>
@@ -424,6 +427,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                                                 <a href='#' class='btn btn-secondary btn-transmit' onclick="confirmHl7()">
                                                     <?php echo xlt('Get HL7'); ?>
                                                 </a>
+                                                <a href='#' type="submit" class='btn btn-secondary btn-sheet'
+                                                       onclick='exportData()'>
+                                                    <?php echo xlt('Export'); ?>
+                                                </a>
+
                                             <?php } ?>
                                         </div>
                                     </div>
@@ -453,6 +461,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                     <?php
                     $total = 0;
                     //echo "<p> DEBUG query: $query </p>\n"; // debugging
+
+                    $query = str_replace(["\r", "\n"], '', $query);
+                    $export_res = $query;
+                    $export_bindings = serialize($sqlBindArray);
+
                     $res = sqlStatement($query, $sqlBindArray);
 
                     while ($row = sqlFetchArray($res)) {
@@ -494,6 +507,15 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             </div>
         <?php } ?>
     </form>
-
+    <script>
+        /*
+         * The better thing to do here would be to uncouple the query from this report
+         */
+        function exportData() {
+           let query = JSON.stringify("<?php echo $export_res; ?>");
+           let bindings = '<?php echo $export_bindings; ?>';
+           dlgopen("../../library/ajax/immunization_export.php?sql=" + encodeURIComponent(query) + "&bindings=" + encodeURIComponent(bindings));
+        }
+    </script>
 </body>
 </html>
