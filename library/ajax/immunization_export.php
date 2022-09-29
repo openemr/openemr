@@ -18,4 +18,3 @@ $query = json_decode($_GET['sql']);
 $bindings = unserialize($_GET['bindings']);
 $res = sqlStatement($query, $bindings);
 $singlesheet->generateSpreadsheetArray($res, 'ImmunizationReport.xlsx');
-
