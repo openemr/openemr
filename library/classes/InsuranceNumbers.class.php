@@ -26,7 +26,7 @@ class InsuranceNumbers extends ORDataObject
         var $rendering_provider_number_type_array = array ("" => "Unspecified", "0B" => "State License Number", "1A" => "Blue Cross Provider Number","1B" => "Blue Shield Provider Number","1C" => "Medicare Provider Number",
                                                         "1D" => "Medicaid Provider Number","1G" => "Provider UPIN Number","1H" => "Champus Identification Number","G2" => "Provider Commercial Number",
                                                         "LU" => "Location Number", "N5" => "Provider Plan Network Identification Number",
-                                                        "TJ" => "Federal Taxpayer's Identification Number", "X4" => "Clinical Laboratory Improvement Amendment Number", "X5" => "State Industrial Accident Provider Number", 
+                                                        "TJ" => "Federal Taxpayer's Identification Number", "X4" => "Clinical Laboratory Improvement Amendment Number", "X5" => "State Industrial Accident Provider Number",
                                                         "ZZ" => "Mutually Defined/Taxonomy");
 
         /**
