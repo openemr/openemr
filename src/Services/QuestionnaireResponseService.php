@@ -22,7 +22,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 
 class QuestionnaireResponseService extends BaseService
 {
@@ -269,7 +268,7 @@ class QuestionnaireResponseService extends BaseService
         $form_response = null,
         $add_report = false,
         $scores = []
-    ): mixed {
+    ) {
         $q_content = null;
         $q_title = null;
         $q_record_id = null;
@@ -411,7 +410,7 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * @param $items
+     * @param        $items
      * @param string $delimiter
      * @param string $prepend
      * @return array
