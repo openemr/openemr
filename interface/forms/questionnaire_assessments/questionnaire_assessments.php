@@ -113,8 +113,10 @@ if ($questionnaire_form == 'New Questionnaire') {
             });
             ourSelect.on("change", function(e) {
                 top.restoreSession();
-                let el = document.getElementById('select_item');
-                document.getElementById('form_name').value = e.text;
+                let data = $('#select_item').select2('data');
+                if (data) {
+                    document.getElementById('form_name').value = data[0].text;
+                }
                 document.qa_form.action = "#";
                 document.qa_form.submit();
             });
