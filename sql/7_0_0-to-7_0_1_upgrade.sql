@@ -227,3 +227,7 @@ ALTER TABLE `form_questionnaire_assessments` CHANGE `code_type` `questionnaire_i
 #IfNotRow2D list_options list_id Document_Template_Categories option_id questionnaire
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
 #EndIf
+
+#IfMissingColumn layout_group_properties grp_unchecked
+ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
