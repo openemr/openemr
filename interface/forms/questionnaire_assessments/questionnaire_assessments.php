@@ -39,53 +39,62 @@ if ($isPortal) {
     $questionnaire_form = $_GET['formname'] ?? null;
 }
 // for new questionnaires user must be admin. leave strict conditional.
-$is_authorized = AclMain::aclCheckCore('admin', 'forms') ||
-    ($questionnaire_form !== 'New Questionnaire' && $_GET['formname'] ?? null === 'questionnaire_assessments');
+$isAdmin = AclMain::aclCheckCore('admin', 'forms');
+$is_authorized = $isAdmin || ($questionnaire_form !== 'New Questionnaire' && $_GET['formname'] ?? null === 'questionnaire_assessments');
 
-if (!empty($_GET['id'] ?? 0)) {
-    $mode = 'update';
-    $formid = $_GET['id'];
-    $form = formFetch("form_questionnaire_assessments", $formid);
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
-    $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
-    // if empty form will revert to the backup response stored with form.
-    if (!empty($qr)) {
-        // This is primary response.
-        $form['questionnaire_response'] = $qr['questionnaire_response'];
-        $form['response_id'] = $qr['response_id'];
+// General error trap. Echo and die.
+try {
+    if (!empty($_GET['id'] ?? 0)) {
+        $mode = 'update';
+        $formid = $_GET['id'];
+        $form = formFetch("form_questionnaire_assessments", $formid);
+        CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+        $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
+        // if empty form will revert to the backup response stored with form.
+        if (!empty($qr)) {
+            // This is primary response.
+            $form['questionnaire_response'] = $qr['questionnaire_response'];
+            $form['response_id'] = $qr['response_id'];
+        }
     }
-}
 
-$q_json = '';
-$lform = '';
-$form_name = '';
+    $q_json = '';
+    $lform = '';
+    $form_name = '';
 
-if (empty($formid) && !empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
-    // since we are here then user is authorized for a pre-approved questionnaire form.
-    $is_authorized = true;
-    if ($isPortal) {
-        $q = $service->fetchQuestionnaireResource($questionnaire_form, $q_uuid);
-    } else {
-        $q = $service->fetchEncounterQuestionnaireForm($questionnaire_form);
+    if (empty($formid) && !empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
+        // since we are here then user is authorized for a pre-approved questionnaire form.
+        $is_authorized = true;
+        if ($isPortal) {
+            if (is_numeric($questionnaire_form)) {
+                $q = $service->fetchQuestionnaireById((int)$questionnaire_form);
+            } else {
+                $q = $service->fetchQuestionnaireResource($questionnaire_form);
+            }
+        } else {
+            $q = $service->fetchEncounterQuestionnaireForm($questionnaire_form);
+        }
+        $q_json = $q['questionnaire'] ?: '';
+        $lform = $q['lform'] ?: '';
+        $mode = 'new_form';
     }
-    $q_json = $q['questionnaire'] ?: '';
-    $lform = $q['lform'] ?: '';
-    $mode = 'new_form';
-}
 // This is for newly selected questionnaire from repository dropdown.
-if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
-    $q = $service->fetchQuestionnaireById($repository_item);
-    $q_json = $q['questionnaire'] ?: '';
-    $lform = $q['lform'] ?: '';
-    $form_name = $q['name'] ?: '';
-    $mode = 'new_repository_form';
-}
+    if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
+        $q = $service->fetchQuestionnaireById($repository_item);
+        $q_json = $q['questionnaire'] ?: '';
+        $lform = $q['lform'] ?: '';
+        $form_name = $q['name'] ?: '';
+        $mode = 'new_repository_form';
+    }
 
-if (!$isPortal) {
-    $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
-}
-if ($questionnaire_form == 'New Questionnaire') {
-    $q_list = $service->getQuestionnaireList(true);
+    if (!$isPortal) {
+        $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
+    }
+    if ($questionnaire_form == 'New Questionnaire') {
+        $q_list = $service->getQuestionnaireList(true);
+    }
+} catch (Exception $e) {
+    die(xlt("Can not continue with reason.") . '<br />' . text($e->getMessage()));
 }
 ?>
 <!DOCTYPE html>
@@ -97,6 +106,7 @@ if ($questionnaire_form == 'New Questionnaire') {
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
         let portalOther = <?php echo js_escape($patientPortalOther); ?>;
+
         function initSelect() {
             let ourSelect = $('.select-dropdown');
             ourSelect.select2({
@@ -111,7 +121,7 @@ if ($questionnaire_form == 'New Questionnaire') {
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();
             });
-            ourSelect.on("change", function(e) {
+            ourSelect.on("change", function (e) {
                 top.restoreSession();
                 let data = $('#select_item').select2('data');
                 if (data) {
@@ -121,6 +131,7 @@ if ($questionnaire_form == 'New Questionnaire') {
                 document.qa_form.submit();
             });
         }
+
         let formOptions = {
             questionLayout: "vertical",
             hideTreeLine: true
@@ -217,8 +228,10 @@ if ($questionnaire_form == 'New Questionnaire') {
             ac = new LForms.Def.Autocompleter.Search(
                 'loinc_item',
                 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM',
-                {tableFormat: true, valueCols: [0, 1],
-                colHeaders: ['Text', 'LOINC Code']}
+                {
+                    tableFormat: true, valueCols: [0, 1],
+                    colHeaders: ['Text', 'LOINC Code']
+                }
             );
             LForms.Def.Autocompleter.Event.observeListSelections('loinc_item', function () {
                 let formCode = ac.getSelectedCodes()[0];
@@ -252,7 +265,7 @@ if ($questionnaire_form == 'New Questionnaire') {
             initSelect();
             $(".isNew").toggleClass('d-none');
 
-            document.getElementById('select_item').addEventListener('change', function(){
+            document.getElementById('select_item').addEventListener('change', function () {
                 let el = document.getElementById('select_item');
                 document.getElementById('form_name').value = el.options[el.selectedIndex].text;
                 document.qa_form.action = "#";
@@ -263,8 +276,10 @@ if ($questionnaire_form == 'New Questionnaire') {
             ac = new LForms.Def.Autocompleter.Search(
                 'loinc_item',
                 'https://clinicaltables.nlm.nih.gov/api/loinc_items/v3/search?type=form&available=true&df=text,LOINC_NUM',
-                {tableFormat: true, valueCols: [0, 1],
-                    colHeaders: ['Text', 'LOINC Code']}
+                {
+                    tableFormat: true, valueCols: [0, 1],
+                    colHeaders: ['Text', 'LOINC Code']
+                }
             );
             LForms.Def.Autocompleter.Event.observeListSelections('loinc_item', function () {
                 let formCode = ac.getSelectedCodes()[0];
@@ -304,20 +319,20 @@ if ($questionnaire_form == 'New Questionnaire') {
 <body>
     <div class="container-xl my-2">
         <div class="title"><h3><?php if ($mode != 'new_form' && $mode != 'update') {
-                    echo xlt("Create Encounter Questionnaires");
+            echo xlt("Create Encounter Questionnaires");
                                } else {
                                    echo xlt("Edit Questionnaire");
                                } ?></h3></div>
         <?php if (!$is_authorized) { ?>
-            <div class="d-flex flex-column w-100 align-items-center">
-                <?php
-                echo "<h3>" . xlt("Not Authorized") . "</h3>";
-                echo "<h4>" . xlt("You must have administrator privileges.") . "</h4>";
-                echo "<h5>" . xlt("Contact an administrator to use this feature.") . "</h5>";
-                ?>
-                <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Exit'); ?></button>
-            </div>
-            <?php die(); } ?>
+        <div class="d-flex flex-column w-100 align-items-center">
+            <?php
+            echo "<h3>" . xlt("Not Authorized") . "</h3>";
+            echo "<h4>" . xlt("You must have administrator privileges.") . "</h4>";
+            echo "<h5>" . xlt("Contact an administrator to use this feature.") . "</h5>";
+            ?>
+            <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Exit'); ?></button>
+        </div>
+        <?php die(); } ?>
         <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
@@ -342,17 +357,17 @@ if ($questionnaire_form == 'New Questionnaire') {
                 <div class="input-group isNew d-none mt-2">
                     <label for="select_item" class="font-weight-bold my-2 mr-1"><?php echo xlt("Select new from Questionnaire Repository") . ': '; ?></label>
                     <select class="select-dropdown my-2" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false">
-                    <option value=""></option>
-                    <?php
-                    foreach ($q_list as $item) {
-                        $id = attr($item['id']);
-                        if ($id == $repository_item) {
-                            echo "<option selected value='$id'>" .  text($item['name']) . "</option>";
-                            continue;
+                        <option value=""></option>
+                        <?php
+                        foreach ($q_list as $item) {
+                            $id = attr($item['id']);
+                            if ($id == $repository_item) {
+                                echo "<option selected value='$id'>" . text($item['name']) . "</option>";
+                                continue;
+                            }
+                            echo "<option value='$id'>" . text($item['name']) . "</option>";
                         }
-                        echo "<option value='$id'>" .  text($item['name']) . "</option>";
-                    }
-                    ?>
+                        ?>
                     </select>
                 </div>
                 <div class="input-group isNew d-none">
@@ -364,11 +379,11 @@ if ($questionnaire_form == 'New Questionnaire') {
             <hr />
             <div id="formContainer"></div>
             <?php if (!$isPortal && !$patientPortalOther) { ?>
-            <div class="btn-group my-2">
-                <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
-                <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>"><?php echo xlt("or Register New"); ?></button>
-                <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
-            </div>
+                <div class="btn-group my-2">
+                    <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
+                    <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>"><?php echo xlt("or Register New"); ?></button>
+                    <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
+                </div>
             <?php } ?>
         </form>
     </div>

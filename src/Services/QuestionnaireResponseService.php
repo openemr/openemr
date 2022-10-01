@@ -268,7 +268,8 @@ class QuestionnaireResponseService extends BaseService
         $form_response = null,
         $add_report = false,
         $scores = []
-    ) {
+    )
+    {
         $q_content = null;
         $q_title = null;
         $q_record_id = null;
