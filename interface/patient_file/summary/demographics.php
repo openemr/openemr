@@ -140,22 +140,25 @@ function pic_array($pid, $picture_directory)
     return ($pics);
 }
 
-// Get the document ID of the first document in a specific catg.
-function get_document_by_catg($pid, $doc_catg)
+// Get the document ID's in a specific catg.
+// this is only used in one place, here for id photos
+function get_document_by_catg($pid, $doc_catg, $limit = 1)
 {
-    $result = array();
+    $results = null;
 
     if ($pid and $doc_catg) {
-        $result = sqlQuery("SELECT d.id, d.date, d.url
+        $query = sqlStatement("SELECT d.id, d.date, d.url
             FROM documents AS d, categories_to_documents AS cd, categories AS c
             WHERE d.foreign_id = ?
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
+            ORDER BY d.date DESC LIMIT ?", array($pid, $doc_catg, $limit));
     }
-
-    return ($result['id'] ?? false);
+    while ($result = sqlFetchArray($query)) {
+        $results[] = $result['id'];
+    }
+    return ($results ?? false);
 }
 
 function portalAuthorized($pid)
@@ -235,8 +238,7 @@ function image_widget($doc_id, $doc_catg)
             " <img src = '$web_root" .
             "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
             " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file) . "'>  </a> </td> <td class='align-middle'>" .
-            text($doc_catg) . '<br />&nbsp;' . text($image_file) .
-            "</td>";
+            text($doc_catg) . "</td>";
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
             "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
@@ -948,7 +950,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
         if ($GLOBALS['patient_id_category_name']) {
-            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
+            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name'], 3);
         }
         ?>
         <div class="main mb-5">
@@ -1359,7 +1361,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => 'test',
+                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));

@@ -10,7 +10,9 @@
 {% endif %}
 {% if idCardDocID %}
 
-    {{ imageWidget(idCardDocID, patientIDCategoryID)}}
+    {% for p in idCardDocID %}
+        {{ imageWidget(p, patientIDCategoryID)}}
+    {% endfor %}
 
 {% endif %}
 {% endblock %}
