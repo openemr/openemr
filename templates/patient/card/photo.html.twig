@@ -8,4 +8,9 @@
     {% endfor %}
 
 {% endif %}
+{% if idCardDocID %}
+
+    {{ imageWidget(idCardDocID, patientIDCategoryID)}}
+
+{% endif %}
 {% endblock %}
