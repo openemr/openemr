@@ -102,7 +102,9 @@ try {
 <head>
     <title id="main_title"><?php echo xlt('Questionnaire'); ?></title>
     <?php Header::setupHeader(); ?>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
+    <!--<link href="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />-->
+    <!-- TODO remove next release -->
+    <link href="./../../forms/questionnaire_assessments/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
         let portalOther = <?php echo js_escape($patientPortalOther); ?>;
@@ -388,12 +390,20 @@ try {
         </form>
     </div>
     <!-- Below scripts must be in body. -->
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/assets/lib/zone.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/scripts.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/runtime-es2015.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/polyfills-es2015.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/webcomponent/main-es2015.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/lforms/fhir/R4/lformsFHIR.min.js"></script>
+    <!--<script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/assets/lib/zone.min.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/scripts.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/runtime-es2015.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/polyfills-es2015.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/main-es2015.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/fhir/R4/lformsFHIR.min.js"></script>-->
+
+    <!-- TODO Temporary dependencies location -->
+    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/assets/lib/zone.min.js"></script>
+    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/scripts.js"></script>
+    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/runtime-es2015.js"></script>
+    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/polyfills-es2015.js"></script>
+    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/main-es2015.js"></script>
+    <script src="./../../forms/questionnaire_assessments/lforms/fhir/R4/lformsFHIR.min.js"></script>
     <!-- Dependency scopes seem strange using the way we have to implement the necessary web components. -->
     <?php Header::setupAssets(['select2']); ?>
     <script>

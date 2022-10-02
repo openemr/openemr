@@ -214,7 +214,7 @@ if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
     if (!empty($upload_name)) {
         // will use same name as questionnaire from repository
         try {
-            $content = "{ParseAsHTML}{Questionnaire:$selected_q}" . "\n{PatientSignature}{AdminSignature}";
+            $content = "{ParseAsHTML}{Questionnaire:$selected_q}" . "\n";
             $mimetype = 'application/text';
             $success = $templateService->insertTemplate($patient, $category, $upload_name, $content, 'application/text');
             if (!$success) {
