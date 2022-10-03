@@ -275,7 +275,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 ?>
                 <h5><?php echo text($facility['name']); ?></h5>
                 <?php echo text($facility['street']); ?><br />
-                <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?><?php echo text($facility['postal_code']); ?><br clear='all'>
+                <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
                 <?php echo text($facility['phone']); ?><br />
 
                 <?php echo "</td></tr></tbody></table></div>"; ?>
