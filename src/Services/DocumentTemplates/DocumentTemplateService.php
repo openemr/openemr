@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,14 +14,16 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
 use RuntimeException;
+use OpenEMR\Services\QuestionnaireService;
 
 /**
  *
  */
-class DocumentTemplateService
+class DocumentTemplateService extends QuestionnaireService
 {
-    public function __construct()
+    public function __construct($base_table = null)
     {
+        parent::__construct($base_table ?? null);
     }
 
     public function uniqueByKey($source, $key): array
@@ -523,8 +525,9 @@ class DocumentTemplateService
      * @param       $file
      * @param array $pids
      * @return int
+     * @throws Exception
      */
-    public function uploadTemplate($template_name, $category, $file, $pids = []): int
+    public function uploadTemplate($template_name, $category, $file, $pids = [], $q_only = false): int
     {
         $mimetype = null;
         if (function_exists('finfo_open')) {
@@ -540,7 +543,29 @@ class DocumentTemplateService
         }
 
         $content = file_get_contents($file);
+
         $id = 0;
+        $q_ob = json_decode($content, true); // only pass array
+        $is_json = json_last_error() === JSON_ERROR_NONE;
+        if ($is_json) {
+            if (($q_ob['resourceType'] ?? '') != 'Questionnaire') {
+                throw new Exception(xlt("Not a valid Questionnaire resource!"));
+            }
+            if (empty($category)) {
+                $category = 'questionnaire';
+            }
+            $template_name = $template_name ?: $q_ob['title'] ?? $q_ob['name'];
+            $q_id = null;
+            $content = "{Questionnaire:$template_name}" . "\n";
+            $mimetype = 'application/text';
+            $service = new QuestionnaireService();
+            $id = $service->saveQuestionnaireResource(json_encode($q_ob), $template_name, null, $q_id, null);
+            if (empty($id)) {
+                return $id;
+            } elseif ($q_only) {
+                return $id;
+            }
+        }
         foreach ($pids as $pid) {
             $id = $this->insertTemplate($pid, $category, $template_name, $content, $mimetype);
         }
@@ -770,11 +795,7 @@ class DocumentTemplateService
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
         $category_list = array();
-        $category_list[''] = array(
-            'option_id' => '',
-            'title' => '',
-            'seq' => '',
-        );
+
         $category_list['General'] = array(
             'option_id' => '',
             'title' => '',
