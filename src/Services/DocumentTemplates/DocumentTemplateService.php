@@ -795,11 +795,7 @@ class DocumentTemplateService extends QuestionnaireService
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
         $category_list = array();
-        $category_list[''] = array(
-            'option_id' => '',
-            'title' => '',
-            'seq' => '',
-        );
+
         $category_list['General'] = array(
             'option_id' => '',
             'title' => '',
