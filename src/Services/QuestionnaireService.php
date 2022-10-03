@@ -86,7 +86,7 @@ class QuestionnaireService extends BaseService
      * @return false|int|mixed
      * @throws Exception
      */
-    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null): mixed
+    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null)
     {
         $type = $type ?? 'Questionnaire';
         $id = 0;

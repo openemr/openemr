@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Services\QuestionnaireService;
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
@@ -251,6 +252,39 @@ $none_message = xlt("Nothing to show for current actions.");
         }
 
         $(function () {
+            let ourSelect = $('.select-questionnaire');
+            ourSelect.select2({
+                multiple: false,
+                placeholder: xl('Type to search Questionnaire Repository.'),
+                theme: 'bootstrap4',
+                dropdownAutoWidth: true,
+                width: 'resolve',
+                closeOnSelect: true,
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            });
+            $(document).on('select2:open', () => {
+                document.querySelector('.select2-search__field').focus();
+            });
+            ourSelect.on("change", function (e) {
+                let data = $('#select_item').select2('data');
+                if (data) {
+                    document.getElementById('upload_name').value = data[0].text;
+                }
+                $('#repository-submit').removeClass('d-none');
+            });
+
+            $("#repository-submit").on("click", function (e) {
+                top.restoreSession();
+                let data = $('#select_item').select2('data');
+                if (data) {
+                    document.getElementById('upload_name').value = data[0].text;
+                } else {
+                    alert(xl("Missing Template name."))
+                    return false;
+                }
+                return true;
+            });
+
             $('.select-dropdown').removeClass('d-none');
             $('.select-dropdown').select2({
                 multiple: true,
@@ -421,7 +455,7 @@ $none_message = xlt("Nothing to show for current actions.");
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
                             </button>
-                            <button class='btn btn-sm btn-primary' onclick='return popProfileDialog()'><?php echo xlt('Profiles') ?></button>
+                            <button type='button' class='btn btn-primary' onclick='return popProfileDialog()'><?php echo xlt('Profiles') ?></button>
                             <button type='button' class='btn btn-primary' onclick='return popPatientDialog()'><?php echo xlt('Groups') ?></button>
                             <button type='button' class='btn btn-primary' onclick='return popGroupsDialog()'><?php echo xlt('Assign') ?></button>
                         </div>
@@ -451,8 +485,30 @@ $none_message = xlt("Nothing to show for current actions.");
                                         <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
                                     <button class='btn btn-outline-success d-none' type='submit' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>">
                                         <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
-                                    <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();"><?php echo xlt('New Blank Template') ?></button>
+                                    <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();"><?php echo xlt('New Template') ?></button>
                                 </div>
+                            </div>
+                            <div class="mt-2">
+                                <div class="text-center m-0 p-0"><small class="my-1 font-weight-bolder font-italic"><?php echo xlt("Shows all existing Questionnaires available from repository. Select to automatically create template."); ?></small></div>
+                                <div class="input-group input-group-append">
+                                    <select class="select-questionnaire" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false" title="<?php echo xla('Items that are already an existing template will be overwritten if selected.') ?>">
+                                        <option value=""></option>
+                                        <?php
+                                        $qService = new QuestionnaireService();
+                                        $q_list = $qService->getQuestionnaireList(false);
+                                        $repository_item = $_POST['select_item'] ?? null;
+                                        foreach ($q_list as $item) {
+                                            $id = attr($item['id']);
+                                            if ($id == $repository_item) {
+                                                echo "<option selected value='$id'>" . text($item['name']) . "</option>";
+                                                continue;
+                                            }
+                                            echo "<option value='$id'>" . text($item['name']) . "</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                <button type='submit' id='repository-submit' name='repository-submit' class='btn btn-save btn-success d-none' value="true"><?php echo xlt('Create') ?></button>
+                            </div>
                             </div>
                             <input type='hidden' name='upload_pid' value='<?php echo attr(json_encode([-1])); ?>' />
                             <input type='hidden' name="template_category" value='<?php echo attr($category); ?>' />
