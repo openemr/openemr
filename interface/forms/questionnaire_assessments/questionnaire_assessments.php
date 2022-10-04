@@ -145,7 +145,7 @@ try {
             }
             let qr = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4');
             let formElement = document.getElementById("formContainer");
-            let data = LForms.Util.getUserData(formElement, true, true, true);
+            let data = LForms.Util.getUserData(formElement, false, true, true);
             document.getElementById('lform_response').value = JSON.stringify(data);
             document.getElementById('questionnaire_response').value = JSON.stringify(qr);
             if (!document.getElementById('questionnaire').value) {
@@ -194,11 +194,11 @@ try {
             let qFhir = <?php echo js_escape($q_json); ?>;
             let formName = <?php echo js_escape($questionnaire_form); ?>;
             let data;
-            if (qFhir) {
+            if (lform) {
+                data = JSON.parse(lform);
+            } else if (qFhir) {
                 let qData = JSON.parse(qFhir);
                 data = LForms.Util.convertFHIRQuestionnaireToLForms(qData, 'R4');
-            } else if (lform) {
-                data = JSON.parse(lform);
             } else {
                 alert(xl('Error Missing Form.'));
                 parent.closeTab(window.name, false);
