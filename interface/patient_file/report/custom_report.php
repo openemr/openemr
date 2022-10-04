@@ -249,8 +249,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
                 // in HTML view it's just one line at the top of page 1
-                echo '<pageheader name="PageHeader1" content-center="' . xlt("PATIENT") . ': ' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '" header-style-center="font-weight: bold; font-style: italic; color: #000000;" /><setpageheader name="PageHeader1" page="ALL" value="ON" />    <br clear="all" />';
-                echo '<pagefooter name="PageFooter1" content-center="' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '" footer-style-center="font-weight: bold; font-style: italic; color: #000000;" /><setpagefooter name="PageFooter1" page="ALL" value="ON" />    ';
+                echo '<htmlpageheader name="PageHeader1"><div style="font-weight: bold; font-style: italic; color: #000000;"><p>' . xlt("PATIENT") . ': ' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</p></div></htmlpageheader><sethtmlpageheader name="PageHeader1" page="ALL" value="ON" show-this-page="1" />    <br clear="all" />';
+                echo '<htmlpagefooter name="PageFooter1"><div style="font-weight: bold; font-style: italic; color: #000000;"><p>' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</p></div></htmlpagefooter><setpagefooter name="PageFooter1" page="ALL" value="ON" />    ';
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
                 // old code used the global custom dir which is no longer a valid
