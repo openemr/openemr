@@ -65,8 +65,8 @@ if ($PDF_OUTPUT) {
         'margin_right' => $GLOBALS['pdf_right_margin'],
         'margin_top' => $GLOBALS['pdf_top_margin'],
         'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-        'margin_header' => '',
-        'margin_footer' => '',
+        'margin_header' => $GLOBALS['pdf_header_margin'],
+        'margin_footer' => $GLOBALS['pdf_footer_margin'],
         'orientation' => $GLOBALS['pdf_layout'],
         'shrink_tables_to_fit' => 1,
         'use_kwt' => true,
@@ -249,8 +249,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
                 // in HTML view it's just one line at the top of page 1
-                echo '<page_header class="custom-tag text-right"> ' . xlt("PATIENT") . ': ' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
-                echo '<page_footer class="custom-tag text-right">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+                echo '<pageheader name="PageHeader1" content-center="' . xlt("PATIENT") . ': ' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '" header-style-center="font-weight: bold; font-style: italic; color: #000000;" /><setpageheader name="PageHeader1" page="ALL" value="ON" />    <br clear="all" />';
+                echo '<pagefooter name="PageFooter1" content-center="' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '" footer-style-center="font-weight: bold; font-style: italic; color: #000000;" /><setpagefooter name="PageFooter1" page="ALL" value="ON" />    ';
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
                 // old code used the global custom dir which is no longer a valid

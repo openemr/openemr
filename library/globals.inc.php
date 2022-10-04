@@ -3987,14 +3987,26 @@ $GLOBALS_METADATA = array(
         'pdf_top_margin' => array(
             xl('Top Margin (mm)'),
             'num',
-            '5',
+            '13',
             xl('Top Margin (mm)')
         ),
         'pdf_bottom_margin' => array(
             xl('Bottom Margin (px)'),
             'num',
-            '8',
+            '13',
             xl('Bottom Margin (px)')
+        ),
+        'pdf_header_margin' => array(
+            xl('Header Margin (px)'),
+            'num',
+            '5',
+            xl('Header Margin (px)')
+        ),
+        'pdf_footer_margin' => array(
+            xl('Footer Margin (px)'),
+            'num',
+            '5',
+            xl('Footer Margin (px)')
         ),
         'pdf_output' => array(
             xl('Output Type'),
