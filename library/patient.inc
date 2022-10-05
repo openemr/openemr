@@ -757,7 +757,7 @@ function getPatientPID($args)
     return $returnval;
 }
 
-/* return a patient's name in the format LAST, FIRST */
+/* return a patient's name in the format LAST [SUFFIX], FIRST [MIDDLE] */
 function getPatientName($pid)
 {
     if (empty($pid)) {
