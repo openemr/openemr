@@ -238,7 +238,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                  * $titleres = getPatientData($pid, "fname,lname,providerID");
                  * $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
                  *******************************************************************/
-                $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+                $titleres = getPatientData($pid, "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
                 $facility = null;
                 if ($_SESSION['pc_facility']) {
                     $facility = $facilityService->getById($_SESSION['pc_facility']);
@@ -248,7 +248,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
-                $patientname = text($titleres['lname']) . ', ' . text($titleres['fname']);
+                $patientname = getPatientName($pid);
                 if ($PDF_OUTPUT) {
                     echo '<htmlpageheader name="PageHeader1"><div style="font-weight: bold; text-align: right;">' . $patientname . '&emsp;DOB: ' . text($titleres['DOB_TS']) . '</div></htmlpageheader><sethtmlpageheader name="PageHeader1" page="ALL" value="ON" show-this-page="1" />    <br clear="all" />';
                     echo '<htmlpagefooter name="PageFooter1"><div style="font-weight: bold;"><div style="float: right; width:33% text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div><div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div><div style="float: right; width:33%; text-align: right; ">' . $patientname . '</div></div></htmlpagefooter><setpagefooter name="PageFooter1" page="ALL" value="ON" />    ';

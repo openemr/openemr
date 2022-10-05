@@ -769,7 +769,10 @@ function getPatientName($pid)
         return "";
     }
 
-    $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
+    $patientName = $patientData[0]['lname'];
+    $patientName .= $patientData[0]['suffix'] ? " " . $patientData[0]['suffix'] . ", " : ", ";
+    $patientName .= $patientData[0]['fname'];
+    $patientName .= empty($patientData[0]['mname']) ? "" : " " . $patientData[0]['mname'];
     return $patientName;
 }
 
