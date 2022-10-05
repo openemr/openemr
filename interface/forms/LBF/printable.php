@@ -281,11 +281,9 @@ $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
-    echo genFacilityTitle($formtitle, -1, $logo);
-} else {
-    $logo = "<!-- '$ma_logo_path' does not exist. -->";
-    echo genFacilityTitle($formtitle, -1);
 }
+
+echo genFacilityTitle($formtitle, -1);
 ?>
 
 <?php if ($isblankform) { ?>
