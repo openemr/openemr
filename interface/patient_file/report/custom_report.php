@@ -266,8 +266,7 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                 echo '<div class="table-responsive">';
                 echo genFacilityTitle("<h1>" . $patientname . "</h1>", $_SESSION['pc_facility']);
-                echo '</div>';
-            ?>
+                echo '</div>';?>
 
             <?php } else { // not printable
                 ?>
