@@ -283,10 +283,11 @@ if (is_file("$webserver_root/$ma_logo_path")) {
     // Would use max-height here but html2pdf does not support it.
     // TODO - now use mPDF, so should test if still need this fix
     $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(round($FONTSIZE * 5.14)) . "pt' />";
+    echo genFacilityTitle($formtitle, -1, $logo);
 } else {
     $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    echo genFacilityTitle($formtitle, -1);
 }
-echo genFacilityTitle($formtitle, -1, $logo);
 ?>
 
 <?php if ($isblankform) { ?>

@@ -63,8 +63,8 @@ if ($PDF_OUTPUT) {
         'default_font' => 'dejavusans',
         'margin_left' => $GLOBALS['pdf_left_margin'],
         'margin_right' => $GLOBALS['pdf_right_margin'],
-        'margin_top' => $GLOBALS['pdf_top_margin'] * 2,
-        'margin_bottom' => $GLOBALS['pdf_bottom_margin'] * 2,
+        'margin_top' => $GLOBALS['pdf_top_margin'] * 1.5,
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'] * 1.5,
         'margin_header' => $GLOBALS['pdf_top_margin'],
         'margin_footer' => $GLOBALS['pdf_bottom_margin'],
         'orientation' => $GLOBALS['pdf_layout'],
@@ -248,9 +248,11 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
-                // in HTML view it's just one line at the top of page 1
-                echo '<htmlpageheader name="PageHeader1"><div style="font-weight: bold; font-style: italic; color: #000000;"><p>' . xlt("PATIENT") . ': ' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</p></div></htmlpageheader><sethtmlpageheader name="PageHeader1" page="ALL" value="ON" show-this-page="1" />    <br clear="all" />';
-                echo '<htmlpagefooter name="PageFooter1"><div style="font-weight: bold; font-style: italic; color: #000000;"><p>' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</p></div></htmlpagefooter><setpagefooter name="PageFooter1" page="ALL" value="ON" />    ';
+                $patientname = text($titleres['lname']) . ', ' . text($titleres['fname']);
+                if ($PDF_OUTPUT) {
+                    echo '<htmlpageheader name="PageHeader1"><div style="font-weight: bold; text-align: right;">' . $patientname . '&emsp;DOB: ' . text($titleres['DOB_TS']) . '</div></htmlpageheader><sethtmlpageheader name="PageHeader1" page="ALL" value="ON" show-this-page="1" />    <br clear="all" />';
+                    echo '<htmlpagefooter name="PageFooter1"><div style="font-weight: bold;"><div style="float: right; width:33% text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div><div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div><div style="float: right; width:33%; text-align: right; ">' . $patientname . '</div></div></htmlpagefooter><setpagefooter name="PageFooter1" page="ALL" value="ON" />    ';
+                }
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
                 // old code used the global custom dir which is no longer a valid
@@ -262,23 +264,10 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $practice_logo = $plogo[$k];
                 }
 
-                echo "<div class='table-responsive'><table class='table' style='width:100%;'><tbody><tr><td align='left' class='align-middle'>";
-                ?>
-                <a href="javascript:window.close();"><h1><?php echo text($titleres['lname']) . ", " . text($titleres['fname']); ?></h1></a>
-                <?php
-                echo "<br clear='all' /></td><td align='right'>";
-                if (file_exists($practice_logo)) {
-                    $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
-                    echo "<img class='h-auto' style='max-width:250px;' src='$logo_path'>"; // keep size within reason
-                    echo "</td><td>";
-                }
-                ?>
-                <h5><?php echo text($facility['name']); ?></h5>
-                <?php echo text($facility['street']); ?><br />
-                <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-                <?php echo text($facility['phone']); ?><br />
-
-                <?php echo "</td></tr></tbody></table></div>"; ?>
+                echo '<div class="table-responsive">';
+                echo genFacilityTitle("<h1>" . $patientname . "</h1>", $_SESSION['pc_facility']);
+                echo '</div>';
+            ?>
 
             <?php } else { // not printable
                 ?>

@@ -197,15 +197,15 @@ function getFacility($facid = 0)
 function genFacilityTitle($repname = '', $facid = 0, $logo = '')
 {
     $s = '';
-    $s .= "<table class='ftitletable'>\n";
+    $s .= "<table class='ftitletable' width='100%'>\n";
     $s .= " <tr>\n";
     if (empty($logo)) {
-        $s .= "  <td class='ftitlecell1'>" . text($repname) . "</td>\n";
+        $s .= "  <td align='left' class='ftitlecell1'>" . $repname . "</td>\n";
     } else {
-        $s .= "  <td class='ftitlecell1'>" . $logo . "</td>\n";
-        $s .= "  <td class='ftitlecellm'>" . text($repname) . "</td>\n";
+        $s .= "  <td align='left' class='ftitlecell1'>" . $logo . "</td>\n";
+        $s .= "  <td align='left' class='ftitlecellm'>" . $repname . "</td>\n";
     }
-    $s .= "  <td class='ftitlecell2'>\n";
+    $s .= "  <td align='right' class='ftitlecell2'>\n";
     $r = getFacility($facid);
     if (!empty($r)) {
         $s .= "<b>" . text($r['name'] ?? '') . "</b>\n";
