@@ -264,9 +264,13 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $practice_logo = $plogo[$k];
                 }
 
-                echo '<div class="table-responsive">';
-                echo genFacilityTitle("<h1>" . $patientname . "</h1>", $_SESSION['pc_facility']);
-                echo '</div>';?>
+                $logo = "";
+                if (file_exists($practice_logo)) {
+                    $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
+                    $logo = "<img class='h-auto' style='max-height:8%;' src='". $logo_path . "'>";
+                }
+
+                echo genFacilityTitle("<h1>" . $patientname . "</h1>", $_SESSION['pc_facility'], $logo);?>
 
             <?php } else { // not printable
                 ?>
