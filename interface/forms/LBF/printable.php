@@ -280,7 +280,7 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "<img src='$web_root/$ma_logo_path' style='max-height:8%' />";
+    $logo = "$web_root/$ma_logo_path";
     echo genFacilityTitle($formtitle, -1, $logo);
 } else {
     $logo = "<!-- '$ma_logo_path' does not exist. -->";
