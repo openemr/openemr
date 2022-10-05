@@ -409,6 +409,34 @@ function getEmployerData($pid, $given = "*")
     return sqlQuery($sql, array($pid));
 }
 
+// Generate a consistent header and footer, used for printed patient reports
+function genPatientHeaderFooter($pid, $DOS = null)
+{
+    $patient_dob = getPatientData($pid, "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    $patient_name = getPatientName($pid);
+
+    // Header
+    $s = '<htmlpageheader name="PageHeader1"><div style="text-align: right; font-weight: bold;">';
+    $s .= $patient_name . '&emsp;DOB: ' . text($patient_dob['DOB_TS']);
+    if ($DOS) {
+        $s .= '&emsp;DOS: ' . $DOS;
+    }
+    $s .= '</div></htmlpageheader>';
+
+    // Footer
+    $s .= '<htmlpagefooter name="PageFooter1"><div style="text-align: right; font-weight: bold;">';
+    $s .= '<div style="float: right; width:33%; text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
+    $s .= '<div style="float: right; width:33%; text-align: center;">{PAGENO}/{nbpg}</div>';
+    $s .= '<div style="float: right; width:33%; text-align: right;">' . text($patient_name) . '</div>';
+    $s .= '</div></htmlpagefooter>';
+
+    // Set the header and footer in the current document    
+    $s .= '<sethtmlpageheader name="PageHeader1" page="ALL" value="ON" />';
+    $s .= '<setpagefooter name="PageFooter1" page="ALL" value="ON" />';
+
+    return $s;
+}
+
 function _set_patient_inc_count($limit, $count, $where, $whereBindArray = array())
 {
   // When the limit is exceeded, find out what the unlimited count would be.

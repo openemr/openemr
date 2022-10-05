@@ -108,15 +108,6 @@ if ($PDF_OUTPUT) {
         'keep_table_proportions' => true
     );
     $pdf = new mPDF($config_mpdf);
-    $pdf->SetHTMLHeader('
-		<div style="text-align: right; font-weight: bold;">
-			' . $patientname . ' DOB: ' . oeFormatShortDate($patientdob["DOB"]) . ' DOS: ' . oeFormatShortDate($dateofservice) . '
-		</div>');
-    $pdf->SetHTMLFooter('
-			<div style="float: right; width:33% text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>
-			<div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div>
-			<div style="float: right; width:33%; text-align: right; ">' . $patientname . '</div>
-			');
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
@@ -283,7 +274,11 @@ if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }
 
-echo genFacilityTitle($formtitle, -1);
+echo genFacilityTitle($formtitle, -1, $logo);
+
+if ($PDF_OUTPUT) {
+    echo genPatientHeaderFooter($pid, $DOS = $dateofservice);
+}
 ?>
 
 <?php if ($isblankform) { ?>
