@@ -430,7 +430,7 @@ function genPatientHeaderFooter($pid, $DOS = null)
     $s .= '<div style="float: right; width:33%; text-align: right;">' . text($patient_name) . '</div>';
     $s .= '</div></htmlpagefooter>';
 
-    // Set the header and footer in the current document    
+    // Set the header and footer in the current document
     $s .= '<sethtmlpageheader name="PageHeader1" page="ALL" value="ON" />';
     $s .= '<setpagefooter name="PageFooter1" page="ALL" value="ON" />';
 
