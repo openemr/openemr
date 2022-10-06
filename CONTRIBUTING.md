@@ -208,6 +208,10 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep-tests'
     ```
 7. <a name="dev_tools_reset"></a>Resetting OpenEMR and loading demo data.
+    - For the Video Tutorial, click below:
+
+      [![Resetting and Demo Data Video Tutorial](Documentation/images/easy-dev-reset.png)](https://youtu.be/1ch84Ffmky8)
+
     - To reset OpenEMR only (then can reinstall manually via setup.php in web browser):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools dev-reset'
