@@ -74,9 +74,8 @@ if ($viewmode == 'update') {
                     <td>
                         <span class="label"><?php echo ++$qno . ". " . xlt('Little interest or pleasure in doing things'); ?></span>
                         <select class="form-input" name="interest_score" onchange="update_score(0, my_form.interest_score.value);">
-                            <?php if (!$obj) {
-                                ?><?php if (!$obj) {
-    ?><option value="undef"><?php echo text($str_default); ?></option><?php } ?><?php } ?>
+                            <?php if (!$obj) { ?>
+                                <option value="undef"><?php echo text($str_default); ?></option> <?php } ?>
                             <option value="0"><?php echo text($str_not); ?></option>
                             <option value="1"><?php echo text($str_several); ?></option>
                             <option value="2"><?php echo text($str_more); ?></option>
@@ -86,8 +85,8 @@ if ($viewmode == 'update') {
                         <script>
                             // set the default to the previous value - so it is displayed in the menue box
                             document.my_form.interest_score.options[<?php echo attr($obj['interest_score']); ?>].defaultSelected=true;
-                            var i = <?php echo js_escape_num($obj['interest_score']); ?>; //the value from last time
-                            phq9_score +=  i;
+                            var i = <?php echo js_escape($obj['interest_score']); ?>; //the value from last time
+                            phq9_score += parseInt (i);
                             all_scores[0] = i;
                         </script><?php } ?>
                     </td>
@@ -108,9 +107,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the default to the previous value - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['hopeless_score']); ?>; //the value from last time
+                            var i = <?php echo js_escape($obj['hopeless_score']); ?>; //the value from last time
                             document.my_form.hopeless_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[1] = i;
                         </script><?php } ?>
                     </td>
@@ -131,9 +130,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the previous value to the default - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['sleep_score']); ?> ; //the value from last time
+                            var i = <?php echo js_escape($obj['sleep_score']); ?> ; //the value from last time
                             document.my_form.sleep_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[2] = i;
                         </script><?php } ?>
                     </td>
@@ -154,9 +153,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the previous value to the default - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['fatigue_score']); ?> ; //the value from last time
+                            var i = <?php echo js_escape($obj['fatigue_score']); ?> ; //the value from last time
                             document.my_form.fatigue_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[3] = i;
                         </script><?php } ?>
                     </td>
@@ -177,9 +176,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the previous value to the default - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['appetite_score']); ?> ; //the value from last time
+                            var i = <?php echo js_escape($obj['appetite_score']); ?> ; //the value from last time
                             document.my_form.appetite_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[4] = i;
                         </script><?php } ?>
                     </td>
@@ -200,9 +199,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the previous value to the default - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['failure_score']); ?> ; //the value from last time
+                            var i = <?php echo js_escape($obj['failure_score']); ?> ; //the value from last time
                             document.my_form.failure_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[5] = i;
                         </script><?php } ?>
                     </td>
@@ -223,9 +222,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the previous value to the default - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['focus_score']);?> ; //the value from last time
+                            var i = <?php echo js_escape($obj['focus_score']);?> ; //the value from last time
                             document.my_form.focus_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[6] = i;
                         </script><?php } ?>
                     </td>
@@ -246,9 +245,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the previous value to the default - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['psychomotor_score']);?> ; //the value from last time
+                            var i = <?php echo js_escape($obj['psychomotor_score']);?> ; //the value from last time
                             document.my_form.psychomotor_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[7] = i;
                         </script><?php } ?>
                     </td>
@@ -269,9 +268,9 @@ if ($viewmode == 'update') {
                         <?php if ($obj) { ?>
                         <script>
                             // set the previous value to the default - so it is displayed in the menue box
-                            var i = <?php echo js_escape_num($obj['suicide_score']);?> ; //the value from last time
+                            var i = <?php echo js_escape($obj['suicide_score']);?> ; //the value from last time
                             document.my_form.suicide_score.options[i].defaultSelected=true;
-                            phq9_score += i;
+                            phq9_score += parseInt (i);
                             all_scores[8] = i;
                         </script><?php } ?>
                     </td>

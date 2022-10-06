@@ -21,15 +21,6 @@ function js_escape($text)
 }
 
 /**
- * Escape a javascript literal for maths.
- */
-function js_escape_num($text)
-{
-    return json_encode($text, JSON_NUMERIC_CHECK);
-}
-
-
-/**
  * Escape a javascript literal within html onclick attribute.
  */
 function attr_js($text)
