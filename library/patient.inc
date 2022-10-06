@@ -417,9 +417,9 @@ function genPatientHeaderFooter($pid, $DOS = null)
 
     // Header
     $s = '<htmlpageheader name="PageHeader1"><div style="text-align: right; font-weight: bold;">';
-    $s .= $patient_name . '&emsp;DOB: ' . text($patient_dob['DOB_TS']);
+    $s .= text($patient_name) . '&emsp;DOB: ' . text($patient_dob['DOB_TS']);
     if ($DOS) {
-        $s .= '&emsp;DOS: ' . $DOS;
+        $s .= '&emsp;DOS: ' . text($DOS);
     }
     $s .= '</div></htmlpageheader>';
 
