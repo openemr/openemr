@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Services\QuestionnaireService;
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
@@ -247,7 +248,7 @@ if (isset($_POST['blank-nav-button'])) {
     $patient = '-1';
     if (!empty($upload_name)) {
         $name = preg_replace("/[^A-Z0-9.]/i", " ", $upload_name);
-        $name = ucwords(strtolower($name));
+        //$name = ucwords(strtolower($name));
         try {
             $content = "{ParseAsHTML}";
             $success = $templateService->insertTemplate($patient, $category, $upload_name, $content, 'application/text');
@@ -267,7 +268,39 @@ if (isset($_POST['blank-nav-button'])) {
     die();
 }
 
-if ($_REQUEST['mode'] === 'editor_render_html') {
+if (($_REQUEST['q_mode'] ?? '') === 'render_import_manual') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'import-template-upload')) {
+        CsrfUtils::csrfNotVerified();
+    }
+    if (!$authUploadTemplates) {
+        xlt("Not Authorized to Upload Templates");
+        exit;
+    }
+    $id = 0;
+    $q = $_POST['questionnaire'] ?? '';
+    $l = $_POST['lform'] ?? '';
+    if (!empty($q)) {
+        $service = new QuestionnaireService();
+        try {
+            $id = $service->saveQuestionnaireResource($q, null, null, null, $l);
+        } catch (Exception $e) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                text($e->getMessage()) . '</h4>';
+            exit;
+        }
+        if (empty($id)) {
+            header('refresh:3;url= import_template_ui.php');
+            echo '<h3>' . xlt('Error') . "</h3><h4 style='color:red;'>" .
+                xlt("Import failed to save.") . '</h4>';
+            exit;
+        }
+    }
+    header("location: " . $_SERVER['HTTP_REFERER']);
+    die();
+}
+
+if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
     if ($_REQUEST['docid']) {
         $content = $templateService->fetchTemplate($_REQUEST['docid']);
         $template_content = $content['template_content'];

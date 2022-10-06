@@ -50,6 +50,38 @@ $none_message = xlt("Nothing to show for current actions.");
         const profiles = <?php echo js_escape($profile_list); ?>;
         let currentEdit = "";
         let editor;
+        let callBackCmd = null;
+
+        // a callback from dlgclose(fn) in render form
+        function doImportSubmit() {
+            // todo add message to user
+            top.restoreSession();
+            document.getElementById('form_upload').submit();
+            return false;
+        }
+
+        function resolveImport(mode = 'render_import') {
+            if (mode === 'render_import') {
+                const file = document.getElementById("fetch_files").files.item(0);
+                if (file.name.toLowerCase().indexOf('.json') === -1 && file.type !== 'application/json') {
+                    return false;
+                }
+            }
+            top.restoreSession();
+            callBack = '';
+            let url = './questionnaire_render.php?mode=' + encodeURIComponent(mode);
+            dlgopen(url, 'pop-questionnaire', 'modal-lg', 850, '', '', {
+                allowDrag: true,
+                allowResize: true,
+                sizeHeight: 'full',
+                resolvePromiseOn: 'close',
+            }).then(() => {
+                // set callBackCmd from iframe then eval here
+                // currently using callback from dlgclose();
+                return false;
+            });
+        }
+
         let templateEdit = function (id, flag = '') {
             currentEdit = id;
             handleTemplate(id, 'get', '', flag);
@@ -299,9 +331,16 @@ $none_message = xlt("Nothing to show for current actions.");
             $('#fetch_files').on('click touchstart', function () {
                 $(this).val('');
             });
+
             $('#fetch_files').change(function (e) {
+                const file = document.getElementById("fetch_files").files.item(0);
+                const fileName = file.name;
                 $('#upload_submit').removeClass('d-none');
-                $('#upload_submit_questionnaire').removeClass('d-none');
+                if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
+                    $('#upload_submit_questionnaire').removeClass('d-none');
+                    resolveImport();
+                }
+                return false;
             });
 
             $('input:checkbox[name=send]').change(function () {
@@ -472,21 +511,21 @@ $none_message = xlt("Nothing to show for current actions.");
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
                         <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>
                                 <div class='mb-2' id='upload_scope'></div>
                             </div>
                             <div class='form-group col'>
-                                <div class='form-group'>
-                                    <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
-                                    <input type='file' class='btn btn-outline-info' id="fetch_files" name='template_files[]' multiple />
-                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
-                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
-                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>">
-                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
-                                    <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();"><?php echo xlt('New Template') ?></button>
-                                </div>
+                                <input type='file' class='btn btn-outline-info mr-1 mt-1' id="fetch_files" name='template_files[]' multiple />
+                                <div class="mt-1">
+                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
+                                    <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
+                                <button class='btn btn-outline-success d-none' type='button' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>" onclick="return resolveImport();">
+                                    <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
+                                <button type='button' id='render-nav-button' name='render-nav-button' class='btn btn-save btn-outline-primary' onclick="return resolveImport('render_import_manual');"><?php echo xlt('Manual Questionnaire') ?></button>
+                                <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();"><?php echo xlt('New Template') ?></button></div>
                             </div>
                             <div class="mt-2">
                                 <div class="text-center m-0 p-0"><small class="my-1 font-weight-bolder font-italic"><?php echo xlt("Shows all existing Questionnaires available from repository. Select to automatically create template."); ?></small></div>
@@ -507,12 +546,15 @@ $none_message = xlt("Nothing to show for current actions.");
                                         }
                                         ?>
                                     </select>
-                                <button type='submit' id='repository-submit' name='repository-submit' class='btn btn-save btn-success d-none' value="true"><?php echo xlt('Create') ?></button>
-                            </div>
+                                    <button type='submit' id='repository-submit' name='repository-submit' class='btn btn-save btn-success d-none' value="true"><?php echo xlt('Create') ?></button>
+                                </div>
                             </div>
                             <input type='hidden' name='upload_pid' value='<?php echo attr(json_encode([-1])); ?>' />
                             <input type='hidden' name="template_category" value='<?php echo attr($category); ?>' />
                             <input type='hidden' name='upload_name' id='upload_name' value='<?php echo attr(json_encode([-1])); ?>' />
+                            <input type="hidden" id="q_mode" name="q_mode" value="" />
+                            <input type="hidden" id="lform" name="lform" value="" />
+                            <input type="hidden" id="questionnaire" name="questionnaire" value="" />
                         </form>
                     <?php } else { ?>
                         <div class="alert alert-danger"><?php echo xlt("Not Authorized to Upload Templates") ?></div>
