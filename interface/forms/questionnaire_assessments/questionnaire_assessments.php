@@ -57,7 +57,6 @@ try {
             $form['response_id'] = $qr['response_id'];
         }
     }
-
     $q_json = '';
     $lform = '';
     $form_name = '';
@@ -77,6 +76,7 @@ try {
         $q_json = $q['questionnaire'] ?: '';
         $lform = $q['lform'] ?: '';
         $mode = 'new_form';
+        $form_name = $q['name'] ?: '';
     }
 // This is for newly selected questionnaire from repository dropdown.
     if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
@@ -191,7 +191,7 @@ try {
         function initNewForm(flag = false) {
             let lform = <?php echo js_escape($lform); ?>;
             let qFhir = <?php echo js_escape($q_json); ?>;
-            let formName = <?php echo js_escape($questionnaire_form); ?>;
+            let formName = <?php echo js_escape($form_name); ?>;
             let data;
             if (lform) {
                 data = JSON.parse(lform);
