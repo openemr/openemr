@@ -57,7 +57,6 @@ try {
             $form['response_id'] = $qr['response_id'];
         }
     }
-
     $q_json = '';
     $lform = '';
     $form_name = '';
