@@ -57,7 +57,6 @@ try {
             $form['response_id'] = $qr['response_id'];
         }
     }
-
     $q_json = '';
     $lform = '';
     $form_name = '';
@@ -77,6 +76,7 @@ try {
         $q_json = $q['questionnaire'] ?: '';
         $lform = $q['lform'] ?: '';
         $mode = 'new_form';
+        $form_name = $q['name'] ?: '';
     }
 // This is for newly selected questionnaire from repository dropdown.
     if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
@@ -104,7 +104,6 @@ try {
     <?php Header::setupHeader(); ?>
     <!--<link href="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />-->
     <!-- TODO remove next release -->
-    <link href="./../../forms/questionnaire_assessments/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
         let portalOther = <?php echo js_escape($patientPortalOther); ?>;
@@ -145,7 +144,7 @@ try {
             }
             let qr = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4');
             let formElement = document.getElementById("formContainer");
-            let data = LForms.Util.getUserData(formElement, true, true, true);
+            let data = LForms.Util.getUserData(formElement, false, true, true);
             document.getElementById('lform_response').value = JSON.stringify(data);
             document.getElementById('questionnaire_response').value = JSON.stringify(qr);
             if (!document.getElementById('questionnaire').value) {
@@ -192,13 +191,13 @@ try {
         function initNewForm(flag = false) {
             let lform = <?php echo js_escape($lform); ?>;
             let qFhir = <?php echo js_escape($q_json); ?>;
-            let formName = <?php echo js_escape($questionnaire_form); ?>;
+            let formName = <?php echo js_escape($form_name); ?>;
             let data;
-            if (qFhir) {
+            if (lform) {
+                data = JSON.parse(lform);
+            } else if (qFhir) {
                 let qData = JSON.parse(qFhir);
                 data = LForms.Util.convertFHIRQuestionnaireToLForms(qData, 'R4');
-            } else if (lform) {
-                data = JSON.parse(lform);
             } else {
                 alert(xl('Error Missing Form.'));
                 parent.closeTab(window.name, false);
@@ -398,12 +397,7 @@ try {
     <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/fhir/R4/lformsFHIR.min.js"></script>-->
 
     <!-- TODO Temporary dependencies location -->
-    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/assets/lib/zone.min.js"></script>
-    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/scripts.js"></script>
-    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/runtime-es2015.js"></script>
-    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/polyfills-es2015.js"></script>
-    <script src="./../../forms/questionnaire_assessments/lforms/webcomponent/main-es2015.js"></script>
-    <script src="./../../forms/questionnaire_assessments/lforms/fhir/R4/lformsFHIR.min.js"></script>
+    <?php require(__DIR__ . "/../../forms/questionnaire_assessments/lform_webcomponents.php") ?>
     <!-- Dependency scopes seem strange using the way we have to implement the necessary web components. -->
     <?php Header::setupAssets(['select2']); ?>
     <script>

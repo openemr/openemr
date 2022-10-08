@@ -491,8 +491,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                 }
 
                     $rawdata = $result4['encounter'] . "~" . oeFormatShortDate($raw_encounter_date);
-                    echo "<tr class='encrow text' id='" . attr($rawdata) .
-                    "'>\n";
+                    echo "<tr class='encrow text' id='" . attr($rawdata) . "'>\n";
 
                     // show encounter date
                     echo "<td class='align-top' data-toggle='tooltip' data-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" . text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
@@ -837,7 +836,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
 </div> <!-- end 'encounters' large outer DIV -->
 
-<span class='position-absolute border border-danger w-auto jumbotron p-1 m-4' id='tooltipdiv' style='max-width: 75%; visibility: hidden;'></span>
+<span class='position-absolute border border-danger w-auto jumbotron p-1 ml-4' id='tooltipdiv' style='max-width: 75%; visibility: hidden;'></span>
 
 <script>
 // jQuery stuff to make the page a little easier to use
