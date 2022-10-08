@@ -401,15 +401,17 @@ function refreshVisitDisplay() {
 <script>
 
 function openNewForm(sel, label) {
-  top.restoreSession();
-  var FormNameValueArray = sel.split('formname=');
-  if (FormNameValueArray[1] == 'newpatient') {
-    // TBD: Make this work when it's not the first frame.
-    parent.frames[0].location.href = sel;
-  }
-  else {
-    parent.twAddFrameTab('enctabs', label, sel);
-  }
+    top.restoreSession();
+    let FormNameValueArray = sel.split('formname=');
+    if (FormNameValueArray[1] == 'newpatient') {
+        // TBD: Make this work when it's not the first frame.
+        parent.frames[0].location.href = sel;
+    } else {
+        if (FormNameValueArray[1] == 'questionnaire_assessments') {
+            sel += "&questionnaire_form=" + encodeURIComponent(label);
+        }
+        parent.twAddFrameTab('enctabs', label, sel);
+    }
 }
 
 function toggleFrame1(fnum) {
@@ -669,7 +671,8 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
     <div class="float-right border border-dark mr-2">
-        <div class="float-left m-2">
+        <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
+        <div id="amc-requires" class="float-left m-2 collapse">
           <table>
             <tr>
               <td>

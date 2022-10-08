@@ -339,7 +339,7 @@ if (typeof alertMsg !== "function") {
             '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
             gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
             '<h4 class="alert-heading text-center">' + title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
-            '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + dismiss + '</button><br /></div>';
+            '<button type="button" id="alertDismissButton" class="pull-right btn btn-link" data-dismiss="alert">' + dismiss + '</button><br /></div>';
         $('#alert_box').append(mHtml);
         $('#alertmsg').on('closed.bs.alert', function () {
             clearTimeout(AlertMsg);
@@ -347,7 +347,13 @@ if (typeof alertMsg !== "function") {
             return false;
         });
         $('#dontShowAgain').on('click', function (e) {
+            clearTimeout(AlertMsg);
+            $('#alert_box').remove();
             persistUserOption(persist, 1);
+        });
+        $('#alertDismissButton').on('click', function (e) {
+            clearTimeout(AlertMsg);
+            $('#alert_box').remove();
         });
         let AlertMsg = setTimeout(function () {
             $('#alertmsg').fadeOut(800, function () {
