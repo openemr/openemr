@@ -357,7 +357,7 @@ if (isset($_POST["mode"])) {
 //==============================================================================
 //Search Code
 //===============================================================================
-$payment_id = !empty($payment_id) ? (int) $payment_id : $_REQUEST['payment_id'];
+$payment_id = !empty($payment_id) ? (int) $payment_id : (int) $_REQUEST['payment_id'];
 $ResultSearchSub = sqlStatement(
     "SELECT DISTINCT encounter, code_type, code, modifier, pid " .
     "FROM ar_activity WHERE deleted IS NULL AND session_id = ? " .
