@@ -608,10 +608,5 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div><!--end of container div-->
 <?php $oemr_ui->oeBelowContainerDiv(); ?>
-<script>
-function loadiframe(htmlHref) { //load iframe
-    document.getElementById('targetiframe1').src = htmlHref;
-}
-</script>
 </body>
 </html>
