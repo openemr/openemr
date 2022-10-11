@@ -161,37 +161,43 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
     return ($results ?? false);
 }
 
-function portalAuthorized($pid)
+function isPortalAllowed($pid)
 {
     if (!$GLOBALS['portal_onsite_two_enable'] && !$GLOBALS['portal_onsite_two_address']) {
         return false;
     }
 
-    $return = [
-        'isAllowed' => false
-        ,'allowed' => [
-                'api' => false
-                ,'portal' => false
-        ],
-        'credentials' => [
-                'created' => false
-                ,'date' => null
-        ]
-    ];
+    $return = false;
 
-    $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
-    $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
-    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps'] ?? '') != 'YES';
-    if ($return['allowed']['portal'] || $return['allowed']['api']) {
-        $return['isAllowed'] = true;
-        $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
-        if ($portalLogin) {
-            $return['credentials']['date'] = $portalLogin['date_created'];
-            $return['credentials']['created'] = true;
-        }
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
+    if ($portalStatus['allow_patient_portal'] == 'YES') {
+        $return = true;
         return $return;
     }
     return $return;
+}
+
+function isApiAllowed($pid)
+{
+    $return = false;
+
+    $apiStatus = sqlQuery("SELECT prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
+    if (strtoupper($apiStatus['prevent_portal_apps'] ?? '') != 'YES') {
+        $return = true;
+        return $return;
+    }
+    return $return;
+}
+
+function areCredentialsCreated($pid)
+{
+    $retun = false;
+    $credentialsCreated = sqlQuery("SELECT date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
+    if ($credentialsCreated['date_created'] ?? null) {
+        $return = true;
+    }
+
+    return $return ?? null;
 }
 
 function deceasedDays($days_deceased)
@@ -1327,7 +1333,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    if ($GLOBALS['portal_onsite_two_enable']) :
+                    if ($GLOBALS['portal_onsite_two_enable'] || isApiAllowed($_SESSION['pid'])) :
                         $portalCard = new PortalCard($GLOBALS);
                     endif;
 
