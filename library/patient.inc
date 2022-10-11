@@ -431,8 +431,8 @@ function genPatientHeaderFooter($pid, $DOS = null)
     $s .= '</div></htmlpagefooter>';
 
     // Set the header and footer in the current document
-    $s .= '<sethtmlpageheader name="PageHeader1" page="ALL" value="ON" />';
-    $s .= '<setpagefooter name="PageFooter1" page="ALL" value="ON" />';
+    $s .= '<sethtmlpageheader name="PageHeader1" page="ALL" value="ON" show-this-page="1" />';
+    $s .= '<sethtmlpagefooter name="PageFooter1" page="ALL" value="ON" />';
 
     return $s;
 }
