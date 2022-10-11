@@ -247,8 +247,10 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : ($name['given'] ?? null);
         $this->documentData['field_name_value_array']['patient_data'][1]['mname'] = is_array($name['given']) ? $name['given'][1] ?? '' : '';
         $this->documentData['field_name_value_array']['patient_data'][1]['lname'] = $name['family'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['title'] = $name['prefix'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['suffix'] = $name['suffix'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = ($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? '');
+        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = ucfirst(strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? ''));
         $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
