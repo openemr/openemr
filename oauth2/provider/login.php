@@ -48,7 +48,7 @@ use OpenEMR\Core\Header;
                         <div class="card">
                             <div class="card-body pt-1">
                                 <h5 class="card-title text-sm-center"><?php echo xlt("Scopes"); ?><hr /></h5>
-                                <ul class="pl-2 mt-1">
+                                <ul class="ps-2 mt-1">
                                 <?php {
                                 $scopes = explode(' ', $_SESSION['scopes']);
                                 foreach ($scopes as $key) {
@@ -63,7 +63,7 @@ use OpenEMR\Core\Header;
                         <div class="card">
                             <div class="card-body pt-1">
                                 <h5 class="card-title text-sm-center"><?php echo xlt("Claims"); ?><hr /></h5>
-                                <ul class="pl-2 mt-1">
+                                <ul class="ps-2 mt-1">
                                 <?php {
                                 foreach ($_SESSION['claims'] as $key => $value) {
                                     $key_n = explode('_', $key);
@@ -86,13 +86,13 @@ use OpenEMR\Core\Header;
             <form method="post" name="userLogin" id="userLogin" action="<?php echo $redirect ?>">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('oauth2')); ?>" />
                 <?php if (empty($authorize) && empty($mfaRequired)) { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <input class="form-control" placeholder="<?php echo xla("Email if required"); ?>" type="email" name="email">
                     </div>
-                    <div class="form-group"><!-- TODO: remove test values -->
+                    <div class="mb-3"><!-- TODO: remove test values -->
                         <input class="form-control" placeholder="<?php echo xla("Registered username"); ?>" type="text" name="username" value="">
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <input class="form-control" placeholder="******" type="password" name="password" value="">
                     </div>
                 <?php } ?>
@@ -102,16 +102,16 @@ use OpenEMR\Core\Header;
                         <fieldset>
                         <legend><?php echo xlt('Provide TOTP code') ?></legend>
                         </fieldset>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input class="form-control" id="totp_token" autocomplete="false" placeholder="<?php echo xlt("Enter required authentication code"); ?>" type="text" name="mfa_token">
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <button type="submit" name="user_role" class="btn btn-primary btn-save" value="api"><?php echo xlt("Authenticate TOTP"); ?></button>
                         </div>
                     <?php } ?>
 
                     <?php if (in_array($U2F, $mfaType)) { ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <fieldset>
                             <legend><?php echo xlt('Insert U2F Key') ?></legend>
                                 <div>
@@ -127,13 +127,13 @@ use OpenEMR\Core\Header;
                         </div>
                     <?php } ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <input class="form-control" type="hidden" value="<?php echo attr($_POST['email'] ?? ''); ?>">
                     </div>
-                    <div class="form-group"><!-- TODO: remove test values -->
+                    <div class="mb-3"><!-- TODO: remove test values -->
                         <input class="form-control" type="hidden" name="username" value="<?php echo attr($_POST['username']); ?>">
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <input class="form-control" type="hidden" name="password" value="<?php echo attr($_POST['password']); ?>">
                     </div>
                     <input class="form-control" type="hidden" name="mfa_type" value="TOTP">
@@ -154,7 +154,7 @@ use OpenEMR\Core\Header;
                                     <?php } ?>
                                 <?php } ?>
                             </div>
-                            <div class="form-check-inline float-right">
+                            <div class="form-check-inline float-end">
                                 <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
                                 <label for="persist_login" class="form-check-label"><?php echo xlt("Remember Me"); ?></label>
                             </div>

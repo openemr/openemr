@@ -48,7 +48,7 @@ switch ($search_any_type) {
 <script type="text/html" id="patient-data-template">
     <div class="d-lg-inline-flex w-100">
         <div class="flex-fill">
-            <div class="float-left mx-2">
+            <div class="float-start mx-2">
                 <!-- ko if: patient -->
                 <div data-bind="with: patient" class="patientPicture">
                     <img data-bind="attr: {src: patient_picture}"
@@ -59,7 +59,7 @@ switch ($search_any_type) {
                 </div>
                 <!-- /ko -->
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <!-- ko if: patient -->
                 <?php
                 $classes = "";
@@ -113,7 +113,7 @@ switch ($search_any_type) {
             </div>
         </div>
 
-        <div class="flex-fill ml-2">
+        <div class="flex-fill ms-2">
             <!-- ko if: patient -->
             <!-- ko with: patient -->
             <div class="btn-group btn-group-sm">
@@ -124,7 +124,7 @@ switch ($search_any_type) {
                 <div class="btn-group dropdown">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="pastEncounters"
-                    data-toggle="dropdown"
+                    data-bs-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Select Encounter"); ?>&nbsp;
@@ -172,49 +172,49 @@ switch ($search_any_type) {
             <!-- ko if: user -->
             <!-- ko with: user -->
             <!-- ko if:messages() -->
-            <span class="mr-auto">
+            <span class="me-auto">
                 <a class="btn btn-secondary btn-sm" href="#" data-bind="click: viewMessages"
                     title="<?php echo xla("View Messages"); ?>">
-                    <i class="fa fa-envelope"></i>&nbsp;<span class="badge badge-primary" style="display:inline" data-bind="text: messages()"></span>
+                    <i class="fa fa-envelope"></i>&nbsp;<span class="badge bg-primary" style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>
             <!-- /ko --><!-- messages -->
             <!-- ko if: portal() -->
-            <span class="btn-group dropdown mr-auto">
+            <span class="btn-group dropdown me-auto">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="portalMsgAlerts"
-                    data-toggle="dropdown"
+                    data-bs-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Portal"); ?>&nbsp;
-                    <span class="badge badge-danger" data-bind="text: portalAlerts()"></span>
+                    <span class="badge bg-danger" data-bind="text: portalAlerts()"></span>
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="portalMsgAlerts">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="portalMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalMail">
                             <i class="fa fa-envelope-o"></i>&nbsp;<?php echo xlt("Portal Mail"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: portalMail()"></span>
+                            <span class="badge bg-success" style="display:inline" data-bind="text: portalMail()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalAudits">
                             <i class="fa fa-align-justify"></i>&nbsp;<?php echo xlt("Portal Audits"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: portalAudits()"></span>
+                            <span class="badge bg-success" style="display:inline" data-bind="text: portalAudits()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalChats">
                             <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Chats"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: portalChats()"></span>
+                            <span class="badge bg-success" style="display:inline" data-bind="text: portalChats()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalPayments">
-                            <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;<span class="badge badge-success" style="display:inline" data-bind="text: portalPayments()"></span>
+                            <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;<span class="badge bg-success" style="display:inline" data-bind="text: portalPayments()"></span>
                         </a>
                     </li>
                 </ul>

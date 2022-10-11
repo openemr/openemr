@@ -381,7 +381,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12 pl-0">
+            <div class="col-sm-12 ps-0">
                 <?php if ($userMode) { ?>
                 <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
                 <?php } else { ?>
@@ -401,9 +401,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                         ?>
                         <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
-                        <span class="input-group-append">
-                            <button class="btn btn-secondary btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
-                        </span>
+                        <button class="btn btn-secondary btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
                         </div><!-- /input-group -->
                     </div>
                     <br />
@@ -436,9 +434,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     if ($userMode) {
                                         echo "<div class='row'>";
                                         echo "<div class='col-sm-4'>&nbsp</div>";
-                                        echo "<div class='col-sm-4 font-weight-bold'>" . xlt('User Specific Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default') . "</div>";
+                                        echo "<div class='col-sm-4 fw-bold'>" . xlt('User Specific Setting') . "</div>";
+                                        echo "<div class='col-sm-2 fw-bold'>" . xlt('Default Setting') . "</div>";
+                                        echo "<div class='col-sm-2 fw-bold'>" . xlt('Default') . "</div>";
                                         echo "</div>";
                                     }
 
@@ -485,13 +483,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             if ($userMode) {
-                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                echo " <div class='row mb-3" . $srch_cl  . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
                                             } else {
-                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                echo " <div class='row mb-3" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
                                             }
 
                                             if (is_array($fldtype)) {
-                                                          echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                          echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 foreach ($fldtype as $key => $value) {
                                                     if ($userMode) {
                                                         if ($globalValue == $key) {
@@ -582,7 +580,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_LANGUAGE) {
                                                 $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 while ($row = sqlFetchArray($res)) {
                                                     echo "   <option value='" . attr($row['lang_description']) . "'";
                                                     if ($row['lang_description'] == $fldvalue) {
@@ -597,7 +595,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                           echo "  </select>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_CODE_TYPES) {
                                                 global $code_types;
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 foreach (array_keys($code_types) as $code_key) {
                                                     echo "   <option value='" . attr($code_key) . "'";
                                                     if ($code_key == $fldvalue) {
@@ -612,7 +610,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 echo "  </select>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_LANGUAGE_SELECT) {
                                                 $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
-                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
+                                                echo "  <select multiple class='form-select' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
                                                 while ($row = sqlFetchArray($res)) {
                                                     echo "   <option value='" . attr($row['lang_description']) . "'";
                                                     foreach ($glarr as $glrow) {
@@ -638,7 +636,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 FROM openemr_postcalendar_categories
                                                 WHERE pc_active = 1 ORDER BY pc_seq";
                                                 $result = sqlStatement($sql);
-                                                echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
+                                                echo "<select class='form-select' name='form_{$i}' id='form_{$i}'>\n";
                                                 echo "<option value='_blank'>" . xlt('None{{Category}}') . "</option>";
                                                 while ($row = sqlFetchArray($result)) {
                                                     $catId = $row['pc_catid'];
@@ -699,7 +697,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     // Alphabetize styles
                                                     asort($styleArray);
                                                     // Generate style selector
-                                                    echo "<select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                    echo "<select class='form-select' name='form_$i' id='form_$i'>\n";
                                                     foreach ($styleArray as $styleKey => $styleValue) {
                                                         echo "<option value='" . attr($styleKey) . "'";
                                                         if ($styleKey == $fldvalue) {
@@ -717,7 +715,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     $globalTitle = $globalValue;
                                                 }
 
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 for ($h = 0; $h < 24; ++$h) {
                                                     echo "<option value='$h'";
                                                     if ($h == $fldvalue) {

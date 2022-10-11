@@ -287,15 +287,15 @@ function doSubs($s)
         } elseif (keySearch($s, '{ynRadioGroup}')) {
             $grcnt++;
             $sigfld = '<span class="ynuGroup" data-value="false" data-id="' . $grcnt . '" id="rgrp' . $grcnt . '">';
-            $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
-            $sigfld .= '<label><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
+            $sigfld .= '<label class="ms-1 me-2"><input class="me-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
+            $sigfld .= '<label><input class="me-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{TrueFalseRadioGroup}')) {
             $grcnt++;
             $sigfld = '<span class="tfuGroup" data-value="False" data-id="' . $grcnt . '" id="tfrgrp' . $grcnt . '">';
-            $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="True">' . xlt("True") . '</label>';
-            $sigfld .= '<label><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="False">' . xlt("False") . '</label>';
+            $sigfld .= '<label class="ms-1 me-2"><input class="me-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="True">' . xlt("True") . '</label>';
+            $sigfld .= '<label><input class="me-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $grcnt . '" data-id="' . $grcnt . '" value="False">' . xlt("False") . '</label>';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{PatientName}')) {

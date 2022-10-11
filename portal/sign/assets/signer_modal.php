@@ -71,15 +71,15 @@ $vars
             <div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
                 <input style='display:none;' type='checkbox' id='isAdmin' name='isAdmin' />$msg3</label></span>
                 <div class='row signature-pad-content'>
-                    <div class='embed-responsive embed-responsive-21by7 border border-dark'>
-                        <canvas class="canvas embed-responsive-item"></canvas>
+                    <div class='embed-responsive ratio-21x7 border border-dark'>
+                        <canvas class="canvas"></canvas>
                     </div>
                     <div class='signature-pad-footer text-dark'>
                         <div class='description'>$msg4</div>
                         <div class='btn-group signature-pad-actions bg-light'>
                                 <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>$msg5</button>
                                 <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='$aud' id='signatureModal'>$msg1</button>
-                                <button type='button' class='btn btn-danger btn-sm' data-dismiss='modal'>$msg2</button>
+                                <button type='button' class='btn btn-danger btn-sm' data-bs-dismiss='modal'>$msg2</button>
                                 <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>$msg6</button>
                                 <span><h6 id='labelName'></h6></span>
                             <input type='hidden' id='name' /><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' />

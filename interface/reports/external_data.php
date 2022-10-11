@@ -63,15 +63,15 @@ $records2 = array();
                 <div class="col-sm-12">
                     <ul class="nav nav-pills">
                         <li class="nav-item" id="btnEncounters">
-                            <a href="#" class="nav-link font-weight-bold active"><?php echo xlt('Encounters'); ?></a>
+                            <a href="#" class="nav-link fw-bold active"><?php echo xlt('Encounters'); ?></a>
                         </li>
                         <li class="nav-item" id="btnProcedures">
-                            <a href="#" class="nav-link font-weight-bold"><?php echo xlt('Procedures'); ?></a>
+                            <a href="#" class="nav-link fw-bold"><?php echo xlt('Procedures'); ?></a>
                         </li>
                     </ul>
                 </div>
                 <div class="col-sm-12 mt-3">
-                    <div class="table-responsive jumbotron py-4" id="encounters">
+                    <div class="table-responsive p-5 mb-4 bg-light rounded-3 py-4" id="encounters">
                         <table class="table">
                             <tr>
                                 <td><?php echo xlt('Date'); ?></td>
@@ -107,7 +107,7 @@ $records2 = array();
                             </p>
                         <?php } ?>
                     </div>
-                    <div class="table-responsive jumbotron py-4" id="procedures">
+                    <div class="table-responsive p-5 mb-4 bg-light rounded-3 py-4" id="procedures">
                         <table class="table">
                             <tr>
                                 <td><?php echo xlt('Date'); ?></td>

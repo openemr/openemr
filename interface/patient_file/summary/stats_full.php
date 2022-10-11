@@ -227,14 +227,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             // Show header
                             $disptype = $focustitles[0];
-                            echo "<div class='mb-3'><span class='title mr-2'>" . text($disptype) . "</span>\n";
+                            echo "<div class='mb-3'><span class='title me-2'>" . text($disptype) . "</span>\n";
 
                             if (AclMain::aclCheckIssue($focustype, '', array('write', 'addonly'))) {
                                 if (($focustype == 'allergy' || $focustype == 'medication') && $GLOBALS['erx_enable']) {
                                     echo "<a href='../../eRx.php?page=medentry' class='btn btn-primary btn-sm' onclick='top.restoreSession()' >" .
                                         xlt('Add') . "</a>\n";
                                 } else {
-                                    echo "<a href='javascript:;' class='btn btn-primary btn-sm btn-add mr-1' onclick='dopclick(0," .
+                                    echo "<a href='javascript:;' class='btn btn-primary btn-sm btn-add me-1' onclick='dopclick(0," .
                                         attr_js($focustype)  . ")'>" . xlt('Add') . "</a>\n";
                                 }
                             }
@@ -242,7 +242,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $canDelete = AclMain::aclCheckCore('admin', 'super');
                             if ($canDelete) {
                                 echo "<button id='" . $focustype . "-delete' disabled type='button'
-                                    class='btn btn-sm btn-delete btn-danger mr-1'
+                                    class='btn btn-sm btn-delete btn-danger me-1'
                                     onclick='deleteSelectedIssues(" . attr_js($focustype)  . ")'>" . xlt('Delete') . "</button>\n";
                             }
 
@@ -294,7 +294,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if (sqlNumRows($pres) < 1) {
                                 if (getListTouch($pid, $focustype)) {
                                     // Data entry has happened to this type, so can display an explicit None.
-                                    echo "<tr><td class='text font-weight-bold'>" . xlt("None{{Issue}}") . "</td></tr>";
+                                    echo "<tr><td class='text fw-bold'>" . xlt("None{{Issue}}") . "</td></tr>";
                                 } else {
                                     // Data entry has not happened to this type, so can show the none selection option.
                                     echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
@@ -365,7 +365,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     echo "  <td><input type='checkbox' class='selection-check' id='sel_" . attr($rowid) . "'
                                         onclick='rowSelectionChanged(" . attr_js($focustype) . ");'/></td>\n";
                                 }
-                                echo "  <td class='text-left " . attr($click_class) . "' style='text-decoration: underline' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
+                                echo "  <td class='text-start " . attr($click_class) . "' style='text-decoration: underline' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
                                 echo "  <td>" . text(trim(oeFormatDateTime($row['begdate']))) . "&nbsp;</td>\n";
                                 echo "  <td>" . text(trim(oeFormatDateTime($row['enddate']))) . "&nbsp;</td>\n";
                                 // both codetext and statusCompute have already been escaped above with htmlspecialchars)

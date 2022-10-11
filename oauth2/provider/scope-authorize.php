@@ -72,7 +72,7 @@ ksort($scopesByResource);
 <body class="container-fluid bg-dark mt-0 mt-sm-5 mt-lg-3">
 <form method="post" name="userLogin" id="userLogin" action="<?php echo $redirect ?>">
     <div class="row w-100">
-        <div class="col-12 col-sm-10 col-lg-7 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ml-auto mr-auto">
+        <div class="col-12 col-sm-10 col-lg-7 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ms-auto me-auto">
             <div class="text-md-center mt-2">
                 <h4 class="mb-4 mt-1"><?php echo xlt("Authorizing for Application"); ?> <strong><?php echo text($clientName); ?></strong></h4>
             </div>
@@ -83,7 +83,7 @@ ksort($scopesByResource);
                             <h5 class="card-title text-sm-center"><?php echo xlt("Grant this application access to do the following"); ?></h5>
                             <hr />
                             <h6><?php echo xlt("Resource Permissions"); ?></h6>
-                                <div class="list-group pl-2 mt-1">
+                                <div class="list-group ps-2 mt-1">
                                     <?php foreach ($scopesByResource as $resource => $scopeCollection) : ?>
                                         <label class="list-group-item m-0">
                                             <strong><?php echo xlt($resource); ?></strong><br />
@@ -103,7 +103,7 @@ ksort($scopesByResource);
                                     <?php endforeach; ?>
                                 </div>
                                 <h6><?php echo xlt("Other Permissions"); ?></h6>
-                                <div class="list-group pl-2 mt-1">
+                                <div class="list-group ps-2 mt-1">
                                     <?php foreach ($otherScopes as $scope => $description) : ?>
                                     <label class="list-group-item m-0">
                                         <input type="checkbox" class='app-scope' name="scope[<?php echo attr($scope); ?>]" value="<?php echo attr($scope); ?>" checked>
@@ -124,7 +124,7 @@ ksort($scopesByResource);
                             <h5 class="card-title text-sm-center"><?php echo xlt("Identity Information Requested"); ?></h5>
                             <hr />
                             <p><?php echo xlt("This application is requesting access to the following information about you"); ?></p>
-                            <ul class="pl-2 mt-1">
+                            <ul class="ps-2 mt-1">
                                 <?php {
                                 foreach ($claims as $key => $value) {
                                     $key_n = explode('_', $key);
@@ -173,7 +173,7 @@ ksort($scopesByResource);
                     <div class="btn-group">
                         <button type="submit" name="proceed" value="1" class="btn btn-primary"><?php echo xlt("Authorize"); ?></button>
                     </div>
-                    <div class="form-check-inline float-right">
+                    <div class="form-check-inline float-end">
                         <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
                         <label for="persist_login" class="form-check-label"><?php echo xlt("Remember Me"); ?></label>
                     </div>

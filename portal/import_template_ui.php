@@ -429,13 +429,13 @@ $none_message = xlt("Nothing to show for current actions.");
     <div class='container-xl'>
         <nav class='nav navbar bg-light text-dark sticky-top'>
             <span class='title'><?php echo xlt('Template Maintenance'); ?></span>
-            <div class="ml-auto">
+            <div class="ms-auto">
                 <label class="form-check"><?php echo xlt('Full Editor'); ?>
                     <input type='checkbox' class='form-check-inline mx-1' id='is_modal' name='is_modal' checked='checked' />
                 </label>
             </div>
-            <div class='btn-group ml-1'>
-                <button type='button' class='btn btn-secondary' data-toggle='collapse' data-target='#help-panel'>
+            <div class='btn-group ms-1'>
+                <button type='button' class='btn btn-secondary' data-bs-toggle='collapse' data-bs-target='#help-panel'>
                     <?php echo xlt('Help') ?>
                 </button>
                 <button class='btn btn-success' type='button' onclick="location.href='./patient/provider'">
@@ -449,9 +449,9 @@ $none_message = xlt("Nothing to show for current actions.");
             <!-- Actions Scope to act on -->
             <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
                 <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
-                    <a class='navbar-brand ml-1'><?php echo xlt('Scope'); ?></a>
-                    <div class="form-group">
-                        <label class='font-weight-bold mx-1' for='selected_patients'><?php echo xlt('Location'); ?></label>
+                    <a class='navbar-brand ms-1'><?php echo xlt('Scope'); ?></a>
+                    <div class="mb-3">
+                        <label class='fw-bold mx-1' for='selected_patients'><?php echo xlt('Location'); ?></label>
                         <?PHP
                         $ppt = $templateService->fetchPortalAuthUsers();
                         $auth = '';
@@ -469,7 +469,7 @@ $none_message = xlt("Nothing to show for current actions.");
                         <select class="form-control select-dropdown d-none" id="selected_patients" name="selected_patients[]" multiple="multiple">
                             <?php echo $auth ?>
                         </select>
-                        <a class='btn-refresh ml-1' onclick="$('#selected_patients').val(null).trigger('change');" role="button"></a>
+                        <a class='btn-refresh ms-1' onclick="$('#selected_patients').val(null).trigger('change');" role="button"></a>
                     </div>
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
@@ -485,13 +485,13 @@ $none_message = xlt("Nothing to show for current actions.");
                     }
                     ?>
                     <div class="input-group" id="category_group">
-                        <label class="font-weight-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
+                        <label class="fw-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
                         <select class="form-control" id="template_category" name="template_category">
                             <?php echo $select_cat_options ?>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <div class='btn-group ml-1'>
+                    <div class="mb-3">
+                        <div class='btn-group ms-1'>
                             <button type='submit' class='btn btn-search btn-light'><i class="btn-refresh"></i></button>
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
@@ -517,12 +517,12 @@ $none_message = xlt("Nothing to show for current actions.");
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>
-                                <div class="input-group">
+                                <div class="mb-3">
                                     <label class="form-check"><?php echo xlt('If questionnaire import, use Questionnaire tool'); ?>
                                     <input type="checkbox" class='form-check-inline ml-1' id='upload_scope' checked>
                                 </div>
                             </div>
-                            <div class='form-group col'>
+                            <div class='mb-3 col'>
                                 <input type='file' class='btn btn-outline-info mr-1 mt-1' id="fetch_files" name='template_files[]' multiple />
                                 <div class="mt-1">
                                 <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
@@ -570,10 +570,10 @@ $none_message = xlt("Nothing to show for current actions.");
             <!-- Repository -->
             <div class='row'>
                 <div class='col col-12'>
-                    <div class="h5"><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
+                    <div class="h5"><i class='fa fa-eye me-1' data-bs-toggle='collapse' data-bs-target='#repository-collapse' role='button' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
                         <span>
-                        <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-toggle='collapse' data-target='#upload-nav'>
-                            <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
+                        <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-bs-toggle='collapse' data-bs-target='#upload-nav'>
+                            <i class='fa fa-upload me-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
                         </span>
                     </div>
                 </div>
@@ -635,7 +635,7 @@ $none_message = xlt("Nothing to show for current actions.");
                                 '</button>';
                             if ($authUploadTemplates) {
                                 echo '<button id="templateDelete' . attr($template_id) .
-                                    '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ',' . attr_js($file['template_name']) . ')" type="button">' . xlt("Delete") .
+                                    '" class="btn btn-sm btn-outline-danger float-end" onclick="templateDelete(' . attr_js($template_id) . ',' . attr_js($file['template_name']) . ')" type="button">' . xlt("Delete") .
                                     '</button>';
                             }
                             echo "</td>";
@@ -658,7 +658,7 @@ $none_message = xlt("Nothing to show for current actions.");
                         echo '<caption>' . xlt('Profiles in Portal') . "</caption>";
                         echo "<thead>\n";
                         echo "<tr>\n" .
-                            "<th>" . xlt('Active') . "<button type='button' id='send-profile-hide' class='btn btn-sm ml-1 py-0 btn-transmit btn-success d-none' onclick='return sendProfiles()'>" . xlt('Update') . "</button></th>" .
+                            "<th>" . xlt('Active') . "<button type='button' id='send-profile-hide' class='btn btn-sm ms-1 py-0 btn-transmit btn-success d-none' onclick='return sendProfiles()'>" . xlt('Update') . "</button></th>" .
                             '<th style="min-width: 25%">' . xlt('Profile') . '</th>' .
                             '<th>' . xlt('Assigned Templates') . '</th>' .
                             '<th>' . xlt('Assigned Groups') . '</th>' .
@@ -718,8 +718,8 @@ $none_message = xlt("Nothing to show for current actions.");
             <!-- All Patients -->
             <hr />
             <div class='row'>
-                <div class='col col-12' data-toggle='collapse' data-target='#template-collapse'>
-                    <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xla('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('Default Patient Templates') . '' ?></h5>
+                <div class='col col-12' data-bs-toggle='collapse' data-bs-target='#template-collapse'>
+                    <h5><i class='fa fa-eye me-1' role='button' title="<?php echo xla('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('Default Patient Templates') . '' ?></h5>
                 </div>
                 <div class='col col-12 table-responsive <?php echo attr(($_REQUEST['all_state'] ?? '') ?: 'collapse') ?>' id='template-collapse'>
                     <?php
@@ -774,7 +774,7 @@ $none_message = xlt("Nothing to show for current actions.");
             <div class='row'>
                 <div class='col col-12'>
                     <div class='h5'>
-                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#assigned_collapse' role='button' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
+                        <i class='fa fa-eye me-1' data-bs-toggle='collapse' data-bs-target='#assigned_collapse' role='button' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
                     </div>
                 </div>
                 <!-- Assigned table -->
@@ -804,7 +804,7 @@ $none_message = xlt("Nothing to show for current actions.");
                             }
                         }
 
-                        echo "<tr><td class='h6 font-weight-bolder bg-light text-dark' data-toggle='collapse' data-target='" .
+                        echo "<tr><td class='h6 fw-bolder bg-light text-dark' data-bs-toggle='collapse' data-bs-target='" .
                             attr('#id' . ++$idcnt) . "' role='button'>" . text($name) .
                             " (" . text($count . ' ' . xl('Templates')) . ") in " . text($fetched_groups) . "</td></tr>";
                         echo "<td class='collapse' id='" . attr('id' . $idcnt) . "'><table class='table table-sm table-striped table-bordered'>\n";

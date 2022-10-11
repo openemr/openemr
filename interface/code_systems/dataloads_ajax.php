@@ -109,7 +109,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     <div class="card">
         <div class="card-header" id="overview">
         <h2 class="mb-0">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOverview" aria-expanded="true" aria-controls="collapseOne">
+            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="true" aria-controls="collapseOne">
                 <?php echo xlt("Overview"); ?>
             </button>
         </h2>
@@ -137,7 +137,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         <div class="card">
             <div class="card-header" id="<?php echo attr($db); ?>">
                 <h2 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse<?php echo attr($db); ?>" aria-expanded="false" aria-controls="collapseTwo">
+                    <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?php echo attr($db); ?>" aria-expanded="false" aria-controls="collapseTwo">
                         <?php echo attr($db); ?>
                     </button>
                 </h2>
@@ -223,11 +223,11 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                         });
                     });
                     // Initial tooltip
-                    $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-bs-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
 
-                    $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
 
-                    $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
 
                     // Upgrade Database button event
                     $(`#${dbName}_install_button`).click(function(e) {

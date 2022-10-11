@@ -15,7 +15,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2002-2003 Mike Benoit <ipso@snappymail.ca>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html GNU Lesser General Public License 2.1
+ * @license   https://www.gnu.org/licenses/old-licenses/lgps-2.1.html GNU Lesser General Public License 2.1
  */
 
 

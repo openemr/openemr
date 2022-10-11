@@ -189,9 +189,9 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
     <form name="select_form" method="post" action="">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <div class="row">
-            <div class="col-md card p-3 m-1 form-group">
+            <div class="col-md card p-3 m-1 mb-3">
                 <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>
-                <select name="process_type" class="form-control">
+                <select name="process_type" class="form-select">
                     <?php
                     foreach ($process_choices as $choice) {
                         echo "<option>" . text($choice) . "</option>";
@@ -199,9 +199,9 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
                     ?>
                 </select>
             </div>
-            <div class="col-md card p-3 m-1 form-group">
+            <div class="col-md card p-3 m-1 mb-3">
                 <label for="hipaa_choice"><?php echo xlt("Override HIPAA choice") . ":"; ?></label>
-                <select name="hipaa_choice" class="form-control">
+                <select name="hipaa_choice" class="form-select">
                     <?php
                     foreach ($hipaa_choices as $choice) {
                         echo "<option>" . text($choice) . "</option>";
@@ -209,9 +209,9 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
                     ?>
                 </select>
             </div>
-            <div class="col-md card p-3 m-1 form-group">
+            <div class="col-md card p-3 m-1 mb-3">
                 <label for="sort_by"><?php echo xlt("Sort by"); ?></label>
-                <select name="sort_by" class="form-control">
+                <select name="sort_by" class="form-select">
                     <?php
                     foreach ($sort_by_choices as $choice => $sorting_code) {
                         echo "<option value=\"$sorting_code\">" . text($choice) . "</option>";
@@ -219,9 +219,9 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
                     ?>
                 </select>
             </div>
-            <div class="col-md card p-3 m-1 form-group">
+            <div class="col-md card p-3 m-1 mb-3">
                 <label for="gender"><?php echo xlt('Gender') ?>:</label>
-                <select name="gender" class="form-control">
+                <select name="gender" class="form-select">
                     <?php
                     foreach ($gender_choices as $choice) {
                         echo "<option>" . text($choice) . "</option>";
@@ -231,27 +231,27 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             </div>
         </div>
         <div class="row">
-            <div class="col-md card p-3 m-1 form-group">
+            <div class="col-md card p-3 m-1 mb-3">
                 <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
                 <input name="age_from" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
                 <label for="age_upto" class="text-center"><?php echo xlt('to{{Range}}'); ?></label>
                 <input name="age_upto" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
             </div>
-            <div class="col-md card p-3 m-1 form-group">
+            <div class="col-md card p-3 m-1 mb-3">
                 <label for="app_s"><?php echo xlt('Appointment within') ?>:</label>
                     <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>" />
                     <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
                     <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>" />
             </div>
             <!-- later gator    <br />Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
-            <div class="col-md card p-3 m-1 form-group">
+            <div class="col-md card p-3 m-1 mb-3">
                 <label for="app_s"><?php echo xlt('Seen within')?>:</label>
                     <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>" />
                     <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
                     <input type="text" class="datepicker form-control" name="seen_before" placeholder="<?php echo xla('any date'); ?>" />
             </div>
         </div>
-        <div class="email row form-group">
+        <div class="email row mb-3">
             <div class="col-md-6 offset-md-3 card p-3 m-1">
                 <div class="col-md-6">
                     <label for="email_sender"><?php echo xlt('Email Sender'); ?>:</label>
@@ -271,7 +271,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             </div>
         </div>
         <div class="row">
-            <div class="col-md form-group">
+            <div class="col-md mb-3">
                 <input type="hidden" name="form_action" value="process" />
                 <button type="submit" name="submit" class="btn btn-secondary btn-save">
                     <?php echo xla("Process"); ?>

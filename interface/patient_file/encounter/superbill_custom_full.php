@@ -485,7 +485,7 @@ if ($fend > ($count ?? null)) {
 
     <div class="container">
       <p><?php echo xlt('Not all fields are required for all codes or code types.'); ?></p>
-      <div class="form-group row">
+      <div class="mb-3 row">
         <label for="code_type" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Type'); ?>:</label>
         <div class="col-md">
           <?php if ($mode != "modify") { ?>
@@ -539,7 +539,7 @@ if ($fend > ($count ?? null)) {
           <?php echo xlt('Active'); ?>
         </div>
       </div>
-      <div class="form-group row">
+      <div class="mb-3 row">
         <label for="code_text" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Description'); ?>:</label>
         <div class="col-md">
           <?php if ($mode == "modify") { ?>
@@ -559,7 +559,7 @@ if ($fend > ($count ?? null)) {
           </div>
         <?php } ?>
       </div>
-      <div class="form-group row">
+      <div class="mb-3 row">
         <label for="superbill" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Category'); ?>:</label>
         <div class="col-md">
           <?php generate_form_field(array('data_type' => 1,'field_id' => 'superbill','list_id' => 'superbill', 'smallform' => 'true'), ($superbill ?? '')); ?>
@@ -575,7 +575,7 @@ if ($fend > ($count ?? null)) {
           <?php echo xlt('Service Reporting'); ?>
         </div>
       </div>
-      <div class="form-group row">
+      <div class="mb-3 row">
           <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) {
                 echo 'd-none'; } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
           <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {
@@ -671,7 +671,7 @@ if ($fend > ($count ?? null)) {
           <input type='checkbox' title='<?php echo xla("Only Show Active Codes ") ?>' name='search_active' value='1'<?php if (!empty($search_active)) {
                 echo ' checked'; } ?> /><?php echo xlt('Active Codes'); ?>
         </div>
-        <div class="col-md text-right">
+        <div class="col-md text-end">
           <?php if ($fstart) { ?>
               <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
                   &lt;&lt;
@@ -689,26 +689,26 @@ if ($fend > ($count ?? null)) {
 
 <table class='table table-borderless' cellpadding='5' cellspacing='0'>
     <tr>
-        <td><span class='font-weight-bold'><?php echo xlt('Code'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Mod'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Code'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Mod'); ?></span></td>
         <?php if ($institutional) { ?>
-            <td><span class='font-weight-bold'><?php echo xlt('Revenue'); ?></span></td>
+            <td><span class='fw-bold'><?php echo xlt('Revenue'); ?></span></td>
         <?php } ?>
-        <td><span class='font-weight-bold'><?php echo xlt('Act'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Category'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Dx Rep'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Serv Rep'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Type'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Description'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Short Description'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Act'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Category'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Dx Rep'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Serv Rep'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Type'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Description'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Short Description'); ?></span></td>
         <?php if (related_codes_are_used()) { ?>
-            <td><span class='font-weight-bold'><?php echo xlt('Related'); ?></span></td>
+            <td><span class='fw-bold'><?php echo xlt('Related'); ?></span></td>
         <?php } ?>
         <?php
         $pres = sqlStatement("SELECT title FROM list_options " .
             "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
         while ($prow = sqlFetchArray($pres)) {
-            echo "  <td class='font-weight-bold text-right text-nowrap'>" . text(xl_list_label($prow['title'])) . "</td>\n";
+            echo "  <td class='fw-bold text-end text-nowrap'>" . text(xl_list_label($prow['title'])) . "</td>\n";
         }
         ?>
         <td></td>
@@ -783,15 +783,15 @@ if ($fend > ($count ?? null)) {
                 "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
                 "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($iter['id']));
             while ($prow = sqlFetchArray($pres)) {
-                echo "<td class='text text-right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
+                echo "<td class='text text-end'>" . text(bucks($prow['pr_price'])) . "</td>\n";
             }
 
             if ($thisauthwrite) {
                 if ($iter["code_external"] > 0) {
-                    echo "  <td class='text-right'><a class='link' href='javascript:submitModify(" . attr_js($iter['code_type_name']) . "," . attr_js($iter['code']) . "," . attr_js($iter['id']) . ")'>[" . xlt('Modify') . "]</a></td>\n";
+                    echo "  <td class='text-end'><a class='link' href='javascript:submitModify(" . attr_js($iter['code_type_name']) . "," . attr_js($iter['code']) . "," . attr_js($iter['id']) . ")'>[" . xlt('Modify') . "]</a></td>\n";
                 } else {
-                    echo "  <td class='text-right'><a class='link' href='javascript:submitDelete(" . attr_js($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
-                    echo "  <td class='text-right'><a class='link' href='javascript:submitEdit(" . attr_js($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
+                    echo "  <td class='text-end'><a class='link' href='javascript:submitDelete(" . attr_js($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
+                    echo "  <td class='text-end'><a class='link' href='javascript:submitEdit(" . attr_js($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
                 }
             }
 

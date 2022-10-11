@@ -261,9 +261,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
         $help_icon = '';
     }
@@ -342,8 +342,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                 <div id="visit-details" class="px-3">
                     <div class="form-row align-items-center">
                         <div class="col-sm <?php displayOption('enc_enable_visit_category'); ?>">
-                            <div class="form-group">
-                                <label for="pc_catid" class="text-right"><?php echo xlt('Visit Category:'); ?></label>
+                            <div class="mb-3">
+                                <label for="pc_catid" class="text-end"><?php echo xlt('Visit Category:'); ?></label>
                                 <select name='pc_catid' id='pc_catid' class='form-control' <?php echo ($mode === "followup") ? 'disabled' : ''; ?>>
                                     <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                     <?php
@@ -405,14 +405,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         </div>
                         <div class="col-sm <?php displayOption('enc_enable_class');?>">
-                            <div class="form-group">
-                                <label for='class' class="text-right"><?php echo xlt('Class'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='class' class="text-end"><?php echo xlt('Class'); ?>:</label>
                                 <?php echo generate_select_list('class_code', '_ActEncounterCode', $viewmode ? $result['class_code'] : '', '', ''); ?>
                             </div>
                         </div>
                         <div class="col-sm <?php displayOption('enc_enable_type');?>">
-                            <div class="form-group">
-                                <label for='encounter_type' class="text-right"><?php echo xlt('Type'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='encounter_type' class="text-end"><?php echo xlt('Type'); ?>:</label>
                                 <?php
                                 // we need to convert from our selected code if we have one to our list type
                                 $encounter_type_option = $result['encounter_type_code'] ?? '';
@@ -437,8 +437,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             usort($sensitivities, "sensitivity_compare");
                             ?>
                             <div class="col-sm <?php displayOption('enc_sensitivity_visibility');?>">
-                                <div class="form-group">
-                                    <label for="pc_catid" class="text-right"><?php echo xlt('Sensitivity:'); ?> <i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                                <div class="mb-3">
+                                    <label for="pc_catid" class="text-end"><?php echo xlt('Sensitivity:'); ?> <i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                     <select name='form_sensitivity' id='form_sensitivity' class='form-control'>
                                         <?php
                                         foreach ($sensitivities as $value) {
@@ -462,26 +462,26 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     </div>
                     <div class="form-row align-items-center">
                         <div class="col-sm <?php displayOption('enc_service_date');?>">
-                            <div class="form-group">
-                                <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
+                            <div class="mb-3">
+                                <label for='form_date' class="text-end"><?php echo xlt('Date of Service:'); ?></label>
                                 <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatDateTime($result['date'])) : attr(oeFormatDateTime(date('Y-m-d H:i:00'))); ?>' title='<?php echo xla('Date of service'); ?>' />
                             </div>
                         </div>
                         <div class="col-sm <?php echo ($GLOBALS['gbl_visit_onset_date'] == 1) ?: 'd-none'; ?>">
-                            <div class="form-group">
-                                <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                            <div class="mb-3">
+                                <label for='form_onset_date' class="text-end"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                 <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatDateTime($result['onset_date'])) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                             </div>
                         </div>
                         <div class="col-sm <?php echo ($GLOBALS['gbl_visit_referral_source'] == 1) ?: 'd-none';?>">
-                            <div class="form-group">
-                                <label for="form_referral_source" class="text-right"><?php echo xlt('Referral Source'); ?>:</label>
+                            <div class="mb-3">
+                                <label for="form_referral_source" class="text-end"><?php echo xlt('Referral Source'); ?>:</label>
                                 <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', ''); ?>
                             </div>
                         </div>
                         <div class="col-sm <?php echo ($GLOBALS['set_pos_code_encounter'] == 1) ?: 'd-none';?>">
-                            <div class="form-group">
-                                <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='pos_code' class="text-end"><?php echo xlt('POS Code'); ?>:</label>
                                 <select name="pos_code" id="pos_code" class='form-control'>
                                     <?php
                                     $pc = new POSRef();
@@ -504,8 +504,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
                     <div class="form-row align-items-center">
                         <div class="col-sm">
-                            <div class="form-group">
-                                <label for='provider_id' class="text-right"><?php echo xlt('Encounter Provider'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='provider_id' class="text-end"><?php echo xlt('Encounter Provider'); ?>:</label>
                                 <select name='provider_id' id='provider_id' class='form-control' onChange="newUserSelected()">
                                     <?php
                                     if ($viewmode) {
@@ -537,8 +537,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         </div>
                         <div class="col-sm <?php displayOption('enc_enable_referring_provider');?>">
-                            <div class="form-group">
-                                <label for='referring_provider_id' class="text-right"><?php echo xlt('Referring Provider'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='referring_provider_id' class="text-end"><?php echo xlt('Referring Provider'); ?>:</label>
                                 <?php
                                 if ($viewmode && !empty($result["referring_provider_id"])) {
                                     $MBO->genReferringProviderSelect('referring_provider_id', '-- ' . xl("Please Select") . ' --', $result["referring_provider_id"]);
@@ -549,8 +549,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         </div>
                         <div class="col-sm <?php displayOption('enc_enable_facility'); ?>">
-                            <div class="form-group">
-                                <label for='facility_id' class="text-right"><?php echo xlt('Facility'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='facility_id' class="text-end"><?php echo xlt('Facility'); ?>:</label>
                                 <select name='facility_id' id='facility_id' class='form-control' onChange="getPOS()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                     <?php
                                     if ($viewmode) {
@@ -576,8 +576,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         </div>
                         <div class="col-sm <?php echo ($GLOBALS['hide_billing_widget'] != 1) ?: 'd-none'; ?>">
-                            <div class="form-group">
-                                <label for='billing_facility' class="text-right"><?php echo xlt('Billing Facility'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='billing_facility' class="text-end"><?php echo xlt('Billing Facility'); ?>:</label>
                                 <?php
                                 if (!empty($default_bill_fac_override)) {
                                     $default_bill_fac = $default_bill_fac_override;
@@ -601,8 +601,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     <div class="form-row align-items-center">
                         <!-- Discharge Disposition -->
                         <div class="col-sm <?php displayOption('enc_enable_discharge_disposition'); ?>">
-                            <div class="form-group">
-                                <label for='facility_id' class="text-right"><?php echo xlt('Discharge Disposition'); ?>:</label>
+                            <div class="mb-3">
+                                <label for='facility_id' class="text-end"><?php echo xlt('Discharge Disposition'); ?>:</label>
                                 <select name='discharge_disposition' id='discharge_disposition' class='form-control'>
                                     <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                     <?php
@@ -617,8 +617,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         </div>
                         <div class="col-sm <?php echo ($GLOBALS['enable_group_therapy'] == 1) ?: 'd-none'; ?>">
-                            <div class="form-group">
-                                <label for="form_group" class="text-right"><?php echo xlt('Group name'); ?>:</label>
+                            <div class="mb-3">
+                                <label for="form_group" class="text-end"><?php echo xlt('Group name'); ?>:</label>
                                 <input type='text' name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
                                 <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
                             </div>
@@ -699,7 +699,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-row">
-                <div class="col-sm-12 text-left position-override pl-3">
+                <div class="col-sm-12 text-start position-override ps-3">
                     <div class="btn-group" role="group">
                         <?php $link_submit = ($viewmode || empty($_GET['autoloaded'])) ? '' : 'link_submit'; ?>
                         <button type="button" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save'); ?></button>
@@ -779,8 +779,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     } ?>
 
     $(function () {
-        $('#sensitivity-tooltip').attr({"title": <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>, "data-toggle": "tooltip", "data-placement": "bottom"}).tooltip();
-        $('#onset-tooltip').attr({"title": <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?>, "data-toggle": "tooltip", "data-placement": "bottom"}).tooltip();
+        $('#sensitivity-tooltip').attr({"title": <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>, "data-bs-toggle": "tooltip", "data-placement": "bottom"}).tooltip();
+        $('#onset-tooltip').attr({"title": <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?>, "data-bs-toggle": "tooltip", "data-placement": "bottom"}).tooltip();
     });
 
 </script>

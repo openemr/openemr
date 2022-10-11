@@ -19,13 +19,13 @@
         </div>
         <!-- ko  foreach: tabsList -->
             <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabsNoHover: !visible()}">
-                <span class="tabTitle pr-2" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
-                <span class="fa fa-fw fa-xs mr-1 fa-sync" data-bind="click: tabRefresh, class: spinner"></span>
+                <span class="tabTitle pe-2" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
+                <span class="fa fa-fw fa-xs me-1 fa-sync" data-bind="click: tabRefresh, class: spinner"></span>
                 <!--ko if:!locked() -->
-                    <span class="fa fa-fw fa-xs mr-1 fa-unlock" data-bind="click: tabLockToggle"></span>
+                    <span class="fa fa-fw fa-xs me-1 fa-unlock" data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->
                 <!--ko if:locked() -->
-                    <span class="fa fa-fw fa-xs mr-1 fa-lock" data-bind="click: tabLockToggle"></span>
+                    <span class="fa fa-fw fa-xs me-1 fa-lock" data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->
                 <!-- ko if:closable-->
                     <span class="fa fa-fw fa-xs fa-times" data-bind="click: tabClose"></span>

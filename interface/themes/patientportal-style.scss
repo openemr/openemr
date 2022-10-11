@@ -480,7 +480,7 @@ body > .header {
 }
 
 
-.dropdown-menu-right > li > a:hover {
+.dropdown-menu-end > li > a:hover {
   background-color: #39435c;
   color: $light;
 }
@@ -868,29 +868,29 @@ body > .header {
   }
 }
 
-.form-group.has-success label {
+.mb-3.has-success label {
   color: $success;
 }
 
-.form-group.has-success .form-control {
+.mb-3.has-success .form-control {
   border-color: $success !important;
   box-shadow: none;
 }
 
-.form-group.has-warning label {
+.mb-3.has-warning label {
   color: $warning;
 }
 
-.form-group.has-warning .form-control {
+.mb-3.has-warning .form-control {
   border-color: $warning !important;
   box-shadow: none;
 }
 
-.form-group.has-error label {
+.mb-3.has-error label {
   color: $danger;
 }
 
-.form-group.has-error .form-control {
+.mb-3.has-error .form-control {
   border-color: $danger !important;
   box-shadow: none;
 }
@@ -1572,19 +1572,19 @@ body > .header {
   border-#{$left}-width: 0;
 }
 
-.nav-tabs-custom > .nav-tabs.float-right {
+.nav-tabs-custom > .nav-tabs.float-end {
   float: none !important;
 }
 
-.nav-tabs-custom > .nav-tabs.float-right > li {
+.nav-tabs-custom > .nav-tabs.float-end > li {
   float: $right;
 }
 
-.nav-tabs-custom > .nav-tabs.float-right > li:first-of-type {
+.nav-tabs-custom > .nav-tabs.float-end > li:first-of-type {
   margin-#{$right}: 0;
 }
 
-.nav-tabs-custom > .nav-tabs.float-right > li:first-of-type.active > a {
+.nav-tabs-custom > .nav-tabs.float-end > li:first-of-type.active > a {
   border-#{$left}-width: 0.0625rem;
   border-#{$right}-width: 0;
 }

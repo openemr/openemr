@@ -101,11 +101,11 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
                     curInputs = curStep.find("input[type='text'],input[type='email'],select"),
                     isValid = true;
 
-                $(".form-group").removeClass("has-error");
+                $(".mb-3").removeClass("has-error");
                 for (var i = 0; i < curInputs.length; i++) {
                     if (!curInputs[i].validity.valid) {
                         isValid = false;
-                        $(curInputs[i]).closest(".form-group").addClass("has-error");
+                        $(curInputs[i]).closest(".mb-3").addClass("has-error");
                     }
                 }
                 if (isValid) {
@@ -147,7 +147,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
                     nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
                     curInputs = profile.find("input[type='text'],input[type='email'],select"),
                     isValid = true;
-                $(".form-group").removeClass("has-error");
+                $(".mb-3").removeClass("has-error");
                 let flg = 0;
                 for (var i = 0; i < curInputs.length; i++) {
                     if (!curInputs[i].validity.valid) {
@@ -157,7 +157,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
                             curInputs[i].focus();
                             flg = 1;
                         }
-                        $(curInputs[i]).closest(".form-group").addClass("has-error");
+                        $(curInputs[i]).closest(".mb-3").addClass("has-error");
                     }
                 }
                 if (isValid) {
@@ -241,7 +241,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
                 nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
                 curInputs = $("#profileFrame").contents().find("input[type='text'],input[type='email'],select"),
                 isValid = true;
-            $(".form-group").removeClass("has-error");
+            $(".mb-3").removeClass("has-error");
             let flg = 0;
             for (let i = 0; i < curInputs.length; i++) {
                 if (!curInputs[i].validity.valid) {
@@ -251,7 +251,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
                         curInputs[i].focus();
                         flg = 1;
                     }
-                    $(curInputs[i]).closest(".form-group").addClass("has-error");
+                    $(curInputs[i]).closest(".mb-3").addClass("has-error");
                 }
             }
             return isValid;
@@ -285,7 +285,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
         <!-- // Start Forms // -->
         <form id="startForm" role="form">
             <div class="text-center setup-content" id="step-1">
-                <div class="jumbotron">
+                <div class="p-5 mb-4 bg-light rounded-3">
                     <input type="hidden" name="languageChoice" value="<?php echo attr($languageRegistration); ?>" />
                     <input type="hidden" id="fname" name="fname" value="<?php echo attr($fnameRegistration); ?>" />
                     <input type="hidden" id="mname" name="mname" value="<?php echo attr($mnameRegistration); ?>" />
@@ -301,7 +301,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
         <form id="profileForm" role="form" action="account/account.php" method="post">
             <div class="text-center setup-content" id="step-2" style="display: none">
                 <legend class="bg-primary text-white"><?php echo xlt('Profile') ?></legend>
-                <div class="jumbotron">
+                <div class="p-5 mb-4 bg-light rounded-3">
                     <iframe class="embedded-content" src="patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
                 </div>
                 <button class="btn btn-primary pull-right" type="button" id="profileNext"><?php echo xlt('Next') ?></button>
@@ -311,21 +311,21 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
         <form id="insuranceForm" role="form" action="" method="post">
             <div class="text-center setup-content" id="step-3" style="display: none">
                 <legend class='bg-primary text-white'><?php echo xlt('Insurance') ?></legend>
-                <div class="jumbotron">
+                <div class="p-5 mb-4 bg-light rounded-3">
                     <div class="form-row">
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="provider"><?php echo xlt('Insurance Company') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="<?php echo xla('Enter Self if None'); ?>">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="plan_name"><?php echo xlt('Plan Name') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xla('required'); ?>">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="policy_number"><?php echo xlt('Policy Number') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xla('required'); ?>">
@@ -333,19 +333,19 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="group_number"><?php echo xlt('Group Number') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xla('required'); ?>">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="date"><?php echo xlt('Policy Begin Date') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xla('Policy effective date'); ?>">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="copay"><?php echo xlt('Co-Payment') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="number" class="form-control" name="copay" placeholder="<?php echo xla('Plan copay if known'); ?>">
@@ -360,7 +360,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
         <!-- End Insurance. Next what we've been striving towards..the end-->
         <div class="text-center setup-content" id="step-4" style="display: none">
             <legend class='bg-success text-white'><?php echo xlt('Register') ?></legend>
-            <div class="jumbotron">
+            <div class="p-5 mb-4 bg-light rounded-3">
                 <h4 class='bg-success'><?php echo xlt("All set. Click Send Request below to finish registration.") ?></h4>
                 <hr />
                 <p>
@@ -368,8 +368,8 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
                 </p>
             </div>
             <hr />
-            <button class="btn btn-primary prevBtn float-left" type="button"><?php echo xlt('Previous') ?></button>
-            <button class="btn btn-success float-right" type="button" id="submitPatient"><?php echo xlt('Send Request') ?></button>
+            <button class="btn btn-primary prevBtn float-start" type="button"><?php echo xlt('Previous') ?></button>
+            <button class="btn btn-success float-end" type="button" id="submitPatient"><?php echo xlt('Send Request') ?></button>
         </div>
     </div>
 </body>

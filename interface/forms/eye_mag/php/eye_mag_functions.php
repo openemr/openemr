@@ -255,7 +255,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
             <div name="prior_selector">
                     <?php
                     echo $output;//prior visit selector - already sanitized
@@ -382,7 +382,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -435,7 +435,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     // to allow for end-user customization
                     ?>
                     <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
-                      <span id="PRIORS_dil_meds" class="float-right"><?php
+                      <span id="PRIORS_dil_meds" class="float-end"><?php
                         if ($DIL_MEDS) {
                             echo text($DIL_MEDS);
                         }
@@ -544,7 +544,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -646,7 +646,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -1540,7 +1540,7 @@ margin: 2px 0 2px 2px;">
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector" class="PRIORS">
                 <?php
                 echo $output;
@@ -1557,7 +1557,7 @@ margin: 2px 0 2px 2px;">
             $k = '1';
             foreach ($PRIOR_IMPPLAN_items as $item) {
                 echo "<div class='IMPPLAN_class' style='clear:both;margin:10px;'>";
-                echo "  <span>$k. " . text($item['title']) . "</span><span class='float-right'>" . $item['code'] . "</span><br />";
+                echo "  <span>$k. " . text($item['title']) . "</span><span class='float-end'>" . $item['code'] . "</span><br />";
                 echo '  <div class="fake-textarea-disabled-4">' . nl2br(text($item['plan'])) . '</div>';
                 echo '</div>';
                 $i++;
@@ -3053,7 +3053,7 @@ function display_QP($zone, $provider_id)
          onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone) . "_" . attr($provider_id); ?>','QP Editor');"
          title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
          name="provider_todo"
-         class="bold black"><i class="closeButton float-right fa fa-pencil-alt fa-fw"></i> </a>
+         class="bold black"><i class="closeButton float-end fa fa-pencil-alt fa-fw"></i> </a>
         <?php
         $QP_panel = ob_get_contents();
         ob_end_clean();
@@ -3124,13 +3124,13 @@ function canvas_select($zone, $encounter, $pid)
             $select .= '<span id="old_canvas_leftest_' . attr($zone) . '"
                         name="old_canvas_leftest"
                         class="fa fa-fast-backward fa-sm PRIORS hand"
-                        data-target="SELECT_CANVAS_' . attr($zone) . '"
+                        data-bs-target="SELECT_CANVAS_' . attr($zone) . '"
                         data-direction="oldest"
                         title="' . xla('Oldest drawing') . '"></span>';
             $select .= '<span id="old_canvas_left_' . attr($zone) . '"
                         name="old_canvas"
                         class="fa fa-step-backward fa-sm PRIORS hand"
-                        data-target="SELECT_CANVAS_' . attr($zone) . '"
+                        data-bs-target="SELECT_CANVAS_' . attr($zone) . '"
                         data-direction="older"
                         title="' . xla('Look back one drawing') . '"></span>';
 
@@ -3148,14 +3148,14 @@ function canvas_select($zone, $encounter, $pid)
             $select .= '<span id="old_canvas_right_' . attr($zone) . '"
                     name="old_canvas"
                     class="fa  fa-step-forward PRIORS hand"
-                    data-target="SELECT_CANVAS_' . attr($zone) . '"
+                    data-bs-target="SELECT_CANVAS_' . attr($zone) . '"
                     data-direction="newer"
                     data-step="1"
                     title="' . xla('Forward one drawing') . '"></span>';
             $select .= '<span id="old_canvas_rightest_' . attr($zone) . '"
                     name="old_canvas_rightest"
                     class="fa fa-fast-forward PRIORS hand"
-                    data-target="SELECT_CANVAS_' . attr($zone) . '"
+                    data-bs-target="SELECT_CANVAS_' . attr($zone) . '"
                     data-direction="newest"
                     title="' . xla('Forward to current canvas') . '"></span>
 
@@ -3209,7 +3209,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                                      value:'#000',
                                      hash:'true'
                                     }"
-                          data-target="selColor_<?php echo attr($zone); ?>"
+                          data-bs-target="selColor_<?php echo attr($zone); ?>"
                     ></span>
                 </div>
                 <?php
@@ -3871,7 +3871,7 @@ function display($pid, $encounter, $category_value)
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '';
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
-        <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
+        <td class='right'><span class='fw-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
         <td>
             <a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " " . attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
             <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
@@ -3939,10 +3939,10 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                 <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" class="little_image">
                 <span class="brand"><?php echo xlt('Eye Exam'); ?></span>
             </div>
-            <div class="navbar-collapse oer-navbar-collapse mr-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
-                <ul class="navbar-nav mr-auto">
+            <div class="navbar-collapse oer-navbar-collapse me-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
+                <ul class="navbar-nav me-auto">
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
                             <li class="nav-lik" id="menu_PRINT_narrative" name="menu_PRINT_report"><a class="nav-link black" id="BUTTON_PRINT_report" target="_new" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=0&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>"><?php echo xlt("Print Report"); ?></a></li>
                             <li class="nav-ite" id="menu_PRINT_narrative_2" name="menu_PRINT_report_2"><a class="nav-link black" id="BUTTON_PRINT_report_2" target="_new" href="#"
@@ -3951,7 +3951,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_edit" role="button" aria-expanded="true"><?php echo xlt("Edit"); ?> </a>
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" id="menu_dropdown_edit" role="button" aria-expanded="true"><?php echo xlt("Edit"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
                             <li id="menu_Defaults" name="menu_Defaults" class="">
                                 <a class="nav-link black"
@@ -3990,7 +3990,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                     </li>
                
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true"><?php echo xlt("View"); ?> </a>
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true"><?php echo xlt("View"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
                             <li id="menu_HPI" name="menu_HPI"><a class="nav-link black" href="#"><?php echo xlt("HPI"); ?></a></li>
                             <li id="menu_PMH" name="menu_PMH"><a class="nav-link black" href="#"><?php echo xlt("PMH{{Past Medical History}}"); ?></a></li>
@@ -4005,7 +4005,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown"
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown"
                            id="menu_dropdown_library" role="button"
                            aria-expanded="true"><?php echo xlt("Library"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
@@ -4013,7 +4013,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown"
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown"
                            id="menu_dropdown_help" role="button"
                            aria-expanded="true"><?php echo xlt("Help"); ?> </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
@@ -4082,15 +4082,15 @@ function menu_overhaul_left($pid, $encounter)
                             <?php
                             $age = getPatientAgeDisplay($pat_data['DOB'], ($encounter_date ?? ''));
                             $DOB = oeFormatShortDate($pat_data['DOB']);
-                            echo "<span class='font-weight-bold'>" . xlt('Name') . ":</span> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
-                                    <tr><td class='right'><span class='font-weight-bold'>" . xlt('DOB') . ":</span></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
+                            echo "<span class='fw-bold'>" . xlt('Name') . ":</span> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
+                                    <tr><td class='right'><span class='fw-bold'>" . xlt('DOB') . ":</span></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
                             ?>
                             <?php
                             ?>
                         </td>
                     </tr>
                     <?php
-                        echo "<tr><td class='right' nowrap><span class='font-weight-bold'>" . xlt('Visit Date') . ":</span></td><td>&nbsp;" . $visit_date . "</td></tr>";
+                        echo "<tr><td class='right' nowrap><span class='fw-bold'>" . xlt('Visit Date') . ":</span></td><td>&nbsp;" . $visit_date . "</td></tr>";
                     ?>
                     <tr><td class="right" style="vertical-align:top;" nowrap><span style="font-weight:bold;"><?php echo xlt("Provider"); ?>:</span>&nbsp;</td>
                         <td><?php echo text(getProviderName(getProviderIdOfEncounter($encounter))); ?></td>
@@ -6215,14 +6215,14 @@ function display_refractive_data($encounter_data)
                     <?php if (!empty($CTLODQUANTITY)) { ?>
                        <tr>
                            <td></td>
-                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLODQUANTITY); ?></td>
+                           <td colspan="8" class="text-start" style="font-size:10px;"><?php echo text($CTLODQUANTITY); ?></td>
                        </tr>
                     <?php } ?>
                    <tr style="font-size:0.6em;">
                        <td></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD) ?: "-");  ?></td>
-                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD) ?: "-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD) ?: "-");  ?></td>
+                       <td colspan="3" class="bold text-start" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD) ?: "-");  ?></td>
+                       <td colspan="2" class="bold text-start" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD) ?: "-");  ?></td>
+                       <td colspan="3" class="bold text-start" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD) ?: "-");  ?></td>
 
                    </tr>
                    <tr>
@@ -6239,20 +6239,20 @@ function display_refractive_data($encounter_data)
                    </tr>
                    <tr style="font-size:9px;">
                        <td></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS) ?: "-");  ?></td>
-                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS) ?: "-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS) ?: "-");  ?></td>
+                       <td colspan="3" class="bold text-start" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS) ?: "-");  ?></td>
+                       <td colspan="2" class="bold text-start" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS) ?: "-");  ?></td>
+                       <td colspan="3" class="bold text-start" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS) ?: "-");  ?></td>
                    </tr>
                     <?php if (!empty($CTLOSQUANTITY)) { ?>
                         <tr>
                            <td></td>
-                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
+                           <td colspan="8" class="text-start" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
                        </tr>
                     <?php }
                     if (!empty($COMMENTS)) { ?>
                             <tr>
                                 <td></td>
-                                <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
+                                <td colspan="8" class="text-start" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
                             </tr>
                                         <?php }
             }

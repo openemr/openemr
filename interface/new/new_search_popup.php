@@ -177,10 +177,10 @@ _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
   </td>
   <td class='text text-center'>
 <?php if ($message) {
-    echo "<span class='text-danger font-weight-bold'>" . text($message) . "</span>\n";
+    echo "<span class='text-danger fw-bold'>" . text($message) . "</span>\n";
 } ?>
   </td>
-  <td class='text text-right'>
+  <td class='text text-end'>
 <?php
 // Show start and end row number, and number of rows, with paging links.
 $count = $GLOBALS['PATIENT_INC_COUNT'];
@@ -209,7 +209,7 @@ if ($fend > $count) {
 
 <div id="searchResultsHeader" class="table-responsive">
 <table class="table">
-<thead class="thead-light">
+<thead class="table-light">
 <tr>
 <th class="srID" scope="col"><?php echo xlt('Hits');?></th>
 <th class="srName" scope="col"><?php echo xlt('Name');?></th>

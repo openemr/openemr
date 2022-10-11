@@ -100,9 +100,9 @@ function receiptDetailLine($svcdate, $description, $amount, $quantity)
     echo " <tr>\n";
     echo "  <td>" . ($svcdate == $prevsvcdate ? '&nbsp;' : text(oeFormatShortDate($svcdate))) . "</td>\n";
     echo "  <td>" . text($description) . "</td>\n";
-    echo "  <td class='text-right'>" . text(oeFormatMoney($price)) . "</td>\n";
-    echo "  <td class='text-right'>" . text($quantity) . "</td>\n";
-    echo "  <td class='text-right'>" . text(oeFormatMoney($amount)) . "</td>\n";
+    echo "  <td class='text-end'>" . text(oeFormatMoney($price)) . "</td>\n";
+    echo "  <td class='text-end'>" . text($quantity) . "</td>\n";
+    echo "  <td class='text-end'>" . text(oeFormatMoney($amount)) . "</td>\n";
     echo " </tr>\n";
     $prevsvcdate = $svcdate;
 }
@@ -116,7 +116,7 @@ function receiptPaymentLine($paydate, $amount, $description = '')
     echo "  <td>" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td>" . xlt('Payment') . " " . text($description) . "</td>\n";
     echo "  <td colspan='2'>&nbsp;</td>\n";
-    echo "  <td class='text-right'>" . text(oeFormatMoney($amount)) . "</td>\n";
+    echo "  <td class='text-end'>" . text(oeFormatMoney($amount)) . "</td>\n";
     echo " </tr>\n";
 }
 
@@ -217,7 +217,7 @@ function generate_receipt($patient_id, $encounter = 0)
     <body>
         <div class="container mt-3">
             <div class="row text-center">
-                <p class="font-weight-bold">
+                <p class="fw-bold">
                     <?php
                     if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
                         printProviderHeader($providerrow);
@@ -246,9 +246,9 @@ function generate_receipt($patient_id, $encounter = 0)
                             <tr>
                                 <th><strong><?php echo xlt('Date'); ?></strong></th>
                                 <th><strong><?php echo xlt('Description'); ?></strong></th>
-                                <th class='text-right'><strong><?php echo $details ? xlt('Price') : '&nbsp;'; ?></strong></th>
-                                <th class='text-right'><strong><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></strong></th>
-                                <th class='text-right'><strong><?php echo xlt('Total'); ?></strong></th>
+                                <th class='text-end'><strong><?php echo $details ? xlt('Price') : '&nbsp;'; ?></strong></th>
+                                <th class='text-end'><strong><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></strong></th>
+                                <th class='text-end'><strong><?php echo xlt('Total'); ?></strong></th>
                             </tr>
                         </thead>
                         <?php
@@ -313,9 +313,9 @@ function generate_receipt($patient_id, $encounter = 0)
                         <tr>
                             <td><?php echo text(oeFormatShortDate($svcdispdate ?? '')); ?></td>
                             <td><b><?php echo xlt('Total Charges'); ?></b></td>
-                            <td class='text-right'>&nbsp;</td>
-                            <td class='text-right'>&nbsp;</td>
-                            <td class='text-right'><?php echo text(oeFormatMoney($charges, true)) ?></td>
+                            <td class='text-end'>&nbsp;</td>
+                            <td class='text-end'>&nbsp;</td>
+                            <td class='text-end'><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                         <tr>
                             <td colspan='5'>&nbsp;</td>
@@ -354,9 +354,9 @@ function generate_receipt($patient_id, $encounter = 0)
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
-                            <td class="font-weight-bold"><?php echo xlt('Balance Due'); ?></td>
+                            <td class="fw-bold"><?php echo xlt('Balance Due'); ?></td>
                             <td colspan='2'>&nbsp;</td>
-                            <td class='text-right'><?php echo text(oeFormatMoney($charges, true)) ?></td>
+                            <td class='text-end'><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                     </table>
                 </div>
@@ -419,8 +419,8 @@ function generate_receipt($patient_id, $encounter = 0)
         echo "<input type='hidden' name='line[$lino][units]' value='" . attr($units) . "' />";
         echo "</td>\n";
         echo "  <td>" . text($description) . "</td>";
-        echo "  <td class='text-right'>" . text($units) . "</td>";
-        echo "  <td class='text-right'><input type='text' class='form-control' name='line[$lino][amount]' " .
+        echo "  <td class='text-end'>" . text($units) . "</td>";
+        echo "  <td class='text-end'><input type='text' class='form-control' name='line[$lino][amount]' " .
            "value='" . attr($amount) . "' size='6' maxlength='8'";
         // Modifying prices requires the acct/disc permission.
         // if ($code_type == 'TAX' || ($code_type != 'COPAY' && !AclMain::aclCheckCore('acct','disc')))
@@ -887,10 +887,10 @@ function generate_receipt($patient_id, $encounter = 0)
                             <div class="table-responsive">
                                 <table class="table">
                                     <tr>
-                                        <td class="font-weight-bold"><?php echo xlt('Date'); ?></td>
-                                        <td class="font-weight-bold"><?php echo xlt('Description'); ?></td>
-                                        <td class="font-weight-bold text-right"><?php echo xlt('Qty'); ?></td>
-                                        <td class="font-weight-bold text-right"><?php echo xlt('Amount'); ?></td>
+                                        <td class="fw-bold"><?php echo xlt('Date'); ?></td>
+                                        <td class="fw-bold"><?php echo xlt('Description'); ?></td>
+                                        <td class="fw-bold text-end"><?php echo xlt('Qty'); ?></td>
+                                        <td class="fw-bold text-end"><?php echo xlt('Amount'); ?></td>
                                     </tr>
                                     <?php
                                     $inv_encounter = '';
@@ -1122,8 +1122,8 @@ function generate_receipt($patient_id, $encounter = 0)
                             }
                             ?>
                         </fieldset>
-                        <div class="form-group">
-                            <div class="col-sm-12 text-left position-override">
+                        <div class="mb-3">
+                            <div class="col-sm-12 text-start position-override">
                                 <div class="btn-group" role="group">
                                     <button type='submit' class="btn btn-primary btn-save" name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>
                                     <?php if (empty($_GET['framed'])) { ?>

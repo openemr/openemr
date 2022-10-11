@@ -429,3 +429,9 @@ fieldset {
 .about-review-image > #color {
   fill: #083c5d;
 }
+
+// Bootstrap 5 Migration Code
+.pre-scrollable {
+  max-height: 340px;
+  overflow-y: scroll;
+}

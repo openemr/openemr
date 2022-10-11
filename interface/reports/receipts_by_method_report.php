@@ -434,7 +434,7 @@ if (!empty($_POST['form_refresh'])) {
 
 <table width='98%' id='mymaintable' class='table mymaintable'>
 
-<thead class='thead-light'>
+<thead class='table-light'>
 <tr bgcolor="#dddddd">
  <th>
     <?php echo xlt('Method') ?>

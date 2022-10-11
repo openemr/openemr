@@ -2,7 +2,7 @@
  * reasonCodeWidget is used with observation,vitals, and procedures to toggle and select reason codes and their accompanying
  * statii / text descriptions.  It requires a launch button to be present with the selector attribute of .reason-code-btn
  *
- * The launch button must have a data-toggle-container property with the id of the DOM node containing the reason window
+ * The launch button must have a data-bs-toggle-container property with the id of the DOM node containing the reason window
  * that you want to be displayed on the screen.  The widget will setup the code selector widget on the input that has
  * a class of .code-selector-popup.  It will also populate the following fields if they are present in the DOM:
  *
@@ -39,7 +39,7 @@
         }
         let containerId = widget.dataset['toggleContainer'];
         if (!containerId) {
-            window.console.error("Missing data-toggle-container");
+            window.console.error("Missing data-bs-toggle-container");
             return false;
         }
         let node = document.getElementById(containerId);

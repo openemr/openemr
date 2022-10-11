@@ -439,7 +439,7 @@ class ClientAdminController
             <div class="card-header">
                 <h2>
                     <?php echo xlt('Edit'); ?> <em><?php echo text($client->getName()); ?></em>
-                    <div class="float-right">
+                    <div class="float-end">
                         <?php if ($isEnabled) : ?>
                         <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Disable Client'); ?></a>
                         <?php else : ?>
@@ -503,12 +503,12 @@ class ClientAdminController
                                         <h4 class="text-center"><?php echo text($trustedUser['display_name']); ?>
                                             <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier()
                                                 , self::REVOKE_TRUSTED_USER, $trustedUser['user_id']])); ?>"
-                                               class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()"><?php
+                                               class="btn btn-sm btn-primary float-end" onclick="top.restoreSession()"><?php
                                                 echo xlt('Revoke User');
                                                 ?></a></h4>
                                     </div>
                                     <div class="card-body p-5">
-                                        <div class="row font-weight-bold bg-secondary rounded text-dark">
+                                        <div class="row fw-bold bg-secondary rounded text-dark">
                                             <div class="col-1">
                                                 <?php echo xlt("Type"); ?>
                                             </div>
@@ -668,7 +668,7 @@ class ClientAdminController
     {
         $disabled = $setting['enabled'] !== true ? "disabled readonly" : "";
         ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
             <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
                       class="form-control" rows="10" <?php echo $disabled; ?>><?php echo attr($setting['value']); ?></textarea>
@@ -679,7 +679,7 @@ class ClientAdminController
     private function renderTextInput($key, $setting)
     {
         ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
             <input type="text" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
                    class="form-control" value="<?php echo attr($setting['value']); ?>" readonly disabled />
@@ -811,8 +811,8 @@ class ClientAdminController
                     <div class="page-title">
                         <h2>
                             <?php echo text($title); ?>
-                            <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end me-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
                         </h2>
                     </div>
                 </div>
@@ -1018,7 +1018,7 @@ class ClientAdminController
         <h3><?php echo xlt("Token details"); ?>
             <?php if ($databaseRecord['revoked'] == 0) : ?>
               <a href="<?php echo attr($parts['revoke_link']); ?>"
-                       class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
+                       class="btn btn-sm btn-primary float-end" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
             <?php endif; ?>
         </h3>
         <ul>

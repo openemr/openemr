@@ -52,7 +52,7 @@ $response_array = $verify->getArrayResponse();
 
 $output = '<!DOCTYPE html><html>';
 $output .= Header::setupHeader([], false);
-$output .= "<body class='text-left'>
+$output .= "<body class='text-start'>
    <div class='container'>
        <p>";
 

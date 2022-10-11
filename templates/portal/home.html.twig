@@ -117,14 +117,14 @@
             });
 
             if ($('body').css('direction') === "rtl") {
-                $('.float-left').each(function () {
-                    $(this).addClass('float-right').removeClass('float-left');
+                $('.float-start').each(function () {
+                    $(this).addClass('float-end').removeClass('float-start');
                 });
-                $('.dropdown-menu-right').each(function () {
-                    $(this).removeClass('dropdown-menu-right');
+                $('.dropdown-menu-end').each(function () {
+                    $(this).removeClass('dropdown-menu-end');
                 });
-                $('.dropdown-menu-md-right').each(function () {
-                    $(this).removeClass('dropdown-menu-md-right');
+                $('.dropdown-menu-md-end').each(function () {
+                    $(this).removeClass('dropdown-menu-md-end');
                 });
             }
 
@@ -335,7 +335,7 @@
                     var screen = "";
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
+                            screen = screen + `<label class="fw-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
                                 screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
@@ -369,7 +369,7 @@
                     $('.assessment-row').toggleClass('d-none');
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
+                            screen = screen + `<label class="fw-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
                                 screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
@@ -476,8 +476,8 @@
                         {% endif %}
 
                     </div>
-                    <div class="mb-3">
-                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
+                    <div class="d-grid mb-3">
+                        <a class='btn btn-primary' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
                     </div>
                 </div>
             </div>

@@ -134,8 +134,8 @@ function PrintEncHeader($dt, $rsn, $dr)
         $rsn = substr($rsn, 0, 50) . '...';
     }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
-    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
+    echo "<td colspan='4'><span class='fw-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
+    echo "<td colspan='5'><span class='fw-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
     echo "</tr>\n";
     $orow++;
 }
@@ -145,11 +145,11 @@ function PrintEncFooter()
     echo "<tr bgcolor='#DDFFFF'>";
     echo "<td colspan='3'>&nbsp;</td>";
     echo "<td class='detail'>" . xlt('Encounter Balance') . ":</td>";
-    echo "<td class='detail text-right'>" . text($enc_units) . "</td>";
-    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_chg)) . "</td>";
-    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_pmt)) . "</td>";
-    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_adj)) . "</td>";
-    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
+    echo "<td class='detail text-end'>" . text($enc_units) . "</td>";
+    echo "<td class='detail text-end'>" . text(oeFormatMoney($enc_chg)) . "</td>";
+    echo "<td class='detail text-end'>" . text(oeFormatMoney($enc_pmt)) . "</td>";
+    echo "<td class='detail text-end'>" . text(oeFormatMoney($enc_adj)) . "</td>";
+    echo "<td class='detail text-end'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
 function PrintCreditDetail($detail, $pat, $unassigned = false)
@@ -242,10 +242,10 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
             $print_adj = oeFormatMoney($adj_amt);
         }
 
-        $print .= "<td class='detail text-right'>" . text($uac_appl) . "&nbsp;</td>";
-        $print .= "<td class='detail text-right'>" . text($print_pmt) . "&nbsp;</td>";
-        $print .= "<td class='detail text-right'>" . text($print_adj) . "&nbsp;</td>";
-        $print .= "<td class='detail text-right'>" . text($uac_bal) . "&nbsp;</td>";
+        $print .= "<td class='detail text-end'>" . text($uac_appl) . "&nbsp;</td>";
+        $print .= "<td class='detail text-end'>" . text($print_pmt) . "&nbsp;</td>";
+        $print .= "<td class='detail text-end'>" . text($print_adj) . "&nbsp;</td>";
+        $print .= "<td class='detail text-end'>" . text($uac_bal) . "&nbsp;</td>";
         $print .= "</tr>\n";
         echo $print;
         if ($pmt['follow_up_note'] != '') {
@@ -376,7 +376,7 @@ function checkSubmit() {
 <table>
  <tr>
     <td width='35%'>
-    <div class="float-left">
+    <div class="float-start">
     <table class='text'>
         <tr>
       <td class='col-form-label'>
@@ -457,33 +457,33 @@ function checkSubmit() {
 <br/>
 <table class="w-100 border-0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class='font-weight-bold'><?php echo xlt('Date')?>: <?php echo text(date('Y-m-d')); ?></td>
-    <td class='font-weight-bold'><?php echo xlt('Patient')?>: <?php echo text($pat_name); ?></td>
-    <td class='font-weight-bold'><?php echo xlt('DOB')?>: <?php echo text($pat_dob);?></td>
-    <td class='font-weight-bold'> <?php echo xlt('ID')?>: <?php echo text($pid);?></td>
+    <td class='fw-bold'><?php echo xlt('Date')?>: <?php echo text(date('Y-m-d')); ?></td>
+    <td class='fw-bold'><?php echo xlt('Patient')?>: <?php echo text($pat_name); ?></td>
+    <td class='fw-bold'><?php echo xlt('DOB')?>: <?php echo text($pat_dob);?></td>
+    <td class='fw-bold'> <?php echo xlt('ID')?>: <?php echo text($pid);?></td>
   </tr>
 </table>
 </div>
 <div id="report_results">
 <table class="table">
  <tr>
-    <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
-    <td colspan="2" class='font-weight-bold'><?php echo xlt('Description'); ?></td>
-    <td class='font-weight-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
-    <td class='font-weight-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <td class='fw-bold'><?php echo xlt('Code'); ?></td>
+    <td colspan="2" class='fw-bold'><?php echo xlt('Description'); ?></td>
+    <td class='fw-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
+    <td class='fw-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <?php echo xlt('Units'); ?></td>
-    <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
-    <td class='text-right font-weight-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
-    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
-    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
+    <td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
+    <td class='text-end fw-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
+    <td class='text-end fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
+    <td class='text-end fw-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
  </tr>
  <tr>
     <td>&nbsp;&nbsp;&nbsp;</td>
     <td colspan="2">&nbsp;&nbsp;&nbsp;</td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
-    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
+    <td class='fw-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
+    <td class='text-end fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
  </tr>
@@ -547,8 +547,8 @@ function checkSubmit() {
                 }
 
                 $print .= "<td class='detail'>" . text($bill) . "&nbsp;/&nbsp;" . text($who) . "</td>";
-                $print .= "<td class='detail text-right'>" . text($erow['units']) . "</td>";
-                $print .= "<td class='detail text-right'>" . text(oeFormatMoney($erow['fee'])) . "</td>";
+                $print .= "<td class='detail text-end'>" . text($erow['units']) . "</td>";
+                $print .= "<td class='detail text-end'>" . text(oeFormatMoney($erow['fee'])) . "</td>";
                 $print .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
                 $print .= "</tr>\n";
 
@@ -600,12 +600,12 @@ function checkSubmit() {
         if ($orow) {
             echo "<tr bgcolor='#DDFFFF'>\n";
             echo " <td colspan='2'>&nbsp;</td>";
-            echo " <td class='font-weight-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
-            echo " <td class='font-weight-bold text-right'>" . text($total_units) . "</td>\n";
-            echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_chg)) . "</td>\n";
-            echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_pmt)) . "</td>\n";
-            echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_adj)) . "</td>\n";
-            echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_bal)) . "</td>\n";
+            echo " <td class='fw-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
+            echo " <td class='fw-bold text-end'>" . text($total_units) . "</td>\n";
+            echo " <td class='fw-bold text-end'>" . text(oeFormatMoney($total_chg)) . "</td>\n";
+            echo " <td class='fw-bold text-end'>" . text(oeFormatMoney($total_pmt)) . "</td>\n";
+            echo " <td class='fw-bold text-end'>" . text(oeFormatMoney($total_adj)) . "</td>\n";
+            echo " <td class='fw-bold text-end'>" . text(oeFormatMoney($total_bal)) . "</td>\n";
             echo " </tr>\n";
             ?>
         </table>

@@ -56,7 +56,7 @@
             return dlgopen('', '', "modal-md", 0, '', alertTitle, {
                 buttons: [
                     {text: 'Yes', close: true, id: 'confirmYes', style: 'primary'},
-                    {text: '<i class="fa fa-thumbs-down mr-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
+                    {text: '<i class="fa fa-thumbs-down me-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
                     {text: 'Nevermind', close: true, style: 'secondary'}
                 ],
                 type: 'Confirm',
@@ -285,14 +285,14 @@ function inDom(dependency, type, remove) {
 }
 
 // test to see if bootstrap theming is loaded (via standard or custom bootstrap library)
-//  Will check for the badge-secondary class
+//  Will check for the bg-secondary class
 //   - if exist, then assume bootstrap loaded
 //   - if not exist, then assume bootstrap not loaded
 function isBootstrapCss() {
     for (let i = 0; i < document.styleSheets.length; i++) {
         let rules = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
         for (let x in rules) {
-            if (rules[x].selectorText == '.badge-secondary') {
+            if (rules[x].selectorText == '.bg-secondary') {
                 return true;
             }
         }
@@ -336,10 +336,10 @@ if (typeof alertMsg !== "function") {
         let style = "position:fixed;top:25%;" + oSize + " bottom:0;z-index:9999;";
         $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
         let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
-            '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
+            '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-bs-dismiss="alert">' +
             gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
             '<h4 class="alert-heading text-center">' + title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
-            '<button type="button" id="alertDismissButton" class="pull-right btn btn-link" data-dismiss="alert">' + dismiss + '</button><br /></div>';
+            '<button type="button" id="alertDismissButton" class="pull-right btn btn-link" data-bs-dismiss="alert">' + dismiss + '</button><br /></div>';
         $('#alert_box').append(mHtml);
         $('#alertmsg').on('closed.bs.alert', function () {
             clearTimeout(AlertMsg);
@@ -424,10 +424,11 @@ if (typeof dlgclose !== "function") {
             if (call) {
                 wframe.setCallBack(call, args); // sets/creates callback function in dialogs scope.
             }
-            dialogModal.modal('hide');
+
+            dialogModal.getInstance().hide();
         } else {
             // no opener not iframe must be in here
-            $(this.document).find(".dialogModal").modal('hide');
+            $(this.document).find(".dialogModal").getInstance().hide();
         }
     }
 }
@@ -468,11 +469,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             await includeScript(utilfn, 'script');
         })(jqurl);
     }
+
     jQuery(function () {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
         let bscss = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.min.css';
-        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
+        let bscssRtl = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.rtl.min.css';
         let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.bundle.min.js';
 
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
@@ -525,7 +527,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     opts = jQuery.extend({}, opts_defaults, opts);
     opts.type = opts.type ? opts.type.toLowerCase() : '';
     opts.resolvePromiseOn = opts.resolvePromiseOn ?? 'init';
-    var mHeight, mWidth, mSize, msSize, dlgContainer, fullURL, where; // a growing list...
+    let mHeight, mWidth, mSize, msSize, dlgContainer, fullURL, where; // a growing list...
 
     where = (opts.type === 'iframe') ? top : window;
 
@@ -591,25 +593,25 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     mHeight = height > 0 ? (height / vpht * 100).toFixed(1) + 'vh' : '';
 
     // Build modal template. For now !title = !header and modal full height.
-    var mTitle = title > "" ? '<h5 class=modal-title>' + title + '</h5>' : '';
+    let mTitle = title > "" ? '<h5 class=modal-title>' + title + '</h5>' : '';
 
-    var waitHtml =
+    let waitHtml =
         '<div class="loadProgress text-center">' +
         '<span class="fa fa-circle-notch fa-spin fa-3x text-primary"></span>' +
         '</div>';
 
-    var headerhtml =
-        ('<div class="modal-header">%title%<button type="button" class="close" data-dismiss="modal">' +
+    let headerhtml =
+        ('<div class="modal-header">%title%<button type="button" class="close" data-bs-dismiss="modal">' +
             '&times;</button></div>').replace('%title%', mTitle);
 
-    var frameHtml =
+    let frameHtml =
         ('<iframe id="modalframe" class="modalIframe w-100 h-100 border-0" name="%winname%" %url%></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var contentStyles = ('style="height:%initHeight%; max-height: 94vh"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '90vh');
+    let contentStyles = ('style="height:%initHeight%; max-height: 94vh"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '90vh');
 
-    var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
+    let altClose = '<div class="closeDlgIframe" data-bs-dismiss="modal" ></div>';
 
-    var mhtml =
+    let mhtml =
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
             '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="dialog">' +
@@ -654,12 +656,15 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // Write the completed template to calling document or 'where' window.
     where.jQuery("body").append(dlgContainer);
 
+    // Create dialog instance in order to allow anything to work.
+    dlgBootstrapInit = new bootstrap.Modal(dlgContainer, {backdrop: 'static', keyboard: true});
+
     // We promised
     return new Promise((resolve, reject) => {
         jQuery(function () {
             // DOM Ready. Handle events and cleanup.
             if (opts.type === 'iframe') {
-                var modalwin = where.jQuery('body').find("[name='" + winname + "']");
+                let modalwin = where.jQuery('body').find("[name='" + winname + "']");
                 jQuery('div.modal-dialog', modalwin).css({'margin': "0.75rem auto auto"});
                 modalwin.on('load', function (e) {
                     setTimeout(function () {
@@ -673,7 +678,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                     }, 800);
                 });
             } else {
-                var modalwin = where.jQuery('body').find("[name='" + winname + "']");
+                let modalwin = where.jQuery('body').find("[name='" + winname + "']");
                 jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto auto'});
                 modalwin.on('show.bs.modal', function (e) {
                     setTimeout(function () {
@@ -690,7 +695,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 });
             }
             // events chain.
-            dlgContainer.on('show.bs.modal', function () {
+            dlgContainer.on('show.bs.modal', e => {
                 if (opts.allowResize || opts.allowDrag) {
                     initDragResize(where.document, where.document);
                 }
@@ -698,17 +703,18 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 if (opts.resolvePromiseOn === 'show') {
                     resolve(dlgContainer);
                 }
-            }).on('shown.bs.modal', function () {
+            }).on('shown.bs.modal', e => {
                 // Remove waitHtml spinner/loader etc.
                 jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
                     jQuery(this).remove();
                 });
-                dlgContainer.modal('handleUpdate'); // allow for scroll bar
+
+                dlgBootstrapInit.handleUpdate(); // allow for scroll bar
 
                 if (opts.resolvePromiseOn === 'shown') {
                     resolve(dlgContainer);
                 }
-            }).on('hidden.bs.modal', function (e) {
+            }).on('hidden.bs.modal', e => {
                 // clear cursor
                 e.target.style.cursor = "pointer";
                 // remove our dialog
@@ -743,7 +749,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 if (calling) {
                     opts.callBack = {call: calling, args: args};
                 }
-                dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
+                dlgBootstrapInit.hide(); // important to clean up in only one place, hide event....
                 return false;
             };
 
@@ -765,10 +771,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             // dialog is completely built and events set
             // this is default returning our dialog container reference.
             if (opts.resolvePromiseOn == 'init') {
-                resolve(dlgContainer);
+                resolve(dlgBootstrapInit);
             }
             // Finally Show Dialog after DOM settles
-            dlgContainer.modal({backdrop: 'static', keyboard: true}, 'show');
+            dlgBootstrapInit.show(dlgContainer);
         }); // end events
     }); /* Returning Promise */
 
@@ -831,13 +837,13 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                             case 'close':
                                 //add close event
                                 if (btnOp[index]) {
-                                    btn.attr('data-dismiss', 'modal');
+                                    btn.attr('data-bs-dismiss', 'modal');
                                 }
                                 break;
                             case 'click':
                                 //binds button to click event of fn defined in calling document/form
                                 var fn = btnOp.click.bind(dlgContainer.find('.modal-content'));
-                                btn.click(fn);
+                                btn.on("click", fn);
                                 break;
                             case 'text':
                                 btn.html(btnOp[index]);

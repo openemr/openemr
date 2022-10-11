@@ -270,7 +270,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
                         <a href='" . attr($url) . "'>" . text($file) . "</a>
-                        <span class='badge badge-primary badge-pill'>" . text($x12_partner_name) . "</span>
+                        <span class='badge bg-primary bg-pill'>" . text($x12_partner_name) . "</span>
                     </li>";
             }
             $html .= "</ul>";

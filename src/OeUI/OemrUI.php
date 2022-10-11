@@ -228,9 +228,9 @@ class OemrUI
                 $help_icon_title = xl("To enable help - Go to the User Name on top left > Settings > Features > Enable Help Modal");
             }
             if ($GLOBALS['enable_help'] == 1) {
-                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
             } elseif ($GLOBALS['enable_help'] == 2) {
-                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . attr($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . attr($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
             } elseif ($GLOBALS['enable_help'] == 0) {
                  $help_icon = '';
             }
@@ -266,14 +266,14 @@ class OemrUI
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="$close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="$close">
                             <span aria-hidden="true" class='text-black' style='font-size:1.5em;'>×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             $modal_body
                         </div>
                         <div class="modal-footer mt-0">
-                           <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
+                           <button class="btn btn-link btn-cancel oe-pull-away" data-bs-dismiss="modal" type="button">$close</button>
                         </div>
                     </div>
                 </div>

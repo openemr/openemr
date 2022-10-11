@@ -1,4 +1,4 @@
-{% set srOnly = (showLabels == true) ? "" : "sr-only" %}
+{% set srOnly = (showLabels == true) ? "" : "visually-hidden" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,7 +35,7 @@
             // disable submit button to insert a notification of working
             element.disabled = true;
             // nothing fancy. mainly for mobile.
-            element.innerHTML = '<i class="fa fa-circle-notch fa-spin mx-1"></i><span class="sr-only">' + jsText({{ "Authenticating"|xlj }}) + '</span>';
+            element.innerHTML = '<i class="fa fa-circle-notch fa-spin mx-1"></i><span class="visually-hidden">' + jsText({{ "Authenticating"|xlj }}) + '</span>';
             {% if hasSession %}
             document.cookie = {{ cookieText }};
             {% endif %}
@@ -52,32 +52,32 @@
                 <input type="hidden" name="languageChoice" value="{{ defaultLangID|attr }}">
 
                 {% if relogin == 1 %}
-                <div class="alert alert-info m-1 font-weight-bold">
+                <div class="alert alert-info m-1 fw-bold">
                     {{ "password security has recently been upgraded."|xlt }} {{ "Please login again."|xlt }}
                 </div>
                 {% endif %}
 
                 {% if loginFail == 1 %}
-                <div class="bg-danger text-light py-2 px-3 login-failure mb-3 font-weight-bold">
+                <div class="bg-danger text-light py-2 px-3 login-failure mb-3 fw-bold">
                     {{ "Invalid username or password"|xlt }}
                 </div>
                 {% endif %}
 
-                <div id="standard-auth-username" class="form-group">
-                    <label for="authUser" class="text-right {{ srOnly }}">{{ "Username"|xlt }}</label>
+                <div id="standard-auth-username" class="mb-3">
+                    <label for="authUser" class="text-end {{ srOnly }}">{{ "Username"|xlt }}</label>
                     <input type="text" class="form-control" id="authUser" name="authUser" placeholder="{{ "Username"|xla }}">
                 </div>
 
-                <div id="standard-auth-password" class="form-group">
-                    <label for="clearPass" class="text-right {{ srOnly }}">{{ "Password"|xlt }}</label>
+                <div id="standard-auth-password" class="mb-3">
+                    <label for="clearPass" class="text-end {{ srOnly }}">{{ "Password"|xlt }}</label>
                     <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="{{ "Password"|xla }}">
                 </div>
 
                 {{ divApp }}
 
                 {% if displayLanguage %}
-                <div class="form-group">
-                    <label for="language" class="text-right">{{ "Language"|xlt }}</label>
+                <div class="mb-3">
+                    <label for="language" class="text-end">{{ "Language"|xlt }}</label>
                     <div>
                         <select class="form-control" name="languageChoice" size="1">
                             <option value="{{ defaultLangID|attr }}" selected>{{ "Default"|xlt }} - {{ defaultLangName|xlt }}</option>
@@ -90,8 +90,8 @@
                 {% endif %}
 
                 {% if displayFacilities %}
-                <div class="form-group">
-                    <label for="facility" class="text-right">{{ "Facility"|xlt }}</label>
+                <div class="mb-3">
+                    <label for="facility" class="text-end">{{ "Facility"|xlt }}</label>
                     <div>
                         <select class="form-control" name="facility" size="1">
                             <option value="user_default">{{ "My default facility"|xlt }}</option>
@@ -103,11 +103,11 @@
                 </div>
                 {% endif %}
 
-                <div class="form-group d-flex justify-content-end">
+                <div class="mb-3 d-flex justify-content-end">
                     <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     {% if displayGoogleSignin %}
                     <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
                     <input type="hidden" id="google-signin-token" name="google_signin_token" value="">

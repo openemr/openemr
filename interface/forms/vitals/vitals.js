@@ -57,12 +57,12 @@
         let value = node.value;
         let inputSave = document.getElementById(targetSaveUnit);
         if (!inputSave) {
-            console.error("Failed to find node with data-target-input of ", targetSaveUnit);
+            console.error("Failed to find node with data-bs-target-input of ", targetSaveUnit);
             return;
         }
         let inputConv = document.getElementById(targetInputConv);
         if (!inputConv) {
-            console.error("Failed to find node with data-target-input-conv of ", targetInputConv);
+            console.error("Failed to find node with data-bs-target-input-conv of ", targetInputConv);
             return;
         }
 

@@ -99,7 +99,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
             $docTitle = ( $note ) ? $note : xl("View document");
 
             $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
-            echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
+            echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-bs-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
             echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text($documentrow['document_name'])  . '-' . $documentrow['id'] . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
             echo "</div>";
         }
@@ -120,7 +120,7 @@ function showDocument(&$drow)
         return;
     }
 
-    echo "<tr class='text docrow' id='" . attr($drow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . xla('View document') . "'>\n";
+    echo "<tr class='text docrow' id='" . attr($drow['id']) . "'data-bs-toggle='tooltip' data-placement='top' title='" . xla('View document') . "'>\n";
 
   // show date
     echo "<td>" . text(oeFormatShortDate($docdate)) . "</td>\n";
@@ -286,7 +286,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
         <a href='encounters.php?billing=1&issue=<?php echo $issue . $getStringForPage; ?>' class="btn btn-small btn-info" onclick='top.restoreSession()' style='font-size: 11px'><?php echo xlt('To Billing View'); ?></a>
     <?php } ?>
 
-    <span class="float-right">
+    <span class="float-end">
         <?php echo xlt('Results per page'); ?>:
         <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php
@@ -312,7 +312,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
     <br />
 
     <div class="table-responsive">
-        <table class="table table-hover jumbotron py-4 mt-3">
+        <table class="table table-hover p-5 mb-4 bg-light rounded-3 py-4 mt-3">
             <thead>
                 <tr class='text'>
                     <th scope="col"><?php echo xlt('Date'); ?></th>
@@ -333,10 +333,10 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
                     <?php if ($billing_view) { ?>
                     <th scope="col"><?php echo xlt('Code'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Chg'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Paid'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Adj'); ?></th>
-                    <th class='text-right' scope="col"><?php echo xlt('Bal'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Chg'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Paid'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Adj'); ?></th>
+                    <th class='text-end' scope="col"><?php echo xlt('Bal'); ?></th>
                     <?php } elseif ($attendant_type == 'pid') { ?>
                     <th colspan='5' scope="col"><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></th>
                     <?php } ?>
@@ -494,14 +494,14 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                     echo "<tr class='encrow text' id='" . attr($rawdata) . "'>\n";
 
                     // show encounter date
-                    echo "<td class='align-top' data-toggle='tooltip' data-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" . text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
+                    echo "<td class='align-top' data-bs-toggle='tooltip' data-placement='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" . text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
 
                 if ($billing_view) {
                     // Show billing note that you can click on to edit.
                     $feid = $result4['id'] ? $result4['id'] : 0; // form_encounter id
                     echo "<td class='align-top'>";
                     echo "<div id='note_" . attr($feid) . "'>";
-                    echo "<div id='" . attr($feid) . "'data-toggle='tooltip' data-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
+                    echo "<div id='" . attr($feid) . "'data-bs-toggle='tooltip' data-placement='top' title='" . xla('Click to edit') . "' class='text billing_note_text border-0'>";
                     echo $result4['billing_note'] ? nl2br(text($result4['billing_note'])) : '<button type="button" class="btn btn-primary btn-add btn-sm">' . xlt('Add') . '</button>';
                     echo "</div>";
                     echo "</div>";
@@ -541,7 +541,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                     //Display the documents tagged to this encounter
                     getDocListByEncID($result4['encounter'], $raw_encounter_date, $pid);
 
-                    echo "<div class='pl-2'>";
+                    echo "<div class='ps-2'>";
 
                     // Now show a line for each encounter form, if the user is authorized to
                     // see this encounter's notes.
@@ -576,7 +576,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                         if ($issue) {
                             echo text(xl_form_title($enc['form_name']));
                             echo "<br />";
-                            echo "<div class='encreport pl-2'>";
+                            echo "<div class='encreport ps-2'>";
                     // Use the form's report.php for display.  Forms with names starting with LBF
                     // are list-based forms sharing a single collection of code.
                             if (substr($formdir, 0, 3) == 'LBF') {
@@ -698,7 +698,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                                 $binfo[0] .= $arlinkbeg . text($codekeydisp) . " " . text($title) . $arlinkend;
                             } else {
                             // Otherwise offer the description as a tooltip.
-                                $binfo[0] .= "<span data-toggle='tooltip' data-placement='top' title='" . attr($title) . "'>" . $arlinkbeg . text($codekeydisp) . $arlinkend . "</span>";
+                                $binfo[0] .= "<span data-bs-toggle='tooltip' data-placement='top' title='" . attr($title) . "'>" . $arlinkbeg . text($codekeydisp) . $arlinkend . "</span>";
                             }
                             if ($billing_view) {
                                 if ($binfo[1]) {
@@ -755,7 +755,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
                     echo "<td class='text'>" . $binfo[0] . "</td>\n";
                     for ($i = 1; $i < 5; ++$i) {
-                        echo "<td class='text-right'>" . $binfo[$i] . "</td>\n";
+                        echo "<td class='text-end'>" . $binfo[$i] . "</td>\n";
                     }
                 } /* end if authorized */ else {
                     echo "<td class='text align-top' colspan='5' rowspan='" . attr($encounter_rows) . "'>(" . xlt("No access") . ")</td>\n";
@@ -836,7 +836,7 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
 </div> <!-- end 'encounters' large outer DIV -->
 
-<span class='position-absolute border border-danger w-auto jumbotron p-1 ml-4' id='tooltipdiv' style='max-width: 75%; visibility: hidden;'></span>
+<span class='position-absolute border border-danger w-auto mb-4 bg-light rounded-3 p-1 ms-4' id='tooltipdiv' style='max-width: 75%; visibility: hidden;'></span>
 
 <script>
 // jQuery stuff to make the page a little easier to use
@@ -870,7 +870,7 @@ $(function () {
 });
 
 $(function () {
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
 });
 
 </script>

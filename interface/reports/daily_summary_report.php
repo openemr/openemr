@@ -330,7 +330,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
             <?php echo '<strong>' . xlt('From') . '</strong> ' . text(oeFormatShortDate($from_date)) . ' <strong>' . xlt('To{{Range}}') . '</strong> ' . text(oeFormatShortDate($to_date)); ?>
 
             <table class="table flowboard" cellpadding='5' cellspacing='2' id="ds_report">
-                <tr class="head thead-light">
+                <tr class="head table-light">
 
                     <td><?php echo xlt('Date'); ?></td>
                     <td><?php echo xlt('Facility'); ?></td>
