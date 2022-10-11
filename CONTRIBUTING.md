@@ -227,7 +227,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```
         - hint: this is also a great way to test any changes a developer has made to the sql upgrade stuff (ie. such as sql/5_0_2-to-6_0_0_upgrade.sql)
 8. <a name="dev_tools_backup"></a>Backup and restore OpenEMR data (database and data on drive) via snapshots.
-    - Create a backup snapshot (using `example` below, but can use any alphanumeric identifier):
+    - For the Video Tutorial, click below:
+
+      [![Snapshots and Capsules Video Tutorial](Documentation/images/easy-dev-snapshots-capsules.png)](https://youtu.be/n569Lw5I5us)
+
+     - Create a backup snapshot (using `example` below, but can use any alphanumeric identifier):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools backup example'
       ```
@@ -239,7 +243,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools list-snapshots'
       ```
-9. <a name="dev_tools_send"></a>Send/receive snapshots (via capsules) that are created above in item 11.
+9. <a name="dev_tools_send"></a>Send/receive snapshots (via capsules) that are created above in item 8.
+    - For the Video Tutorial, click below:
+
+      [![Snapshots and Capsules Video Tutorial](Documentation/images/easy-dev-snapshots-capsules.png)](https://youtu.be/n569Lw5I5us)
+
     - Here is how to grab a capsule from the docker, which can then store or share with friends.
         - List the capsules:
           ```sh

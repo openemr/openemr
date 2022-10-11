@@ -25,7 +25,7 @@ use OpenEMR\Billing\SLEOB;
 //===============================================================================
 if (isset($_POST["mode"])) {
     if (
-           ($_POST["mode"] == "search") || ($_POST["default_search_patient"] == "default_search_patient") &&
+           ($_POST["mode"] == "search") || (($_POST["default_search_patient"] ?? null) == "default_search_patient") &&
            isset($_REQUEST['hidden_patient_code']) &&
            (int)$_REQUEST['hidden_patient_code'] > 0
     ) {
@@ -46,9 +46,9 @@ if (isset($_POST["mode"])) {
         $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
                          where pid =?", array($hidden_patient_code));
         $row = sqlFetchArray($res);
-        $fname = $row['fname'];
-        $lname = $row['lname'];
-        $mname = $row['mname'];
+        $fname = $row['fname'] ?? '';
+        $lname = $row['lname'] ?? '';
+        $mname = $row['mname'] ?? '';
         $NameNew = $lname . ' ' . $fname . ' ' . $mname;
     }
 }
