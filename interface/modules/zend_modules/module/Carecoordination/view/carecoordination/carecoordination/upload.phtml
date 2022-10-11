@@ -262,6 +262,13 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     async function handleFileUpload(files, obj) {
         let fnames = '';
         let uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
+        // flash to let user know we're working.
+        let f = document.getElementById('uploadFlash');
+        f.innerText = <?php echo js_escape(xlt("Starting Upload Process.")); ?>;
+        setInterval(function () {
+            f.style.display = (f.style.display == 'none' ? '' : 'none');
+        }, 500);
+
         for (let i = 0; i < files.length; i++) {
             let status = new createStatusbar(obj);
             status.setFileNameSize(files[i].name, files[i].size);
@@ -518,7 +525,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     <button type="button" class="btn btn-primary" style="margin-top: .250rem;" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"><?php echo xlt('Scroll to Top'); ?></button>
                 </div>
                 <?php } else { ?>
-                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->records) > 0) { ?>display: none; <?php } ?>">
+                    <div id="uploadFlash" style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->records) > 0) { ?>display: none; <?php } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display'); ?>
                     </div>
                     <?php
