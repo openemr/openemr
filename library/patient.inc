@@ -194,18 +194,18 @@ function getFacility($facid = 0)
 // Generate a report title including report name and facility name, address
 // and phone.
 //
-function genFacilityTitle($repname = '', $facid = 0, $logo = '')
+function genFacilityTitle($repname = '', $facid = 0, $logo = "")
 {
     $s = '';
-    $s .= "<table class='ftitletable'>\n";
+    $s .= "<table class='ftitletable' width='100%'>\n";
     $s .= " <tr>\n";
     if (empty($logo)) {
-        $s .= "  <td class='ftitlecell1'>" . text($repname) . "</td>\n";
+        $s .= "  <td align='left' class='ftitlecell1'>" . text($repname) . "</td>\n";
     } else {
-        $s .= "  <td class='ftitlecell1'>" . $logo . "</td>\n";
-        $s .= "  <td class='ftitlecellm'>" . text($repname) . "</td>\n";
+        $s .= "  <td align='left' class='ftitlecell1'><img class='h-auto' style='max-height:8%;' src='" . attr($logo) . "' /></td>\n";
+        $s .= "  <td align='left' class='ftitlecellm'><h2>" . text($repname) . "</h2></td>\n";
     }
-    $s .= "  <td class='ftitlecell2'>\n";
+    $s .= "  <td align='right' class='ftitlecell2'>\n";
     $r = getFacility($facid);
     if (!empty($r)) {
         $s .= "<b>" . text($r['name'] ?? '') . "</b>\n";
@@ -407,6 +407,34 @@ function getEmployerData($pid, $given = "*")
 {
     $sql = "select $given from employer_data where pid=? order by date DESC limit 0,1";
     return sqlQuery($sql, array($pid));
+}
+
+// Generate a consistent header and footer, used for printed patient reports
+function genPatientHeaderFooter($pid, $DOS = null)
+{
+    $patient_dob = getPatientData($pid, "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    $patient_name = getPatientName($pid);
+
+    // Header
+    $s = '<htmlpageheader name="PageHeader1"><div style="text-align: right; font-weight: bold;">';
+    $s .= text($patient_name) . '&emsp;DOB: ' . text($patient_dob['DOB_TS']);
+    if ($DOS) {
+        $s .= '&emsp;DOS: ' . text($DOS);
+    }
+    $s .= '</div></htmlpageheader>';
+
+    // Footer
+    $s .= '<htmlpagefooter name="PageFooter1"><div style="text-align: right; font-weight: bold;">';
+    $s .= '<div style="float: right; width:33%; text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
+    $s .= '<div style="float: right; width:33%; text-align: center;">{PAGENO}/{nbpg}</div>';
+    $s .= '<div style="float: right; width:33%; text-align: right;">' . text($patient_name) . '</div>';
+    $s .= '</div></htmlpagefooter>';
+
+    // Set the header and footer in the current document
+    $s .= '<sethtmlpageheader name="PageHeader1" page="ALL" value="ON" show-this-page="1" />';
+    $s .= '<sethtmlpagefooter name="PageFooter1" page="ALL" value="ON" />';
+
+    return $s;
 }
 
 function _set_patient_inc_count($limit, $count, $where, $whereBindArray = array())
@@ -757,7 +785,7 @@ function getPatientPID($args)
     return $returnval;
 }
 
-/* return a patient's name in the format LAST, FIRST */
+/* return a patient's name in the format LAST [SUFFIX], FIRST [MIDDLE] */
 function getPatientName($pid)
 {
     if (empty($pid)) {
@@ -769,7 +797,10 @@ function getPatientName($pid)
         return "";
     }
 
-    $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
+    $patientName = $patientData[0]['lname'];
+    $patientName .= $patientData[0]['suffix'] ? " " . $patientData[0]['suffix'] . ", " : ", ";
+    $patientName .= $patientData[0]['fname'];
+    $patientName .= empty($patientData[0]['mname']) ? "" : " " . $patientData[0]['mname'];
     return $patientName;
 }
 
