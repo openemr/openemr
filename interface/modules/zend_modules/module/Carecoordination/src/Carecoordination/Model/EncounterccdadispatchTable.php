@@ -2358,8 +2358,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
             $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
-            $convHeightValue = round(number_format($row['height'] * 2.54, 2), 1);
-            $convTempValue = round(number_format(($row['temperature'] - 32) * (5 / 9), 1));
+            $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
+            $convTempValue = number_format((round($row['temperature'] - 32) * (5 / 9)), 1);
             if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';

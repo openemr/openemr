@@ -108,7 +108,7 @@ class eRxStore
         $data = formFetch("form_vitals", $result['id']);
 
         $weight = number_format($data['weight'] * 0.45359237, 2);
-        $height = round(number_format($data['height'] * 2.54, 2), 1);
+        $height = number_format(round($data['height'] * 2.54, 1), 2);
 
         return [
             'height' => $height,

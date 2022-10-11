@@ -25,19 +25,19 @@ class MeasurementUtils
     }
     public static function cmToInches($val)
     {
-        return round(number_format($val / 2.54, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
+        return number_format(round($val / 2.54, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }
     public static function inchesToCm($val)
     {
-        return round(number_format($val * 2.54, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
+        return number_format(round($val * 2.54, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }
     public static function fhToCelsius($val)
     {
-        return round(number_format(($val - 32) * (5 / 9), self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
+        return number_format(round(($val - 32) * (5 / 9), self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }
 
     public static function celsiusToFh($val)
     {
-        return round(number_format(((9 / 5) * $val) + 32, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
+        return number_format(round(((9 / 5) * $val) + 32, self::MEASUREMENT_PRECISION), self::MEASUREMENT_PRECISION);
     }
 }
