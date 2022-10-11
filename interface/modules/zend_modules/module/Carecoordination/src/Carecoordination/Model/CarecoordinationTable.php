@@ -248,7 +248,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['mname'] = is_array($name['given']) ? $name['given'][1] ?? '' : '';
         $this->documentData['field_name_value_array']['patient_data'][1]['lname'] = $name['family'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? '');
+        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = ($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? '');
         $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
@@ -273,7 +273,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
         }
 
-        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = strtolower($xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName']) ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
         if (is_array($xml['recordTarget']['patientRole']['patient']['raceCode'][0])) {
             $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['code'] ?? null;
@@ -582,6 +582,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 $arr_encounter['encounter'][$k]['provider_npi'] = $newdata['encounter']['provider_npi'];
                 $arr_encounter['encounter'][$k]['provider_name'] = $newdata['encounter']['provider_name'];
+                $arr_encounter['encounter'][$k]['provider_family'] = $newdata['encounter']['provider_family'];
                 $arr_encounter['encounter'][$k]['provider_address'] = $newdata['encounter']['provider_address'];
                 $arr_encounter['encounter'][$k]['provider_city'] = $newdata['encounter']['provider_city'];
                 $arr_encounter['encounter'][$k]['provider_state'] = $newdata['encounter']['provider_state'];
