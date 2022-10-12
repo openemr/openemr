@@ -26,7 +26,7 @@ The Patient Portal card for the Medical Record Dashboard
     {% if isPortalAllowed == false %}
         <div class="alert alert-warning" role="alert">
             <p class="font-weight-bold">{{  "Portal Access"|xlt }}</p>
-            <p> {{ "Patient Portal Not Allowed. Allow Patient Portal in Choices."|xlt }} </p>
+            <p> {{ "Allow Patient Portal in Choices."|xlt }} </p>
         </div> 
     {% elseif isPortalEnabled %}
     <div class="alert alert-info" role="alert">
@@ -38,7 +38,7 @@ The Patient Portal card for the Medical Record Dashboard
     {% if isApiAllowed == false %}
         <div class="alert alert-warning" role="alert">
             <p class="font-weight-bold">{{  "API Access"|xlt }}</p>
-            <p> {{ "Prevent API Access is enabled in Demographics Choices."|xlt }} </p>
+            <p> {{ "Prevent API Access can be disabled in Demographics Choices."|xlt }} </p>
         </div>
     {% endif %}     
 
@@ -54,11 +54,6 @@ The Patient Portal card for the Medical Record Dashboard
         {% endif %}
         <a href="{{ portalLoginHref|attr }}?patient={{ pid|attr_url }}" class="btn btn-link btn-sm w-50 small_modal"><i class="fa {{ class|attr }}"></i>&nbsp;{{ text|text }}</a>
         </div>
-    {% elseif isPortalEnabled == true %}
-        <div class="alert alert-warning" role="alert">
-            <p> {{ "Allow Patient Portal in Choices."|xlt }} </p>
-            <p> {{ "Disable Prevent API Access in Demographics Choices."|xlt }} </p>
-        </div>    
     {% endif %}
 </div>
 {% endblock %}
