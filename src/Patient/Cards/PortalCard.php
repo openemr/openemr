@@ -70,7 +70,7 @@ class PortalCard extends CardModel
         global $pid;
         $this->opts = [
             'acl' => ['patients', 'dem'],
-            'initiallyCollapsed' => (getUserSetting(self::CARD_ID) == 0) ? false : true,
+            'initiallyCollapsed' => (getUserSetting(self::CARD_ID . '_expand') == 0),
             'add' => true,
             'edit' => false,
             'collapse' => true,
