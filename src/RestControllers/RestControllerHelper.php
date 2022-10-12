@@ -51,8 +51,17 @@ class RestControllerHelper
      */
     const FHIR_SERVICES_NAMESPACE = "OpenEMR\\Services\\FHIR\\Fhir";
 
+    const DEFAULT_STRUCTURE_DEFINITION = "http://hl7.org/fhir/StructureDefinition/";
+
     // @see https://www.hl7.org/fhir/search.html#table
     const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
+
+    private $restURL = "";
+
+    public function __construct($restAPIUrl = "")
+    {
+        $this->restURL = $restAPIUrl;
+    }
 
     /**
      * Configures the HTTP status code and payload returned within a response.
@@ -269,6 +278,7 @@ class RestControllerHelper
         } else if ($operation === '$bulkdata-status') {
             $fhirOperation = new FHIRCapabilityStatementOperation();
             $fhirOperation->setName($operation);
+            $fhirOperation->setDefinition($this->restURL . '/OperationDefinition/$bulkdata-status');
             $capResource->addOperation($fhirOperation);
             // TODO: @adunsulag we should document in our capability statement how to use the bulkdata-status operation
         } else if ($operation === '$docref') {
@@ -316,7 +326,7 @@ class RestControllerHelper
     }
 
 
-    public function getCapabilityRESTObject($routes, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE, $structureDefinition = "http://hl7.org/fhir/StructureDefinition/"): FHIRCapabilityStatementRest
+    public function getCapabilityRESTObject($routes, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE, $structureDefinition = self::DEFAULT_STRUCTURE_DEFINITION): FHIRCapabilityStatementRest
     {
         $restItem = new FHIRCapabilityStatementRest();
         $mode = new FHIRRestfulCapabilityMode();

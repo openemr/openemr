@@ -42,17 +42,23 @@ class FhirMetaDataRestController
     private $fhirService;
     private $fhirValidate;
     private $restHelper;
+    /**
+     * @var \RestConfig
+     */
+    private $restConfig;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirValidate = new FhirValidationService();
-        $this->restHelper = new RestControllerHelper();
+        $gbl = \RestConfig::GetInstance();
+        $this->restHelper = new RestControllerHelper($gbl::$apisBaseFullUrl . "/fhir");
+        $this->restConfig = $gbl;
     }
 
     protected function buildCapabilityStatement(): FHIRCapabilityStatement
     {
-        $gbl = \RestConfig::GetInstance();
+        $gbl = $this->restConfig;
         $routes = $gbl::$FHIR_ROUTE_MAP;
         $serverRoot = $gbl::$webserver_root;
         $capabilityStatement = new FHIRCapabilityStatement();

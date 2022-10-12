@@ -7094,6 +7094,7 @@ use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -12567,7 +12568,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      */
     "GET /fhir/OperationDefinition" => function (HttpRestRequest $request) {
         // for now we will just hard code the custom resources
-        $operationDefinitionController = new \OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController();
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
         $return = $operationDefinitionController->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
@@ -12629,7 +12630,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      */
     "GET /fhir/OperationDefinition/:operation" => function ($operation, HttpRestRequest $request) {
         // for now we will just hard code the custom resources
-        $operationDefinitionController = new \OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController();
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
         $return = $operationDefinitionController->getOne($operation);
         RestConfig::apiLog($return);
         return $return;
