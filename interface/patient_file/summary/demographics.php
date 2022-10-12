@@ -169,6 +169,17 @@ function isPortalEnabled(): bool
     return true;
 }
 
+function isPortalEnabled(): bool
+{
+    if (
+        !$GLOBALS['portal_onsite_two_enable']
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
 function isPortalSiteAddressValid(): bool
 {
     if (
