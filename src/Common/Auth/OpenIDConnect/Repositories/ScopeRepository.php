@@ -732,6 +732,8 @@ class ScopeRepository implements ScopeRepositoryInterface
                 $scopeRead =  $resourceType . ".read";
                 $scopeWrite = $resourceType . ".write";
                 $interactionCode = $interaction->getCode()->getValue();
+                // these values come from this valuset http://hl7.org/fhir/2021Mar/valueset-type-restful-interaction.html
+                // for SMART on FHIR 2.0 we will have more granular permissions than *.read and *.write
                 switch ($interactionCode) {
                     case 'read':
                         $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
@@ -742,8 +744,9 @@ class ScopeRepository implements ScopeRepositoryInterface
                         $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                         break;
                     case 'put':
-                    case 'insert':
+                    case 'create':
                     case 'update':
+                    case 'delete':
                         $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
                         $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                         break;
@@ -761,6 +764,8 @@ class ScopeRepository implements ScopeRepositoryInterface
                     $scopeRead =  $resourceType . ".read";
                     $scopeWrite = $resourceType . ".write";
                     $interactionCode = $interaction->getCode()->getValue();
+                    // these values come from this valuset http://hl7.org/fhir/2021Mar/valueset-type-restful-interaction.html
+                    // for SMART on FHIR 2.0 we will have more granular permissions than *.read and *.write
                     switch ($interactionCode) {
                         case 'read':
                             $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
@@ -769,8 +774,9 @@ class ScopeRepository implements ScopeRepositoryInterface
                             $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                             break;
                         case 'put':
-                        case 'insert':
+                        case 'create':
                         case 'update':
+                        case 'delete':
                             $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
                             break;
                     }
@@ -864,6 +870,9 @@ class ScopeRepository implements ScopeRepositoryInterface
         $scopes['nonce'] = ['description' => 'Nonce value used to detect replay attacks by third parties'];
 
         foreach ($mergedScopes as $scope) {
+            // TODO: @adunsulag look at adding the actual scope description here and what the ramifications are.
+            // Looks like this line could be
+            // $scopes[$scope] = ['description' => $this->lookupDescriptionForScope($scope, false)];
             $scopes[$scope] = ['description' => 'OpenId Connect'];
         }
 

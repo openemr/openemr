@@ -302,6 +302,8 @@ class RestControllerHelper
             $code = "create";
         } elseif (strcmp($reqMethod, "PUT") == 0) {
             $code = "update";
+        } elseif (strcmp($reqMethod, "DELETE") == 0) {
+            $code = "delete";
         }
 
         if (!empty($code)) {
