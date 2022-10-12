@@ -16,12 +16,23 @@ The Patient Portal card for the Medical Record Dashboard
 
 {% block content %}
 <div class="text pl-1">
+    {% if isPortalEnabled == false %}
+    <div class="alert alert-warning" role="alert">
+            <p class="font-weight-bold">{{  "Portal Status"|xlt }}</p>
+            <p> {{ "Patient Portal Not Enabled. Admin Can Enable Patient Portal."|xlt }} </p>
+        </div>
+    {% endif %}    
+
     {% if isPortalAllowed == false %}
         <div class="alert alert-warning" role="alert">
             <p class="font-weight-bold">{{  "Portal Access"|xlt }}</p>
-            <p> {{ "Patient Portal Not Allowed"|xlt }} </p>
-            <p> {{ "Allow Patient Portal in Choices."|xlt }} </p>
+            <p> {{ "Patient Portal Not Allowed. Allow Patient Portal in Choices."|xlt }} </p>
         </div> 
+    {% elseif isPortalEnabled %}
+    <div class="alert alert-info" role="alert">
+        <p class="font-weight-bold">{{ "Documents"|xlt }}</p>
+         <button type="button" class="btn btn-link btn-sm w-50" onclick='top.assignPatientDocuments({{pid|attr_js}})'><i class="fa fa-file-signature"></i>&nbsp;{{ "Assign"|xlt }}</button>
+        </div>           
     {% endif %}  
 
     {% if isApiAllowed == false %}
@@ -31,7 +42,7 @@ The Patient Portal card for the Medical Record Dashboard
         </div>
     {% endif %}     
 
-    {% if isPortalAllowed or isApiAllowed %}
+    {% if isPortalAllowed == true or isApiAllowed == true %}
         <div class="alert alert-info" role="alert">
         <p class="font-weight-bold">{{ "Credentials"|xlt }}</p>
         {% if areCredentialsCreated == true %}
@@ -43,11 +54,11 @@ The Patient Portal card for the Medical Record Dashboard
         {% endif %}
         <a href="{{ portalLoginHref|attr }}?patient={{ pid|attr_url }}" class="btn btn-link btn-sm w-50 small_modal"><i class="fa {{ class|attr }}"></i>&nbsp;{{ text|text }}</a>
         </div>
-
-        <div class="alert alert-info" role="alert">
-        <p class="font-weight-bold">{{ "Documents"|xlt }}</p>
-         <button type="button" class="btn btn-link btn-sm w-50" onclick='top.assignPatientDocuments({{pid|attr_js}})'><i class="fa fa-file-signature"></i>&nbsp;{{ "Assign"|xlt }}</button>
-        </div>
+    {% elseif isPortalEnabled == true %}
+        <div class="alert alert-warning" role="alert">
+            <p> {{ "Allow Patient Portal in Choices."|xlt }} </p>
+            <p> {{ "Disable Prevent API Access in Demographics Choices."|xlt }} </p>
+        </div>    
     {% endif %}
 </div>
 {% endblock %}

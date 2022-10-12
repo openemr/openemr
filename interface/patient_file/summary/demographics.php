@@ -161,43 +161,48 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
     return ($results ?? false);
 }
 
-function isPortalAllowed($pid)
+function isPortalEnabled(): bool
 {
-    if (!$GLOBALS['portal_onsite_two_enable'] && !$GLOBALS['portal_onsite_two_address']) {
+    if (
+        !$GLOBALS['portal_onsite_two_enable']
+    ) {
         return false;
     }
 
+    return true;
+}
+
+function isPortalAllowed($pid): bool
+{
     $return = false;
 
     $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
     if ($portalStatus['allow_patient_portal'] == 'YES') {
         $return = true;
-        return $return;
     }
     return $return;
 }
 
-function isApiAllowed($pid)
+function isApiAllowed($pid): bool
 {
     $return = false;
 
     $apiStatus = sqlQuery("SELECT prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
     if (strtoupper($apiStatus['prevent_portal_apps'] ?? '') != 'YES') {
         $return = true;
-        return $return;
     }
     return $return;
 }
 
-function areCredentialsCreated($pid)
+function areCredentialsCreated($pid): bool
 {
-    $retun = false;
+    $return = false;
     $credentialsCreated = sqlQuery("SELECT date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
     if ($credentialsCreated['date_created'] ?? null) {
         $return = true;
     }
 
-    return $return ?? null;
+    return $return;
 }
 
 function deceasedDays($days_deceased)
@@ -1333,9 +1338,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    if ($GLOBALS['portal_onsite_two_enable'] || isApiAllowed($_SESSION['pid'])) :
-                        $portalCard = new PortalCard($GLOBALS);
-                    endif;
+                    // it's important enough to always show it
+                    $portalCard = new PortalCard($GLOBALS);
 
                     $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('secondary'));
                     $sectionCards = $sectionRenderEvents->getCards();
