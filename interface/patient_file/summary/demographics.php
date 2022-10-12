@@ -175,7 +175,9 @@ function isPortalEnabled(): bool
 function isPortalSiteAddressValid(): bool
 {
     if (
-        filter_var($GLOBALS['portal_onsite_two_address'], FILTER_VALIDATE_URL)
+        // maybe can use filter_var() someday but the default value in GLOBALS
+        // fails with FILTER_VALIDATE_URL
+        !isset($GLOBALS['portal_onsite_two_address'])
     ) {
         return false;
     }
