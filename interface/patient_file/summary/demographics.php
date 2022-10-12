@@ -172,7 +172,7 @@ function isPortalEnabled(): bool
     return true;
 }
 
-function isPortalSiteAddressSet(): bool
+function isPortalSiteAddressValid(): bool
 {
     if (
         filter_var($GLOBALS['portal_onsite_two_address'], FILTER_VALIDATE_URL)
