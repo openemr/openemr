@@ -283,11 +283,11 @@ class Document extends ORDataObject
         return false;
     }
 
-    public function can_patient_access($pid) {
+    public function can_patient_access($pid)
+    {
         $foreignId = $this->get_foreign_id();
         // TODO: if any information blocking rule checks were to be applied, they can be done here
-        if (!empty($foreignId) && $foreignId == $pid)
-        {
+        if (!empty($foreignId) && $foreignId == $pid) {
             return true;
         }
         return false;

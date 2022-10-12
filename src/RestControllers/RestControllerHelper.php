@@ -267,7 +267,7 @@ class RestControllerHelper
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
             $capResource->addOperation($fhirOperation);
         } else if ($operation === '$bulkdata-status') {
-            $fhirOperation= new FHIRCapabilityStatementOperation();
+            $fhirOperation = new FHIRCapabilityStatementOperation();
             $fhirOperation->setName($operation);
             $capResource->addOperation($fhirOperation);
             // TODO: @adunsulag we should document in our capability statement how to use the bulkdata-status operation
@@ -387,7 +387,8 @@ class RestControllerHelper
      * @param string $resource
      * @return string
      */
-    private static function getResourceTypeForResource(string $resource) {
+    private static function getResourceTypeForResource(string $resource)
+    {
         $firstChar = $resource[0] ?? '';
         if ($firstChar == '$') {
             return 'OperationDefinition';

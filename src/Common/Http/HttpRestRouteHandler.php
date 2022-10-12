@@ -303,7 +303,8 @@ class HttpRestRouteHandler
         $config::scope_check($scopeType, $resource, $permission);
     }
 
-    public static function fhirRestRequestSkipSecurityCheck(HttpRestRequest $restRequest) : bool {
+    public static function fhirRestRequestSkipSecurityCheck(HttpRestRequest $restRequest): bool
+    {
         $resource = $restRequest->getResource();
         // capability statement, smart well knowns, and operation definitions are skipped.
         $skippedChecks = ['metadata', '.well-known', 'OperationDefinition'];

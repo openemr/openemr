@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenEMR\RestControllers\FHIR\Operations;
-
 
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
@@ -45,7 +43,8 @@ class FhirOperationDefinitionRestController
         return $response;
     }
 
-    public function getOne($operationId) {
+    public function getOne($operationId)
+    {
         $processingResult = new ProcessingResult();
         $statusCode = 200;
         if ($operationId == '$bulkdata-status') {
@@ -64,7 +63,8 @@ class FhirOperationDefinitionRestController
         return $response->withAddedHeader('Content-Type', 'application/json');
     }
 
-    private function getBulkDataStatusDefinition() {
+    private function getBulkDataStatusDefinition()
+    {
         $opDef = new FHIROperationDefinition();
         $opDef->setName('$bulkdata-status');
         $opDef->setStatus("active");

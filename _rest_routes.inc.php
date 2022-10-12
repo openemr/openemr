@@ -11590,8 +11590,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         // for the currently logged in user
         if ($request->getRequestUserUUIDString() == $uuid) {
             $return = (new FhirPersonRestController())->getOne($uuid);
-        }
-        else if (!$request->isPatientRequest()) {
+        } else if (!$request->isPatientRequest()) {
             // not a patient ,make sure we have access to the users ACL
             RestConfig::authorization_check("admin", "users");
             $return = (new FhirPersonRestController())->getOne($uuid);
@@ -12566,7 +12565,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      )
      *  )
      */
-    "GET /fhir/OperationDefinition" => function(HttpRestRequest $request) {
+    "GET /fhir/OperationDefinition" => function (HttpRestRequest $request) {
         // for now we will just hard code the custom resources
         $operationDefinitionController = new \OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController();
         $return = $operationDefinitionController->getAll($request->getQueryParams());
@@ -12628,7 +12627,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *  )
      */
-    "GET /fhir/OperationDefinition/:operation" => function($operation, HttpRestRequest $request) {
+    "GET /fhir/OperationDefinition/:operation" => function ($operation, HttpRestRequest $request) {
         // for now we will just hard code the custom resources
         $operationDefinitionController = new \OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController();
         $return = $operationDefinitionController->getOne($operation);
