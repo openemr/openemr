@@ -79,6 +79,7 @@ class PortalCard extends CardModel
             'title' => xl('Patient Portal') . ' / ' . xl('API Access'),
             'templateVariables' => [
                 'isPortalEnabled' => isPortalEnabled(),
+                'isPortalSiteAddressSet' => isPortalSiteAddressSet(),
                 'isPortalAllowed' => isPortalAllowed($pid),
                 'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
                 'isApiAllowed' => isApiAllowed($pid),
