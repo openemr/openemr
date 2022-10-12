@@ -395,7 +395,7 @@ class FhirOperationExportRestController
     private function getResultForResourceDocument($resource, \Document $document)
     {
         return [
-            'url' => $this->request->getApiBaseFullUrl() . '/fhir/Document/' . $document->get_id() . '/Binary'
+            'url' => $this->request->getApiBaseFullUrl() . '/fhir/Binary/' . $document->get_id()
             , "type" => $resource
         ];
     }

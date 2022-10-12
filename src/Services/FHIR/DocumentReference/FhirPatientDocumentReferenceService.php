@@ -134,11 +134,12 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 
         // populate the link to download the patient document
         if (!empty($dataRecord['uuid'])) {
-            $url = $this->getFhirApiURL() . '/fhir/Document/' . $dataRecord['uuid'] . '/Binary';
+            $url = $this->getFhirApiURL() . '/fhir/Binary/' . $dataRecord['uuid'];
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType($dataRecord['mimetype']);
             $attachment->setUrl(new FHIRUrl($url));
+            $attachment->setTitle($dataRecord['name'] ?? '');
             $content->setAttachment($attachment);
             // TODO: if we support tagging a specific document with a reference code we can put that here.
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code

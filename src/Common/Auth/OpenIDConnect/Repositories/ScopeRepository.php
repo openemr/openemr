@@ -333,6 +333,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "patient/AllergyIntolerance.read",
 //            "patient/AllergyIntolerance.write",
             "patient/Appointment.read",
+            "patient/Binary.read",
 //            "patient/Appointment.write",
             "patient/CarePlan.read",
             "patient/CareTeam.read",
@@ -343,7 +344,6 @@ class ScopeRepository implements ScopeRepositoryInterface
 //            "patient/Coverage.write",
             "patient/DiagnosticReport.read",
             "patient/Device.read",
-            "patient/Document.read",
             "patient/DocumentReference.read",
             'patient/DocumentReference.$docref', // generate or view most recent CCD for the selected patient
 //            "patient/DocumentReference.write",
@@ -381,6 +381,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/AllergyIntolerance.write",
             "user/Appointment.read",
             "user/Appointment.write",
+            "user/Binary.read",
             "user/CarePlan.read",
             "user/CareTeam.read",
             "user/Condition.read",
@@ -390,7 +391,6 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/Coverage.write",
             "user/Device.read",
             "user/DiagnosticReport.read",
-            "user/Document.read",
             "user/DocumentReference.read",
             "user/DocumentReference.write",
             'user/DocumentReference.$docref', // export CCD for any patient user has access to
@@ -438,6 +438,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/AllergyIntolerance.read",
 //            "system/AllergyIntolerance.write",
             "system/Appointment.read",
+            "system/Binary.read", // used for Bulk FHIR export downloads
 //            "system/Appointment.write",
             "system/CarePlan.read",
             "system/CareTeam.read",
@@ -447,7 +448,6 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/Coverage.read",
 //            "system/Coverage.write",
             "system/Device.read",
-            "system/Document.read", // used for Bulk FHIR export downloads
             "system/DocumentReference.read",
             'system/DocumentReference.$docref', // generate / view CCD for any patient in the system
             "system/DiagnosticReport.read",
@@ -705,7 +705,8 @@ class ScopeRepository implements ScopeRepositoryInterface
 
         $scopesEvent = new RestApiScopeEvent();
         $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_FHIR);
-        $scopesEvent->setScopes($scopesSupported);
+        $scopesSupportedList = $scopesSupported;
+        $scopesEvent->setScopes($scopesSupportedList);
 
         $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
 
@@ -776,11 +777,12 @@ class ScopeRepository implements ScopeRepositoryInterface
                 }
             }
         }
+        $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
         $scopes_api = array_merge($scopes_api, $scopes_api_portal);
 
         $scopesSupported = $this->apiScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
-        $scopesSupported = null;
+        $scopesSupported = null; // this is odd, why do we have this?
         // verify scope permissions are allowed for role being used.
         foreach ($scopes_api as $key => $scope) {
             if (empty($scopes_dict[$key])) {
@@ -789,10 +791,12 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesSupported[$key] = $scope;
         }
         asort($scopesSupported);
+        $serverScopes = $this->getServerScopes();
+        $scopesSupported = array_keys(array_merge($oidc, $serverScopes, $scopesSupported));
 
         $scopesEvent = new RestApiScopeEvent();
         $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_STANDARD);
-        $scopesSupportedList = array_keys($scopesSupported);
+        $scopesSupportedList = $scopesSupported;
         $scopesEvent->setScopes($scopesSupportedList);
 
         $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
