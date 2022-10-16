@@ -31,6 +31,10 @@
  * Template compiling class
  * @package Smarty
  */
+
+//This provides a cross-platform alternative to strftime() for when it will be removed from PHP.
+use function PHP81_BC\strftime;
+
 class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
     // internal vars

@@ -72,7 +72,8 @@
         "twig/twig": "3.4.1",
         "vlucas/phpdotenv": "5.4.1",
         "waryway/php-traits-library": "1.0.4",
-        "yubico/u2flib-server": "1.0.2"
+        "yubico/u2flib-server": "1.0.2",
+        "php81_bc/strftime": "^0.5.0"
     },
     "config": {
         "platform": {
