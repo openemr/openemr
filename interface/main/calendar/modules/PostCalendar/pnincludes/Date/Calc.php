@@ -28,6 +28,9 @@
  * @author Monte Ohrt <monte@ispi.net>
  */
 
+//This provides a cross-platform alternative to strftime() for when it will be removed from PHP.
+use function PHP81_BC\strftime;
+
 class Date_Calc
 {
     /**

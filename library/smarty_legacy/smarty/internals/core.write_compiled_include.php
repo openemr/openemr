@@ -13,6 +13,9 @@
  * @return boolean
  */
 
+//This provides a cross-platform alternative to strftime() for when it will be removed from PHP.
+use function PHP81_BC\strftime;
+
 function smarty_core_write_compiled_include($params, &$smarty)
 {
     $_tag_start = 'if \(\$this->caching && \!\$this->_cache_including\)\: echo \'\{nocache\:('.$params['cache_serial'].')#(\d+)\}\'; endif;';
