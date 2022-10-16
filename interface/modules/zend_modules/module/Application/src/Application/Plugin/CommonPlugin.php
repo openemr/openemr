@@ -127,6 +127,8 @@ class CommonPlugin extends AbstractPlugin
                     if (is_array($field_value)) {
                         if (!empty($field_value['status']) || !empty($field_value['enddate'])) {
                             $detail_query_array[] = trim($field_value['value'] ?? '') . "|" . trim($field_value['status'] ?? '') . "|" . trim($field_value['begdate'] ?? '');
+                        } elseif (stripos($field_name, 'encounter_diagnosis') !== false) {
+                            $detail_query_array[] = trim(implode('|', $field_value));
                         } else {
                             $detail_query_array[] = trim($field_value['value'] ?? '');
                         }

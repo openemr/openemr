@@ -264,10 +264,12 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         let uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
         // flash to let user know we're working.
         let f = document.getElementById('uploadFlash');
-        f.innerText = <?php echo js_escape(xlt("Starting Upload Process.")); ?>;
-        setInterval(function () {
-            f.style.display = (f.style.display == 'none' ? '' : 'none');
-        }, 500);
+        if (f) {
+            f.innerText = <?php echo xlj("Starting Upload Process."); ?>;
+            setInterval(function () {
+                f.style.display = (f.style.display == 'none' ? '' : 'none');
+            }, 500);
+        }
 
         for (let i = 0; i < files.length; i++) {
             let status = new createStatusbar(obj);

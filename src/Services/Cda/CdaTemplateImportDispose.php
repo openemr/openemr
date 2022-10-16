@@ -501,9 +501,7 @@ class CdaTemplateImportDispose
                 $value['provider_npi'] = CarecoordinationTable::NPI_SAMPLE;
             }
             if (!empty($value['provider_npi'])) {
-                $query_sel_users = "SELECT *
-                              FROM users
-                              WHERE abook_type='external_provider' AND npi=?";
+                $query_sel_users = "SELECT * FROM users WHERE npi=?";// abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
             }
             if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
@@ -519,9 +517,7 @@ class CdaTemplateImportDispose
                 $value['represented_organization_name'] = CarecoordinationTable::ORGANIZATION_SAMPLE;
             }
             if (!empty($value['represented_organization_name'])) {
-                $query_sel_fac = "SELECT *
-                            FROM users
-                            WHERE abook_type='external_org' AND organization=?";
+                $query_sel_fac = "SELECT * FROM users WHERE abook_type='external_org' AND organization=?";
                 $res_query_sel_fac = $appTable->zQuery($query_sel_fac, array($value['represented_organization_name']));
             }
             if (!empty($value['represented_organization_name']) && $res_query_sel_fac->count() > 0) {
@@ -571,12 +567,16 @@ class CdaTemplateImportDispose
             if (!empty($value['date_end']) && ($revapprove == 0 || $revapprove == 1)) {
                 $encounter_date_end = date("Y-m-d H:i:s", $this->str_to_time($value['date_end']));
             }
-            $diag_date = !empty($value['encounter_diagnosis_date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['encounter_diagnosis_date'])) : null;
-
+            $pc_catid = 5;
+            $reason = null;
+            if (!empty($value['code_text'] ?? null)) {
+                $cat = explode('|', $value['code_text'] ?? null);
+                $catname = trim($cat[0]);
+                $reason = trim($cat[1]);
+                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'];
+            }
             if (!empty($value['extension'])) {
-                $q_sel_encounter = "SELECT *
-                               FROM form_encounter
-                               WHERE external_id=? AND pid=?";
+                $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id=? AND pid=?";
                 $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, array($value['extension'], $pid));
             }
             if (empty($value['extension']) || $res_q_sel_encounter->count() === 0) {
@@ -593,10 +593,12 @@ class CdaTemplateImportDispose
                             discharge_disposition,
                             encounter_type_code,
                             encounter_type_description,
-                            date_end
+                            date_end,
+                            pc_catid
                            )
                            VALUES
                            (
+                            ?,
                             ?,
                             ?,
                             ?,
@@ -620,11 +622,12 @@ class CdaTemplateImportDispose
                         $facility_id,
                         $provider_id,
                         $value['extension'] ?? null,
-                        $value['code_text'] ?? null,
+                        $reason ?: ($value['code_text'] ?? null),
                         $value['encounter_discharge_code'] ?? null,
                         $value['code'] ?? null,
                         $value['code_text'] ?? null,
-                        $encounter_date_end ?? null
+                        $encounter_date_end ?? null,
+                        $pc_catid
                     )
                 );
                 $enc_id = $result->getGeneratedValue();
@@ -654,26 +657,31 @@ class CdaTemplateImportDispose
             $q_ins_forms = "INSERT INTO forms (date,encounter,form_name,form_id,pid,user,groupname,deleted,formdir) VALUES (?,?,?,?,?,?,?,?,?)";
             $appTable->zQuery($q_ins_forms, array($encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient'));
             if (!empty($value['encounter_diagnosis_code'])) {
-                $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
-                $result = $appTable->zQuery($query_select, array($diag_date, $value['encounter_diagnosis_issue'], $pid));
-                if ($result->count() > 0) {
-                    foreach ($result as $value1) {
-                        $list_id = $value1['id'];
+                $dcode = explode('|', $value['encounter_diagnosis_code']);
+                $dissue = explode('|', $value['encounter_diagnosis_issue']);
+                $ddate = explode('|', $value['encounter_diagnosis_date']);
+                foreach ($dcode as $k => $code) {
+                    $diag_date = !empty($ddate[$k]) ? date("Y-m-d H:i:s", $this->str_to_time($ddate[$k])) : null;
+                    $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
+                    $result = $appTable->zQuery($query_select, array($diag_date, $dissue[$k], $pid));
+                    if ($result->count() > 0) {
+                        foreach ($result as $value1) {
+                            $list_id = $value1['id'];
+                        }
+                    } else {
+                        //to lists
+                        $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis, subtype) VALUES (?,?,?,?,?,?,?,?)";
+                        $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', $diag_date, 1,
+                            $dissue[$k], date('Y-m-d H:i:s'), $code, 'encounter_diagnosis'));
+                        $list_id = $result->getGeneratedValue();
                     }
-                } else {
-                    //to lists
-                    $query_insert = "INSERT INTO lists(pid,type,begdate,activity,title,date, diagnosis, subtype) VALUES (?,?,?,?,?,?,?,?)";
-                    $result = $appTable->zQuery($query_insert, array($pid, 'medical_problem', $diag_date, 1,
-                        $value['encounter_diagnosis_issue'], date('Y-m-d H:i:s'), $value['encounter_diagnosis_code'], 'encounter_diagnosis'));
-                    $list_id = $result->getGeneratedValue();
-                }
-
-                //Linking issue with encounter
-                $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
-                $res_sel_iss_enc = $appTable->zQuery($q_sel_iss_enc, array($pid, $list_id, $encounter_id));
-                if ($res_sel_iss_enc->count() === 0) {
-                    $insert = "INSERT INTO issue_encounter(pid,list_id,encounter,resolved) VALUES (?,?,?,?)";
-                    $appTable->zQuery($insert, array($pid, $list_id, $encounter_id, 0));
+                    //Linking issue with encounter
+                    $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
+                    $res_sel_iss_enc = $appTable->zQuery($q_sel_iss_enc, array($pid, $list_id, $encounter_id));
+                    if ($res_sel_iss_enc->count() === 0) {
+                        $insert = "INSERT INTO issue_encounter(pid,list_id,encounter,resolved) VALUES (?,?,?,?)";
+                        $appTable->zQuery($insert, array($pid, $list_id, $encounter_id, 0));
+                    }
                 }
             }
             //to external_encounters
@@ -711,7 +719,7 @@ class CdaTemplateImportDispose
             if (!empty($value['provider_npi'])) {
                 $query_sel_users = "SELECT *
                               FROM users
-                              WHERE abook_type='external_provider' AND npi=?";
+                              WHERE npi=?";//abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
             }
             if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
@@ -972,7 +980,7 @@ class CdaTemplateImportDispose
             if (!empty($value['provider_npi'])) {
                 $query_sel_users = "SELECT *
                               FROM users
-                              WHERE abook_type='external_provider' AND npi=?";
+                              WHERE npi=?";// abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
             }
             if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
@@ -1327,6 +1335,8 @@ class CdaTemplateImportDispose
 
         if (!empty($value['provider_fname'])) {
             $value['provider_name'] = ($value['provider_fname'] ?? '') ?: 'External';
+        }
+        if (!empty($value['provider_lname'])) {
             $value['provider_family'] = ($value['provider_lname'] ?? '') ?: 'Provider';
         }
 

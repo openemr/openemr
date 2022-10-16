@@ -515,6 +515,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 $arr_immunization['immunization'][$a]['provider_npi'] = $newdata['immunization']['provider_npi'];
                 $arr_immunization['immunization'][$a]['provider_name'] = $newdata['immunization']['provider_name'];
+                $arr_immunization['immunization'][$a]['provider_family'] = $newdata['immunization']['provider_family'];
                 $arr_immunization['immunization'][$a]['provider_address'] = $newdata['immunization']['provider_address'];
                 $arr_immunization['immunization'][$a]['provider_city'] = $newdata['immunization']['provider_city'];
                 $arr_immunization['immunization'][$a]['provider_state'] = $newdata['immunization']['provider_state'];
@@ -1310,7 +1311,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_immunization['immunization'][$a]['completion_status'] = $data['immunization-completion_status'][$i];
 
                                 $arr_immunization['immunization'][$a]['provider_npi'] = $data['immunization-provider_npi'][$i];
-                                $arr_immunization['immunization'][$a]['provider_name'] = $data['immunization-provider_name'][$i];
+                                $arr_immunization['immunization'][$a]['provider_name'] = $data['immunization-provider_name'][$i] ?? '';
+                                $arr_immunization['immunization'][$a]['provider_family'] = $data['immunization-provider_family'][$i] ?? '';
                                 $arr_immunization['immunization'][$a]['provider_address'] = $data['immunization-provider_address'][$i];
                                 $arr_immunization['immunization'][$a]['provider_city'] = $data['immunization-provider_city'][$i];
                                 $arr_immunization['immunization'][$a]['provider_state'] = $data['immunization-provider_state'][$i];
@@ -1656,7 +1658,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 //provider
                                 $query_sel_users = "SELECT *
                                                       FROM users
-                                                      WHERE abook_type='external_provider' AND npi=?";
+                                                      WHERE npi=?";// abook_type='external_provider' AND
                                 $res_query_sel_users = $appTable->zQuery($query_sel_users, array($data['lists3-provider_npi-con'][$i]));
                                 if ($res_query_sel_users->count() > 0) {
                                     foreach ($res_query_sel_users as $value1) {
