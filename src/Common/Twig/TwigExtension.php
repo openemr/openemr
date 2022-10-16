@@ -282,7 +282,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter(
                 'dateToTime',
                 function ($str) {
-                    return strtotime($str);
+                    // when there's zeros in the form_vitals entry, it's a date of "00000000000000"
+                    if ($str !== "00000000000000") {
+                        return strtotime($str);
+                    }
+                    return strtotime("now");
                 }
             )
         ];
