@@ -213,10 +213,8 @@ function endPatient($ptrow)
         echo sprintf("%08.0f", $pt_balance * 100);
         echo sprintf("%-9s\n", " ");
 
-        if (!$_POST['form_without']) {
-            sqlStatement("UPDATE patient_data SET " .
-            "billing_note = CONCAT('IN COLLECTIONS " . date("Y-m-d") . "', billing_note) " .
-            "WHERE pid = ? ", array($ptrow['pid']));
+        if (empty($_POST['form_without'])) {
+            sqlStatement("UPDATE form_encounter SET in_collection = 1 WHERE encounter = ?", array($ptrow['encounter']));
         }
 
         $export_patient_count += 1;
@@ -1352,7 +1350,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         echo "</textarea>\n";
         $alertmsg .= "$export_patient_count patients with a total of " .
         oeFormatMoney($export_dollars) . " have been exported ";
-        if ($_POST['form_without']) {
+        if ($_POST['form_without'] ?? null) {
             $alertmsg .= "but NOT flagged as in collections.";
         } else {
             $alertmsg .= "AND flagged as in collections.";
