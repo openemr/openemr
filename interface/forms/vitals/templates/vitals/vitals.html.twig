@@ -51,7 +51,7 @@
         {% endif %}
         <div class="col-sm-12">
             <form id="vitalsForm" name="vitals" method="post" action="{{ FORM_ACTION|attr }}/interface/forms/vitals/save.php">
-                <input class='form-control col-2' type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
+                <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
                 <div class="row">
                     <div class="col-md-auto p-3 font-weight-bold text-right">
                         <label for="date">{{ "Date"|xlt }}</label>
