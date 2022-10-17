@@ -403,7 +403,7 @@ function convertpoint($coord)
 }
 
 
-if ($_GET['html'] == 1) {
+if ($_GET['html'] ?? null == 1) {
     //build the html css page if selected
     cssHeader();
     cssPage($chartCss1, $chartCss2);
@@ -455,24 +455,24 @@ if ($_GET['html'] == 1) {
         $x = $dot_x + $delta_x * ($age - $ageOffset);
 
         // Draw Height dot
-        $y1 = $dot_y1 - $delta_y1 * ($height - $heightOffset);
+        $y1 = $dot_y1 - $delta_y1 * ((int) $height - $heightOffset);
         $point = convertpoint(array($x,$y1));
         echo("<div id='" . attr($point[2]) . "' class='graphic' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'><img src='reddot.gif' /></div>\n");
 
         // Draw Weight bullseye
-        $y2 = $dot_y2 - $delta_y2 * ($weight - $weightOffset);
+        $y2 = $dot_y2 - $delta_y2 * ((int) $weight - $weightOffset);
         $point = convertpoint(array($x,$y2));
         echo("<div id='" . attr($point[2]) . "' class='graphic' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'><img src='redbox.gif' /></div>\n");
 
         if ($charttype == "birth") {
             // Draw Head circumference
             $HC_x = $HC_dot_x + $HC_delta_x * $age;
-            $HC_y = $HC_dot_y - $HC_delta_y * ($head_circ - 11);
+            $HC_y = $HC_dot_y - $HC_delta_y * ((int) $head_circ - 11);
             $point = convertpoint(array($HC_x,$HC_y));
             echo("<div id='" . attr($point[2]) . "' class='graphic' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'><img src='bluedot.gif' /></div>\n");
             // Draw Wt and Ht graph at the bottom half
-            $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
-            $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
+            $WT = $WT_y - $WT_delta_y * ((int) $weight - $WToffset);
+            $HT = $HT_x + $HT_delta_x * ((int) $height - $HToffset);
             $point = convertpoint(array($HT,$WT));
             echo("<div id='" . attr($point[2]) . "' class='graphic' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'><img src='reddot.gif' /></div>\n");
         } elseif ($charttype == "2-20") {
@@ -609,22 +609,22 @@ foreach ($datapoints as $data) {
     $x = $dot_x + $delta_x * ($age - $ageOffset);
 
     // Draw Height dot
-    $y1 = $dot_y1 - $delta_y1 * ($height - $heightOffset);
+    $y1 = $dot_y1 - $delta_y1 * ((int) $height - $heightOffset);
     imagefilledellipse($im, $x, $y1, 10, 10, $color);
 
     // Draw Weight bullseye
-    $y2 = $dot_y2 - $delta_y2 * ($weight - $weightOffset);
+    $y2 = $dot_y2 - $delta_y2 * ((int) $weight - $weightOffset);
     imageellipse($im, $x, $y2, 12, 12, $color); // outter ring
     imagefilledellipse($im, $x, $y2, 5, 5, $color); //center dot
 
     if ($charttype == "birth") {
         // Draw Head circumference
         $HC_x = $HC_dot_x + $HC_delta_x * $age;
-        $HC_y = $HC_dot_y - $HC_delta_y * ($head_circ - 11);
+        $HC_y = $HC_dot_y - $HC_delta_y * ((int) $head_circ - 11);
         imagefilledellipse($im, $HC_x, $HC_y, 10, 10, $color1);
         // Draw Wt and Ht graph at the bottom half
-        $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
-        $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
+        $WT = $WT_y - $WT_delta_y * ((int) $weight - $WToffset);
+        $HT = $HT_x + $HT_delta_x * ((int) $height - $HToffset);
         imagefilledellipse($im, $HT, $WT, 10, 10, $color);
     } elseif ($charttype == "2-20") {
         // Draw BMI
