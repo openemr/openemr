@@ -231,3 +231,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfMissingColumn layout_group_properties grp_unchecked
 ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
 #EndIf
+
+#IfMissingColumn form_encounter in_collection
+ALTER TABLE `form_encounter` ADD `in_collection` tinyint(1) DEFAULT NULL;
+#EndIf

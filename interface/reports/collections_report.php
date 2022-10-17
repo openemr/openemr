@@ -749,7 +749,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
     # added provider from encounter to the query (TLH)
     $query = "SELECT f.id, f.date, f.pid, CONCAT(w.lname, ', ', w.fname) AS provider_id, f.encounter, f.last_level_billed, " .
-      "f.last_level_closed, f.last_stmt_date, f.stmt_count, f.invoice_refno, " .
+      "f.last_level_closed, f.last_stmt_date, f.stmt_count, f.invoice_refno, f.in_collection, " .
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
       "p.postal_code, p.phone_home, p.ss, p.billing_note, " .
       "p.pubpid, p.DOB, CONCAT(u.lname, ', ', u.fname) AS referrer, " .
@@ -865,6 +865,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $row['provider']  = $erow['provider_id'];
         $row['irnumber']  = $erow['invoice_refno'];
         $row['bill_date'] = $erow['bill_date'];  // use this for ins_due claim age date
+        $row['in_collection'] = $erow['in_collection'];
 
         // Also get the primary insurance company name whenever there is one.
         $row['ins1'] = '';
@@ -1162,7 +1163,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         }
 
         if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport']) {
-            $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
+            $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false
+                || $row['in_collection'] == 1;
             ?>
        <tr bgcolor='<?php echo attr($bgcolor) ?>'>
             <?php
