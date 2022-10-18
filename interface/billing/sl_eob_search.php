@@ -1028,7 +1028,7 @@ if (
                             // Notes that as of release 4.1.1 the copays are stored
                             // in the ar_activity table marked with a PCP in the account_code column.
                             $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
-                            "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
+                            "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, f.in_collection, " .
                             "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
                             "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
                             "b.pid = f.pid AND b.encounter = f.encounter AND " .
@@ -1098,7 +1098,8 @@ if (
                                 // Determine if customer is in collections.
                                 //
                                 $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false
+                                    || $row['in_collection'] == 1;
 
                                 // $duncount was originally supposed to be the number of times that
                                 // the patient was sent a statement for this invoice.

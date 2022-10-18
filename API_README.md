@@ -67,13 +67,13 @@ This is a listing of scopes:
 - `api:fhir` (fhir which are the /fhir/ endpoints)
   - `patient/AllergyIntolerance.read`
   - `patient/Appointment.read`
+  - `patient/Binary.read`
   - `patient/CarePlan.read`
   - `patient/CareTeam.read`
   - `patient/Condition.read`
   - `patient/Coverage.read`
   - `patient/Device.read`
   - `patient/DiagnosticReport.read`
-  - `patient/Document.read`
   - `patient/DocumentReference.read`
   - `patient/DocumentReference.$docref`
   - `patient/Encounter.read`
@@ -90,13 +90,13 @@ This is a listing of scopes:
   - `patient/Procedure.read`
   - `patient/Provenance.read`
   - `system/AllergyIntolerance.read`
+  - `system/Binary.read`
   - `system/CarePlan.read`
   - `system/CareTeam.read`
   - `system/Condition.read`
   - `system/Coverage.read`
   - `system/Device.read`
   - `system/DiagnosticReport.read`
-  - `system/Document.read`
   - `system/DocumentReference.read`
   - `system/DocumentReference.$docref`
   - `system/Encounter.read`
@@ -119,13 +119,13 @@ This is a listing of scopes:
   - `system/*.$bulkdata-status`
   - `system/*.$export`
   - `user/AllergyIntolerance.read`
+  - `user/Binary.read`
   - `user/CarePlan.read`
   - `user/CareTeam.read`
   - `user/Condition.read`
   - `user/Coverage.read`
   - `user/Device.read`
   - `user/DiagnosticReport.read`
-  - `user/Document.read`
   - `user/DocumentReference.read`
   - `user/DocumentReference.$docref`
   - `user/Encounter.read`

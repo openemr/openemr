@@ -2428,8 +2428,8 @@ function generate_display_field($frow, $currvalue)
     $list_id    = $frow['list_id'];
     $backup_list = isset($frow['list_backup_id']) ? $frow['list_backup_id'] : null;
     $show_unchecked_arr = array();
-    getLayoutProperties($frow['form_id'], $show_unchecked_arr, 'grp_unchecked', "1");
-    $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked']) == "0" ? false : true;
+    getLayoutProperties($frow['form_id'] ?? null, $show_unchecked_arr, 'grp_unchecked', "1");
+    $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked'] ?? null) == "0" ? false : true;
 
     $s = '';
 

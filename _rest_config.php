@@ -373,9 +373,15 @@ class RestConfig
             exit();
         }
         // let the capability statement for FHIR or the SMART-on-FHIR through
+        $resource = str_replace('/' . self::$SITE, '', $resource);
         if (
-            $resource === ("/" . self::$SITE . "/fhir/metadata") ||
-            $resource === ("/" . self::$SITE . "/fhir/.well-known/smart-configuration")
+            // TODO: @adunsulag we need to centralize our auth skipping logic... as we have this duplicated in HttpRestRouteHandler
+            // however, at the point of this method we don't have the resource identified and haven't gone through our parsing
+            // routine to handle that logic...
+            $resource === ("/fhir/metadata") ||
+            $resource === ("/fhir/.well-known/smart-configuration") ||
+            // skip list and single instance routes
+            0 === strpos("/fhir/OperationDefinition", $resource)
         ) {
             return true;
         } else {

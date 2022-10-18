@@ -55,6 +55,7 @@
         "phpmailer/phpmailer": "6.6.2",
         "phpoffice/phpspreadsheet": "1.23.0",
         "phpseclib/phpseclib": "2.0.37",
+        "php81_bc/strftime": "0.5.0",
         "psr/log": "1.1.4",
         "ramsey/uuid": "4.2.3",
         "robthree/twofactorauth": "1.8.2",
