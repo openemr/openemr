@@ -202,6 +202,10 @@ class SQLUpgradeService
      *  desc: Change Layout edit options.
      *  arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
      *
+     * #IfVitalsDatesNeeded
+     *  desc: Change date from zeroes to date of vitals form creation.
+     *  arguments: none
+     *
      * #EndIf
      *   all blocks are terminated with a #EndIf statement.
      *
@@ -632,6 +636,23 @@ class SQLUpgradeService
                 }
             } elseif (preg_match('/^#IfUpdateEditOptionsNeeded\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
                 $skipping = $this->updateLayoutEditOptions($matches[1], $matches[2], $matches[3], $matches[4]);
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
+            } elseif (preg_match('/^#IfVitalsDatesNeeded/', $line)) {
+                $emptyDates = sqlStatementNoLog("SELECT fv.id as vitals_id, f.date as new_date FROM form_vitals fv LEFT JOIN forms f on fv.id = f.form_id WHERE fv.date = '0000-00-00 00:00:00' AND f.form_name = 'Vitals'");
+                if (sqlNumRows($emptyDates) > 0) {
+                    $this->echo("<p>Converting empty vital dates.</p>\n");
+                    $this->flush_echo();
+                    while ($row = sqlFetchArray($emptyDates)) {
+                        sqlStatementNoLog("UPDATE `form_vitals` SET `date` = ? WHERE `id` = ?", [$row['new_date'], $row['vitals_id']]);
+                    }
+                    $this->echo("<p class='text-success'>Completed conversion of empty vital dates</p>\n");
+                    $this->flush_echo();
+                    $skipping = false;
+                } else {
+                    $skipping = true;
+                }
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }

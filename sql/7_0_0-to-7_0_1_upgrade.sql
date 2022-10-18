@@ -105,6 +105,10 @@
 --    desc: Change Layout edit options.
 --    arguments: mode(add or remove) layout_form_id the_edit_option comma_separated_list_of_field_ids
 
+--  #IfVitalsDatesNeeded
+--    desc: Change date from zeroes to date of vitals form creation.
+--    arguments: none
+
 #IfNotTable questionnaire_repository
 CREATE TABLE `questionnaire_repository` (
     `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -230,4 +234,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 #IfMissingColumn layout_group_properties grp_unchecked
 ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfVitalsDatesNeeded
 #EndIf
