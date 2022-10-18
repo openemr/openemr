@@ -35,13 +35,13 @@
  *              "api:fhir": "FHIR R4 API",
  *              "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
  *              "patient/Appointment.read": "Read appointment resources for the current patient (api:fhir)",
+ *              "patient/Binary.read": "Read binary document resources for the current patient (api:fhir)",
  *              "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
  *              "patient/CareTeam.read": "Read care team resources for the current patient (api:fhir)",
  *              "patient/Condition.read": "Read condition resources for the current patient (api:fhir)",
  *              "patient/Coverage.read": "Read coverage resources for the current patient (api:fhir)",
  *              "patient/Device.read": "Read device resources for the current patient (api:fhir)",
  *              "patient/DiagnosticReport.read": "Read diagnostic report resources for the current patient (api:fhir)",
- *              "patient/Document.read": "Read document resources for the current patient (api:fhir)",
  *              "patient/DocumentReference.read": "Read document reference resources for the current patient (api:fhir)",
  *              "patient/DocumentReference.$docref" : "Generate a document for the current patient or returns the most current Clinical Summary of Care Document (CCD)",
  *              "patient/Encounter.read": "Read encounter resources for the current patient (api:fhir)",
@@ -58,13 +58,13 @@
  *              "patient/Procedure.read": "Read procedure resources for the current patient (api:fhir)",
  *              "patient/Provenance.read": "Read provenance resources for the current patient (api:fhir)",
  *              "system/AllergyIntolerance.read": "Read all allergy intolerance resources in the system (api:fhir)",
+ *              "system/Binary.read": "Read all binary document resources in the system (api:fhir)",
  *              "system/CarePlan.read": "Read all care plan resources in the system (api:fhir)",
  *              "system/CareTeam.read": "Read all care team resources in the system (api:fhir)",
  *              "system/Condition.read": "Read all condition resources in the system (api:fhir)",
  *              "system/Coverage.read": "Read all coverage resources in the system (api:fhir)",
  *              "system/Device.read": "Read all device resources in the system (api:fhir)",
  *              "system/DiagnosticReport.read": "Read all diagnostic report resources in the system (api:fhir)",
- *              "system/Document.read": "Read all document resources in the system (api:fhir)",
  *              "system/DocumentReference.read": "Read all document reference resources in the system (api:fhir)",
  *              "system/DocumentReference.$docref" : "Generate a document for any patient in the system or returns the most current Clinical Summary of Care Document (CCD)",
  *              "system/Encounter.read": "Read all encounter resources in the system (api:fhir)",
@@ -83,13 +83,13 @@
  *              "system/Procedure.read": "Read all procedure resources in the system (api:fhir)",
  *              "system/Provenance.read": "Read all provenance resources in the system (api:fhir)",
  *              "user/AllergyIntolerance.read": "Read all allergy intolerance resources the user has access to (api:fhir)",
+ *              "user/Binary.read" : "Read all binary documents the user has access to (api:fhir)",
  *              "user/CarePlan.read": "Read all care plan resources the user has access to (api:fhir)",
  *              "user/CareTeam.read": "Read all care team resources the user has access to (api:fhir)",
  *              "user/Condition.read": "Read all condition resources the user has access to (api:fhir)",
  *              "user/Coverage.read": "Read all coverage resources the user has access to (api:fhir)",
  *              "user/Device.read": "Read all device resources the user has access to (api:fhir)",
  *              "user/DiagnosticReport.read": "Read all diagnostic report resources the user has access to (api:fhir)",
- *              "user/Document.read" : "Read all documents the user has access to (api:fhir)",
  *              "user/DocumentReference.read": "Read all document reference resources the user has access to (api:fhir)",
  *              "user/DocumentReference.$docref" : "Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)",
  *              "user/Encounter.read": "Read all encounter resources the user has access to (api:fhir)",
@@ -7094,6 +7094,7 @@ use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -8732,7 +8733,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                          {
      *                              "attachment": {
      *                                  "contentType": "image/gif",
-     *                                  "url": "https://localhost:9300/apis/default/fhir/Document/7/Binary"
+     *                                  "url": "https://localhost:9300/apis/default/fhir/Binary/7"
      *                              },
      *                              "format": {
      *                                  "system": "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
@@ -8775,7 +8776,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
-     *      path="/fhir/Document/{id}/Binary",
+     *      path="/fhir/Binary/{id}",
      *      description="Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
@@ -8802,15 +8803,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /fhir/Document/:id/Binary' => function ($documentId, HttpRestRequest $request) {
-        // TODO: @adunsulag we need to be able to retrieve our CCDA documents this way...
-        // currently only allow users with the same permissions as export to take a file out
-        // this could be relaxed to allow other types of files ie such as patient access etc.
-        RestConfig::authorization_check("admin", "users");
-
-        // Grab the document id
+    'GET /fhir/Binary/:id' => function ($documentId, HttpRestRequest $request) {
         $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
-        $response = $docController->downloadDocument($documentId);
+
+        if ($request->isPatientRequest()) {
+            $response = $docController->downloadDocument($documentId, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "users");
+            $response = $docController->downloadDocument($documentId);
+        }
+
         return $response;
     },
 
@@ -11584,8 +11586,20 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *  )
      */
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
-        $return = (new FhirPersonRestController())->getOne($uuid);
+        // if the api user is requesting their own user we need to let it through
+        // this is because the /Person endpoint needs to be responsive to the fhirUser return value
+        // for the currently logged in user
+        if ($request->getRequestUserUUIDString() == $uuid) {
+            $return = (new FhirPersonRestController())->getOne($uuid);
+        } else if (!$request->isPatientRequest()) {
+            // not a patient ,make sure we have access to the users ACL
+            RestConfig::authorization_check("admin", "users");
+            $return = (new FhirPersonRestController())->getOne($uuid);
+        } else {
+            // if we are a patient bound request we need to make sure we are only bound to the patient
+            $return = (new FhirPersonRestController())->getOne($uuid, $request->getPatientUUIDString());
+        }
+
         RestConfig::apiLog($return);
         return $return;
     },
@@ -12537,6 +12551,87 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/.well-known/smart-configuration" => function () {
         $authController = new \OpenEMR\RestControllers\AuthorizationController();
         $return = (new \OpenEMR\RestControllers\SMART\SMARTConfigurationController($authController))->getConfig();
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/OperationDefinition",
+     *      description="Returns a list of the OperationDefinition resources that are specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Response(
+     *          response="200",
+     *          description="Return list of OperationDefinition resources"
+     *      )
+     *  )
+     */
+    "GET /fhir/OperationDefinition" => function (HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
+        $return = $operationDefinitionController->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/OperationDefinition/{operation}",
+     *      description="Returns a single OperationDefinition resource that is specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="operation",
+     *          in="path",
+     *          description="The name of the operation to query. For example $bulkdata-status",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "resourceType": "OperationDefinition",
+     *                      "name": "$bulkdata-status",
+     *                      "status": "active",
+     *                      "kind": "operation",
+     *                      "parameter": {
+     *                      {
+     *                          "name": "job",
+     *                          "use": "in",
+     *                          "min": 1,
+     *                          "max": 1,
+     *                          "type": {
+     *                              "system": "http://hl7.org/fhir/data-types",
+     *                              "code": "string",
+     *                              "display": "string"
+     *                          },
+     *                          "searchType": {
+     *                              "system": "http://hl7.org/fhir/ValueSet/search-param-type",
+     *                              "code": "string",
+     *                              "display": "string"
+     *                          }
+     *                      }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *  )
+     */
+    "GET /fhir/OperationDefinition/:operation" => function ($operation, HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
+        $return = $operationDefinitionController->getOne($operation);
         RestConfig::apiLog($return);
         return $return;
     },

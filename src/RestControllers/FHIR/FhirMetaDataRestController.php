@@ -11,9 +11,11 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCapabilityStatementKind;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
 use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\AuthorizationController;
@@ -40,26 +42,35 @@ class FhirMetaDataRestController
     private $fhirService;
     private $fhirValidate;
     private $restHelper;
+    /**
+     * @var \RestConfig
+     */
+    private $restConfig;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirValidate = new FhirValidationService();
-        $this->restHelper = new RestControllerHelper();
+        $gbl = \RestConfig::GetInstance();
+        $this->restHelper = new RestControllerHelper($gbl::$apisBaseFullUrl . "/fhir");
+        $this->restConfig = $gbl;
     }
 
     protected function buildCapabilityStatement(): FHIRCapabilityStatement
     {
-        $gbl = \RestConfig::GetInstance();
+        $gbl = $this->restConfig;
         $routes = $gbl::$FHIR_ROUTE_MAP;
         $serverRoot = $gbl::$webserver_root;
         $capabilityStatement = new FHIRCapabilityStatement();
-        $capabilityStatement->setStatus("active");
+        $pubStatus = new FHIRPublicationStatus();
+        $pubStatus->setValue("active");
+        $capabilityStatement->setStatus($pubStatus);
         $fhirVersion = new FHIRFHIRVersion();
         $fhirVersion->setValue("4.0.1");
         $capabilityStatement->setFhirVersion($fhirVersion);
-        $capabilityStatement->setKind("instance");
-        $capabilityStatement->setStatus("Not provided");
+        $kind = new FHIRCapabilityStatementKind();
+        $kind->setValue("instance");
+        $capabilityStatement->setKind($kind);
         $capabilityStatement->addFormat(new FHIRCode("application/json"));
         $resturl = new FHIRUrl();
         $resturl->setValue($gbl::$apisBaseFullUrl . "/fhir");
@@ -143,7 +154,7 @@ class FhirMetaDataRestController
         $statement->addExtension($oauthExtension);
 
         // now add our SMART capabilities
-        foreach (Capability::SUPPORTED_CAPABILITIES as $smartCapability) {
+        foreach (Capability::FHIR_SUPPORTED_CAPABILITIES as $smartCapability) {
             $extension = new FHIRExtension();
             $fhirCode = new FHIRCode($smartCapability);
             $extension->setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
