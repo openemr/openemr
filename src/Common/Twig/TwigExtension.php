@@ -282,12 +282,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter(
                 'dateToTime',
                 function ($str) {
-                    // handle vestigial dates of 0000-00-00 00:00:00
-                    if ((strtotime($str)) <= 0) {
-                        return strtotime('now');
-                    } else {
-                        return strtotime($str);
-                    }
+                    return strtotime($str);
                 }
             )
         ];
