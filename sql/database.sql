@@ -1883,6 +1883,7 @@ CREATE TABLE `form_encounter` (
   `encounter_type_description` TEXT,
   `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit',
   `date_end` DATETIME DEFAULT NULL,
+  `in_collection` tinyint(1) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),

@@ -40,6 +40,7 @@ $mode = $_POST['mode'] ?? null;
 $referral_source = $_POST['form_referral_source'] ?? null;
 $class_code = $_POST['class_code'] ?? null;
 $pos_code = $_POST['pos_code'] ?? null;
+$in_collection = $_POST['in_collection'] ?? null;
 $parent_enc_id = $_POST['parent_enc_id'] ?? null;
 $encounter_provider = $_POST['provider_id'] ?? null;
 $referring_provider_id = $_POST['referring_provider_id'] ?? null;
@@ -103,7 +104,8 @@ if ($mode == 'new') {
                 discharge_disposition = ?,
                 referring_provider_id = ?,
                 encounter_type_code = ?,
-                encounter_type_description = ?",
+                encounter_type_description = ?,
+                in_collection = ?",
             [
                 $date,
                 $onset_date,
@@ -124,7 +126,8 @@ if ($mode == 'new') {
                 $discharge_disposition,
                 $referring_provider_id,
                 $encounter_type_code,
-                $encounter_type_description
+                $encounter_type_description,
+                $in_collection
             ]
         ),
         "newpatient",
@@ -164,6 +167,7 @@ if ($mode == 'new') {
         $referring_provider_id,
         $encounter_type_code,
         $encounter_type_description,
+        $in_collection,
         $id
     );
     sqlStatement(
@@ -183,7 +187,8 @@ if ($mode == 'new') {
             discharge_disposition = ?,
             referring_provider_id = ?,
             encounter_type_code = ?,
-            encounter_type_description = ?
+            encounter_type_description = ?,
+            in_collection = ?
             WHERE id = ?",
         $sqlBindArray
     );
