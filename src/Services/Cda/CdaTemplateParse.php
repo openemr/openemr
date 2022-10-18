@@ -53,6 +53,7 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.22.2.60' => 'carePlan',
             '2.16.840.1.113883.10.20.22.2.58' => 'carePlan',
             '2.16.840.1.113883.10.20.22.2.14' => 'functionalCognitiveStatus',
+            '2.16.840.1.113883.10.20.22.2.56' => 'functionalCognitiveStatus',
             '1.3.6.1.4.1.19376.1.5.3.1.3.1' => 'referral',
             '2.16.840.1.113883.10.20.22.2.11.1' => 'dischargeMedications',
             '2.16.840.1.113883.10.20.22.2.41' => 'dischargeSummary'
@@ -61,7 +62,7 @@ class CdaTemplateParse
         foreach ($components as $component) {
             if (!empty($component['section']['templateId']['root'])) {
                 if (!empty($components_oids[$component['section']['templateId']['root']])) {
-                    $this->currentOid = '';
+                    $this->currentOid = $component['section']['templateId']['root'];
                     $func_name = $components_oids[$component['section']['templateId']['root']];
                     $this->$func_name($component);
                 }
@@ -72,6 +73,7 @@ class CdaTemplateParse
                 $this->currentOid = '';
                 foreach ($component['section']['templateId'] as $key_1 => $value_1) {
                     if (!empty($components_oids[$component['section']['templateId'][$key_1]['root']])) {
+                        $this->currentOid = $component['section']['templateId'][$key_1]['root'];
                         $func_name = $components_oids[$component['section']['templateId'][$key_1]['root']];
                         $this->$func_name($component);
                         break;
@@ -1217,17 +1219,19 @@ class CdaTemplateParse
 
     public function carePlan($component)
     {
-        $component['section']['text'] = '';
+        if ($this->currentOid != '2.16.840.1.113883.10.20.22.2.58') {
+            $component['section']['text'] = null;
+        }
         if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
-                $this->fetchCarePlanData($value);
+                $this->fetchCarePlanData($value, $component['section']['text']);
             }
         } else {
-            $this->fetchCarePlanData($component['section']['entry'] ?? null);
+            $this->fetchCarePlanData($component['section']['entry'] ?? null, $component['section']['text']);
         }
     }
 
-    public function fetchCarePlanData($entry)
+    public function fetchCarePlanData($entry, $section_text = '')
     {
         $plan_type = 'plan_of_care';
         if ($this->currentOid == '2.16.840.1.113883.10.20.24.3.31') {
@@ -1268,7 +1272,7 @@ class CdaTemplateParse
             );
 
             $this->templateData['field_name_value_array']['care_plan'][$i]['plan_type'] = $plan_type;
-            $this->templateData['field_name_value_array']['care_plan'][$i]['extension'] = $entry['act']['templateId']['root'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['extension'] = $entry['act']['templateId']['extension'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['root'] = $entry['act']['templateId']['root'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['code_text'] = $code['code_text'];
@@ -1311,7 +1315,7 @@ class CdaTemplateParse
                 $code['code_text'] = $entry['act']['text'] ?? '';
             }
             $this->templateData['field_name_value_array']['care_plan'][$i]['plan_type'] = $plan_type;
-            $this->templateData['field_name_value_array']['care_plan'][$i]['extension'] = $entry['act']['templateId']['root'] ?? '';
+            $this->templateData['field_name_value_array']['care_plan'][$i]['extension'] = $entry['act']['templateId']['extension'] ?? '';
             $this->templateData['field_name_value_array']['care_plan'][$i]['root'] = $entry['act']['templateId']['root'] ?? '';
             $this->templateData['field_name_value_array']['care_plan'][$i]['code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['code_text'] = $code['code_text'];
@@ -1351,12 +1355,23 @@ class CdaTemplateParse
                 $code['code_text'] = $entry['observation']['text'] ?? '';
             }
             $this->templateData['field_name_value_array']['care_plan'][$i]['plan_type'] = $plan_type;
-            $this->templateData['field_name_value_array']['care_plan'][$i]['extension'] = $entry['observation']['templateId']['root'];
-            $this->templateData['field_name_value_array']['care_plan'][$i]['root'] = $entry['observation']['templateId']['root'];
+            $this->templateData['field_name_value_array']['care_plan'][$i]['extension'] = $entry['observation']['id']['extension'] ?? null;
+            $this->templateData['field_name_value_array']['care_plan'][$i]['root'] = $entry['observation']['id']['root'] ?? null;
             $this->templateData['field_name_value_array']['care_plan'][$i]['code'] = $code['formatted_code'];
             $this->templateData['field_name_value_array']['care_plan'][$i]['code_text'] = $code['code_text'];
-            $this->templateData['field_name_value_array']['care_plan'][$i]['description'] = $entry['observation']['text'] ?? $code['code_text'];
-            $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['observation']['author']['time']['value'] ?? null;
+
+            $text = $section_text ?: ($entry['observation']['text'] ?? null);
+            if (empty($text)) {
+                if ($entry['observation']['value']['type'] == 'ST') {
+                    $text = $entry['observation']['value']['_'];
+                } elseif ($entry['observation']['value']['type'] == 'CO') {
+                    $text = $entry['observation']['value']['displayName'];
+                }
+            }
+            $this->templateData['field_name_value_array']['care_plan'][$i]['description'] = $text ?: ($code['code_text'] ?? null);
+            // TODO unsure why the author was used for plan date just be aware
+            //$this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['observation']['author']['time']['value'] ?? null;
+            $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = $entry['observation']['effectiveTime']['value'] ?? $entry['observation']['author']['time']['value'] ?? null;
 
             // check for a reason code if observation.
             if ($entry['observation']['entryRelationship']['observation']['value']['code']) {
@@ -1439,18 +1454,28 @@ class CdaTemplateParse
 
     public function functionalCognitiveStatus($component)
     {
-        $component['section']['text'] = '';
+        if ($this->currentOid != '2.16.840.1.113883.10.20.22.2.56') {
+            $component['section']['text'] = '';
+        }
+        $ccnt = 0;
         if ($component['section']['entry'][0]) {
             foreach ($component['section']['entry'] as $key => $value) {
-                $this->fetchFunctionalCognitiveStatusData($value);
+                $this->fetchFunctionalCognitiveStatusData($value, $component['section']['text'][$ccnt]);
+                $ccnt++;
             }
         } else {
-            $this->fetchFunctionalCognitiveStatusData($component['section']['entry']);
+            $this->fetchFunctionalCognitiveStatusData($component['section']['entry'], $component['section']['text']);
         }
     }
 
-    public function fetchFunctionalCognitiveStatusData($entry)
+    public function fetchFunctionalCognitiveStatusData($entry, $section_text = null)
     {
+        $cognitive = '0';
+
+        if ($this->currentOid == '2.16.840.1.113883.10.20.22.2.56') {
+            $cognitive = '1';
+            return;
+        }
         if (!empty($entry['observation']['value']['code'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['functional_cognitive_status'])) {
@@ -1462,14 +1487,42 @@ class CdaTemplateParse
                 $value['observation']['value']['codeSystemName'] ?? $value['observation']['code']['codeSystem'] ?? '',
                 $value['observation']['value']['displayName'] ?? ''
             );
-
+            $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['cognitive'] = $cognitive;
             $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['extension'] = $entry['observation']['id']['extension'];
             $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['root'] = $entry['observation']['id']['root'];
             $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['date'] = $entry['observation']['effectiveTime']['low']['value'];
             $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['code'] = $code['formatted_code'];
-            $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['code_text'] = $code['code_text'];
-            $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['description'] = $code['code_text'];
+            $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['code_text'] = $section_text ?: $code['code_text'];
+            $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['description'] = $section_text ?: $code['code_text'];
             $this->templateData['entry_identification_array']['functional_cognitive_status'][$i] = $i;
+        } elseif (!empty($entry['organizer']['code']['code'])) {
+            // a CCDA template
+            $i = 1;
+            if (!empty($this->templateData['field_name_value_array']['functional_cognitive_status'])) {
+                $i += count($this->templateData['field_name_value_array']['functional_cognitive_status']);
+            }
+
+            foreach ($entry['organizer']['component'] as $k => $fscomponent) {
+                // patient self-status @todo why am I sending an independent status by default.
+                if (($fscomponent["observation"]["templateId"]["root"] ?? null) == "2.16.840.1.113883.10.20.22.4.128") {
+                    continue;
+                }
+                $code = $this->codeService->resolveCode(
+                    $fscomponent['observation']['value']['code'] ?? null,
+                    $fscomponent['observation']['value']['codeSystem'] ?? '',
+                    $fscomponent['observation']['value']['displayName'] ?? ''
+                );
+
+                $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['cognitive'] = $cognitive;
+                $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['extension'] = $fscomponent['observation']['id']['extension'];
+                $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['root'] = $fscomponent['observation']['id']['root'];
+                $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['date'] = $fscomponent['observation']['effectiveTime']['value'];
+                $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['code'] = $fscomponent['observation']['value']['code'] ?? $code['formatted_code'] ?? null;
+                $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['code_text'] = $fscomponent['observation']['value']['displayName'] ?? $code['code_text'] ?? null;
+                $this->templateData['field_name_value_array']['functional_cognitive_status'][$i]['description'] = $fscomponent['observation']['value']['displayName'] ?? $code['code_text'] ?? null;
+                ;
+                $this->templateData['entry_identification_array']['functional_cognitive_status'][$i] = $i;
+            }
         }
     }
 

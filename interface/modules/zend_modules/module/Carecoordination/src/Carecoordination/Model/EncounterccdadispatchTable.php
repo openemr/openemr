@@ -3479,7 +3479,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
             LEFT JOIN users as u on u.username = fcp.user
             LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
-            WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon";
+            WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon Order By fcp.encounter DESC";
         $res = $appTable->zQuery($query, $sqlBindArray);
         $status = 'Pending';
         $status_entry = 'active';
@@ -3617,9 +3617,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // $row['activity'] designates functional or cognitive status
             if ($row['activity'] == 1) {
                 $cognitive_status .= '<item>
+    <cognitive>1</cognitive>
     <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
     <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
-    <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
+    <description>' . xmlEscape($row['date'] . ' ' . $row['description'] . " | ") . '</description>
     <date>' . xmlEscape($row['date']) . '</date>
     <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
     <status>' . xmlEscape('completed') . '</status>
@@ -3627,9 +3628,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     </item>';
             } else {
                 $functional_status .= '<item>
+    <cognitive>0</cognitive>
     <code>' . xmlEscape(($row['code'] ?: '')) . '</code>
     <code_text>' . xmlEscape(($row['codetext'] ?: '')) . '</code_text>
-    <description>' . xmlEscape($row['date'] . ' ' . $row['description']) . '</description>
+    <description>' . xmlEscape($row['date'] . ' ' . $row['description'] . " | ") . '</description>
     <date>' . xmlEscape($row['date']) . '</date>
     <date_formatted>' . xmlEscape(str_replace("-", '', $row['date'])) . '</date_formatted>
     <status>' . xmlEscape('completed') . '</status>

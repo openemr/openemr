@@ -219,13 +219,15 @@ class CdaTemplateImportDispose
      * @param                       $revapprove
      * @return void
      */
-    public function InsertCarePlan($care_plan_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
+    public function InsertCarePlan($care_plan_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1): void
     {
         if (empty($care_plan_array)) {
             return;
         }
 
         $newid = '';
+        $encounter_for_forms = null;
+        $forms_encounters = null;
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_care_plan`");
         foreach ($res as $val) {
@@ -237,37 +239,58 @@ class CdaTemplateImportDispose
         }
 
         foreach ($care_plan_array as $key => $value) {
-            $query_sel_enc = "SELECT encounter
-                            FROM form_encounter
-                            WHERE date=? AND pid=?";
-            $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array(date('Y-m-d H:i:s'), $pid));
-
-            if ($res_query_sel_enc->count() == 0) {
-                $res_enc = $appTable->zQuery("SELECT encounter
-                                                 FROM form_encounter
-                                                 WHERE pid=?
-                                                 ORDER BY id DESC
-                                                 LIMIT 1", array($pid));
-                $res_enc_cur = $res_enc->current();
-                $encounter_for_forms = $res_enc_cur['encounter'];
-            } else {
-                foreach ($res_query_sel_enc as $value2) {
-                    $encounter_for_forms = $value2['encounter'];
-                }
-            }
-
-            $plan_date_value = $value['date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
+            $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             $end_date = $value['end_date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
             $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_low'])) : null;
             $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_high'])) : null;
 
+            $encounter_for_forms = $this->findClosestEncounter(trim($plan_date_value), $pid);
+            if (empty($encounter_for_forms)) {
+                $query_sel_enc = "SELECT encounter
+                            FROM form_encounter
+                            WHERE date=? AND pid=?";
+                $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array(date('Y-m-d H:i:s'), $pid));
+                if ($res_query_sel_enc->count() == 0 && empty($encounter_for_forms)) {
+                    $res_enc = $appTable->zQuery("SELECT encounter
+                                                 FROM form_encounter
+                                                 WHERE pid=?
+                                                 ORDER BY id DESC
+                                                 LIMIT 1", array($pid));
+                    $res_enc_cur = $res_enc->current();
+                    $encounter_for_forms = $res_enc_cur['encounter'];
+                } else {
+                    foreach ($res_query_sel_enc as $value2) {
+                        $encounter_for_forms = $value2['encounter'];
+                    }
+                }
+            }
+
+            if (!empty($forms_encounters) && count($forms_encounters ?? []) > 0) {
+                if (!isset($forms_encounters[$encounter_for_forms])) {
+                    $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_care_plan`");
+                    foreach ($res as $val) {
+                        if ($val['largestId']) {
+                            $newid = $val['largestId'] + 1;
+                        } else {
+                            $newid = 1;
+                        }
+                    }
+                } else {
+                    $newid = $forms_encounters[$encounter_for_forms]['form_id'];
+                }
+            }
+
             $query_insert = "INSERT INTO `form_care_plan` (`id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`care_plan_type`, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'], $value['reason_code_text'], $low_date, $high_date, $value['reason_status'] ?? null));
+
+            $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
 
-        if (count($care_plan_array) > 0) {
-            $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)";
-            $appTable->zQuery($query, array(date('Y-m-d'), $encounter_for_forms, 'Care Plan Form', $newid, $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'care_plan'));
+        if (count($forms_encounters ?? []) > 0) {
+            foreach ($forms_encounters as $k => $form) {
+                $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)";
+                $appTable->zQuery($query, array(date('Y-m-d'), $k, 'Care Plan Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'care_plan'));
+            }
         }
     }
 
@@ -1524,12 +1547,81 @@ class CdaTemplateImportDispose
             }
 
             $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
-            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $date));
+            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date));
         }
 
         if (count($functional_cognitive_status_array) > 0) {
             $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir)VALUES(?,?,?,?,?,?,?,?)";
             $appTable->zQuery($query, array($date, $encounter_for_forms, 'Functional and Cognitive Status Form', $newid, $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status'));
+        }
+    }
+
+    public function InsertFunctionalCognitiveStatusNew($functional_cognitive_status_array, $pid, CarecoordinationTable $carecoordinationTable, $revapprove = 1)
+    {
+        if (empty($functional_cognitive_status_array)) {
+            return;
+        }
+        $newid = '';
+        $appTable = new ApplicationTable();
+        $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
+        foreach ($res as $val) {
+            if ($val['largestId']) {
+                $newid = $val['largestId'] + 1;
+            } else {
+                $newid = 1;
+            }
+        }
+        foreach ($functional_cognitive_status_array as $key => $value) {
+            if ($value['date'] != '') {
+                $date = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
+            } else {
+                $date = date('Y-m-d');
+            }
+            $encounter_for_forms = $this->findClosestEncounter(trim($date), $pid);
+            if (empty($encounter_for_forms)) {
+                $query_sel_enc = "SELECT encounter
+                            FROM form_encounter
+                            WHERE date=? AND pid=?";
+                $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array(date('Y-m-d H:i:s'), $pid));
+                if ($res_query_sel_enc->count() == 0 && empty($encounter_for_forms)) {
+                    $res_enc = $appTable->zQuery("SELECT encounter
+                                                 FROM form_encounter
+                                                 WHERE pid=?
+                                                 ORDER BY id DESC
+                                                 LIMIT 1", array($pid));
+                    $res_enc_cur = $res_enc->current();
+                    $encounter_for_forms = $res_enc_cur['encounter'];
+                } else {
+                    foreach ($res_query_sel_enc as $value2) {
+                        $encounter_for_forms = $value2['encounter'];
+                    }
+                }
+            }
+
+            if (!empty($forms_encounters) && count($forms_encounters ?? []) > 0) {
+                if (!isset($forms_encounters[$encounter_for_forms])) {
+                    $res = $appTable->zQuery("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
+                    foreach ($res as $val) {
+                        if ($val['largestId']) {
+                            $newid = $val['largestId'] + 1;
+                        } else {
+                            $newid = 1;
+                        }
+                    }
+                } else {
+                    $newid = $forms_encounters[$encounter_for_forms]['form_id'];
+                }
+            }
+            $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
+            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date));
+            $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
+        }
+
+        if (count($forms_encounters ?? []) > 0) {
+            foreach ($forms_encounters as $k => $form) {
+                $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir)VALUES(?,?,?,?,?,?,?,?)";
+                $appTable->zQuery($query, array($date, $k, 'Functional and Cognitive Status Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status'));
+            }
         }
     }
 
@@ -1909,5 +2001,22 @@ class CdaTemplateImportDispose
         $data["policy_number"] = $payer['code'] ?? '1';
 
         $id_data = $insuranceData->insert($pid, 'primary', $data);
+    }
+
+    public function findClosestEncounter($item_date, $item_pid)
+    {
+        $rtn = sqlQuery(
+            "SELECT
+            fe.encounter,
+            fe.date,
+            fe.pid
+            FROM `form_encounter` AS fe
+            LEFT JOIN form_care_plan as cp On fe.encounter = cp.encounter And fe.pid = cp.pid
+            WHERE fe.date <= ? AND fe.pid = ?
+            ORDER BY fe.encounter DESC, fe.date DESC Limit 1",
+            array($item_date, $item_pid)
+        );
+
+        return $rtn['encounter'] ?? 0;
     }
 }

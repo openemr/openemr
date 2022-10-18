@@ -1696,7 +1696,8 @@ function getGoals(pd) {
             "code_system_name": pd.code_type || ""
         },
         "identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension,
         }],
         "date_time": {
             "point": {
@@ -1757,7 +1758,8 @@ function getFunctionalStatus(pd) {
         "status": "completed",
         "author": functionalStatusAuthor,
         "identifiers": [{
-            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000"
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000",
+            "extension": pd.extension || '',
         }],
 
         "observation": {
@@ -1767,7 +1769,8 @@ function getFunctionalStatus(pd) {
                 "code_system_name": pd.code_type || "SNOMED-CT"
             },
             "identifiers": [{
-                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab"
+                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab",
+                "extension": pd.extension || '',
             }],
             "date_time": {
                 "point": {
@@ -1789,7 +1792,8 @@ function getMentalStatus(pd) {
             "code_system_name": pd.code_type || ""
         },
         "identifiers": [{
-            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc",
+            "extension": pd.extension,
         }],
         "note": cleanText(pd.description),
         "date_time": {
@@ -1873,6 +1877,7 @@ function getHealthConcerns(pd) {
         }
     }
     return {
+        // todo need to make array of health concerns
         "type": "act",
         "text": cleanText(pd.text),
         "value": {
@@ -1882,7 +1887,8 @@ function getHealthConcerns(pd) {
         },
         "author": populateAuthorFromAuthorContainer(pd),
         "identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension,
         }],
         problems: problems
     }
