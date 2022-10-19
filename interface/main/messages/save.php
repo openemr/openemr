@@ -248,7 +248,7 @@ if ($_REQUEST['action'] == "process") {
             sqlQuery($sql, array('recall_' . $pid, $_POST['item'], $_SESSION['authUserID'], 'Label printed locally'));
         }
     }
-    echo json_encode($pidList);
+    echo text(json_encode($pidList));
     exit;
 }
 if ($_REQUEST['go'] == "Messages") {

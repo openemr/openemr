@@ -115,7 +115,7 @@ if (!empty($_REQUEST['go'])) { ?>
         echo "<title>" . xlt('MedEx Setup') . "</title>";
         $stage = $_REQUEST['stage'];
         if (!is_numeric($stage)) {
-            echo "<br /><span class='title'>$stage " . xlt('Warning') . ": " . xlt('This is not a valid request') . ".</span>";
+            echo "<br /><span class='title'>" . text($stage) . " " . xlt('Warning') . ": " . xlt('This is not a valid request') . ".</span>";
         } else {
             $MedEx->setup->MedExBank($stage);
         }
@@ -975,7 +975,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 delete collectvalidation.assigned_to;
             }
 
-            if(document.getElementById("form_message_status").value == 'Done'){               
+            if(document.getElementById("form_message_status").value == 'Done'){
                 delete collectvalidation.note;
             }
 
