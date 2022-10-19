@@ -13,6 +13,8 @@ namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -23,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceCont
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirCodeSystemService;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -161,15 +164,28 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             $docReference->setSubject(UtilsService::createDataMissingExtension());
         }
 
+        // we need to grab the category and include it
+
+
+        $oeCodeSystem = new FhirCodeSystemService($this->getFhirApiURL());
         if (!empty($dataRecord['codes'])) {
-            foreach ($dataRecord['codes'] as $code => $codeableConcept) {
-                $docReference->addCategory(UtilsService::createCodeableConcept($codeableConcept));
+            $fhirConcept = UtilsService::createCodeableConcept($dataRecord['codes'], FhirCodeSystemConstants::LOINC, $dataRecord['category_name'] ?? '');
+            // now we need to add in our local code
+            if (!empty($dataRecord['category_id']) && !empty($dataRecord['category_name'])) {
+                $code = $oeCodeSystem->getOpenEMRDocumentCategoryCodeFromCategoryId($dataRecord['category_id']);
+                $fhirConcept->addCoding(UtilsService::createCoding($code, $dataRecord['category_name'], $oeCodeSystem->getCodeSystemUri()));
             }
+            $docReference->addCategory($fhirConcept);
         } else {
-            // although the category is extensible, ONC inferno fails to validate with an extended code set so we are
-            // going to create data absent reasons.  The codes come from the document categories codes column.  If we are
-            // missing the codes we will just go with a Data Absent Reason (DAR)
-            $docReference->addCategory(UtilsService::createDataAbsentUnknownCodeableConcept());
+            // local type with no identified system
+            if (!empty($dataRecord['category_id']) && !empty($dataRecord['category_name'])) {
+                $code = $oeCodeSystem->getOpenEMRDocumentCategoryCodeFromCategoryId($dataRecord['category_id']);
+                $category = UtilsService::createCodeableConcept([$code => ['code' => $code]], $oeCodeSystem->getCodeSystemUri(), $dataRecord['category_name']);
+                $docReference->addCategory($category);
+            } else {
+                // if we don't have a cat id and display name we are going to just go with a Data absent reason
+                $docReference->addCategory(UtilsService::createDataAbsentUnknownCodeableConcept());
+            }
         }
 
         $fhirOrganizationService = new FhirOrganizationService();
@@ -204,6 +220,13 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             $docReference->setType($type);
         } else {
             $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
+        }
+
+        if (!empty($dataRecord['category_id'])) {
+            // we want to expose the OpenEMR category id extension until we can figure out how to handle
+            // openemr specific value sets, code systems, and the versioning that is required for that
+            // since our categories can be edited and changed by users of the system and we don't track any versioning
+            // this becomes very complicated.  Until we can resolve this we will expose the category_id here
         }
 
         return $docReference;

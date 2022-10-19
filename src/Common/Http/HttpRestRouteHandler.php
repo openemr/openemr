@@ -307,7 +307,7 @@ class HttpRestRouteHandler
     {
         $resource = $restRequest->getResource();
         // capability statement, smart well knowns, and operation definitions are skipped.
-        $skippedChecks = ['metadata', '.well-known', 'OperationDefinition'];
+        $skippedChecks = ['metadata', '.well-known', 'OperationDefinition', 'ValueSet', 'CodeSystem'];
         return array_search($resource, $skippedChecks) !== false;
     }
 }

@@ -381,7 +381,9 @@ class RestConfig
             $resource === ("/fhir/metadata") ||
             $resource === ("/fhir/.well-known/smart-configuration") ||
             // skip list and single instance routes
-            0 === strpos("/fhir/OperationDefinition", $resource)
+            0 === strpos($resource, "/fhir/OperationDefinition") ||
+            0 === strpos($resource, "/fhir/ValueSet") ||
+            0 === strpos($resource, "/fhir/CodeSystem")
         ) {
             return true;
         } else {

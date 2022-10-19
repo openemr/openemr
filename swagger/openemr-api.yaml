@@ -6354,6 +6354,76 @@ paths:
                   status: active
                   kind: operation
                   parameter: [{ name: job, use: in, min: 1, max: 1, type: { system: 'http://hl7.org/fhir/data-types', code: string, display: string }, searchType: { system: 'http://hl7.org/fhir/ValueSet/search-param-type', code: string, display: string } }]
+  /fhir/CodeSystem:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of the CodeSystem resources that are specific to this OpenEMR installation'
+      responses:
+        '200':
+          description: 'Return list of CodeSystem resources'
+  '/fhir/CodeSystem/{system}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single CodeSystem resource that is specific to this OpenEMR installation'
+      parameters:
+        -
+          name: system
+          in: path
+          description: 'The name of the system to query. For example openemr-terms'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  resourceType: CodeSystem
+                  name: openemr-terms
+                  status: draft
+                  kind: code-system
+                  concept: [{ name: OEDC1, display: Categories, property: { code: type, value: document-category }, concept: [{ name: OEDC2, display: 'Lab Report', property: { code: type, value: document-category } }, { name: OEDC3, display: 'Medical Record', property: { code: type, value: document-category } }] }]
+  /fhir/ValueSet:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of the ValueSet resources that are specific to this OpenEMR installation'
+      responses:
+        '200':
+          description: 'Return list of ValueSet resources'
+  '/fhir/ValueSet/{valueset}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single ValueSet resource that is specific to this OpenEMR installation'
+      parameters:
+        -
+          name: operation
+          in: path
+          description: 'The name of the value set to query. For example document-categories'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  resourceType: ValueSet
+                  name: openemr-terms
+                  status: draft
   /fhir/$export:
     get:
       tags:

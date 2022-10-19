@@ -7071,6 +7071,7 @@ use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
 use OpenEMR\RestControllers\FHIR\FhirCarePlanRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
+use OpenEMR\RestControllers\FHIR\FhirCodeSystemRestController;
 use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
 use OpenEMR\RestControllers\FHIR\FhirCoverageRestController;
 use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
@@ -7092,6 +7093,7 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
+use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
@@ -12632,6 +12634,157 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         // for now we will just hard code the custom resources
         $operationDefinitionController = new FhirOperationDefinitionRestController();
         $return = $operationDefinitionController->getOne($operation);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/CodeSystem",
+     *      description="Returns a list of the CodeSystem resources that are specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Response(
+     *          response="200",
+     *          description="Return list of CodeSystem resources"
+     *      )
+     *  )
+     */
+    "GET /fhir/CodeSystem" => function (HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $controller = new FhirCodeSystemRestController($request);
+        $return = $controller->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/CodeSystem/{system}",
+     *      description="Returns a single CodeSystem resource that is specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="system",
+     *          in="path",
+     *          description="The name of the system to query. For example openemr-terms",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "resourceType": "CodeSystem",
+     *                      "name": "openemr-terms",
+     *                      "status": "draft",
+     *                      "kind": "code-system",
+     *                      "concept": {
+     *                      {
+     *                          "name": "OEDC1",
+     *                          "display": "Categories",
+     *                          "property": {
+     *                              "code": "type"
+     *                              ,"value": "document-category"
+     *                          },
+     *                          "concept": {
+     *                              {
+     *                                  "name": "OEDC2",
+     *                                  "display": "Lab Report",
+     *                                  "property": {
+     *                                      "code": "type"
+     *                                      ,"value": "document-category"
+     *                                  }
+*     *                              },
+     *                              {
+     *                                  "name": "OEDC3",
+     *                                  "display": "Medical Record",
+     *                                  "property": {
+     *                                      "code": "type"
+     *                                      ,"value": "document-category"
+     *                                  }
+     *                              }
+     *                          }
+     *                      }}
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *  )
+     */
+    "GET /fhir/CodeSystem/:system" => function ($system, HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $controller = new FhirCodeSystemRestController($request);
+        $return = $controller->getOne($system);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/ValueSet",
+     *      description="Returns a list of the ValueSet resources that are specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Response(
+     *          response="200",
+     *          description="Return list of ValueSet resources"
+     *      )
+     *  )
+     */
+    "GET /fhir/ValueSet" => function (HttpRestRequest $request) {
+        $controller = new FhirValueSetRestController($request);
+        $return = $controller->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/ValueSet/{valueset}",
+     *      description="Returns a single ValueSet resource that is specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="operation",
+     *          in="path",
+     *          description="The name of the value set to query. For example document-categories",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "resourceType": "ValueSet",
+     *                      "name": "openemr-terms",
+     *                      "status": "draft"
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *  )
+     */
+    "GET /fhir/ValueSet/:valueset" => function ($valueset, HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $controller = new FhirValueSetRestController($request);
+        $return = $controller->getOne($valueset);
         RestConfig::apiLog($return);
         return $return;
     },
