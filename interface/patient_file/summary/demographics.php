@@ -1351,7 +1351,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'card' => $card,
                             'title' => $card->getTitle(),
-                            'id' => $card->getIdentifier(),
+                            'id' => $card->getIdentifier() . "_expand",
                             'auth' => $auth,
                             'linkMethod' => 'html',
                             'initiallyCollapsed' => !$card->isInitiallyCollapsed(),
@@ -1359,7 +1359,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => 'test',
+                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
@@ -1626,7 +1626,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         if ($resNotNull) {
                             // Show Recall if one exists
-                            $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?", [$pid]);
+                            $query = sqlStatement("SELECT * FROM `medex_recalls` WHERE `r_pid` = ?", [(int)$pid]);
                             $recallArr = [];
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
