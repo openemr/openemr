@@ -880,7 +880,8 @@ class CdaTemplateParse
         if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 if ($key % 3 != 0) {
-                    continue; //every third entry section has the procedure details
+                    // TODO add two additional templates for type if needed in future.
+                    //continue; //every third entry section has the procedure details
                 }
 
                 $this->fetchProcedureActivityData($value);
@@ -890,7 +891,7 @@ class CdaTemplateParse
         }
     }
 
-    public function labResult($component)
+    public function labResult($component): void
     {
         $component['section']['text'] = '';
         if (!empty($component['section']['entry'][0])) {
@@ -902,7 +903,7 @@ class CdaTemplateParse
         }
     }
 
-    public function fetchLabResultData($lab_result_data)
+    public function fetchLabResultData($lab_result_data): void
     {
         $i = 1;
         if (!empty($this->templateData['field_name_value_array']['procedure_result'])) {
