@@ -13,6 +13,7 @@ namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -166,10 +167,16 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
                 $docReference->addCategory(UtilsService::createCodeableConcept($codeableConcept));
             }
         } else {
-            // although the category is extensible, ONC inferno fails to validate with an extended code set so we are
-            // going to create data absent reasons.  The codes come from the document categories codes column.  If we are
-            // missing the codes we will just go with a Data Absent Reason (DAR)
-            $docReference->addCategory(UtilsService::createDataAbsentUnknownCodeableConcept());
+            if (!empty($dataRecord['category_name'])) {
+                $concept = new FHIRCodeableConcept();
+                $concept->setText($dataRecord['category_name']);
+                $docReference->addCategory($concept);
+            } else {
+                // although the category is extensible, ONC inferno fails to validate with an extended code set so we are
+                // going to create data absent reasons.  The codes come from the document categories codes column.  If we are
+                // missing the codes we will just go with a Data Absent Reason (DAR)
+                $docReference->addCategory(UtilsService::createDataAbsentUnknownCodeableConcept());
+            }
         }
 
         $fhirOrganizationService = new FhirOrganizationService();
