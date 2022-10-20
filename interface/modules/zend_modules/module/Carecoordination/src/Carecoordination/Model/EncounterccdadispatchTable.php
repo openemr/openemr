@@ -1394,8 +1394,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $procedure = '';
-        // TODO: the code_types join on just the ct.ct_key is joining against the primary key of billing which is a type misconversion... not sure why we do this
-        $query = "SELECT b.id, b.date as proc_date, b.code_text, b.code, fe.date,
+        // TODO the code_types join on just the ct.ct_key is joining against the primary key of billing which is a type misconversion... not sure why we do this
+        $query = "SELECT b.id, b.date as proc_date, b.code_text, b.code, b.code_type, fe.date,
     u.fname, u.lname, u.mname, u.npi, u.street, u.city, u.state, u.zip, u.id AS provenance_updated_by, u.phonew1,
     f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone
     FROM billing as b
@@ -1412,6 +1412,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $procedure = '<procedures>';
         foreach ($res as $row) {
+            if (empty($row['code_text'] ?? null)) {
+                $row['code_text'] = (new CodeTypesService())->resolveCode($row['code'], $row['code_type'])['code_text'] ?? null;
+            }
             $provenanceRecord = [
             'author_id' => $row['provenance_updated_by']
             ,'time' => $row['proc_date']
@@ -1420,9 +1423,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $procedure .= "<procedure>" . $provenanceXml . "
             <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . "</extension>
             <sha_extension>" . xmlEscape("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d") . "</sha_extension>
-                    <description>" . xmlEscape($row['code_text']) . "</description>
+            <description>" . xmlEscape($row['code_text']) . "</description>
             <code>" . xmlEscape($row['code']) . "</code>
-                    <date>" . xmlEscape(substr($row['date'], 0, 10)) . "</date>
+            <code_type>" . xmlEscape($row['code_type']) . "</code_type>
+            <date>" . xmlEscape(substr($row['date'], 0, 10)) . "</date>
             <npi>" . xmlEscape($row['npi']) . "</npi>
             <fname>" . xmlEscape($row['fname']) . "</fname>
             <mname>" . xmlEscape($row['mname']) . "</mname>

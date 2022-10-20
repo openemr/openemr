@@ -1284,7 +1284,7 @@ function populateProcedure(pd) {
             "name": pd.description,
             "code": cleanCode(pd.code),
             //"code_system": "2.16.840.1.113883.6.12",
-            "code_system_name": "SNOMED CT"
+            "code_system_name": pd.code_type
         },
         "identifiers": [{
             "identifier": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
