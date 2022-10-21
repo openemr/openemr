@@ -81,6 +81,10 @@ module.exports = OIDs = {
         name: "CPT",
         uri: "http://purl.bioontology.org/ontology/CPT/"
     },
+    "2.16.840.1.113883.6.12": {
+        name: "CPT4",
+        uri: "http://purl.bioontology.org/ontology/CPT/"
+    },
     "2.16.840.1.113883.5.4": {
         name: "ActCode",
         uri: "http://hl7.org/actcode/"
