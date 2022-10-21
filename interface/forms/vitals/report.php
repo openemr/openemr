@@ -105,7 +105,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 $vitals .= "</div></td>";
             } elseif ($key == "Height" || $key == "Waist Circ"  || $key == "Head Circ") {
                 $value = floatval($value);
-                $convValue = round(number_format($value * 2.54, 2), 1);
+                $convValue = number_format(round($value * 2.54, 1), 2);
                 // show appropriate units
                 if ($GLOBALS['units_of_measurement'] == 2) {
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('cm') . " (" . text($value) . " " . xlt('in')  . ")</div></td>";
