@@ -307,7 +307,7 @@ class EncounterService extends BaseService
         $encounter = generate_id();
         $data['encounter'] = $encounter;
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
-        $data['date'] = date("Y-m-d");
+        // $data['date'] = date("Y-m-d");
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
         $query = $this->buildInsertColumns($data);
