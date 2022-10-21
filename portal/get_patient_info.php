@@ -245,8 +245,8 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         $_SESSION['patient_portal_onsite_two'] = 1;
 
         $tmp = getUserIDInfo($userData['providerID']);
-        $_SESSION['providerName'] = $tmp['fname'] . ' ' . $tmp['lname'];
-        $_SESSION['providerUName'] = $tmp['username'];
+        $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
+        $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
         $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
