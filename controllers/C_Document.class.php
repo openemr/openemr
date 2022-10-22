@@ -274,7 +274,6 @@ class C_Document extends Controller
                             }
                             $za->close();
                             if ($mimetype == "application/dicom+zip") {
-                                $_FILES['file']['type'][$key] = $mimetype;
                                 sleep(1); // Timing insurance in case of re-compression. Only acted on index so...!
                                 $_FILES['file']['size'][$key] = filesize($_FILES['file']['tmp_name'][$key]); // file may have grown.
                             }
@@ -293,14 +292,22 @@ class C_Document extends Controller
                     if ($_POST['destination'] != '') {
                         $fname = $_POST['destination'];
                     }
-                    // set mime, test for single DICOM and assign extension if missing.
-                    $mimetype = $_FILES['file']['type'][$key];
+                    // test for single DICOM and assign extension if missing.
                     if (strpos($filetext, 'DICM') !== false) {
                         $mimetype = 'application/dicom';
                         $parts = pathinfo($fname);
                         if (!$parts['extension']) {
                             $fname .= '.dcm';
                         }
+                    }
+                    // set mimetype (if not already set above)
+                    if (empty($mimetype)) {
+                        $mimetype = mime_content_type($_FILES['file']['tmp_name'][$key]);
+                    }
+                    // if mimetype still empty, then do not upload the file
+                    if (empty($mimetype)) {
+                        $error = xl("Unable to discover mimetype, so did not upload " . $_FILES['file']['tmp_name'][$key]) . ".\n";
+                        continue;
                     }
                     $d = new Document();
                     $rc = $d->createDocument(
