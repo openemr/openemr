@@ -142,18 +142,27 @@ try {
             if (!isPortal) {
                 top.restoreSession();
             }
-            let qr = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4');
             let formElement = document.getElementById("formContainer");
-            let data = LForms.Util.getUserData(formElement, false, true, true);
-            document.getElementById('lform_response').value = JSON.stringify(data);
-            document.getElementById('questionnaire_response').value = JSON.stringify(qr);
-            if (!document.getElementById('questionnaire').value) {
-                let lForm = JSON.parse(document.getElementById('lform').value);
-                let qFhir = LForms.Util.getFormFHIRData("Questionnaire", 'R4', data);
-                document.getElementById('questionnaire').value = JSON.stringify(qFhir);
+            let notValid = LForms.Util.checkValidity(formElement);
+            if (notValid) {
+                let formatText = xl('Form failed validation?') + "<br />" + jsText(notValid);
+                dialog.alert(formatText).then(returned => {
+                    dialog.close();
+                    return false;
+                });
+            } else {
+                let qr = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4');
+                let data = LForms.Util.getUserData(formElement, false, true, true);
+                document.getElementById('lform_response').value = JSON.stringify(data);
+                document.getElementById('questionnaire_response').value = JSON.stringify(qr);
+                if (!document.getElementById('questionnaire').value) {
+                    let lForm = JSON.parse(document.getElementById('lform').value);
+                    let qFhir = LForms.Util.getFormFHIRData("Questionnaire", 'R4', data);
+                    document.getElementById('questionnaire').value = JSON.stringify(qFhir);
+                }
+                return true;
             }
-
-            return true;
+            return false;
         }
 
         function initUpdate() {
@@ -399,7 +408,7 @@ try {
     <!-- TODO Temporary dependencies location -->
     <?php require(__DIR__ . "/../../forms/questionnaire_assessments/lform_webcomponents.php") ?>
     <!-- Dependency scopes seem strange using the way we have to implement the necessary web components. -->
-    <?php Header::setupAssets(['select2']); ?>
+    <?php Header::setupAssets(['select2', 'bootstrap']); ?>
     <script>
         <?php if ($isPortal || $patientPortalOther) { ?>
         $(function () {
