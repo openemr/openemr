@@ -63,6 +63,16 @@ $ignoreAuth_onsite_portal = true;
 
 // Authentication
 require_once('../interface/globals.php');
+
+if (
+    $GLOBALS['enforce_signin_email']
+    && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
+) {
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    header('Location: ' . $landingpage . '&w&c');
+    exit();
+}
+
 require_once(dirname(__FILE__) . "/lib/appsql.class.php");
 require_once("$srcdir/user.inc");
 
