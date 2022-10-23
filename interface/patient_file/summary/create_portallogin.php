@@ -118,9 +118,10 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     $query_parameters = array($_POST['uname'],$_POST['login_uname']);
 
     // upon creation credentials Login User Name is empty and not editable in the form
+    // if email is not enforced on login
     // this will set the patient portal username to be the account name
     // then on initial log in they will be directed to the change username/password screen
-    if (empty($query_parameters['login_name'])) {
+    if (empty($query_parameters['login_name']) && $GLOBALS['enforce_signin_email']) {
         $query_parameters[1] = $query_parameters[0];
     }
     $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
