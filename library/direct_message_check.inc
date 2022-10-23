@@ -644,7 +644,7 @@ function phimail_store($name, $mime_type, $fn)
         // Import the document
         $phimail_direct_message_check_allowed_mimetype = $mime_type;
         $filesize = filesize($fn);
-        $return = addNewDocument($name, $mime_type, $fn, 0, $filesize, $user, 'direct');
+        $return = addNewDocument($name, $mime_type, $fn, 0, $filesize, $user, 'direct', 1, '', 1, true);
         if (is_array($return)) {
             $return['filesize'] = $filesize;
         }

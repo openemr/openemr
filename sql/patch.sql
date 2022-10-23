@@ -153,3 +153,16 @@ ALTER TABLE `form_questionnaire_assessments` CHANGE `code_type` `questionnaire_i
 #IfNotRow2D list_options list_id Document_Template_Categories option_id questionnaire
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
 #EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Information
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Information';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient ID card
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID card';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Photograph
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
+#EndIf
+
