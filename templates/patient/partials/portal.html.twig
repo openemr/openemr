@@ -28,20 +28,27 @@ The Patient Portal card for the Medical Record Dashboard
             <p class="font-weight-bold">{{  "Portal Status"|xlt }}</p>
             <p> {{ "Patient Portal Site Address Not Set Properly. Admin Can Correct in Config."|xlt }} </p>
         </div>
-    {% endif %}    
-
+    {% endif %}
 
     {% if isPortalAllowed == false %}
         <div class="alert alert-warning" role="alert">
             <p class="font-weight-bold">{{  "Portal Access"|xlt }}</p>
             <p> {{ "Allow Patient Portal in Choices."|xlt }} </p>
-        </div> 
+        </div>
+    {% elseif isContactEmail == false %}
+            {% if isEnforceSigninEmailPortal == true %}
+            <div class="alert alert-warning" role="alert">
+                <p class="font-weight-bold">{{  "Email Address"|xlt }}</p>
+                <p> {{ "Email is Enforced. Enter an Email in Contact."|xlt }} </p>
+            </div>
+            {% endif %}
     {% elseif isPortalEnabled and isPortalSiteAddressValid %}
     <div class="alert alert-info" role="alert">
         <p class="font-weight-bold">{{ "Documents"|xlt }}</p>
          <button type="button" class="btn btn-link btn-sm w-50" onclick='top.assignPatientDocuments({{pid|attr_js}})'><i class="fa fa-file-signature"></i>&nbsp;{{ "Assign"|xlt }}</button>
         </div>           
-    {% endif %}  
+    {% endif %}
+
 
     {% if isApiAllowed == false %}
         <div class="alert alert-warning" role="alert">
@@ -50,7 +57,19 @@ The Patient Portal card for the Medical Record Dashboard
         </div>
     {% endif %}     
 
-    {% if (isPortalAllowed and isPortalEnabled and isPortalSiteAddressValid) or isApiAllowed == true %}
+    {% if (
+        isPortalAllowed
+        and isPortalEnabled
+        and isPortalSiteAddressValid
+        and (
+            isEnforceSigninEmailPortal == false
+            or (
+                isEnforceSigninEmailPortal
+                and isContactEmail
+               )
+            ) 
+        or isApiAllowed == true
+        ) %}
         <div class="alert alert-info" role="alert">
         <p class="font-weight-bold">{{ "Credentials"|xlt }}</p>
         {% if areCredentialsCreated == true %}

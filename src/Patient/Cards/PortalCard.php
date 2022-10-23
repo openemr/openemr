@@ -83,7 +83,9 @@ class PortalCard extends CardModel
                 'isPortalAllowed' => isPortalAllowed($pid),
                 'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
                 'isApiAllowed' => isApiAllowed($pid),
-                'areCredentialsCreated' => areCredentialsCreated($pid)
+                'areCredentialsCreated' => areCredentialsCreated($pid),
+                'isContactEmail' => isContactEmail($pid),
+                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal($pid)
             ],
         ];
     }
