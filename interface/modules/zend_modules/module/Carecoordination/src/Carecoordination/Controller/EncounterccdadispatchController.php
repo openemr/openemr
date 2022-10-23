@@ -176,36 +176,40 @@ class EncounterccdadispatchController extends AbstractActionController
         try {
             $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
             if (!empty($combination)) {
-                $arr = explode('|', $combination);
-                foreach ($arr as $row) {
-                    $arr = explode('_', $row);
-                    $this->patient_id = $arr[0];
-                    $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
-                    if ($this->latest_ccda) {
-                        $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
-                    }
-                    $result = $ccdaGenerator->generate(
-                        $this->patient_id,
-                        $this->encounter_id,
-                        $sent_by,
-                        $send,
-                        $view,
-                        $emr_transfer,
-                        $this->components,
-                        $this->sections,
-                        $this->recipients,
-                        $this->params,
-                        $this->document_type,
-                        $this->referral_reason,
-                        $this->date_options
-                    );
-                    $content = $result->getContent();
-                    unset($result); // clear out our memory here as $content is a big string
-                    if (!$view) {
-                        if ($hie_hook) {
-                            echo $content;
-                        } else {
-                            echo $this->listenerObject::z_xlt("Queued for Transfer");
+                // if download then documents already generated
+                // previously this was generating the document twice.
+                if (empty($downloadccda)) {
+                    $arr = explode('|', $combination);
+                    foreach ($arr as $row) {
+                        $arr = explode('_', $row);
+                        $this->patient_id = $arr[0];
+                        $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
+                        if ($this->latest_ccda) {
+                            $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+                        }
+                        $result = $ccdaGenerator->generate(
+                            $this->patient_id,
+                            $this->encounter_id,
+                            $sent_by,
+                            $send,
+                            $view,
+                            $emr_transfer,
+                            $this->components,
+                            $this->sections,
+                            $this->recipients,
+                            $this->params,
+                            $this->document_type,
+                            $this->referral_reason,
+                            $this->date_options
+                        );
+                        $content = $result->getContent();
+                        unset($result); // clear out our memory here as $content is a big string
+                        if (!$view) {
+                            if ($hie_hook) {
+                                echo $content;
+                            } else {
+                                echo $this->listenerObject::z_xlt("Queued for Transfer");
+                            }
                         }
                     }
                 }
@@ -233,8 +237,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $pids = $this->params('pids') ?? $combination;
                     // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
                     // no sense in having this forward piece at all...
-                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids
-                    , 'document_type' => $this->document_type));
+                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type));
                 } else {
                     die;
                 }
@@ -275,13 +278,16 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $content;
                 exit;
             }
-            $practice_filename = "CCDA_{$this->patient_id}.xml";
-            header("Cache-Control: public");
-            header("Content-Description: File Transfer");
-            header("Content-Disposition: attachment; filename=" . $practice_filename);
-            header("Content-Type: application/download");
-            header("Content-Transfer-Encoding: binary");
-            echo $content;
+            if (empty($downloadccda)) {
+                $practice_filename = "CCDA_{$this->patient_id}.xml";
+                header("Cache-Control: public");
+                header("Content-Description: File Transfer");
+                header("Content-Disposition: attachment; filename=" . $practice_filename);
+                header("Content-Type: application/download");
+                header("Content-Transfer-Encoding: binary");
+                echo $content;
+            }
+
             exit;
         } catch (Exception $e) {
             die('SOAP Error');

@@ -18,6 +18,7 @@ namespace Carecoordination\Model;
 use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
+use Documents\Plugin\Documents;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Matrix\Exception;
@@ -2580,6 +2581,34 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $social_history .= "</social_history>";
         return $social_history;
+    }
+
+    public function getDocumentsForExport($pid)
+    {
+        $files = "";
+        $query = "SELECT c.id, c.name as cat_name, d.id AS document_id, d.id, d.type, d.mimetype, d.url, d.docdate, d.name as file_name
+                FROM `categories` AS c, documents AS d, `categories_to_documents` AS c2d
+                WHERE c.id = c2d.category_id AND c2d.document_id = d.id AND d.foreign_id = ?";
+
+        $appTable = new ApplicationTable();
+        $result = $appTable->zQuery($query, array($pid));
+        $files .= "<patient_files>";
+        $c = 0;
+        foreach ($result as $row_folders) {
+            $c++;
+            $r = Documents::getDocument($row_folders['document_id']);
+            $did = $row_folders['id'];
+            $files .= "<file>
+            <file_name>" . xmlEscape($row_folders['file_name']) . "</file_name>
+            <category>" . xmlEscape($row_folders['cat_name']) . "</category>
+            <type>" . xmlEscape($row_folders['mimetype']) . "</type>
+            <url>" . xmlEscape("/api/patient/$pid/document/$did") . "</url>
+            <content>" . xmlEscape(base64_encode($r)) . "</content>
+            </file>";
+        }
+        $files .= "</patient_files>";
+
+        return $files;
     }
 
     /*

@@ -41,7 +41,7 @@ class EncountermanagerController extends AbstractActionController
 {
     // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for
     // the document types.  We should probably extract these into a model somewhere...
-    const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan'];
+    const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan', 'unstructured'];
 
     const DEFAULT_DATE_SEARCH_TYPE = "encounter";
     const DATE_SEARCH_TYPE_PATIENT_CREATION = "patient_date_created";

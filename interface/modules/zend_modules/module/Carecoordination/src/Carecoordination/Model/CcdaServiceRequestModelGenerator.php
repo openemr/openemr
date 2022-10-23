@@ -215,6 +215,8 @@ class CcdaServiceRequestModelGenerator
             $this->data .= $this->getEncounterccdadispatchTable()->getUnstructuredDocuments($pid, $encounter);
         }
 
+        $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid, $encounter);
+
         /***************CCDA Body Information***************/
 
         $this->data .= "</CCDA>";
