@@ -121,7 +121,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     // if email is not enforced on login
     // this will set the patient portal username to be the account name
     // then on initial log in they will be directed to the change username/password screen
-    if (empty($query_parameters['login_name']) && $GLOBALS['enforce_signin_email']) {
+    if (empty($query_parameters['login_name']) && !$GLOBALS['enforce_signin_email']) {
         $query_parameters[1] = $query_parameters[0];
     }
     $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
