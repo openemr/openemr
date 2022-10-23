@@ -16,6 +16,7 @@ require_once(__DIR__ . "/../library/patient.inc");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -33,6 +34,7 @@ class C_Document extends Controller
     public $_last_node;
     private $Document;
     private $cryptoGen;
+    private bool $skip_acl_check = false;
 
     public function __construct($template_mod = "general")
     {
@@ -202,6 +204,8 @@ class C_Document extends Controller
 
         if (is_numeric($_POST['category_id'])) {
             $category_id = $_POST['category_id'];
+        } else {
+            $category_id = 1;
         }
 
         $patient_id = 0;
@@ -211,7 +215,18 @@ class C_Document extends Controller
             $patient_id = $_POST['patient_id'];
         }
 
-        if (!empty($_FILES['dicom_folder']['name'][0])) {
+        // ensure user has access to the category that is being uploaded to
+        $skipUpload = false;
+        if (!$this->isSkipAclCheck()) {
+            $acoSpec = sqlQuery("SELECT `aco_spec` from `categories` WHERE `id` = ?", [$category_id])['aco_spec'];
+            if (AclMain::aclCheckAcoSpec($acoSpec) === false) {
+                $error = xl("Not authorized to upload to the selected category.\n");
+                $skipUpload = true;
+                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'category-id' => $category_id]);
+            }
+        }
+
+        if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
             $study_name = $_POST['destination'] ? (trim($_POST['destination']) . ".zip") : 'DicomStudy.zip';
             $study_name =  preg_replace('/\s+/', '_', $study_name);
@@ -225,7 +240,7 @@ class C_Document extends Controller
         }
 
         $sentUploadStatus = array();
-        if (count($_FILES['file']['name']) > 0) {
+        if (!$skipUpload && count($_FILES['file']['name']) > 0) {
             $upl_inc = 0;
 
             foreach ($_FILES['file']['name'] as $key => $value) {
@@ -611,6 +626,22 @@ class C_Document extends Controller
         }
 
         $d = new Document($document_id);
+
+        // ensure user/patient has access
+        if (isset($_SESSION['patient_portal_onsite_two']) && isset($_SESSION['pid'])) {
+            // ensure patient has access (called from patient portal)
+            if (!$d->can_patient_access($_SESSION['pid'])) {
+                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $_SESSION['pid'], 'document-id' => $document_id]);
+                die(xlt("Not authorized to view requested file"));
+            }
+        } else {
+            // ensure user has access
+            if (!$d->can_access()) {
+                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'document-id' => $document_id]);
+                die(xlt("Not authorized to view requested file"));
+            }
+        }
+
         $url =  $d->get_url();
         $th_url = $d->get_thumb_url();
 
@@ -1374,5 +1405,19 @@ class C_Document extends Controller
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?", array($patient_id,$document_id));
         }
         return $this->view_action($patient_id, $document_id);
+    }
+
+    // this will set flag to skip acl check
+    // this is needed for when uploading via services that piggyback on any user (ie. the background services) or via cron/cli
+    public function skipAclCheck(): void
+    {
+        $this->skip_acl_check = true;
+    }
+
+    // this will check if flag has been set to skip the acl check
+    // this is needed for when uploading via services that piggyback on any user (ie. the background services) or via cron/cli
+    public function isSkipAclCheck(): bool
+    {
+        return $this->skip_acl_check;
     }
 }

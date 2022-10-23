@@ -242,3 +242,15 @@ ALTER TABLE `form_encounter` ADD `in_collection` tinyint(1) DEFAULT NULL;
 
 #IfVitalsDatesNeeded
 #EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Information
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Information';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient ID card
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID card';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Photograph
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
+#EndIf
