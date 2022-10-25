@@ -142,10 +142,16 @@ try {
             if (!isPortal) {
                 top.restoreSession();
             }
+            if (formMode == 'register') {
+                return true;
+            }
             let formElement = document.getElementById("formContainer");
             let notValid = LForms.Util.checkValidity(formElement);
             if (notValid) {
-                let formatText = xl('Form failed validation?') + "<br />" + jsText(notValid);
+                notValid = "<span class='font-weight-bold p-2'>" + jsText(notValid) + "</span>";
+                let error = notValid.replace(/requires a value,/g, "requires a value,<br />");
+                error = error.replace(/requires a value/g, "<span class='text-danger'>requires a value</span>")
+                let formatText = "<span class='h5'>" + xl('Form failed validation!') + "</span><br />" + error;
                 dialog.alert(formatText).then(returned => {
                     dialog.close();
                     return false;
@@ -391,7 +397,7 @@ try {
             <?php if (!$isPortal && !$patientPortalOther) { ?>
                 <div class="btn-group my-2">
                     <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
-                    <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>"><?php echo xlt("or Register New"); ?></button>
+                    <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>" onclick="formMode = 'register'"><?php echo xlt("or Register New"); ?></button>
                     <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
                 </div>
             <?php } ?>
