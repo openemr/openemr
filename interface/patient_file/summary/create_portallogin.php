@@ -147,7 +147,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    
+
     $clear_pass = $_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array($pid));
