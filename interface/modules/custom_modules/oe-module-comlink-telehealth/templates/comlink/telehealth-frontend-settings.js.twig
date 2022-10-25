@@ -1,0 +1,7 @@
+// Render the comlink translation constants we will use in the system
+(function(comlink) {
+    comlink.settings = {{ settings|json_encode }};
+    comlink.translations = comlink.settings.translations;
+    delete comlink.settings.translations; // no point in having it in two places.
+    window.comlink = comlink;
+})(window.comlink || {});

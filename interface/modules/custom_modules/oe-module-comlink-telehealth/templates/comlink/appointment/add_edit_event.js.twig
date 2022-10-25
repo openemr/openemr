@@ -1,0 +1,14 @@
+(function(window, comlink) {
+
+    // call our init function with our variables
+    let teleHealthProviders = {{ providers|json_encode }};
+    let telehealthCategories = {{ categories|json_encode }};
+    console.log("providers ", teleHealthProviders);
+    console.log("categories", telehealthCategories);
+    console.log(comlink)
+    if (comlink.initAppointmentWithTelehealth) {
+        window.document.addEventListener("DOMContentLoaded", function() {
+            comlink.initAppointmentWithTelehealth(teleHealthProviders, telehealthCategories);
+        });
+    }
+})(window, window.comlink || {});
