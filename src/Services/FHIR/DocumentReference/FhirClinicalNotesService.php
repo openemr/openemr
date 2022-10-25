@@ -83,7 +83,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             'patient' => $this->getPatientContextSearchField(),
             'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATE, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }

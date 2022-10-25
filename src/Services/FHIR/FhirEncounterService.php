@@ -122,7 +122,8 @@ class FhirEncounterService extends FhirServiceBase implements
         // identifier - required
         $identifier = new FHIRIdentifier();
         $identifier->setValue($dataRecord['euuid']);
-        $identifier->setSystem(FhirCodeSystemConstants::RFC_3986);
+        // the system is a unique urn
+        $identifier->setSystem("urn:uuid:" . strtolower($dataRecord['euuid']));
         $encounterResource->addIdentifier($identifier);
 
         // status - required

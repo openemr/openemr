@@ -283,6 +283,16 @@ class Document extends ORDataObject
         return false;
     }
 
+    public function can_patient_access($pid)
+    {
+        $foreignId = $this->get_foreign_id();
+        // TODO: if any information blocking rule checks were to be applied, they can be done here
+        if (!empty($foreignId) && $foreignId == $pid) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Checks whether the passed in $user can access the document or not.  It checks against all of the access
      * permissions for the categories the document is in.  If there are any categories that the document is tied to
