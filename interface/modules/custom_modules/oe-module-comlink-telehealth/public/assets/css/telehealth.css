@@ -52,7 +52,7 @@
 }
 
 #minimized-telehealth-video {
-  background-color: black;
+  background-color: #000;
   bottom: 0;
   left: 0;
   position: absolute;
@@ -91,7 +91,7 @@
 
 
 .conference-room {
-  background-color: black;
+  background-color: #000;
   flex-grow: 1;
   position: relative;
 }
