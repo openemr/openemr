@@ -147,7 +147,6 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
     $clear_pass = $_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array($pid));
@@ -210,6 +209,12 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     // need to track that credentials were created
 } else {
     $credMessage = '';
+    if (
+        empty($GLOBALS['enforce_signin_email'])
+        && empty($row['portal_username'])
+    ) {
+        $trustedUserName = $row['fname'] . $row['id'];
+    }
 }
 
 echo filterTwigTemplateData($twig, $pid, 'patient/portal_login/print.html.twig', [
