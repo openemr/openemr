@@ -33,15 +33,18 @@ The Patient Portal card for the Medical Record Dashboard
     {% if isPortalAllowed == false %}
         <div class="alert alert-warning" role="alert">
             <p class="font-weight-bold">{{  "Portal Access"|xlt }}</p>
-            <p> {{ "Allow Patient Portal in Choices."|xlt }} </p>
+            <p> {{ "Allow Patient Portal in Demographics Choices."|xlt }} </p>
         </div>
-    {% elseif isContactEmail == false %}
-            {% if isEnforceSigninEmailPortal == true %}
+    {% elseif isContactEmail == false and isEnforceSigninEmailPortal == true %}
             <div class="alert alert-warning" role="alert">
                 <p class="font-weight-bold">{{  "Email Address"|xlt }}</p>
-                <p> {{ "Email is Enforced. Enter an Email in Contact."|xlt }} </p>
+                <p> {{ "Email is Enforced. Enter an Email in Demographics Contact."|xlt }} </p>
             </div>
-            {% endif %}
+    {% elseif isContactEmail == false and isEnforceSigninEmailPortal == false %}
+            <div class="alert alert-warning" role="alert">
+                <p class="font-weight-bold">{{  "Email Address"|xlt }}</p>
+                <p> {{ "Enter an Email in Demographics Contact for Sending Credentials."|xlt }} </p>
+            </div>        
     {% elseif isPortalEnabled and isPortalSiteAddressValid %}
     <div class="alert alert-info" role="alert">
         <p class="font-weight-bold">{{ "Documents"|xlt }}</p>
