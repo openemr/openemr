@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `comlink_telehealth_auth`
     `username`                VARCHAR(64) NOT NULL COMMENT 'Username used for external access',
     `user_id`                 BIGINT(20)         NULL COMMENT 'Foreign key reference to users.id',
     `patient_id`              BIGINT(20)         NULL COMMENT 'Foreign key reference to patient_data.id',
-    `auth_token` 	          TEXT NOT NULL COMMENT 'external authorization token to use telehealth api',
+    `auth_token` 	          TEXT COMMENT 'external authorization token to use telehealth api',
     `date_registered`         DATETIME NULL COMMENT 'The date the user or patient registered with the api',
     `date_created`            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Date the record was created',
     `date_updated`            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Date the record was created',
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `comlink_telehealth_appointment_session`
 ) ENGINE = InnoDB;
 #EndIf
 
-#IfNotRow apptstat option_id TRNSFR
+#IfNotRow2D apptstat option_id TRNSFR
 INSERT INTO list_options(list_id, option_id, title, seq, notes, timestamp, toggle_setting_1, toggle_setting_2)
     VALUES('apptstat', 'TRNSFR', "Transferred Provider", 100, "#FFE100|0", NOW(), 0, 1);
 #EndIf
