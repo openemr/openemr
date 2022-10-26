@@ -357,9 +357,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     </div>
                 </div>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($_SESSION['onetime']) ? xlt('Current Password') : ''; ?></label>
+                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($_SESSION['onetime'] ?? null) ? xlt('Current Password') : ''; ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ?? null ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime'] ?? '');
+                        <input class="form-control" name="pass" id="pass" <?php echo ($_SESSION['onetime'] ?? null) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime'] ?? '');
                         $_SESSION['password_update'] = ($_SESSION['onetime'] ?? null) ? 2 : 1;
                         unset($_SESSION['onetime']); ?>" required />
                     </div>
