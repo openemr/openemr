@@ -2585,28 +2585,28 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function getDocumentsForExport($pid)
     {
-        $files = "";
+        $files = "<patient_files>";
         $query = "SELECT c.id, c.name as cat_name, d.id AS document_id, d.id, d.type, d.mimetype, d.url, d.docdate, d.name as file_name
                 FROM `categories` AS c, documents AS d, `categories_to_documents` AS c2d
                 WHERE c.id = c2d.category_id AND c2d.document_id = d.id AND d.foreign_id = ?";
 
         $appTable = new ApplicationTable();
         $result = $appTable->zQuery($query, array($pid));
-        $files .= "<patient_files>";
+        $files .= "<component>\n<nonXMLBody>\n";
         $c = 0;
         foreach ($result as $row_folders) {
+            $r = base64_encode(Documents::getDocument($row_folders['document_id']));
+            $mime = xmlEscape($row_folders['mimetype']);
+            $cat = xmlEscape($row_folders['cat_name']);
+            $name = xmlEscape($row_folders['file_name']);
+            $files .= "<text category='$cat' name='$name' mediaType='$mime' representation='B64'>$r</text>\n";
             $c++;
-            $r = Documents::getDocument($row_folders['document_id']);
-            $did = $row_folders['id'];
-            $files .= "<file>
-            <file_name>" . xmlEscape($row_folders['file_name']) . "</file_name>
-            <category>" . xmlEscape($row_folders['cat_name']) . "</category>
-            <type>" . xmlEscape($row_folders['mimetype']) . "</type>
-            <url>" . xmlEscape("/api/patient/$pid/document/$did") . "</url>
-            <content>" . xmlEscape(base64_encode($r)) . "</content>
-            </file>";
         }
-        $files .= "</patient_files>";
+        $files .= "</nonXMLBody>\n</component></patient_files>";
+
+        if ($c === 0) {
+            return '';
+        }
 
         return $files;
     }

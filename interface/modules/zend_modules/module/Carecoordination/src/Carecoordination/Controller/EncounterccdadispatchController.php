@@ -176,48 +176,52 @@ class EncounterccdadispatchController extends AbstractActionController
         try {
             $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
             if (!empty($combination)) {
-                // if download then documents already generated
-                // previously this was generating the document twice.
-                if (empty($downloadccda)) {
-                    $arr = explode('|', $combination);
-                    foreach ($arr as $row) {
-                        $arr = explode('_', $row);
-                        $this->patient_id = $arr[0];
-                        $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
-                        if ($this->latest_ccda) {
-                            $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
-                        }
-                        $result = $ccdaGenerator->generate(
-                            $this->patient_id,
-                            $this->encounter_id,
-                            $sent_by,
-                            $send,
-                            $view,
-                            $emr_transfer,
-                            $this->components,
-                            $this->sections,
-                            $this->recipients,
-                            $this->params,
-                            $this->document_type,
-                            $this->referral_reason,
-                            $this->date_options
-                        );
-                        $content = $result->getContent();
-                        unset($result); // clear out our memory here as $content is a big string
-                        if (!$view) {
-                            if ($hie_hook) {
-                                echo $content;
-                            } else {
-                                echo $this->listenerObject::z_xlt("Queued for Transfer");
-                            }
+                $arr = explode('|', $combination);
+                foreach ($arr as $row) {
+                    $arr = explode('_', $row);
+                    $this->patient_id = $arr[0];
+                    $this->encounter_id = (($arr[1] ?? '') > 0 ? $arr[1] : null);
+                    if ($this->latest_ccda) {
+                        $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+                    }
+                    $result = $ccdaGenerator->generate(
+                        $this->patient_id,
+                        $this->encounter_id,
+                        $sent_by,
+                        $send,
+                        $view,
+                        $emr_transfer,
+                        $this->components,
+                        $this->sections,
+                        $this->recipients,
+                        $this->params,
+                        $this->document_type,
+                        $this->referral_reason,
+                        $this->date_options
+                    );
+                    $content = $result->getContent();
+                    unset($result); // clear out our memory here as $content is a big string
+                    if (!$view) {
+                        if ($hie_hook) {
+                            echo $content;
+                        } else {
+                            echo $this->listenerObject::z_xlt("Queued for Transfer");
                         }
                     }
+                }
+
+                // split content if unstructured is included from service.
+                $unstructured = "";
+                if (substr_count($content, '</ClinicalDocument>') === 2) {
+                    $d = explode('</ClinicalDocument>', $content);
+                    $content = $d[0] . '</ClinicalDocument>';
+                    $unstructured = $d[1] . '</ClinicalDocument>';
                 }
 
                 if ($view && !$downloadccda) {
                     $xml = simplexml_load_string($content);
                     $xsl = new DOMDocument();
-                    // cda.xsl is self contained with bootstrap and jquery.
+                    // cda.xsl is self-contained with bootstrap and jquery.
                     // cda-web.xsl when used, is for referencing styles from internet.
                     $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
                     $proc = new XSLTProcessor();
@@ -267,7 +271,7 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
-            echo xlt("Failed to connect to ccdaservice.  Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
+            echo xlt("Failed to connect to ccdaservice. Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
             (new SystemLogger())->errorLogCaller("Connection error with ccda service", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
             die();
         }
@@ -287,10 +291,9 @@ class EncounterccdadispatchController extends AbstractActionController
                 header("Content-Transfer-Encoding: binary");
                 echo $content;
             }
-
             exit;
         } catch (Exception $e) {
-            die('SOAP Error');
+            die($e->getMessage());
         }
     }
 

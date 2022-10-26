@@ -36,6 +36,7 @@ class CcdaServiceRequestModelGenerator
     {
         $this->encounterCCDADispatchTable = $table;
         $this->data = "";
+        $this->exportwithDocuments = $_REQUEST['with_documents'] ?? false;
     }
     public function getEncounterccdadispatchTable(): EncounterccdadispatchTable
     {
@@ -215,7 +216,9 @@ class CcdaServiceRequestModelGenerator
             $this->data .= $this->getEncounterccdadispatchTable()->getUnstructuredDocuments($pid, $encounter);
         }
 
-        $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid, $encounter);
+        if ($this->exportwithDocuments) {
+            $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid, $encounter);
+        }
 
         /***************CCDA Body Information***************/
 
