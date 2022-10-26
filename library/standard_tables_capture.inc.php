@@ -503,16 +503,19 @@ function icd_import($type)
     // flat files. There are separate definitions for ICD 9 and 10 based on the type passed in
     $incoming = array();
     
-    $incoming['icd10pcs_codes_'] = array('#TABLENAME#' => "icd10_pcs_order_code",
-    '#FLD1#' => "pcs_code", '#POS1#' => 7, '#LEN1#' => 7,
-    '#FLD2#' => "valid_for_coding", '#POS2#' => 15, '#LEN2#' => 1,
-    '#FLD3#' => "short_desc", '#POS3#' => 17, '#LEN3#' => 60,
-    '#FLD4#' => "long_desc", '#POS4#' => 78, '#LEN4#' => 300);
-    $incoming['icd10cm_order_'] = array('#TABLENAME#' => "icd10_dx_order_code",
-    '#FLD1#' => "dx_code", '#POS1#' => 7, '#LEN1#' => 7,
-    '#FLD2#' => "valid_for_coding", '#POS2#' => 15, '#LEN2#' => 1,
-    '#FLD3#' => "short_desc", '#POS3#' => 17, '#LEN3#' => 60,
-    '#FLD4#' => "long_desc", '#POS4#' => 78, '#LEN4#' => 300);
+    $incoming['icd10pcs_codes_'] = array(
+        '#TABLENAME#' => "icd10_pcs_order_code",
+        '#FLD1#' => "pcs_code", '#POS1#' => 1, '#LEN1#' => 7,
+        '#FLD2#' => "long_desc", '#POS2#' => 9, '#LEN2#' => 300
+    );
+        
+    $incoming['icd10cm_order_'] = array(
+        '#TABLENAME#' => "icd10_dx_order_code",
+        '#FLD1#' => "dx_code", '#POS1#' => 7, '#LEN1#' => 7,
+        '#FLD2#' => "valid_for_coding", '#POS2#' => 15, '#LEN2#' => 1,
+        '#FLD3#' => "short_desc", '#POS3#' => 17, '#LEN3#' => 60,
+        '#FLD4#' => "long_desc", '#POS4#' => 78, '#LEN4#' => 300
+    );
 
     // set up the start of the load script to be appended from the incoming array defined above where incoming
     // file matches
@@ -538,7 +541,7 @@ function icd_import($type)
 
                     // the range defines the maximum number of fields contained
                     // in any of the incoming files
-                    foreach (range(1, 8) as $field) {
+                    foreach (range(1, 4) as $field) {
                         $fld = "#FLD" . $field . "#";
                         $nxtfld = "#FLD" . ($field + 1) . "#";
                         $pos = "#POS" . $field . "#";
@@ -579,18 +582,9 @@ function icd_import($type)
     }
 
     // now update the tables where necessary
-    if ($type == 'ICD9') {
-        sqlStatement("update `icd9_dx_code` SET formatted_dx_code = dx_code");
-        sqlStatement("update `icd9_dx_code` SET formatted_dx_code = concat(concat(left(dx_code, 3), '.'), substr(dx_code, 4)) WHERE dx_code RLIKE '^[V0-9]{1}.*' AND LENGTH(dx_code) > 3");
-        sqlStatement("update `icd9_dx_code` SET formatted_dx_code = concat(concat(left(dx_code, 4), '.'), substr(dx_code, 5)) WHERE dx_code RLIKE '^[E]{1}.*' AND LENGTH(dx_code) > 4");
-        sqlStatement("update `icd9_sg_code` SET formatted_sg_code = concat(concat(left(sg_code, 2), '.'), substr(sg_code, 3))");
-        sqlStatement("update `icd9_dx_code` A, `icd9_dx_long_code` B set A.long_desc = B.long_desc where A.dx_code = B.dx_code and A.active = 1 and A.long_desc is NULL");
-        sqlStatement("update `icd9_sg_code` A, `icd9_sg_long_code` B set A.long_desc = B.long_desc where A.sg_code = B.sg_code and A.active = 1 and A.long_desc is NULL");
-    } else { // ICD 10
-        sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");
-        sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = concat(concat(left(dx_code, 3), '.'), substr(dx_code, 4)) WHERE LENGTH(dx_code) > 3");
-    }
-
+    sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");
+    sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = concat(concat(left(dx_code, 3), '.'), substr(dx_code, 4)) WHERE LENGTH(dx_code) > 3");
+    
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
     if (!empty($GLOBALS['kernel'])) {
