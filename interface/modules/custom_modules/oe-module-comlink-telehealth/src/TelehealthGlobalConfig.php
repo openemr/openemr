@@ -143,30 +143,24 @@ class TelehealthGlobalConfig
             ]
             ,self::COMLINK_VIDEO_API_USER_ID => [
                 'title' => 'Telehealth Installation User ID'
-                ,'description' => 'This is your unique video application api user id.  Contact ComLink if you have not received it'
+                ,'description' => 'This is your unique video application api user id. Contact ComLink if you have not received it'
                 ,'type' => GlobalSetting::DATA_TYPE_TEXT
                 ,'default' => ''
             ]
             ,self::COMLINK_VIDEO_API_USER_PASSWORD => [
                 'title' => 'Telehealth Installation User Password (Encrypted)'
-                ,'description' => 'This is your unique video application api password.  Contact ComLink if you have not received it'
+                ,'description' => 'This is your unique video application api password. Contact ComLink if you have not received it'
                 ,'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
                 ,'default' => ''
             ]
             ,self::COMLINK_VIDEO_TELEHEALTH_CMS_ID => [
                 'title' => 'Telehealth Installation CMSID'
-                ,'description' => 'This is your unique video application CMSID.  Contact ComLink if you have not received it'
-                ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => ''
-            ]
-            ,self::COMLINK_VIDEO_TELEHEALTH_CMS_ID => [
-                'title' => 'Telehealth Installation CMSID'
-                ,'description' => 'This is your unique video application CMSID.  Contact ComLink if you have not received it'
+                ,'description' => 'This is your unique video application CMSID. Contact ComLink if you have not received it'
                 ,'type' => GlobalSetting::DATA_TYPE_TEXT
                 ,'default' => ''
             ]
             ,self::COMLINK_AUTO_PROVISION_PROVIDER => [
-                'title' => 'Auto Register Providers For  Telehealth'
+                'title' => 'Auto Register Providers For Telehealth'
                 ,'description' => 'Disable this setting if you will manually enable the providers you wish to be registered for Telehealth'
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => '1'
