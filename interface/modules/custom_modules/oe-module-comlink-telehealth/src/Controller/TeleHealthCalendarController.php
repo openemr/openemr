@@ -18,6 +18,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderReposi
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
@@ -155,11 +156,11 @@ class TeleHealthCalendarController
             // currently security restrictions support scripts only on the filesystem.  Translations then
             // are being pulled from the top level comlink instead of the inner iframe.  We may need to adjust this
             // if we run into issues.
-            $scripts[] = $this->getAssetPath() . "js/telehealth-calendar.js";
+            $scripts[] = $this->getAssetPath() . CacheUtils::addAssetCacheParamToPath("js/telehealth-calendar.js");
             $event->setScripts($scripts);
         } else if ($this->isAppointmentPageInclude($pageName, $scriptPath)) {
             $scripts = $event->getScripts();
-            $scripts[] = $this->getAssetPath() . "js/telehealth-appointment.js";
+            $scripts[] = $this->getAssetPath() . CacheUtils::addAssetCacheParamToPath("js/telehealth-appointment.js");
             $event->setScripts($scripts);
         }
     }

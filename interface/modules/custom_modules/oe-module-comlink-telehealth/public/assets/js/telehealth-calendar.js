@@ -40,7 +40,7 @@
     function setCurrentEncounterForAppointment(pid, appointmentId)
     {
         window.top.restoreSession();
-        return window.fetch(moduleLocation + 'public/index.php?action=set_current_appt_encounter&pc_eid=' + appointmentId, {redirect: "manual"})
+        return window.fetch(moduleLocation + 'public/index.php?action=set_current_appt_encounter&pc_eid=' + encodeURIComponent(appointmentId), {redirect: "manual"})
             .then(response => {
                 if (!response.ok)
                 {

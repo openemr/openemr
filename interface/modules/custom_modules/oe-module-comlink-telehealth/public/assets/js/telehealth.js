@@ -468,7 +468,7 @@
 
         this.getTelehealthLaunchData = function(data)
         {
-            var scriptLocation = this.getRemoteScriptLocation() + '?action=get_telehealth_launch_data&eid=' + data.pc_eid;
+            var scriptLocation = this.getRemoteScriptLocation() + '?action=get_telehealth_launch_data&eid=' + encodeURIComponent(data.pc_eid);
             window.top.restoreSession();
             return window.fetch(scriptLocation, {redirect: "manual"});
         };
@@ -749,7 +749,7 @@
             this.sendAppointmentStatusUpdate = function(status)
             {
                 console.log("Setting appointment to status ", status);
-                let postData = "action=set_appointment_status&pc_eid=" + pc_eid + "&status=" + encodeURIComponent(status);
+                let postData = "action=set_appointment_status&pc_eid=" + encodeURIComponent(pc_eid) + "&status=" + encodeURIComponent(status);
                 window.top.restoreSession();
                 window.fetch(scriptLocation,
                 {
@@ -951,7 +951,7 @@
             // TODO: if we ever need to take action on the session update we would do that here.
             // TODO: @adunsulag change eid here to be pc_eid
             window.top.restoreSession();
-            window.fetch(conferenceRoom.getRemoteScriptLocation() + '?action=conference_session_update&eid=' + eid, {redirect: "manual"})
+            window.fetch(conferenceRoom.getRemoteScriptLocation() + '?action=conference_session_update&eid=' + encodeURIComponent(eid), {redirect: "manual"})
                 .then((request) => {
                     if (request.ok) {
                         return request.json();
@@ -1391,7 +1391,7 @@
         {
             let pc_eid = patientConferenceRoom.telehealthSessionData.pc_eid;
             window.top.restoreSession();
-            window.fetch(moduleLocation + 'public/index-portal.php?action=patient_appointment_ready&eid=' + pc_eid, {redirect: "manual"})
+            window.fetch(moduleLocation + 'public/index-portal.php?action=patient_appointment_ready&eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
             .then(result => {
                 if (result.ok) {
                    return result.json();

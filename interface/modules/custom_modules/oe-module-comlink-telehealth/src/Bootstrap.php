@@ -27,6 +27,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCode
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
@@ -231,10 +232,10 @@ class Bootstrap
     public function renderMainBodyTelehealthScripts()
     {
         ?>
-        <script src="<?php echo $this->getAssetPath();?>../index.php?action=get_telehealth_settings"></script>
-        <link rel="stylesheet" href="<?php echo $this->getAssetPath();?>css/telehealth.css">
-        <script src="<?php echo $this->getAssetPath();?>js/telehealth.js"></script>
-        <script src="<?php echo $this->getAssetPath();?>js/telehealth-provider.js"></script>
+        <script src="<?php echo $this->getAssetPath();?>../<?php echo CacheUtils::addAssetCacheParamToPath("index.php"); ?>&action=get_telehealth_settings"></script>
+        <link rel="stylesheet" href="<?php echo $this->getAssetPath();?>css/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth.css"); ?>">
+        <script src="<?php echo $this->getAssetPath();?>js/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth.js"); ?>"></script>
+        <script src="<?php echo $this->getAssetPath();?>js/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth-provider.js"); ?>"></script>
         <?php
     }
 
