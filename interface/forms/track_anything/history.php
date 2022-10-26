@@ -19,8 +19,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-if (!$formid) {
-    $formid = $_POST['formid']; // call from track_anything encounter
+if (empty($formid)) {
+    $formid = $_POST['formid'] ?? null; // call from track_anything encounter
     $fromencounter = 1;
     if (!$formid) {
         $formid = $_GET['formid']; // call from demographic-widget "track_anything_fragement.php"
@@ -28,7 +28,7 @@ if (!$formid) {
     }
 }
 
-if ($_POST['fromencounter'] != '') {
+if (!empty($_POST['fromencounter'])) {
     $fromencounter = $_POST['fromencounter'];
 }
 

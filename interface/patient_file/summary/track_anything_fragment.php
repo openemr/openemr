@@ -42,7 +42,7 @@ if (!$result) { //If there are no disclosures recorded
 } else {  // We have some tracks here...
     echo "<span class='text'>";
     echo xlt('Available Tracks') . ":";
-    echo text($result);
+    echo json_encode($result);
     echo "<ul>";
     $result = sqlStatement($spell, array($pid, 'track_anything'));
     while ($myrow = sqlFetchArray($result)) {
