@@ -2623,6 +2623,12 @@ function populateHeader(pd) {
         docOid = "2.16.840.1.113883.10.20.22.1.14";
     }
 
+    if (pd.doc_type == 'unstructured') {
+        name = "Patient Documents";
+        docCode = "34133-9";
+        docOid = "2.16.840.1.113883.10.20.22.1.10";
+    }
+
     const head = {
         "identifiers": [
             {
@@ -2861,18 +2867,18 @@ function getMeta(pd) {
 }
 
 /**
- / * function genCcda
+ / * function generateCcda
  /* The main document builder
  /* pd array the xml parsed array of data sent from CCM.
  */
-function genCcda(pd) {
+function generateCcda(pd) {
     let doc = {};
     let data = {};
     let count = 0;
     let many = [];
     let theone = {};
-    let primary_care_provider = all.primary_care_provider || {};
     all = pd;
+    let primary_care_provider = all.primary_care_provider || {};
     npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
     npiFacility = all.encounter_provider.facility_npi;
@@ -3292,10 +3298,11 @@ function genCcda(pd) {
     }
 // ------------------------------------------ End Sections ----------------------------------------//
 
+    // sections data objects
     doc.data = Object.assign(data);
+    // document meta data and header objects
     let meta = getMeta(pd);
     let header = populateHeader(pd);
-
     meta.ccda_header = Object.assign(header);
     doc.meta = Object.assign(meta);
 
@@ -3328,6 +3335,66 @@ function genCcda(pd) {
     return xml;
 }
 
+let unstructuredTemplate = null;
+function generateUnstructured(pd) {
+    let doc = {};
+    let data = {};
+    let count = 0;
+    let many = [];
+    let theone = {};
+    // include unstructured document type oid in header
+    pd.doc_type = 'unstructured';
+    all = pd;
+    let primary_care_provider = all.primary_care_provider || {};
+    npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "";
+    oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
+    npiFacility = all.encounter_provider.facility_npi;
+    webRoot = all.serverRoot;
+    documentLocation = all.document_location;
+    authorDateTime = pd.created_time_timezone;
+    if (pd.author.time.length > 7) {
+        authorDateTime = pd.author.time;
+    } else if (all.encounter_list && all.encounter_list.encounter) {
+        if (isOne(all.encounter_list.encounter) === 1) {
+            authorDateTime = all.encounter_list.encounter.date;
+        } else {
+            authorDateTime = all.encounter_list.encounter[0].date;
+        }
+    }
+    authorDateTime = fDate(authorDateTime);
+// Demographics is needed in unstructured
+    let demographic = populateDemographic(pd.patient, pd.guardian, pd);
+    data.demographics = Object.assign(demographic);
+
+    let meta = getMeta(pd);
+    let header = populateHeader(pd);
+    meta.ccda_header = Object.assign(header);
+    doc.meta = Object.assign(meta);
+
+    if (pd.timezone_local_offset) {
+        populateTimezones(doc, pd.timezone_local_offset, 0);
+    }
+    // build to cda
+    let xml = bbg.generateCCD(doc);
+    xml = xml.replace(/<\/ClinicalDocument>/g, unstructuredTemplate);
+    xml += "</ClinicalDocument>";
+
+    /* Debug */
+    if (enableDebug === true) {
+        let place = documentLocation + "/documents/temp/";
+        if (fs.existsSync(place)) {
+            fs.writeFile(place + "unstructured.xml", xml, function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+                //console.log("Xml saved!");
+            });
+        }
+    }
+
+    return xml;
+}
+
 function processConnection(connection) {
     conn = connection; // make it global
     let remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
@@ -3342,26 +3409,48 @@ function processConnection(connection) {
         if (xml_complete.match(/^<CCDA/g) && xml_complete.match(/<\/CCDA>$/g)) {
             let doc = "";
             let xslUrl = "";
-            xml_complete = xml_complete.replace(/(\u000b|\u001c)/gm, "").trim();
+            xml_complete = xml_complete.replace(/(\u000b\u001c)/gm, "").trim();
+            xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
+            let unstructured = "";
+            let isUnstruturedData = !!data.CCDA.patient_files;
+            // extract unstructured documents file component templates. One per file.
+            if (isUnstruturedData) {
+                unstructuredTemplate = xml_complete.substring(xml_complete.lastIndexOf('<patient_files>') + 15, xml_complete.lastIndexOf('</patient_files>'));
+            }
             // let's not allow windows CR/LF
             xml_complete = xml_complete.replace(/[\r\n]/gm, '').trim();
-            xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
             // convert xml data set for document to json array
             to_json(xml_complete, function (error, data) {
-                //console.log(JSON.stringify(data, null, 4));
-                if (error) { // need try catch
+                if (error) {
                     console.log('toJson error: ' + error + 'Len: ' + xml_complete.length);
-                    return;
+                    return 'ERROR: Failed json build';
                 }
-                // create document
-                doc = genCcda(data.CCDA);
-                if (data.CCDA.xslUrl) {
-                    xslUrl = data.CCDA.xslUrl || "";
+                // create doc_type document i.e. CCD Referral etc.
+                if (data.CCDA.doc_type !== 'unstructured') {
+                    doc = generateCcda(data.CCDA);
+                    if (data.CCDA.xslUrl) {
+                        xslUrl = data.CCDA.xslUrl || "";
+                    }
+                    doc = headReplace(doc, xslUrl);
+                } else {
+                    unstructured = generateUnstructured(data.CCDA);
+                    if (data.CCDA.xslUrl) {
+                        xslUrl = data.CCDA.xslUrl || "";
+                    }
+                    doc = headReplace(unstructured, xslUrl);
+                    // combine the two documents to send back all at once.
+                    doc += unstructured;
+                }
+                // auto build an Unstructured document of supplied embedded files.
+                if (data.CCDA.doc_type !== 'unstructured' && isUnstruturedData) {
+                    unstructured = generateUnstructured(data.CCDA);
+                    unstructured = headReplace(unstructured, xslUrl);
+                    // combine the two documents to send back all at once.
+                    doc += unstructured;
                 }
             });
-
-            doc = headReplace(doc, xslUrl);
-            doc = doc.toString().replace(/(\u000b|\u001c|\r)/gm, "").trim();
+            // send results back to eagerly awaiting CCM for disposal.
+            doc = doc.toString().replace(/(\u000b\u001c|\r)/gm, "").trim();
             let chunk = "";
             let numChunks = Math.ceil(doc.length / 1024);
             for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
