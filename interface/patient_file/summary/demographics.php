@@ -226,6 +226,28 @@ function areCredentialsCreated($pid): bool
     return $return;
 }
 
+function isContactEmail($pid): bool
+{
+    $return = false;
+
+    $email = sqlQuery("SELECT email, email_direct FROM patient_data WHERE pid = ?", [$pid]);
+    if (!empty($email['email']) || !empty($email['email_direct'])) {
+        $return = true;
+    }
+    return $return;
+}
+
+function isEnforceSigninEmailPortal(): bool
+{
+    if (
+        $GLOBALS['enforce_signin_email']
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 function deceasedDays($days_deceased)
 {
     $deceased_days = intval($days_deceased['days_deceased'] ?? '');
