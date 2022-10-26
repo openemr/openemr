@@ -34,7 +34,7 @@ if (!empty($_POST['fromencounter'])) {
 
 // get $_POSTed vars
 //----------------------
-$ASC_DESC = $_POST['ASC_DESC'];
+$ASC_DESC = $_POST['ASC_DESC'] ?? null;
 
 if (!$ASC_DESC) {
     $ASC_DESC = "DESC"; # order DESC by default
