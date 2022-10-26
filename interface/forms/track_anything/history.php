@@ -71,6 +71,9 @@ echo "<html><head>";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
+<title><?php echo xlt('Tracker')?></title>
+
+
 <link rel="stylesheet" href="style.css">
 
 <script>
@@ -305,8 +308,17 @@ while ($myrow = sqlFetchArray($query)) {
         echo "<td class='check'>";
         for ($row_b = 0; $row_b < $row_lc; $row_b++) {
             if (is_numeric($value_local[$col_i][$row_b])) {
-                $localplot_c[$col_i]++; // count more than 1 to show graph-button
-                $globalplot_c[$col_i]++;
+                if (empty($localplot_c[$col_i])) {
+                    $localplot_c[$col_i] = 1;
+                } else {
+                    $localplot_c[$col_i]++; // count more than 1 to show graph-button
+                }
+
+                if (empty($globalplot_c[$col_i])) {
+                    $globalplot_c[$col_i] = 1;
+                } else {
+                    $globalplot_c[$col_i]++;
+                }
             }
         }
 
