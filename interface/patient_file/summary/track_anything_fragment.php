@@ -32,8 +32,8 @@ $spell = "SELECT form_name, MAX(form_track_anything_results.track_timestamp) as 
             "AND formdir = ? " .
             "GROUP BY form_name " .
             "ORDER BY maxdate DESC ";
-$result = sqlQuery($spell, array($pid, 'track_anything'));
-if (!$result) { //If there are no disclosures recorded
+$result = sqlStatement($spell, array($pid, 'track_anything'));
+if (!sqlNumRows($result)) { //If there are no disclosures recorded
     ?>
   <span class='text'> <?php echo xlt("No tracks have been documented.");
     ?>
@@ -42,9 +42,7 @@ if (!$result) { //If there are no disclosures recorded
 } else {  // We have some tracks here...
     echo "<span class='text'>";
     echo xlt('Available Tracks') . ":";
-    echo text($result);
     echo "<ul>";
-    $result = sqlStatement($spell, array($pid, 'track_anything'));
     while ($myrow = sqlFetchArray($result)) {
         $formname = $myrow['form_name'];
         $thedate = $myrow['maxdate'];
