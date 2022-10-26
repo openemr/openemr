@@ -11,7 +11,7 @@
             {{ appt.provider | text }}<br>
             {{ appt.status | text }}<br />
             {% if appt.showTelehealth %}
-            <button class="btn btn-primary btn-comlink-telehealth-launch" data-pc_eid="{{ appt.pc_eid }}">
+            <button class="btn btn-primary btn-comlink-telehealth-launch" data-pc_eid="{{ appt.pc_eid|attr }}">
                 <i class="fa fa-video" aria-label="Start Video Session"></i>
             </button>
             {% endif %}

@@ -18,7 +18,7 @@ require_once dirname(__FILE__, 4) . "/globals.php";
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to the module</title>
+    <title><?php echo xlt("Welcome to the module"); ?></title>
     <?php echo Header::setupHeader(); ?>
     <style>
         .note {
@@ -62,7 +62,7 @@ require_once dirname(__FILE__, 4) . "/globals.php";
         }).render('#paypal-button-container-P-25N86285GY8825203MMWZEIY'); // Renders the PayPal button
     </script>
     <div>
-        <p><h3><a href="https://credentials.affordablecustomehr.com/customer">Click Here to get credentials after subscribing</a></h3></p>
+        <p><h3><a href="https://credentials.affordablecustomehr.com/customer"><?php echo xlt("Click Here to get credentials after subscribing"); ?></a></h3></p>
     </div>
     <div>
         <p><?php echo xlt('Questions') . ": ";

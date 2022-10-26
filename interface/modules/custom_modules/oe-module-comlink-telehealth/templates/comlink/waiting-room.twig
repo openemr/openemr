@@ -3,7 +3,7 @@
         <div class="col-12">
             <div class="row pt-2 pb-2">
                 <div class="col">
-                    <a class="btn btn-primary" data-toggle="collapse" href="#waitingRoomProfile" role="button" aria-expanded="false" aria-controls="waitingRoomProfile">Appointment Information<br/>(Click here for more information)</a>
+                    <a class="btn btn-primary" data-toggle="collapse" href="#waitingRoomProfile" role="button" aria-expanded="false" aria-controls="waitingRoomProfile">{{ "Appointment Information"|xlt }}<br/>({{ "Click here for more information"|xlt }})</a>
                 </div>
                 <div class="col">
                     <input disabled class="disabled btn btn-primary btn-comlink-conference-join d-inline-block d-lg-none" type="button" value="{{ "Join Now"|xla }}">
@@ -48,7 +48,7 @@
     </div>
     <div class="row d-none permissions-box">
         <div class="col">
-            <p class="alert alert-danger">{{ "You must enable a microphone or camera order to use this service. Verify you a device connected and you have not disabled permissions for this application." | xl }}</p>
+            <p class="alert alert-danger">{{ "You must enable a microphone or camera order to use this service. Verify you a device connected and you have not disabled permissions for this application." | xlt }}</p>
             <input class="btn btn-secondary restart-media-btn" type="button" value="{{ "Request Media Permissions"|xla }}">
         </div>
     </div>
