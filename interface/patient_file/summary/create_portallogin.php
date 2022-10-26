@@ -175,7 +175,7 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     array_push($query_parameters, $pid);
 
     EventAuditLogger::instance()->newEvent(
-        "patient access",
+        "patient-access",
         $_SESSION['authUser'],
         "Default",
         1,
