@@ -11,20 +11,25 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org
  * @copyright Copyright (c) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
 require_once('../../../library/amc.php');
 
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\ {
+    Auth\AuthHash,
+    Csrf\CsrfUtils,
+    Logging\EventAuditLogger,
+    Twig\TwigContainer,
+    Utils\RandomGenUtils,
+};
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -165,13 +170,22 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
         error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
         die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
     }
-    array_push($query_parameters, $hash);
 
+    array_push($query_parameters, $hash);
     array_push($query_parameters, $pid);
+
+    EventAuditLogger::instance()->newEvent(
+        "patient-access",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "updated credentials",
+        $pid,
+        'open-emr',
+        'dashboard'
+    );
     if (sqlNumRows($res)) {
-        // TODO: @adunsulag is there a reason why we don't audit the fact that the patient credentials were created and updated?
-        // That seems like a pretty important security event we want to be aware of.
-        sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 WHERE pid=?", $query_parameters);
+        sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?, portal_login_username=?, portal_pwd=?, portal_pwd_status=0 WHERE pid=?", $query_parameters);
     } else {
         sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0,pid=?", $query_parameters);
     }
@@ -212,6 +226,12 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     // need to track that credentials were created
 } else {
     $credMessage = '';
+    if (
+        empty($GLOBALS['enforce_signin_email'])
+        && empty($row['portal_username'])
+    ) {
+        $trustedUserName = $row['fname'] . $row['id'];
+    }
 }
 
 echo filterTwigTemplateData($twig, $pid, 'patient/portal_login/print.html.twig', [
