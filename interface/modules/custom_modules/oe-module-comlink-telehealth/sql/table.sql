@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `comlink_telehealth_appointment_session`
 ) ENGINE = InnoDB;
 #EndIf
 
-#IfNotRow2D apptstat option_id TRNSFR
+#IfNotRow2D list_options list_id apptstat option_id TRNSFR
 INSERT INTO list_options(list_id, option_id, title, seq, notes, timestamp, toggle_setting_1, toggle_setting_2)
     VALUES('apptstat', 'TRNSFR', "Transferred Provider", 100, "#FFE100|0", NOW(), 0, 1);
 #EndIf
