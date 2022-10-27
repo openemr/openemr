@@ -157,11 +157,11 @@ exports.functionalStatusOrganizer = {
             content: functionalStatusObservation,
             dataKey: "observation",
             required: true
-        }]/*, [{
+        }], [{
             key: "component",
             content: functionalStatusSelfCareObservation,
             dataKey: "observation",
             required: true
-        }]*/
+        }]
     ],
 };

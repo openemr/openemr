@@ -53,9 +53,14 @@ var generate = exports.generate = function (template, input, options) {
     if (!options.html_renderer) {
         options.html_renderer = html_renderer;
     }
-
+    // set context
     var context = createContext(options);
-    return engine.create(documentLevel.ccd2(options.html_renderer), input, context);
+    // if unstructured, call it else CDA
+    if (input.meta.ccda_header.template.root === '2.16.840.1.113883.10.20.22.1.10') {
+        return engine.create(documentLevel.unstructured(), input, context);
+    } else {
+        return engine.create(documentLevel.ccd2(options.html_renderer), input, context);
+    }
 };
 
 exports.generateCCD = function (input, options) {
