@@ -605,6 +605,11 @@ class PatientService extends BaseService
         return self::getUuidById($pid, self::TABLE_NAME, 'pid');
     }
 
+    public function getPidByUuid($uuid)
+    {
+        return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
+    }
+
     private function saveCareTeamHistory($patientData, $oldProviders, $oldFacilities)
     {
         $careTeamService = new CareTeamService();

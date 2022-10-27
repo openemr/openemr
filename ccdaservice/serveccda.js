@@ -164,7 +164,7 @@ function cleanCode(code) {
     if (typeof code === 'undefined') {
         return "null_flavor";
     }
-    if (code.length < 2) {
+    if (code.length < 1) {
         code = "null_flavor";
         return code;
     }
@@ -885,21 +885,97 @@ function populateMedication(pd) {
     };
 }
 
+function getFinding(pd, problem) {
+    const finding = {
+        "identifiers": [{
+            "identifier": pd.sha_extension,
+            "extension": ''
+        }],
+        "value": {
+            "name": '',
+            "code": '',
+            "code_system_name": ''
+        },
+        "date_time": {
+            "low": {
+                "date": '',
+                "precision": "day"
+            }
+        },
+        "status": '',
+        "reason": pd.encounter_reason,
+        "author": {
+            "code": {
+                "name": all.author.physician_type || '',
+                "code": all.author.physician_type_code || '',
+                "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
+            },
+            "date_time": {
+                "point": {
+                    "date": authorDateTime,
+                    "precision": "tz"
+                }
+            },
+            "identifiers": [
+                {
+                    "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
+                    "extension": all.author.npi ? all.author.npi : 'UNK'
+                }
+            ],
+            "name": [
+                {
+                    "last": all.author.lname,
+                    "first": all.author.fname
+                }
+            ],
+            "organization": [
+                {
+                    "identity": [
+                        {
+                            "root": oidFacility || "2.16.840.1.113883.4.6",
+                            "extension": npiFacility || ""
+                        }
+                    ],
+                    "name": [
+                        all.encounter_provider.facility_name
+                    ]
+                }
+            ]
+        },
+    };
+
+    finding.identifiers["0"].extension = problem.extension;
+    finding.date_time.low.date = fDate(problem.date);
+    finding.value.name = problem.text;
+    finding.value.code = cleanCode(problem.code);
+    finding.value.code_system_name = problem.code_type;
+    finding.status = problem.status;
+    return finding;
+}
+
 function populateEncounter(pd) {
-    let name = '';
-    let code = '';
-    let code_system_name = "";
-    let status = "Active";
     // just to get diagnosis. for findings..
-    if (typeof pd.encounter_diagnosis !== 'undefined') {
-        name = pd.encounter_diagnosis.text;
-        code = cleanCode(pd.encounter_diagnosis.code);
-        code_system_name = pd.encounter_diagnosis.code_type;
-        status = pd.encounter_diagnosis.status;
+    let findingObj = [];
+    let theone = {};
+    let count = 0;
+    try {
+        count = isOne(pd.encounter_problems.problem);
+    } catch (e) {
+        count = 0;
     }
+    if (count > 1) {
+        for (let i in pd.encounter_problems.problem) {
+            theone[i] = getFinding(pd, pd.encounter_problems.problem[i]);
+            findingObj.push(theone[i]);
+        }
+    } else if (count !== 0 && pd.encounter_problems.problem.code > '') {
+        let finding = getFinding(pd, pd.encounter_problems.problem);
+        findingObj.push(finding);
+    }
+
     return {
         "encounter": {
-            "name": pd.visit_category ? pd.visit_category : 'UNK',
+            "name": pd.visit_category ? (pd.visit_category + " | " + pd.encounter_reason) : 'UNK',
             "code": "185347001",
             "code_system": "2.16.840.1.113883.6.96",
             "code_system_name": "SNOMED CT",
@@ -963,63 +1039,7 @@ function populateEncounter(pd) {
                 }
             ]
         }],
-        "findings": [{
-            "identifiers": [{
-                "identifier": pd.sha_extension,
-                "extension": pd.extension
-            }],
-            "value": {
-                "name": name,
-                "code": cleanCode(code),
-                "code_system_name": code_system_name
-            },
-            "date_time": {
-                "low": {
-                    "date": fDate(pd.date),
-                    "precision": "day"
-                }
-            },
-            "status": status,
-            "reason": pd.encounter_reason,
-            "author": {
-                "code": {
-                    "name": all.author.physician_type || '',
-                    "code": all.author.physician_type_code || '',
-                    "code_system": all.author.physician_type_system, "code_system_name": all.author.physician_type_system_name
-                },
-                "date_time": {
-                    "point": {
-                        "date": authorDateTime,
-                        "precision": "tz"
-                    }
-                },
-                "identifiers": [
-                    {
-                        "identifier": all.author.npi ? "2.16.840.1.113883.4.6" : all.author.id,
-                        "extension": all.author.npi ? all.author.npi : ''
-                    }
-                ],
-                "name": [
-                    {
-                        "last": all.author.lname,
-                        "first": all.author.fname
-                    }
-                ],
-                "organization": [
-                    {
-                        "identity": [
-                            {
-                                "root": oidFacility || "2.16.840.1.113883.4.6",
-                                "extension": npiFacility || ""
-                            }
-                        ],
-                        "name": [
-                            all.encounter_provider.facility_name
-                        ]
-                    }
-                ]
-            },
-        }]
+        "findings": findingObj
     };
 }
 
@@ -1264,7 +1284,7 @@ function populateProcedure(pd) {
             "name": pd.description,
             "code": cleanCode(pd.code),
             //"code_system": "2.16.840.1.113883.6.12",
-            "code_system_name": "SNOMED CT"
+            "code_system_name": pd.code_type
         },
         "identifiers": [{
             "identifier": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
@@ -1470,7 +1490,7 @@ function getResultSet(results) {
 
     // not sure if the result set should be grouped better on the backend as the author information needs to be more nuanced here
     let tResult = results.result[0] || results.result;
-    var resultSet = {
+    let resultSet = {
         "identifiers": [{
             "identifier": tResult.root,
             "extension": tResult.extension
@@ -1482,10 +1502,10 @@ function getResultSet(results) {
             "code_system_name": "LOINC"
         }
     };
-    var rs = [];
-    var many = [];
-    var theone = {};
-    var count = 0;
+    let rs = [];
+    let many = [];
+    let theone = {};
+    let count = 0;
     many.results = [];
     try {
         count = isOne(results.result);
@@ -1582,7 +1602,8 @@ function getPlanOfCare(pd) {
             "code_system_name": pd.code_type || "SNOMED CT"
         },
         "identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension || ""
         }],
         "goal": {
             "code": cleanCode(pd.code) || "",
@@ -1675,7 +1696,8 @@ function getGoals(pd) {
             "code_system_name": pd.code_type || ""
         },
         "identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension,
         }],
         "date_time": {
             "point": {
@@ -1736,7 +1758,8 @@ function getFunctionalStatus(pd) {
         "status": "completed",
         "author": functionalStatusAuthor,
         "identifiers": [{
-            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000"
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809000",
+            "extension": pd.extension || '',
         }],
 
         "observation": {
@@ -1746,7 +1769,8 @@ function getFunctionalStatus(pd) {
                 "code_system_name": pd.code_type || "SNOMED-CT"
             },
             "identifiers": [{
-                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab"
+                "identifier": "9a6d1bac-17d3-4195-89a4-1121bc8090ab",
+                "extension": pd.extension || '',
             }],
             "date_time": {
                 "point": {
@@ -1768,7 +1792,8 @@ function getMentalStatus(pd) {
             "code_system_name": pd.code_type || ""
         },
         "identifiers": [{
-            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc"
+            "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc",
+            "extension": pd.extension,
         }],
         "note": cleanText(pd.description),
         "date_time": {
@@ -1852,6 +1877,7 @@ function getHealthConcerns(pd) {
         }
     }
     return {
+        // todo need to make array of health concerns
         "type": "act",
         "text": cleanText(pd.text),
         "value": {
@@ -1861,7 +1887,8 @@ function getHealthConcerns(pd) {
         },
         "author": populateAuthorFromAuthorContainer(pd),
         "identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension,
         }],
         problems: problems
     }
@@ -2264,13 +2291,13 @@ function populateSocialHistory(pd) {
 function populateImmunization(pd) {
     return {
         "date_time": {
-            "point": {
+            "low": {
                 "date": fDate(pd.administered_on),
-                "precision": "month"
+                "precision": "day"
             }
         },
         "identifiers": [{
-            "identifier": "e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92",
+            "identifier": pd.sha_extension,
             "extension": pd.extension || ""
         }],
         "status": "complete",
@@ -2815,7 +2842,7 @@ function populateHeader(pd) {
 }
 
 function getMeta(pd) {
-    var meta = {};
+    let meta = {};
     meta = {
         "type": pd.doc_type,
         "identifiers": [

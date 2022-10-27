@@ -264,7 +264,7 @@ class Document extends ORDataObject
         . "WHERE `ctd`.`document_id` = ? ";
         $resultSet = sqlStatement($categories, [$this->get_id()]);
         $categories = [];
-        while ($category = sqlGetAssoc($resultSet)) {
+        while ($category = sqlFetchArray($resultSet)) {
             $categories[] = $category;
         }
         return $categories;
@@ -279,6 +279,16 @@ class Document extends ORDataObject
         if (!empty($this->date_expires)) {
             $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $this->date_expires);
             return $dateTime->getTimestamp() >= time();
+        }
+        return false;
+    }
+
+    public function can_patient_access($pid)
+    {
+        $foreignId = $this->get_foreign_id();
+        // TODO: if any information blocking rule checks were to be applied, they can be done here
+        if (!empty($foreignId) && $foreignId == $pid) {
+            return true;
         }
         return false;
     }

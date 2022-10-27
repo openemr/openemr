@@ -247,8 +247,10 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['fname'] = is_array($name['given']) ? $name['given'][0] : ($name['given'] ?? null);
         $this->documentData['field_name_value_array']['patient_data'][1]['mname'] = is_array($name['given']) ? $name['given'][1] ?? '' : '';
         $this->documentData['field_name_value_array']['patient_data'][1]['lname'] = $name['family'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['title'] = $name['prefix'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['suffix'] = $name['suffix'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? '');
+        $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = ucfirst(strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? ''));
         $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
@@ -273,7 +275,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
         }
 
-        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = strtolower($xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName']) ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
         if (is_array($xml['recordTarget']['patientRole']['patient']['raceCode'][0])) {
             $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['code'] ?? null;
@@ -513,6 +515,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 $arr_immunization['immunization'][$a]['provider_npi'] = $newdata['immunization']['provider_npi'];
                 $arr_immunization['immunization'][$a]['provider_name'] = $newdata['immunization']['provider_name'];
+                $arr_immunization['immunization'][$a]['provider_family'] = $newdata['immunization']['provider_family'];
                 $arr_immunization['immunization'][$a]['provider_address'] = $newdata['immunization']['provider_address'];
                 $arr_immunization['immunization'][$a]['provider_city'] = $newdata['immunization']['provider_city'];
                 $arr_immunization['immunization'][$a]['provider_state'] = $newdata['immunization']['provider_state'];
@@ -582,6 +585,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 $arr_encounter['encounter'][$k]['provider_npi'] = $newdata['encounter']['provider_npi'];
                 $arr_encounter['encounter'][$k]['provider_name'] = $newdata['encounter']['provider_name'];
+                $arr_encounter['encounter'][$k]['provider_family'] = $newdata['encounter']['provider_family'];
                 $arr_encounter['encounter'][$k]['provider_address'] = $newdata['encounter']['provider_address'];
                 $arr_encounter['encounter'][$k]['provider_city'] = $newdata['encounter']['provider_city'];
                 $arr_encounter['encounter'][$k]['provider_state'] = $newdata['encounter']['provider_state'];
@@ -761,6 +765,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
+                $arr_functional_cognitive_status['functional_cognitive_status'][$i]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
+                ;
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['root'] = $newdata['functional_cognitive_status']['root'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['text'] = $newdata['functional_cognitive_status']['code_text'];
@@ -1307,7 +1313,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_immunization['immunization'][$a]['completion_status'] = $data['immunization-completion_status'][$i];
 
                                 $arr_immunization['immunization'][$a]['provider_npi'] = $data['immunization-provider_npi'][$i];
-                                $arr_immunization['immunization'][$a]['provider_name'] = $data['immunization-provider_name'][$i];
+                                $arr_immunization['immunization'][$a]['provider_name'] = $data['immunization-provider_name'][$i] ?? '';
+                                $arr_immunization['immunization'][$a]['provider_family'] = $data['immunization-provider_family'][$i] ?? '';
                                 $arr_immunization['immunization'][$a]['provider_address'] = $data['immunization-provider_address'][$i];
                                 $arr_immunization['immunization'][$a]['provider_city'] = $data['immunization-provider_city'][$i];
                                 $arr_immunization['immunization'][$a]['provider_state'] = $data['immunization-provider_state'][$i];
@@ -1653,7 +1660,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 //provider
                                 $query_sel_users = "SELECT *
                                                       FROM users
-                                                      WHERE abook_type='external_provider' AND npi=?";
+                                                      WHERE npi=?";// abook_type='external_provider' AND
                                 $res_query_sel_users = $appTable->zQuery($query_sel_users, array($data['lists3-provider_npi-con'][$i]));
                                 if ($res_query_sel_users->count() > 0) {
                                     foreach ($res_query_sel_users as $value1) {
