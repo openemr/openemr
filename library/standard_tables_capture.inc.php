@@ -504,17 +504,27 @@ function icd_import($type)
     $incoming = array();
     
     $incoming['icd10pcs_codes_'] = array(
-        '#TABLENAME#' => "icd10_pcs_order_code",
-        '#FLD1#' => "pcs_code", '#POS1#' => 1, '#LEN1#' => 7,
-        '#FLD2#' => "long_desc", '#POS2#' => 9, '#LEN2#' => 300
+        'TABLENAME' => "icd10_pcs_order_code",
+        'FLD1' => "pcs_code",
+        'POS1' => 1,
+        'LEN1' => 7,
+        'FLD2' => "long_desc",
+        'POS2' => 9,
+        'LEN2' => 300
     );
         
     $incoming['icd10cm_order_'] = array(
-        '#TABLENAME#' => "icd10_dx_order_code",
-        '#FLD1#' => "dx_code", '#POS1#' => 7, '#LEN1#' => 7,
-        '#FLD2#' => "valid_for_coding", '#POS2#' => 15, '#LEN2#' => 1,
-        '#FLD3#' => "short_desc", '#POS3#' => 17, '#LEN3#' => 60,
-        '#FLD4#' => "long_desc", '#POS4#' => 78, '#LEN4#' => 300
+        'TABLENAME' => "icd10_dx_order_code",
+        'FLD1' => "dx_code",
+        'POS1' => 7,
+        'LEN1' => 7,
+        'FLD2' => "valid_for_coding", 
+        'POS2' => 15,
+        'LEN2' => 1,
+        'FLD3' => "short_desc",
+        'POS3' => 17,
+        'LEN3' => 60,
+        'FLD4' => "long_desc", 'POS4' => 78, 'LEN4' => 300
     );
 
     // set up the start of the load script to be appended from the incoming array defined above where incoming
@@ -529,7 +539,34 @@ function icd_import($type)
             if (!stripos($filename, ".txt") || stripos($filename, "diff") || stripos($filename, "addenda")) {
                 continue;
             }
-
+            
+            $keys = array_keys($incoming);
+            while ($this_key = array_pop($keys)) {
+                if (stripos($filename, $this_key) !== false) {
+                    $generator = getFileData($filename);
+                    foreach ($generator as $value) {
+                        echo "$value\n";
+                        foreach (range(1, 4) as $field) {
+                            $fld = "FLD" . $field ;
+                            $nxtfld = "FLD" . ($field + 1);
+                            $pos = "POS" . $field;
+                            $len = "LEN" . $field;
+    
+                    // concat this fields template in the sql string
+                            /* $run_sql .= $col_template;
+                            $run_sql = str_replace("#FLD#", $incoming[$this_key][$fld], $run_sql);
+                            $run_sql = str_replace("#POS#", $incoming[$this_key][$pos], $run_sql);
+                            $run_sql = str_replace("#LEN#", $incoming[$this_key][$len], $run_sql); */
+                    // at the end of this table's field list
+                            if (!array_key_exists($nxtfld, $incoming[$this_key])) {
+                                break;
+                            }
+    
+                        }
+                    }
+                }
+            }
+            
         // reset the sql load command and susbtitute the filename
             $run_sql = $db_load;
             $run_sql = str_replace("#INFILE#", $dir . $filename, $run_sql);
@@ -541,24 +578,6 @@ function icd_import($type)
 
                     // the range defines the maximum number of fields contained
                     // in any of the incoming files
-                    foreach (range(1, 4) as $field) {
-                        $fld = "#FLD" . $field . "#";
-                        $nxtfld = "#FLD" . ($field + 1) . "#";
-                        $pos = "#POS" . $field . "#";
-                        $len = "#LEN" . $field . "#";
-
-                // concat this fields template in the sql string
-                        $run_sql .= $col_template;
-                        $run_sql = str_replace("#FLD#", $incoming[$this_key][$fld], $run_sql);
-                        $run_sql = str_replace("#POS#", $incoming[$this_key][$pos], $run_sql);
-                        $run_sql = str_replace("#LEN#", $incoming[$this_key][$len], $run_sql);
-                // at the end of this table's field list
-                        if (!array_key_exists($nxtfld, $incoming[$this_key])) {
-                            break;
-                        }
-
-                        $run_sql .= ",";
-                    }
 
                     sqlStatement($run_sql);
 
@@ -746,3 +765,21 @@ function handle_zip_file($mode, $file)
         exit;
     }
 }
+
+/**
+ * @return Generator
+ */
+function getFileData($fn)
+{
+    $file = fopen($fn, 'r');
+
+    if (!$file) {
+        return; 
+    }    
+
+    while (($line = fgets($file)) !== false) {
+        yield $line;
+    }
+
+    fclose($file);
+};
