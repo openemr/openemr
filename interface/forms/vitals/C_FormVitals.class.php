@@ -295,7 +295,7 @@ class C_FormVitals
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;
         } else {
-            $vitalsHistoryLookback = $results;
+            $vitalsHistoryLookback = $results ?? null;
         }
 
         $data = [
@@ -450,7 +450,7 @@ class C_FormVitals
 
                 if (empty($value)) {
                     $details->clear_interpretation();
-                } else if (isset($interpretationList[$value])) {
+                } elseif (isset($interpretationList[$value])) {
                     $interpretation = $interpretationList[$value];
 
                     // we save off both the code and the text value here which duplicates the data.  However, since
