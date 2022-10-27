@@ -502,98 +502,81 @@ function icd_import($type)
     // followed by the field name, position and length of each fixed length text record in the incoming
     // flat files. There are separate definitions for ICD 9 and 10 based on the type passed in
     $incoming = array();
-    
+
+    // find active revision
+    $res = sqlStatementNoLog("SELECT max(revision) rev FROM icd10_pcs_order_code");
+    $row = sqlFetchArray($res);
+    $next_rev = $row['rev'] + 1;
     $incoming['icd10pcs_codes_'] = array(
         'TABLENAME' => "icd10_pcs_order_code",
-        'FLD1' => "pcs_code",
-        'POS1' => 1,
-        'LEN1' => 7,
-        'FLD2' => "long_desc",
-        'POS2' => 9,
-        'LEN2' => 300
+        'FLD1' => "pcs_code", 'POS1' => 0, 'LEN1' => 7,
+        'FLD2' => "long_desc", 'POS2' => 8, 'LEN2' => 300,
+        'REV' => $next_rev
     );
-        
+
+    $res = sqlStatementNoLog("SELECT max(revision) rev FROM icd10_dx_order_code");
+    $row = sqlFetchArray($res);
+    $next_rev = $row['rev'] + 1;
     $incoming['icd10cm_order_'] = array(
         'TABLENAME' => "icd10_dx_order_code",
-        'FLD1' => "dx_code",
-        'POS1' => 7,
-        'LEN1' => 7,
-        'FLD2' => "valid_for_coding", 
-        'POS2' => 15,
-        'LEN2' => 1,
-        'FLD3' => "short_desc",
-        'POS3' => 17,
-        'LEN3' => 60,
-        'FLD4' => "long_desc", 'POS4' => 78, 'LEN4' => 300
+        'FLD1' => "dx_code", 'POS1' => 6, 'LEN1' => 7,
+        'FLD2' => "valid_for_coding", 'POS2' => 14, 'LEN2' => 1,
+        'FLD3' => "short_desc", 'POS3' => 16, 'LEN3' => 60,
+        'FLD4' => "long_desc", 'POS4' => 77, 'LEN4' => 300,
+        'REV' => $next_rev
     );
 
-    // set up the start of the load script to be appended from the incoming array defined above where incoming
-    // file matches
-    $db_load = "LOAD DATA LOCAL INFILE '#INFILE#' INTO TABLE #TABLENAME# FIELDS TERMINATED BY '\0' (@var) SET revision = 0, ";
-    $col_template = "#FLD# = trim(Substring(@var, #POS#, #LEN#))";
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("SET autocommit=0");
+    sqlStatementNoLog("START TRANSACTION");
 
-    // load all data and set active revision
+    // first inactivate older set(s)
+    sqlStatementNoLog("UPDATE icd10_pcs_order_code SET active = 0");
+    sqlStatementNoLog("UPDATE icd10_dx_order_code SET active = 0");
+
     if (is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
-        // bypass unwanted entries
-            if (!stripos($filename, ".txt") || stripos($filename, "diff") || stripos($filename, "addenda")) {
+            // bypass unwanted entries
+            if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
                 continue;
             }
-            
+
             $keys = array_keys($incoming);
             while ($this_key = array_pop($keys)) {
                 if (stripos($filename, $this_key) !== false) {
-                    $generator = getFileData($filename);
+                    $generator = getFileData($dir . $filename);
                     foreach ($generator as $value) {
-                        echo "$value\n";
+                        $run_sql = "INSERT INTO `" . $incoming[$this_key]['TABLENAME'] . "` (";
+                        $sql_place = "(";
+                        $sql_values = [];
                         foreach (range(1, 4) as $field) {
-                            $fld = "FLD" . $field ;
+                            $fld = "FLD" . $field;
                             $nxtfld = "FLD" . ($field + 1);
                             $pos = "POS" . $field;
                             $len = "LEN" . $field;
-    
-                    // concat this fields template in the sql string
-                            /* $run_sql .= $col_template;
-                            $run_sql = str_replace("#FLD#", $incoming[$this_key][$fld], $run_sql);
-                            $run_sql = str_replace("#POS#", $incoming[$this_key][$pos], $run_sql);
-                            $run_sql = str_replace("#LEN#", $incoming[$this_key][$len], $run_sql); */
-                    // at the end of this table's field list
+                            $run_sql .= $incoming[$this_key][$fld] . ", ";
+                            $sql_place .= "?, ";
+                            // concat this fields template in the sql string
+                            array_push($sql_values, substr($value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
                             if (!array_key_exists($nxtfld, $incoming[$this_key])) {
+                                $run_sql .= "active, revision) VALUES ";
+                                $sql_place .= "?, ?)";
+                                array_push($sql_values, 1);
+                                array_push($sql_values, $incoming[$this_key]['REV']);
+                                sqlStatementNoLog($run_sql . $sql_place, $sql_values);
                                 break;
+                            } else {
+                                $run_sql .= " ";
+                                $sql_place .= " ";
                             }
-    
                         }
                     }
                 }
             }
-            
-        // reset the sql load command and susbtitute the filename
-            $run_sql = $db_load;
-            $run_sql = str_replace("#INFILE#", $dir . $filename, $run_sql);
-            $keys = array_keys($incoming);
-            while ($this_key = array_pop($keys)) {
-                if (stripos($filename, $this_key) !== false) {
-                    // now substitute the tablename
-                        $run_sql = str_replace("#TABLENAME#", $incoming[$this_key]['#TABLENAME#'], $run_sql);
-
-                    // the range defines the maximum number of fields contained
-                    // in any of the incoming files
-
-                    sqlStatement($run_sql);
-
-                    // now update the revision for this load
-                    $res = sqlStatement("SELECT max(revision) rev FROM " . escape_table_name($incoming[$this_key]['#TABLENAME#']));
-                    $row = sqlFetchArray($res);
-                    $next_rev = $row['rev'] + 1;
-                    $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 0";
-                    sqlQuery($run_sql);
-                    $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 1, revision = ? WHERE revision = 0";
-                    sqlQuery($run_sql, array($next_rev));
-                    break;
-                }
-            }
         }
-
+        // Settings to drastically speed up import with InnoDB
+        sqlStatementNoLog("COMMIT");
+        sqlStatementNoLog("SET autocommit=1");
         closedir($handle);
     } else {
         echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
@@ -603,7 +586,7 @@ function icd_import($type)
     // now update the tables where necessary
     sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");
     sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = concat(concat(left(dx_code, 3), '.'), substr(dx_code, 4)) WHERE LENGTH(dx_code) > 3");
-    
+
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
     if (!empty($GLOBALS['kernel'])) {
@@ -624,7 +607,7 @@ function valueset_import($type)
     }
 
     $dir_valueset = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
-        $dir = str_replace('\\', '/', $dir_valueset);
+    $dir = str_replace('\\', '/', $dir_valueset);
 
     // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("SET autocommit=0");
@@ -676,9 +659,9 @@ function valueset_import($type)
                     }
                 }
 
-                    sqlStatementNoLog("UPDATE valueset set code_type='SNOMED CT' where code_type='SNOMEDCT'");
-                    sqlStatementNoLog("UPDATE valueset set code_type='ICD9' where code_type='ICD9CM'");
-                    sqlStatementNoLog("UPDATE valueset set code_type='ICD10' where code_type='ICD10CM'");
+                sqlStatementNoLog("UPDATE valueset set code_type='SNOMED CT' where code_type='SNOMEDCT'");
+                sqlStatementNoLog("UPDATE valueset set code_type='ICD9' where code_type='ICD9CM'");
+                sqlStatementNoLog("UPDATE valueset set code_type='ICD10' where code_type='ICD10CM'");
             }
         }
     }
@@ -774,8 +757,8 @@ function getFileData($fn)
     $file = fopen($fn, 'r');
 
     if (!$file) {
-        return; 
-    }    
+        return;
+    }
 
     while (($line = fgets($file)) !== false) {
         yield $line;
