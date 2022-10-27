@@ -145,6 +145,7 @@ class TeleHealthCalendarController
 
     public function addCalendarJavascript(ScriptFilterEvent $event)
     {
+
         $pageName = $event->getPageName();
         $scriptPath = '';
         // backwards compatible with older versions of OpenEMR

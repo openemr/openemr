@@ -33,6 +33,7 @@ use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use OpenEMR\Validators\ProcessingResult;
 use Psr\Log\LoggerInterface;
 use Twig\Environment;
 use Exception;
@@ -177,22 +178,22 @@ class TeleconferenceRoomController
                 "TeleconferenceRoomController->setAppointmentStatusAction() Updated appointment status",
                 ['pc_eid' => $pc_eid, 'status' => $status, 'authUser' => $authUser]
             );
-            echo json_encode(['status' => 'success']);
+            echo text(json_encode(['status' => 'success']));
         } catch (InvalidArgumentException $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(400);
-            echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
+            echo text(json_encode(['error' => 'invalid argument sent.  Check server logs for details']));
         } catch (AccessDeniedException $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(403);
-            echo json_encode(['error' => 'Access denied to patient telehealth information.']);
+            echo text(json_encode(['error' => 'Access denied to patient telehealth information.']));
         } catch (Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
+            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
         }
     }
 
@@ -209,8 +210,10 @@ class TeleconferenceRoomController
             $conferenceRoom = $this->renderConferenceRoom($queryVars);
 
             $result = [
+                // waiting room has already been escaped via twig rendering
                 'waitingRoom' => $waitingRoom
-                , 'callerSettings' => $settings
+                , 'callerSettings' => textArray($settings)
+                // conference room has already been escaped via twig rendering
                 , 'conferenceRoom' => $conferenceRoom
             ];
             echo json_encode($result);
@@ -218,7 +221,7 @@ class TeleconferenceRoomController
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
+            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
         }
     }
 
@@ -246,12 +249,12 @@ class TeleconferenceRoomController
             }
             $this->logger->debug("Updating lastSeenTimestamp", ['pc_eid' => $pc_eid, 'isProvider' => $isProvider]);
             $this->sessionRepository->updateLastSeenTimestamp($pc_eid, $isProvider);
-            echo json_encode(['status' => 'success']);
+            echo text(json_encode(['status' => 'success']));
         } catch (\Exception $exception) {
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
+            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
         }
     }
 
@@ -293,12 +296,12 @@ class TeleconferenceRoomController
                     $result['session']['calleeUuid'] = $telehealthCredentials->getUsername();
                 }
             }
-            echo json_encode($result);
+            echo text(json_encode($result));
         } catch (Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
+            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
         }
     }
 
@@ -315,21 +318,21 @@ class TeleconferenceRoomController
             }
             $jsonSettings = json_encode([
                 'username' => $settings->getUsername()
-                , 'isPatient' => $this->isPatient
+                , 'isPatient' => $this->isPatient == true
                 , 'dbRecordId' => $settings->getId()
             ]);
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
-            echo $jsonSettings;
+            echo text($jsonSettings);
         } catch (TelehealthProviderNotEnrolledException | TeleHealthProviderSuspendedException $exception) {
-            $jsonSettings = json_encode(['errorCode' => self::REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE
-                , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]);
+            $jsonSettings = text(json_encode(['errorCode' => self::REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE
+                , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]));
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo $jsonSettings;
         } catch (Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
+            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
         }
     }
 
@@ -462,17 +465,17 @@ class TeleconferenceRoomController
                     'username' => $user['username']
                 ]
             ];
-            echo json_encode($jsonData);
+            echo text(json_encode($jsonData));
         } catch (InvalidArgumentException $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(400);
-            echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
+            echo text(json_encode(['error' => 'invalid argument sent.  Check server logs for details']));
         } catch (Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
+            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
         }
     }
 
@@ -627,9 +630,11 @@ class TeleconferenceRoomController
             throw new InvalidArgumentException("telehealth session could not be found for encounter " . $eid);
         }
         $appt = $this->appointmentService->getAppointment($session['pc_eid']);
-        $encounter = $this->encounterService->getEncounterById($session['encounter']);
+        $encounter = ProcessingResult::extractDataArray($this->encounterService->getEncounterById($session['encounter']));
         if (empty($encounter)) {
             throw new InvalidArgumentException("encounter could not be found for eid " . $eid);
+        } else {
+            $encounter = $encounter[0]; // get the first one.
         }
         if (empty($appt)) {
             throw new InvalidArgumentException("appointment could not be found for pc_eid" . $session['pc_eid']);

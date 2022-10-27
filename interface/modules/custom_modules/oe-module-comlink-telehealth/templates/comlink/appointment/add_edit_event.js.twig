@@ -1,8 +1,8 @@
 (function(window, comlink) {
 
     // call our init function with our variables
-    let teleHealthProviders = {{ providers|json_encode }};
-    let telehealthCategories = {{ categories|json_encode }};
+    let teleHealthProviders = {{ providers|json_encode|text }};
+    let telehealthCategories = {{ categories|json_encode|text }};
     console.log("providers ", teleHealthProviders);
     console.log("categories", telehealthCategories);
     console.log(comlink)
