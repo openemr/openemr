@@ -288,7 +288,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFilter(
                 'addCacheParam',
-                function($path) {
+                function ($path) {
                     return CacheUtils::addAssetCacheParamToPath($path);
                 }
             )
