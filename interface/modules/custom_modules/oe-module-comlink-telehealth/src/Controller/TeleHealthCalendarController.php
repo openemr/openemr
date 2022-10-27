@@ -123,7 +123,7 @@ class TeleHealthCalendarController
     {
         if ($this->isCalendarPageInclude($event->getPageName())) {
             $styles = $event->getStyles();
-            $styles[] = $this->getAssetPath() . "css/telehealth.css";
+            $styles[] = $this->getAssetPath() . CacheUtils::addAssetCacheParamToPath("css/telehealth.css");
             $event->setStyles($styles);
         }
     }
