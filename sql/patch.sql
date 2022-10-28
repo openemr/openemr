@@ -178,3 +178,7 @@ UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Pho
 #IfMissingColumn layout_group_properties grp_unchecked
 ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
 #EndIf
+
+#IfNotColumnType audit_details field_value LONGTEXT
+ALTER TABLE `audit_details` CHANGE `field_value` `field_value` LONGTEXT COMMENT 'openemr table field value';
+#EndIf
