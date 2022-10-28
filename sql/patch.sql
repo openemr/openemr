@@ -175,3 +175,6 @@ UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID 
 UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
 #EndIf
 
+#IfMissingColumn layout_group_properties grp_unchecked
+ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
