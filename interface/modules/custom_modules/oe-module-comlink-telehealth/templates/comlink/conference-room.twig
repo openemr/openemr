@@ -6,7 +6,7 @@
             <div class="remote-video-container text-center w-100">
                 <video id="remote-video" class="remote-video d-none mw-100"></video>
                 <div class="waiting-container">
-                    <h1 class="h1-responsive text-light text-center">{{ "Waiting for the following to join"|xlt }}:&nbsp;<em>{{ calleeName }}</em><div class="spinner-border" role="status">
+                    <h1 class="h1-responsive text-light text-center">{{ "Waiting for the following to join"|xlt }}:&nbsp;<em>{{ calleeName|text }}</em><div class="spinner-border" role="status">
                             <span class="sr-only">{{ "Waiting"|xlt }}...</span>
                         </div></h1>
                 </div>

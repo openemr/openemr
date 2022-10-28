@@ -1,8 +1,8 @@
 (function(window, comlink) {
 
     // call our init function with our variables
-    let teleHealthProviders = {{ providers|json_encode|text }};
-    let telehealthCategories = {{ categories|json_encode|text }};
+    let teleHealthProviders = {{ providers|json_encode }};
+    let telehealthCategories = {{ categories|json_encode }};
     if (comlink.initAppointmentWithTelehealth) {
         window.document.addEventListener("DOMContentLoaded", function() {
             comlink.initAppointmentWithTelehealth(teleHealthProviders, telehealthCategories);
