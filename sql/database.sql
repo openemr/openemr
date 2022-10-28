@@ -4072,7 +4072,8 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'other', 'Other/Miscellaneous', 18, 0, 'OTH');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'transdermal', 'Transdermal', 19, 0, 'TD');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','intramuscular','Intramuscular' ,20, 0, 'IM', 'NCI-CONCEPT-ID:C28161');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','inhale','Inhale' ,16, 0, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','inhale','Inhale' ,17, 0, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route', 'bymouth', 'By Mouth', 21, 0, 'PO', 'NCI-CONCEPT-ID:C38288');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','0',''      ,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','1','b.i.d.',1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','2','t.i.d.',2,0);
@@ -7807,6 +7808,7 @@ CREATE TABLE `registry` (
   `patient_encounter` TINYINT NOT NULL DEFAULT '1',
   `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
   `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
+  `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMENT 'An id to a form repository. Primarily questionnaire_repository.',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25;
 
@@ -13151,4 +13153,76 @@ CREATE TABLE `valueset_oid` (
   `description` varchar(255) DEFAULT NULL,
   `valueset_name` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`nqf_code`,`code`,`valueset`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `questionnaire_repository`;
+CREATE TABLE `questionnaire_repository` (
+    `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `uuid` binary(16) DEFAULT NULL,
+    `questionnaire_id` varchar(255) DEFAULT NULL,
+    `provider` int(11) UNSIGNED DEFAULT NULL,
+    `version` int(11) NOT NULL DEFAULT 1,
+    `created_date` datetime DEFAULT current_timestamp(),
+    `modified_date` datetime DEFAULT current_timestamp(),
+    `name` varchar(255) DEFAULT NULL,
+    `type` varchar(63) NOT NULL DEFAULT 'Questionnaire',
+    `profile` varchar(255) DEFAULT NULL,
+    `active` tinyint(2) NOT NULL DEFAULT 1,
+    `status` varchar(31) DEFAULT NULL,
+    `source_url` text,
+    `code` varchar(255) DEFAULT NULL,
+    `code_display` text,
+    `questionnaire` longtext,
+    `lform` longtext,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`),
+    KEY `search` (`name`,`questionnaire_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `questionnaire_response`;
+CREATE TABLE `questionnaire_response` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `response_id` varchar(255) DEFAULT NULL COMMENT 'A globally unique id for answer set. String version of UUID',
+  `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
+  `questionnaire_id` varchar(255) DEFAULT NULL COMMENT 'Id for questionnaire content. String version of UUID',
+  `questionnaire_name` varchar(255) DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `encounter` int(11) DEFAULT NULL COMMENT 'May or may not be associated with an encounter',
+  `audit_user_id` int(11) DEFAULT NULL,
+  `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
+  `create_time` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT NULL,
+  `version` int(11) NOT NULL DEFAULT 1,
+  `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
+  `questionnaire` longtext COMMENT 'the subject questionnaire json',
+  `questionnaire_response` longtext COMMENT 'questionnaire response json',
+  `form_response` longtext COMMENT 'lform answers array json',
+  `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
+  `tscore` double DEFAULT NULL COMMENT 'T-Score',
+  `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `form_questionnaire_assessments`;
+CREATE TABLE `form_questionnaire_assessments` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT current_timestamp(),
+  `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository',
+  `pid` bigint(21) NOT NULL DEFAULT 0,
+  `user` bigint(21) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) NOT NULL DEFAULT 0,
+  `activity` tinyint(4) NOT NULL DEFAULT 1,
+  `copyright` text,
+  `form_name` varchar(255) DEFAULT NULL,
+  `response_meta` text COMMENT 'json meta data for the response resource',
+  `questionnaire_id` TEXT COMMENT 'The foreign id to the questionnaire_repository',
+  `questionnaire` longtext,
+  `questionnaire_response` longtext,
+  `lform` longtext,
+  `lform_response` longtext,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
