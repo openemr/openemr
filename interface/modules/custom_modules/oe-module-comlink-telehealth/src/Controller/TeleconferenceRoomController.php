@@ -178,22 +178,22 @@ class TeleconferenceRoomController
                 "TeleconferenceRoomController->setAppointmentStatusAction() Updated appointment status",
                 ['pc_eid' => $pc_eid, 'status' => $status, 'authUser' => $authUser]
             );
-            echo text(json_encode(['status' => 'success']));
+            echo json_encode(['status' => 'success']);
         } catch (InvalidArgumentException $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(400);
-            echo text(json_encode(['error' => 'invalid argument sent.  Check server logs for details']));
+            echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
         } catch (AccessDeniedException $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(403);
-            echo text(json_encode(['error' => 'Access denied to patient telehealth information.']));
+            echo json_encode(['error' => 'Access denied to patient telehealth information.']);
         } catch (Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
+            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
         }
     }
 
@@ -221,7 +221,7 @@ class TeleconferenceRoomController
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
+            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
         }
     }
 
@@ -249,12 +249,12 @@ class TeleconferenceRoomController
             }
             $this->logger->debug("Updating lastSeenTimestamp", ['pc_eid' => $pc_eid, 'isProvider' => $isProvider]);
             $this->sessionRepository->updateLastSeenTimestamp($pc_eid, $isProvider);
-            echo text(json_encode(['status' => 'success']));
+            echo json_encode(['status' => 'success']);
         } catch (\Exception $exception) {
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
+            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
         }
     }
 
@@ -301,7 +301,7 @@ class TeleconferenceRoomController
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
+            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
         }
     }
 
@@ -332,7 +332,7 @@ class TeleconferenceRoomController
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
+            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
         }
     }
 
@@ -470,12 +470,12 @@ class TeleconferenceRoomController
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(400);
-            echo text(json_encode(['error' => 'invalid argument sent.  Check server logs for details']));
+            echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
         } catch (Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
-            echo text(json_encode(['error' => 'server error occurred.  Check server logs for details']));
+            echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
         }
     }
 
