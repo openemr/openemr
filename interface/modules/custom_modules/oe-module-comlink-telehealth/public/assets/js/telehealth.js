@@ -892,7 +892,7 @@
               <div class="modal-dialog mw-100 ml-2 mr-2">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title">${translations.TELEHEALTH_MODAL_TITLE}</h5>
+                    <h5 class="modal-title">` + jsText(translations.TELEHEALTH_MODAL_TITLE) + `</h5>
                     <button type="button" class="close btn-telehealth-provider-close" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>

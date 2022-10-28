@@ -43,27 +43,27 @@ class TeleHealthFrontendSettingsController
     public function getTranslationSettings()
     {
         $translations = [
-                'CALL_CONNECT_FAILED' => xlt("Failed to connect the call."),
-                'SESSION_LAUNCH_FAILED' => xlt("There was an error in launching your telehealth session.  Please try again or contact support"),
-                'DUPLICATE_SESSION' => xlt("You are already in a conference session.  Please hangup the current call to start a new telehealth session"),
-                'HOST_LEFT' => xlt("Host left the call"),
-                'PROVIDER_SESSION_START_PROMPT' => xlt("Would you like to start a telehealth session with this patient (This will create an encounter if one does not exist)?"),
-                'PROVIDER_SESSION_CLONE_START_PROMPT' => xlt("This appointment belongs to a different provider. Would you still like to start a telehealth session (this will copy the appointment to your calendar and create an encounter if needed)?"),
-                'PROVIDER_SESSION_TELEHEALTH_UNENROLLED' => xlt("This is a Telehealth session appointment.  If you would like to provide telehealth sessions to your clients contact your administrator to enroll today."),
-                'CONFIRM_SESSION_CLOSE' => xlt("Are you sure you want to close this session?"),
-                "TELEHEALTH_MODAL_TITLE" => xlt("TeleHealth Session"),
-                "TELEHEALTH_MODAL_CONFIRM_TITLE" => xlt("Confirm Session Close"),
-                "UPDATE_APPOINTMENT_STATUS" => xlt("Update appointment status"),
-                "STATUS_NO_SHOW" => xlt("No Show"),
-                "STATUS_CANCELED" => xlt("Canceled"),
-                "STATUS_CHECKED_OUT" => xlt("Checked Out"),
-                "CONFIRM" => xlt("Confirm"),
-                "CALENDAR_EVENT_DISABLED" => xlt("TeleHealth Sessions can only be launched within two hours of the current appointment time."),
-                "CALENDAR_EVENT_COMPLETE" => xlt("This TeleHealth appointment has been completed."),
-                "STATUS_SKIP_UPDATE" => xlt("Skip Update"),
-                "STATUS_NO_UPDATE" => xlt("No Change"),
-                "STATUS_OTHER" => xlt("Other"),
-                'APPOINTMENT_STATUS_UPDATE_FAILED' => xlt('There was an error in saving the telehealth appointment status.  Please contact support or update the appointment manually in the calendar')
+                'CALL_CONNECT_FAILED' => xl("Failed to connect the call."),
+                'SESSION_LAUNCH_FAILED' => xl("There was an error in launching your telehealth session.  Please try again or contact support"),
+                'DUPLICATE_SESSION' => xl("You are already in a conference session.  Please hangup the current call to start a new telehealth session"),
+                'HOST_LEFT' => xl("Host left the call"),
+                'PROVIDER_SESSION_START_PROMPT' => xl("Would you like to start a telehealth session with this patient (This will create an encounter if one does not exist)?"),
+                'PROVIDER_SESSION_CLONE_START_PROMPT' => xl("This appointment belongs to a different provider. Would you still like to start a telehealth session (this will copy the appointment to your calendar and create an encounter if needed)?"),
+                'PROVIDER_SESSION_TELEHEALTH_UNENROLLED' => xl("This is a Telehealth session appointment.  If you would like to provide telehealth sessions to your clients contact your administrator to enroll today."),
+                'CONFIRM_SESSION_CLOSE' => xl("Are you sure you want to close this session?"),
+                "TELEHEALTH_MODAL_TITLE" => xl("TeleHealth Session"),
+                "TELEHEALTH_MODAL_CONFIRM_TITLE" => xl("Confirm Session Close"),
+                "UPDATE_APPOINTMENT_STATUS" => xl("Update appointment status"),
+                "STATUS_NO_SHOW" => xl("No Show"),
+                "STATUS_CANCELED" => xl("Canceled"),
+                "STATUS_CHECKED_OUT" => xl("Checked Out"),
+                "CONFIRM" => xl("Confirm"),
+                "CALENDAR_EVENT_DISABLED" => xl("TeleHealth Sessions can only be launched within two hours of the current appointment time."),
+                "CALENDAR_EVENT_COMPLETE" => xl("This TeleHealth appointment has been completed."),
+                "STATUS_SKIP_UPDATE" => xl("Skip Update"),
+                "STATUS_NO_UPDATE" => xl("No Change"),
+                "STATUS_OTHER" => xl("Other"),
+                'APPOINTMENT_STATUS_UPDATE_FAILED' => xl('There was an error in saving the telehealth appointment status.  Please contact support or update the appointment manually in the calendar')
         ];
         return $translations;
     }
