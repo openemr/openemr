@@ -151,6 +151,7 @@ foreach ($docs as $doc) {
             'category_id' => '1',
             'higher_level_path' => '',
             'path_depth' => '1',
+            'skip_acl_check' => true
         );
         $new_doc = call_user_func_array('addNewDocument', $doc_params);
         printf('%s - %s%s', text($doc_pathname), (isset($new_doc) ? text($new_doc->get_url()) : xlt('Documents setup error')), "\n");

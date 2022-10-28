@@ -850,7 +850,7 @@ $none_message = xlt("Nothing to show for current actions.");
                                         $audit_status['denial_reason'] = xl('Scheduled');
                                     }
                                     $next_due = date('m/d/Y', $next_due);
-                                } elseif ($next_due === 1 || ($next_due === true && $file['recurring'] ?? 0)) {
+                                } elseif ($next_due === 1 || ($next_due === true && ($file['recurring'] ?? 0))) {
                                     $audit_status['denial_reason'] = xl('Recurring');
                                     $next_due = xl('Active');
                                 } elseif ($next_due === 0) {

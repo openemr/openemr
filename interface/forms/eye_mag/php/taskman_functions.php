@@ -593,7 +593,7 @@ mpdf-->
 
     $type = "application/pdf";
     $size = filesize($temp_filename);
-    $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $task['FROM_ID'], $task['PATIENT_ID'], $category_id);
+    $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $task['FROM_ID'], $task['PATIENT_ID'], $category_id, '', 1, true);
     unlink($temp_filename);
 
     $task['DOC_ID'] = $return['doc_id'];

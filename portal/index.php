@@ -139,7 +139,7 @@ if (!empty($_GET['forward_email_verify'])) {
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
-} else if (isset($_GET['forward'])) {
+} elseif (isset($_GET['forward'])) {
     if ((empty($GLOBALS['portal_two_pass_reset']) && empty($GLOBALS['portal_onsite_two_register'])) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
         (new SystemLogger())->debug("reset password and registration not supported, so stopped attempt to use forward token");
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -357,14 +357,14 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     </div>
                 </div>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="pass"><?php echo !$_SESSION['onetime'] ? xlt('Current Password') : ''; ?></label>
+                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($_SESSION['onetime'] ?? null) ? xlt('Current Password') : ''; ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime']);
-                        $_SESSION['password_update'] = $_SESSION['onetime'] ? 2 : 1;
+                        <input class="form-control" name="pass" id="pass" <?php echo ($_SESSION['onetime'] ?? null) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime'] ?? '');
+                        $_SESSION['password_update'] = ($_SESSION['onetime'] ?? null) ? 2 : 1;
                         unset($_SESSION['onetime']); ?>" required />
                     </div>
                 </div>
-                <?php if ($_SESSION['pin']) { ?>
+                <?php if ($_SESSION['pin'] ?? null) { ?>
                     <div class="form-row my-3">
                         <label class="col-md-2 col-form-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
                         <div class="col-md">

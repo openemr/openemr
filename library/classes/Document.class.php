@@ -264,7 +264,7 @@ class Document extends ORDataObject
         . "WHERE `ctd`.`document_id` = ? ";
         $resultSet = sqlStatement($categories, [$this->get_id()]);
         $categories = [];
-        while ($category = sqlGetAssoc($resultSet)) {
+        while ($category = sqlFetchArray($resultSet)) {
             $categories[] = $category;
         }
         return $categories;
