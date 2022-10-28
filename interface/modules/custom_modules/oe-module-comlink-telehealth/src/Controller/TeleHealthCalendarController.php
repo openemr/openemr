@@ -152,16 +152,22 @@ class TeleHealthCalendarController
         if (defined('OpenEMR\Events\Core\ScriptFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME')) {
             $scriptPath = $event->getContextArgument(ScriptFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME) ?? '';
         }
+        // currently security restrictions support scripts only on the filesystem.  Translations then
+        // are being pulled from the top level comlink instead of the inner iframe.  We may need to adjust this
+        // if we run into issues.
         if ($this->isCalendarPageInclude($pageName)) {
             $scripts = $event->getScripts();
-            // currently security restrictions support scripts only on the filesystem.  Translations then
-            // are being pulled from the top level comlink instead of the inner iframe.  We may need to adjust this
-            // if we run into issues.
-            $scripts[] = $this->getAssetPath() . CacheUtils::addAssetCacheParamToPath("js/telehealth-calendar.js");
+            // note the cache buster is already being populated in Header.php since this script isn't a registered
+            // asset
+            $scripts[] = $this->getAssetPath() . "js/telehealth-calendar.js";
             $event->setScripts($scripts);
         } else if ($this->isAppointmentPageInclude($pageName, $scriptPath)) {
+            // note the cache buster is already being populated in Header.php since this script isn't a registered
+            // asset
             $scripts = $event->getScripts();
-            $scripts[] = $this->getAssetPath() . CacheUtils::addAssetCacheParamToPath("js/telehealth-appointment.js");
+            $scripts[] = $this->getAssetPath() . "../index.php?action=get_telehealth_settings";
+            $scripts[] = $this->getAssetPath() . "js/telehealth-calendar.js";
+            $scripts[] = $this->getAssetPath() . "js/telehealth-appointment.js";
             $event->setScripts($scripts);
         }
     }
@@ -179,7 +185,6 @@ class TeleHealthCalendarController
         if ($this->apptService->isCheckOutStatus($row['pc_apptstatus'])) {
             return;
         }
-        echo "<script src='" . $this->getAssetPath() . "js/telehealth-calendar.js" . "'></script>";
         echo "<button data-eid='" . attr($row['pc_eid']) . "' data-pid='" . attr($row['pc_pid'])
             . "' class='mt-2 btn btn-primary btn-add-edit-appointment-launch-telehealth'><i class='fa fa-video m-2'></i>"
             . xlt("Launch TeleHealth Session") . "</button>";
