@@ -18,11 +18,14 @@ use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
 use Documents\Model\DocumentsTable;
 use Documents\Plugin\Documents;
+use Exception;
+use Laminas\Config\Reader\ReaderInterface;
 use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
+use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 
 class CarecoordinationTable extends AbstractTableGateway
@@ -31,11 +34,12 @@ class CarecoordinationTable extends AbstractTableGateway
     public const ORGANIZATION_SAMPLE = "External Physicians Practice";
     public const ORGANIZATION2_SAMPLE = "External Health and Hospitals";
     public $is_qrda_import;
+    public $is_unstructured_import;
     protected $documentData;
+    protected $validateDocument;
     private $parseTemplates;
     private $codeService;
     private $importService;
-    protected $validateDocument;
 
     public function __construct()
     {
@@ -168,31 +172,35 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->insert_patient(null, null);
     }
 
-    /*
-     * Fetch the component values from the CCDA XML
-     *
-     * @param   $document_id    Document id
+    /**
+     * @param $xml_content
+     * @param $doc_id
+     * @return void
+     * @throws Exception
      */
-
     public function importCore($xml_content, $doc_id = null)
     {
         $xml_content_new = preg_replace('#<br />#', '', $xml_content);
         $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
+        $xml_content_new = (string)str_replace(array("\n    ", "\n", "\r"), '', $xml_content_new);
 
         // Note the behavior of this relies on PHP's XMLReader
         // @see https://docs.zendframework.com/zend-config/reader/
         // @see https://php.net/xmlreader
-        $xmltoarray = new Xml();
-        $xml = $xmltoarray->fromString((string)$xml_content_new);
-
-        /* PlaceHolder for removed header organizational data parse because not used. sjp 09/26/21 */
-
+        // 10/27/2022 sjp Extended base reader Laminas XML class using provided interface class
+        // Needed to add LIBXML_COMPACT | LIBXML_PARSEHUGE flags because large text node(>10MB) will fail.
+        try {
+            $xmltoarray = new XmlExtended();
+            $xml = $xmltoarray->fromString($xml_content_new);
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
         $qrda_log['message'] = $validation_log = null;
         // test if a QRDA QDM CAT I document type from header OIDs
-        $qrda = $xml['templateId'][2]['root'] ?? null;
-        if ($qrda === '2.16.840.1.113883.10.20.24.1.2') {
+        $template_oid = $xml['templateId'][2]['root'] ?? null;
+        if ($template_oid === '2.16.840.1.113883.10.20.24.1.2') {
             $this->is_qrda_import = 1;
             if (!empty($doc_id)) {
                 $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'qrda1');
@@ -210,7 +218,12 @@ class CarecoordinationTable extends AbstractTableGateway
             if (!empty($doc_id)) {
                 $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'ccda');
             }
-            $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
+            if ($template_oid === '2.16.840.1.113883.10.20.22.1.10') {
+                $this->is_unstructured_import = 1;
+                $this->documentData = $this->parseTemplates->parseUnstructuredComponents($xml);
+            } else {
+                $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
+            }
         }
 
         $this->documentData['approval_status'] = 1;
@@ -251,8 +264,9 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['suffix'] = $name['suffix'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = ucfirst(strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? ''));
-        $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
+        //$this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['referrerID'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? '';
+        //$this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['city'] = $xml['recordTarget']['patientRole']['addr']['city'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'] ?? null;
@@ -766,7 +780,6 @@ class CarecoordinationTable extends AbstractTableGateway
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$i]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
-                ;
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['root'] = $newdata['functional_cognitive_status']['root'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['text'] = $newdata['functional_cognitive_status']['code_text'];

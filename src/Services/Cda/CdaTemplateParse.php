@@ -187,6 +187,35 @@ class CdaTemplateParse
         return $this->templateData ?? [];
     }
 
+    public function parseUnstructuredComponents($xml): array
+    {
+        $components = $xml['component'];
+        $uuid = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
+        $sql = "";
+        foreach ($components as $component) {
+            $item = $component['nonXMLBody']['text'];
+            $this->fetchFileForImport($item, $uuid);
+        }
+
+        return $this->templateData ?? [];
+    }
+
+    public function fetchFileForImport($component, $uuid): void
+    {
+        $i = 1;
+        if (!empty($this->templateData['field_name_value_array']['import_file'])) {
+            $i += count($this->templateData['field_name_value_array']['import_file']);
+        }
+        $this->templateData['field_name_value_array']['import_file'][$i]['uuid'] = $uuid;
+        $this->templateData['field_name_value_array']['import_file'][$i]['mediaType'] = $component['mediaType'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['category'] = $component['category'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['file_name'] = $component['name'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['compression'] = $component['compression'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['content'] = $component['_'] ?? '';
+
+        $this->templateData['entry_identification_array']['import_file'][$i] = $i;
+    }
+
     public function fetchDeceasedObservationData($entry)
     {
         // handled in patient data parse.
