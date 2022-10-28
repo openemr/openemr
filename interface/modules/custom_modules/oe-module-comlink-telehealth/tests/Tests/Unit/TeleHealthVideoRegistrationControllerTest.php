@@ -19,6 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderReposi
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -34,14 +35,21 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
      */
     private $telehealthConfig;
 
+    /**
+     * @var TelehealthRegistrationCodeService
+     */
+    private $registrationCodeService;
+
     protected function setUp(): void
     {
         global $GLOBALS;
         parent::setUp();
         $globalsConfig = new TelehealthGlobalConfig();
         $this->telehealthConfig = $globalsConfig;
-        $providerRepo = new TeleHealthProviderRepository();
-        $remoteRepo = new TeleHealthRemoteRegistrationService($globalsConfig, new TelehealthRegistrationCodeService());
+        $providerRepo = new TeleHealthProviderRepository(new SystemLogger(), $globalsConfig);
+        $userRepo = new TeleHealthUserRepository();
+        $this->registrationCodeService = new TelehealthRegistrationCodeService($globalsConfig, $userRepo);
+        $remoteRepo = new TeleHealthRemoteRegistrationService($globalsConfig, $this->registrationCodeService);
 
         $this->controller = new TeleHealthVideoRegistrationController($remoteRepo, $providerRepo);
     }
@@ -56,6 +64,10 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
         $mock->expects($this->once())
             ->method('saveUser')
             ->willReturn(1);
+
+        $mock->expects($this->once())
+            ->method('decryptPassword')
+            ->willReturn($userRequest->getPassword());
 
         $this->controller->setTelehealthUserRepository($mock);
         $savedTelehealthUserId = $this->controller->addNewUser($userRequest);
@@ -72,6 +84,9 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
             ->willReturn(1);
         $mock->method('getUser')
             ->willReturn($this->getMockUser(1, $userRequest->getUsername()));
+        $mock->expects($this->once())
+            ->method('decryptPassword')
+            ->willReturn($userRequest->getPassword());
 
         $controller->setTelehealthUserRepository($mock);
         $savedTelehealthUserId = $controller->addNewUser($userRequest);
@@ -96,6 +111,9 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
             ->willReturn(1);
         $mock->method('getUser')
             ->willReturn($this->getMockUser(1, $userRequest->getUsername()));
+        $mock->expects($this->once())
+            ->method('decryptPassword')
+            ->willReturn($userRequest->getPassword());
 
         $controller->setTelehealthUserRepository($mock);
         $savedTelehealthUserId = $controller->addNewUser($userRequest);
@@ -119,6 +137,9 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
             ->willReturn(1);
         $mock->method('getUser')
             ->willReturn($this->getMockUser(1, $userRequest->getUsername()));
+        $mock->expects($this->once())
+            ->method('decryptPassword')
+            ->willReturn($userRequest->getPassword());
 
         $controller->setTelehealthUserRepository($mock);
         $savedTelehealthUserId = $controller->addNewUser($userRequest);
@@ -145,7 +166,8 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
             ->setLastName("Test Last Name " . $userRequest->getUsername())
             ->setInstituationId($this->telehealthConfig->getInstitutionId())
             ->setInstitutionName($this->telehealthConfig->getInstitutionName())
-            ->setDbRecordId(1);
+            ->setDbRecordId(1)
+            ->setRegistrationCode($this->registrationCodeService->generateRegistrationCode());
         return $userRequest;
     }
 
