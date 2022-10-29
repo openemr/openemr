@@ -175,6 +175,14 @@ UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID 
 UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
 #EndIf
 
+#IfMissingColumn openemr_postcalendar_events uuid
+ALTER TABLE `openemr_postcalendar_events` ADD COLUMN `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex openemr_postcalendar_events uuid
+CREATE UNIQUE INDEX `uuid` ON `openemr_postcalendar_events` (`uuid`);
+#EndIf
+
 #IfMissingColumn layout_group_properties grp_unchecked
 ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
 #EndIf
@@ -183,6 +191,6 @@ ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DE
 ALTER TABLE `audit_details` CHANGE `field_value` `field_value` LONGTEXT COMMENT 'openemr table field value';
 #EndIf
 
-#IfMissingColumn audit_master is_unstructured_document
-ALTER TABLE `audit_master` ADD `is_unstructured_document` BOOLEAN NULL DEFAULT FALSE;
+#IfNotColumnType ccda ccda_data LONGTEXT
+ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
 #EndIf
