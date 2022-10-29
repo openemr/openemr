@@ -165,3 +165,11 @@ UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID 
 #IfRow2D categories aco_spec patients|docs name Patient Photograph
 UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
 #EndIf
+
+#IfMissingColumn openemr_postcalendar_events uuid
+ALTER TABLE `openemr_postcalendar_events` ADD COLUMN `uuid` binary(16) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex openemr_postcalendar_events uuid
+CREATE UNIQUE INDEX `uuid` ON `openemr_postcalendar_events` (`uuid`);
+#EndIf
