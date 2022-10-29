@@ -945,6 +945,9 @@ class ScopeRepository implements ScopeRepositoryInterface
             case 'AllergyIntolerance':
                 $description .= xl("allergies/adverse reactions");
                 break;
+            case 'Appointment':
+                $description .= xl("appointments");
+                break;
             case 'Observation':
                 $description .= xl("observations including laboratory,vitals, and social history records");
                 break;

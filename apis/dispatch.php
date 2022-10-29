@@ -151,7 +151,7 @@ if (!empty($tokenId)) {
 
 
 // recollect this so the DEBUG global can be used if set
-$logger = new SystemLogger();
+    $logger = new SystemLogger();
 
 $gbl::$apisBaseFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/apis/" . $gbl::$SITE;
 $restRequest->setApiBaseFullUrl($gbl::$apisBaseFullUrl);
