@@ -334,12 +334,13 @@ class EncountermanagerTable extends AbstractTableGateway
 
     public function getFileID($pid, $limit = 1)
     {
+        $limit = CommonPlugin::escapeLimit($limit);
         $appTable = new ApplicationTable();
         $query = "SELECT cc.id, pd.fname, pd.lname, pd.pid FROM ccda AS cc
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
 		    WHERE cc.pid = ?
-		    ORDER BY cc.id DESC LIMIT ?";
-        $res = $appTable->zQuery($query, array($pid, $limit));
+		    ORDER BY cc.id DESC LIMIT $limit";
+        $res = $appTable->zQuery($query, array($pid));
         foreach ($res as $row) {
             $res_cur[] = $row;
         }

@@ -33,8 +33,9 @@ class CarecoordinationTable extends AbstractTableGateway
     public const NPI_SAMPLE = "987654321";
     public const ORGANIZATION_SAMPLE = "External Physicians Practice";
     public const ORGANIZATION2_SAMPLE = "External Health and Hospitals";
-    public $is_qrda_import;
-    public $is_unstructured_import;
+    public $is_qrda_import = false;
+    public $is_unstructured_import = false;
+    public $validationIsDisabled = false;
     protected $documentData;
     protected $validateDocument;
     private $parseTemplates;
@@ -47,6 +48,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
+        $this->validationIsDisabled = $GLOBALS['ccda_validation_disable'] ?? false;
     }
 
     /*
@@ -117,6 +119,7 @@ class CarecoordinationTable extends AbstractTableGateway
             d.id AS document_id,
             d.document_data,
             am.is_qrda_document,
+            am.is_unstructured_document,
             ad.field_value as ad_lname,
             ad1.field_value as ad_fname,
             ad2.field_value as dob_raw,
@@ -178,7 +181,7 @@ class CarecoordinationTable extends AbstractTableGateway
      * @return void
      * @throws Exception
      */
-    public function importCore($xml_content, $doc_id = null)
+    public function importCore($xml_content, $doc_id = null): void
     {
         $xml_content_new = preg_replace('#<br />#', '', $xml_content);
         $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
@@ -202,8 +205,8 @@ class CarecoordinationTable extends AbstractTableGateway
         $template_oid = $xml['templateId'][2]['root'] ?? null;
         if ($template_oid === '2.16.840.1.113883.10.20.24.1.2') {
             $this->is_qrda_import = 1;
-            if (!empty($doc_id)) {
-                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'qrda1');
+            if (!empty($doc_id) && !$this->validationIsDisabled) {
+                $validation_log = $this->validateDocument->validateDocument($xml_content_new, 'qrda1');
             }
             if (count($components[2]["section"]["entry"] ?? []) < 2) {
                 $name = $xml["recordTarget"]["patientRole"]["patient"]["name"]["given"] . ' ' .
@@ -215,11 +218,11 @@ class CarecoordinationTable extends AbstractTableGateway
             // Offset to Patient Data section
             $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
         } else {
-            if (!empty($doc_id)) {
-                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'ccda');
+            if (!empty($doc_id) && !$this->validationIsDisabled) {
+                $validation_log = $this->validateDocument->validateDocument($xml_content_new, 'ccda');
             }
             if ($template_oid === '2.16.840.1.113883.10.20.22.1.10') {
-                $this->is_unstructured_import = 1;
+                $this->is_unstructured_import = true;
                 $this->documentData = $this->parseTemplates->parseUnstructuredComponents($xml);
             } else {
                 $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
@@ -411,8 +414,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $pid = $prow['pid'];
         }
         if (!empty($audit_master_id)) {
-            $res = $appTable->zQuery("SELECT DISTINCT am.is_qrda_document, ad.table_name,
-                                            entry_identification
+            $res = $appTable->zQuery("SELECT DISTINCT am.is_qrda_document, am.is_unstructured_document, ad.table_name, entry_identification
                                      FROM audit_master as am,audit_details as ad
                                      WHERE am.id=ad.audit_master_id AND
                                      am.approval_status = '1' AND
@@ -431,6 +433,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         foreach ($res as $row) {
             $this->is_qrda_import = $row['is_qrda_document'] ?? false;
+            $this->is_qrda_import = $row['is_unstructured_document'] ?? false;
             if (!empty($audit_master_id)) {
                 $resfield = $appTable->zQuery(
                     "SELECT *
@@ -967,7 +970,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importCore($xml_content, $document_id);
         $audit_master_approval_status = 1;
         $documentationOf = $this->documentData['field_name_value_array']['documentationOf'][1]['assignedPerson'];
-        $audit_master_id = CommonPlugin::insert_ccr_into_audit_data($this->documentData, $this->is_qrda_import);
+        $audit_master_id = CommonPlugin::insert_ccr_into_audit_data($this->documentData, $this->is_qrda_import, $this->is_unstructured_import);
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf);
     }
 
