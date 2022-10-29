@@ -1,0 +1,64 @@
+<div class="row conference-room bg-dark">
+        <div class="col-12 d-flex">
+            <div id="local-video-container" class="col-lg-2 col-md-2 col-sm-3 col-4 p-0">
+                <video class="bg-primary" id="local-video"></video>
+            </div>
+            <div class="remote-video-container text-center w-100">
+                <video id="remote-video" class="remote-video d-none mw-100"></video>
+                <div class="waiting-container">
+                    <h1 class="h1-responsive text-light text-center">{{ "Waiting for the following to join"|xlt }}:&nbsp;<em>{{ calleeName|text }}</em><div class="spinner-border" role="status">
+                            <span class="sr-only">{{ "Waiting"|xlt }}...</span>
+                        </div></h1>
+                </div>
+                {% include 'comlink/video-control-bar.twig' %}
+            </div>
+        </div>
+</div>
+<div class="modal fade" id="telehealth-container-hangup-confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog mw-50 ml-auto mr-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ "Confirm Session Close" | xlt }}</h5>
+                <button type="button" class="close btn-telehealth-confirm-cancel" aria-label="{{ "Close" | xla }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row hangup-section-start hangup-section row-confirm">
+                    <div class="col">
+                        <p>{{ "Are you sure you want to close this session?" | xlt }}</p>
+                        <div class="row">
+                            <div class="col d-flex justify-content-between">
+                                <input type="button" class="btn btn-secondary btn-telehealth-confirm-cancel" value="{{ "Cancel" | xla }}" id="hangup-cancel"/>
+                                <input type="button" class="btn btn-primary btn-telehealth-confirm-yes" value="{{ "Confirm" | xla }}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row hangup-section row-update-status d-none">
+                    <div class="col">
+                        <h5 class="text-center">{{ "Update appointment status" | xlt }}</h5>
+                        <div class="row mt-3">
+                            <div class="col d-flex justify-content-between">
+                                <input type="button" class="btn btn-secondary btn-telehealth-session-close" data-status="CloseWithoutUpdating" value="{{ "Close Without Updating" |xla }}" />
+                                <input type="button" class="btn btn-secondary btn-telehealth-session-close" data-status="?" value="{{ "No Show" | xla }}" />
+                                <input type="button" class="btn btn-success btn-telehealth-session-close" data-status=">" value="{{ "Checked Out" | xla }}" />
+                            </div>
+                        </div>
+                        <div class="row mt-5 mb-3">
+                            <div class="col d-flex justify-content-between">
+                                <select class="appointment-status-update w-75">
+                                    {% for status in statuses %}
+                                        <option value="{{ status.option_id|attr }}" {% if appointment.apptstatus == status.option_id %}selected{% endif %}>{{ status.title|text }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="button" class="btn btn-primary btn-telehealth-session-select-update" value="{{ "Set Status" |xla }}" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+{# This overrides the original template file in core
+ # @see /templates/emails/partials/patient/email-message-fhir-access.text.twig for original
+ #}
+---------------------------------------------------------------
+{{ comlink_app_title|default("")|xlt }} {{ "iOS / Android App Instructions"|xlt }}
+{{ "Download the app from the Apple Store or the Google Play Store to access your patient data"|xlt }}
+{{ "Use this unique registration code to get started"|xlt }}: {{ comlink_registration_code|default("")|xlt }}
+
+---------------------------------------------------------------
+{{ "3rd Party API Access"|xlt }} / {{ "3rd Party App Access"|xlt }}
+{{ "API Access Address"|xlt }}: {{ fhir_address|text }}
+{{ "Technical Requirements Documentation"|xlt }}: {{ fhir_requirements_address|text }}
+{{ "You can use the above API Address with any app of your choice to access your patient data as long as it meets the technical requirements for our service."|xlt }}
