@@ -828,7 +828,7 @@ $none_message = xlt("Nothing to show for current actions.");
                                 $template_id = $file['id'];
                                 $audit_status = array(
                                     'pid' => '',
-                                    'create_date' => ($file['profile_date'] ?: $file['modified_date']) ?? '',
+                                    'create_date' => (($file['profile_date'] ?? null) ?: $file['modified_date']) ?? '',
                                     'doc_type' => '',
                                     'patient_signed_time' => '',
                                     'authorize_signed_time' => '',
@@ -850,7 +850,7 @@ $none_message = xlt("Nothing to show for current actions.");
                                         $audit_status['denial_reason'] = xl('Scheduled');
                                     }
                                     $next_due = date('m/d/Y', $next_due);
-                                } elseif ($next_due === 1 || ($next_due === true && $file['recurring'] ?? 0)) {
+                                } elseif ($next_due === 1 || ($next_due === true && ($file['recurring'] ?? 0))) {
                                     $audit_status['denial_reason'] = xl('Recurring');
                                     $next_due = xl('Active');
                                 } elseif ($next_due === 0) {

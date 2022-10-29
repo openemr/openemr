@@ -14,11 +14,16 @@ require_once("../../../globals.php");
 require_once("fee_sheet_queries.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
     echo "Not authorized for billing";
     return false;
+}
+
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 if (isset($_REQUEST['pid'])) {
@@ -62,7 +67,7 @@ if ($task == 'retrieve') {
     }
 
     $retval['issues'] = $issues;
-    echo json_encode($retval);
+    echo text(json_encode($retval));
     return;
 }
 
@@ -73,7 +78,7 @@ if ($task == 'add_diags') {
 
     $diags = array();
     foreach ($json_diags as $diag) {
-        $diags[] = new code_info($diag->{'code'}, $diag->{'code_type'}, $diag->{'description'});
+        $diags[] = new code_info($diag->code, $diag->code_type, $diag->description);
     }
 
     $procs = array();
@@ -82,7 +87,16 @@ if ($task == 'add_diags') {
     }
 
     foreach ($json_procs as $proc) {
-        $procs[] = new procedure($proc->{'code'}, $proc->{'code_type'}, $proc->{'description'}, $proc->{'fee'}, $proc->{'justify'}, $proc->{'modifiers'}, $proc->{'units'}, 0);
+        $procs[] = new procedure(
+            $proc->code,
+            $proc->code_type,
+            $proc->description,
+            $proc->fee,
+            $proc->justify,
+            $proc->modifiers,
+            $proc->units,
+            0
+        );
     }
 
     $database->StartTrans();

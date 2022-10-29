@@ -158,37 +158,83 @@ function get_document_by_catg($pid, $doc_catg)
     return ($result['id'] ?? false);
 }
 
-function portalAuthorized($pid)
+function isPortalEnabled(): bool
 {
-    if (!$GLOBALS['portal_onsite_two_enable'] && !$GLOBALS['portal_onsite_two_address']) {
+    if (
+        !$GLOBALS['portal_onsite_two_enable']
+    ) {
         return false;
     }
 
-    $return = [
-        'isAllowed' => false
-        ,'allowed' => [
-                'api' => false
-                ,'portal' => false
-        ],
-        'credentials' => [
-                'created' => false
-                ,'date' => null
-        ]
-    ];
+    return true;
+}
 
-    $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
-    $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
-    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps']) != 'YES';
-    if ($return['allowed']['portal'] || $return['allowed']['api']) {
-        $return['isAllowed'] = true;
-        $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
-        if ($portalLogin) {
-            $return['credentials']['date'] = $portalLogin['date_created'];
-            $return['credentials']['created'] = true;
-        }
-        return $return;
+function isPortalSiteAddressValid(): bool
+{
+    if (
+        // maybe can use filter_var() someday but the default value in GLOBALS
+        // fails with FILTER_VALIDATE_URL
+        !isset($GLOBALS['portal_onsite_two_address'])
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+function isPortalAllowed($pid): bool
+{
+    $return = false;
+
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
+    if ($portalStatus['allow_patient_portal'] == 'YES') {
+        $return = true;
     }
     return $return;
+}
+
+function isApiAllowed($pid): bool
+{
+    $return = false;
+
+    $apiStatus = sqlQuery("SELECT prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
+    if (strtoupper($apiStatus['prevent_portal_apps'] ?? '') != 'YES') {
+        $return = true;
+    }
+    return $return;
+}
+
+function areCredentialsCreated($pid): bool
+{
+    $return = false;
+    $credentialsCreated = sqlQuery("SELECT date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
+    if ($credentialsCreated['date_created'] ?? null) {
+        $return = true;
+    }
+
+    return $return;
+}
+
+function isContactEmail($pid): bool
+{
+    $return = false;
+
+    $email = sqlQuery("SELECT email, email_direct FROM patient_data WHERE pid = ?", [$pid]);
+    if (!empty($email['email']) || !empty($email['email_direct'])) {
+        $return = true;
+    }
+    return $return;
+}
+
+function isEnforceSigninEmailPortal(): bool
+{
+    if (
+        $GLOBALS['enforce_signin_email']
+    ) {
+        return true;
+    }
+
+    return false;
 }
 
 function deceasedDays($days_deceased)
@@ -1325,9 +1371,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    if ($GLOBALS['portal_onsite_two_enable']) :
-                        $portalCard = new PortalCard($GLOBALS);
-                    endif;
+                    // it's important enough to always show it
+                    $portalCard = new PortalCard($GLOBALS);
 
                     $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('secondary'));
                     $sectionCards = $sectionRenderEvents->getCards();

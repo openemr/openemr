@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+
 if (!$isBilled) {
     require_once("code_check.php");
     ?>
@@ -22,8 +24,11 @@ if (!$isBilled) {
     var review_tag = <?php echo xlj('Review'); ?>;
     var justify_click_title = <?php echo xlj('Click to choose diagnoses to justify.'); ?>;
     var fee_sheet_options = [];
-    var diag_code_types = <?php echo diag_code_types('json');?>;  // This is a list of diagnosis code types to present for as options in the justify dialog, for now, only "internal codes" included.
+    // This is a list of diagnosis code types to present for as options in the justify dialog,
+    // for now, only "internal codes" included.
+    var diag_code_types = <?php echo diag_code_types('json');?>;
     var ippf_specific = <?php echo $GLOBALS['ippf_specific'] ? 'true' : 'false'; ?>;
+    var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
 </script>
 <script>
     function fee_sheet_option(code,code_type,description,fee)
