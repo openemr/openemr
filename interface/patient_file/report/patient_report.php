@@ -15,7 +15,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc");
 

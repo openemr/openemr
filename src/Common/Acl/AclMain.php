@@ -348,7 +348,7 @@ class AclMain
     //
     public static function aclCheckIssue($type, $user = '', $return_value = '')
     {
-        require_once(dirname(__FILE__) . '/../../../library/lists.inc');
+        require_once(dirname(__FILE__) . '/../../../library/lists.inc.php');
         global $ISSUE_TYPES;
         if (empty($ISSUE_TYPES[$type][5])) {
             return true;

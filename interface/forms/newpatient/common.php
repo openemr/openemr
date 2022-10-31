@@ -14,7 +14,7 @@
  */
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Acl\AclExtended;

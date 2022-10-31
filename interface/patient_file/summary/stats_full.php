@@ -13,7 +13,7 @@
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc');
+require_once($GLOBALS['srcdir'] . '/lists.inc.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 

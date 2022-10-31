@@ -19,7 +19,7 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';

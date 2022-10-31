@@ -28,7 +28,7 @@
 // +------------------------------------------------------------------------------+
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/user.inc");
 
 use OpenEMR\Core\Header;
