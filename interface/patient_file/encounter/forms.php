@@ -14,7 +14,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/encounter.inc.php");
-require_once("$srcdir/group.inc");
+require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once($GLOBALS['srcdir'] . '/ESign/Api.php');

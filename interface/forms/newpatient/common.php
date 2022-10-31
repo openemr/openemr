@@ -30,7 +30,7 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 $facilityService = new FacilityService();
 
 if ($GLOBALS['enable_group_therapy']) {
-    require_once("$srcdir/group.inc");
+    require_once("$srcdir/group.inc.php");
 }
 
 $months = array("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
