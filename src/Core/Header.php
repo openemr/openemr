@@ -362,7 +362,12 @@ class Header
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
             $v = $GLOBALS['v_js_includes'];
-            $path = $path . "?v={$v}";
+            // need to handle header elements that may already have a ? in the parameter.
+            if (strrpos($path, "?") !== false) {
+                $path = $path . "&v={$v}";
+            } else {
+                $path = $path . "?v={$v}";
+            }
         }
         return str_replace("%path%", $path, $template);
     }

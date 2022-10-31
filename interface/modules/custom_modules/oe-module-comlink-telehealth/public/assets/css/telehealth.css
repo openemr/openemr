@@ -1,0 +1,120 @@
+.event_telehealth .telehealth-launch-btn {
+  content: "\f03d";
+  display: inline-block;
+  font-family: "Font Awesome 5 Free";
+  font-size: 1.5rem;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 900;
+  line-height: 1;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-rendering: auto;
+}
+
+.event_telehealth.event_condensed {
+  font-size: 0.75rem;
+  line-height: 0.75rem;
+}
+
+.event_telehealth .show-appointment {
+  display: none;
+}
+
+.event_telehealth.event_condensed .btn-sm {
+  font-size: 0.5rem;
+  margin-top: 2px;
+  padding-bottom: 0.2rem;
+  padding-top: 0.2rem;
+}
+
+#local-video-container {
+  position: relative;
+}
+
+.telehealth-button-bar {
+  background-color: transparent;
+  bottom: 0;
+  font-size: 1.25rem;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+}
+
+.telehealth-button-bar .telehealth-btn {
+  font-size: 2rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.telehealth-user-icon {
+  font-size: 5rem;
+}
+
+#minimized-telehealth-video {
+  background-color: #000;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  z-index: 1050;
+}
+
+#minimized-telehealth-video #remote-video {
+  width: 100%;
+}
+
+#minimized-telehealth-video .telehealth-button-bar .telehealth-btn {
+  font-size: 1.25rem;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0.25rem;
+}
+
+/** stylesheet tries to shrink this all.
+ */
+#telehealth-container > .modal-dialog {
+  max-width: 100%;
+}
+
+#telehealth-container > .modal-dialog > .modal-content {
+  min-height: 90vh;
+}
+
+#telehealth-container > .modal-dialog > .modal-content > .modal-body {
+  /** We hide the overflow due to the way the dlgopen dialog window is setup **/
+  overflow-x: hidden !important;
+  padding-bottom: 0;
+  padding-left: 0.9rem;
+  padding-right: 0.9rem;
+  padding-top: 0;
+}
+
+
+.conference-room {
+  background-color: #000;
+  flex-grow: 1;
+  position: relative;
+}
+
+.conference-room .telehealth-button-bar {
+  bottom: 1.25rem;
+}
+
+.conference-room #local-video-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.conference-room .remote-video {
+  height: 100%;
+}
+
+.conference-room #local-video {
+  width: 100%;
+}
+
+.telehealth-btn-hangup .fa-phone {
+  filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
+  transform: rotate(225deg);
+}
