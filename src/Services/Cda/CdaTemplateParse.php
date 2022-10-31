@@ -49,6 +49,8 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.22.2.17' => 'socialHistory',
             '2.16.840.1.113883.3.88.11.83.127' => 'encounter',
             '2.16.840.1.113883.10.20.22.2.22.1' => 'encounter',
+            '2.16.840.1.113883.10.20.22.2.22' => 'encounter',
+            '2.16.840.1.113883.10.20.22.4.49' => 'encounter',
             '2.16.840.1.113883.10.20.22.2.10' => 'carePlan',
             '2.16.840.1.113883.10.20.22.2.60' => 'carePlan',
             '2.16.840.1.113883.10.20.22.2.58' => 'carePlan',
@@ -191,9 +193,13 @@ class CdaTemplateParse
     {
         $components = $xml['component'];
         $uuid = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
-        $sql = "";
-        foreach ($components as $component) {
-            $item = $component['nonXMLBody']['text'];
+        if (!empty($components[0])) {
+            foreach ($components as $component) {
+                $item = $component['nonXMLBody']['text'];
+                $this->fetchFileForImport($item, $uuid);
+            }
+        } else {
+            $item = $components['nonXMLBody']['text'];
             $this->fetchFileForImport($item, $uuid);
         }
 
@@ -207,6 +213,7 @@ class CdaTemplateParse
             $i += count($this->templateData['field_name_value_array']['import_file']);
         }
         $this->templateData['field_name_value_array']['import_file'][$i]['uuid'] = $uuid;
+        $this->templateData['field_name_value_array']['import_file'][$i]['hash'] = $component['hash'] ?? '';
         $this->templateData['field_name_value_array']['import_file'][$i]['mediaType'] = $component['mediaType'] ?? '';
         $this->templateData['field_name_value_array']['import_file'][$i]['category'] = $component['category'] ?? '';
         $this->templateData['field_name_value_array']['import_file'][$i]['file_name'] = $component['name'] ?? '';

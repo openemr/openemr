@@ -380,10 +380,6 @@ class CarecoordinationTable extends AbstractTableGateway
     {
         require_once(__DIR__ . "/../../../../../../../../library/patient.inc");
         $pid = 0;
-        $j = 1;
-        $k = 1;
-        $q = 1;
-        $y = 1;
         $a = 1;
         $b = 1;
         $c = 1;
@@ -392,7 +388,12 @@ class CarecoordinationTable extends AbstractTableGateway
         $f = 1;
         $g = 1;
         $h = 1;
+        $j = 1;
+        $k = 1;
+        $l = 1;
         $p = 1; // payer QRDA
+        $q = 1;
+        $y = 1;
 
         $arr_procedure_res = array();
         $arr_encounter = array();
@@ -433,7 +434,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         foreach ($res as $row) {
             $this->is_qrda_import = $row['is_qrda_document'] ?? false;
-            $this->is_qrda_import = $row['is_unstructured_document'] ?? false;
+            $this->is_unstructured_import = $row['is_unstructured_document'] ?? false;
             if (!empty($audit_master_id)) {
                 $resfield = $appTable->zQuery(
                     "SELECT *
@@ -508,11 +509,21 @@ class CarecoordinationTable extends AbstractTableGateway
                     $newdata['observation_preformed'][$rowfield['field_name']] = $rowfield['field_value'];
                 } elseif ($table == 'payer') {
                     $newdata['payer'][$rowfield['field_name']] = $rowfield['field_value'];
+                } elseif ($table == 'import_file') {
+                    $newdata['import_file'][$rowfield['field_name']] = $rowfield['field_value'];
                 }
             }
-
             if ($table == 'patient_data') {
-                updatePatientData($pid, $newdata['patient_data'], true);
+                $createFlag = true;
+                if (!empty($newdata['patient_data']['referrerID']) && ($this->is_unstructured_import ?? false)) {
+                    $uuid = $newdata['patient_data']['referrerID'];
+                    $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ?", array($uuid))['pid'];
+                    if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
+                        $pid = $pid_exist;
+                        $createFlag = false;
+                    }
+                }
+                updatePatientData($pid, $newdata['patient_data'], $createFlag);
             } elseif ($table == 'immunization') {
                 $arr_immunization['immunization'][$a]['extension'] = $newdata['immunization']['extension'];
                 $arr_immunization['immunization'][$a]['root'] = $newdata['immunization']['root'];
@@ -782,7 +793,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
-                $arr_functional_cognitive_status['functional_cognitive_status'][$i]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
+                $arr_functional_cognitive_status['functional_cognitive_status'][$f]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['root'] = $newdata['functional_cognitive_status']['root'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['text'] = $newdata['functional_cognitive_status']['code_text'];
@@ -821,6 +832,15 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_payer['payer'][$p]['low_date'] = $newdata['payer']['low_date'];
                 $arr_payer['payer'][$p]['high_date'] = $newdata['payer']['high_date'];
                 $p++;
+            } elseif ($table == 'import_file') {
+                $arr_files['import_file'][$l]['uuid'] = $newdata['import_file']['uuid'];
+                $arr_files['import_file'][$l]['hash'] = $newdata['import_file']['hash'];
+                $arr_files['import_file'][$l]['mediaType'] = $newdata['import_file']['mediaType'] ?? '';
+                $arr_files['import_file'][$l]['category'] = $newdata['import_file']['category'] ?? '';
+                $arr_files['import_file'][$l]['file_name'] = $newdata['import_file']['file_name'] ?? '';
+                $arr_files['import_file'][$l]['compression'] = $newdata['import_file']['compression'] ?? '';
+                $arr_files['import_file'][$l]['content'] = $newdata['import_file']['content'] ?? '';
+                $l++;
             }
         }
 
@@ -838,6 +858,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
         $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
+        $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master

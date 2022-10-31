@@ -14,6 +14,8 @@ namespace OpenEMR\Services\Cda;
 
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
+use Document;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
@@ -244,7 +246,7 @@ class CdaTemplateImportDispose
             $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_low'])) : null;
             $high_date = $value['reason_date_high'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_high'])) : null;
 
-            $encounter_for_forms = $this->findClosestEncounter(trim($plan_date_value), $pid);
+            $encounter_for_forms = $this->findClosestEncounterWithForm(trim($plan_date_value), $pid, 'form_care_plan');
             if (empty($encounter_for_forms)) {
                 $query_sel_enc = "SELECT encounter
                             FROM form_encounter
@@ -590,13 +592,13 @@ class CdaTemplateImportDispose
             if (!empty($value['date_end']) && ($revapprove == 0 || $revapprove == 1)) {
                 $encounter_date_end = date("Y-m-d H:i:s", $this->str_to_time($value['date_end']));
             }
-            $pc_catid = 5;
+            $pc_catid_default = 5;
             $reason = null;
             if (!empty($value['code_text'] ?? null)) {
                 $cat = explode('|', $value['code_text'] ?? null);
                 $catname = trim($cat[0]);
                 $reason = trim($cat[1]);
-                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'];
+                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'] ?: $pc_catid_default;
             }
             if (!empty($value['extension'])) {
                 $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id=? AND pid=?";
@@ -650,7 +652,7 @@ class CdaTemplateImportDispose
                         $value['code'] ?? null,
                         $value['code_text'] ?? null,
                         $encounter_date_end ?? null,
-                        $pc_catid
+                        $pc_catid ?: $pc_catid_default
                     )
                 );
                 $enc_id = $result->getGeneratedValue();
@@ -1577,7 +1579,7 @@ class CdaTemplateImportDispose
             } else {
                 $date = date('Y-m-d');
             }
-            $encounter_for_forms = $this->findClosestEncounter(trim($date), $pid);
+            $encounter_for_forms = $this->findClosestEncounterWithForm(trim($date), $pid, 'form_functional_cognitive_status');
             if (empty($encounter_for_forms)) {
                 $query_sel_enc = "SELECT encounter
                             FROM form_encounter
@@ -1794,40 +1796,40 @@ class CdaTemplateImportDispose
                 }
             }
 
-            $query_sel = "SELECT date FROM form_vitals WHERE id=?";
+            $query_sel = "SELECT date FROM form_vitals WHERE id= ?";
             $res_query_sel = $appTable->zQuery($query_sel, array($vitals_id));
             $res_cur = $res_query_sel->current();
             $vitals_date_forms = $res_cur['date'];
-
-            $query_sel_enc = "SELECT encounter
+            $encounter_for_forms = $this->findClosestEncounter(trim($vitals_date_forms), $pid, 'forms');
+            if (empty($encounter_for_forms)) {
+                $query_sel_enc = "SELECT encounter
                             FROM form_encounter
                             WHERE date=? AND pid=?";
-            $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array($vitals_date_forms, $pid));
-
-            if ($res_query_sel_enc->count() == 0) {
-                $res_enc = $appTable->zQuery("SELECT encounter
+                $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array($vitals_date_forms, $pid));
+                if ($res_query_sel_enc->count() == 0) {
+                    $res_enc = $appTable->zQuery("SELECT encounter
                                                  FROM form_encounter
                                                  WHERE pid=?
                                                  ORDER BY id DESC
                                                  LIMIT 1", array($pid));
-                if ($res_enc->count() == 0) {
-                    // need to create a form_encounter for the patient to hold the vitals since the patient does not have any encounters
-                    $data[0]['date'] = $value['date'];
-                    $this->InsertEncounter($data, $pid, $carecoordinationTable, 0);
-                }
-                $res_enc = $appTable->zQuery("SELECT encounter
+                    if ($res_enc->count() == 0) {
+                        // need to create a form_encounter for the patient to hold the vitals since the patient does not have any encounters
+                        $data[0]['date'] = $value['date'];
+                        $this->InsertEncounter($data, $pid, $carecoordinationTable, 0);
+                    }
+                    $res_enc = $appTable->zQuery("SELECT encounter
                                                  FROM form_encounter
                                                  WHERE pid=?
                                                  ORDER BY id DESC
                                                  LIMIT 1", array($pid));
-                $res_enc_cur = $res_enc->current();
-                $encounter_for_forms = $res_enc_cur['encounter'] ?? null;
-            } else {
-                foreach ($res_query_sel_enc as $value2) {
-                    $encounter_for_forms = $value2['encounter'];
+                    $res_enc_cur = $res_enc->current();
+                    $encounter_for_forms = $res_enc_cur['encounter'] ?? null;
+                } else {
+                    foreach ($res_query_sel_enc as $value2) {
+                        $encounter_for_forms = $value2['encounter'];
+                    }
                 }
             }
-
             if (!empty($value['reason_code'] ?? null)) {
                 $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
                 $appTable->zQuery($detail_query, array(
@@ -2003,20 +2005,96 @@ class CdaTemplateImportDispose
         $id_data = $insuranceData->insert($pid, 'primary', $data);
     }
 
+    /**
+     * @param $item_date
+     * @param $item_pid
+     * @return int|mixed
+     */
     public function findClosestEncounter($item_date, $item_pid)
     {
-        $rtn = sqlQuery(
-            "SELECT
+        $item_date = !empty($item_date) ? date('Y-m-d 23:59:59', strtotime($item_date)) : null;
+        $sql = "SELECT
             fe.encounter,
             fe.date,
             fe.pid
             FROM `form_encounter` AS fe
-            LEFT JOIN form_care_plan as cp On fe.encounter = cp.encounter And fe.pid = cp.pid
             WHERE fe.date <= ? AND fe.pid = ?
-            ORDER BY fe.encounter DESC, fe.date DESC Limit 1",
-            array($item_date, $item_pid)
-        );
+            ORDER BY fe.encounter DESC, fe.date DESC Limit 1";
+        $rtn = sqlQuery($sql, array($item_date, $item_pid));
 
         return $rtn['encounter'] ?? 0;
+    }
+
+    /**
+     * @param $item_date
+     * @param $item_pid
+     * @param $form
+     * @return int|mixed
+     */
+    public function findClosestEncounterWithForm($item_date, $item_pid, $form = '')
+    {
+        $form = add_escape_custom($form);
+        $item_date = !empty($item_date) ? date('Y-m-d 23:59:59', strtotime($item_date)) : null;
+        $sql = "SELECT
+            fe.encounter,
+            fe.date,
+            fe.pid
+            FROM `form_encounter` AS fe
+            LEFT JOIN $form as f On fe.encounter = f.encounter And fe.pid = f.pid
+            WHERE fe.date <= ? AND fe.pid = ?
+            ORDER BY fe.encounter DESC, fe.date DESC Limit 1";
+        $rtn = sqlQuery($sql, array($item_date, $item_pid));
+
+        return $rtn['encounter'] ?? 0;
+    }
+
+    /**
+     * Checks duplicate by hash then inserts document
+     *
+     * @param $arr_file
+     * @param $pid
+     * @param $revapprove
+     * @return void
+     */
+    public function InsertImportedFiles($arr_file, $pid, $revapprove = 1): void
+    {
+        if (empty($arr_file)) {
+            return;
+        }
+        $appTable = new ApplicationTable();
+        foreach ($arr_file as $key => $value) {
+            $exist = sqlQuery("SELECT id  FROM `documents` WHERE `foreign_id` = ? AND `hash` = ? LIMIT 1", array($pid, $value['hash']));
+            if (!empty($exist['id'])) {
+                error_log(xlt("Skipping import. Document exists already. File Name") . ': ' . text($value['file_name']) . ' Hash: ' . text($value['hash']));
+                continue;
+            }
+            $content = gzuncompress(base64_decode($value['content']));
+            $len = strlen($content);
+            $categoryId = QueryUtils::fetchSingleValue(
+                'Select `id` FROM categories WHERE name=?',
+                'id',
+                [$value['category'] ?? 'Medical Record']
+            );
+            if (empty($categoryId)) {
+                // get a default
+                $categoryId = QueryUtils::fetchSingleValue(
+                    'Select `id` FROM categories WHERE name=?',
+                    'id',
+                    ['Medical Record']
+                );
+            }
+            $document = new Document();
+            $result = $document->createDocument(
+                $pid,
+                $categoryId,
+                $value['file_name'],
+                $value['mediaType'],
+                $content
+            );
+            if (!empty($result)) {
+                error_log(xlt("Failed to import document for ccda. File Name") . ': ' . text($value['file_name']) . ' ' . $result);
+            }
+            error_log(xlt("Imported document. File Name") . ': ' . text($value['file_name'] . ' Hash: ' . text($value['hash'])));
+        }
     }
 }
