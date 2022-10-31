@@ -810,7 +810,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         </div>
     </div> <!--end of container div -->
 <!-- include support for the list-add selectbox feature -->
-<?php include($GLOBALS['fileroot'] . "/library/options_listadd.inc"); ?>
+<?php require($GLOBALS['fileroot'] . "/library/options_listadd.inc.php"); ?>
 <script>
 
 // hard code validation for old validation, in the new validation possible to add match rules

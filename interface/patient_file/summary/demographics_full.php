@@ -523,7 +523,7 @@ $(function () {
         }
 
         <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?> 
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
         div.label_custom {
             text-align: right !important;
         }
@@ -1096,7 +1096,7 @@ var skipArray = [
 </script>
 
 <!-- include support for the list-add selectbox feature -->
-<?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+<?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
 
 <?php /*Include the validation script and rules for this form*/
 $form_id = "DEM";

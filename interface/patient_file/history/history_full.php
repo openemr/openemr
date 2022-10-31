@@ -287,7 +287,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </form>
 
             <!-- include support for the list-add selectbox feature -->
-            <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+            <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
         </div>
     </div>
 </div><!--end of container div-->

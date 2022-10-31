@@ -1846,7 +1846,7 @@ if (
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+                <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.
