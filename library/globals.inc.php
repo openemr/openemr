@@ -972,10 +972,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'drive_encryption' => array(
-            xl('Enable Encryption of Items Stored on Drive'),
+            xl('Enable Encryption of Items Stored on Drive (Strongly recommend keeping this on)'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable encryption of items that are stored on the drive.')
+            xl('This will enable encryption of items that are stored on the drive. Strongly recommend keeping this setting on for security purposes.')
         ),
 
         'couchdb_encryption' => array(
