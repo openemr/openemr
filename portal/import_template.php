@@ -56,7 +56,7 @@ if (($_REQUEST['mode'] ?? null) === 'getPdf') {
     die(xlt('Invalid File'));
 }
 
-if ($_POST['mode'] ?? null === 'get') {
+if (($_POST['mode'] ?? null) === 'get') {
     if ($_REQUEST['docid']) {
         $template = $templateService->fetchTemplate($_POST['docid']);
         echo $template['template_content'];
