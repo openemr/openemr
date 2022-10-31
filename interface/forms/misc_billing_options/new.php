@@ -24,7 +24,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/user.inc");
 require_once("$srcdir/pid.inc");
-require_once("$srcdir/encounter.inc");
+require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
