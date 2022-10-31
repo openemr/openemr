@@ -161,7 +161,7 @@ class UserService
 
     private function searchUsersForCalendar($facility = "", $userId = null)
     {
-        // this originally came from patient.inc::getProviderInfo()
+        // this originally came from patient.inc.php::getProviderInfo()
         $param1 = " AND authorized = 1 AND calendar = 1 ";
         $bind = [];
         if (!empty($userId)) {

@@ -11,7 +11,7 @@
  */
 
 require_once(__DIR__ . "/../library/forms.inc.php");
-require_once(__DIR__ . "/../library/patient.inc");
+require_once(__DIR__ . "/../library/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;

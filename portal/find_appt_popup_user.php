@@ -49,7 +49,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;

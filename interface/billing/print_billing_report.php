@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/report.inc");
 

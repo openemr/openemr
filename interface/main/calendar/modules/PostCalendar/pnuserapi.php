@@ -52,7 +52,7 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/group.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));

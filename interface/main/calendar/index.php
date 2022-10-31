@@ -18,7 +18,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once 'includes/pnAPI.php';
 
 use OpenEMR\Common\Acl\AclMain;

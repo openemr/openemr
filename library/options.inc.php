@@ -50,7 +50,7 @@
 // NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
 
 require_once("user.inc");
-require_once("patient.inc");
+require_once("patient.inc.php");
 require_once("lists.inc.php");
 require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
