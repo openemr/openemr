@@ -13,7 +13,7 @@
  */
 
 require_once(dirname(__FILE__) . '/api.inc.php');
-require_once(dirname(__FILE__) . '/forms.inc');
+require_once(dirname(__FILE__) . '/forms.inc.php');
 require_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
 
 use OpenEMR\Core\Header;

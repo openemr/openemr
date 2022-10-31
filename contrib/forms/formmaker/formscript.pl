@@ -214,7 +214,7 @@ my $save_php=<<'START';
 //------------This file inserts your field data into the MySQL database
 require_once("../../globals.php");
 require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 

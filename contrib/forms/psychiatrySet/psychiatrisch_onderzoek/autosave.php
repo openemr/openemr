@@ -10,7 +10,7 @@
 //local includes
 require_once("../../globals.php");
 require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/forms.inc.php");
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save

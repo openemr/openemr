@@ -29,7 +29,7 @@ require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../interface/drugs/drugs.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/appointment_status.inc.php");
-require_once(dirname(__FILE__) . "/forms.inc");
+require_once(dirname(__FILE__) . "/forms.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
@@ -39,7 +39,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 define('CHECKSUM_LOGGING', true);
 
 // require_once(dirname(__FILE__) . "/api.inc.php");
-// require_once(dirname(__FILE__) . "/forms.inc");
+// require_once(dirname(__FILE__) . "/forms.inc.php");
 
 class FeeSheet
 {

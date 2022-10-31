@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__ . "/forms.inc");
+require_once(__DIR__ . "/forms.inc.php");
 
 use OpenEMR\Common\Session\EncounterSessionUtil;
 

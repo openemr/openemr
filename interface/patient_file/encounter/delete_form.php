@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once(dirname(__FILE__) . "/../../../library/forms.inc");
+require_once(dirname(__FILE__) . "/../../../library/forms.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;

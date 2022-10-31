@@ -13,7 +13,7 @@
  */
 
 require_once(dirname(__FILE__) . "/../../../library/api.inc.php");
-require_once(dirname(__FILE__) . "/../../../library/forms.inc");
+require_once(dirname(__FILE__) . "/../../../library/forms.inc.php");
 require_once(dirname(__FILE__) . "/../../../library/patient_tracker.inc.php");
 
 /**
