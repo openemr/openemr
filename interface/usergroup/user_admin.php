@@ -17,7 +17,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc");
+require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
@@ -540,7 +540,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     if ($fres) {
         while ($frow = sqlFetchArray($fres)) {
             // Get the warehouses that are linked to this user and facility.
-            $whids = getUserFacWH($_GET['id'], $frow['id']); // from calendar.inc
+            $whids = getUserFacWH($_GET['id'], $frow['id']); // from calendar.inc.php
             // Generate an option for just the facility with no warehouse restriction.
             echo "    <option";
             if (empty($whids) && in_array($frow['id'], $ufid)) {
