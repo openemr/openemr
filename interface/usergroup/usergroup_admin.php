@@ -22,7 +22,6 @@
 
 $sessionAllowWrite = true;
 require_once("../globals.php");
-require_once("$srcdir/auth.inc");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;

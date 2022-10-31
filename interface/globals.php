@@ -154,7 +154,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
             if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
                 $GLOBALS['login_screen'] = "login_screen.php";
                 $srcdir = "../library";
-                require_once("$srcdir/auth.inc");
+                require_once("$srcdir/auth.inc.php");
             }
             die("Site ID is missing from session data!");
         }
@@ -587,7 +587,7 @@ if (($ignoreAuth_onsite_portal === true) && ($GLOBALS['portal_onsite_two_enable'
 }
 
 if (!$ignoreAuth) {
-    require_once("$srcdir/auth.inc");
+    require_once("$srcdir/auth.inc.php");
 }
 
 // This is the background color to apply to form fields that are searchable.

@@ -70,7 +70,7 @@ $esignApi = new Api();
         window.name = "main";
 
         // This flag indicates if another window or frame is trying to reload the login
-        // page to this top-level window.  It is set by javascript returned by auth.inc
+        // page to this top-level window.  It is set by javascript returned by auth.inc.php
         // and is checked by handlers of beforeunload events.
         var timed_out = false;
         // some globals to access using top.variable
