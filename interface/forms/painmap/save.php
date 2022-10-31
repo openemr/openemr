@@ -12,8 +12,8 @@
 /* include globals.php, required. */
 require_once('../../globals.php');
 
-/* include api.inc. also required. */
-require_once($GLOBALS['srcdir'] . '/api.inc');
+/* include api.inc.php. also required. */
+require_once($GLOBALS['srcdir'] . '/api.inc.php');
 
 /* include our smarty derived controller class. */
 require('C_FormPainMap.class.php');

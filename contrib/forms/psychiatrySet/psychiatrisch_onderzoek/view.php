@@ -22,7 +22,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc");
 use OpenEMR\Core\Header;
 
@@ -195,7 +195,7 @@ function autosave( )
 </script>
 
 <?php
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 //$obj = formFetch("form_psychiatrisch_onderzoek", (int)$_GET["id"]);
 ?>
 

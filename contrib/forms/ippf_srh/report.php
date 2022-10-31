@@ -8,7 +8,7 @@
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 // This function is invoked from printPatientForms in report.inc
 // when viewing a "comprehensive patient report".  Also from

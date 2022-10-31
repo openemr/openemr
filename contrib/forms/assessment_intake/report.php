@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 function assessment_intake_report($pid, $encounter, $cols, $id)
 {
     $count = 0;

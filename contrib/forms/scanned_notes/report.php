@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 function scanned_notes_report($pid, $useless_encounter, $cols, $id)
 {

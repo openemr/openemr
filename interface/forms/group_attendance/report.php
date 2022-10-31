@@ -13,7 +13,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 require_once("{$GLOBALS['srcdir']}/group.inc");
 
 function group_attendance_report($pid, $encounter, $cols, $id)

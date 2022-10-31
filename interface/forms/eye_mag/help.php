@@ -14,7 +14,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Core\Header;
 

@@ -13,7 +13,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc");
+require_once("../../../library/api.inc.php");
 require_once("../../../library/forms.inc");
 require_once("./content_parser.php");
 

@@ -28,7 +28,7 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc");
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {

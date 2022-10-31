@@ -38,7 +38,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
 
-// require_once(dirname(__FILE__) . "/api.inc");
+// require_once(dirname(__FILE__) . "/api.inc.php");
 // require_once(dirname(__FILE__) . "/forms.inc");
 
 class FeeSheet

@@ -36,7 +36,7 @@ if (php_sapi_name() === 'cli') {
     $sessionAllowWrite = true;
 }
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc");
 require_once("php/" . $form_name . "_functions.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
