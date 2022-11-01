@@ -17,7 +17,7 @@
  */
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/standard_tables_capture.inc");
+require_once("$srcdir/standard_tables_capture.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
