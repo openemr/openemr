@@ -2040,7 +2040,7 @@ class CdaTemplateImportDispose
             fe.date,
             fe.pid
             FROM `form_encounter` AS fe
-            LEFT JOIN $form as f On fe.encounter = f.encounter And fe.pid = f.pid
+            LEFT JOIN " . escape_table_name($form) . " as f On fe.encounter = f.encounter And fe.pid = f.pid
             WHERE fe.date <= ? AND fe.pid = ?
             ORDER BY fe.encounter DESC, fe.date DESC Limit 1";
         $rtn = sqlQuery($sql, array($item_date, $item_pid));
