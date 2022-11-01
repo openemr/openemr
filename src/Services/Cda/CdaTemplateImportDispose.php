@@ -2033,7 +2033,6 @@ class CdaTemplateImportDispose
      */
     public function findClosestEncounterWithForm($item_date, $item_pid, $form = '')
     {
-        $form = add_escape_custom($form);
         $item_date = !empty($item_date) ? date('Y-m-d 23:59:59', strtotime($item_date)) : null;
         $sql = "SELECT
             fe.encounter,
