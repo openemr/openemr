@@ -20,7 +20,7 @@
 require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
-require_once("./../library/pnotes.inc");
+require_once("./../library/pnotes.inc.php");
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);

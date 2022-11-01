@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/pnotes.inc.php");
 
 function addPortalMailboxPnote(
     $pid,

@@ -11,7 +11,7 @@
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/pnotes.inc');
+require_once($GLOBALS['srcdir'] . '/pnotes.inc.php');
 require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');

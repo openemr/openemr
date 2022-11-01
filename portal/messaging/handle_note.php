@@ -48,7 +48,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
-require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/pnotes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
