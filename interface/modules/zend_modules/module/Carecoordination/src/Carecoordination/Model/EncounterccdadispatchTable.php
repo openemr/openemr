@@ -18,6 +18,7 @@ namespace Carecoordination\Model;
 use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
+use Documents\Plugin\Documents;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Matrix\Exception;
@@ -85,8 +86,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
         }
 
-
-
         if (!empty($options['date_end'])) {
             $searchToDate = strtotime($options['date_end']);
             // date values for search fields have to be in ISO8601
@@ -102,15 +101,24 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($dateValues)) {
             $this->searchDateField = new DateSearchField('search_date', $dateValues, DateSearchField::DATE_TYPE_DATETIME, true);
             $this->searchFiltered = !empty($options['filter_content'] ?? false);
-            $this->encounterFilterList = $this->getEncounterListForDateRange($pid, $encounter);
+            // Since if encounterFilterList is populated the section builders will always searchFiltered
+            // regardless of $options['filter_content'] (Send Filtered button) without below! i.e if (!empty($this->encounterFilterList)) { ... }
+            if ($this->searchFiltered) {
+                $this->encounterFilterList = $this->getEncounterListForDateRange($pid, $encounter);
+            }
         } else {
             if (!empty($encounter)) {
+                // okay because encounter is passed in.
                 $this->encounterFilterList = [intval($encounter)];
             }
             $this->searchFiltered = false;
         }
     }
 
+    /**
+     * @param $column
+     * @return SearchQueryFragment
+     */
     private function getDateQueryClauseForColumn($column): SearchQueryFragment
     {
         $searchField = $this->convertDateSearchFieldForColumn($this->searchDateField, $column);
@@ -119,6 +127,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $queryClause;
     }
 
+    /**
+     * @param DateSearchField $searchField
+     * @param                 $column
+     * @return DateSearchField
+     */
     private function convertDateSearchFieldForColumn(DateSearchField $searchField, $column)
     {
         return new DateSearchField($column, $searchField->getValues(), $searchField->getDateType(), $searchField->isAnd());
@@ -207,6 +220,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getPatientdata($pid, $encounter): string
     {
+        // Ensure we have UUIDs for patient identifier in document.
+        UuidRegistry::createMissingUuidsForTables(['patient_data']);
         $query = "select patient_data.*, l1.notes AS race_code, l1.title as race_title, l2.notes AS ethnicity_code, l2.title as ethnicity_title, l3.title as religion
             , l3.notes as religion_code, l4.notes as language_code, l4.title as language_title
             ,patient_data.updated_by AS provenance_updated_by
@@ -256,6 +271,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $previous_addresses .= "</previous_addresses>";
 
         foreach ($row as $result) {
+            $pid_uuid = UuidRegistry::uuidToString($result['uuid']);
             $race = $this->resolveRace($result['race']);
             $provenanceRecord = [
                 'author_id' => $result['provenance_updated_by']
@@ -264,6 +280,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
             $patient_data = "<patient>" . $provenanceXml . "
             <id>" . xmlEscape($result['pid']) . "</id>
+            <uuid>" . xmlEscape($pid_uuid) . "</uuid>
             <encounter>" . xmlEscape($encounter) . "</encounter>
             <prefix>" . xmlEscape($result['title']) . "</prefix>
             <fname>" . xmlEscape($result['fname']) . "</fname>
@@ -380,6 +397,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $provider_details;
     }
 
+    /**
+     * @param $recordAuthor
+     * @param $pid
+     * @param $encounter
+     * @return array|null
+     */
     public function getProvenanceForRecord($recordAuthor, $pid, $encounter)
     {
         if (empty($recordAuthor['author_id']) || !is_numeric($recordAuthor['author_id'])) {
@@ -405,6 +428,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         ];
     }
 
+    /**
+     * @param $recordAuthor
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter)
     {
         $provenanceRecord = $this->getProvenanceForRecord($recordAuthor, $pid, $encounter);
@@ -454,6 +483,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $author;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return null
+     */
     private function getDocumentAuthorRecord($pid, $encounter)
     {
         $details = $this->getDetails('hie_author_id');
@@ -523,6 +557,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $author;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getAuthorDate($pid, $encounter)
     {
         // we allow providers to use the latest encounter date if they have the force flag set.
@@ -597,6 +636,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $informant;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getDocumentParticipants($pid, $encounter)
     {
 
@@ -607,6 +651,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $participants;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getDocumentReferralParticipant($pid, $encounter)
     {
         $participant = '';
@@ -660,6 +709,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $participant;
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return string
+     */
     public function getOfficeContact($pid, $encounter)
     {
         $details = $this->getDetails('hie_office_contact');
@@ -2582,6 +2636,60 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $social_history;
     }
 
+    /**
+     * Generates an unstructured component template for each patient document to be exported.
+     * The resulting template is structured for direct placement into the unstructured
+     * document by the ccda service.
+     *
+     * @param $pid
+     * @return string
+     */
+    public function getDocumentsForExport($pid): string
+    {
+        $c = 0;
+        $file_templates = "<patient_files>"; // This is known by service and should not be changed!
+        $query = "SELECT c.id, c.name as cat_name, d.id AS document_id, d.id, d.type, d.mimetype, d.url, d.hash, d.docdate, d.name as file_name
+                FROM `categories` AS c, documents AS d, `categories_to_documents` AS c2d
+                WHERE c.id = c2d.category_id AND c2d.document_id = d.id AND d.foreign_id = ?";
+        $appTable = new ApplicationTable();
+        $result = $appTable->zQuery($query, array($pid));
+        foreach ($result as $row_folders) {
+            if ((stripos($row_folders['file_name'], 'unstructured') !== false) || $row_folders['cat_name'] == 'CCDA') {
+                continue;
+            }
+            $doc = Documents::getDocument($row_folders['document_id']);
+            // I think gzcompress() is best option here, however if disagree and change then
+            // remember to change the compression attribute to notify importers how to handle.
+            $doc_compressed = gzcompress($doc, 9);
+            $doc_b64 = base64_encode($doc_compressed);
+            $mime = xmlEscape($row_folders['mimetype']);
+            $cat = xmlEscape($row_folders['cat_name']);
+            $name = xmlEscape($row_folders['file_name']);
+            $hash = xmlEscape($row_folders['hash']);
+            // I may put limits on these in near future depending on how well-behaved import is.
+            $doc_len = strlen($doc);
+            $doc_len_compressed = strlen($doc_compressed);
+            $b64_len = strlen($doc_b64);
+            // a component for each file. compression='ZL' is ZLIB RFC 1950 DF is Deflate RFC 1951
+            $file_templates .= "
+<component>
+  <nonXMLBody>
+    <text category='$cat' name='$name' hash='$hash' mediaType='$mime' representation='B64' compression='ZL'>$doc_b64</text>
+  </nonXMLBody>
+</component>";
+            $c++;
+        }
+        $file_templates .= "</patient_files>";
+
+        if ($c === 0) {
+            // Empty null flavored document will not be generated by service.
+            return '';
+        }
+        $len = strlen($file_templates);
+        // Pass back template.
+        return $file_templates;
+    }
+
     /*
     #********************************************************#
     #                  UNSTRUCTURED DOCUMENTS                #
@@ -2614,6 +2722,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $image;
     }
 
+    /**
+     * @param $field_name
+     * @return null
+     */
     public function getCarecoordinationModuleSettingValue($field_name)
     {
         $query = "SELECT field_value FROM modules AS mo "
@@ -2627,6 +2739,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return null;
     }
 
+    /**
+     * @param $field_name
+     * @return array|null
+     */
     public function getCarecoordinationProvenanceForField($field_name)
     {
         $query = "SELECT updated_by AS provenance_updated_by, date_modified FROM modules AS mo "
@@ -3198,7 +3314,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $file_name = UuidRegistry::uuidToString($binaryUuid) . ".xml";
         }
 
-
         $mimeType = "text/xml";
 
         try {
@@ -3759,6 +3874,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return $clinical_instructions;
     }
 
+    /**
+     * @param $pid
+     * @return array
+     */
     private function getReferralRecords($pid)
     {
         $wherCon = '';
@@ -3855,6 +3974,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         return substr(preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
     }
 
+    /**
+     * @param $pid
+     * @param $encounter
+     * @return array
+     */
     private function getEncounterListForDateRange($pid, $encounter)
     {
         $encounter = '';

@@ -483,6 +483,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             <td>
                                 <?php
                                 $type = !empty($row['is_qrda_document']) ? 'QRDA' : 'CCDA';
+                                $type = !empty($row['is_unstructured_document']) ? 'Document Imports' : $type;
                                 echo $this->listenerObject->z_xlt($type);
                                 ?>
                             </td>
