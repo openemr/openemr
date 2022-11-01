@@ -511,7 +511,7 @@ function findPosY(obj) {
 <body>
 <nav>
 <?php //DYNAMIC FORM RETREIVAL
-include_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 
 $reg = getFormsByCategory();
 $old_category = '';

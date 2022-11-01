@@ -17,7 +17,7 @@
 
 namespace OpenEMR\Menu;
 
-require_once(dirname(__FILE__) . "/../../library/registry.inc");
+require_once(dirname(__FILE__) . "/../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
