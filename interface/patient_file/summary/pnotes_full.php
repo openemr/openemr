@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 
 if (!empty($_GET['set_pid'])) {
-    require_once($GLOBALS['srcdir'] . '/pid.inc');
+    require_once($GLOBALS['srcdir'] . '/pid.inc.php');
     setpid($_GET['set_pid']);
 }
 

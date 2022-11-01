@@ -13,7 +13,7 @@
  */
 
 require_once(dirname(__FILE__) . '/../../globals.php');
-require_once("$srcdir/pid.inc");
+require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/forms.inc.php");
 

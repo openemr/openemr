@@ -52,7 +52,7 @@ $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
-    require_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc.php");
     setpid($_GET['set_pid']);
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];

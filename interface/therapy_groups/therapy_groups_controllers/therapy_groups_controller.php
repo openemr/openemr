@@ -27,7 +27,7 @@
 
 require_once dirname(__FILE__) . '/base_controller.php';
 require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
-require_once("{$GLOBALS['srcdir']}/pid.inc");
+require_once("{$GLOBALS['srcdir']}/pid.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 
