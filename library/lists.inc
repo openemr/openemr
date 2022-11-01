@@ -3,7 +3,7 @@
 /**
  * Part of .inc migration to .inc.php to better support source code editors.
  *  - lists.inc stub that redirects to lists.inc.php
- *  - Timeframe: this script can be remove in mid 2024
+ *  - Timeframe: this script can be remove in mid 2023
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
