@@ -41,7 +41,7 @@ $]]></xsl:text>
 ]]></xsl:text>
 </xsl:template>
 <xsl:template match="table[@type='extended']" mode="fetch">
-<xsl:text disable-output-escaping="yes"><![CDATA[/* use the sqlQuery function from sql.inc to load the saved record. */
+<xsl:text disable-output-escaping="yes"><![CDATA[/* use the sqlQuery function from sql.inc.php to load the saved record. */
 /* if we were passed an ID, pull it in specifically. otherwise, pull in the newest. */
 
 /* use the pid from the session to find the newest version of this form. */

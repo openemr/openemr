@@ -25,7 +25,6 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/sql.inc");
 require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php");
 require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/group_statuses_model.php");
 require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php");

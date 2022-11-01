@@ -232,7 +232,7 @@ class ApplicationTable
      * All error display and log
      * Display the Error, Line and File
      * Same behavior of HelpfulDie fuction in OpenEMR
-     * Path /library/sql.inc
+     * Path /library/sql.inc.php
      *
      * @param type $e
      * @param string $sql
@@ -353,7 +353,7 @@ class ApplicationTable
     }
 
     /*
-     * Using generate id function from OpenEMR sql.inc library file
+     * Using generate id function from OpenEMR sql.inc.php library file
      * @param string $seqname table name containing sequence (default is adodbseq)
      * @param integer $startID id to start with for a new sequence (default is 1)
      * @return integer returns the sequence integer

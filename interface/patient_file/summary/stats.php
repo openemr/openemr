@@ -13,7 +13,6 @@
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/sql.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
