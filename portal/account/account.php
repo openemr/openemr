@@ -27,7 +27,7 @@ if (
 
 require_once(__DIR__ . "/../../interface/globals.php");
 require_once("$srcdir/patient.inc.php");
-require_once(__DIR__ . "/../lib/portal_mail.inc");
+require_once(__DIR__ . "/../lib/portal_mail.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 require_once("./account.lib.php");
 
