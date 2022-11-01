@@ -17,7 +17,7 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/group.inc");
+require_once("$srcdir/group.inc.php");
 require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

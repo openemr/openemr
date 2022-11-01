@@ -18,7 +18,7 @@
 <!-- Form generated from formsWiz -->
 <?php
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Core\Header;
 

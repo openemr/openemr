@@ -10,7 +10,7 @@
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
-require_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;

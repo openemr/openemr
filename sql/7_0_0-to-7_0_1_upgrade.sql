@@ -266,3 +266,8 @@ ALTER TABLE `audit_master` ADD `is_unstructured_document` BOOLEAN NULL DEFAULT F
 #IfNotColumnType ccda ccda_data LONGTEXT
 ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
 #EndIf
+
+#IfNotRow2D background_services name phimail require_once /library/direct_message_check.inc.php
+UPDATE `background_services` SET `require_once` = '/library/direct_message_check.inc.php' WHERE `name` = 'phimail';
+#EndIf
+

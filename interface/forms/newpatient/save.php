@@ -13,8 +13,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/encounter.inc");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;

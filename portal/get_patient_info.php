@@ -74,7 +74,7 @@ if (
 }
 
 require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;

@@ -65,12 +65,12 @@ if (!$disable_utf8_flag) {
     if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
         $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8mb4'");
         if (!$success_flag) {
-            error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+            error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8MB4 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
         }
     } else {
         $success_flag = $database->ExecuteNoLog("SET NAMES 'utf8'");
         if (!$success_flag) {
-            error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
+            error_log("PHP custom error: from openemr library/sql.inc.php  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
         }
     }
 }
@@ -722,10 +722,10 @@ function sqlRollbackTrans()
  *
  * To support an optional higher level of security, queries that access password
  * related information use these functions instead of the standard functions
- * provided by sql.inc.
+ * provided by sql.inc.php.
  *
  * By default, the privQuery and privStatement calls pass-through to
- * the existing ADODB instance initialized by sql.inc.
+ * the existing ADODB instance initialized by sql.inc.php.
  *
  * If an additional configuration file is created (secure_sqlconf.php) and saved
  * in the sites/<sitename> directory (e.g. sites/default).  The MySQL login

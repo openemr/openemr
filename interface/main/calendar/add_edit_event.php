@@ -42,14 +42,14 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc');
-require_once($GLOBALS['srcdir'] . '/forms.inc');
-require_once($GLOBALS['srcdir'] . '/calendar.inc');
+require_once($GLOBALS['srcdir'] . '/patient.inc.php');
+require_once($GLOBALS['srcdir'] . '/forms.inc.php');
+require_once($GLOBALS['srcdir'] . '/calendar.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/encounter_events.inc.php');
 require_once($GLOBALS['srcdir'] . '/patient_tracker.inc.php');
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
-require_once($GLOBALS['srcdir'] . '/group.inc');
+require_once($GLOBALS['srcdir'] . '/group.inc.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;

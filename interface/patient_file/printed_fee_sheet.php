@@ -19,8 +19,8 @@
 
 require_once("../globals.php");
 require_once("$srcdir/appointments.inc.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;

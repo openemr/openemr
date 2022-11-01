@@ -9,8 +9,8 @@
 
 //local includes
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save
@@ -31,8 +31,8 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
     }
 
     $strSql = "UPDATE form_psychiatrisch_onderzoek
-                SET pid = ?, groupname=?, user=?, 
-                authorized=?, activity=1, date = NOW(), 
+                SET pid = ?, groupname=?, user=?,
+                authorized=?, activity=1, date = NOW(),
                 datum_onderzoek=?,
                 reden_van_aanmelding=?,
                 conclusie_van_intake=?,
@@ -41,8 +41,8 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
                 psychiatrisch_onderzoek=?,
                 beschrijvende_conclusie=?,
                 behandelvoorstel=?,
-                autosave_flag=1, 
-                autosave_datetime=NOW() 
+                autosave_flag=1,
+                autosave_datetime=NOW()
                   WHERE id = ?;";
 
     sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["datum_onderzoek"], $_POST["reden_van_aanmelding"],

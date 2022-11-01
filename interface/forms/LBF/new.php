@@ -25,10 +25,10 @@ if ($patientPortalSession) {
 }
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
@@ -1846,7 +1846,7 @@ if (
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+                <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.

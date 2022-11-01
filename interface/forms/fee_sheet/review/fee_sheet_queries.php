@@ -13,7 +13,7 @@
 
 require_once('fee_sheet_classes.php');
 require_once("$srcdir/../custom/code_types.inc.php");
-require_once("$srcdir/../library/lists.inc");
+require_once("$srcdir/../library/lists.inc.php");
 require_once("code_check.php");
 
 /**

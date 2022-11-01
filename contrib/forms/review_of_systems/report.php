@@ -1,7 +1,7 @@
 <?php
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 function review_of_systems_report($pid, $encounter, $cols, $id)
 {

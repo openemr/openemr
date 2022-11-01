@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once("../../../library/registry.inc");
+require_once("../../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;

@@ -58,7 +58,7 @@ if (php_sapi_name() === 'cli' && count($argv) != 0) {
 }
 
 require_once(__DIR__ . "/../../../globals.php");
-require_once(__DIR__ . "/../../../../library/forms.inc");
+require_once(__DIR__ . "/../../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../../library/options.inc.php");
 
 chdir(dirname(__DIR__));

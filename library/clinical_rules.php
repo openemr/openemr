@@ -14,10 +14,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/patient.inc");
-require_once(dirname(__FILE__) . "/forms.inc");
+require_once(dirname(__FILE__) . "/patient.inc.php");
+require_once(dirname(__FILE__) . "/forms.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
-require_once(dirname(__FILE__) . "/report_database.inc");
+require_once(dirname(__FILE__) . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;

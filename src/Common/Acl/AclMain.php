@@ -338,7 +338,7 @@ class AclMain
     //
     public static function aclCheckForm($formdir, $user = '', $return_value = '')
     {
-        require_once(dirname(__FILE__) . '/../../../library/registry.inc');
+        require_once(dirname(__FILE__) . '/../../../library/registry.inc.php');
         $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
         return self::aclCheckAcoSpec($tmp['aco_spec'], $user, $return_value);
     }
@@ -348,7 +348,7 @@ class AclMain
     //
     public static function aclCheckIssue($type, $user = '', $return_value = '')
     {
-        require_once(dirname(__FILE__) . '/../../../library/lists.inc');
+        require_once(dirname(__FILE__) . '/../../../library/lists.inc.php');
         global $ISSUE_TYPES;
         if (empty($ISSUE_TYPES[$type][5])) {
             return true;

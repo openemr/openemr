@@ -10,8 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/forms.inc");
-require_once(__DIR__ . "/../library/patient.inc");
+require_once(__DIR__ . "/../library/forms.inc.php");
+require_once(__DIR__ . "/../library/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -459,7 +459,7 @@ class C_Document extends Controller
     {
         global $ISSUE_TYPES;
 
-        require_once(dirname(__FILE__) . "/../library/lists.inc");
+        require_once(dirname(__FILE__) . "/../library/lists.inc.php");
 
         $d = new Document($doc_id);
         $notes = $d->get_notes();
