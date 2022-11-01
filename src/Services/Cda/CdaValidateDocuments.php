@@ -274,6 +274,12 @@ class CdaValidateDocuments
      */
     private function validateSchematron($xml, $type = 'ccda')
     {
+        $results = array(
+            'errorCount' => 0,
+            'warningCount' => 0,
+            'ignoredCount' => 0,
+            'errors' => []
+        );
         try {
             $result = $this->schematronValidateDocument($xml, $type);
         } catch (Exception $e) {
@@ -281,6 +287,9 @@ class CdaValidateDocuments
             error_log($e);
             $result = [];
         }
+        // so we don't haves PHP errors concerning undefineds.
+        $result = array_merge($results, $result);
+
         return $result;
     }
 
@@ -316,8 +325,12 @@ class CdaValidateDocuments
     {
         $errors = $this->fetchValidationLog($amid);
 
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-        $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
+        if (count($error ?? [])) {
+            $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+            $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
+        } else {
+            $html = xlt("Validation service is disabled in Admin Config Connectors 'Disable All CDA Validation Reporting'.");
+        }
         return $html;
     }
 

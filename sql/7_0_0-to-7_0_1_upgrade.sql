@@ -254,3 +254,15 @@ UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID 
 #IfRow2D categories aco_spec patients|docs name Patient Photograph
 UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
 #EndIf
+
+#IfNotColumnType audit_details field_value LONGTEXT
+ALTER TABLE `audit_details` CHANGE `field_value` `field_value` LONGTEXT COMMENT 'openemr table field value';
+#EndIf
+
+#IfMissingColumn audit_master is_unstructured_document
+ALTER TABLE `audit_master` ADD `is_unstructured_document` BOOLEAN NULL DEFAULT FALSE;
+#EndIf
+
+#IfNotColumnType ccda ccda_data LONGTEXT
+ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
+#EndIf
