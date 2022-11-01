@@ -22,7 +22,7 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;

@@ -23,7 +23,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;

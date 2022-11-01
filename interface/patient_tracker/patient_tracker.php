@@ -22,7 +22,7 @@ require_once "../globals.php";
 require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/patient_tracker.inc.php";
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
