@@ -153,7 +153,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT ?", array($pid, $doc_catg, $limit));
+            ORDER BY d.date DESC LIMIT " . escape_limit($limit), array($pid, $doc_catg));
     }
     while ($result = sqlFetchArray($query)) {
         $results[] = $result['id'];
@@ -283,15 +283,15 @@ function image_widget($doc_id, $doc_catg)
             " onclick='top.restoreSession();' class='image_modal'>" .
             " <img src = '$web_root" .
             "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
-            " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file) . "'>  </a> </td> <td class='align-middle'>" .
-            text($doc_catg) . "</td>";
+            " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file_name) . "'>  </a> </td> <td class='align-middle'>" .
+            text($doc_catg) . '<br />&nbsp;' . text($image_file_name) . "</td>";
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
             "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
             " onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" .
             xlt("View") . "</a> &nbsp;" .
-            text("$doc_catg - $image_file") .
+            text("$doc_catg - $image_file_name") .
             "</span> </td>";
     }
 
