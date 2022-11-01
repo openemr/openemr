@@ -17,7 +17,7 @@
 require_once(dirname(__FILE__) . "/patient.inc.php");
 require_once(dirname(__FILE__) . "/forms.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
-require_once(dirname(__FILE__) . "/report_database.inc");
+require_once(dirname(__FILE__) . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
