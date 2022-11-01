@@ -34,9 +34,10 @@ class CdaValidateDocuments
         if ($this->externalValidatorEnabled) {
             // should never get to where the url is '' as we disable it if the conformance server is empty
             $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: '';
-            if (!str_ends_with($this->externalValidatorUrl, '/')) {
+            if (substr($this->externalValidatorUrl, -1) !== '/') {
                 $this->externalValidatorUrl .= '/';
             }
+
             $this->externalValidatorUrl .= 'referenceccdaservice/';
         }
     }
