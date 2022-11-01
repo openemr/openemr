@@ -25,7 +25,7 @@ function si_report_item($title, $value)
     "<span class='text'>" . text($value) . " &nbsp;</span></td>\n";
 }
 
-// This function is invoked from printPatientForms in report.inc
+// This function is invoked from printPatientForms in report.inc.php
 // when viewing a "comprehensive patient report".  Also from
 // interface/patient_file/encounter/forms.php.
 //

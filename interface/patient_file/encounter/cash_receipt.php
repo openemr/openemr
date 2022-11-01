@@ -16,7 +16,7 @@ require_once("../../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc");
+require_once("$srcdir/report.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;

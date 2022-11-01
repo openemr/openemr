@@ -17,7 +17,7 @@
 require_once(dirname(__file__) . "/../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc");
+require_once("$srcdir/report.inc.php");
 require_once("$srcdir/calendar.inc.php");
 
 use OpenEMR\Billing\EDI270;

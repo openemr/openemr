@@ -39,7 +39,7 @@ require_once($srcdir . "/documents.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/report.inc");
+require_once("$srcdir/report.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;

@@ -17,7 +17,7 @@ require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
-// This function is invoked from printPatientForms in report.inc
+// This function is invoked from printPatientForms in report.inc.php
 // when viewing a "comprehensive patient report".  Also from
 // interface/patient_file/encounter/forms.php.
 
