@@ -40,7 +40,7 @@ class Installer
         $this->pass                     = isset($cgi_variables['pass']) ? ($cgi_variables['pass']) : '';
         $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname']) : '';
         $this->collate                  = isset($cgi_variables['collate']) ? ($cgi_variables['collate']) : '';
-        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : '';
+        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : 'default'; // set to default if not set in order for install script to work correctly
         $this->source_site_id           = isset($cgi_variables['source_site_id']) ? ($cgi_variables['source_site_id']) : '';
         $this->clone_database           = isset($cgi_variables['clone_database']) ? ($cgi_variables['clone_database']) : '';
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
@@ -161,7 +161,7 @@ class Installer
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
-            if (! $this->set_sql_strict()) {
+            if (!$this->set_sql_strict()) {
                 $this->error_message = 'unable to set strict sql setting';
                 return false;
             }
@@ -1330,10 +1330,15 @@ $config = 1; /////////////
                 );
             }
         }
-        if ($mysqlSsl) {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
-        } else {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+        try {
+            if ($mysqlSsl) {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
+            } else {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+            }
+        } catch (mysqli_sql_exception $e) {
+            $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
+            return false;
         }
         if (!$ok) {
             $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
