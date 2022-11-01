@@ -339,7 +339,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $query = "SELECT cc.id, pd.fname, pd.lname, pd.pid FROM ccda AS cc
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
 		    WHERE cc.pid = ?
-		    ORDER BY cc.id DESC LIMIT " . escape_limit($limit);
+		    ORDER BY cc.id DESC LIMIT $limit";
         $res = $appTable->zQuery($query, array($pid));
         foreach ($res as $row) {
             $res_cur[] = $row;
