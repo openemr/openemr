@@ -2033,14 +2033,13 @@ class CdaTemplateImportDispose
      */
     public function findClosestEncounterWithForm($item_date, $item_pid, $form = '')
     {
-        $form = add_escape_custom($form);
         $item_date = !empty($item_date) ? date('Y-m-d 23:59:59', strtotime($item_date)) : null;
         $sql = "SELECT
             fe.encounter,
             fe.date,
             fe.pid
             FROM `form_encounter` AS fe
-            LEFT JOIN $form as f On fe.encounter = f.encounter And fe.pid = f.pid
+            LEFT JOIN " . escape_table_name($form) . " as f On fe.encounter = f.encounter And fe.pid = f.pid
             WHERE fe.date <= ? AND fe.pid = ?
             ORDER BY fe.encounter DESC, fe.date DESC Limit 1";
         $rtn = sqlQuery($sql, array($item_date, $item_pid));
