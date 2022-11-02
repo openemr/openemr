@@ -515,7 +515,7 @@ class CarecoordinationTable extends AbstractTableGateway
             }
             if ($table == 'patient_data') {
                 $createFlag = true;
-                if (!empty($newdata['patient_data']['referrerID']) && ($this->is_unstructured_import ?? false)) {
+                if (!empty($newdata['patient_data']['referrerID'])) {
                     $uuid = $newdata['patient_data']['referrerID'];
                     $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ?", array($uuid))['pid'];
                     if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
