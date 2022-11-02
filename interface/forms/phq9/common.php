@@ -11,9 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("phq9.inc.php"); //common strings, require_once(globals.php), other includes  etc
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("phq9.inc.php"); //common strings
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;

@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../../library/api.inc');
+require_once(dirname(__FILE__) . '/../../../library/api.inc.php');
 
 
 function phq9_report($pid, $encounter, $cols, $id)
@@ -39,9 +39,9 @@ function phq9_report($pid, $encounter, $cols, $id)
                 continue;
             }
             if ($key == "difficulty") {
-                print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_difficulty_values [$value]) . "</span></td>";
+                print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_difficulty_values[$value]) . "</span></td>";
             } else {
-                print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_values [$value]) . "</span></td>";
+                print "<td><span class=bold>" . text($str_issues[$key]) . ": </span><span class=text>" . text($str_values[$value]) . "</span></td>";
                 if (is_numeric($value)) {
                     $phq9_total += $value;
                 }
