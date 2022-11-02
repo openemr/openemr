@@ -942,7 +942,7 @@ class CarecoordinationController extends AbstractActionController
             $stat = $z->statIndex($i);
             // explode and make sure we have our three parts
             // our max directory structure is 4... anything more than that and we will bail
-            $fileComponents = explode("/", $stat['name'], $maxFileComponents);
+            $fileComponents = explode("/", str_replace('\\', '/', $stat['name']), 5);
             $componentCount = count($fileComponents);
             $shouldDeleteIndex = false;
 
@@ -1031,11 +1031,11 @@ class CarecoordinationController extends AbstractActionController
             $stat = $z->statIndex($i);
             // explode and make sure we have our three parts
             // our max directory structure is 4... anything more than that and we will bail
-            $fileComponents = explode("/", $stat['name'], 5);
+            $fileComponents = explode("/", str_replace('\\', '/', $stat['name']), 5);
             $componentCount = count($fileComponents);
 
             // now we need to do our document import for our ccda for this patient
-            if ($componentCount == 1) {
+            if ($componentCount == 2) {
                 // let's process the ccda
                 $file_name = basename($stat['name']);
 
@@ -1043,7 +1043,7 @@ class CarecoordinationController extends AbstractActionController
                 $ob = new Document();
                 $contents = $z->getFromIndex($i);
                 if (stripos($file_name, '.xml') !== false) {
-                    $ret = $ob->createDocument($pid, $catId, $file_name, $mime, $contents);
+                    $ret = $ob->createDocument($pid, $catId, $file_name, 'text/xml', $contents);
                     if (!empty($ret)) {
                         throw new \RuntimeException("Failed to create document from zip file " . $file_name . " error returned was " . $ret);
                     }
