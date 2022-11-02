@@ -1,4 +1,5 @@
-CREATE TABLE IF NOT EXISTS `form_CAMOS` (
+DROP TABLE IF EXISTS `form_CAMOS`;
+CREATE TABLE `form_CAMOS` (
 id bigint(20) NOT NULL auto_increment,
 date datetime default NULL,
 pid bigint(20) default NULL,
@@ -14,7 +15,8 @@ content TEXT,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `form_CAMOS_category` (
+DROP TABLE IF EXISTS `form_CAMOS_category`;
+CREATE TABLE `form_CAMOS_category` (
 id bigint(20) NOT NULL auto_increment,
 date datetime default NULL,
 pid bigint(20) default NULL,
@@ -28,7 +30,8 @@ category TEXT,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `form_CAMOS_subcategory` (
+DROP TABLE IF EXISTS `form_CAMOS_subcategory`;
+CREATE TABLE `form_CAMOS_subcategory` (
 id bigint(20) NOT NULL auto_increment,
 date datetime default NULL,
 pid bigint(20) default NULL,
@@ -43,7 +46,8 @@ category_id bigint(20) NOT NULL,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `form_CAMOS_item` (
+DROP TABLE IF EXISTS `form_CAMOS_item`;
+CREATE TABLE `form_CAMOS_item` (
 id bigint(20) NOT NULL auto_increment,
 date datetime default NULL,
 pid bigint(20) default NULL,
