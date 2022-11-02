@@ -12,8 +12,8 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2022 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -504,8 +504,7 @@ function icd_import($type)
     $incoming = array();
 
     // find active revision
-    $res = sqlStatementNoLog("SELECT max(revision) rev FROM icd10_pcs_order_code");
-    $row = sqlFetchArray($res);
+    $res = sqlQueryNoLog("SELECT max(revision) rev FROM icd10_pcs_order_code") ?? 0;
     $next_rev = $row['rev'] + 1;
     $incoming['icd10pcs_codes_'] = array(
         'TABLENAME' => "icd10_pcs_order_code",
@@ -514,8 +513,7 @@ function icd_import($type)
         'REV' => $next_rev
     );
 
-    $res = sqlStatementNoLog("SELECT max(revision) rev FROM icd10_dx_order_code");
-    $row = sqlFetchArray($res);
+    $res = sqlQueryNoLog("SELECT max(revision) rev FROM icd10_dx_order_code") ?? 0;
     $next_rev = $row['rev'] + 1;
     $incoming['icd10cm_order_'] = array(
         'TABLENAME' => "icd10_dx_order_code",
@@ -765,4 +763,4 @@ function getFileData($fn)
     }
 
     fclose($file);
-};
+}
