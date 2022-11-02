@@ -15,7 +15,7 @@
  */
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 function contacts_report($pid, $encounter, $cols, $id)
 {
     $count = 0;

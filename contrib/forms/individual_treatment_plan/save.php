@@ -1,8 +1,8 @@
 <?php
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 if ($encounter == "") {
     $encounter = date("Ymd");

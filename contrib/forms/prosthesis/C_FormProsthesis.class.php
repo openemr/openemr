@@ -1,6 +1,6 @@
 <?php
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormProsthesis.class.php");
 
 use OpenEMR\Billing\BillingUtilities;

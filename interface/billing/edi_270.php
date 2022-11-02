@@ -21,10 +21,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once("$srcdir/calendar.inc");
+require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;

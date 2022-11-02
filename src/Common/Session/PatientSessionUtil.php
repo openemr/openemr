@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PatientSessionUtil refactored from pid.inc handles clearing and setting the session for a patient.
+ * PatientSessionUtil refactored from pid.inc.php handles clearing and setting the session for a patient.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

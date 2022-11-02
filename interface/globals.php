@@ -154,7 +154,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
             if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
                 $GLOBALS['login_screen'] = "login_screen.php";
                 $srcdir = "../library";
-                require_once("$srcdir/auth.inc");
+                require_once("$srcdir/auth.inc.php");
             }
             die("Site ID is missing from session data!");
         }
@@ -298,7 +298,7 @@ try {
 }
 
 // This will open the openemr mysql connection.
-require_once(__DIR__ . "/../library/sql.inc");
+require_once(__DIR__ . "/../library/sql.inc.php");
 
 // Include the version file
 require_once(__DIR__ . "/../version.php");
@@ -526,7 +526,7 @@ if (empty($GLOBALS['qualified_site_addr'])) {
     $GLOBALS['qualified_site_addr'] = rtrim($GLOBALS['site_addr_oath'] . trim($GLOBALS['webroot']), "/");
 }
 
-// Need to utilize a session since library/sql.inc is established before there are any globals established yet.
+// Need to utilize a session since library/sql.inc.php is established before there are any globals established yet.
 //  This means that the first time, it will be skipped even if the global is turned on. However,
 //  after that it will then be turned on via the session.
 // Also important to note that changes to this global setting will not take effect during the same
@@ -587,7 +587,7 @@ if (($ignoreAuth_onsite_portal === true) && ($GLOBALS['portal_onsite_two_enable'
 }
 
 if (!$ignoreAuth) {
-    require_once("$srcdir/auth.inc");
+    require_once("$srcdir/auth.inc.php");
 }
 
 // This is the background color to apply to form fields that are searchable.

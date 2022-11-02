@@ -13,9 +13,9 @@
  */
 
     require_once("../../../globals.php");
-    require_once("$srcdir/api.inc");
-    require_once("$srcdir/forms.inc");
-    require_once("$srcdir/patient.inc");
+    require_once("$srcdir/api.inc.php");
+    require_once("$srcdir/forms.inc.php");
+    require_once("$srcdir/patient.inc.php");
 
     $providerID = $_REQUEST['providerID'];
 
@@ -3465,7 +3465,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         }
                         ?>
                         submit_form("eye_mag");
-                        
+
                         });
                   $("#EXT_defaults_L").on("click", function() {
                         <?php
@@ -3511,7 +3511,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     }
                     ?>
                     submit_form("eye_mag");
-                    
+
                     });
                     $("#ANTSEG_defaults_OS").on("click", function() {
                             <?php
@@ -3545,7 +3545,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#ODIRIS").val($("#OSIRIS").val());
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#RETINA_OD_OS").on('click', function () {
                         $("#OSDISC").val($("#ODDISC").val());
                         $("#OSCUP").val($("#ODCUP").val());
@@ -3555,7 +3555,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#OSPERIPH").val($("#ODPERIPH").val());
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#RETINA_OS_OD").on('click', function () {
                         $("#ODDISC").val($("#OSDISC").val());
                         $("#ODCUP").val($("#OSCUP").val());
@@ -3565,7 +3565,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#ODPERIPH").val($("#OSPERIPH").val());
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#clear_EXT_L").on('click', function () {
                         $("#LBROW").val('');
                         $("#LUL").val('');
@@ -3576,7 +3576,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#LMRD").val('');
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#clear_EXT_R").on('click', function () {
                         $("#RBROW").val('');
                         $("#RUL").val('');
@@ -3587,7 +3587,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#RMRD").val('');
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#RETINA_defaults_OD").on("click", function() {
                             <?php
                             foreach ($RETINA as $item => $value) {
@@ -3598,7 +3598,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                             }
                             ?>
                             submit_form("eye_mag");
-                            
+
                             });
                     $("#RETINA_defaults_OS").on("click", function() {
                         <?php

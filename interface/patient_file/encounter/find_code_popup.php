@@ -13,7 +13,7 @@
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
@@ -106,10 +106,10 @@ $focus = "document.theform.search_term.select();";
         }
         ?>
         <?php if (!empty($allowed_codes)) { ?>
-        <form class="form-inline" method='post' name='theform' 
+        <form class="form-inline" method='post' name='theform'
             action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr_url($codetype) ?>'>
         <?php } else { ?>
-        <form class="form-inline" method='post' name='theform' 
+        <form class="form-inline" method='post' name='theform'
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -159,14 +159,14 @@ $focus = "document.theform.search_term.select();";
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
                     <div class="input-group-append">
-                        <button type='submit' class='btn btn-primary btn-search' 
+                        <button type='submit' class='btn btn-primary btn-search'
                             name='bn_search' value='Search'></button>
                         <?php if (!empty($target_element)) { ?>
                         <button type='button' class='btn btn-primary btn-delete' value=''
-                            onclick="selcode_target('', '', '', '', 
+                            onclick="selcode_target('', '', '', '',
                                 <?php echo attr_js($target_element); ?>)"></button>
                         <?php } else { ?>
-                        <button type='button' class='btn btn-danger btn-delete' value='' 
+                        <button type='button' class='btn btn-danger btn-delete' value=''
                             onclick="selcode('', '', '', '')"></button>
                         <?php } ?>
                     </div>

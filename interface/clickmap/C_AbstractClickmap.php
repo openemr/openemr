@@ -19,7 +19,7 @@
 require_once(dirname(__FILE__) . '/../globals.php');
 
 /* For the addform() function */
-require_once($GLOBALS['srcdir'] . '/forms.inc');
+require_once($GLOBALS['srcdir'] . '/forms.inc.php');
 
 /**
  * @class C_AbstractClickmap

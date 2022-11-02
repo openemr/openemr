@@ -14,7 +14,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc");
+require_once("$srcdir/lab.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -42,8 +42,8 @@ if ($form_review and !$reviewauth and !$thisauth) {
 
 // Set pid for pending review.
 if (!empty($_GET['set_pid']) && $form_review) {
-    require_once("$srcdir/pid.inc");
-    require_once("$srcdir/patient.inc");
+    require_once("$srcdir/pid.inc.php");
+    require_once("$srcdir/patient.inc.php");
     setpid($_GET['set_pid']);
 
     $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");

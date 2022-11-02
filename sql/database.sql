@@ -153,6 +153,7 @@ CREATE TABLE `audit_master` (
   `ip_address` varchar(100) NOT NULL,
   `type` tinyint(4) NOT NULL COMMENT '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment',
   `is_qrda_document` BOOLEAN NULL DEFAULT FALSE,
+  `is_unstructured_document` BOOLEAN NULL DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -167,7 +168,7 @@ CREATE TABLE `audit_details` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `table_name` VARCHAR(100) NOT NULL COMMENT 'openemr table name',
   `field_name` VARCHAR(100) NOT NULL COMMENT 'openemr table''s field name',
-  `field_value` TEXT COMMENT 'openemr table''s field value',
+  `field_value` LONGTEXT COMMENT 'openemr table''s field value',
   `audit_master_id` BIGINT(20) NOT NULL COMMENT 'Id of the audit_master table',
   `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
   PRIMARY KEY (`id`),
@@ -201,7 +202,7 @@ CREATE TABLE `background_services` (
 --
 
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
+('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('MedEx', 'MedEx Messaging Service', 0, 0, '2017-05-09 17:39:10', 0, 'start_MedEx', '/library/MedEx/MedEx_background.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
@@ -11613,7 +11614,7 @@ CREATE TABLE ccda (
   `uuid` binary(16) DEFAULT NULL,
   pid BIGINT(20) DEFAULT NULL,
   encounter BIGINT(20) DEFAULT NULL,
-  ccda_data MEDIUMTEXT,
+  ccda_data LONGTEXT,
   time VARCHAR(50) DEFAULT NULL,
   status SMALLINT(6) DEFAULT NULL,
   updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

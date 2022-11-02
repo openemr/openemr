@@ -18,11 +18,14 @@ use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
 use Documents\Model\DocumentsTable;
 use Documents\Plugin\Documents;
+use Exception;
+use Laminas\Config\Reader\ReaderInterface;
 use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
+use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 
 class CarecoordinationTable extends AbstractTableGateway
@@ -30,12 +33,14 @@ class CarecoordinationTable extends AbstractTableGateway
     public const NPI_SAMPLE = "987654321";
     public const ORGANIZATION_SAMPLE = "External Physicians Practice";
     public const ORGANIZATION2_SAMPLE = "External Health and Hospitals";
-    public $is_qrda_import;
+    public $is_qrda_import = false;
+    public $is_unstructured_import = false;
+    public $validationIsDisabled = false;
     protected $documentData;
+    protected $validateDocument;
     private $parseTemplates;
     private $codeService;
     private $importService;
-    protected $validateDocument;
 
     public function __construct()
     {
@@ -43,6 +48,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
+        $this->validationIsDisabled = $GLOBALS['ccda_validation_disable'] ?? false;
     }
 
     /*
@@ -113,6 +119,7 @@ class CarecoordinationTable extends AbstractTableGateway
             d.id AS document_id,
             d.document_data,
             am.is_qrda_document,
+            am.is_unstructured_document,
             ad.field_value as ad_lname,
             ad1.field_value as ad_fname,
             ad2.field_value as dob_raw,
@@ -168,34 +175,38 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->insert_patient(null, null);
     }
 
-    /*
-     * Fetch the component values from the CCDA XML
-     *
-     * @param   $document_id    Document id
+    /**
+     * @param $xml_content
+     * @param $doc_id
+     * @return void
+     * @throws Exception
      */
-
-    public function importCore($xml_content, $doc_id = null)
+    public function importCore($xml_content, $doc_id = null): void
     {
         $xml_content_new = preg_replace('#<br />#', '', $xml_content);
         $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
+        $xml_content_new = (string)str_replace(array("\n    ", "\n", "\r"), '', $xml_content_new);
 
         // Note the behavior of this relies on PHP's XMLReader
         // @see https://docs.zendframework.com/zend-config/reader/
         // @see https://php.net/xmlreader
-        $xmltoarray = new Xml();
-        $xml = $xmltoarray->fromString((string)$xml_content_new);
-
-        /* PlaceHolder for removed header organizational data parse because not used. sjp 09/26/21 */
-
+        // 10/27/2022 sjp Extended base reader Laminas XML class using provided interface class
+        // Needed to add LIBXML_COMPACT | LIBXML_PARSEHUGE flags because large text node(>10MB) will fail.
+        try {
+            $xmltoarray = new XmlExtended();
+            $xml = $xmltoarray->fromString($xml_content_new);
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
         $qrda_log['message'] = $validation_log = null;
         // test if a QRDA QDM CAT I document type from header OIDs
-        $qrda = $xml['templateId'][2]['root'] ?? null;
-        if ($qrda === '2.16.840.1.113883.10.20.24.1.2') {
+        $template_oid = $xml['templateId'][2]['root'] ?? null;
+        if ($template_oid === '2.16.840.1.113883.10.20.24.1.2') {
             $this->is_qrda_import = 1;
-            if (!empty($doc_id)) {
-                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'qrda1');
+            if (!empty($doc_id) && !$this->validationIsDisabled) {
+                $validation_log = $this->validateDocument->validateDocument($xml_content_new, 'qrda1');
             }
             if (count($components[2]["section"]["entry"] ?? []) < 2) {
                 $name = $xml["recordTarget"]["patientRole"]["patient"]["name"]["given"] . ' ' .
@@ -207,10 +218,15 @@ class CarecoordinationTable extends AbstractTableGateway
             // Offset to Patient Data section
             $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
         } else {
-            if (!empty($doc_id)) {
-                $validation_log = $this->validateDocument->validateDocument((string)$xml_content_new, 'ccda');
+            if (!empty($doc_id) && !$this->validationIsDisabled) {
+                $validation_log = $this->validateDocument->validateDocument($xml_content_new, 'ccda');
             }
-            $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
+            if ($template_oid === '2.16.840.1.113883.10.20.22.1.10') {
+                $this->is_unstructured_import = true;
+                $this->documentData = $this->parseTemplates->parseUnstructuredComponents($xml);
+            } else {
+                $this->documentData = $this->parseTemplates->parseCDAEntryComponents($components);
+            }
         }
 
         $this->documentData['approval_status'] = 1;
@@ -251,8 +267,9 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['suffix'] = $name['suffix'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = ucfirst(strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? ''));
-        $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
+        //$this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['referrerID'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? '';
+        //$this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['city'] = $xml['recordTarget']['patientRole']['addr']['city'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'] ?? null;
@@ -361,12 +378,8 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function insert_patient($audit_master_id, $document_id)
     {
-        require_once(__DIR__ . "/../../../../../../../../library/patient.inc");
+        require_once(__DIR__ . "/../../../../../../../../library/patient.inc.php");
         $pid = 0;
-        $j = 1;
-        $k = 1;
-        $q = 1;
-        $y = 1;
         $a = 1;
         $b = 1;
         $c = 1;
@@ -375,7 +388,12 @@ class CarecoordinationTable extends AbstractTableGateway
         $f = 1;
         $g = 1;
         $h = 1;
+        $j = 1;
+        $k = 1;
+        $l = 1;
         $p = 1; // payer QRDA
+        $q = 1;
+        $y = 1;
 
         $arr_procedure_res = array();
         $arr_encounter = array();
@@ -397,8 +415,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $pid = $prow['pid'];
         }
         if (!empty($audit_master_id)) {
-            $res = $appTable->zQuery("SELECT DISTINCT am.is_qrda_document, ad.table_name,
-                                            entry_identification
+            $res = $appTable->zQuery("SELECT DISTINCT am.is_qrda_document, am.is_unstructured_document, ad.table_name, entry_identification
                                      FROM audit_master as am,audit_details as ad
                                      WHERE am.id=ad.audit_master_id AND
                                      am.approval_status = '1' AND
@@ -417,6 +434,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         foreach ($res as $row) {
             $this->is_qrda_import = $row['is_qrda_document'] ?? false;
+            $this->is_unstructured_import = $row['is_unstructured_document'] ?? false;
             if (!empty($audit_master_id)) {
                 $resfield = $appTable->zQuery(
                     "SELECT *
@@ -491,11 +509,21 @@ class CarecoordinationTable extends AbstractTableGateway
                     $newdata['observation_preformed'][$rowfield['field_name']] = $rowfield['field_value'];
                 } elseif ($table == 'payer') {
                     $newdata['payer'][$rowfield['field_name']] = $rowfield['field_value'];
+                } elseif ($table == 'import_file') {
+                    $newdata['import_file'][$rowfield['field_name']] = $rowfield['field_value'];
                 }
             }
-
             if ($table == 'patient_data') {
-                updatePatientData($pid, $newdata['patient_data'], true);
+                $createFlag = true;
+                if (!empty($newdata['patient_data']['referrerID']) && ($this->is_unstructured_import ?? false)) {
+                    $uuid = $newdata['patient_data']['referrerID'];
+                    $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ?", array($uuid))['pid'];
+                    if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
+                        $pid = $pid_exist;
+                        $createFlag = false;
+                    }
+                }
+                updatePatientData($pid, $newdata['patient_data'], $createFlag);
             } elseif ($table == 'immunization') {
                 $arr_immunization['immunization'][$a]['extension'] = $newdata['immunization']['extension'];
                 $arr_immunization['immunization'][$a]['root'] = $newdata['immunization']['root'];
@@ -765,8 +793,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'functional_cognitive_status') {
-                $arr_functional_cognitive_status['functional_cognitive_status'][$i]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
-                ;
+                $arr_functional_cognitive_status['functional_cognitive_status'][$f]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['root'] = $newdata['functional_cognitive_status']['root'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['text'] = $newdata['functional_cognitive_status']['code_text'];
@@ -805,6 +832,15 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_payer['payer'][$p]['low_date'] = $newdata['payer']['low_date'];
                 $arr_payer['payer'][$p]['high_date'] = $newdata['payer']['high_date'];
                 $p++;
+            } elseif ($table == 'import_file') {
+                $arr_files['import_file'][$l]['uuid'] = $newdata['import_file']['uuid'];
+                $arr_files['import_file'][$l]['hash'] = $newdata['import_file']['hash'];
+                $arr_files['import_file'][$l]['mediaType'] = $newdata['import_file']['mediaType'] ?? '';
+                $arr_files['import_file'][$l]['category'] = $newdata['import_file']['category'] ?? '';
+                $arr_files['import_file'][$l]['file_name'] = $newdata['import_file']['file_name'] ?? '';
+                $arr_files['import_file'][$l]['compression'] = $newdata['import_file']['compression'] ?? '';
+                $arr_files['import_file'][$l]['content'] = $newdata['import_file']['content'] ?? '';
+                $l++;
             }
         }
 
@@ -822,6 +858,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
         $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
+        $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master
@@ -954,7 +991,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importCore($xml_content, $document_id);
         $audit_master_approval_status = 1;
         $documentationOf = $this->documentData['field_name_value_array']['documentationOf'][1]['assignedPerson'];
-        $audit_master_id = CommonPlugin::insert_ccr_into_audit_data($this->documentData, $this->is_qrda_import);
+        $audit_master_id = CommonPlugin::insert_ccr_into_audit_data($this->documentData, $this->is_qrda_import, $this->is_unstructured_import);
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf);
     }
 

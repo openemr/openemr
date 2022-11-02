@@ -15,8 +15,8 @@
  */
 
 require_once '../../globals.php';
-require_once $GLOBALS['srcdir'] . '/lists.inc';
-require_once $GLOBALS['srcdir'] . '/patient.inc';
+require_once $GLOBALS['srcdir'] . '/lists.inc.php';
+require_once $GLOBALS['srcdir'] . '/patient.inc.php';
 require_once $GLOBALS['srcdir'] . '/options.inc.php';
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
@@ -51,7 +51,7 @@ if (!empty($_POST['form_save'])) {
     // A nonempty thisenc means we are to link the issue to the encounter.
     $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 }
-// NOTE: $ISSUE_TYPES is defined in lists.inc
+// NOTE: $ISSUE_TYPES is defined in lists.inc.php
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.

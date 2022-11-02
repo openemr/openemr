@@ -49,6 +49,8 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.22.2.17' => 'socialHistory',
             '2.16.840.1.113883.3.88.11.83.127' => 'encounter',
             '2.16.840.1.113883.10.20.22.2.22.1' => 'encounter',
+            '2.16.840.1.113883.10.20.22.2.22' => 'encounter',
+            '2.16.840.1.113883.10.20.22.4.49' => 'encounter',
             '2.16.840.1.113883.10.20.22.2.10' => 'carePlan',
             '2.16.840.1.113883.10.20.22.2.60' => 'carePlan',
             '2.16.840.1.113883.10.20.22.2.58' => 'carePlan',
@@ -185,6 +187,40 @@ class CdaTemplateParse
             error_log('Could not find any QDMs in document!');
         }
         return $this->templateData ?? [];
+    }
+
+    public function parseUnstructuredComponents($xml): array
+    {
+        $components = $xml['component'];
+        $uuid = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
+        if (!empty($components[0])) {
+            foreach ($components as $component) {
+                $item = $component['nonXMLBody']['text'];
+                $this->fetchFileForImport($item, $uuid);
+            }
+        } else {
+            $item = $components['nonXMLBody']['text'];
+            $this->fetchFileForImport($item, $uuid);
+        }
+
+        return $this->templateData ?? [];
+    }
+
+    public function fetchFileForImport($component, $uuid): void
+    {
+        $i = 1;
+        if (!empty($this->templateData['field_name_value_array']['import_file'])) {
+            $i += count($this->templateData['field_name_value_array']['import_file']);
+        }
+        $this->templateData['field_name_value_array']['import_file'][$i]['uuid'] = $uuid;
+        $this->templateData['field_name_value_array']['import_file'][$i]['hash'] = $component['hash'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['mediaType'] = $component['mediaType'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['category'] = $component['category'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['file_name'] = $component['name'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['compression'] = $component['compression'] ?? '';
+        $this->templateData['field_name_value_array']['import_file'][$i]['content'] = $component['_'] ?? '';
+
+        $this->templateData['entry_identification_array']['import_file'][$i] = $i;
     }
 
     public function fetchDeceasedObservationData($entry)

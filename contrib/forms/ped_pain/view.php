@@ -30,7 +30,7 @@ use OpenEMR\Core\Header;
 <body class="body_top">
 
 <?php
-include_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_ped_pain", $_GET["id"]);
 ?>
 

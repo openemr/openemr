@@ -30,7 +30,7 @@ use OpenEMR\Core\Header;
 </head>
 <body class="body_top">
 <?php
-include_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_obstetrical", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/obstetrical/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">

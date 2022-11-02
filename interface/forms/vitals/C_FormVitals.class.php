@@ -10,8 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormVitals;

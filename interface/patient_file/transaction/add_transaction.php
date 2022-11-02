@@ -13,10 +13,10 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/transactions.inc");
+require_once("$srcdir/transactions.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/amc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -624,7 +624,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </form>
 
         <!-- include support for the list-add selectbox feature -->
-        <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+        <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
     </div> <!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>

@@ -11,7 +11,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/encounter.inc");
+require_once("$srcdir/encounter.inc.php");
 ?>
 <html>
 <head>

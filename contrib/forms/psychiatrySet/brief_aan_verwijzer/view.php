@@ -22,8 +22,8 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -183,7 +183,7 @@ function autosave( )
 </script>
 
 <?php
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 //$obj = formFetch("form_brief_aan_verwijzer", (int)$_GET["id"]);
 ?>
 

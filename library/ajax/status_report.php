@@ -11,7 +11,7 @@
  */
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../report_database.inc");
+require_once(dirname(__FILE__) . "/../report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 

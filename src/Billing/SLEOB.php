@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Billing;
 
-require_once(dirname(__FILE__) . "/../../library/patient.inc");
+require_once(dirname(__FILE__) . "/../../library/patient.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 
