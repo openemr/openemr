@@ -2050,6 +2050,7 @@ class CarecoordinationTable extends AbstractTableGateway
     {
         $this->documentData = [];
         $this->is_qrda_import = false;
+        $this->is_unstructured_import = false;
         $this->parseTemplates = new CdaTemplateParse();
     }
 }
