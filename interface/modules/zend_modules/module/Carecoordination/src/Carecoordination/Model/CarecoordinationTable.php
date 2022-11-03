@@ -193,6 +193,9 @@ class CarecoordinationTable extends AbstractTableGateway
         // 10/27/2022 sjp Extended base reader Laminas XML class using provided interface class
         // Needed to add LIBXML_COMPACT | LIBXML_PARSEHUGE flags because large text node(>10MB) will fail.
         try {
+            // For unknown reasons, need to create a prior dummy XML() instance for the XMLExtended() instance to work.
+            //  Otherwise it fails silently in linux (notably, this is not needed for windows).
+            $dummyXml = new XML();
             $xmltoarray = new XmlExtended();
             $xml = $xmltoarray->fromString($xml_content_new);
         } catch (Exception $e) {
