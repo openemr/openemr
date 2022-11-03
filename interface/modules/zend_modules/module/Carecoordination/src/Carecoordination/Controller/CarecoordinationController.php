@@ -918,13 +918,10 @@ class CarecoordinationController extends AbstractActionController
 
     private function sanitizeZip($zipLocation)
     {
-
         // TODO: @adunsulag NOTE that zip files can be in any order... so we can't assume that this is alphabetical
         // to fix this may involve extracting the zip and re-ordering all of the entries...
         // another one would be to just create hash map indexes with patient names mapped to nested documents...
         // this will only be an issue if we are migrating documents as the CCDA files themselves are self-contained
-
-
         // TODO: fire off an event about sanitizing the zip file
         // should have sanitization settings and let someone filter them...
         // event response should have a boolean for skipSanitization in case a module has already done the sanitization
@@ -935,8 +932,8 @@ class CarecoordinationController extends AbstractActionController
         $z->setArchiveComment(""); // remove any comments so we don't deal with buffer overflows on the zip extraction
         $patientCountHash = [];
         $patientCount = 0;
-        $patientNameIndex = 2;
-        $patientDocumentsIndex = 3;
+        $patientNameIndex = 1;
+        $patientDocumentsIndex = 2;
         $maxPatients = 500;
         $maxDocuments = 500;
         $maxFileComponents = 5;
@@ -945,7 +942,7 @@ class CarecoordinationController extends AbstractActionController
             $stat = $z->statIndex($i);
             // explode and make sure we have our three parts
             // our max directory structure is 4... anything more than that and we will bail
-            $fileComponents = explode("/", $stat['name'], $maxFileComponents);
+            $fileComponents = explode("/", str_replace('\\', '/', $stat['name']), 5);
             $componentCount = count($fileComponents);
             $shouldDeleteIndex = false;
 
@@ -1007,8 +1004,6 @@ class CarecoordinationController extends AbstractActionController
 
     private function importZipUpload($request)
     {
-
-
         // our file structure is
         // import_name / patient_name / ccda.xml
         // import_name / patient_name / ccda.html
@@ -1026,7 +1021,7 @@ class CarecoordinationController extends AbstractActionController
         // make sure we only have our documents folder and our ccda file
         $this->sanitizeZip($tmpFileName);
         $z->open($tmpFileName);
-        $category_details          = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
+        $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
         $catId = $category_details[0]['id'] ?? null;
         if (empty($catId)) {
             throw new \RuntimeException("Could not find document category id for category of CCDA");
@@ -1036,25 +1031,27 @@ class CarecoordinationController extends AbstractActionController
             $stat = $z->statIndex($i);
             // explode and make sure we have our three parts
             // our max directory structure is 4... anything more than that and we will bail
-            $fileComponents = explode("/", $stat['name'], 5);
+            $fileComponents = explode("/", str_replace('\\', '/', $stat['name']), 5);
             $componentCount = count($fileComponents);
 
             // now we need to do our document import for our ccda for this patient
-            if ($componentCount == 3) {
+            if ($componentCount == 2) {
                 // let's process the ccda
                 $file_name = basename($stat['name']);
 
                 $pid = '00';
                 $ob = new Document();
                 $contents = $z->getFromIndex($i);
-                $ret = $ob->createDocument($pid, $catId, $file_name, 'text/xml', $contents);
-                if (!empty($ret)) {
-                    throw new \RuntimeException("Failed to create document from zip file " . $file_name . " error returned was " . $ret);
-                }
+                if (stripos($file_name, '.xml') !== false) {
+                    $ret = $ob->createDocument($pid, $catId, $file_name, 'text/xml', $contents);
+                    if (!empty($ret)) {
+                        throw new \RuntimeException("Failed to create document from zip file " . $file_name . " error returned was " . $ret);
+                    }
 
-                $auditMasterRecordId = $this->getCarecoordinationTable()->import($ob->get_id());
-                // we can use this to do any other processing as the files should be in order
-                $auditMasterRecordByPatients[$fileComponents[2]] = $auditMasterRecordId;
+                    $auditMasterRecordId = $this->getCarecoordinationTable()->import($ob->get_id());
+                    // we can use this to do any other processing as the files should be in order
+                    $auditMasterRecordByPatients[$fileComponents[2]] = $auditMasterRecordId;
+                }
             }
         }
         $z->close();

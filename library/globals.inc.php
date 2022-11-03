@@ -3547,6 +3547,13 @@ $GLOBALS_METADATA = array(
             xl('USPS Web Tools API Username')
         ),
 
+        'ccda_validation_disable' => array(
+            xl('Disable All import CDA Validation Reporting'),
+            'bool',                           // data type
+            '0',
+            xl('Disable All CDA conformance and validation services to improve import performance')
+        ),
+
         'mdht_conformance_server_enable' => array(
             xl('Use MDHT External Validation Service'),
             'bool',                           // data type
