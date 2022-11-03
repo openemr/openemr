@@ -13,10 +13,10 @@
 namespace OpenEMR\Services\Cda;
 
 use Laminas\Config\Reader\ReaderInterface;
-use Laminas\Config\Reader\XML;
+use Laminas\Config\Reader\Xml;
 use XMLReader;
 
-class XmlExtended extends XML implements ReaderInterface
+class XmlExtended extends Xml implements ReaderInterface
 {
     /**
      * fromFile(): defined by Reader interface.
