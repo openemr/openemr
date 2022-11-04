@@ -40,6 +40,7 @@ $PLAYER_FITCOLORS = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800',
 
 // Hard-coding this array because its values and meanings are fixed by the 837p
 // standard and we don't want people messing with them.
+global $policy_types;
 $policy_types = array(
   ''   => xl('N/A'),
   '12' => xl('Working Aged Beneficiary or Spouse with Employer Group Health Plan'),
