@@ -256,7 +256,7 @@ function msfFileChanged() {
 
 <?php if ($GLOBALS['secure_upload']) { ?>
 <div id="file_type_whitelist">
-    <h3><?php echo xlt('White list files by MIME content type');?></h2>
+    <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">
         <div class="form-row">
             <div class="subject-black-list col">
