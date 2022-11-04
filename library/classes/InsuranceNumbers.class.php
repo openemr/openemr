@@ -21,13 +21,12 @@ class InsuranceNumbers extends ORDataObject
                                                         "1D" => "Medicaid Provider Number","1G" => "Provider UPIN Number","1H" => "Champus Identification Number","1J" => "Facility ID Number",
                                                         "B3" => "Preferred Provider Organization Number","BQ" => "Health Maintenance Organization Code Number","E1" => "Employer's Identification Number",
                                                         "FH" => "Clinic Number", "G2" => "Provider Commercial Number", "G5" => "Provider Site Number", "LU" => "Location Number", "SY" => "Social Security Number",
-                                                        "U3" => "Unique Supplier Identification Number (USIN)", "X5" => "State Industrial Accident Provider Number", "ZZ" => "Mutually Defined/Taxonomy");
+                                                        "U3" => "Unique Supplier Identification Number (USIN)", "X5" => "State Industrial Accident Provider Number");
         var $rendering_provider_number_type;
         var $rendering_provider_number_type_array = array ("" => "Unspecified", "0B" => "State License Number", "1A" => "Blue Cross Provider Number","1B" => "Blue Shield Provider Number","1C" => "Medicare Provider Number",
                                                         "1D" => "Medicaid Provider Number","1G" => "Provider UPIN Number","1H" => "Champus Identification Number","G2" => "Provider Commercial Number",
                                                         "LU" => "Location Number", "N5" => "Provider Plan Network Identification Number",
-                                                        "TJ" => "Federal Taxpayer's Identification Number", "X4" => "Clinical Laboratory Improvement Amendment Number", "X5" => "State Industrial Accident Provider Number",
-                                                        "ZZ" => "Mutually Defined/Taxonomy");
+                                                        "TJ" => "Federal Taxpayer's Identification Number", "X4" => "Clinical Laboratory Improvement Amendment Number", "X5" => "State Industrial Accident Provider Number");
 
         /**
          * Constructor sets all Insurance attributes to their default value
