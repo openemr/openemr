@@ -504,8 +504,8 @@ function icd_import($type)
     $incoming = array();
 
     // find active revision
-    $res = sqlQueryNoLog("SELECT max(revision) rev FROM icd10_pcs_order_code") ?? 0;
-    $next_rev = $row['rev'] + 1;
+    $res = sqlQueryNoLog("SELECT max(revision) rev FROM icd10_pcs_order_code");
+    $next_rev = ($res['rev'] ?? 0) + 1;
     $incoming['icd10pcs_codes_'] = array(
         'TABLENAME' => "icd10_pcs_order_code",
         'FLD1' => "pcs_code", 'POS1' => 0, 'LEN1' => 7,
@@ -513,8 +513,8 @@ function icd_import($type)
         'REV' => $next_rev
     );
 
-    $res = sqlQueryNoLog("SELECT max(revision) rev FROM icd10_dx_order_code") ?? 0;
-    $next_rev = $row['rev'] + 1;
+    $res = sqlQueryNoLog("SELECT max(revision) rev FROM icd10_dx_order_code");
+    $next_rev = ($res['rev'] ?? 0) + 1;
     $incoming['icd10cm_order_'] = array(
         'TABLENAME' => "icd10_dx_order_code",
         'FLD1' => "dx_code", 'POS1' => 6, 'LEN1' => 7,
