@@ -930,6 +930,7 @@ class CdaTemplateParse
     public function labResult($component): void
     {
         $component['section']['text'] = '';
+
         if (!empty($component['section']['entry'][0])) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetchLabResultData($value);
@@ -947,6 +948,9 @@ class CdaTemplateParse
         }
         if (!empty($lab_result_data['organizer']['component'])) {
             foreach ($lab_result_data['organizer']['component'] as $key => $value) {
+                if (empty($value['observation'])) {
+                    $value = [$key => $value];
+                }
                 if (!empty($value['observation']['code']['code'])) {
                     $code = $this->codeService->resolveCode(
                         $lab_result_data['organizer']['code']['code'] ?? '',

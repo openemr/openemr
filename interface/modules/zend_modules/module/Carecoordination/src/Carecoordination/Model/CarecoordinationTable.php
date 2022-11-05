@@ -299,7 +299,20 @@ class CarecoordinationTable extends AbstractTableGateway
         } else {
             $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;
         }
-        $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = ($xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code']) ?? null;
+        $ecode = $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['code'] ?? null;
+        switch ($ecode) {
+            case '2135-2':
+                $ecode = 'hisp_or_latin';
+                break;
+            case '2186-5':
+                $ecode = 'not_hisp_or_latin';
+                break;
+        }
+        $this->documentData['field_name_value_array']['patient_data'][1]['ethnicity'] = $ecode ?: $xml['recordTarget']['patientRole']['patient']['ethnicGroupCode']['displayName'] ?? null;
+
+        $patient_language = substr(($xml['recordTarget']['patientRole']['patient']['languageCommunication']['languageCode']['code'] ?? null), 0, 2);
+        // todo lookup language from list
+        $this->documentData['field_name_value_array']['patient_data'][1]['language'] = $patient_language;
 
         //Author details
         $this->documentData['field_name_value_array']['author'][1]['extension'] = $xml['author']['assignedAuthor']['id']['extension'] ?? null;
