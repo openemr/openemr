@@ -19,7 +19,7 @@ class X12ClaimRepost
         $username,
         $password,
         $port = 22
-    ){
+    ) {
         $connection = new SFTP($host, $port);
         if (false === $connection->login($username, $password)) {
             return 'failed';
