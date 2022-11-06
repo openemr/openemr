@@ -8,13 +8,12 @@
  *  license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once dirname(__FILE__, 2) . '/interface/globals.php';
 
 use OpenEMR\Billing\X12ClaimRepost;
 use OpenEMR\Common\Crypto\CryptoGen;
 
-function resetClaimStatus() :string
+function resetClaimStatus(): string
 {
     $cryptgen = new CryptoGen();
 

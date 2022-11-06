@@ -44,10 +44,7 @@ class X12ClaimRepost
 
     public static function updateStatus(): void
     {
-        sqlQuery("UPDATE `x12_remote_tracker` SET 
-                                status = 'waiting',
-                                messages = NULL
-                            WHERE `status` = 'login-error'");
+        sqlQuery("UPDATE `x12_remote_tracker` SET status = 'waiting', messages = NULL WHERE `status` = 'login-error'");
     }
 }
 
