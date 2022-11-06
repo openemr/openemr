@@ -183,6 +183,12 @@ use OpenEMR\OeUI\OemrUI;
                  </tfoot>
              </table>
         </div>
+        <div class="w-100 p-4">
+            <?php
+            require_once __DIR__ . "/../../library/bill_login_error_reprocess.php";
+            echo resetClaimStatus();
+            ?>
+        </div>
     </div>
 </body>
 </html>
