@@ -19,8 +19,7 @@ class X12ClaimRepost
         $username,
         $password,
         $port = 22
-    )
-    {
+    ){
         $connection = new SFTP($host, $port);
         if (false === $connection->login($username, $password)) {
             return 'failed';
@@ -47,4 +46,3 @@ class X12ClaimRepost
         sqlQuery("UPDATE `x12_remote_tracker` SET status = 'waiting', messages = NULL WHERE `status` = 'login-error'");
     }
 }
-
