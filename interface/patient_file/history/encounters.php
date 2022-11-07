@@ -581,9 +581,9 @@ window.onload = function() {
                             $formId = attr($enc['form_id']);
                             $formPid = attr($pid);
                             if (hasFormPermission($enc['formdir'])) {
-                                $formDiv .= "data-toggle='PopOverReport' data-formpid='$formPid' data-formdir='$formDir' data-formenc='$formEnc' data-formid='$formId'";
+                                $formDiv .= "data-toggle='PopOverReport' data-formpid='$formPid' data-formdir='$formDir' data-formenc='$formEnc' data-formid='$formId' ";
                             }
-                            $formDiv .= ">";
+                            $formDiv .= "title='" . text(xl_form_title($enc['form_name'])) . " <small>" . xla("Click or change focus to dismiss") . "</small>'>";
                             $formDiv .= text(xl_form_title($enc['form_name']));
                             $formDiv .= "</div>";
                             echo $formDiv;
@@ -890,19 +890,33 @@ $(function () {
         placement: "auto",
         trigger: "hover focus",
         html: true,
-        delay: {"show": 1000, "hide": 30000},
-        template: '<div id="report_id" class="container-fluid"><div class="popover" style="max-width:90%;max-height:100vh;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
+        delay: {"show": 500, "hide": 30000},
+        template: '<div class="container-fluid"><div class="popover" style="max-width:90%;max-height:100vh;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
     });
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
     // this will allow user to enter popover report view and scroll if report
     // height is overflowed. Poporver will eiter close when mouse leaves view
     // or user clicks anywhere in view.
+    $('[data-toggle="PopOverReport"]').on('show.bs.popover', function () {
+        let elements = $('[aria-describedby^="popover"]');
+        let thisOne = this.dataset.formid;
+        let thisTitle = this.dataset.formdir;
+        for (i = 0; i < elements.length; ++i) {
+            if (thisOne === elements[i].dataset.formid && thisTitle === elements[i].dataset.formdir) {
+                continue;
+            }
+            $(elements[i]).popover('hide');
+        }
+    });
+
     $('[data-toggle="PopOverReport"]').on('shown.bs.popover', function () {
-        $('.popover').click(function(e) {
+
+        // set event listeners
+        $('.popover').click(function (e) {
             $('[data-toggle="PopOverReport"]').popover('hide');
-        }).mouseleave(function(e) {
-            timeoutObj = setTimeout(function(){
+        }).mouseleave(function (e) {
+            timeoutObj = setTimeout(function () {
                 $('[data-toggle="PopOverReport"]').popover('hide');
             }, 100);
         });
