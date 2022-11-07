@@ -583,7 +583,7 @@ window.onload = function() {
                             if (hasFormPermission($enc['formdir'])) {
                                 $formDiv .= "data-toggle='PopOverReport' data-formpid='$formPid' data-formdir='$formDir' data-formenc='$formEnc' data-formid='$formId' ";
                             }
-                            $formDiv .= "title='" . text(xl_form_title($enc['form_name'])) . " <small>" . xla("Click or change focus to dismiss") . "</small>'>";
+                            $formDiv .= "data-original-title='" . text(xl_form_title($enc['form_name'])) . " <i>" . xla("Click or change focus to dismiss") . "</i>'>";
                             $formDiv .= text(xl_form_title($enc['form_name']));
                             $formDiv .= "</div>";
                             echo $formDiv;
@@ -891,7 +891,7 @@ $(function () {
         trigger: "hover focus",
         html: true,
         delay: {"show": 500, "hide": 30000},
-        template: '<div class="container-fluid"><div class="popover" style="max-width:90%;max-height:100vh;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
+        template: '<div class="container-fluid"><div class="popover" style="max-width:90%;max-height:100vh;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body"></div></div></div>'
     });
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
