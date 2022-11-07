@@ -1439,6 +1439,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $wherCon = '';
         $sqlBindArray = [];
+        $rows = [];
         if (!empty($this->encounterFilterList)) {
             $wherCon .= " b.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
@@ -1446,9 +1447,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // date range then we want to return an empty procedures list
             return "<procedures></procedures>";
         }
-
         $procedure = '';
-        // TODO the code_types join on just the ct.ct_key is joining against the primary key of billing which is a type misconversion... not sure why we do this
         $query = "SELECT b.id, b.date as proc_date, b.code_text, b.code, b.code_type, fe.date,
     u.fname, u.lname, u.mname, u.npi, u.street, u.city, u.state, u.zip, u.id AS provenance_updated_by, u.phonew1,
     f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone
@@ -1458,20 +1457,64 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     LEFT JOIN form_encounter as fe on fe.pid = b.pid AND fe.encounter = b.encounter
     LEFT JOIN users AS u ON u.id = b.provider_id
     LEFT JOIN facility AS f ON f.id = fe.facility_id
-        where $wherCon b.pid = ? and b.activity = ?";
-
+    WHERE $wherCon b.pid = ? and b.activity = ?";
         array_push($sqlBindArray, $pid, 1);
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, $sqlBindArray);
-
-        $procedure = '<procedures>';
         foreach ($res as $row) {
+            $rows[] = $row;
+        }
+        // Billing is not the only procedures source.
+        $query_procedures = "SELECT
+    poc.procedure_code AS code,
+    poc.procedure_name AS code_text,
+    poc.diagnoses,
+    po.date_ordered,
+    po.order_status,
+    po.provider_id,
+    fe.date,
+    u.fname,
+    u.lname,
+    u.mname,
+    u.npi,
+    u.street,
+    u.city,
+    u.state,
+    u.zip,
+    u.id AS provenance_updated_by,
+    u.phonew1,
+    f.id AS fid,
+    f.name,
+    f.phone,
+    f.street AS fstreet,
+    f.city AS fcity,
+    f.state AS fstate,
+    f.postal_code AS fzip,
+    f.country_code,
+    f.phone AS fphone
+    FROM procedure_order AS po
+    JOIN procedure_order_code AS poc ON poc.procedure_order_id = po.procedure_order_id
+    LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id
+    LEFT JOIN users AS u ON u.id = po.provider_id 
+    LEFT JOIN facility AS f ON f.id = fe.facility_id
+    WHERE $wherCon (po.procedure_order_type = 'order' OR po.procedure_order_type = 'procedure') AND po.patient_id = ? AND po.activity = ?";
+        // same bindings
+        $res_proc = $appTable->zQuery($query_procedures, $sqlBindArray);
+        foreach ($res_proc as $row) {
+            $rows[] = $row;
+        }
+        $procedure = '<procedures>';
+        foreach ($rows as $row) {
+            $tmp = explode(':', $row['code']);
+            if (count($tmp ?? []) === 2) {
+                $row['code_type'] = $tmp[0];
+                $row['code'] = $tmp[1];
+            }
             if (empty($row['code_text'] ?? null)) {
                 $row['code_text'] = (new CodeTypesService())->resolveCode($row['code'], $row['code_type'])['code_text'] ?? null;
             }
             $provenanceRecord = [
-            'author_id' => $row['provenance_updated_by']
-            ,'time' => $row['proc_date']
+            'author_id' => $row['provenance_updated_by'], 'time' => $row['proc_date']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $procedure .= "<procedure>" . $provenanceXml . "
@@ -1502,7 +1545,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <procedure_date>" . xmlEscape(preg_replace('/-/', '', substr($row['proc_date'], 0, 10))) . "</procedure_date>
             </procedure>";
         }
-
         $procedure .= '</procedures>';
         return $procedure;
     }
@@ -2640,6 +2682,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * Generates an unstructured component template for each patient document to be exported.
      * The resulting template is structured for direct placement into the unstructured
      * document by the ccda service.
+     * BTW HL7 spec doesn't allow but one component per unstructured document so
+     * this will break spec. However, we'll keep it our little secret as this is off by default.
+     * User can turn on during exports for OpenEMR to OpenEMR transfer of patients.
      *
      * @param $pid
      * @return string
@@ -2685,7 +2730,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             // Empty null flavored document will not be generated by service.
             return '';
         }
-        $len = strlen($file_templates);
         // Pass back template.
         return $file_templates;
     }
