@@ -24,6 +24,7 @@ use Laminas\View\Model\ViewModel;
 use Exception;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
@@ -122,6 +123,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
+            EventAuditLogger::instance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 view");
             exit;
         }
         // QRDA I batch selected pids download as zip.

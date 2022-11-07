@@ -99,8 +99,8 @@ if (!empty($_POST['bn_upload'])) {
             die(xlt('Cannot determine a destination filename'));
         }
         $path_parts = pathinfo($form_dest_filename);
-        if (!in_array(strtolower($path_parts['extension']), array('odt', 'txt', 'docx', 'zip'))) {
-            die(text(strtolower($path_parts['extension'])) . ' ' . xlt('filetype is not accepted'));
+        if (!in_array(strtolower($path_parts['extension'] ?? ''), array('odt', 'txt', 'docx', 'zip'))) {
+            die(text(strtolower($path_parts['extension'] ?? '')) . ' ' . xlt('filetype is not accepted'));
         }
 
         $templatepath = "$templatedir/$form_dest_filename";

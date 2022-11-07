@@ -131,8 +131,8 @@ class DateSearchField extends BasicSearchField
             throw new \InvalidArgumentException("Invalid comparator found for value " . $value);
         }
 
-        $lowerBoundRange = ['y' => $matches[2], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0];
-        $upperBoundRange = ['y' => $matches[2], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59];
+        $lowerBoundRange = ['y' => $matches[2], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0, 'tz' => date('P')];
+        $upperBoundRange = ['y' => $matches[2], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59, 'tz' => date('P')];
 
         // month
         if (!empty($matches[3])) {
@@ -178,14 +178,18 @@ class DateSearchField extends BasicSearchField
             $upperBoundRange['s'] = $seconds;
         }
 
+        // we need to handle the timezone component if they send it, otherwise it defaults to the local timezone
+        if (!empty($matches[7])) {
+            $lowerBoundRange['tz'] = $matches[7];
+            $upperBoundRange['tz'] = $matches[7];
+        }
+
         $startRange = $this->createDateTimeFromArray($lowerBoundRange);
         $endRange = $this->createDateTimeFromArray($upperBoundRange);
 
         // not sure if the date period lazy creates the interval traversal or not so we will go with the maximum interval
         // we can think of.  We just are leveraging an existing PHP object that represents a pair of start/end dates
         $datePeriod = new \DatePeriod($startRange, new \DateInterval('P1Y'), $endRange);
-
-        // TODO: adunsulag figure out how to handle timezones here...
 
         return new SearchFieldComparableValue($datePeriod, $comparator);
     }
@@ -195,9 +199,9 @@ class DateSearchField extends BasicSearchField
         // Not sure how we want to handle timezone
         // we create a DateTime object as not all search fields are a DateTime so we go as precise as we can
         // and let the services go more imprecise if needed.
-        $stringDate = sprintf("%d-%02d-%02d %02d:%02d:%02d", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s']);
+        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['tz']);
         // 'n' & 'j' don't have leading zeros
-        $dateValue = \DateTime::createFromFormat("Y-m-d H:i:s", $stringDate);
+        $dateValue = \DateTime::createFromFormat(DATE_ATOM, $stringDate);
         return $dateValue;
     }
 }
