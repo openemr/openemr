@@ -93,7 +93,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         $report = new FHIRDiagnosticReport();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $report->setMeta($meta);
 
 
@@ -105,9 +105,9 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         $report->setId($id);
 
         if (!empty($dataRecordReport['date'])) {
-            $date = gmdate('c', strtotime($dataRecordReport['date']));
-            $report->setEffectiveDateTime(new FHIRDateTime($date));
-            $report->setIssued(new FHIRInstant($date));
+            $utcDate = UtilsService::getLocalDateAsUTC($dataRecordReport['date']);
+            $report->setEffectiveDateTime(new FHIRDateTime($utcDate));
+            $report->setIssued(new FHIRInstant($utcDate));
         } else {
             $report->setDate(UtilsService::createDataMissingExtension());
         }
