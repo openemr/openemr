@@ -14,6 +14,7 @@ use phpseclib\Net\SFTP;
 
 class X12ClaimRepost
 {
+    private bool $status;
     public function __construct(
         $host,
         $username,
@@ -21,12 +22,13 @@ class X12ClaimRepost
         $port = 22
     ) {
         $connection = new SFTP($host, $port);
-        if (false === $connection->login($username, $password)) {
-            return 'failed';
-        }
-        return 'success';
+        $this->status = $connection->login($username, $password);
     }
     //ToDo: fix this for more than one SFTP account. Right now, it will only select the first one in the table.
+    public function getConnectionStatus()
+    {
+        return $this->status;
+    }
     public static function x12Url()
     {
         return sqlQuery('SELECT x12_sftp_host FROM x12_partners');
