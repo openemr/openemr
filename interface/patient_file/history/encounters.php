@@ -890,9 +890,11 @@ $(function () {
         placement: "auto",
         trigger: "hover focus",
         html: true,
-        delay: {"show": 500, "hide": 30000},
+        delay: {"show": 1000, "hide": 30000},
         template: '<div id="report_id" class="container-fluid"><div class="popover" style="max-width:90%;max-height:100vh;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
     });
+    // Report tooltip where popover will stay open for 30 seconds
+    // or mouse leaves popover or user clicks anywhere in popover.
     // this will allow user to enter popover report view and scroll if report
     // height is overflowed. Poporver will eiter close when mouse leaves view
     // or user clicks anywhere in view.
