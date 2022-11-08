@@ -528,6 +528,9 @@ class RestConfig
             // we only set the bound patient access if the underlying user can still access the patient
             if ($this->checkUserHasAccessToPatient($restRequest->getRequestUserId(), $patientUuid)) {
                 $restRequest->setPatientUuidString($patientUuid);
+            } else {
+                (new SystemLogger())->error("OpenEMR Error: api had patient launch scope but user did not have access to patient uuid."
+                . " Resources restricted with patient scopes will not return results");
             }
         } else {
             (new SystemLogger())->error("OpenEMR Error: api had patient launch scope but no patient was set in the "
@@ -562,7 +565,7 @@ class RestConfig
     private function checkUserHasAccessToPatient($userId, $patientUuid)
     {
         // TODO: the session should never be populated with the pid from the access token unless the user had access to
-        // it.  However, if we wanted an additional check or if we anted to fire off any kind of event that does
+        // it.  However, if we wanted an additional check or if we wanted to fire off any kind of event that does
         // patient filtering by provider / clinic we would handle that here.
         return true;
     }
