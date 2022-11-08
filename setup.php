@@ -266,12 +266,20 @@ $config = 0;
 if (file_exists($installer->conffile)) {
     require_once($installer->conffile);
 } elseif ($state > 3) {
-  // State 3 should have created the site directory if it is missing.
+    // State 3 should have created the site directory if it is missing.
     SessionUtil::setupScriptSessionStart();
     SessionUtil::setupScriptSessionCookieDestroy();
     die("Internal error, site directory is missing.");
 }
 
+// Should never have $config set when state less than 4
+//  (this means already installed)
+if (!empty($config) && (($state ?? 0) < 4)) {
+    SessionUtil::setupScriptSessionStart();
+    SessionUtil::setupScriptSessionCookieDestroy();
+    error_log("OpenEMR has already been installed. If you wish to force re-installation, then edit " . errorLogEscape($installer->conffile) . " (change the 'config' variable to 0), and re-run the setup.php script.");
+    die("OpenEMR has already been installed. If you wish to force re-installation, see log for details.<br />\n");
+}
 
 // This will effectively only allow entry into the setup.php script at the first step and will bar entry to the
 //  script if openemr has already been installed.
