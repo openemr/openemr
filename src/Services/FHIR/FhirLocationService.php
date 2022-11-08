@@ -76,7 +76,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $locationResource->setMeta($meta);
 
         $id = new FHIRId();

@@ -101,7 +101,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         $docReference = new FHIRDocumentReference();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $docReference->setMeta($meta);
 
         $id = new FHIRId();
@@ -115,7 +115,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         // TODO: @adunsulag need to support content.attachment.url
 
         if (!empty($dataRecord['date'])) {
-            $docReference->setDate(gmdate('c', strtotime($dataRecord['date'])));
+            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['date']));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
@@ -126,7 +126,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             // we currently don't track anything dealing with start and end date for the context
             if (!empty($dataRecord['encounter_date'])) {
                 $period = new FHIRPeriod();
-                $period->setStart(gmdate('c', strtotime($dataRecord['encounter_date'])));
+                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date']));
                 $context->setPeriod($period);
             }
             $context->addEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['euuid']));
