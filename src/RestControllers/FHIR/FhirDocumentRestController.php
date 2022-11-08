@@ -53,7 +53,7 @@ class FhirDocumentRestController
      * expiration are checked against the document.
      * @param $documentId  The document we are requesting to access
      */
-    public function downloadDocument($documentId, $patientUuid): ResponseInterface
+    public function downloadDocument($documentId, $patientUuid = null): ResponseInterface
     {
         $document = $this->findDocumentForDocumentId($documentId);
         if (empty($document)) {
