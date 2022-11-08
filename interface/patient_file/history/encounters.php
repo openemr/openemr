@@ -223,21 +223,10 @@ function changePageSize() {
 window.onload = function() {
     $("#selPagesize").on("change", changePageSize);
 }
-
-// Mouseover handler for encounter form names. Brings up a custom tooltip
-// to display the form's contents.
-function efmouseover(elem, ptid, encid, formname, formid) {
- ttMouseOver(elem, "encounters_ajax.php?ptid=" + encodeURIComponent(ptid) + "&encid=" + encodeURIComponent(encid) +
-  "&formname=" + encodeURIComponent(formname) + "&formid=" + encodeURIComponent(formid) + "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
-}
-
 </script>
-
 </head>
-
 <body>
 <div class="container-fluid mt-3" id="encounters"> <!-- large outer DIV -->
-
     <span class='title'>
         <?php
         if ($issue) {
@@ -252,8 +241,6 @@ function efmouseover(elem, ptid, encid, formname, formid) {
     </span>
     <?php
     // Setup the GET string to append when switching between billing and clinical views.
-
-
     if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed) || ($is_group && !$glog_view_write)) {
         echo "<body>\n<html>\n";
         echo "<p>(" . xlt('Encounters not authorized') . ")</p>\n";
@@ -589,14 +576,14 @@ function efmouseover(elem, ptid, encid, formname, formid) {
                             echo "</div>";
                         } else {
                             $formDiv = "<div ";
+                            $formDir = attr($formdir);
+                            $formEnc = attr($result4['encounter']);
+                            $formId = attr($enc['form_id']);
+                            $formPid = attr($pid);
                             if (hasFormPermission($enc['formdir'])) {
-                                $formDiv .= "onmouseover='efmouseover(this," . attr_js($pid) . ","
-                                . attr_js($result4['encounter']) .
-                                "," . attr_js($formdir) . "," . attr_js($enc['form_id'])
-                                . ")' " .
-                                "onmouseout='ttMouseOut()'";
+                                $formDiv .= "data-toggle='PopOverReport' data-formpid='$formPid' data-formdir='$formDir' data-formenc='$formEnc' data-formid='$formId' ";
                             }
-                            $formDiv .= ">";
+                            $formDiv .= "data-original-title='" . text(xl_form_title($enc['form_name'])) . " <i>" . xla("Click or change focus to dismiss") . "</i>'>";
                             $formDiv .= text(xl_form_title($enc['form_name']));
                             $formDiv .= "</div>";
                             echo $formDiv;
@@ -817,12 +804,11 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 
                 if ($GLOBALS['enable_follow_up_encounters']) {
                     $encounterId = ( !empty($result4['parent_encounter_id']) ) ? $result4['parent_encounter_id'] : $result4['id'];
-                    echo "<td> <div style='z-index: 9999'>  <a href='#' class='btn btn-primary' onclick='createFollowUpEncounter(event," . attr_js($encounterId) . ")'><span>" . xlt('Create follow-up encounter') . "</span></a> </div></td>\n";
+                    echo "<td> <div style='z-index: 9999'>  <a href='#' class='btn btn-sm btn-primary' onclick='createFollowUpEncounter(event," . attr_js($encounterId) . ")'><span>" . xlt('Create follow-up encounter') . "</span></a> </div></td>\n";
                 }
 
                     echo "</tr>\n";
             } // end while
-
 
             // Dump remaining document lines if count not exceeded.
             while ($drow /* && $count <= $N */) {
@@ -835,8 +821,6 @@ function efmouseover(elem, ptid, encid, formname, formid) {
     </div>
 
 </div> <!-- end 'encounters' large outer DIV -->
-
-<span class='position-absolute border border-danger w-auto jumbotron p-1 ml-4' id='tooltipdiv' style='max-width: 75%; visibility: hidden;'></span>
 
 <script>
 // jQuery stuff to make the page a little easier to use
@@ -871,8 +855,73 @@ $(function () {
 
 $(function () {
     $('[data-toggle="tooltip"]').tooltip();
-});
+    // Report tooltip where popover will stay open for 30 seconds
+    // or mouse leaves popover or user clicks anywhere in popover.
+    $('body').popover({
+        sanitize: false,
+        title: function () {
+            return this.innerHTML;
+        },
+        content: function () {
+            let el = this;
+            if (typeof el.dataset == 'undefined') {
+                return xl("Report Unavailable");
+            }
+            let url = "encounters_ajax.php?ptid=" + encodeURIComponent(el.dataset.formpid) +
+                "&encid=" + encodeURIComponent(el.dataset.formenc) +
+                "&formname=" + encodeURIComponent(el.dataset.formdir) +
+                "&formid=" + encodeURIComponent(el.dataset.formid) +
+                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            let fetchedReport;
+            $.ajax({
+                url: url,
+                method: "GET",
+                async: false,
+                beforeSend: top.restoreSession,
+                success: function (report) {
+                    fetchedReport = report;
+                }
+            });
+            return fetchedReport;
+        },
+        selector: '[data-toggle="PopOverReport"]',
+        boundary: "scrollParent",
+        animation: true,
+        placement: "auto",
+        trigger: "hover focus",
+        html: true,
+        delay: {"show": 500, "hide": 30000},
+        template: '<div class="container-fluid"><div class="popover" style="max-width:90%;max-height:100vh;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body"></div></div></div>'
+    });
+    // Report tooltip where popover will stay open for 30 seconds
+    // or mouse leaves popover or user clicks anywhere in popover.
+    // this will allow user to enter popover report view and scroll if report
+    // height is overflowed. Poporver will eiter close when mouse leaves view
+    // or user clicks anywhere in view.
+    $('[data-toggle="PopOverReport"]').on('show.bs.popover', function () {
+        let elements = $('[aria-describedby^="popover"]');
+        let thisOne = this.dataset.formid;
+        let thisTitle = this.dataset.formdir;
+        for (i = 0; i < elements.length; ++i) {
+            if (thisOne === elements[i].dataset.formid && thisTitle === elements[i].dataset.formdir) {
+                continue;
+            }
+            $(elements[i]).popover('hide');
+        }
+    });
 
+    $('[data-toggle="PopOverReport"]').on('shown.bs.popover', function () {
+
+        // set event listeners
+        $('.popover').click(function (e) {
+            $('[data-toggle="PopOverReport"]').popover('hide');
+        }).mouseleave(function (e) {
+            timeoutObj = setTimeout(function () {
+                $('[data-toggle="PopOverReport"]').popover('hide');
+            }, 100);
+        });
+    });
+});
 </script>
 </body>
 </html>
