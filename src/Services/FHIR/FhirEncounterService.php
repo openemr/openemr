@@ -112,7 +112,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $encounterResource->setMeta($meta);
 
         $id = new FhirId();
@@ -169,8 +169,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
-            $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
+            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -195,8 +194,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
-            $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
+            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -214,7 +212,7 @@ class FhirEncounterService extends FhirServiceBase implements
         // period - must support
         if (!empty($dataRecord['date'])) {
             $period = new FHIRPeriod();
-            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
+            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
             $encounterResource->setPeriod($period);
         }
 

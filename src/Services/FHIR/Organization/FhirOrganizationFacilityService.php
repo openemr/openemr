@@ -162,7 +162,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $organizationResource->setMeta($fhirMeta);
         // facilities have no active / inactive state
         $organizationResource->setActive(true);

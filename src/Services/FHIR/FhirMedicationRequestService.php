@@ -125,7 +125,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $medRequestResource->setMeta($meta);
 
         $id = new FHIRId();
@@ -222,7 +222,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // authoredOn must support
         if (!empty($dataRecord['date_added'])) {
             $authored_on = new FHIRDateTime();
-            $authored_on->setValue(gmdate('c', strtotime($dataRecord['date_added'])));
+            $authored_on->setValue(UtilsService::getLocalDateAsUTC($dataRecord['date_added']));
             $medRequestResource->setAuthoredOn($authored_on);
         }
 

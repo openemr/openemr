@@ -56,7 +56,7 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $fhirGroup->setMeta($fhirMeta);
 
         $fhirGroup->setId($dataRecord['uuid']);
