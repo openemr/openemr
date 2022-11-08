@@ -41,8 +41,10 @@ class SMARTSessionTokenContextBuilder
             // tampered with?  Not sure that it matters as the ACL's will verify that the app only has access
             // to the data the currently authorized oauth2 user can access.
             $launchToken = SMARTLaunchToken::deserializeToken($launch);
-            $this->logger->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() decoded launch context is",
-                ['patient' => $launchToken->getPatient(), 'encounter' => $launchToken->getEncounter(), 'intent' => $launchToken->getIntent()]);
+            $this->logger->debug(
+                "SMARTSessionTokenContextBuilder->getEHRLaunchContext() decoded launch context is",
+                ['patient' => $launchToken->getPatient(), 'encounter' => $launchToken->getEncounter(), 'intent' => $launchToken->getIntent()]
+            );
 
             // we assume that if a patient is provided we are already displaying the patient
             // we may in the future need to adjust the need_patient_banner depending on the 'intent' chosen.

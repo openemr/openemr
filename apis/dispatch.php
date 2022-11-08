@@ -272,8 +272,10 @@ if ($isLocalApi) {
             exit();
         }
         $logger->debug("dispatch.php request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
-        if ($restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)
-            || $restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)) {
+        if (
+            $restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)
+            || $restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)
+        ) {
             $logger->debug("dispatch.php api is userRole populating token context for request due to smart launch scope");
             $restRequest = $gbl->populateTokenContextForRequest($restRequest);
         }
