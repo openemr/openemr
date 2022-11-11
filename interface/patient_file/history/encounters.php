@@ -885,13 +885,13 @@ $(function () {
             return fetchedReport;
         },
         selector: '[data-toggle="PopOverReport"]',
-        boundary: "scrollParent",
-        animation: true,
+        boundary: "window",
+        animation: false,
         placement: "auto",
         trigger: "hover focus",
         html: true,
-        delay: {"show": 500, "hide": 30000},
-        template: '<div class="container-fluid"><div class="popover" style="max-width:90%;max-height:100vh;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body"></div></div></div>'
+        delay: {"show": 300, "hide": 30000},
+        template: '<div class="container"><div class="popover" style="max-width:fit-content;max-height:fit-content;" role="tooltip"><div class="arrow"></div><h3 class="popover-header bg-dark text-light"></h3><div class="popover-body bg-light text-dark"></div></div></div>'
     });
     // Report tooltip where popover will stay open for 30 seconds
     // or mouse leaves popover or user clicks anywhere in popover.
