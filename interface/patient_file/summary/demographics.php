@@ -1116,7 +1116,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $res = sqlStatement($sql, $params);
                         $prior_ins_type = '';
                         $prev_eff_date = 'Present'; //ALB Needed to keep track of effective dates
-                     
 
                         while ($row = sqlFetchArray($res)) {
                             if ($row['provider']) {
@@ -1141,7 +1140,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
                                 if ($row['isOld']) { //ALB Added all this
-                                    $row['until_date'] = date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d'); 
+                                    $row['until_date'] = date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d');
                                 } else {
                                     $row['until_date'] = 'Present';
                                 }
@@ -1166,15 +1165,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $mname = ''; //($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = ' '; // str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
                                 if ($row['isOld']) { //ALB
-                                    $row['until_date'] = date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d'); 
+                                    $row['until_date'] = date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d');
                                 } else {
                                     $row['until_date'] = 'Present';
                                 }
                                 $prev_eff_date = $row['date']; //ALB Added all this
                                 $prior_ins_type = $row['type'];
-                                if ($row['type'] != 'primary') continue; //ALB No Self-pay for secondary or tertiary insurance, so do not render card
+                                if ($row['type'] != 'primary') {
+                                    continue;
+                                } //ALB No Self-pay for secondary or tertiary insurance, so do not render card
                                 $insArr[] = $row;
-                            }    
+                            }
                         }
 
                         if ($GLOBALS["enable_oa"]) {
@@ -1698,7 +1699,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
                             $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
-                            if ($row['pc_status'] == 'None') $row['pc_status'] = 'Scheduled'; //ALB Added this
+                            if ($row['pc_status'] == 'None') {
+                                $row['pc_status'] = 'Scheduled';
+                            } //ALB Added this
 
                             if (in_array($row['pc_catid'], $therapyGroupCategories)) {
                                 $row['groupName'] = getGroup($row['pc_gid'])['group_name'];
@@ -1811,7 +1814,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['etitle'] = $petitle; //ALB Added this
 
                             $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
-                            if ($row['pc_status'] == 'None') $row['pc_status'] = 'Scheduled'; //ALB Added this
+                            if ($row['pc_status'] == 'None') {
+                                $row['pc_status'] = 'Scheduled';
+                            } //ALB Added this
        
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem; //ALB Added this

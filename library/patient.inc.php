@@ -402,6 +402,43 @@ function getInsuranceDataByDate(
     return sqlQuery($sql, array($pid,$date,$type));
 }
 
+//ALB Calculates unallocated patient balance (pre-payments)
+function get_unallocated_patient_balance($pid) {
+    $unallocated = '';
+    $query = "SELECT a.session_id, a.pay_total, a.global_amount " .
+        "FROM ar_session AS a " .
+        "WHERE a.patient_id = ? AND " .
+        "a.adjustment_code = 'pre_payment' AND a.closed = 0";
+    $res = sqlStatement($query, array($pid));
+    while ($row = sqlFetchArray($res)) {
+        $total_amt = $row['pay_total'] - $row['global_amount'];
+        $rs= sqlQuery("SELECT sum(pay_amount) AS total_pay_amt FROM ar_activity WHERE session_id= ? AND pid = ? AND deleted IS NULL", array($row['session_id'], $pid));
+        $pay_amount = $rs['total_pay_amt'];
+        $unallocated += ($total_amt - $pay_amount);
+    }
+    return sprintf('%01.2f', $unallocated);
+}
+
+//ALB Added this function
+function getInsuranceNameByDate(
+    $pid,
+    $date,
+    $type,
+    $given = "ic.name as provider_name"
+) {
+ // this must take the date in the following manner: YYYY-MM-DD
+  // this function recalls the insurance value that was most recently enterred from the
+  // given date. it will call up most recent records up to and on the date given,
+  // but not records enterred after the given date
+    $sql = "select $given from insurance_data as insd " .
+    "left join insurance_companies as ic on ic.id = provider " .
+    "where pid = ? and date_format(date,'%Y-%m-%d') <= ? and " .
+    "type = ? order by date DESC limit 1";
+
+    $row = sqlQuery($sql, array($pid, $date, $type));
+    return $row['provider_name'];
+}
+
 // To prevent sql injection on this function, if a variable is used for $given parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
 function getEmployerData($pid, $given = "*")
