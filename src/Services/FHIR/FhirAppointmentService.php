@@ -75,7 +75,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $appt->setMeta($fhirMeta);
 
         $id = new FHIRId();
@@ -182,22 +182,22 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         // start time
         if (!empty($dataRecord['pc_eventDate'])) {
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_startTime'];
-            $startInstant = gmdate('c', strtotime($concatenatedDate));
+            $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
         } else if ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_startTime'];
-            $startInstant = gmdate('c', strtotime($concatenatedDate));
+            $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
         }
 
         // if we have a start date and and end time we will use that
         if (!empty($dataRecord['pc_eventDate']) && !empty($dataRecord['pc_endTime'])) {
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_endTime'];
-            $endInstant = gmdate('c', strtotime($concatenatedDate));
+            $endInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setEnd(new FHIRInstant($endInstant));
         } else if (!empty($dataRecord['pc_endDate']) && !empty($dataRecord['pc_endTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_endTime'];
-            $endInstant = gmdate('c', strtotime($concatenatedDate));
+            $endInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setEnd(new FHIRInstant($endInstant));
         }
 

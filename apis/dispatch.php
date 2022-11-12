@@ -271,7 +271,12 @@ if ($isLocalApi) {
             http_response_code(401);
             exit();
         }
-        if ($restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
+        $logger->debug("dispatch.php request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
+        if (
+            $restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)
+            || $restRequest->requestHasScope(SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)
+        ) {
+            $logger->debug("dispatch.php api is userRole populating token context for request due to smart launch scope");
             $restRequest = $gbl->populateTokenContextForRequest($restRequest);
         }
     } elseif ($userRole == 'patient') {
@@ -287,6 +292,7 @@ if ($isLocalApi) {
         }
         $restRequest->setPatientRequest(true);
         $restRequest->setPatientUuidString($puuidStringCheck);
+        $logger->debug("dispatch.php request setup for patient role", ['patient' => $puuidStringCheck]);
     } else if ($userRole === 'system') {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;

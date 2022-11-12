@@ -82,7 +82,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $practitionerResource->setMeta($meta);
 
         $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);

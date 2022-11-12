@@ -113,7 +113,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $allergyIntoleranceResource = new FHIRAllergyIntolerance();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $allergyIntoleranceResource->setMeta($fhirMeta);
 
         $id = new FHIRId();

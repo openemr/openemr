@@ -156,8 +156,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
         $patientResource = new FHIRPatient();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
-        $patientResource->setMeta(new FHIRMeta($meta));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        $patientResource->setMeta($meta);
 
         $patientResource->setActive(true);
         $id = new FHIRId();
@@ -259,7 +261,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 }
                 if (!empty($prevName['previous_name_enddate'])) {
                     $fhirPeriod = new FHIRPeriod();
-                    $fhirPeriod->setEnd(gmdate('c', strtotime($prevName['previous_name_enddate'])));
+                    $fhirPeriod->setEnd(UtilsService::getLocalDateAsUTC($prevName['previous_name_enddate']));
                     $previousHumanName->setPeriod($fhirPeriod);
                 }
                 $patientResource->addName($previousHumanName);

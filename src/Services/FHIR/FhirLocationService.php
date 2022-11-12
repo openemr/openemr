@@ -76,7 +76,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $locationResource->setMeta($meta);
 
         $id = new FHIRId();
@@ -97,6 +97,9 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
 
         // TODO: @brady.miller is this the right security ACL for a facilities organization?
         if ($this->shouldIncludeContactInformationForLocationType($dataRecord['type'], $dataRecord['uuid'])) {
+            // TODO: @adunsulag when we handle the contact,contact_address,and address tables we can grab those fields
+            // instead of overriding the type for the fhir.
+            $dataRecord['type'] = 'physical';
             $locationResource->setAddress(UtilsService::createAddressFromRecord($dataRecord));
 
             if (!empty($dataRecord['phone'])) {
