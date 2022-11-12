@@ -1683,7 +1683,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($row['pc_hometext'] != "") {
                                 $etitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $etitle;
                             }
-                             
+
                             $row['etitle'] = $etitle; //ALB Added this
 
                             if ($extraApptDate && $count > $firstApptIndx) {
@@ -1817,7 +1817,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($row['pc_status'] == 'None') {
                                 $row['pc_status'] = 'Scheduled';
                             } //ALB Added this
-       
+
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem; //ALB Added this
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
