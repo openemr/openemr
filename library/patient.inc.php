@@ -444,7 +444,7 @@ function getInsuranceNameByDate(
 // it needs to be escaped via whitelisting prior to using this function.
 function getEmployerData($pid, $given = "*")
 {
-    $sql = "select $given from employer_data where pid=? order by date DESC limit 0,1";
+    $sql = "select $given from employer_data where pid = ? order by date DESC limit 0,1";
     return sqlQuery($sql, array($pid));
 }
 
@@ -668,7 +668,7 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
 function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $layoutCols = sqlStatement(
-        "SELECT field_id FROM layout_options WHERE form_id = 'DEM' AND field_id not like ? AND uor !=0",
+        "SELECT field_id FROM layout_options WHERE form_id = 'DEM' AND field_id not like ? AND uor ! = 0",
         array('em\_%')
     );
 
