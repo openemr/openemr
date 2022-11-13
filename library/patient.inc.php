@@ -413,7 +413,7 @@ function get_unallocated_patient_balance($pid)
     $res = sqlStatement($query, array($pid));
     while ($row = sqlFetchArray($res)) {
         $total_amt = $row['pay_total'] - $row['global_amount'];
-        $rs= sqlQuery("SELECT sum(pay_amount) AS total_pay_amt FROM ar_activity WHERE session_id = ? AND pid = ? AND deleted IS NULL", array($row['session_id'], $pid));
+        $rs = sqlQuery("SELECT sum(pay_amount) AS total_pay_amt FROM ar_activity WHERE session_id = ? AND pid = ? AND deleted IS NULL", array($row['session_id'], $pid));
         $pay_amount = $rs['total_pay_amt'];
         $unallocated += ($total_amt - $pay_amount);
     }
