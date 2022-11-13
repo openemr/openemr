@@ -188,16 +188,14 @@ class BaseService
             if ($value === null || $value === false) {
                 $value = $null_value;
             }
-
-            $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            // for dates which should be saved as null
-            if (
-                empty($value) &&
-                (strpos($key, 'date') !== false)
-            ) {
-                $bind[] = null;
-            } else {
-                $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            if (!empty($key)) {
+                $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
+                // for dates which should be saved as null
+                if (empty($value) && (strpos($key, 'date') !== false)) {
+                    $bind[] = null;
+                } else {
+                    $bind[] = ($value === null || $value === false) ? $null_value : $value;
+                }
             }
         }
 
@@ -248,15 +246,13 @@ class BaseService
                 // in case unwanted values passed in.
                 continue;
             }
-
-            $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            if (
-                empty($value) &&
-                (strpos($key, 'date') !== false)
-            ) {
-                $bind[] = null;
-            } else {
-                $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            if (!empty($key)) {
+                $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
+                if (empty($value) && (strpos($key, 'date') !== false)) {
+                    $bind[] = null;
+                } else {
+                    $bind[] = $value;
+                }
             }
         }
 

@@ -2060,7 +2060,6 @@ class CdaTemplateImportDispose
         if (empty($arr_file)) {
             return;
         }
-        $appTable = new ApplicationTable();
         foreach ($arr_file as $key => $value) {
             $exist = sqlQuery("SELECT id  FROM `documents` WHERE `foreign_id` = ? AND `hash` = ? LIMIT 1", array($pid, $value['hash']));
             if (!empty($exist['id'])) {
