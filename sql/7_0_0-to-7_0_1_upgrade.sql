@@ -271,3 +271,6 @@ ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
 UPDATE `background_services` SET `require_once` = '/library/direct_message_check.inc.php' WHERE `name` = 'phimail';
 #EndIf
 
+#IfRow2D registry directory procedure_order category Administrative
+UPDATE `registry` SET `category` = 'Orders' WHERE `directory` = 'procedure_order' AND `category` = 'Administrative';
+#EndIf
