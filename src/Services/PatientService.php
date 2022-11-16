@@ -151,10 +151,7 @@ class PatientService extends BaseService
         $sql = " INSERT INTO patient_data SET ";
         $sql .= $query['set'];
 
-        $results = sqlInsert(
-            $sql,
-            $query['bind']
-        );
+        $results = sqlInsert($sql, $query['bind']);
         $data['id'] = $results;
 
         // Tell subscribers that a new patient has been created

@@ -975,10 +975,10 @@ function populateEncounter(pd) {
 
     return {
         "encounter": {
-            "name": pd.visit_category ? (pd.visit_category + " | " + pd.encounter_reason) : 'UNK',
-            "code": "185347001",
-            "code_system": "2.16.840.1.113883.6.96",
-            "code_system_name": "SNOMED CT",
+            "name": pd.visit_category ? (pd.visit_category + " | " + pd.encounter_reason) : pd.code_description,
+            "code": pd.code || "185347001",
+            //"code_system": "2.16.840.1.113883.6.96",
+            "code_system_name": pd.code_type || "SNOMED CT",
             "translations": [{
                 "name": "Ambulatory",
                 "code": "AMB",
@@ -2903,7 +2903,6 @@ function generateCcda(pd) {
     if (pd.primary_care_provider) {
         Object.assign(demographic, populateProviders(pd));
     }
-
     data.demographics = Object.assign(demographic);
 // Encounters
     let encs = [];
@@ -2927,14 +2926,25 @@ function generateCcda(pd) {
         data.encounters = Object.assign(encs.encounters);
     }
 // vitals
-    many.vitals = [];
+    let vitals = [];
+    let vital = {};
+    vitals.vitals = [];
     try {
         count = isOne(pd.history_physical.vitals_list.vitals);
     } catch (e) {
         count = 0
     }
+    if (count > 1) {
+        for (let i in pd.history_physical.vitals_list.vitals) {
+            vitals[i] = populateVital(pd.history_physical.vitals_list.vitals[i]);
+            vitals.vitals.push(vitals[i]);
+        }
+    } else if (count !== 0) {
+        vital = populateVital(pd.history_physical.vitals_list.vitals);
+        vitals.vitals.push(vital);
+    }
     if (count !== 0) {
-        data.vitals = Object.assign(populateVital(pd.history_physical.vitals_list.vitals));
+        data.vitals = Object.assign(vitals.vitals);
     }
 // Medications
     let meds = [];

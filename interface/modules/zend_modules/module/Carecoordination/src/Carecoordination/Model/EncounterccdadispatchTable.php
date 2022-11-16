@@ -1759,25 +1759,25 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     // diagnosis for care plan forms etc.
                     if ($i === 1) {
                         $encounter_diagnosis = "
-                <encounter_diagnosis>
-                <extension>" . $issue_ext . "</extension>
-                <code>" . xmlEscape($tmp[1]) . "</code>
-                <code_type>" . xmlEscape($code_type) . "</code_type>
-                <text>" . xmlEscape(Listener::z_xlt($issue['title'])) . "</text>
-                <status>" . xmlEscape($encounter_activity) . "</status>
-                </encounter_diagnosis>";
+                        <encounter_diagnosis>
+                        <extension>" . $issue_ext . "</extension>
+                        <code>" . xmlEscape($tmp[1]) . "</code>
+                        <code_type>" . xmlEscape($code_type) . "</code_type>
+                        <text>" . xmlEscape(Listener::z_xlt($issue['title'])) . "</text>
+                        <status>" . xmlEscape($encounter_activity) . "</status>
+                        </encounter_diagnosis>";
                         if (empty($primary_diagnosis) && !empty($code_type)) {
                             $primary_diagnosis = "
-                    <primary_diagnosis>
-                    <root>" . xmlEscape($encounter_root) . "</root>
-                    <extension>" . xmlEscape($encounter_ext) . "</extension>
-                    <encounter_date>" . xmlEscape($date_zone) . "</encounter_date>
-                    <encounter_end_date>" . xmlEscape($date_zone_end) . "</encounter_end_date>
-                    <code>" . xmlEscape($tmp[1] ?? '') . "</code>
-                    <code_type>" . xmlEscape($code_type ?? '') . "</code_type>
-                    <text>" . xmlEscape(Listener::z_xlt($issue['title'] ?? '')) . "</text>
-                    <status>" . xmlEscape($encounter_activity ?? '') . "</status>
-                    </primary_diagnosis>";
+                        <primary_diagnosis>
+                        <root>" . xmlEscape($encounter_root) . "</root>
+                        <extension>" . xmlEscape($encounter_ext) . "</extension>
+                        <encounter_date>" . xmlEscape($date_zone) . "</encounter_date>
+                        <encounter_end_date>" . xmlEscape($date_zone_end) . "</encounter_end_date>
+                        <code>" . xmlEscape($tmp[1] ?? '') . "</code>
+                        <code_type>" . xmlEscape($code_type ?? '') . "</code_type>
+                        <text>" . xmlEscape(Listener::z_xlt($issue['title'] ?? '')) . "</text>
+                        <status>" . xmlEscape($encounter_activity ?? '') . "</status>
+                        </primary_diagnosis>";
                         }
                     }
                 }
@@ -2493,7 +2493,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 JOIN form_vitals AS fv ON fv.id = f.form_id
                 LEFT JOIN users as u on u.username = fv.user
                 WHERE f.pid = ? AND f.formdir = 'vitals' AND f.deleted=0 $wherCon
-                ORDER BY fe.date DESC LIMIT 1";
+                ORDER BY fe.date DESC";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($pid));
 

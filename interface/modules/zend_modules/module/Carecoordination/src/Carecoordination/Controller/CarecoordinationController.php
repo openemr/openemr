@@ -104,7 +104,7 @@ class CarecoordinationController extends AbstractActionController
         if (($request->getPost('chart_all_imports') ?? null) === 'true' && empty($action)) {
             $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
             foreach ($records as $record) {
-                if (!empty($record['matched_patient'])) {
+                if (!empty($record['matched_patient']) && empty($record['is_unstructured_document'])) {
                     // @todo figure out a way to make this auto. $data is array of doc changes.
                     // $this->getCarecoordinationTable()->insertApprovedData($data);
                     // meantime make user approve changes.
@@ -156,10 +156,15 @@ class CarecoordinationController extends AbstractActionController
                 continue;
             }
             $name = $r['pat_name'];
+            // compare to the other imported items for duplicates being imported
             foreach ($records as $k => $r1) {
                 $f = false;
                 $why = '';
                 if (!empty($r1['dupl_patient'] ?? null) || $key == $k) {
+                    if (!empty($records[$key]['matched_patient'] ?? null)) {
+                        $why = xlt('Duplicate demographics and components for MRN') . ' ' . text($records[$key]['pid'] ?? '');
+                        $records[$k]['dupl_patient'] = $why;
+                    }
                     continue;
                 }
                 $n = $r1['pat_name'];
@@ -172,9 +177,9 @@ class CarecoordinationController extends AbstractActionController
                 }
                 if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
                     if ($f) {
-                        $why = xlt('Matched Demo and DOB');
+                        $why = xlt('Matched Demographic and DOB');
                     } else {
-                        $why = xlt('Matched Demo');
+                        $why = xlt('Matched Demographic');
                     }
                     if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
                         $why .= ' ' . xlt('with Mismatched Components');
@@ -200,6 +205,9 @@ class CarecoordinationController extends AbstractActionController
                     $records[$k]['dupl_patient'] = xlt('Empty Report. No QDM content.');
                 }
                 if ($f) {
+                    if (empty($records[$k]['matched_patient']) && empty($records[$key]['matched_patient'])) {
+                        $why = xlt('Another imported document duplicates') . ' ' . $why;
+                    }
                     $records[$key]['dupl_patient'] = $records[$k]['dupl_patient'] = $why;
                 }
             }
