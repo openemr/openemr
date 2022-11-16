@@ -528,6 +528,7 @@ class CdaTemplateParse
      */
     public function fetchMedicationData($entry): void
     {
+        // @todo provider not correct.
         if (!empty($entry['substanceAdministration']['consumable']['manufacturedProduct']['manufacturedMaterial']['code']['code'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['lists3'])) {

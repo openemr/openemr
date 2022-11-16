@@ -524,11 +524,8 @@ class CdaTemplateImportDispose
         foreach ($enc_array as $key => $value) {
             $encounter_id = $appTable->generateSequenceID();
 
-            if (empty($value['provider_npi'])) {
-                $value['provider_npi'] = CarecoordinationTable::NPI_SAMPLE;
-            }
             if (!empty($value['provider_npi'])) {
-                $query_sel_users = "SELECT * FROM users WHERE npi=?";// abook_type='external_provider' AND
+                $query_sel_users = "SELECT * FROM users WHERE npi = ?";// abook_type='external_provider' AND
                 $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
             }
             if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
@@ -538,7 +535,6 @@ class CdaTemplateImportDispose
             } else {
                 $provider_id = $this->insertImportedUser($value, true);
             }
-
             //facility
             if (empty($value['represented_organization_name'])) {
                 $value['represented_organization_name'] = CarecoordinationTable::ORGANIZATION_SAMPLE;
@@ -600,10 +596,25 @@ class CdaTemplateImportDispose
                 $cat = explode('|', $value['code_text'] ?? null);
                 $catname = trim($cat[0]);
                 $reason = trim($cat[1]);
-                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'] ?: $pc_catid_default;
+                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'];
             }
+            if (empty($pc_catid)) {
+                // create a new category to match the import
+                $const_id = str_replace(' ', '_', strtolower($catname));
+                $sql = "INSERT INTO openemr_postcalendar_categories(
+                    `pc_catname`,
+                    `pc_constant_id`,
+                    `pc_catcolor`,
+                    `pc_cattype`,
+                    `pc_active`
+                )
+                VALUES(?, ?, ?, ?, ?)";
+                $pc_catid = sqlInsert($sql, array($catname, $const_id, '#BFBFBF', 0, 1));
+            }
+            $pc_catid = $pc_catid ?: $pc_catid_default;
+
             if (!empty($value['extension'])) {
-                $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id=? AND pid=?";
+                $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id = ? AND pid = ?";
                 $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, array($value['extension'], $pid));
             }
             if (empty($value['extension']) || $res_q_sel_encounter->count() === 0) {
@@ -1360,6 +1371,15 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $userName = "";
 
+        // so for those that don't use NPI's or npi was missed we'll take a look for user by name.
+        $is_user = sqlQuery(
+            "Select id From users 
+          Where fname = ? And lname = ?",
+            array($value['provider_fname'] ?? null, $value['provider_lname'] ?? null)
+        );
+        if (!empty($is_user['id'])) {
+            return $is_user['id'];
+        }
         if (!empty($value['provider_fname'])) {
             $value['provider_name'] = ($value['provider_fname'] ?? '') ?: 'External';
         }
@@ -1371,7 +1391,7 @@ class CdaTemplateImportDispose
             $userName = (($value['provider_name'] ?? '') ?: 'External') . (($value['provider_family'] ?? '') ?: 'Provider');
         }
         $query_ins_users = "INSERT INTO users
-        ( username, fname, lname, npi, authorized, organization, street, city, state, zip, active, abook_type)
+        (username, fname, lname, npi, authorized, organization, street, city, state, zip, active, abook_type)
         VALUES(?, ?, ?, ?, 1, ?, ?, ?, ?, ?, 1, 'external_provider')";
         $res_query_ins_users = $appTable->zQuery($query_ins_users, array(
             $userName,
