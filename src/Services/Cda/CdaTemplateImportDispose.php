@@ -596,8 +596,23 @@ class CdaTemplateImportDispose
                 $cat = explode('|', $value['code_text'] ?? null);
                 $catname = trim($cat[0]);
                 $reason = trim($cat[1]);
-                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'] ?: $pc_catid_default;
+                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'];
             }
+            if (empty($pc_catid)) {
+                // create a new category to match the import
+                $const_id = str_replace(' ', '_', strtolower($catname));
+                $sql = "INSERT INTO openemr_postcalendar_categories(
+                    `pc_catname`,
+                    `pc_constant_id`,
+                    `pc_catcolor`,
+                    `pc_cattype`,
+                    `pc_active`
+                )
+                VALUES(?, ?, ?, ?, ?)";
+                $pc_catid = sqlInsert($sql, array($catname, $const_id, '#BFBFBF', 0, 1));
+            }
+            $pc_catid = $pc_catid ?: $pc_catid_default;
+
             if (!empty($value['extension'])) {
                 $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id = ? AND pid = ?";
                 $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, array($value['extension'], $pid));
