@@ -342,6 +342,12 @@ function populateDemographic(pd, g) {
                 "number": pd.phone_mobile,
                 "type": "primary mobile"
             }, {
+                "number": pd.phone_work,
+                "type": "work place"
+            }, {
+                "number": pd.phone_emergency,
+                "type": "emergency contact"
+            },{
                 "email": pd.email,
                 "type": "contact_email"
             }
