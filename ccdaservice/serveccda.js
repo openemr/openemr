@@ -279,6 +279,18 @@ function fetchPreviousAddresses(pd) {
 }
 
 function populateDemographic(pd, g) {
+    let first = 'NI';
+    let middle = 'NI';
+    let last = 'NI';
+    const names = g.display_name.split(' ');
+    if (names.length === 2) {
+        first = names[0];
+        last = names[1];
+    }
+    if (names.length === 3) {
+        first = names[0];
+        last = names[2];
+    }
     let guardian = [{
         "relation": g.relation,
         "addresses": [{
@@ -290,8 +302,8 @@ function populateDemographic(pd, g) {
             "use": "primary home"
         }],
         "names": [{
-            "last": g.display_name, //@todo parse first/last
-            "first": g.display_name
+            "last": last,
+            "first": first
         }],
         "phone": [{
             "number": g.telecom,
@@ -396,7 +408,7 @@ function populateDemographic(pd, g) {
                 }
             ],
         },
-        //"guardians": g.display_name ? guardian : '' //not required
+        "guardians": g.display_name ? guardian : '' //not required
     }
 }
 
