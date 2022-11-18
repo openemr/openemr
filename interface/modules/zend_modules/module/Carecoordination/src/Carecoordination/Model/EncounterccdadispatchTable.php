@@ -306,7 +306,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <status>" . xmlEscape($result['status'] ?: "") . "</status>
             <status_code>" . xmlEscape($result['status'] ? strtoupper(substr($result['status'], 0, 1)) : 0) . "</status_code>
             <phone_home>" . xmlEscape(($result['phone_home'] ?: '')) . "</phone_home>
-            <phone_mobile>" . xmlEscape(($result['phone_home'] ? $result['phone_cell'] : '')) . "</phone_mobile>
+            <phone_mobile>" . xmlEscape(($result['phone_cell'] ? $result['phone_cell'] : '')) . "</phone_mobile>
+            <phone_work>" . xmlEscape(($result['phone_biz'] ?: '')) . "</phone_work>
+            <phone_emergency>" . xmlEscape(($result['phone_contact'] ?: '')) . "</phone_emergency>
             <email>" . xmlEscape(($result['email'] ?: '')) . "</email>
             <religion>" . xmlEscape(Listener::z_xlt($result['religion'] ?: "")) . "</religion>
             <religion_code>" . xmlEscape($result['religion_code'] ?: '') . "</religion_code>
