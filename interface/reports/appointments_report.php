@@ -125,7 +125,7 @@ function fetch_reminders($pid, $appt_date)
 }
 
 // In the case of CSV export only, a download will be forced.
-if ($_POST['form_csvexport']) {
+if ($_POST['form_csvexport'] ?? null) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -550,7 +550,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php }
-if (!$_POST['form_csvexport']) { ?>
+if (!($_POST['form_csvexport'] ?? null)) { ?>
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" /> <input type="hidden" name="patient" value="<?php echo attr($patient) ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value='' />
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/></form>
@@ -561,7 +561,7 @@ if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 
-if (!$_POST['form_csvexport']) { ?>
+if (!($_POST['form_csvexport'] ?? null)) { ?>
 </script>
 
 </body>
