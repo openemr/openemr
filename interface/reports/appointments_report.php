@@ -366,9 +366,9 @@ if ($_POST['form_csvexport'] ?? null) {
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     $showDate = ($from_date != $to_date) || (!$to_date);
     if ($_POST['form_csvexport']) {
-        echo '"' . xl('Contact')    . '",';
-        echo '"' . xl('Phone')      . '",';
-        echo '"' . xl('Start Time') . '",';
+        echo '"' . csvEscape(xl('Contact'))    . '",';
+        echo '"' . csvEscape(xl('Phone'))      . '",';
+        echo '"' . csvEscape(xl('Start Time')) . '",';
         echo "\n";
     } else {
         ?>
