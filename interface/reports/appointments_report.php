@@ -568,4 +568,5 @@ if (!$_POST['form_csvexport']) { ?>
 
 </html>
 
-<?php }
+<?php 
+} // end not form_csvexport
