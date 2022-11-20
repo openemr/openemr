@@ -124,12 +124,6 @@ function fetch_reminders($pid, $appt_date)
     return $rems;
 }
 
-// for csv need special format for appt date
-function csvDate($date)
-{
-    $date = substr($date, 5, 2) . '/' . substr($date, 8, 2) . '/' . substr($date, 0, 4);
-    return $date;
-}
 // In the case of CSV export only, a download will be forced.
 if ($_POST['form_csvexport']) {
     header("Pragma: public");
