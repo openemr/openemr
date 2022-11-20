@@ -366,9 +366,9 @@ if ($_POST['form_csvexport'] ?? null) {
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     $showDate = ($from_date != $to_date) || (!$to_date);
     if ($_POST['form_csvexport']) {
-        echo '"' . csvEscape(xl('Contact'))    . '",';
-        echo '"' . csvEscape(xl('Phone'))      . '",';
-        echo '"' . csvEscape(xl('Start Time')) . '",';
+        echo '"' . xl('Contact')    . '",';
+        echo '"' . xl('Phone')      . '",';
+        echo '"' . xl('Start Time') . '",';
         echo "\n";
     } else {
         ?>
@@ -454,14 +454,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $errmsg  = "";
         $pc_apptstatus = $appointment['pc_apptstatus'];
         if ($_POST['form_csvexport']) {
-            echo '"' . $appointment['fname'] . " " . substr($appointment['lname'], 0, 1) . '",';
+            echo '"' . csvEscape($appointment['fname']) . " " .
+                substr(csvEscape($appointment['lname']), 0, 1) . '",';
             if (empty($appointment['phone_home'])) {
-                echo '"' . $appointment['phone_cell'] . '",';
+                echo '"' . csvEscape($appointment['phone_cell']) . '",';
             } else {
-                echo '"' . $appointment['phone_home'] . '",';
+                echo '"' . csvEscape($appointment['phone_home']) . '",';
             }
 
-            echo '"' . oeFormatDateTime($appointment['pc_eventDate'] . ' ' . $appointment['pc_startTime']) . '"';
+            echo '"' . oeFormatDateTime(csvEscape($appointment['pc_eventDate']) . ' ' .
+                csvEscape($appointment['pc_startTime'])) . '"';
             echo "\n";
         } else {
             ?>
