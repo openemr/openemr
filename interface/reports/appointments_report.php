@@ -27,11 +27,18 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\{
+    Acl\AclMain,
+    Csrf\CsrfUtils,
+    Twig\TwigContainer,
+};
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Acl\AclMain;
+use PhpOffice\PhpSpreadsheet\{
+    IOFactory,
+    Helper\Sample,
+    Spreadsheet,
+};
+
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -126,12 +133,15 @@ function fetch_reminders($pid, $appt_date)
 
 // In the case of CSV export only, a download will be forced.
 if ($_POST['form_csvexport'] ?? null) {
-    header("Pragma: public");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Content-Type: application/force-download");
-    header("Content-Disposition: attachment; filename=appt_list.csv");
-    header("Content-Description: File Transfer");
+    $helper = new Sample();
+    if ($helper->isCli()) {
+        $helper->log('This example should only be run from a Web Browser' . PHP_EOL);
+
+        return;
+    }
+    header("Content-Type: text/csv");
+    header("Content-Disposition: attachment; filename=appt_list.xls");
+    header('Cache-Control: max-age=0');
 } else {
     ?>
 
@@ -366,10 +376,17 @@ if ($_POST['form_csvexport'] ?? null) {
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     $showDate = ($from_date != $to_date) || (!$to_date);
     if ($_POST['form_csvexport']) {
-        echo '"' . xl('Contact')    . '",';
-        echo '"' . xl('Phone')      . '",';
-        echo '"' . xl('Start Time') . '",';
-        echo "\n";
+        // Create new Spreadsheet object
+        $spreadsheet = new Spreadsheet();
+        // Set document properties
+        $spreadsheet->getProperties()->setTitle('Appointments CSV Export');
+        // Set font
+        $spreadsheet->getDefaultStyle()->getFont()->setName('Ubuntu');
+
+        $spreadsheet->setActiveSheetIndex(0)
+            ->setCellValue('A1', 'Contact')
+            ->setCellValue('B1', 'Phone')
+            ->setCellValue('C1', 'Start Time');
     } else {
         ?>
 <div id="report_results">
@@ -445,7 +462,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     $apptdate_list = array(); // same as above for the appt details
     $totalAppontments = count($appointments);
 
+    $cntr = 1; // column labels above start at 1
     foreach ($appointments as $appointment) {
+        $cntr++;
         array_push($pid_list, $appointment['pid']);
         array_push($apptdate_list, $appointment['pc_eventDate']);
         $patient_id = $appointment['pid'];
@@ -454,17 +473,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $errmsg  = "";
         $pc_apptstatus = $appointment['pc_apptstatus'];
         if ($_POST['form_csvexport']) {
-            echo '"' . csvEscape($appointment['fname']) . " " .
-                substr(csvEscape($appointment['lname']), 0, 1) . '",';
             if (empty($appointment['phone_home'])) {
-                echo '"' . csvEscape($appointment['phone_cell']) . '",';
+                $phone_home_csv = $appointment['phone_cell'];
             } else {
-                echo '"' . csvEscape($appointment['phone_home']) . '",';
+                $phone_home_csv = $appointment['phone_home'];
             }
 
-            echo '"' . oeFormatDateTime(csvEscape($appointment['pc_eventDate']) . ' ' .
-                csvEscape($appointment['pc_startTime'])) . '"';
-            echo "\n";
+            $name_csv = $appointment['fname'] . " " . substr($appointment['lname'], 0, 1);
+            $date_time_csv = oeFormatDateTime($appointment['pc_eventDate'] . $appointment['pc_startTime']);
+
+            $spreadsheet->setActiveSheetIndex(0)
+                ->setCellValue('A' . $cntr, $name_csv)
+                ->setCellValue('B' . $cntr, $phone_home_csv)
+                ->setCellValue('C' . $cntr, $date_time_csv);
         } else {
             ?>
 
@@ -571,4 +592,7 @@ if (!($_POST['form_csvexport'] ?? null)) { ?>
 </html>
 
     <?php
-} // end not form_csvexport
+} else { // end not form_csvexport
+    $writer = IOFactory::createWriter($spreadsheet, 'Xls');
+        $writer->save('php://output');
+}
