@@ -267,10 +267,17 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->documentData['field_name_value_array']['patient_data'][1]['suffix'] = $name['suffix'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['DOB'] = $xml['recordTarget']['patientRole']['patient']['birthTime']['value'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['sex'] = ucfirst(strtolower($xml['recordTarget']['patientRole']['patient']['administrativeGenderCode']['displayName'] ?? ''));
-        //$this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
+        if ($this->is_qrda_import ?? false) {
+            $this->documentData['field_name_value_array']['patient_data'][1]['pubpid'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? null;
+        }
         $this->documentData['field_name_value_array']['patient_data'][1]['referrerID'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? '';
         //$this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
-        $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
+        if (is_array($xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null)) {
+            $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'][0] ?? null;
+            $this->documentData['field_name_value_array']['patient_data'][1]['street_line_2'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'][1] ?? null;
+        } else {
+            $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null;
+        }
         $this->documentData['field_name_value_array']['patient_data'][1]['city'] = $xml['recordTarget']['patientRole']['addr']['city'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['state'] = $xml['recordTarget']['patientRole']['addr']['state'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['postal_code'] = $xml['recordTarget']['patientRole']['addr']['postalCode'] ?? null;
@@ -280,16 +287,45 @@ class CarecoordinationTable extends AbstractTableGateway
             foreach ($xml['recordTarget']['patientRole']['telecom'] as $tel) {
                 if ($tel['use'] == 'MC') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                }
-                if ($tel['use'] == 'HP') {
+                } elseif ($tel['use'] == 'HP') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                }
-                if ($tel['use'] == 'WP') {
+                } elseif ($tel['use'] == 'WP') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                } elseif ($tel['use'] == 'EC') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                } elseif (stripos($tel['value'], 'mailto:') !== false) {
+                    $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
+                    $mail = explode('mailto:', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['email'] = null;
+                    if (!empty($mail[1])) {
+                        $mailto = preg_replace($regex, '\\1@\\2.\\3', $mail[1]);
+                        $this->documentData['field_name_value_array']['patient_data'][1]['email'] = $mailto;
+                    }
+                } else {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
                 }
             }
         } else {
-            $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($xml['recordTarget']['patientRole']['telecom']['value'] ?? null));
+            $tel = $xml['recordTarget']['patientRole']['telecom'];
+            if ($tel['use'] == 'MC') {
+                $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+            } elseif ($tel['use'] == 'HP') {
+                $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+            } elseif ($tel['use'] == 'WP') {
+                $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+            } elseif ($tel['use'] == 'EC') {
+                $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+            } elseif (stripos($tel['value'], 'mailto:') !== false) {
+                $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
+                $mail = explode('mailto:', ($tel['value'] ?? null));
+                $this->documentData['field_name_value_array']['patient_data'][1]['email'] = null;
+                if (!empty($mail[1])) {
+                    $mailto = preg_replace($regex, '\\1@\\2.\\3', $mail[1]);
+                    $this->documentData['field_name_value_array']['patient_data'][1]['email'] = $mailto;
+                }
+            } else {
+                $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+            }
         }
 
         $this->documentData['field_name_value_array']['patient_data'][1]['status'] = strtolower($xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName']) ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
@@ -488,10 +524,9 @@ class CarecoordinationTable extends AbstractTableGateway
                             $race_option_id = $this->getOptionId('race', $rowfield['field_value'], $rowfield['field_value']);
                             $newdata['patient_data'][$rowfield['field_name']] = $race_option_id;
                         } elseif ($rowfield['field_name'] == 'ethnicity') {
-                            $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], $rowfield['field_value']);
-                            $newdata['patient_data'][$rowfield['field_name']] = $ethnicity_option_id;
-                        } else {
                             $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
+                        } else {
+                            $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'] ?? null;
                         }
                     }
                 } elseif ($table == 'immunization') {
