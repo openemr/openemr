@@ -13,7 +13,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
     [You Can Be a OpenEMR Developer in 5 Easy Steps](https://www.open-emr.org/blog/you-can-be-a-openemr-developer-in-5-easy-steps/)
 
-- For the Video Tutorials, click below:
+- For the Video Tutorial, click below:
 
     [![Getting Started Video Tutorial](Documentation/images/easy-dev-intro.png)](https://youtu.be/D4tXP5G9-sY)
 
