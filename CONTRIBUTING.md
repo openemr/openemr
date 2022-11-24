@@ -9,6 +9,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 ---
 
 ### Starting with OpenEMR Development Docker Environment
+- For the highly recommended free course "You Can Be a OpenEMR Developer in 5 Easy Steps", click below:
+
+    [You Can Be a OpenEMR Developer in 5 Easy Steps](https://www.open-emr.org/blog/you-can-be-a-openemr-developer-in-5-easy-steps/)
 
 - For the Video Tutorial, click below:
 
@@ -49,11 +52,13 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - Use `username/user`: openemr, `password`: openemr .
 6. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on.
 
-    - For the Video Tutorial, click below:
+    - For the Video Tutorials, click below:
 
       [![Getting Started Video Tutorial](Documentation/images/easy-dev-vscode-xdebug.png)](https://youtu.be/XJl7SQGNhpw)
 
-      - (Recommend using Ubuntu Desktop 22.04 for above video and other videos in the [OpenEMR Easy Docker Development Environment Video Series](https://www.youtube.com/playlist?list=PLFiWG_dDadgQT7zjqvEqbXm1OiuubOVO8). Easiest way to do this is setting up a [Ubuntu Desktop 22.04 Virtual Machine on VirtualBox](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox), which recommend configuring with 40GB hard drive, assigning 25% of computer memory, and assigning 25% of cpu cores to the virtual machine.)
+      [![Getting Started Video Tutorial](Documentation/images/easy-dev-advanced-vscode-xdebug.png)](https://youtu.be/0dEYDHWECMI)
+
+      - (Recommend using Ubuntu Desktop 22.04 for above videos and other videos in the [OpenEMR Easy Docker Development Environment Video Series](https://www.youtube.com/playlist?list=PLFiWG_dDadgQT7zjqvEqbXm1OiuubOVO8). Easiest way to do this is setting up a [Ubuntu Desktop 22.04 Virtual Machine on VirtualBox](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox), which recommend configuring with 40GB hard drive, assigning 25% of computer memory, and assigning 25% of cpu cores to the virtual machine.)
 
     - An exception to this is if making changes to styling scripts in interface/themes/. In that case will need to clear web browser cache and run the following command to rebuild the theme files:
       ```sh
