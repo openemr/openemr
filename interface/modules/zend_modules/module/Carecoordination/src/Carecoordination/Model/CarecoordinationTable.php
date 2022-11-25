@@ -563,12 +563,20 @@ class CarecoordinationTable extends AbstractTableGateway
             }
             if ($table == 'patient_data') {
                 $createFlag = true;
-                if (!empty($newdata['patient_data']['referrerID']) && $this->is_unstructured_import) {
-                    $uuid = $newdata['patient_data']['referrerID'];
+                if (!empty($newdata['patient_data']['referrerID'])) {
+                    // patient UUID from exported
+                    $uuid = trim($newdata['patient_data']['referrerID']);
+                    // have we already imported for this UUID?
                     $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", array($uuid))['pid'];
                     if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
-                        $pid = $pid_exist;
-                        $createFlag = false;
+                        // We did so let check the type. If encounters then a CDA
+                        $enc_exist = sqlQuery("SELECT COUNT(`encounter`) as `cnt` FROM `form_encounter` WHERE `pid` = ? AND `encounter` > 0", array((int)$pid_exist))['cnt'] ?? 0;
+                        // If not CDA and not unstructured means unstructured already created a new PID
+                        // otherwise merge one or the other to each other.
+                        if ((!$this->is_unstructured_import && empty($enc_exist)) || $this->is_unstructured_import) {
+                            $pid = $pid_exist;
+                            $createFlag = false;
+                        }
                     }
                 }
                 updatePatientData($pid, $newdata['patient_data'], $createFlag);
