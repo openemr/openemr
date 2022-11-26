@@ -15,22 +15,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
-function care_plan_report($pid, $encounter, $cols, $id)
+function care_plan_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
+    $encounter = !empty($encounter) ? $encounter : $_SESSION["encounter"] ?? 0;
+    $pid = !empty($pid) ? $pid : $_SESSION["pid"] ?? 0;
+
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, array($id, $_SESSION["pid"], $_SESSION["encounter"]));
+    $res = sqlStatement($sql, array($id, $pid, $encounter));
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
     }
 
-    if ($data) {
-        ?>
+    if ($data) { ?>
         <table class="table w-100">
             <thead>
             <tr>
@@ -44,8 +44,7 @@ function care_plan_report($pid, $encounter, $cols, $id)
             </thead>
             <tbody>
             <?php
-            foreach ($data as $key => $value) {
-                ?>
+            foreach ($data as $key => $value) { ?>
                 <tr>
                     <td class="border p-1"><span class='text'><?php echo text($value['user']); ?></span></td>
                     <td class="border p-1"><span class='text'><?php echo text(getListItemTitle('Plan_of_Care_Type', $value['care_plan_type'])); ?></span></td>
@@ -54,13 +53,9 @@ function care_plan_report($pid, $encounter, $cols, $id)
                     <td class="border p-1"><span class=text><?php echo text($value['description']); ?></span></td>
                     <td class="border p-1"><span class=text><?php echo text($value['date']); ?></span></td>
                 </tr>
-                <?php
-            }
-            ?>
+                <?php } ?>
             </tbody>
         </table>
         <?php
     }
 }
-
-?>
