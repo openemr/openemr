@@ -1371,20 +1371,26 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $userName = "";
 
-        // so for those that don't use NPI's or npi was missed we'll take a look for user by name.
-        $is_user = sqlQuery(
-            "Select id From users 
-          Where fname = ? And lname = ?",
-            array($value['provider_fname'] ?? null, $value['provider_lname'] ?? null)
-        );
-        if (!empty($is_user['id'])) {
-            return $is_user['id'];
-        }
         if (!empty($value['provider_fname'])) {
             $value['provider_name'] = ($value['provider_fname'] ?? '') ?: 'External';
         }
         if (!empty($value['provider_lname'])) {
             $value['provider_family'] = ($value['provider_lname'] ?? '') ?: 'Provider';
+        }
+
+        // so for those that don't use NPI's or npi was missed we'll take a look for user by name.
+        $is_user = sqlQuery(
+            "Select id From users Where fname = ? And lname = ?",
+            array($value['provider_name'] ?? null, $value['provider_family'] ?? null)
+        );
+        if (empty($is_user['id'])) {
+            $is_user = sqlQuery(
+                "Select id From users Where fname = ? And lname = ?",
+                array('External', 'Provider')
+            );
+        }
+        if (!empty($is_user['id'])) {
+            return $is_user['id'];
         }
 
         if ($create_user_name) {
