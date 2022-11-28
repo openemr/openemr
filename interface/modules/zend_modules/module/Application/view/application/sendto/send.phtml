@@ -22,13 +22,13 @@ $download_format = $this->download_format;
 <div class="ap-st-st-12">
     <div class="ap-st-st-2">
         <div class="ap-st-st-1" style="<?php if (!in_array('hie', $required_buttons)) echo "display:none;" ?>">
-            <input class="ap-st-st-3" type="radio" name="send_to" id="send_to_hie" value="hie" <?php if ($this->send_via == "hie") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('HIE') ?></span></div>
+            <label><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_hie" value="hie" <?php if ($this->send_via == "hie") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('HIE') ?></label></div>
         <div class="ap-st-st-1" style="<?php if (!in_array('emr_direct', $required_buttons)) echo "display:none;" ?>">
-            <input class="ap-st-st-3" type="radio" name="send_to" id="send_to_emrdirect" value="emr_direct" <?php if ($this->send_via == "emr_direct") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('EMR Direct') ?></span></div>
+            <label><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_emrdirect" value="emr_direct" <?php if ($this->send_via == "emr_direct") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('EMR Direct') ?></label></div>
         <div class="ap-st-st-1" style="<?php if (!in_array('download', $required_buttons)) echo "display:none;" ?>">
-            <input class="ap-st-st-3" type="radio" name="send_to" id="download" value="download" <?php if ($this->send_via == "download") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Print To') ?></span></div>
+            <label><input class="ap-st-st-3" type="radio" name="send_to" id="download" value="download" <?php if ($this->send_via == "download") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('Print To') ?></label></div>
         <div class="ap-st-st-1" style="<?php if (!in_array('download_all', $required_buttons)) echo "display:none;" ?>">
-            <input class="ap-st-st-3" type="radio" name="send_to" id="download_all" value="download_all" <?php if ($this->send_via == "download_all") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Download') ?></span></div>
+            <label><input class="ap-st-st-3" type="radio" name="send_to" id="download_all" value="download_all" <?php if ($this->send_via == "download_all") echo "checked"; ?>>&nbsp;<?php echo $this->listenerObject->z_xlt('Download') ?></label></div>
     </div>
     <div style="padding-left: 10px;padding-top: 1%;" id="adv-op-div" class="ap-st-st-13">
         <div style="float:left;"><span class="showcomponentsForCCDA-div"><?php echo $this->listenerObject->z_xlt('Advance Options') ?></span></div>

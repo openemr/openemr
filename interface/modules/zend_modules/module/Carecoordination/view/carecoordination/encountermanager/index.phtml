@@ -309,7 +309,7 @@ foreach ($this->status_details as $row_status) {
 
                     <div class="body_inner_wrapper">
                         <div class="header_wrap">
-                            <div class="header_wrap_left">
+                            <div class="header_wrap_left" style="width: 50%">
                                 <div class="search_button" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
                                 <div id="download_ccda" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadccda" id="downloadccda" value="">
@@ -328,7 +328,10 @@ foreach ($this->status_details as $row_status) {
                                 // @see Application view_helpers for this functionality.
                                 $this->sendToHie('carecoordination/layout/encountermanager', array('hie', 'emr_direct', 'download_all'), 'hie');
                                 ?>
-                                <div class="se_in_3" title="<?php echo $this->listenerObject->z_xlt('Reload'); ?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
+                                <div class="se_in_3" style="float: right;" title="<?php echo $this->listenerObject->z_xlt('Reload'); ?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
+                                <label for="with_documents" style="float: left; margin-top: 0.5rem;font-size:14px; font-weight: bold;"><?php echo $this->listenerObject->z_xlt('Export Documents'); ?>
+                                    <input id="with_documents" type="checkbox" name="with_documents" style="margin-bottom: 0.25rem" />
+                                </label>
                             </div><!-- header_wrap_left -->
                             <div class="header_wrap_right" style="<?php if (count($this->details) == 0) { ?>display: none;<?php } ?>">
                                 <div class="se_in_4">

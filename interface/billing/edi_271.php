@@ -15,12 +15,13 @@
  */
 
 require_once(dirname(__file__) . "/../globals.php");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/report.inc");
-require_once("$srcdir/calendar.inc");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/report.inc.php");
+require_once("$srcdir/calendar.inc.php");
 
 use OpenEMR\Billing\EDI270;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -40,14 +41,24 @@ if (isset($_FILES) && !empty($_FILES)) {
     if ($_FILES['uploaded']['size'] > 350000) {
         $message .=  xlt('Your file is too large') . "<br />";
     }
-    if ($_FILES['uploaded']['type'] != "text/plain") {
+    if (mime_content_type($_FILES['uploaded']['tmp_name']) != "text/plain") {
         $message .= xlt('You may only upload .txt files') . "<br />";
     }
+    if (preg_match("/(.*)\.(inc|php|php7|php8)$/i", $_FILES['uploaded']['name']) !== 0) {
+        $message .= xlt('Invalid file type.') . "<br />";
+    }
     if (!isset($message)) {
-        $file_moved = move_uploaded_file($_FILES['uploaded']['tmp_name'], $target);
-        if ($file_moved) {
+        $cryptoGen = new CryptoGen();
+        $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
+        if ($GLOBALS['drive_encryption']) {
+            $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, 'database');
+        }
+        if (file_put_contents($target, $uploadedFile)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
-            $Response271 = file($target);
+            $Response271 = file_get_contents($target);
+            if ($cryptoGen->cryptCheckStandard($Response271)) {
+                $Response271 = $cryptoGen->decryptStandard($Response271, null, 'database');
+            }
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);
             } else {

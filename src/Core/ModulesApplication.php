@@ -130,10 +130,11 @@ class ModulesApplication
     {
         if (is_array($files) && !empty($files)) {
             // for safety we only allow the scripts to be from the local filesystem for now
-            // TODO: talk with @brady.miller if the system has a safer mechanism to lock down an asset file to the local domain
-            // how much do we want to protect the end user vs allow external scripts for things such as CDN access or 3rd party integration?
             $filteredFiles = array_filter(array_map(function ($scriptSrc) {
-                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrc);
+                // scripts that have any kind of parameters in them such as a cache buster mess up finding the real path
+                // we need to strip that out and then check against the real path
+                $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
+                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrcPath);
                 // make sure we haven't left our root path ie interface folder
                 if (strpos($realPath, $GLOBALS['fileroot'] . '/interface/modules/') === 0 && file_exists($realPath)) {
                     return $scriptSrc;

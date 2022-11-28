@@ -14,7 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/registry.inc");
+require_once($GLOBALS['fileroot'] . "/library/registry.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -121,7 +121,7 @@ class C_Prescription extends Controller
 
         // If quantity to dispense is not already set from a POST, set its
         // default value.
-        if (! $this->get_template_vars('DISP_QUANTITY')) {
+        if (! $this->getTemplateVars('DISP_QUANTITY')) {
             $this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
         }
 

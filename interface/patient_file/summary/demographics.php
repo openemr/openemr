@@ -22,11 +22,11 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
-require_once("$srcdir/group.inc");
+require_once("$srcdir/group.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
@@ -52,7 +52,7 @@ $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
-    require_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc.php");
     setpid($_GET['set_pid']);
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];
@@ -140,55 +140,104 @@ function pic_array($pid, $picture_directory)
     return ($pics);
 }
 
-// Get the document ID of the first document in a specific catg.
-function get_document_by_catg($pid, $doc_catg)
+// Get the document ID's in a specific catg.
+// this is only used in one place, here for id photos
+function get_document_by_catg($pid, $doc_catg, $limit = 1)
 {
-    $result = array();
+    $results = null;
 
     if ($pid and $doc_catg) {
-        $result = sqlQuery("SELECT d.id, d.date, d.url
+        $query = sqlStatement("SELECT d.id, d.date, d.url
             FROM documents AS d, categories_to_documents AS cd, categories AS c
             WHERE d.foreign_id = ?
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
+            ORDER BY d.date DESC LIMIT " . escape_limit($limit), array($pid, $doc_catg));
     }
-
-    return ($result['id'] ?? false);
+    while ($result = sqlFetchArray($query)) {
+        $results[] = $result['id'];
+    }
+    return ($results ?? false);
 }
 
-function portalAuthorized($pid)
+function isPortalEnabled(): bool
 {
-    if (!$GLOBALS['portal_onsite_two_enable'] && !$GLOBALS['portal_onsite_two_address']) {
+    if (
+        !$GLOBALS['portal_onsite_two_enable']
+    ) {
         return false;
     }
 
-    $return = [
-        'isAllowed' => false
-        ,'allowed' => [
-                'api' => false
-                ,'portal' => false
-        ],
-        'credentials' => [
-                'created' => false
-                ,'date' => null
-        ]
-    ];
+    return true;
+}
 
-    $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
-    $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
-    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps'] ?? '') != 'YES';
-    if ($return['allowed']['portal'] || $return['allowed']['api']) {
-        $return['isAllowed'] = true;
-        $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
-        if ($portalLogin) {
-            $return['credentials']['date'] = $portalLogin['date_created'];
-            $return['credentials']['created'] = true;
-        }
-        return $return;
+function isPortalSiteAddressValid(): bool
+{
+    if (
+        // maybe can use filter_var() someday but the default value in GLOBALS
+        // fails with FILTER_VALIDATE_URL
+        !isset($GLOBALS['portal_onsite_two_address'])
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+function isPortalAllowed($pid): bool
+{
+    $return = false;
+
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
+    if ($portalStatus['allow_patient_portal'] == 'YES') {
+        $return = true;
     }
     return $return;
+}
+
+function isApiAllowed($pid): bool
+{
+    $return = false;
+
+    $apiStatus = sqlQuery("SELECT prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
+    if (strtoupper($apiStatus['prevent_portal_apps'] ?? '') != 'YES') {
+        $return = true;
+    }
+    return $return;
+}
+
+function areCredentialsCreated($pid): bool
+{
+    $return = false;
+    $credentialsCreated = sqlQuery("SELECT date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
+    if ($credentialsCreated['date_created'] ?? null) {
+        $return = true;
+    }
+
+    return $return;
+}
+
+function isContactEmail($pid): bool
+{
+    $return = false;
+
+    $email = sqlQuery("SELECT email, email_direct FROM patient_data WHERE pid = ?", [$pid]);
+    if (!empty($email['email']) || !empty($email['email_direct'])) {
+        $return = true;
+    }
+    return $return;
+}
+
+function isEnforceSigninEmailPortal(): bool
+{
+    if (
+        $GLOBALS['enforce_signin_email']
+    ) {
+        return true;
+    }
+
+    return false;
 }
 
 function deceasedDays($days_deceased)
@@ -234,16 +283,15 @@ function image_widget($doc_id, $doc_catg)
             " onclick='top.restoreSession();' class='image_modal'>" .
             " <img src = '$web_root" .
             "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
-            " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file) . "'>  </a> </td> <td class='align-middle'>" .
-            text($doc_catg) . '<br />&nbsp;' . text($image_file) .
-            "</td>";
+            " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file_name) . "'>  </a> </td> <td class='align-middle'>" .
+            text($doc_catg) . '<br />&nbsp;' . text($image_file_name) . "</td>";
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
             "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
             " onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" .
             xlt("View") . "</a> &nbsp;" .
-            text("$doc_catg - $image_file") .
+            text("$doc_catg - $image_file_name") .
             "</span> </td>";
     }
 
@@ -777,7 +825,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         // Update the User's visibility setting when the card header is clicked
         function cardTitleButtonClickListener() {
-            const buttons = document.querySelectorAll(".card-title button[data-toggle='collapse']");
+            const buttons = document.querySelectorAll(".card-title a[data-toggle='collapse']");
             buttons.forEach((b) => {
                 b.addEventListener("click", (e) => {
                     updateUserVisibilitySetting(e);
@@ -948,7 +996,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
         if ($GLOBALS['patient_id_category_name']) {
-            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
+            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name'], 3);
         }
         ?>
         <div class="main mb-5">
@@ -1325,9 +1373,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    if ($GLOBALS['portal_onsite_two_enable']) :
-                        $portalCard = new PortalCard($GLOBALS);
-                    endif;
+                    // it's important enough to always show it
+                    $portalCard = new PortalCard($GLOBALS);
 
                     $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('secondary'));
                     $sectionCards = $sectionRenderEvents->getCards();
@@ -1351,7 +1398,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'card' => $card,
                             'title' => $card->getTitle(),
-                            'id' => $card->getIdentifier(),
+                            'id' => $card->getIdentifier() . "_expand",
                             'auth' => $auth,
                             'linkMethod' => 'html',
                             'initiallyCollapsed' => !$card->isInitiallyCollapsed(),
@@ -1359,7 +1406,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => 'test',
+                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
@@ -1626,7 +1673,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         if ($resNotNull) {
                             // Show Recall if one exists
-                            $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?", [$pid]);
+                            $query = sqlStatement("SELECT * FROM `medex_recalls` WHERE `r_pid` = ?", [(int)$pid]);
                             $recallArr = [];
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);

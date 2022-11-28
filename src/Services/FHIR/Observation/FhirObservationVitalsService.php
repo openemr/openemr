@@ -421,7 +421,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $observation->setMeta($meta);
 
         $id = new FHIRId();
@@ -429,7 +429,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $observation->setId($id);
 
         if (!empty($dataRecord['date'])) {
-            $observation->setEffectiveDateTime(gmdate('c', strtotime($dataRecord['date'])));
+            $observation->setEffectiveDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date']));
         } else {
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }

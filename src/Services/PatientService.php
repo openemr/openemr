@@ -151,10 +151,7 @@ class PatientService extends BaseService
         $sql = " INSERT INTO patient_data SET ";
         $sql .= $query['set'];
 
-        $results = sqlInsert(
-            $sql,
-            $query['bind']
-        );
+        $results = sqlInsert($sql, $query['bind']);
         $data['id'] = $results;
 
         // Tell subscribers that a new patient has been created
@@ -603,6 +600,11 @@ class PatientService extends BaseService
     public function getUuid($pid)
     {
         return self::getUuidById($pid, self::TABLE_NAME, 'pid');
+    }
+
+    public function getPidByUuid($uuid)
+    {
+        return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
     }
 
     private function saveCareTeamHistory($patientData, $oldProviders, $oldFacilities)

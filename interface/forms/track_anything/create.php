@@ -11,8 +11,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
@@ -132,11 +132,11 @@ if ($create_track) {
 // user clicked some buttons...
 $the_item = isset($_POST['typeid']) ? trim($_POST['typeid']) : '';
 if ($the_item) {
-    $add        = $_POST['add'];
-    $edit       = $_POST['edit'];
-    $delete     = $_POST['delete'];
-    $deactivate = $_POST['deact'];
-    $activate   = $_POST['act'];
+    $add        = $_POST['add'] ?? null;
+    $edit       = $_POST['edit'] ?? null;
+    $delete     = $_POST['delete'] ?? null;
+    $deactivate = $_POST['deact'] ?? null;
+    $activate   = $_POST['act'] ?? null;
 
     // add a new item to track
     //------------------------

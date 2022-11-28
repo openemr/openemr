@@ -14,7 +14,7 @@
  */
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Acl\AclExtended;
@@ -30,7 +30,7 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 $facilityService = new FacilityService();
 
 if ($GLOBALS['enable_group_therapy']) {
-    require_once("$srcdir/group.inc");
+    require_once("$srcdir/group.inc.php");
 }
 
 $months = array("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
@@ -497,6 +497,15 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                         echo "</option>\n";
                                     }
                                     ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['hide_billing_widget'] != 1) ?: 'd-none';?>">
+                            <div class="form-group">
+                                <label for='in_collection' class="text-right"><?php echo xlt('In Collection'); ?>:</label>
+                                <select class='form-control' name='in_collection' id='in_collection'>
+                                    <option value="1" <?php echo (($result["in_collection"] ?? null) == 1) ? "selected" : ""; ?>><?php echo xlt('Yes'); ?></option>
+                                    <option value="0" <?php echo (($result["in_collection"] ?? null) == 0) ? "selected" : ""; ?>><?php echo xlt('No'); ?></option>
                                 </select>
                             </div>
                         </div>

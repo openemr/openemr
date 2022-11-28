@@ -29,7 +29,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 /* for $GLOBALS[], ?? */
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/api.inc');
+require_once($GLOBALS['srcdir'].'/api.inc.php');
 /* for display_layout_rows(), ?? */
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 

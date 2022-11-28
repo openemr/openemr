@@ -13,9 +13,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/encounter.inc");
-require_once("$srcdir/group.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/encounter.inc.php");
+require_once("$srcdir/group.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/amc.php");
 require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -511,7 +511,7 @@ function findPosY(obj) {
 <body>
 <nav>
 <?php //DYNAMIC FORM RETREIVAL
-include_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 
 $reg = getFormsByCategory();
 $old_category = '';
@@ -794,7 +794,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
     <?php
     $doc = new C_Document();
     foreach ($docs_list as $doc_iter) {
-        $doc_url = $doc->_tpl_vars['CURRENT_ACTION'] . "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
+        $doc_url = $doc->getTemplateVars('CURRENT_ACTION') . "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
         // Get notes for this document.
         $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";

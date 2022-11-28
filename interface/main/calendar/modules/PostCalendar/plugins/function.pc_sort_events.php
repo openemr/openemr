@@ -30,17 +30,17 @@ function smarty_function_pc_sort_events($params, &$smarty)
     extract($params);
 
     if (empty($var)) {
-        $smarty->trigger_error("sort_array: missing 'var' parameter");
+        trigger_error("sort_array: missing 'var' parameter", E_USER_WARNING);
         return;
     }
 
     if (!in_array('value', array_keys($params))) {
-        $smarty->trigger_error("sort_array: missing 'value' parameter");
+        trigger_error("sort_array: missing 'value' parameter", E_USER_WARNING);
         return;
     }
 
     if (!in_array('sort', array_keys($params))) {
-        $smarty->trigger_error("sort_array: missing 'sort' parameter");
+        trigger_error("sort_array: missing 'sort' parameter", E_USER_WARNING);
         return;
     }
 

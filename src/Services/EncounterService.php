@@ -29,8 +29,8 @@ use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 
-require_once dirname(__FILE__) . "/../../library/forms.inc";
-require_once dirname(__FILE__) . "/../../library/encounter.inc";
+require_once dirname(__FILE__) . "/../../library/forms.inc.php";
+require_once dirname(__FILE__) . "/../../library/encounter.inc.php";
 
 class EncounterService extends BaseService
 {
@@ -208,7 +208,7 @@ class EncounterService extends BaseService
                        fa.billing_facility_uuid,
                        fa.billing_facility_name,
                        fa.billing_location_uuid,
-                
+
                        fe.provider_id,
                        fe.referring_provider_id,
                        providers.provider_uuid,
@@ -217,7 +217,7 @@ class EncounterService extends BaseService
                        referrers.referrer_username,
                        fe.discharge_disposition,
                        discharge_list.discharge_disposition_text
-                       
+
 
                        FROM (
                            select
@@ -257,7 +257,7 @@ class EncounterService extends BaseService
                                 ,facility.`name` AS billing_facility_name
                                 ,locations.uuid AS billing_location_uuid
                            from facility
-                           LEFT JOIN uuid_mapping AS locations 
+                           LEFT JOIN uuid_mapping AS locations
                                ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) fa ON fa.billing_facility_id = fe.billing_facility
                        LEFT JOIN (
@@ -291,7 +291,7 @@ class EncounterService extends BaseService
                                 ,facility.`name` AS facility_name
                                 ,`locations`.`uuid` AS facility_location_uuid
                            from facility
-                           LEFT JOIN uuid_mapping AS locations 
+                           LEFT JOIN uuid_mapping AS locations
                                ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) facilities ON facilities.facility_id = fe.facility_id
                        LEFT JOIN (

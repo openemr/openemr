@@ -4,6 +4,7 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitionerRole;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\PractitionerRoleService;
@@ -60,7 +61,9 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
     {
         $practitionerRoleResource = new FHIRPractitionerRole();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $practitionerRoleResource->setMeta($meta);
 
         $id = new FHIRId();

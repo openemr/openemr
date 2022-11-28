@@ -1,7 +1,7 @@
 <?php
 
 /**
- * QueryUtils.php  Is a helper class for commonly used database functions.  Eventually everything in the sql.inc file
+ * QueryUtils.php  Is a helper class for commonly used database functions.  Eventually everything in the sql.inc.php file
  * could be migrated to this file or at least contained in this namespace.
  * @package openemr
  * @link      http://www.open-emr.org

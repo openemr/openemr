@@ -78,7 +78,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $immunizationResource->setMeta($meta);
 
         $id = new FHIRId();

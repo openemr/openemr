@@ -13,7 +13,7 @@ ini_set('max_execution_time', '0');
 $ignoreAuth = true; // no login required
 
 require_once('interface/globals.php');
-require_once('library/forms.inc');
+require_once('library/forms.inc.php');
 
 use OpenEMR\Core\Header;
 

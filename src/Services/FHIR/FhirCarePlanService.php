@@ -73,7 +73,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $carePlanResource->setMeta($fhirMeta);
 
         $fhirId = new FHIRId();

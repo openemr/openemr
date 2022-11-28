@@ -16,7 +16,7 @@
     <style>
         @media print {
             body {
-                font-size: 24pt !important;
+                font-size: 22pt !important;
             }
             .alert {
                 border: 0 !important;
@@ -40,6 +40,12 @@
             });
         {% endif %}
         // <?php } ?>
+        {% if extensionsJavascript is not empty %}
+            {% for file, data in extensionsJavascript %}
+                {# Extension writers can overload the patient/partials in their module and include their own data #}
+                {% include 'patient/partials/' ~ file ~ '.js.twig' with data %}
+            {% endfor %}
+        {% endif %}
     </script>
 </head>
 <body class="body_top">
@@ -82,6 +88,12 @@
         </div>
         {% endif %}
         <hr />
+        {% if extensionsFormFields is not empty %}
+            {% for file, data in extensionsFormFields %}
+                {# Extension writers can overload the patient/partials in their module and include their own data #}
+                {% include 'patient/partials/' ~ file ~ '.html.twig' with data %}
+            {% endfor %}
+        {% endif %}
         <input type="hidden" name="form_save" id="form_save" />
         <a href="#" class="btn btn-primary" onclick="return transmit()">{{ 'Save'|xlt }}</a>
         <input type="hidden" name="form_cancel" id="form_cancel" />

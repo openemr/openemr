@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Services\QuestionnaireService;
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
@@ -49,6 +50,44 @@ $none_message = xlt("Nothing to show for current actions.");
         const profiles = <?php echo js_escape($profile_list); ?>;
         let currentEdit = "";
         let editor;
+        let callBackCmd = null;
+
+        // a callback from dlgclose(fn) in render form
+        function doImportSubmit() {
+            // todo add message to user
+            top.restoreSession();
+            document.getElementById('form_upload').submit();
+            return false;
+        }
+
+        function resolveImport(mode = 'render_import') {
+            if (mode === 'render_import') {
+                const file = document.getElementById("fetch_files").files.item(0);
+                if (file.name.toLowerCase().indexOf('.json') === -1 && file.type !== 'application/json') {
+                    return false;
+                }
+            }
+            top.restoreSession();
+            callBack = '';
+            let url = './questionnaire_render.php?mode=' + encodeURIComponent(mode);
+            dlgopen(url, 'pop-questionnaire', 'modal-lg', 850, '', '', {
+                allowDrag: true,
+                allowResize: true,
+                sizeHeight: 'full',
+                resolvePromiseOn: 'close',
+            }).then(() => {
+                // set callBackCmd from iframe then eval here
+                // currently using callback from dlgclose();
+                return false;
+            });
+        }
+
+        let questionnaireViewCurrent = function (encounter, flag = '') {
+            currentEdit = encounter;
+            alertMsg(xl("New coming feature. View patient progress with the completion of the form with the ability to send a secure notification to patient."), 6000, 'success')
+            return false;
+        };
+
         let templateEdit = function (id, flag = '') {
             currentEdit = id;
             handleTemplate(id, 'get', '', flag);
@@ -89,9 +128,9 @@ $none_message = xlt("Nothing to show for current actions.");
                 function () {
                     let isProfile = this.dataset.send_profile;
                     if (isProfile == 'yes') {
-                    checked.push($(this).val());
-                }
-            });
+                        checked.push($(this).val());
+                    }
+                });
             console.log(checked)
             return checked;
         }
@@ -182,15 +221,10 @@ $none_message = xlt("Nothing to show for current actions.");
             if (mode == 'get') {
                 renderUrl += '&dialog=true';
                 dlgopen(renderUrl, 'pop-editor', 'modal-lg', 850, '', '', {
-                    /*buttons: [
-                        {text: <?php echo xlj('Save'); ?>, close: false, style: 'success btn-sm', click: templateSave},
-                    {text: <?php echo xlj('Dismiss'); ?>, style: 'danger btn-sm', close: true}
-                ],*/
                     resolvePromiseOn: 'show',
                     allowDrag: true,
                     allowResize: true,
-                    sizeHeight: 'full',
-                    //onClosed: 'reload'
+                    sizeHeight: 'full'
                 });
             }
             $.ajax({
@@ -236,7 +270,54 @@ $none_message = xlt("Nothing to show for current actions.");
             });
         }
 
+        function createBlankTemplate() {
+            top.restoreSession();
+            let name = prompt(xl('Enter a valid name for this new template.') + "\n" + xl("For example: Pain Assessment"));
+            if (name === null) {
+                return false;
+            }
+            if (name === "") {
+                alert(xl('A name must be entered. Try again.'));
+                createBlankTemplate();
+            }
+            $("#upload_name").val(name);
+            return true;
+        }
+
         $(function () {
+            let ourSelect = $('.select-questionnaire');
+            ourSelect.select2({
+                multiple: false,
+                placeholder: xl('Type to search Questionnaire Repository.'),
+                theme: 'bootstrap4',
+                dropdownAutoWidth: true,
+                width: 'resolve',
+                closeOnSelect: true,
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            });
+            $(document).on('select2:open', () => {
+                document.querySelector('.select2-search__field').focus();
+            });
+            ourSelect.on("change", function (e) {
+                let data = $('#select_item').select2('data');
+                if (data) {
+                    document.getElementById('upload_name').value = data[0].text;
+                }
+                $('#repository-submit').removeClass('d-none');
+            });
+
+            $("#repository-submit").on("click", function (e) {
+                top.restoreSession();
+                let data = $('#select_item').select2('data');
+                if (data) {
+                    document.getElementById('upload_name').value = data[0].text;
+                } else {
+                    alert(xl("Missing Template name."))
+                    return false;
+                }
+                return true;
+            });
+
             $('.select-dropdown').removeClass('d-none');
             $('.select-dropdown').select2({
                 multiple: true,
@@ -251,9 +332,18 @@ $none_message = xlt("Nothing to show for current actions.");
             $('#fetch_files').on('click touchstart', function () {
                 $(this).val('');
             });
+
             $('#fetch_files').change(function (e) {
+                const file = document.getElementById("fetch_files").files.item(0);
+                const fileName = file.name;
                 $('#upload_submit').removeClass('d-none');
-                $('#upload_submit_questionnaire').removeClass('d-none');
+                if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
+                    $('#upload_submit_questionnaire').removeClass('d-none');
+                    if (document.getElementById("upload_scope").checked) {
+                        resolveImport();
+                    }
+                }
+                return false;
             });
 
             $('input:checkbox[name=send]').change(function () {
@@ -323,7 +413,6 @@ $none_message = xlt("Nothing to show for current actions.");
                 selText += $(this).text() + '; ';
             });
             $('#upload_scope_category').empty().append(' ' + xl('For Category') + ': ' + selCat);
-            $("#upload_scope").empty().append(xl('To Repository Location') + ': ' + xl("Repository always."));
 
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();
@@ -407,7 +496,7 @@ $none_message = xlt("Nothing to show for current actions.");
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
                             </button>
-                            <button class='btn btn-sm btn-primary' onclick='return popProfileDialog()'><?php echo xlt('Profiles') ?></button>
+                            <button type='button' class='btn btn-primary' onclick='return popProfileDialog()'><?php echo xlt('Profiles') ?></button>
                             <button type='button' class='btn btn-primary' onclick='return popPatientDialog()'><?php echo xlt('Groups') ?></button>
                             <button type='button' class='btn btn-primary' onclick='return popGroupsDialog()'><?php echo xlt('Assign') ?></button>
                         </div>
@@ -422,38 +511,71 @@ $none_message = xlt("Nothing to show for current actions.");
             <!-- Upload -->
             <nav class="collapse my-2 <?php echo attr($_REQUEST['upload-nav-value'] ?? '') ?>" id="upload-nav">
                 <div class='col col-12'>
-                <?php if ($authUploadTemplates) { ?>
-                    <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                        <hr />
-                        <div class='col'>
-                            <div id='upload_scope_category'></div>
-                            <div class='mb-2' id='upload_scope'></div>
-                        </div>
-                        <div class='form-group col'>
-                            <div class='form-group'>
-                                <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
-                                <input type='file' class='btn btn-outline-info' id="fetch_files" name='template_files[]' multiple />
-                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit'><i class='fa fa-upload' aria-hidden='true' mr-1></i><?php echo xlt("Templates"); ?></button>
-                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit_questionnaire' id='upload_submit_questionnaire'><i class='fa fa-upload aria-hidden='true' mr-1'></i><?php echo xlt("Questionnaires Only"); ?></button>
+                    <?php if ($authUploadTemplates) { ?>
+                        <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
+                            <hr />
+                            <div class='col'>
+                                <div id='upload_scope_category'></div>
+                                <div class="input-group">
+                                    <label class="form-check"><?php echo xlt('If questionnaire import, use Questionnaire tool'); ?>
+                                    <input type="checkbox" class='form-check-inline ml-1' id='upload_scope' checked>
+                                </div>
                             </div>
-                        </div>
-                        <input type='hidden' name='upload_pid' value='<?php echo attr(json_encode([-1])); ?>' />
-                        <input type='hidden' name="template_category" value='<?php echo attr($category); ?>' />
-                    </form>
-                <?php } else { ?>
-                    <div class="alert alert-danger"><?php echo xlt("Not Authorized to Upload Templates") ?></div>
-                <?php } ?>
+                            <div class='form-group col'>
+                                <input type='file' class='btn btn-outline-info mr-1 mt-1' id="fetch_files" name='template_files[]' multiple />
+                                <div class="mt-1">
+                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
+                                    <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
+                                <button class='btn btn-outline-success d-none' type='button' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>" onclick="return resolveImport();">
+                                    <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
+                                <button type='button' id='render-nav-button' name='render-nav-button' class='btn btn-save btn-outline-primary' onclick="return resolveImport('render_import_manual');" title="<?php echo xla('Used to cut and paste Questionnaire or LHC Form json. Will then convert and import to questionnaire repository.') ?>"><?php echo xlt('Manual Questionnaire') ?></button>
+                                <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();" title="<?php echo xla('Use this to create a new empty template for use with built in editor.') ?>"><?php echo xlt('New Empty Template') ?></button></div>
+                            </div>
+                            <div class="mt-2">
+                                <div class="text-center m-0 p-0"><small class="my-1 font-weight-bolder font-italic"><?php echo xlt("Shows all existing Questionnaires available from repository. Select to automatically create template."); ?></small></div>
+                                <div class="input-group input-group-append">
+                                    <select class="select-questionnaire" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false" title="<?php echo xla('Items that are already an existing template will be overwritten if selected.') ?>">
+                                        <option value=""></option>
+                                        <?php
+                                        $qService = new QuestionnaireService();
+                                        $q_list = $qService->getQuestionnaireList(false);
+                                        $repository_item = $_POST['select_item'] ?? null;
+                                        foreach ($q_list as $item) {
+                                            $id = attr($item['id']);
+                                            if ($id == $repository_item) {
+                                                echo "<option selected value='$id'>" . text($item['name']) . "</option>";
+                                                continue;
+                                            }
+                                            echo "<option value='$id'>" . text($item['name']) . "</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <button type='submit' id='repository-submit' name='repository-submit' class='btn btn-save btn-success d-none' value="true"><?php echo xlt('Create') ?></button>
+                                </div>
+                            </div>
+                            <input type='hidden' name='upload_pid' value='<?php echo attr(json_encode([-1])); ?>' />
+                            <input type='hidden' name="template_category" value='<?php echo attr($category); ?>' />
+                            <input type='hidden' name='upload_name' id='upload_name' value='<?php echo attr(json_encode([-1])); ?>' />
+                            <input type="hidden" id="q_mode" name="q_mode" value="" />
+                            <input type="hidden" id="lform" name="lform" value="" />
+                            <input type="hidden" id="questionnaire" name="questionnaire" value="" />
+                        </form>
+                    <?php } else { ?>
+                        <div class="alert alert-danger"><?php echo xlt("Not Authorized to Upload Templates") ?></div>
+                    <?php } ?>
                 </div>
             </nav>
             <hr />
             <!-- Repository -->
             <div class='row'>
                 <div class='col col-12'>
-                    <div class="h5"><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xlt('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
+                    <div class="h5"><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
                         <span>
                         <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-toggle='collapse' data-target='#upload-nav'>
-                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?>
-                    </button></span></div>
+                            <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
+                        </span>
+                    </div>
                 </div>
                 <!-- Repository table -->
                 <div class='col col-12 table-responsive <?php echo attr($_REQUEST['repository_send_state'] ?? 'collapse') ?>' id="repository-collapse">
@@ -597,7 +719,7 @@ $none_message = xlt("Nothing to show for current actions.");
             <hr />
             <div class='row'>
                 <div class='col col-12' data-toggle='collapse' data-target='#template-collapse'>
-                    <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xlt('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('Default Patient Templates') . '' ?></h5>
+                    <h5><i class='fa fa-eye mr-1' role='button' title="<?php echo xla('Click to expand or collapse All active patient templates panel.'); ?>"></i><?php echo '' . xlt('Default Patient Templates') . '' ?></h5>
                 </div>
                 <div class='col col-12 table-responsive <?php echo attr(($_REQUEST['all_state'] ?? '') ?: 'collapse') ?>' id='template-collapse'>
                     <?php
@@ -704,9 +826,9 @@ $none_message = xlt("Nothing to show for current actions.");
                             }
                             foreach ($files as $file) {
                                 $template_id = $file['id'];
-                                $audit_status = array (
+                                $audit_status = array(
                                     'pid' => '',
-                                    'create_date' => ($file['profile_date'] ?: $file['modified_date']) ?? '',
+                                    'create_date' => (($file['profile_date'] ?? null) ?: $file['modified_date']) ?? '',
                                     'doc_type' => '',
                                     'patient_signed_time' => '',
                                     'authorize_signed_time' => '',
@@ -728,12 +850,12 @@ $none_message = xlt("Nothing to show for current actions.");
                                         $audit_status['denial_reason'] = xl('Scheduled');
                                     }
                                     $next_due = date('m/d/Y', $next_due);
-                                } elseif ($next_due === 1 || ($next_due === true && $file['recurring'] ?? 0)) {
+                                } elseif ($next_due === 1 || ($next_due === true && ($file['recurring'] ?? 0))) {
                                     $audit_status['denial_reason'] = xl('Recurring');
-                                    $next_due =  xl('Active');
+                                    $next_due = xl('Active');
                                 } elseif ($next_due === 0) {
                                     $audit_status['denial_reason'] = xl('Completed');
-                                    $next_due =  xl('Inactive');
+                                    $next_due = xl('Inactive');
                                 } elseif ($next_due === true && empty($file['recurring'] ?? 0)) {
                                     $next_due = xl('Active');
                                 }
@@ -742,8 +864,13 @@ $none_message = xlt("Nothing to show for current actions.");
                                 echo '<td>' . text($profile_list[$file['profile']]['title'] ?? '') . '</td>';
                                 echo '<td>' .
                                     '<button type="button" id="patientEdit' . attr($template_id) .
-                                    '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')">' .
+                                    '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" title="' . xla("Click to edit in editor.") . '">' .
                                     text($file['template_name']) . "</button>\n";
+                                if ($authUploadTemplates && $cat == 'questionnaire' && !empty($audit_status['encounter'])) {
+                                    echo '<button type="button" id="patientView' . attr($template_id) .
+                                        '" class="btn btn-sm btn-outline-success" onclick="questionnaireViewCurrent(' . attr_js($audit_status['encounter']) . ')">' .
+                                        xlt("View") . "</button>\n";
+                                }
                                 if ($authUploadTemplates && empty($file['member_of']) && !empty($file['status'])) {
                                     echo '<button type="button" id="patientDelete' . attr($template_id) .
                                         '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button></td>\n";
@@ -754,8 +881,8 @@ $none_message = xlt("Nothing to show for current actions.");
                                 echo "</tr>\n";
                             }
                         }
-                            echo "</tbody>\n";
-                            echo "</table></td>\n";
+                        echo "</tbody>\n";
+                        echo "</table></td>\n";
                     }
                     if (empty($templates)) {
                         echo '<tr><td>' . xlt('Multi Select Patients or All Patients using toolbar Location') . "</td></tr>\n";

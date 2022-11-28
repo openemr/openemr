@@ -14,6 +14,7 @@
 
 // script is brought in as require_once in index.php when applicable
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 
 if ($portalRegistrationAuthorization !== true) {

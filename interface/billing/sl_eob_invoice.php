@@ -20,10 +20,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
@@ -69,10 +69,10 @@ function bucks($amount)
             return true;
         }
 
-        function goEncounterSummary(pid) {
+        function goEncounterSummary(e, pid) {
             if(pid) {
                 if(typeof opener.toEncSummary  === 'function') {
-                    opener.toEncSummary(pid);
+                    opener.toEncSummary(e, pid);
                 }
             }
             doClose();
@@ -295,7 +295,7 @@ if (preg_match('/^Ins(\d)/i', ($_POST['form_insurance'] ?? ''), $matches)) {
     $payer_type = $matches[1];
 }
 
-if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POST['isLastClosed'])) {
+if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POST['isLastClosed']) || !empty($_POST['billing_note'])) {
     if (!empty($_POST['form_save'])) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
@@ -426,7 +426,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
     if (!$debug && !$save_stay && !$_POST['isLastClosed']) {
         echo "doClose();\n";
     }
-    if (!$debug && ($save_stay || $_POST['isLastClosed'])) {
+    if (!$debug && ($save_stay || $_POST['isLastClosed'] || $_POST['billing_note'])) {
         if ($_POST['isLastClosed']) {
             // save last closed level
             $form_done = 0 + $_POST['form_done'];
@@ -438,6 +438,12 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
                 SLEOB::arSetupSecondary($patient_id, $encounter_id, $debug);
             }
         }
+
+        if ($_POST['billing_note']) {
+            // save last closed level
+            sqlStatement("UPDATE form_encounter SET billing_note = ? WHERE pid = ? AND encounter = ?", array($_POST['billing_note'], $patient_id, $encounter_id));
+        }
+
         // will reload page w/o reposting
         echo "location.replace(location)\n";
     }
@@ -513,7 +519,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                 <div class="form-row">
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="billing_note"><?php echo xlt('Billing Note'); ?>:</label>
-                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2" readonly><?php echo text(($pdrow['billing_note'] ?? '')) . "\n" . text(($bnrow['billing_note'] ?? '')); ?></textarea>
+                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2"><?php echo text(($pdrow['billing_note'] ?? '')) . "\n" . text(($bnrow['billing_note'] ?? '')); ?></textarea>
                     </div>
                 </div>
                 <div class="form-row">
@@ -767,7 +773,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     </div>
                     <?php if ($from_posting) { ?>
                         <button type='button' class="btn btn-secondary btn-view float-right" name='form_goto' id="btn-goto"
-                            onclick="goEncounterSummary(<?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
+                            onclick="goEncounterSummary(event, <?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>
                 </div>
             </div>

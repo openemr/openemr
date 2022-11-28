@@ -445,6 +445,13 @@ $GLOBALS_METADATA = array(
             xl('Special treatment for the Vitals form')
         ),
 
+        'gbl_vitals_max_history_cols' => array(
+            xl('Vitals Form Max Historical Columns To Display'),
+            'num',
+            '2',                              // default
+            xl('The number of historical vital columns to display on medium to large screen displays')
+        ),
+
         'gb_how_sort_list' => array(
             xl('How to sort a drop-lists'),
             array(
@@ -965,10 +972,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'drive_encryption' => array(
-            xl('Enable Encryption of Items Stored on Drive'),
+            xl('Enable Encryption of Items Stored on Drive (Strongly recommend keeping this on)'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable encryption of items that are stored on the drive.')
+            xl('This will enable encryption of items that are stored on the drive. Strongly recommend keeping this setting on for security purposes.')
         ),
 
         'couchdb_encryption' => array(
@@ -3538,6 +3545,13 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             '',
             xl('USPS Web Tools API Username')
+        ),
+
+        'ccda_validation_disable' => array(
+            xl('Disable All import CDA Validation Reporting'),
+            'bool',                           // data type
+            '0',
+            xl('Disable All CDA conformance and validation services to improve import performance')
         ),
 
         'mdht_conformance_server_enable' => array(

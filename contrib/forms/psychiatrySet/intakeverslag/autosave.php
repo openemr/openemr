@@ -9,20 +9,20 @@
 
 //local includes
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 //echo "intakedatum=".$_POST["intakedatum"];
 //var_dump($_POST);
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save
-$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_intakeverslag 
+$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_intakeverslag
                             WHERE pid = ?
                             AND groupname= ?
                             AND user= ? AND
                             authorized= ? AND activity=1
-                            AND autosave_flag=1 
+                            AND autosave_flag=1
                             ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized ));
 
 // if yes then update this else insert
@@ -33,11 +33,11 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
         $newid = $vectAutosave['id'];
     }
 
-    sqlQuery("UPDATE form_intakeverslag 
-                SET pid = ?, groupname= ?, user= ?, 
-                authorized=, activity=1, date = NOW(), 
+    sqlQuery("UPDATE form_intakeverslag
+                SET pid = ?, groupname= ?, user= ?,
+                authorized=, activity=1, date = NOW(),
                 intakedatum=?,
-                reden_van_aanmelding=?, 
+                reden_van_aanmelding=?,
                 klachten_probleemgebieden=?,
                 hulpverlening_onderzoek=?,
                 hulpvraag_en_doelen=?,
@@ -53,8 +53,8 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
                 indruk_observaties=?,
                 beschrijvende_conclusie=?,
                 behandelvoorstel=?,
-                autosave_flag=1, 
-                autosave_datetime=NOW() 
+                autosave_flag=1,
+                autosave_datetime=NOW()
                   WHERE id = ?;", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["intakedatum"], $_POST["reden_van_aanmelding"], $_POST["klachten_probleemgebieden"],
                   $_POST["hulpverlening_onderzoek"], $_POST["hulpvraag_en_doelen"], $_POST["bijzonderheden_systeem"], $_POST["werk_opleiding_vrije_tijdsbesteding"], $_POST["relatie_kinderen"], $_POST["somatische_context"],
                   $_POST["alcohol"], $_POST["drugs"], $_POST["roken"], $_POST["medicatie"], $_POST["familieanamnese"], $_POST["indruk_observaties"], $_POST["beschrijvende_conclusie"], $_POST["behandelvoorstel"],
@@ -70,12 +70,12 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
 
 
 //get timestamp
-$result = sqlQuery("SELECT autosave_datetime FROM form_intakeverslag 
+$result = sqlQuery("SELECT autosave_datetime FROM form_intakeverslag
                             WHERE pid = ?
                             AND groupname = ?
                             AND user= ? AND
                             authorized= ? AND activity=1 AND id= ?
-                            AND autosave_flag=1 
+                            AND autosave_flag=1
                             ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $newid ));
 //$timestamp = mysql_result($result, 0);
 

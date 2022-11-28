@@ -16,6 +16,7 @@
 namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\OeUI\OemrUI;
@@ -25,6 +26,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use Twig\TwigTest;
 
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
@@ -54,6 +56,15 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             'rootdir' => $this->globals['rootdir'],
             'webroot' => $this->globals['webroot'],
             'assetVersion' => $this->globals['v_js_includes'],
+        ];
+    }
+
+    public function getTests(): array
+    {
+        return [
+            // can be used like {% if is numeric %}...{% endif %}
+            new TwigTest('numeric', function ($value) {
+                return is_numeric($value); })
         ];
     }
 
@@ -207,6 +218,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             new TwigFilter(
+                'javascriptStringRemove',
+                function ($string) {
+                    return javascriptStringRemove($string);
+                }
+            ),
+            new TwigFilter(
                 'xl',
                 function ($string) {
                     return xl($string);
@@ -259,6 +276,20 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'xlFormTitle',
                 function ($string) {
                     return xl_form_title($string);
+                }
+            ),
+            // we have some weirdness if we have a date string in the format of YmdHi, it blows things up so we have
+            // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
+            new TwigFilter(
+                'dateToTime',
+                function ($str) {
+                    return strtotime($str);
+                }
+            ),
+            new TwigFilter(
+                'addCacheParam',
+                function ($path) {
+                    return CacheUtils::addAssetCacheParamToPath($path);
                 }
             )
         ];

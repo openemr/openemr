@@ -11,7 +11,7 @@
  */
 
 require_once("../../../interface/globals.php");
-require_once("../../../library/pnotes.inc");
+require_once("../../../library/pnotes.inc.php");
 require_once("./Utils.php");
 
 use OpenEMR\Common\Acl\AclMain;

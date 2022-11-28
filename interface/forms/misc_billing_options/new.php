@@ -21,10 +21,10 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/user.inc");
-require_once("$srcdir/pid.inc");
-require_once("$srcdir/encounter.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/user.inc.php");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -272,20 +272,20 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                         echo "checked";
                                     } ?> />
                                 <label class="btn btn-secondary" for="replacement_claim"><?php echo xlt('X12 only: Replacement Claim'); ?>:</label>
-    
+
                                 <input type="radio" class="btn-check" name="replacement_claim" id="void_claim" autocomplete="Off" value="2"
                                     <?php
                                     if (!empty($obj['replacement_claim']) && ($obj['replacement_claim'] == "2")) {
                                         echo "checked";
-                                    } ?> />    
-                                <label class="btn btn-secondary" for="void_claim"><?php echo xlt('Void Claim'); ?>:</label>    
+                                    } ?> />
+                                <label class="btn btn-secondary" for="void_claim"><?php echo xlt('Void Claim'); ?>:</label>
 
                                 <input type="radio" class="btn-check" name="replacement_claim" id="new_claim" autocomplete="Off" value="0"
                                     <?php
                                     if (empty($obj['replacement_claim'])) {
                                         echo "checked";
-                                    } ?> />    
-                                <label class="btn btn-secondary" for="new_claim"><?php echo xlt('New Claim'); ?>:</label>    
+                                    } ?> />
+                                <label class="btn btn-secondary" for="new_claim"><?php echo xlt('New Claim'); ?>:</label>
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('X12 only ICN resubmission No.'); ?>:</label>

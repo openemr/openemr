@@ -35,7 +35,7 @@
 function smarty_function_xlt($params, &$smarty)
 {
     if (empty($params['t'])) {
-        $smarty->trigger_error("xk: missing 't' parameter");
+        trigger_error("xlt: missing 't' parameter", E_USER_WARNING);
         return;
     } else {
         $translate = $params['t'];

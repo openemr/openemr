@@ -6,14 +6,13 @@
     {headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
 
     <script>
-        {literal}
+
         $(function () {
             $('.sidebar-expand button').on('click', function () {
                 $(this).toggleClass("flip-y");
                 $('.nav-sidebar, .main-full').toggleClass("active");
             });
         });
-        {/literal}
     </script>
 </head>
 <body class="body-topnav">
@@ -55,12 +54,11 @@
   </div>
 </body>
 <script>
-    {literal}
+
     $(document).ready(function(){
         $('#pharmacies').dataTable({
 
         });
     });
-    {/literal}
 </script>
 </html>

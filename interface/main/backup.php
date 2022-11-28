@@ -34,7 +34,7 @@
 set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/layout.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -116,8 +116,8 @@ $TMP_BASE = $GLOBALS['temporary_files_dir'] . "/openemr_web_backup";
 $BACKUP_DIR = $TMP_BASE . "/emr_backup";
 $TAR_FILE_PATH = $TMP_BASE . DIRECTORY_SEPARATOR . $backup_file_prefix . $backup_file_suffix;
 $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
-$MYSQL_PATH = $GLOBALS['mysql_bin_dir'];
-$PERL_PATH = $GLOBALS['perl_bin_dir'];
+$MYSQL_PATH = realpath($GLOBALS['mysql_bin_dir']);
+$PERL_PATH = realpath($GLOBALS['perl_bin_dir']);
 
 if ($form_step == 6) {
     header("Pragma: public");

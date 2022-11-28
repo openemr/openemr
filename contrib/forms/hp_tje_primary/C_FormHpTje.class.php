@@ -1,6 +1,6 @@
 <?php
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormHpTjePrimary.class.php");
 
 class C_FormHpTje extends Controller
@@ -45,15 +45,15 @@ class C_FormHpTje extends Controller
             return;
         }
 
-        $this->hptje_primary = new FormHpTjePrimary($_POST['id']);
-        parent::populate_object($this->hptje_primary);
+        $this->form = new FormHpTjePrimary($_POST['id']);
+        parent::populate_object($this->form);
 
-        $this->hptje_primary->persist();
+        $this->form->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
 
-        addForm($GLOBALS['encounter'], "Head Pain TJE", $this->hptje_primary->id, "hp_tje_primary", $GLOBALS['pid'], $_SESSION['userauthorized']);
+        addForm($GLOBALS['encounter'], "Head Pain TJE", $this->form->id, "hp_tje_primary", $GLOBALS['pid'], $_SESSION['userauthorized']);
         $_POST['process'] = "";
         return;
     }

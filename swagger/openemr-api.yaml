@@ -4360,7 +4360,7 @@ paths:
                   subject: { reference: Patient/946da619-c631-431a-a282-487cd6fb7802, type: Patient }
                   date: '2021-09-19T03:15:56+00:00'
                   author: [null]
-                  content: [{ attachment: { contentType: image/gif, url: 'https://localhost:9300/apis/default/fhir/Document/7/Binary' }, format: { system: 'http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem', code: 'urn:ihe:iti:xds:2017:mimeTypeSufficient', display: 'mimeType Sufficient' } }]
+                  content: [{ attachment: { contentType: image/gif, url: 'https://localhost:9300/apis/default/fhir/Binary/7' }, format: { system: 'http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem', code: 'urn:ihe:iti:xds:2017:mimeTypeSufficient', display: 'mimeType Sufficient' } }]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4370,7 +4370,7 @@ paths:
       security:
         -
           openemr_auth: []
-  '/fhir/Document/{id}/Binary':
+  '/fhir/Binary/{id}':
     get:
       tags:
         - fhir
@@ -6318,6 +6318,42 @@ paths:
       responses:
         '200':
           description: 'Return smart configuration of the fhir server'
+  /fhir/OperationDefinition:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of the OperationDefinition resources that are specific to this OpenEMR installation'
+      responses:
+        '200':
+          description: 'Return list of OperationDefinition resources'
+  '/fhir/OperationDefinition/{operation}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single OperationDefinition resource that is specific to this OpenEMR installation'
+      parameters:
+        -
+          name: operation
+          in: path
+          description: 'The name of the operation to query. For example $bulkdata-status'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  resourceType: OperationDefinition
+                  name: $bulkdata-status
+                  status: active
+                  kind: operation
+                  parameter: [{ name: job, use: in, min: 1, max: 1, type: { system: 'http://hl7.org/fhir/data-types', code: string, display: string }, searchType: { system: 'http://hl7.org/fhir/ValueSet/search-param-type', code: string, display: string } }]
   /fhir/$export:
     get:
       tags:
@@ -7409,13 +7445,13 @@ components:
             'api:fhir': 'FHIR R4 API'
             patient/AllergyIntolerance.read: 'Read allergy intolerance resources for the current patient (api:fhir)'
             patient/Appointment.read: 'Read appointment resources for the current patient (api:fhir)'
+            patient/Binary.read: 'Read binary document resources for the current patient (api:fhir)'
             patient/CarePlan.read: 'Read care plan resources for the current patient (api:fhir)'
             patient/CareTeam.read: 'Read care team resources for the current patient (api:fhir)'
             patient/Condition.read: 'Read condition resources for the current patient (api:fhir)'
             patient/Coverage.read: 'Read coverage resources for the current patient (api:fhir)'
             patient/Device.read: 'Read device resources for the current patient (api:fhir)'
             patient/DiagnosticReport.read: 'Read diagnostic report resources for the current patient (api:fhir)'
-            patient/Document.read: 'Read document resources for the current patient (api:fhir)'
             patient/DocumentReference.read: 'Read document reference resources for the current patient (api:fhir)'
             patient/DocumentReference.$docref: 'Generate a document for the current patient or returns the most current Clinical Summary of Care Document (CCD)'
             patient/Encounter.read: 'Read encounter resources for the current patient (api:fhir)'
@@ -7432,13 +7468,13 @@ components:
             patient/Procedure.read: 'Read procedure resources for the current patient (api:fhir)'
             patient/Provenance.read: 'Read provenance resources for the current patient (api:fhir)'
             system/AllergyIntolerance.read: 'Read all allergy intolerance resources in the system (api:fhir)'
+            system/Binary.read: 'Read all binary document resources in the system (api:fhir)'
             system/CarePlan.read: 'Read all care plan resources in the system (api:fhir)'
             system/CareTeam.read: 'Read all care team resources in the system (api:fhir)'
             system/Condition.read: 'Read all condition resources in the system (api:fhir)'
             system/Coverage.read: 'Read all coverage resources in the system (api:fhir)'
             system/Device.read: 'Read all device resources in the system (api:fhir)'
             system/DiagnosticReport.read: 'Read all diagnostic report resources in the system (api:fhir)'
-            system/Document.read: 'Read all document resources in the system (api:fhir)'
             system/DocumentReference.read: 'Read all document reference resources in the system (api:fhir)'
             system/DocumentReference.$docref: 'Generate a document for any patient in the system or returns the most current Clinical Summary of Care Document (CCD)'
             system/Encounter.read: 'Read all encounter resources in the system (api:fhir)'
@@ -7457,13 +7493,13 @@ components:
             system/Procedure.read: 'Read all procedure resources in the system (api:fhir)'
             system/Provenance.read: 'Read all provenance resources in the system (api:fhir)'
             user/AllergyIntolerance.read: 'Read all allergy intolerance resources the user has access to (api:fhir)'
+            user/Binary.read: 'Read all binary documents the user has access to (api:fhir)'
             user/CarePlan.read: 'Read all care plan resources the user has access to (api:fhir)'
             user/CareTeam.read: 'Read all care team resources the user has access to (api:fhir)'
             user/Condition.read: 'Read all condition resources the user has access to (api:fhir)'
             user/Coverage.read: 'Read all coverage resources the user has access to (api:fhir)'
             user/Device.read: 'Read all device resources the user has access to (api:fhir)'
             user/DiagnosticReport.read: 'Read all diagnostic report resources the user has access to (api:fhir)'
-            user/Document.read: 'Read all documents the user has access to (api:fhir)'
             user/DocumentReference.read: 'Read all document reference resources the user has access to (api:fhir)'
             user/DocumentReference.$docref: 'Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)'
             user/Encounter.read: 'Read all encounter resources the user has access to (api:fhir)'

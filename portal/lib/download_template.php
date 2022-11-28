@@ -4,7 +4,7 @@
  * Document Template Download Module.
  *
  * Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -64,6 +64,11 @@ $html_flag = false;
 // Flags to ignore new lines
 
 // Check if the current location has the specified {string}.
+/**
+ * @param $s
+ * @param $key
+ * @return bool
+ */
 function keySearch(&$s, $key)
 {
     global $keyLocation, $keyLength;
@@ -77,6 +82,11 @@ function keySearch(&$s, $key)
 
 // Replace the {string} at the current location with the specified data.
 // Also update the location to resume scanning accordingly.
+/**
+ * @param $s
+ * @param $data
+ * @return string
+ */
 function keyReplace(&$s, $data)
 {
     global $keyLocation, $keyLength, $nextLocation;
@@ -85,6 +95,11 @@ function keyReplace(&$s, $data)
 }
 
 // Do some final processing of field data before it's put into the document.
+/**
+ * @param $data
+ * @param $title
+ * @return array|string|string[]
+ */
 function dataFixup($data, $title = '')
 {
     global $groupLevel, $groupCount, $itemSeparator;
@@ -102,7 +117,6 @@ function dataFixup($data, $title = '')
             if ($groupCount) {
                 $data = $itemSeparator . $data;
             }
-
             ++$groupCount;
         }
     }
@@ -111,6 +125,10 @@ function dataFixup($data, $title = '')
 }
 
 // Return a string naming all issues for the specified patient and issue type.
+/**
+ * @param $type
+ * @return string
+ */
 function getIssues($type)
 {
     // global $itemSeparator;
@@ -134,6 +152,10 @@ function getIssues($type)
 }
 
 // Top level function for scanning and replacement of a file's contents.
+/**
+ * @param $s
+ * @return mixed|string
+ */
 function doSubs($s)
 {
     global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
@@ -168,18 +190,18 @@ function doSubs($s)
         } elseif (preg_match('/^{(Questionnaire):(.*)}/', substr($s, $keyLocation), $matches)) {
             $q_id = $matches[2];
             $keyLength = strlen($matches[0]);
-            $src = './../questionnaire_template.php?isPortal=1&qId=' . urlencode($q_id);
-            $sigfld = "<script>page.isQuestionnaire=1;page.questionnaireName=" . js_escape($q_id) . "</script>";
-            $sigfld .= "<iframe id='questionnaire' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
+            $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src=''></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr($s, $keyLocation), $matches)) {
+            // deprecated 09/23/2022 Unsure this directive is useful!
             $q_url = $matches[3];
             $form_id = $matches[4];
             $form_name = $matches[2];
             $keyLength = strlen($matches[0]);
             $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
-            $sigfld = "<script>page.isQuestionnaire=1;page.questionnaireName=" . js_escape($q_id) . "</script>";
-            $sigfld .= "<iframe id='questionnaire' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
+            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
+            $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
             global $templateService;
@@ -208,8 +230,8 @@ function doSubs($s)
         } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[2];
             $keyLength = strlen($matches[0]);
-            $sigfld = "<script>page.isFrameForm=1;page.lbfFormName=" . js_escape($formname) . "</script>";
-            $sigfld .= "<iframe id='lbfForm' class='lbfFrame' style='height:100vh;width:100%;border:0;'></iframe>";
+            $sigfld = "<script>page.isFrameForm=1;page.encounterFormName=" . js_escape($formname) . "</script>";
+            $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;'></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^\{(TextBox):([0-9][0-9])x([0-9][0-9][0-9])\}/', substr($s, $keyLocation), $matches)) {
             $rows = $matches[2];
