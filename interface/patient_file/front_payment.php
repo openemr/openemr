@@ -798,7 +798,7 @@ $(function() {
         $("#paymentAmount").val(total);
     });
 });
-    <?php include $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
         dlgclose();
