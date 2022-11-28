@@ -435,8 +435,14 @@ function popup_close() {
                     echo "let message = " . js_escape($info_msg) . ";
                     (async (message, time) => {
                     await asyncAlertMsg(message, time, 'success', 'lg');
-                    })(message, 5000)
-                    .then(res => {});";
+                    })(message, 2000)
+                    .then(res => {";
+                    // auto close on msg timeout with just enough time to show success or errors.
+                    if ($GLOBALS['sql_string_no_show_screen']) {
+                        echo "dlgclose();";
+                    }
+                    echo "});"; // close function.
+                    // any close will call below.
                     echo " opener.dlgSetCallBack('imdeleted', false);\n";
                 } else {
                     echo " dlgclose('imdeleted', false);\n";

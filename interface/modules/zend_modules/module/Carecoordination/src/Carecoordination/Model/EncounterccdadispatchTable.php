@@ -499,13 +499,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         if (!$details) {
             $providerId = $this->getProviderId($pid);
-            if (empty($providerId)) {
-                // at this point we really can't do anything as we can't provide an author piece
-                (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
-                return null;
+            if (!empty($providerId)) {
+                $details = $this->getDetails(intval($providerId));
             }
-            $details = $this->getDetails(intval($providerId));
+            if (!$details) {
+                $details = $this->getDetails('hie_primary_care_provider_id');
+            }
         }
+        if (!$details) {
+            // at this point we really can't do anything as we can't provide an author piece
+            (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
+            return null;
+        }
+
         return $details;
     }
 
