@@ -153,7 +153,8 @@ function calcTaxes($row, $amount)
 
         $trow = sqlQuery(
             "SELECT option_value FROM list_options WHERE " .
-            "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1", array($value)
+            "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1",
+            array($value)
         );
         if (empty($trow['option_value'])) {
             echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
@@ -178,7 +179,8 @@ $patdata = sqlQuery(
     "FROM patient_data AS p " .
     "LEFT OUTER JOIN insurance_data AS i ON " .
     "i.pid = p.pid AND i.type = 'primary' " .
-    "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid)
+    "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1",
+    array($pid)
 );
 
 $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
@@ -439,7 +441,8 @@ if (!empty($_POST['form_save']) || !empty($_REQUEST['receipt'])) {
         "MAX(user) AS user, " .
         "MAX(encounter) as encounter " .
         "FROM payments WHERE " .
-        "pid = ? AND dtime = ?", array($form_pid, $timestamp)
+        "pid = ? AND dtime = ?",
+        array($form_pid, $timestamp)
     );
 
     // Create key for deleting, just in case.
@@ -666,9 +669,10 @@ function toencounter(enc, datestr, topframe) {
                                 "pid = ? AND encounter = ? AND " .
                                 // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
                                 "code_type != 'COPAY' AND activity = 1 " .
-                                "ORDER BY id", array($pid,$encounter)
+                                "ORDER BY id",
+                                array($pid,$encounter)
                             );
-                        while ($each_row = sqlFetchArray($row_data)){
+                        while ($each_row = sqlFetchArray($row_data)) {
                             ?>
                                 <tr>
                                     <td><?php echo text($each_row['code_text']); ?></td>
@@ -1309,7 +1313,8 @@ function make_insurance() {
                                     // Add taxes.
                                     $trow = sqlQuery(
                                         "SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
-                                        "ORDER BY selector LIMIT 1", array($drow['drug_id'])
+                                        "ORDER BY selector LIMIT 1",
+                                        array($drow['drug_id'])
                                     );
                                     $encs[$key]['charges'] += calcTaxes($trow, $drow['fee']);
                                 }
@@ -1369,7 +1374,8 @@ function make_insurance() {
                                     //NumberOfInsurance
                                     $ResultNumberOfInsurance = sqlStatement(
                                         "SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data
-                                    where pid = ? and provider>0 ", array($pid)
+                                    where pid = ? and provider>0 ",
+                                        array($pid)
                                     );
                                     $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
                                     $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
@@ -1378,16 +1384,19 @@ function make_insurance() {
                                     if ((($NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed']))) {//Patient balance
                                         $brow = sqlQuery(
                                             "SELECT SUM(fee) AS amount FROM billing WHERE " .
-                                            "pid = ? and encounter = ? AND activity = 1", array($pid, $enc)
+                                            "pid = ? and encounter = ? AND activity = 1",
+                                            array($pid, $enc)
                                         );
                                         $srow = sqlQuery(
                                             "SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-                                            "pid = ? and encounter = ? ", array($pid, $enc)
+                                            "pid = ? and encounter = ? ",
+                                            array($pid, $enc)
                                         );
                                         $drow = sqlQuery(
                                             "SELECT SUM(pay_amount) AS payments, " .
                                             "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-                                            "deleted IS NULL AND pid = ? and encounter = ? ", array($pid, $enc)
+                                            "deleted IS NULL AND pid = ? and encounter = ? ",
+                                            array($pid, $enc)
                                         );
                                         $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                                     }
