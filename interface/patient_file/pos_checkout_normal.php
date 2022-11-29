@@ -49,8 +49,8 @@
  */
 
 require_once "../globals.php";
-require_once "$srcdir/patient.inc";
-require_once "../../custom/code_types.inc.php";
+require_once("$srcdir/patient.inc");
+require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
@@ -192,7 +192,7 @@ function generate_receipt($patient_id, $encounter = 0)
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script>
 
-        <?php include $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
+        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
