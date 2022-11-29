@@ -1,8 +1,7 @@
 <?php
 
-/**
+/*
  * soap form
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -12,29 +11,32 @@
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
+require_once("Bootstrap.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormSOAP extends Controller
 {
-    var $template_dir;
+    private \Twig\Environment $template;
 
-    function __construct($template_mod = "general")
+    public function __construct()
     {
-        parent::__construct();
-        $this->template_mod = $template_mod;
-        $this->template_dir = dirname(__FILE__) . "/templates/";
-        $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $twig = new Bootstrap();
+        $this->template = $twig->twigEnv();
     }
 
     function default_action()
     {
-        $form = new FormSOAP();
-        $this->assign("data", $form);
-        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+         $form = new FormSOAP();
+        return $this->template->render(
+            'general_new.twig',
+            [
+                "FORM_ACTION" => $GLOBALS['web_root'],
+                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "CSRF_TOKEN_FORM" => CsrfUtils::collectCsrfToken(),
+                "data" => $form
+            ]
+        );
     }
 
     function view_action($form_id)
@@ -45,9 +47,15 @@ class C_FormSOAP extends Controller
             $form = new FormSOAP();
         }
 
-        $this->assign("data", $form);
-
-        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+        return $this->template->render(
+            'general_new.twig',
+            [
+                "FORM_ACTION" => $GLOBALS['web_root'],
+                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "CSRF_TOKEN_FORM" => CsrfUtils::collectCsrfToken(),
+                "data" => $form
+            ]
+        );
     }
 
     function default_action_process()
@@ -68,7 +76,6 @@ class C_FormSOAP extends Controller
             addForm($GLOBALS['encounter'], "SOAP", $this->form->id, "soap", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
         }
-
-        return;
     }
 }
+
