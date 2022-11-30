@@ -48,8 +48,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once "../globals.php";
-require_once("$srcdir/patient.inc");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -125,7 +125,7 @@ function receiptPaymentLine($paydate, $amount, $description = '')
 //
 function generate_receipt($patient_id, $encounter = 0)
 {
-    //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
+ //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
     global $sl_err, $sl_cash_acc, $details, $facilityService;
 
     // Get details for what we guess is the primary facility.
@@ -137,18 +137,12 @@ function generate_receipt($patient_id, $encounter = 0)
     //
     // Adding a provider check so that their info can be displayed on receipts
     if ($encounter) {
-        $ferow = sqlQuery(
-            "SELECT id, date, encounter, provider_id FROM form_encounter " .
-            "WHERE pid = ? AND encounter = ?",
-            array($patient_id,$encounter)
-        );
+        $ferow = sqlQuery("SELECT id, date, encounter, provider_id FROM form_encounter " .
+        "WHERE pid = ? AND encounter = ?", array($patient_id,$encounter));
     } else {
-        $ferow = sqlQuery(
-            "SELECT id, date, encounter, provider_id FROM form_encounter " .
-            "WHERE pid = ? " .
-            "ORDER BY id DESC LIMIT 1",
-            array($patient_id)
-        );
+        $ferow = sqlQuery("SELECT id, date, encounter, provider_id FROM form_encounter " .
+        "WHERE pid = ? " .
+        "ORDER BY id DESC LIMIT 1", array($patient_id));
     }
     if (empty($ferow)) {
         die(xlt("This patient has no activity."));
@@ -168,19 +162,13 @@ function generate_receipt($patient_id, $encounter = 0)
     }
 
     if (!empty($encprovider)) {
-        $providerrow = sqlQuery(
-            "SELECT fname, mname, lname, title, street, streetb, " .
-            "city, state, zip, phone, fax FROM users WHERE id = ?",
-            array($encprovider)
-        );
+        $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
+        "city, state, zip, phone, fax FROM users WHERE id = ?", array($encprovider));
     }
 
     // Get invoice reference number.
-    $encrow = sqlQuery(
-        "SELECT invoice_refno FROM form_encounter WHERE " .
-        "pid = ? AND encounter = ? LIMIT 1",
-        array($patient_id,$encounter)
-    );
+    $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
+    "pid = ? AND encounter = ? LIMIT 1", array($patient_id,$encounter));
     $invoice_refno = $encrow['invoice_refno'];
     ?>
     <!-- being deliberately echoed to indicate it is part of the php function generate_receipt -->
@@ -306,47 +294,11 @@ function generate_receipt($patient_id, $encounter = 0)
             padding: 2px; font-weight: 600; 
             -webkit-print-color-adjust: exact; 
         }
-        
         </style>
         <title><?php echo xlt('Patient Checkout'); ?></title>
     </head>
     <body>
-    <div class="grid-container container mt-3" id="hideonprint, showonprint">
-            <div class="grid-child" style="padding-top:20px; font-weight:600;">
-                <p style="font-weight:600;">
-                    <bold class="bg-color"><?php echo text($frow['name']) ?></bold> <br /> <br />
-                    <?php
-                    if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
-                        printProviderHeader($providerrow);
-                    } else {
-                        printFacilityHeader($frow);
-                    } ?>
-                        <?php
-                        echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
-                        if ($invoice_refno) {
-                            echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
-                        }
-                        ?>
-                </p>
-            </div>
-            <div class="grid-child" style="padding-left:150px;">
-                <img src=<?php echo $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png" ?> alt="" srcset="">
-
-                <table class="mini_table">
-                    <tr>
-                        <th>Invoice No.</th>
-                        <th>Date</th>
-                    </tr>
-                    <tr>
-                        <td style="text-align:center"><?php if ($invoice_refno) {
-                            echo text($invoice_refno);
-                                                      } ?></td>
-                        <td style="text-align:center"><?php echo text($svcdate) ?></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <div class="container mt-3">
+    <div class="container mt-3">
             <div class="row">
                 <div class="col-6">
                     <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']); ?><br />
@@ -513,8 +465,7 @@ function generate_receipt($patient_id, $encounter = 0)
     </body>
     </html>
     <?php // echoing the closing tags for receipts
-}
-// end function generate_receipt()
+} // end function generate_receipt()
 ?>
     <?php
 
@@ -567,10 +518,8 @@ function generate_receipt($patient_id, $encounter = 0)
     // Create the taxes array.  Key is tax id, value is
     // (description, rate, accumulated total).
     $taxes = array();
-    $pres = sqlStatement(
-        "SELECT option_id, title, option_value " .
-        "FROM list_options WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq, title, option_id"
-    );
+    $pres = sqlStatement("SELECT option_id, title, option_value " .
+      "FROM list_options WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq, title, option_id");
     while ($prow = sqlFetchArray($pres)) {
         $taxes[$prow['option_id']] = array($prow['title'], $prow['option_value'], 0);
     }
@@ -630,35 +579,32 @@ function generate_receipt($patient_id, $encounter = 0)
             CsrfUtils::csrfNotVerified();
         }
 
-        // On a save, do the following:
-        // Flag drug_sales and billing items as billed.
-        // Post the corresponding invoice with its payment(s) to sql-ledger
-        // and be careful to use a unique invoice number.
-        // Call the generate-receipt function.
-        // Exit.
+      // On a save, do the following:
+      // Flag drug_sales and billing items as billed.
+      // Post the corresponding invoice with its payment(s) to sql-ledger
+      // and be careful to use a unique invoice number.
+      // Call the generate-receipt function.
+      // Exit.
 
         $form_pid = $_POST['form_pid'];
         $form_encounter = $_POST['form_encounter'];
 
-        // Get the posting date from the form as yyyy-mm-dd.
+      // Get the posting date from the form as yyyy-mm-dd.
         $dosdate = substr($this_bill_date, 0, 10);
         if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
             $dosdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
         }
 
-        // If there is no associated encounter (i.e. this invoice has only
-        // prescriptions) then assign an encounter number of the service
-        // date, with an optional suffix to ensure that it's unique.
-        //
+      // If there is no associated encounter (i.e. this invoice has only
+      // prescriptions) then assign an encounter number of the service
+      // date, with an optional suffix to ensure that it's unique.
+      //
         if (! $form_encounter) {
             $form_encounter = substr($dosdate, 0, 4) . substr($dosdate, 5, 2) . substr($dosdate, 8, 2);
             $tmp = '';
             while (true) {
-                $ferow = sqlQuery(
-                    "SELECT id FROM form_encounter WHERE " .
-                    "pid = ? AND encounter = ?",
-                    array($form_pid, $form_encounter . $tmp)
-                );
+                $ferow = sqlQuery("SELECT id FROM form_encounter WHERE " .
+                "pid = ? AND encounter = ?", array($form_pid, $form_encounter . $tmp));
                 if (empty($ferow)) {
                     break;
                 }
@@ -668,12 +614,9 @@ function generate_receipt($patient_id, $encounter = 0)
         }
 
         // Delete any TAX rows from billing because they will be recalculated.
-        sqlStatement(
-            "UPDATE billing SET activity = 0 WHERE " .
-            "pid = ? AND encounter = ? AND " .
-            "code_type = 'TAX'",
-            array($form_pid,$form_encounter)
-        );
+        sqlStatement("UPDATE billing SET activity = 0 WHERE " .
+          "pid = ? AND encounter = ? AND " .
+          "code_type = 'TAX'", array($form_pid,$form_encounter));
 
         $form_amount = $_POST['form_amount'];
         $lines = $_POST['line'];
@@ -722,7 +665,7 @@ function generate_receipt($patient_id, $encounter = 0)
             }
         }
 
-        // Post discount.
+      // Post discount.
         if ($_POST['form_discount']) {
             if ($GLOBALS['discount_by_money']) {
                 $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
@@ -759,7 +702,7 @@ function generate_receipt($patient_id, $encounter = 0)
             sqlCommitTrans();
         }
 
-        // Post payment.
+      // Post payment.
         if ($_POST['form_amount']) {
             $amount  = sprintf('%01.2f', trim($_POST['form_amount']));
             $form_source = trim($_POST['form_source']);
@@ -779,24 +722,24 @@ function generate_receipt($patient_id, $encounter = 0)
                 $Code = '';
                 $Modifier = '';
             }
-            $session_id = sqlInsert(
-                "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
+              $session_id = sqlInsert(
+                  "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                   " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                   " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
-                array($_SESSION['authUserID'],$form_source,$dosdate,$amount,$form_pid,$paydesc)
-            );
+                  array($_SESSION['authUserID'],$form_source,$dosdate,$amount,$form_pid,$paydesc)
+              );
 
               sqlBeginTrans();
               $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $form_encounter));
-            $insrt_id = sqlInsert(
-                "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
+              $insrt_id = sqlInsert(
+                  "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                   " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-                array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$_SESSION['authUserID'],$session_id,$amount)
-            );
+                  array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$_SESSION['authUserID'],$session_id,$amount)
+              );
               sqlCommitTrans();
         }
 
-        // If applicable, set the invoice reference number.
+      // If applicable, set the invoice reference number.
         $invoice_refno = '';
         if (isset($_POST['form_irnumber'])) {
             $invoice_refno = trim($_POST['form_irnumber']);
@@ -804,12 +747,9 @@ function generate_receipt($patient_id, $encounter = 0)
             $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
         }
         if ($invoice_refno) {
-            sqlStatement(
-                "UPDATE form_encounter " .
-                "SET invoice_refno = ? " .
-                "WHERE pid = ? AND encounter = ?",
-                array($invoice_refno,$form_pid,$form_encounter)
-            );
+            sqlStatement("UPDATE form_encounter " .
+            "SET invoice_refno = ? " .
+            "WHERE pid = ? AND encounter = ?", array($invoice_refno,$form_pid,$form_encounter));
         }
 
         generate_receipt($form_pid, $form_encounter);
@@ -850,10 +790,8 @@ function generate_receipt($patient_id, $encounter = 0)
 
     // Get the valid practitioners, including those not active.
     $arr_users = array();
-    $ures = sqlStatement(
-        "SELECT id, username FROM users WHERE " .
-        "( authorized = 1 OR info LIKE '%provider%' ) AND username != ''"
-    );
+    $ures = sqlStatement("SELECT id, username FROM users WHERE " .
+      "( authorized = 1 OR info LIKE '%provider%' ) AND username != ''");
     while ($urow = sqlFetchArray($ures)) {
         $arr_users[$urow['id']] = '1';
     }
@@ -873,7 +811,7 @@ function generate_receipt($patient_id, $encounter = 0)
         <script>
             var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
-            <?php require $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
+            <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
             // This clears the tax line items in preparation for recomputing taxes.
             function clearTax(visible) {
@@ -988,7 +926,7 @@ function generate_receipt($patient_id, $encounter = 0)
                    <?php $datetimepicker_timepicker = false; ?>
                    <?php $datetimepicker_showseconds = false; ?>
                    <?php $datetimepicker_formatInput = false; ?>
-                   <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -1147,11 +1085,8 @@ function generate_receipt($patient_id, $encounter = 0)
                                         }
 
                                         // Accumulate taxes for this product.
-                                        $tmp = sqlQuery(
-                                            "SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
-                                            " ORDER BY selector LIMIT 1",
-                                            array($drow['drug_id'])
-                                        );
+                                        $tmp = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
+                                          " ORDER BY selector LIMIT 1", array($drow['drug_id']));
                                         // accumTaxes($drow['fee'], $tmp['taxrates']);
                                         $taxrates = $tmp['taxrates'];
                                         markTaxes($taxrates);
@@ -1179,12 +1114,9 @@ function generate_receipt($patient_id, $encounter = 0)
                                     // since this is for appt checkout.
 
                                     if ($inv_encounter) {
-                                        $erow = sqlQuery(
-                                            "SELECT provider_id FROM form_encounter WHERE " .
-                                            "pid = ? AND encounter = ? " .
-                                            "ORDER BY id DESC LIMIT 1",
-                                            array($patient_id,$inv_encounter)
-                                        );
+                                        $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
+                                        "pid = ? AND encounter = ? " .
+                                        "ORDER BY id DESC LIMIT 1", array($patient_id,$inv_encounter));
                                         $inv_provider = $erow['provider_id'] + 0;
                                     }
                                     ?>
@@ -1297,25 +1229,17 @@ function generate_receipt($patient_id, $encounter = 0)
                 <?php
                 if ($gcac_related_visit && !$gcac_service_provided) {
                     // Skip this warning if the GCAC visit form is not allowed.
-                    $grow = sqlQuery(
-                        "SELECT COUNT(*) AS count FROM layout_group_properties " .
-                        "WHERE grp_form_id = 'LBFgcac' grp_group_id = '' AND grp_activity = 1"
-                    );
+                    $grow = sqlQuery("SELECT COUNT(*) AS count FROM layout_group_properties " .
+                      "WHERE grp_form_id = 'LBFgcac' grp_group_id = '' AND grp_activity = 1");
                     if (!empty($grow['count'])) { // if gcac is used
                         // Skip this warning if referral or abortion in TS.
-                        $grow = sqlQuery(
-                            "SELECT COUNT(*) AS count FROM transactions " .
-                            "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
-                            "refer_date = ? AND pid = ?",
-                            array($inv_date,$patient_id)
-                        );
+                        $grow = sqlQuery("SELECT COUNT(*) AS count FROM transactions " .
+                        "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
+                        "refer_date = ? AND pid = ?", array($inv_date,$patient_id));
                         if (empty($grow['count'])) { // if there is no referral
-                            $grow = sqlQuery(
-                                "SELECT COUNT(*) AS count FROM forms " .
-                                "WHERE pid = ? AND encounter = ? AND " .
-                                "deleted = 0 AND formdir = 'LBFgcac'",
-                                array($patient_id,$inv_encounter)
-                            );
+                            $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
+                            "WHERE pid = ? AND encounter = ? AND " .
+                             "deleted = 0 AND formdir = 'LBFgcac'", array($patient_id,$inv_encounter));
                             if (empty($grow['count'])) { // if there is no gcac form
                                 echo " alert(" . xlj('This visit will need a GCAC form, referral or procedure service.') . ");\n";
                             }
