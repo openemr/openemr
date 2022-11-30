@@ -193,7 +193,7 @@ if (!empty($_POST['form_save'])) {
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    //Update the invoice_refno 
+    //Update the invoice_refno
     sqlStatement(
         "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
         array($invoice_refno, $encounter, $form_pid)
