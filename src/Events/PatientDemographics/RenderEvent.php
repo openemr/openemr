@@ -40,7 +40,7 @@ class RenderEvent extends Event
      * It allows event listeners to render additional functionality after the page
      * has loaded.
      */
-    const EVENT_RENDER_JAVA = 'patientDemographics.render.javascript';
+    const EVENT_RENDER_POST_PAGELOAD = 'patientDemographics.render.javascript';
 
     /**
      * @var null|integer

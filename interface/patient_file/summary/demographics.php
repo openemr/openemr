@@ -1844,6 +1844,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ];
             checkSkipConditions();
 
+            <?php
+            $GLOBALS["kernel"]
+                ->getEventDispatcher()
+                ->dispatch(new RenderEvent($pid), RenderEvent::EVENT_RENDER_POST_PAGELOAD, 10);
+            ?>
+
             var isPost = <?php echo js_escape($showEligibility ?? false); ?>;
             var listId = '#' + <?php echo js_escape($list_id); ?>;
             $(function() {
@@ -1853,11 +1859,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $("#eligibility").get(0).scrollIntoView();
                 }
             });
-            <?php
-                $GLOBALS["kernel"]
-                    ->getEventDispatcher()
-                    ->dispatch(RenderEvent::EVENT_RENDER_JAVA, new RenderEvent($pid), 10);
-            ?>
         </script>
 </body>
 
