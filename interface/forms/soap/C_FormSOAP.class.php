@@ -15,7 +15,6 @@ require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 require_once("Bootstrap.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 
 class C_FormSOAP extends Controller
 {
@@ -31,11 +30,10 @@ class C_FormSOAP extends Controller
     {
          $form = new FormSOAP();
         return $this->template->render(
-            'general_new.twig',
+            'soap_form.twig',
             [
                 "FORM_ACTION" => $GLOBALS['web_root'],
                 "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
-                "CSRF_TOKEN_FORM" => CsrfUtils::collectCsrfToken(),
                 "data" => $form
             ]
         );
@@ -50,11 +48,10 @@ class C_FormSOAP extends Controller
         }
 
         return $this->template->render(
-            'general_new.twig',
+            'soap_form.twig',
             [
                 "FORM_ACTION" => $GLOBALS['web_root'],
                 "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
-                "CSRF_TOKEN_FORM" => CsrfUtils::collectCsrfToken(),
                 "data" => $form
             ]
         );
@@ -75,7 +72,9 @@ class C_FormSOAP extends Controller
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "SOAP", $this->form->id, "soap", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm(
+                $GLOBALS['encounter'], "SOAP", $this->form->id, "soap", $GLOBALS['pid'], $_SESSION['userauthorized']
+            );
             $_POST['process'] = "";
         }
     }

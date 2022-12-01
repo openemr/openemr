@@ -9,7 +9,7 @@
             <div class="col-12">
                 <h2>{{'SOAP'|xlt}}</h2>
                 <form name="soap" method="post" action="{{ FORM_ACTION | attr }}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM | attr }}" />
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw()|attr }}" />
                     <fieldset>
                         <legend>{{ 'Subjective' | xlt }}</legend>
                         <div class="container">
