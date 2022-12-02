@@ -36,6 +36,13 @@ class RenderEvent extends Event
     const EVENT_SECTION_LIST_RENDER_AFTER = 'patientDemographics.render.section.after';
 
     /**
+     * This event occurs after a patient demographics page has been rendered
+     * It allows event listeners to render additional functionality after the page
+     * has loaded.
+     */
+    const EVENT_RENDER_POST_PAGELOAD = 'patientDemographics.render.post_page_load';
+
+    /**
      * @var null|integer
      *
      * Represents the patient we are viewing in the patient demographics
