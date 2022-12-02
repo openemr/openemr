@@ -1737,16 +1737,28 @@ function isRegularRepeat($repeat)
         </div>
         <div class="col-sm input-group" id="days">
             <?php
-            foreach (
-                array(1 => xl('Su{{Sunday}}'), 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('We{{Wednesday}}'),
-                5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value
-            ) {
-                echo "<div class='form-check-inline'><input class='form-check-input' type='checkbox' name='day_" . attr($key) . "'";
-                //Checks appropriate days according to days in recurrence string.
-                if (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) {
-                    echo " checked";
-                }
-                echo " /><label class='form-check-label'>" . text($value) . "</label></div>\n";
+            $weekdays = [
+                1 => xl('Su{{Sunday}}'),
+                2 => xl('Mo{{Monday}}'),
+                3 => xl('Tu{{Tuesday}}'),
+                4 => xl('We{{Wednesday}}'),
+                5 => xl('Th{{Thursday}}'),
+                6 => xl('Fr{{Friday}}'),
+                7 => xl('Sa{{Saturday}}')
+            ];
+            foreach ($weekdays as $key => $value) {
+                $key_attr = attr($key);
+                $value_text = text($value);
+                $checked = (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) ? "checked" : "";
+                $html = <<<HTML
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="day_$key_attr" id="day_$key_attr" $checked>
+                    <label class="form-check-label" for="day_$key_attr">
+                        $value_text
+                    </label>
+                </div>
+                HTML;
+                echo $html;
             }
             ?>
         </div>
