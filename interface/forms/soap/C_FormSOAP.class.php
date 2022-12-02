@@ -73,7 +73,12 @@ class C_FormSOAP extends Controller
 
         if (empty($_POST['id'])) {
             addForm(
-                $GLOBALS['encounter'], "SOAP", $this->form->id, "soap", $GLOBALS['pid'], $_SESSION['userauthorized']
+                $GLOBALS['encounter'],
+                "SOAP",
+                $this->form->id,
+                "soap",
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
             );
             $_POST['process'] = "";
         }
