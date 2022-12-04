@@ -383,9 +383,6 @@ function generate_receipt($patient_id, $encounter = 0)
                             );
                         }
                         ?>
-                        <!--<tr>
-                            <td style="border:none !important" colspan='5'>&nbsp;</td>
-                        </tr>-->
                         <tr style="border:none !important">
                             <td style="border:0px solid red !important"><?php echo text(oeFormatShortDate($svcdispdate ?? '')); ?></td>
                             <td class='text-right' style="border:none !important">&nbsp;</td>
