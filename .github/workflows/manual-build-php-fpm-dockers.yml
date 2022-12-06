@@ -3,6 +3,9 @@ name: Manual Build php-fpm Dockers
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
 
   build_7_3:
