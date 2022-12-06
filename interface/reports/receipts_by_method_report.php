@@ -3,7 +3,7 @@
 /**
  * This is a report of receipts by payer or payment method.
  *
- * The payer option means an insurance company name or "Patient".
+ * The payer option means an insurance company name or "Personal pay".
  *
  * The payment method option is most useful for sites using
  * pos_checkout.php (e.g. weight loss clinics) because this plugs
@@ -17,7 +17,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -89,8 +89,17 @@ function thisLineItem(
   //
     if (!empty($_POST['form_details'])) { // details are wanted
         // Save everything for later sorting.
-        $insarray[] = array($patient_id, $encounter_id, $memo, $transdate,
-        $rowmethod, $rowpayamount, $rowadjamount, $payer_type, $irnumber);
+        $insarray[] = array(
+            $patient_id,
+            $encounter_id,
+            $memo,
+            $transdate,
+            $rowmethod,
+            $rowpayamount,
+            $rowadjamount,
+            $payer_type,
+            $irnumber
+        );
     } else { // details not wanted
         if (empty($insarray[$rowmethod])) {
             $insarray[$rowmethod] = array(0, 0);
@@ -586,12 +595,17 @@ if (!empty($_POST['form_refresh'])) {
                         $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "secondary");
                     } elseif ($row['payer_type'] == '3') {
                         $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "tertiary");
+                    } elseif ($row['payer_type'] == '0') {
+                        $rowmethod = xl('Personal pay');
+                        $rowreference = trim($row['reference']);
                     } else {
                         $rowmethod = xl('Unnamed insurance company');
                     }
                     if (!empty($insurance_id['provider'])) {
                         $insurance_company = (new InsuranceCompanyService())->getOneById($insurance_id['provider']) ?? '';
                         $rowmethod = xl($insurance_company['name']);
+                    } elseif (!($row['payer_type'] == '0')) {
+                        $rowmethod = xl('Unnamed insurance company');
                     }
                 } else {
                     $rowmethod = $row['name'];
