@@ -211,56 +211,126 @@ function generate_receipt($patient_id, $encounter = 0)
                 width: 1000px !Important;
             }
         }
+        body {
+            width: 100% !important;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+
+        }
+
+        #address_left {
+        text-align: left !important;
+        padding-top: 20px;
+        padding-left: 20px;
+        }
+
+        .mini_table {
+            margin-top: 15px;
+            width: 95%;
+            text-align: center;
+        }
+
+        table.mini_table>tbody>tr>th {
+            background-color: var(--secondary);
+            text-align: center;
+        }
+
+        body>table.mini_table>tbody>tr>td {
+            text-align: center;
+        }
+
+        body>table.mini_table>tbody>tr>td {
+            border: 1px solid #fff;
+        }
+
+        body>table.mini_table>tbody>tr>th {
+            border: 1px solid #93cef9;
+        }
+
+        table,
+        td,
+        th {
+            border: 1px solid #000;
+            text-align: left;
+        }
+
+        table {
+            margin-top: 30px !important;
+            border-collapse: collapse;
+            width: 98%;
+        }
+
+        th,
+        td {
+            padding: 5px;
+        }
+
+        body > div:nth-child(2) > div:nth-child(3) > div > table > thead > tr {
+            background-color: var(--secondary);
+        }
+
+        body > div:nth-child(3) > div:nth-child(3) > div > table > thead {
+            background-color: var(--secondary);
+        }
+
+        body > div:nth-child(3) > div:nth-child(3) > div > table:nth-child(1) > tbody > tr:nth-child(3) {
+            border: none!important;
+        }
+
+        .bg-blue {
+            background-color:var(--secondary);
+        }
+
+        .fac-name {
+            background-color:var(--secondary);
+            width: 99px;
+        }
+        .bg-color { 
+            background-color: var(--secondary);
+            padding: 2px; font-weight: 600; 
+            -webkit-print-color-adjust: exact; 
+        }
         </style>
         <title><?php echo xlt('Patient Checkout'); ?></title>
     </head>
     <body>
-        <div class="container mt-3">
-            <div class="row text-center">
-                <p class="font-weight-bold">
-                    <?php
-                    if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
-                        printProviderHeader($providerrow);
-                    } else {
-                        printFacilityHeader($frow);
-                    } ?>
-                    <?php
-                    echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
-                    if ($invoice_refno) {
-                        echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
-                    }
-                    ?>
-                </p>
-            </div>
+    <div class="container mt-3">
             <div class="row">
-                <div class="col-6 offset-lg-2">
-                    <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br />
+                <div class="col-6">
+                    <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']); ?><br />
                     <?php echo text($patdata['street']) ?><br />
-                    <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br />
+                    <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']); ?><br />
                 </div>
             </div>
-            <div class="row">
-                <div class="col-6 offset-lg-3">
-                    <table class="table">
+            <div class="">
+                <div class="">
+                    <table class="">
                         <thead>
                             <tr>
-                                <th><strong><?php echo xlt('Date'); ?></strong></th>
+                                <th><strong><?php echo xlt('Date of Service'); ?></strong></th>
                                 <th><strong><?php echo xlt('Description'); ?></strong></th>
                                 <th class='text-right'><strong><?php echo $details ? xlt('Price') : '&nbsp;'; ?></strong></th>
                                 <th class='text-right'><strong><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></strong></th>
-                                <th class='text-right'><strong><?php echo xlt('Total'); ?></strong></th>
+                                <th class='text-right' ><strong><?php echo xlt('Total'); ?></strong></th>
                             </tr>
                         </thead>
                         <?php
                         $charges = 0.00;
 
                         // Product sales
-                        $inres = sqlStatement("SELECT s.sale_id, s.sale_date, s.fee, " .
-                          "s.quantity, s.drug_id, d.name " .
-                          "FROM drug_sales AS s LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
-                          // "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' AND s.fee != 0 " .
-                          "WHERE s.pid = ? AND s.encounter = ? " .
-                          "ORDER BY s.sale_id", array($patient_id,$encounter));
+                        $inres = sqlStatement(
+                            "SELECT s.sale_id, s.sale_date, s.fee, " .
+                            "s.quantity, s.drug_id, d.name " .
+                            "FROM drug_sales AS s LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
+                            // "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' AND s.fee != 0 " .
+                            "WHERE s.pid = ? AND s.encounter = ? " .
+                            "ORDER BY s.sale_id",
+                            array($patient_id,$encounter)
+                        );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
                             receiptDetailLine(
@@ -272,11 +342,14 @@ function generate_receipt($patient_id, $encounter = 0)
                         }
 
                         // Service and tax items
-                        $inres = sqlStatement("SELECT * FROM billing WHERE " .
-                          "pid = ? AND encounter = ? AND " .
-                          // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
-                          "code_type != 'COPAY' AND activity = 1 " .
-                          "ORDER BY id", array($patient_id,$encounter));
+                        $inres = sqlStatement(
+                            "SELECT * FROM billing WHERE " .
+                            "pid = ? AND encounter = ? AND " .
+                            // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
+                            "code_type != 'COPAY' AND activity = 1 " .
+                            "ORDER BY id",
+                            array($patient_id,$encounter)
+                        );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
                             receiptDetailLine(
@@ -288,14 +361,17 @@ function generate_receipt($patient_id, $encounter = 0)
                         }
 
                         // Adjustments.
-                        $inres = sqlStatement("SELECT " .
-                          "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
-                          "s.payer_id, s.reference, s.check_date, s.deposit_date " .
-                          "FROM ar_activity AS a " .
-                          "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
-                          "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
-                          "a.adj_amount != 0 " .
-                          "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter));
+                        $inres = sqlStatement(
+                            "SELECT " .
+                            "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
+                            "s.payer_id, s.reference, s.check_date, s.deposit_date " .
+                            "FROM ar_activity AS a " .
+                            "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
+                            "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
+                            "a.adj_amount != 0 " .
+                            "ORDER BY s.check_date, a.sequence_no",
+                            array($patient_id,$encounter)
+                        );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges -= sprintf('%01.2f', $inrow['adj_amount']);
                             $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
@@ -307,38 +383,42 @@ function generate_receipt($patient_id, $encounter = 0)
                             );
                         }
                         ?>
-                        <tr>
-                            <td colspan='5'>&nbsp;</td>
-                        </tr>
-                        <tr>
-                            <td><?php echo text(oeFormatShortDate($svcdispdate ?? '')); ?></td>
-                            <td><b><?php echo xlt('Total Charges'); ?></b></td>
-                            <td class='text-right'>&nbsp;</td>
-                            <td class='text-right'>&nbsp;</td>
-                            <td class='text-right'><?php echo text(oeFormatMoney($charges, true)) ?></td>
+                        <tr style="border:none !important">
+                            <td style="border:0px solid red !important"><?php echo text(oeFormatShortDate($svcdispdate ?? '')); ?></td>
+                            <td class='text-right' style="border:none !important">&nbsp;</td>
+                            <td class='text-right' style="border:none !important">&nbsp;</td>
+                            <td class='text-right bg-blue' style="border: 1px solid;"><b><?php echo xlt('Total Charges'); ?></b></td>
+
+                            <td class='text-right bg-blue' style="border: 1px solid;"><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                         <tr>
                             <td colspan='5'>&nbsp;</td>
                         </tr>
                         <?php
                         // Get co-pays.
-                        $inres = sqlStatement("SELECT fee, code_text FROM billing WHERE " .
-                          "pid = ? AND encounter = ?  AND " .
-                          "code_type = 'COPAY' AND activity = 1 AND fee != 0 " .
-                          "ORDER BY id", array($patient_id,$encounter));
+                        $inres = sqlStatement(
+                            "SELECT fee, code_text FROM billing WHERE " .
+                            "pid = ? AND encounter = ?  AND " .
+                            "code_type = 'COPAY' AND activity = 1 AND fee != 0 " .
+                            "ORDER BY id",
+                            array($patient_id,$encounter)
+                        );
                         while ($inrow = sqlFetchArray($inres)) {
                             $charges += sprintf('%01.2f', $inrow['fee']);
                             receiptPaymentLine($svcdate, 0 - $inrow['fee'], $inrow['code_text']);
                         }
                         // Get other payments.
-                        $inres = sqlStatement("SELECT " .
-                        "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
-                        "s.payer_id, s.reference, s.check_date, s.deposit_date " .
-                        "FROM ar_activity AS a " .
-                        "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
-                        "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
-                        "a.pay_amount != 0 " .
-                        "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter));
+                        $inres = sqlStatement(
+                            "SELECT " .
+                            "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
+                            "s.payer_id, s.reference, s.check_date, s.deposit_date " .
+                            "FROM ar_activity AS a " .
+                            "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
+                            "a.pid = ? AND a.encounter = ? AND a.deleted IS NULL AND " .
+                            "a.pay_amount != 0 " .
+                            "ORDER BY s.check_date, a.sequence_no",
+                            array($patient_id,$encounter)
+                        );
                         while ($inrow = sqlFetchArray($inres)) {
                             $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
                             $charges -= sprintf('%01.2f', $inrow['pay_amount']);
@@ -353,10 +433,11 @@ function generate_receipt($patient_id, $encounter = 0)
                             <td colspan='5'>&nbsp;</td>
                         </tr>
                         <tr>
-                            <td>&nbsp;</td>
-                            <td class="font-weight-bold"><?php echo xlt('Balance Due'); ?></td>
-                            <td colspan='2'>&nbsp;</td>
-                            <td class='text-right'><?php echo text(oeFormatMoney($charges, true)) ?></td>
+                            <td style="border:none !important">&nbsp;</td>
+                            <td style="border:none !important">&nbsp;</td>
+                            <td style="border:none !important">&nbsp;</td>
+                            <td class="font-weight-bold text-right bg-blue" style="border: 1px solid;"><?php echo xlt('Balance Due'); ?></td>
+                            <td class='text-right bg-blue' style="border: 1px solid;"><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                     </table>
                 </div>
