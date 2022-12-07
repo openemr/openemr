@@ -24,7 +24,6 @@
         "html2text/html2text": "4.3.1",
         "kamermans/guzzle-oauth2-subscriber": "1.0.11",
         "knplabs/knp-snappy": "1.4.1",
-        "laminas/laminas-cli": "1.1.1",
         "laminas/laminas-config": "3.7.0",
         "laminas/laminas-db": "2.15.0",
         "laminas/laminas-eventmanager": "3.5.0",

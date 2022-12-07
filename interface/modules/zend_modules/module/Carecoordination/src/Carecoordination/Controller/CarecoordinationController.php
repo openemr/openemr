@@ -226,43 +226,6 @@ class CarecoordinationController extends AbstractActionController
         return $view;
     }
 
-    public function newpatientImportCommandAction()
-    {
-        // get around a large ccda data array
-        ini_set("memory_limit", -1);
-
-        $request = $this->getRequest();
-        if (php_sapi_name() !== 'cli') {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-        $document = $request->getParam('document');
-        $this->getCarecoordinationTable()->importNewPatient($document);
-        exit;
-    }
-
-    public function newpatientCommandAction()
-    {
-        $request = $this->getRequest();
-        if (php_sapi_name() !== 'cli') {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-        $am_id = $request->getParam('am_id');
-        $document_id = $request->getParam('document_id');
-        $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);
-        exit;
-    }
-
-    public function importCommandAction()
-    {
-        $request = $this->getRequest();
-        if (php_sapi_name() !== 'cli') {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-        $document_id = $request->getParam('document_id');
-        $this->getCarecoordinationTable()->import($document_id);
-        exit;
-    }
-
     /*
     * Function to import the data CCDA file to audit tables.
     *
