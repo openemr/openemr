@@ -89,7 +89,7 @@ if (!empty($q)) {
             file = JSON.stringify(obj)
             if (obj && obj.resourceType === "Questionnaire") {
                 gotQ = true;
-            } else if (obj.items[0].dataType) {
+            } else if (obj) {
                 gotL = true;
             }
             if (gotL) {
