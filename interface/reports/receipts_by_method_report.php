@@ -335,105 +335,125 @@ $form_proc_code = $tmp_code_array[1] ?? null;
 
 <form method='post' action='receipts_by_method_report.php' id='theform' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
 <div id="report_parameters">
-
-<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-
-<table>
- <tr>
-  <td width='630px'>
-    <div style='float:left'>
-
-    <table class='text'>
-        <tr>
-            <td class='col-form-label'>
-                <?php echo xlt('Report by'); ?>
-            </td>
-            <td>
-                <?php
-                echo "   <select name='form_report_by' class='form-control'>\n";
-                foreach (array(1 => 'Payer', 2 => 'Payment Method', 3 => 'Check Number') as $key => $value) {
-                    echo "    <option value='" . attr($key) . "'";
-                    if ($key == $form_report_by) {
-                        echo ' selected';
-                    }
-
-                    echo ">" . xlt($value) . "</option>\n";
+    <div class="form-row">
+        <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+        <div class="form-group col-md-6">
+            <label for='form_report_by'><?php echo xlt('Report by'); ?></label>
+            <?php echo " <select name='form_report_by' id='form_report_by' class='form-control'>\n";
+            foreach (
+                    array(
+                        1 => 'Payer',
+                        2 => 'Payment Method',
+                        3 => 'Check Number'
+                    ) as $key => $value
+            ) {
+                echo "    <option value='" . attr($key) . "'";
+                if ($key == $form_report_by) {
+                    echo ' selected';
                 }
 
-                echo "   </select>&nbsp;\n"; ?>
-            </td>
+                echo ">" . xlt($value) . "</option>\n";
+            }
 
-            <td>
+                echo "   </select>&nbsp;\n";
+            ?>
+        </div>
+        <div class="form-group col-md-6">
+            <label for='form_facility'><?php echo xlt('Facility'); ?></label>
             <?php dropdown_facility($form_facility, 'form_facility', false); ?>
-            </td>
-
-            <td class='col-form-label'>
-                <?php
-                if (!$GLOBALS['simplified_demographics']) {
-                    echo '&nbsp;' . xlt('Procedure/Service') . ':';
-                } ?>
-            </td>
-            <td>
-               <input type='text' name='form_proc_codefull' class='form-control' size='12' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
-                title='<?php echo xla('Click to select optional procedure code'); ?>'
-                <?php
-                if ($GLOBALS['simplified_demographics']) {
-                    echo "style='display:none'";
-                } ?> />
-                                <br />
-          <div class="checkbox">
-                  <label><input type='checkbox' name='form_details' value='1'<?php echo (!empty($_POST['form_details'])) ? " checked" : ""; ?> /><?php echo xlt('Details')?></label>
-          </div>
-            </td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>
-               <select name='form_use_edate' class='form-control'>
-                <option value='0'><?php echo xlt('Payment Date'); ?></option>
-                <option value='1'<?php echo ($form_use_edate) ? ' selected' : ''; ?>><?php echo xlt('Invoice Date'); ?></option>
-               </select>
-            </td>
-            <td>
-               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-            </td>
-            <td class='col-form-label'>
-                <?php echo xlt('To{{Range}}'); ?>:
-            </td>
-            <td>
-               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
-            </td>
-        </tr>
-    </table>
-
+        </div>    
     </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for='form_provider'><?php echo xlt('Provider'); ?></label>
+            <?php echo xlt('Provider'); ?>:
+                <td>
+                    <?php
+                    if (AclMain::aclCheckCore('acct', 'rep_a')) {
+                        // Build a drop-down list of providers.
+                        //
+                        $query = "select id, lname, fname from users where " .
+                            "authorized = 1 order by lname, fname";
+                        $res = sqlStatement($query);
+                        echo "<select name='form_provider' class='form-control'>\n";
+                        echo "    <option value=''>-- " . xlt('All Providers') . " --\n";
+                        while ($row = sqlFetchArray($res)) {
+                            $provid = $row['id'];
+                            echo "    <option value='" . attr($provid) . "'";
+                            if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
+                                echo " selected";
+                            }
 
-  </td>
-  <td class='h-100' align='left' valign='middle'>
-    <table class='w-100 h-100' style='border-left:1px solid;'>
-        <tr>
-            <td>
-                <div class="text-center">
-          <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-                            <?php echo xlt('Submit'); ?>
-                      </a>
-                        <?php if (!empty($_POST['form_refresh'])) { ?>
-                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
-                                <?php echo xlt('Print'); ?>
-                        </a>
-                        <?php } ?>
-          </div>
-                </div>
-            </td>
-        </tr>
-    </table>
-  </td>
- </tr>
-</table>
+                            echo ">" . text($row['lname']) . ", " . text($row['fname']) . "\n";
+                        }
 
+                        echo "   </select>\n";
+                    } else {
+                        echo "<input type='hidden' name='form_provider' value='" . attr($_SESSION['authUserID']) . "'>";
+                    }
+                    ?>
+                </td>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="form_proc_codefull">
+            <?php
+            if (!$GLOBALS['simplified_demographics']) {
+                echo xlt('Procedure/Service');
+            }
+            ?>
+            </label>   
+            <input type='text' name='form_proc_codefull' id='form_proc_codefull' class='form-control' size='12' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
+                title='<?php echo xla('Click to select optional procedure code'); ?>'
+            <?php
+            if ($GLOBALS['simplified_demographics']) {
+                echo "style='display:none'";
+            } ?> />
+        </div>
+    </div>    
+    <div class="form-row">
+        <div class="form-group col-md-2">
+            <label for='form_use_edate'>
+                <select name='form_use_edate' class='form-control'>
+                    <option value='0'><?php echo xlt('Payment Date'); ?></option>
+                    <option value='1'<?php echo ($form_use_edate) ? ' selected' : ''; ?>><?php echo xlt('Invoice Date'); ?></option>
+                </select>
+            </label>
+        </div>
+        <div class="form-group col-md-2">
+            <label for="form_from_date">
+                <?php echo xlt('From'); ?>
+            </label>
+            <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="form_to_date">
+                <?php echo xlt('To{{Range}}'); ?>
+            </label>
+            <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
+        </div>
+        <div class="form-group col-md-1">
+            <div class="form-check">
+                <input class="form-check-input" type='checkbox' name='form_details' value='1'<?php echo (!empty($_POST['form_details'])) ? " checked" : ""; ?> />
+                <label class="form-check-label">
+                    <?php echo xlt('Details')?>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="btn-group col-md-2" role="group">
+            <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                <?php echo xlt('Submit'); ?>
+            </a>
+            <?php if (!empty($_POST['form_refresh'])) { ?>
+            <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
+                    <?php echo xlt('Print'); ?>
+            </a>
+            <?php } ?>
+        </div>
+    </div>    
 </div> <!-- end of parameters -->
 
 <?php
@@ -489,6 +509,12 @@ if (!empty($_POST['form_refresh'])) {
         $methodadjtotal  = 0;
         $grandadjtotal  = 0;
 
+        $form_provider = $_POST['form_provider'];
+        if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+            // only allow user to see their encounter information
+            $form_provider = $_SESSION['authUserID'];
+        }
+
 
         // Get co-pays using the encounter date as the pay date.  These will
         // always be considered patient payments.  Ignored if selecting by
@@ -497,7 +523,7 @@ if (!empty($_POST['form_refresh'])) {
         if (!$form_proc_code || !$form_proc_codetype) {
             $sqlBindArray = array();
             $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
-            "fe.date, fe.facility_id, fe.invoice_refno " .
+            "fe.date, fe.facility_id, fe.invoice_refno, fe.provider_id AS docid " .
             "FROM billing AS b " .
             "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
             "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
@@ -507,6 +533,12 @@ if (!empty($_POST['form_refresh'])) {
             if ($form_facility) {
                 $query .= " AND fe.facility_id = ?";
                 array_push($sqlBindArray, $form_facility);
+            }
+
+            // If a provider was specified.
+            if ($form_provider) {
+                $query .= " AND fe.provider_id = ?";
+                array_push($sqlBindArray, $form_provider);
             }
 
             $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
@@ -534,13 +566,16 @@ if (!empty($_POST['form_refresh'])) {
         //
         $sqlBindArray = array();
         $query = "SELECT a.pid, a.encounter, a.post_time, a.pay_amount, " .
-          "a.adj_amount, a.memo, a.session_id, a.code, a.payer_type, fe.id, fe.date, " .
+          "a.adj_amount, a.memo, a.session_id, a.code, a.payer_type, fe.id, fe.date, fe.provider_id as docid, " .
           "fe.invoice_refno, s.deposit_date, s.payer_id, s.reference, s.payment_method, i.name " .
           "FROM ar_activity AS a " .
           "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
           "JOIN forms AS f ON f.pid = a.pid AND f.encounter = a.encounter AND f.formdir = 'newpatient' " .
           "LEFT JOIN ar_session AS s ON s.session_id = a.session_id " .
           "LEFT JOIN insurance_companies AS i ON i.id = s.payer_id " .
+          "LEFT OUTER JOIN billing AS b ON b.pid = a.pid AND b.encounter = a.encounter AND " .
+          "b.code = a.code AND b.modifier = a.modifier AND b.activity = 1 AND " .
+          "b.code_type != 'COPAY' AND b.code_type != 'TAX' " .
           "WHERE a.deleted IS NULL AND (a.pay_amount != 0 OR a.adj_amount != 0)";
         //
         if ($form_use_edate) {
@@ -565,6 +600,14 @@ if (!empty($_POST['form_refresh'])) {
         if ($form_facility) {
             $query .= " AND fe.facility_id = ?";
             array_push($sqlBindArray, $form_facility);
+        }
+
+        // If a provider was specified.
+        if ($form_provider) {
+            $query .= " AND ( b.provider_id = ? OR " .
+            "( ( b.provider_id IS NULL OR b.provider_id = 0 ) AND " .
+            "fe.provider_id = ? ) )";
+            array_push($sqlBindArray, $form_provider, $form_provider);
         }
 
         //
