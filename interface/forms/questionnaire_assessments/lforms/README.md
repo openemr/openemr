@@ -48,14 +48,13 @@ you don't accidentally add something that we are also working on.
 
 * Run `npm run build` to build the project and generate a production version of
   the js files, which are much smaller than the development version. It
-  generates two versions of the js files, an ES5 version and ES2015 version, under
-  dist/lforms.  For details on the files to load, see ["Usng the LHC-Forms Web
-  Component"](#using).  The `dist` directory is deleted and recreated during the
-  process. 
+  generates an ES2017 version of the js files under dist/lforms. For details on 
+  the files to load, see ["Usng the LHC-Forms Web Component"](#using).  
+  The `dist` directory is deleted and recreated during the process. 
   
   The build also concatenates all the js files (except for zone.min.js and the
-  FHIR support files) into a single `lhc-forms.es5.js` and `lhc-forms.es2015.js`
-  file, and these work, but we don't currently recommend their use because the
+  FHIR support files) into a single `lhc-forms.js` file, and it works, 
+  but we don't currently recommend their use because the
   source maps don't work with these files.  Also, there is a dist/webcomponent
   directory that is created with a copy of the files in dist/lforms, but that
   is only needed for the tests.
@@ -72,9 +71,8 @@ you don't accidentally add something that we are also working on.
 
 1. Run `npm run test:e2e:prepare` to copy necessary files in places for the tests and to update the web driver.
 
-1. Run `npm run test:e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/). 
-   The e2e tests is configured to use Chrome. If Chrome has been updated, run `npm run update-webdriver` 
-   to update the Chrome web driver.
+1. Run `npm run test:e2e` to execute the end-to-end tests via [Cypress](https://www.cypress.io/). 
+   The e2e tests is configured to use Chrome. 
 
 ## <a id="using">Using the LHC-Forms Web Component</a>
 There are several script files to load.  If you are building this, these files will be
@@ -87,9 +85,9 @@ You need to include the following files in your project:
 1. `webcomponent/styles.css`
 2. `webcomponent/assets/lib/zone.min.js` (unless you already have zone.min.js on the page)
 3. `webcomponent/scripts.js`
-4. `webcomponent/runtime-[es5|es2015].js`
-5. `webcomponent/polyfills-[es5|es2015].js`
-6. `webcomponent/main-[es5|es2015].js`
+4. `webcomponent/runtime.js`
+5. `webcomponent/polyfills.js`
+6. `webcomponent/main.js`
 7. *One* of the FHIR support library files, assuming you are planning to use
    FHIR Questionnaires:
    * `fhir/lformsFHIRAll.min.js`
