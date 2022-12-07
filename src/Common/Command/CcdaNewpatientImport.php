@@ -10,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Common\Command;
 
 use Carecoordination\Model\CarecoordinationTable;
@@ -49,7 +48,7 @@ class CcdaNewpatientImport extends Command
 
         // get around a large ccda data array
         ini_set("memory_limit", -1);
-        
+
         (new CarecoordinationTable())->importNewPatient($input->getOption('document'));
         return 0;
     }
