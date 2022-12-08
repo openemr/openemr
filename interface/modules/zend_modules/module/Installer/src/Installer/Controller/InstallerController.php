@@ -120,21 +120,7 @@ class InstallerController extends AbstractActionController
             }
             die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
         } else {
-            // TODO - below should no longer be needed since the cli register command is nor directly calling
-            //  the register function in getInstallerTable
-            $moduleType = $request->getParam('mtype');
-            $moduleName = $request->getParam('modname');
-            if ($moduleType == 'zend') {
-                $rel_path = "public/" . $moduleName . "/";
-                // registering the table inserts the module record into the database.
-                // it's always loaded regardless, but it inserts it in the database as not activated
-                if ($this->getInstallerTable()->register($moduleName, $rel_path, 0, $GLOBALS['zendModDir'])) {
-                    $status = true;
-                }
-                die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
-            } else {
-                die("not supported");
-            }
+            die("Something went very wrong, so exiting");
         }
     }
 
