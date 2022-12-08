@@ -27,13 +27,22 @@ return array(
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new InstModule());
                 $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
-
                 $InstModuleTable = new Installer\Model\InstModuleTable($tableGateway, $container);
                 return new Installer\Controller\InstallerController($InstModuleTable);
             },
         ]
     ),
-
+    'service_manager' => [
+        'factories' => [
+            Installer\Model\InstModuleTable::class => function (ContainerInterface $container, $requestedName) {
+                $dbAdapter = $container->get(Adapter::class);
+                $resultSetPrototype = new ResultSet();
+                $resultSetPrototype->setArrayObjectPrototype(new InstModule());
+                $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
+                return new Installer\Model\InstModuleTable($tableGateway, $container);
+            },
+        ]
+    ],
     'router' => array(
         'routes' => array(
             'Installer' => array(
