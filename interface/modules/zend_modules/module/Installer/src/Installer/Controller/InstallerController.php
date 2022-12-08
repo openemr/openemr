@@ -733,15 +733,11 @@ class InstallerController extends AbstractActionController
     /**
      *
      */
-    public function commandInstallModuleAction()
+    public function commandInstallModuleAction($moduleName, $moduleAction)
     {
-        $request = $this->getRequest();
         if (php_sapi_name() !== 'cli') {
             throw new RuntimeException('You can only use this action from a console!');
         }
-
-        $moduleAction = $request->getParam('modaction');
-        $moduleName = $request->getParam('modname');
 
         $moduleId = null;
         $div = [];

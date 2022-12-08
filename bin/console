@@ -33,6 +33,7 @@ use OpenEMR\Common\Command\CcdaNewpatientImport;
 use OpenEMR\Common\Command\CcdaNewpatient;
 use OpenEMR\Common\Command\CcdaImport;
 use OpenEMR\Common\Command\Register;
+use OpenEMR\Common\Command\ZfcModule;
 use Symfony\Component\Console\Application;
 
 $app = new Application();
@@ -40,4 +41,5 @@ $app->add(new CcdaNewpatientImport());
 $app->add(new CcdaNewpatient());
 $app->add(new CcdaImport());
 $app->add(new Register());
+$app->add(new ZfcModule());
 $app->run();
