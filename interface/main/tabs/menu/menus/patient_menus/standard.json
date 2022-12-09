@@ -83,6 +83,70 @@
         "requirement": 0
     },
     {
+        "label": "Dashboard",
+        "menu_id": "das1",
+        "target": "main",
+        "url": "interface/forms/dashboard/new.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 1,
+        "acl_req": [ ]
+    },
+    {
+        "label": "Cases",
+        "menu_id": "cas1",
+        "target": "case",
+        "url": "interface/forms/cases/case_list.php?caller=patient&pid=",
+        "pid":"true",
+        "children": [],
+        "requirement": 1,
+        "acl_req": [ ]
+    },
+    {
+        "label": "Appts",
+        "menu_id": "appt",
+        "target": "main",
+        "url": "../../reports/appointments_report.php?patient=",
+        "pid":"true",
+        "children": [],
+        "requirement": 1,
+        "acl_req": [ ]
+    },
+    {
+        "label": "Orders",
+        "menu_id": "ord1",
+        "target": "main",
+        "url": "../../forms/rto/new.php?pop=db",
+        "pid":"false",
+        "children": [],
+        "requirement": 1,
+        "acl_req": [ ]
+    },
+    {
+        "label": "Medisoft Ledger",
+        "menu_id": "medisoftledger",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../../reports/medisoft_pat_ledger.php?form=1&patient_id=",
+        "pid":"true",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[
+            "patients",
+            "msledger"
+        ]
+    },
+    {
+        "label": "New Orders",
+        "menu_id": "ord1",
+        "target": "main",
+        "url": "../../forms/rto1/new.php?pop=db",
+        "pid":"false",
+        "children": [],
+        "requirement": 1,
+        "acl_req": [ ]
+    },
+    {
         "label": "PRO{{Patient Reported Outcomes}}",
         "menu_id": "patient_reported_outcomes",
         "target": "main",
