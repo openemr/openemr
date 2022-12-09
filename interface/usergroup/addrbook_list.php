@@ -23,6 +23,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
+/* OEMRAD - Changes */
+$popup = empty($_GET['popup']) ? 0 : 1;
+$use_as_select = empty($_GET['select']) ? 0 : 1;
+/* End */
+
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Address Book")]);
     exit;
@@ -97,6 +102,14 @@ if ($form_lname) {
 
 $query .= " LIMIT 500";
 $res = sqlStatement($query, $sqlBindArray);
+
+/* OEMRAD - Changes */
+$action = 'addrbook_list.php';
+$addl = '';
+if($popup) $addl .= 'popup=' . strip_tags($_GET['popup']) . '&';
+if($use_as_select) $addl .= 'select=' . strip_tags($_GET['select']) . '&';
+if($addl) $action .= '?' . $addl;
+/* End */
 ?>
 
 <!DOCTYPE html>
@@ -104,7 +117,8 @@ $res = sqlStatement($query, $sqlBindArray);
 
 <head>
 
-<?php Header::setupHeader(['common']); ?>
+<!-- OEMRAD - Change -->
+<?php Header::setupHeader(['common', 'opener']); ?>
 
 <title><?php echo xlt('Address Book'); ?></title>
 
@@ -119,7 +133,8 @@ $res = sqlStatement($query, $sqlBindArray);
         <div class="col-md-12">
             <h3><?php echo xlt('Address Book'); ?></h3>
 
-        <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
+        <!-- OEMRAD - From action changed -->
+        <form class='navbar-form' method='post' action='<?php echo $action; ?>' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" name="popup" value="<?php echo attr($rtn_selection); ?>" />
 
@@ -155,7 +170,14 @@ $res = sqlStatement($query, $sqlBindArray);
                     </div>
                     <input type='checkbox' id="formExternal" name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?> title='<?php echo xla("Omit internal users?") ?>' />
                     <label for="formExternal"><?php echo xlt('External Only') ?></label>
-                    <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />&nbsp;&nbsp;
+
+                    <!-- OEMRAD - Wrapped with if condtion -->
+                    <?php if(AclMain::aclCheckCore('lists', 'addresses')) { ?>
+                    <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />
+                    <?php } ?>
+                    &nbsp;&nbsp;
+                    <!-- End -->
+
                     <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='btn btn-primary btn-search' name='form_search' value='<?php echo xla("Search") ?>'/>
                     </div>
         </form>
@@ -198,6 +220,13 @@ while ($row = sqlFetchArray($res)) {
         $trTitle = xl('Edit') . ' ' . $displayName;
         echo " <tr class='address_names detail' style='cursor:pointer' " .
         "onclick='doedclick_edit(" . attr_js($row['id']) . ")' title='" . attr($trTitle) . "'>\n";
+    } elseif ($use_as_select == 1) {
+        /* OEMRAD - Changes */
+        $trTitle = xl('Select'). ' ' . $displayName;
+        echo " <tr class='address_names detail' style='cursor:pointer' " .
+        "onclick='doedclick_edit(" . $row['id'] . ")' title='".attr($trTitle)."'>\n";
+        /* End */
+
     } else {
        // Do not allow edit, since no access and (item is a type or is a local user)
         $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
@@ -246,14 +275,34 @@ function doedclick_add(type) {
 }
 
 // Process click to pop up the edit window.
+/* OEMRAD - Commeted 
 function doedclick_edit(userid) {
- let rtn_selection = <?php echo js_escape($rtn_selection); ?>;
+ let rtn_selection = <?php //echo js_escape($rtn_selection); ?>;
  if(rtn_selection) {
     dlgclose('contactCallBack', userid);
  }
  top.restoreSession();
  dlgopen('addrbook_edit.php?userid=' + encodeURIComponent(userid), '_blank', 650, (screen.availHeight * 75/100));
 }
+End */
+
+/* OEMRAD - Added Function */
+function doedclick_edit(userid) {
+    top.restoreSession();
+    <?php if($use_as_select) { ?>
+    if(opener.closed || !opener.setaddress) {
+        alert("<?php echo htmlspecialchars( xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+    } else {
+        opener.setaddress(userid);
+    }
+    dlgclose();
+    return false;
+    <?php } else { ?>
+        dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 650, (screen.availHeight * 75/100));
+    <?php } ?>
+}
+/* End */
+
 
 </script>
 </div>
