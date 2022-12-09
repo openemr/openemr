@@ -250,3 +250,11 @@ assets:
     reason-code-widget:
         basePath: '%webroot%/library/js/'
         script: reasonCodeWidget.js
+    oemr_ad:
+        basePath: '%webroot%/library/OemrAD/'
+        script: 
+            - assets/js/script.js
+            - assets/js/coverage.js
+        link:
+            - assets/css/custom_style.css
+            - assets/css/custom_datatable.css
