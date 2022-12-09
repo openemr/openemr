@@ -19,6 +19,7 @@
 require_once(dirname(__FILE__) . "/../../globals.php");
 require_once($GLOBALS['srcdir'] . "/options.inc.php");
 
+use OpenEMR\Core\Kernel;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
@@ -200,6 +201,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // Custom filtering, before datatables filtering created by the user
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
+$GLOBALS["kernel"] = new Kernel();
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
 $patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientFinderFilterEvent::EVENT_HANDLE, $patientFinderFilterEvent, 10);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
