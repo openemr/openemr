@@ -1,0 +1,233 @@
+.email-verification-icon-failed {
+	color: red;
+	font-size: 25px;
+}
+
+.email-verification-icon-successful {
+	color: green;
+	font-size: 25px;
+}
+
+.emv-input-group-container {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	grid-column-gap: 8px;
+    align-items: center;
+}
+
+.emv-form-control {
+	width: calc(100% - 53px) !important;
+}
+
+.btn-loader {
+	width: 15px !important;
+	height: 15px !important;
+}
+
+/* Multi Text Input */
+.mti-container {
+	margin-bottom: 15px; 
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-gap: 5px;
+}
+
+.mti-container .mti-form-control {
+	width: calc(100% - 28px) !important;
+}
+
+
+/* Demographics Full */
+#DEM .label_custom {
+	height: 30px !important;
+}
+
+#tab_Misc {
+	width: 100% !important;
+}
+#tab_Misc > table {
+	display: inline-block !important;
+}
+
+.modal-custom-dem-alert-log .modal-body.px-1 {
+	padding: 0px !important;
+}
+
+/* End Demographics Full */
+
+/*Dialog*/
+.modal-dialog .loaderContainer {
+	display: none;
+}
+
+.modal-dialog .loading-dialog .loaderContainer {
+	width: 100%;
+  height: 100%;
+  display: grid;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-dialog .loading-dialog iframe.modalIframe {
+	display: none !important;
+}
+
+/*End*/
+
+/**/
+.file-items-container > ul {
+	margin-bottom: 0px !important;
+	padding: 0px!important;
+}
+
+.file-items-container > ul > li {
+	list-style: none !important;
+}
+/**/
+
+/*Loader Style*/
+.loaderContainer {
+	width: 100%;
+    height: 100%;
+    display: grid;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loaderContainer.backWhite {
+	background-color: rgba(255,255,255,0.5);
+}
+
+.loaderContainer.fixedContainer {
+	position: fixed !important;
+}
+
+.hideLoader {
+	display: none;
+}
+/*End*/
+
+/* Tooltip */
+
+.tooltip-container .hidden_content {
+	display: none;
+}
+
+/* End  */
+
+/* According Style */
+
+.accordion > .card > .card-header:after {
+    font-family: "Font Awesome 6 Free";
+   	content: "\f077";
+   	display: inline-block;
+   	vertical-align: middle;
+   	font-weight: 900;
+   	float: right;
+   	padding-right: 3px;
+  	vertical-align: middle;
+}
+.accordion > .card >  .card-header.collapsed:after {
+    font-family: "Font Awesome 6 Free";
+   	display: inline-block;
+   	vertical-align: middle;
+   	font-weight: 900;
+   	float: right;
+    content: "\f078"; 
+}
+
+/* End */
+
+.form-control.disabled {
+	background-color: #e9ecef;
+    opacity: 1;
+}
+
+.field-text-info {
+	font-style: italic;
+}
+
+.forminput-inline-field {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: center;
+}
+
+/* Coverage container */
+.ins-coverage-container {
+	display: inline-grid;
+    grid-template-columns: auto auto;
+    gap: 8px;
+}
+
+.c-font-size-sm {
+	font-size: 0.85rem;
+}
+
+@media screen and (max-width: 1060px) {
+	.ins-coverage-container {
+		display: grid;
+	    grid-template-columns: auto;
+	    gap: 5px;
+	}
+
+	.ins-coverage-container button {
+		width: 100%;
+	}
+}
+
+/* End  */
+
+/* Grid  */
+
+.strow.row,
+.strow.form-row {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+  flex-wrap: wrap;
+}
+
+.strow.row > [class*='col-'],
+.strow.form-row > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* End */
+
+/* Case */
+
+#lpc_ele_container .m-elements-wrapper {
+	max-width: 510px !important;
+}
+
+#lpc_ele_container .m-element-wrapper {
+	display: grid;
+    grid-template-columns: 1fr auto;
+    grid-gap: 5px;
+    align-items: start;
+}
+
+#lpc_ele_container .m-btn-remove {
+	min-height: 39px;
+}
+
+#aprovider_wrapper .m-elements-wrapper {
+	max-width: 315px;
+}
+/* End */
+
+.trHide {
+	display: none;
+}
+.hideElement {
+	display: none !important;
+}
+
+
+

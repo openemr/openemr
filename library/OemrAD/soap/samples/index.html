@@ -1,0 +1,67 @@
+<html>
+<!--
+  --	$Id: index.html,v 1.19 2010/04/26 15:31:48 snichol Exp $
+  -->
+<head>
+<title>NuSOAP Samples</title>
+<script type="text/javascript">
+function go(url) {
+	document.linkform.action = url;
+	document.linkform.submit();
+}
+</script>
+</head>
+<body>
+<h2>NuSOAP Samples</h2>
+<p>
+These links allow you to launch sample clients.  <b><i>As of 26 April 2010, most of the links to commercial services no longer work.</i></b>
+</p>
+<form name="linkform" method="POST" action="javascript:void();">
+<a href="javascript:go('client1.php')">Amazon endpoint (Fault expected)</a><br>
+<a href="javascript:go('client2.php')">Amazon endpoint</a><br>
+<a href="javascript:go('client3.php')">Google endpoint (you must have a key)</a><br>
+<a href="javascript:go('mimeclient.php')">MIME Attachment</a><br>
+<a href="javascript:go('sslclient.php')">SSL endpoint</a><br>
+<a href="javascript:go('wsdlclient1.php')">Stock quote WSDL</a><br>
+<a href="javascript:go('wsdlclient2.php')">Amazon WSDL</a><br>
+<a href="javascript:go('wsdlclient3.php?method=function')">Hello WSDL (PHP function)</a><br>
+<a href="javascript:go('wsdlclient3.php?method=instance')">Hello WSDL (PHP instance method)</a><br>
+<a href="javascript:go('wsdlclient3.php?method=class')">Hello WSDL (PHP class method)</a><br>
+<a href="javascript:go('wsdlclient3b.php')">Hello WSDL with pre-formed parameter XML</a><br>
+<a href="javascript:go('wsdlclient3c.php')">Hello WSDL (rpc/literal version)</a><br>
+<a href="javascript:go('wsdlclient4.php')">Interop WSDL</a><br>
+<a href="javascript:go('wsdlclient5.php')">Price quote WSDL (uses wsdlcache)</a><br>
+<a href="javascript:go('wsdlclient6.php')">Google WSDL (you must have WSDL file local)</a><br>
+<a href="javascript:go('wsdlclient7.php')">MapPoint WSDL #1 (you must have a username/password)</a><br>
+<a href="javascript:go('wsdlclient8.php')">MapPoint WSDL #2 (you must have a username/password)</a><br>
+<a href="javascript:go('wsdlclient9.php')">MapPoint WSDL #3 (you must have a username/password)</a><br>
+<a href="javascript:go('wsdlclient10.php')">Country list WSDL</a><br>
+<a href="javascript:go('wsdlclient11.php')">Hello WSDL (document/literal version)</a><br>
+<a href="javascript:go('wsdlclient12.php?method=ItemLookup')">Amazon E-Commerce Service (ItemLookup by node)</a><br>
+<a href="javascript:go('wsdlclient12.php?method=ItemSearch')">Amazon E-Commerce Service (ItemSearch by node)</a><br>
+<a href="javascript:go('wsdlclient12.php?method=ItemSearch2')">Amazon E-Commerce Service (ItemSearch by keyword)</a><br>
+<a href="javascript:go('wsdlclient12.php?method=ListLookup')">Amazon E-Commerce Service (ListLookup)</a><br>
+<a href="javascript:go('wsdlclient12.php?method=ListSearch')">Amazon E-Commerce Service (ListSearch)</a><br>
+<a href="javascript:go('wsdlclient12.php?method=CartCreate')">Amazon E-Commerce Service (CartCreate)</a><br>
+<a href="javascript:go('wsdlclient13.php')">Maintain a Session</a><br>
+<a href="javascript:go('wsdlclient14.php')">Via Michelin</a><br>
+<a href="javascript:go('wsdlclient15.php')">UTF-8 Character Encoding</a><br>
+<a href="javascript:go('getfile1client.php')">Get a file #1 (uses base64Binary)</a><br>
+<a href="javascript:go('getfile2client.php')">Get a file #2 (uses base64Binary; service uses external WSDL file)</a><br>
+<br>
+<table border="0">
+<tr><td>Use cURL?</td><td><input type="checkbox" name="usecurl" value="1"></td></tr>
+</table>
+<p>
+If you access the Internet through a proxy, provide the proxy
+information below.
+</p>
+<table border="0">
+<tr><td>Proxy Host:</td><td><input type="text" name="proxyhost" value="" size="50" maxlength="256"></td></tr>
+<tr><td>Proxy Port:</td><td><input type="text" name="proxyport" value="" size="5" maxlength="5"></td></tr>
+<tr><td>Proxy Username:</td><td><input type="text" name="proxyusername" value="" size="50" maxlength="256"></td></tr>
+<tr><td>Proxy Password:</td><td><input type="password" name="proxypassword" value="" size="50" maxlength="256"></td></tr>
+</table>
+</form>
+</body>
+</html>
