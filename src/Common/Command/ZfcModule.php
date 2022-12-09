@@ -27,11 +27,12 @@ class ZfcModule extends Command
         $this
             ->setName('openemr:zfc-module')
             ->setDescription('Module maintenance (install_sql, install_acl, upgrade_acl, upgrade_sql, install, enable, disable, unregister)')
+            ->addUsage('--site=default --modname=Multipledb --modaction=install')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('modname', null, InputOption::VALUE_REQUIRED, 'Name of module'),
                     new InputOption('modaction', null, InputOption::VALUE_REQUIRED, 'Available actions: install_sql, install_acl, upgrade_acl, upgrade_sql, install, enable, disable, unregister'),
-                    new InputOption('site', null, InputOption::VALUE_OPTIONAL, 'Name of site', 'default'),
+                    new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
             )
         ;

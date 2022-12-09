@@ -26,10 +26,11 @@ class CcdaImport extends Command
         $this
             ->setName('openemr:ccda-import')
             ->setDescription('Import ccda into ccda table from a document id')
+            ->addUsage('--site=default --document_id=5')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('document_id', null, InputOption::VALUE_REQUIRED, 'Document id that will be imported into the ccda table'),
-                    new InputOption('site', null, InputOption::VALUE_OPTIONAL, 'Name of site', 'default'),
+                    new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
             )
         ;
@@ -42,7 +43,7 @@ class CcdaImport extends Command
             return 2;
         }
 
-        (new CarecoordinationTable())->import($input->getOption('document_id'));
+        $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class)->import($input->getOption('document_id'));
         return 0;
     }
 }

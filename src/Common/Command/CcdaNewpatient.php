@@ -26,11 +26,12 @@ class CcdaNewpatient extends Command
         $this
             ->setName('openemr:ccda-newpatient')
             ->setDescription('Import new patient from audit table id and ccda document id')
+            ->addUsage('--site=default --am_id=5 --document_id=7')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('am_id', null, InputOption::VALUE_REQUIRED, 'The master audit table id of patient that will be imported as a new patient'),
                     new InputOption('document_id', null, InputOption::VALUE_REQUIRED, 'The ccda document id that was imported into the audit table'),
-                    new InputOption('site', null, InputOption::VALUE_OPTIONAL, 'Name of site', 'default'),
+                    new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
             )
         ;
@@ -47,7 +48,7 @@ class CcdaNewpatient extends Command
             return 2;
         }
 
-        (new CarecoordinationTable())->insert_patient($input->getOption('am_id'), $input->getOption('document_id'));
+        $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class)->insert_patient($input->getOption('am_id'), $input->getOption('document_id'));
         return 0;
     }
 }

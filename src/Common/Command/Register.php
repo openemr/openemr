@@ -26,11 +26,12 @@ class Register extends Command
         $this
             ->setName('openemr:register')
             ->setDescription('Register a zend module')
+            ->addUsage('--site=default --mtype=zend --modname=Multipledb')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('mtype', null, InputOption::VALUE_REQUIRED, 'Only "zend" is supported'),
                     new InputOption('modname', null, InputOption::VALUE_REQUIRED, 'Zend module name'),
-                    new InputOption('site', null, InputOption::VALUE_OPTIONAL, 'Name of site', 'default'),
+                    new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
             )
         ;
@@ -52,8 +53,10 @@ class Register extends Command
             return 1;
         }
 
+
         $moduleName = $input->getOption('modname');
         $rel_path = "public/" . $moduleName . "/";
+
         if ($GLOBALS['modules_application']->getServiceManager()->build(InstModuleTable::class)->register($moduleName, $rel_path, 0, $GLOBALS['zendModDir'])) {
             $output->writeln('Success');
             return 0;
