@@ -1,0 +1,422 @@
+table {
+	border-collapse: collapse;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+}
+
+div.tab {
+	width: 98%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  text-transform: none;
+	font-weight: normal;
+}
+
+.DateCell {
+	width: 100px;
+}
+
+.wmtPrnDateCell {
+	width: 100px;
+}
+
+.wmtPrnIndentLabel{
+	padding-left: 25px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.wmtPrnIndentBody{
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+}
+
+.wmtPrnIndentText {
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+	width: 100%;
+}
+
+.wmtPrnLabelUC {
+  font-weight: bold;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+	vertical-align: top;
+}
+
+.wmtPrnSubSection{
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.wmtPrnLabel {
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnLabelR {
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtPrnLabel2 {
+  font-size: 0.6em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnLabel2R {
+  font-size: 0.6em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtPrnLabel2UC {
+  font-size: 0.6em;
+  font-weight: bold;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnLabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.wmtPrnLabelBorderLB {
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelCenterBorderLB {
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelBorderLBR {
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.wmtPrnLabelBorderL {
+  font-weight: bold;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.wmtPrnBorderT {
+	border-top: solid 1px black;
+}
+
+.wmtPrnLabelCenterBorderL {
+  font-weight: bold;
+  text-transform:none;
+  text-align: center;
+  border-left: solid 1px black;
+}
+
+.wmtPrnLabelBorderB {
+  font-weight: bold;
+  text-transform: none;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelCenterBorderB {
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelUCBorderB {
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelUCBorderL {
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.wmtPrnLabel3{
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.wmtPrnLabel3Center {
+  font-size: 0.5em;
+  font-weight: bold;
+	text-align: center;
+  text-transform:uppercase;
+}
+
+.wmtPrnLabel3CenterBorderB {
+  font-size: 0.5em;
+  font-weight: bold;
+	text-align: center;
+  text-transform:uppercase;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabel3CenterBorderL {
+  font-size: 0.5em;
+  font-weight: bold;
+	text-align: center;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.wmtPrnLabel3CenterBorderLB {
+  font-size: 0.5em;
+  font-weight: bold;
+	text-align: center;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnBodyBorderAll {
+  text-transform: uppercase;
+  border: solid 1px black;
+}
+
+.wmtPrnBodyBorderL {
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.wmtPrnBodyBorderLB {
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnBodyBorderB {
+  font-weight: normal;
+  text-transform:none;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnHuge {
+  font-size: 15px;
+	text-align: center;
+}
+
+.wmtPrnLarge {
+  font-size: 13px;
+  font-weight: normal;
+	text-align: center;
+}
+
+.wmtPrnChapter {
+  font-size: 13px;
+  font-weight: bold;
+	text-align: center;
+}
+
+.wmtPrnBodyUC {
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnLargeBody {
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody {
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBodyR {
+	text-align: right;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody2 {
+  font-size: 9px;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody2R {
+  font-size: 9px;
+  text-align: right;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody2UC {
+  font-size: 9px;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnBody3 {
+  font-size: 7px;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody4 {
+  font-size: 6px;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnFullInput {
+	width: 100%;
+  font-size: 11px;
+	vertical-align: top;
+}
+
+.wmtPrnMainContainer {
+	overflow: hidden;
+  border: solid 2px black;
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+.wmtPrnContainer {
+	overflow: hidden;
+}
+
+.wmtPrnMainContainerBottom1 {
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+  margin: 6px;
+}
+
+.wmtPrnContainerNoBorder {
+  text-align: left;
+  border: none;
+  margin: 6px;
+}
+
+.wmtPrnContainerNoBottom {
+  text-align: left;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  margin: 6px;
+}
+
+.wmtPrnCollapseBar {
+  text-align: center;
+  cursor: pointer;
+	border-bottom: solid 1px black;
+}
+
+.wmtPrnCollapseBox {
+  text-align: center;
+  overflow: hidden;
+}
+
+.wmtPrnDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: black;
+  border-bottom-width: 2px;
+	margin: 4px 6px 4px 6px;
+}
+
+.wmtPrnDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.wmtPrnBorder1L {
+	border-left: solid 1px black;
+}
+
+.wmtPrnBorder1T {
+	border-top: solid 1px black;
+}
+
+.wmtPrnBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.wmtPrnBorder1R {
+	border-right: solid 1px black;
+}
+
+.wmtPrnBorder1AlL {
+	border: solid 1px black;
+}
+
+.wmtPrnR {
+	text-align: right;
+}
+
+.wmtPrnC {
+	text-align: center;
+}
+
+.wmtPrnT {
+	vertical-align: top;
+}
+
+.wmtPrnHeadingBar {
+  text-align: left;
+  background-color: black;
+	color: white;
+  font-size: 12px;
+	font-weight: bold;
+	width: 90%;
+}
+
+@media print {
+	#no_print_buttons {
+		display: none;
+		visibility: hidden;
+	}
+
+	.wmtNoPrint {
+		display: none;
+		visibility: hidden;
+	}
+}

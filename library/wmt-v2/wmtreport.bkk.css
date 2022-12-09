@@ -1,0 +1,307 @@
+div.tab {
+  width: 98%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	padding: 0px;
+	margin: 0px;
+}
+
+div {
+	padding: 0px;
+	margin: 0px;
+}
+
+td {
+	text-align: left;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.bkkPrnDateCell {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	width: 95px;
+}
+
+.bkkPrnIndentLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	padding-left: 25px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.bkkPrnIndentText {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+	width: 100%;
+}
+
+.bkkPrnHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.bkkPrnLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.bkkPrnLabel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.bkkPrnLabel3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.bkkPrnLabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.4em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.bkkPrnHuge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.0em;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.bkkPrnLarge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.bkkPrnChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+	text-align: center;
+  text-transform: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+.bkkPrnLetter{
+  font-family: Arial, Helvetica, sans-serif;
+  text-transform: none;
+  font-size: 0.7em;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.bkkPrnBody {
+  font-family: Arial, Helvetica, sans-serif;
+  text-transform: none;
+  font-size: 0.7em;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.bkkPrnBody2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: none;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.bkkPrnBody3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.bkkPrnBody4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.bkkPrnFullInput {
+  font-family: Arial, Helvetica, sans-serif;
+  text-transform: none;
+	width: 100%;
+	border: none;
+  font-size: 0.7em;
+	vertical-align: top;
+}
+
+.bkkPrnMainContainer {
+  border: solid 2px black;
+  font-size: 0.7em;
+	white-space: pre-wrap;
+	padding: 0px;
+}
+
+.bkkPrnEmphasisContainer {
+  border: solid 2px gray;
+	overflow: hidden;
+	white-space: pre-wrap;
+	padding: 4px;
+}
+
+.bkkPrnContainer {
+	background-color: transparent;
+  text-transform: none;
+  font-size: 0.7em;
+	vertical-align: top;
+	white-space: pre-wrap;
+	padding: 0px;
+	margin: 0px;
+}
+
+.bkkPrnCollapseBar {
+  text-align: center;
+	border-bottom: solid 1px black;
+	margin: 0px;
+	padding: 0px;
+}
+
+.bkkPrnCollapseBox {
+	background-color: transparent;
+  text-align: center;
+  overflow: hidden;
+	margin: 0px;
+	padding: 0px;
+	border-collapse: collapse;
+}
+
+.bkkPrnDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: black;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.bkkPrnDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.bkkPrnBorder1L {
+	border-left: solid 1px black;
+}
+
+.bkkPrnBorder1T {
+	border-top: solid 1px black;
+}
+
+.bkkPrnBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.bkkPrnBorder1R {
+	border-right: solid 1px black;
+}
+
+.bkkPrnBorder1All {
+	border: solid 1px black;
+}
+
+.bkkPrnBorder2L {
+	border-left: solid 2px black;
+}
+
+.bkkPrnBorder2T {
+	border-top: solid 2px black;
+}
+
+.bkkPrnBorder2B {
+	border-bottom: solid 2px black;
+}
+
+.bkkPrnBorder2R {
+	border-right: solid 2px black;
+}
+
+.bkkPrnBorder2All {
+	border: solid 2px black;
+}
+
+.bkkPrnC {
+	text-align: center;
+}
+
+.bkkPrnR {
+	text-align: right;
+}
+
+.bkkPrnL {
+	text-align: left;
+}
+
+.bkkPrnVT {
+	vertical-align: top;
+}
+
+.bkkPrnVM {
+	vertical-align: middle;
+}
+
+.bkkPrnVB {
+	vertical-align: bottom;
+}
+
+.bkkPrnUC {
+	text-transform: uppercase;
+}
+
+.bkkPrnHeadingBar {
+  text-align: left;
+  background-color: black;
+	color: white;
+  font-size: 0.8em;
+	font-weight: bold;
+	margin-left: 10px;
+	margin-right: 20px;
+}
+
+@media print {
+	#no_print_buttons {
+		display: none;
+		visibility: hidden;
+	}
+
+	.bkkNoPrint {
+		display: none;
+		visibility: hidden;
+	}
+}

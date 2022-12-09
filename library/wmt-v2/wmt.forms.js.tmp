@@ -1,0 +1,273 @@
+
+function AddMultSelItem(thisSelect, targetField)
+{
+	var sel = document.getElementById(thisSelect);
+	var target = document.getElementById(targetField);
+	var desc = '';
+	for (var i=0; i<sel.options.length; i++) {
+		if(sel.options[i].selected) {
+			if(desc != '') desc = desc + ', ';
+			desc = desc + sel.options[i].text;
+		}
+	}
+	while( target.firstChild) {
+		target.removeChild( target.firstChild );
+	}
+	target.appendChild( document.createTextNode(desc) );
+}
+
+function AddOrRemoveThis(thisTarget, thisData)
+{
+	var delim = '+';
+	if(arguments.length > 2) delim = arguments[2];
+	alert('This Target: '+thisTarget);
+	var type = document.getElementById(thisTarget).type.toUpperCase();
+	if(type == 'SPAN') {
+		var val = document.getElementById(thisTarget).innerHTML;
+		var new_val = val;
+	} else {
+		var val = document.getElementById(thisTarget).value;
+		var new_val = val;
+	}
+	alert('Type: '+type+' And the Value: '+val);
+
+	// IF IT DOESN'T EXIST WE CAN JUST ADD IT ON THE END
+	if(val.indexOf(thisData) == -1) {
+		if(new_val != '') new_val += delim;
+		new_val += thisData;
+	} else if(val.indexOf(delim + thisData + delim) != -1) {
+		// THIS IS WHERE WE CLEAR THE VALUE FROM THE LIST IF IT EXISTS
+		// FIRST CHECK FOR A MATCH IN THE MIDDLE OF THE EXISTING DATA
+		new_val = val.replace((delim + thisData + delim),delim);	
+	} else if(val.indexOf(delim + thisData) != -1) {
+		// OR IS IT AT THE END?
+		new_val = val.replace((delim + thisData), '');	
+	} else if(val.indexOf(thisData + delim) != -1) {
+		// LAST POSSIBILITY IS AT THE BEGINNING
+		new_val = val.replace((thisData + delim), '');	
+	} else {
+		// IT WAS THE ONLY THING IN THE LIST
+		new_val = '';
+	}
+	if(type == 'SPAN') {
+		var span = document.getElementById(thisTarget);
+		while( span.firstChild) {
+			span.removeChild( span.firstChild );
+		}
+		span.appendChild( document.createTextNode(new_desc) );
+	} else {
+		document.getElementById(target).value = new_val;
+	}
+	alert('The New: '+new_val);
+}
+
+function UpdateSelDescription(thisSelect, thisInput, thisSpan)
+{
+	var delim = '+';
+	if(arguments.length > 3) delim = arguments[3];
+	var sel = document.getElementById(thisSelect);
+	var target = document.getElementById(thisInput);
+	var val = target.value;
+	var new_val = val;
+	var span = document.getElementById(thisSpan);
+	var desc = span.innerHTML;
+	var new_desc = desc;
+	for (var i=0; i<sel.options.length; i++) {
+		if(sel.options[i].selected) {
+			// First test the 'Remove All' Option
+			if(sel.options[i].value == '~ra~') {
+				target.value = '';
+				while( span.firstChild) {
+					span.removeChild( span.firstChild );
+				}
+				span.appendChild( document.createTextNode('') );
+				sel.options[i].selected=false;
+				return true;
+			}
+			// Second - test the 'Select All' Option
+			if(sel.options[i].value == '~ALL~') {
+				target.value = '~ALL~';
+				while( span.firstChild) {
+					span.removeChild( span.firstChild );
+				}
+				span.appendChild( document.createTextNode('ALL') );
+				sel.options[i].selected=false;
+				return true;
+			}
+			// Third - test the 'None' Option
+			if(sel.options[i].value == 'none') {
+				target.value = 'none';
+				while( span.firstChild) {
+					span.removeChild( span.firstChild );
+				}
+				span.appendChild( document.createTextNode('None') );
+				sel.options[i].selected=false;
+				return true;
+			}
+			// If 'none' is in the list, now we need to take it out!
+			if(val == 'none') {
+				new_val = '';
+				new_desc = '';
+			}
+			// Now we test for this option in our hidden list
+			var opt = sel.options[i].value;
+			new_val = AddOrRemoveThis(thisInput, opt, delim);
+			var txt = sel.options[i].text;
+			new_desc = AddOrRemoveThis(thisSpan, txt, ', ');
+			/*******
+			var test = val.indexOf(sel.options[i].value);
+			if(test == -1) {
+				if(new_desc != '') new_desc = new_desc + ', ';
+				new_desc = new_desc + sel.options[i].text;
+				if(new_val != '') new_val = new_val + delim;
+				new_val = new_val + sel.options[i].value;	
+			} else {
+				var opt = sel.options[i].value;
+				new_val = AddOrRemoveThis(target, opt);
+				test = val.indexOf(delim + opt + delim);
+				if(test != -1) {
+					new_val = val.replace((delim + opt + delim),delim);	
+				} else {
+					test = val.indexOf(delim + opt);
+					if(test != -1) {
+						new_val = val.replace((delim + opt), '');	
+					} else {
+						test = val.indexOf(opt + delim);
+						if(test != -1) {
+							new_val = val.replace((opt + delim), '');	
+						} else {
+							new_val = '';
+						}
+					}
+				}
+				**********/
+				// Now the description text
+				// First check for a match in the middle - 
+				/******
+				test = desc.indexOf(', ' + txt + ',');
+				if(test != -1) {
+					new_desc = desc.replace((', ' + txt + ','),', ');	
+				} else {
+					test = desc.indexOf(', ' + txt);
+					if(test != -1) {
+						new_desc = desc.replace((', ' + txt),'');	
+					} else {
+						test = desc.indexOf(txt + ',');
+						if(test != -1) {
+							new_desc = desc.replace((txt + ', '),'');	
+						} else {
+							new_desc = '';
+						}
+					}
+				}
+				******/
+			}
+			sel.options[i].selected=false;
+		}
+	}
+	// alert("New Hidden Value: "+new_val);
+	// target.value = new_val;
+	// while( span.firstChild) {
+		// span.removeChild( span.firstChild );
+	// }
+	// span.appendChild( document.createTextNode(new_desc) );
+	
+}
+
+function UpdateLinkTextArea(thisSelect, thisInput, thisText)
+{
+	var sel = document.getElementById(thisSelect);
+	// var target = document.getElementById(thisInput);
+	// var val = target.value;
+	// var new_val = val;
+	var ta = document.getElementById(thisText);
+	var desc = ta.value;
+	var new_desc = desc;
+	// alert("Hidden ["+val+"]  And Text ("+desc+")");
+	for (var i=0; i<sel.options.length; i++) {
+		if(sel.options[i].selected) {
+			// First test the 'Remove All' Option
+			if(sel.options[i].value == '~ra~') {
+				// target.value = '';
+				for (var s=0; s<sel.options.length; s++) {
+					if(sel.options[s].value != '~ra~' && sel.options[s].value != '') {
+						// FIX - Find the text in the textarea and delete it
+						new_desc = new_desc.replace(', '+sel.options[s].text, ' ');
+						new_desc = new_desc.replace(sel.options[s].text, '');
+					}
+				}
+				ta.value = new_desc;
+				sel.options[i].selected = false;
+				return true;
+			}
+			// Second - test the 'Select All' Option
+			if(sel.options[i].value == '~ALL~') {
+				// target.value = '~ALL~';
+				// FIX - WARNING - This could result in strange behavior
+				ta.value = '';
+				for (var s=0; s<sel.options.length; s++) {
+					if(sel.options[s].value != '~ra~' && sel.options[s].value != '') {
+						if(ta.value != '') ta.value += ', ';
+						ta.value += sel.options[s].text;
+					}
+				}
+				sel.options[i].selected = false;
+				return true;
+			}
+			// Now we test for this option in our hidden list
+			var test = desc.indexOf(sel.options[i].text);
+			// alert("Is the New Choice in our List: "+test);
+			// If it doesn't exist we add the option and description
+			if(test == -1) {
+				if(new_desc != '') new_desc = new_desc + ', ';
+				new_desc = new_desc + sel.options[i].text;
+				// if(new_val != '') new_val = new_val + '+';
+				// new_val = new_val + sel.options[i].value;	
+			} else {
+				// Now the description text
+				// First check for a match in the middle - 
+				var txt = sel.options[i].text;
+				test = desc.indexOf(', '+txt+',');
+				if(test != -1) {
+					new_desc = desc.replace((', '+txt+','),', ');	
+				} else {
+					// Is it at the end?
+					test = desc.indexOf(', '+txt);
+					if(test != -1) {
+						new_desc = desc.replace((', '+txt),'');	
+					} else {
+						// Is it at the beginning?
+						test = desc.indexOf(txt+',');
+						if(test != -1) {
+							new_desc = desc.replace((txt+', '),'');	
+						} else {
+							// It is the only one
+							new_desc = '';
+						}
+					}
+				}
+			}
+			sel.options[i].selected=false;
+		}
+	}
+	// alert("New Hidden Value: "+new_val);
+	// target.value = new_val;
+	ta.value = new_desc;
+}
+
+function addCannedText(chk, field, text) {
+	if(chk.checked == false) return false;
+	var numargs = arguments.length;
+	var label = '';
+	if(numargs >= 4) label = arguments[3];
+	var existing = document.getElementById(field).value
+	if(existing.indexOf(text) != -1) return false;
+	if(label != '') {
+		if(existing.indexOf(label) != -1) return false;
+	}
+	if(existing != '') existing = existing + "\n\n";
+	if(label != '') existing = existing + "PROCEDURE:  " + label + "\n";
+	existing = existing + text;
+	document.getElementById(field).value = existing;
+	return true;
+}

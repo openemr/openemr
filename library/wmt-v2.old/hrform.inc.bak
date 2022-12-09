@@ -1,0 +1,324 @@
+<?php
+
+function GetAllHipFollowUps($thisPid, $enc='') {
+  $sql = "SELECT * FROM form_hip_follow WHERE pid=? ORDER BY id";
+	$parms=array($thisPid);
+	if($enc != '') {
+  	$sql = "SELECT form_wmt_ll.list_id, form_hip_follow.* ".
+				"FROM form_wmt_ll LEFT JOIN form_hip_follow ON ".
+				"form_wmt_ll.list_id=form_hip_follow.id WHERE form_wmt_ll.pid=? ".
+				"AND form_wmt_ll.encounter_id=? AND form_wmt_ll.list_type=? ".
+				"ORDER BY form_hip_follow.id";
+		$parms=array($thisPid, $enc, 'wmt_hip_follow');
+	}
+	$all=array();
+  $res = sqlStatement($sql, $parms);
+  for($iter =0;$row = sqlFetchArray($res);$iter++)
+  $all[$iter] = $row;
+  return $all;
+}
+
+function GetAllRegionEntries($thisPid, $enc='', $region='') {
+	if($region == '') {
+		echo "No Hip Region Specifed in List Collection...Can NOT Continue<br>\n";
+		exit;
+	}
+  $sql = "SELECT * FROM form_hip_region WHERE pid=? AND reg_type=? ORDER BY id";
+	$parms=array($thisPid, $region);
+	if($enc != '') {
+  	$sql = "SELECT form_wmt_ll.list_id, form_hip_region.* ".
+				"FROM form_wmt_ll LEFT JOIN form_hip_region ON ".
+				"form_wmt_ll.list_id=form_hip_region.id WHERE form_wmt_ll.pid=? ".
+				"AND form_wmt_ll.encounter_id=? AND form_wmt_ll.list_type=? ".
+				"ORDER BY form_hip_region.id";
+		$parms=array($thisPid, $enc, 'wmt_hr_'.$region);
+	}
+	$all=array();
+  $res = sqlStatement($sql, $parms);
+  for($iter =0;$row = sqlFetchArray($res);$iter++)
+  $all[$iter] = $row;
+  return $all;
+}
+
+$flds=sqlListFields('form_hip_follow');
+$fu_field_names= array('id' => 'id', 
+		'date' => '',
+		'pid' => '',
+		'user' => '', 
+		'list_id' => '',
+		'hf_main_label' => '',
+		'hf_rom_label' => '',
+		'hf_def_label' => '',
+		'hf_comp_label' => '',
+		'hf_xray_label' => '',
+		'hf_visit_num' => 'Weeks Out', 
+		'hf_examiner' => 'Examiner',
+		'hf_visit_dt' => 'Visit Date',
+		'hf_weight' => 'Weight',
+		'hf_thigh_pain' => 'Thigh Pain',
+		'hf_groin_pain' => 'Groin Pain',
+		'hf_lat_pain' => 'Lateral Pain',
+		'hf_post_pain' => 'Posterior Pain',
+		'hf_limp' => 'Limp',
+		'hf_supp' => 'Support',
+		'hf_dist' => 'Distance',
+		'hf_stair' => 'Stairs',
+		'hf_trans' => "Transporation<br><span class='wmtBody'>Able to Enter</span>",
+		'hf_ss' => 'Shoes&nbsp;&amp;&nbsp;Socks',
+		'hf_sit' => 'Stting',
+		'hf_rom_flex' => 'Flexion',
+		'hf_rom_abd' => 'Abduction',
+		'hf_rom_ext' => 'Ext Rotation',
+		'hf_rom_int' => 'Int Rotation',
+		'hf_rom_add' => 'Adduction',
+		'hf_def_flex' => 'Flexion Cont',
+		'hf_def_add' => 'Adduction',
+		'hf_def_int' => 'Int Rot In Ext',
+		'hf_def_len' => 'Length Discrep',
+		'hf_comp_dis' => 'Dislocation',
+		'hf_comp_inf' => 'Infection',
+		'hf_comp_fem' => 'Loose Fem CMP',
+		'hf_comp_ace' => 'Loose Acet CMP',
+		'hf_comp_sub' => 'Subluxation',
+		'hf_comp_oth' => 'Other',
+		'hf_xray_un' => 'Unremarkable',
+		'hf_xray_dis' => 'Closed Distal',
+		'hf_xray_ace' => 'FX Acetabulum',
+		'hf_xray_fem' => 'FX Femur',
+		'hf_xray_mig' => 'Migration',
+		'hf_xray_oth' => 'Other'
+);
+
+function BuildHipFollowUpArray($vis=array(), $fnames=array()) {
+	$fu_table=array();
+	$flds=sqlListFields('form_hip_follow');
+	$fu_rom_label=array('ROM');
+	$fu_def_label=array('Deformity');
+	$fu_comp_label=array('Complications');
+	$fu_xray_label=array('X-Ray');
+	// This puts the label at the front of the column
+	foreach($flds as $key => $fld) {
+		// echo "Assigning Key: $key to Field: $fld</br>\n";
+		// echo "Assigning Label: ".$fu_field_names[$fld]."</br>\n";
+		// Force a label row into the table here
+		if($fld == 'hf_rom_flex') { $fu_table['label_rom']= $fu_rom_label; }
+		if($fld == 'hf_def_flex') { $fu_table['label_def']= $fu_def_label; }
+		if($fld == 'hf_comp_dis') { $fu_table['label_comp']= $fu_comp_label; }
+		if($fld == 'hf_xray_un') { $fu_table['label_xray']= $fu_xray_label; }
+		$fu_table[$fld][0]= $fnames[$fld];
+	}
+
+	$col_cnt=1;
+	$row_cnt=1;
+	foreach($vis as $prev) {
+		foreach($prev as $key => $val) {
+			// echo "$key&nbsp;&nbsp;::&nbsp;&nbsp;$val</br>\n";
+			$fu_table[$key][$col_cnt] = $val;
+		}
+		$col_cnt++;
+	}
+	// This will put the blank entry at the end of the table
+	foreach($flds as $key => $fld) {
+		$fu_table[$fld][$col_cnt]= '';
+	}
+	$col_cnt++;
+	// Then space it out with empties so it looks better
+	while($col_cnt <= 6) {
+		foreach($flds as $key => $fld) {
+			$fu_table[$fld][$col_cnt]= '';
+		}
+		$col_cnt++;
+	}
+	return($fu_table);
+}
+
+$flds=sqlListFields('form_hip_region');
+$reg_field_names= array('id' => 'id', 
+		'date' => '',
+		'pid' => '',
+		'user' => '', 
+		'list_id' => '', 
+		'reg_fem_label' => '',
+		'reg_ace_label' => '',
+		'reg_visit_num' => 'Weeks Out', 
+		'reg_fem_1a' => 'Region 1A', 
+		'reg_fem_1b' => 'Region 1B', 
+		'reg_fem_2' => 'Region 2', 
+		'reg_fem_3' => 'Region 3', 
+		'reg_fem_4' => 'Region 4', 
+		'reg_fem_5' => 'Region 5', 
+		'reg_fem_6' => 'Region 6', 
+		'reg_fem_7a' => 'Region 7A', 
+		'reg_fem_7b' => 'Region 7B', 
+		'reg_fem_8a' => 'Region 8A', 
+		'reg_fem_8b' => 'Region 8B', 
+		'reg_fem_9' => 'Region 9', 
+		'reg_fem_10' => 'Region 10', 
+		'reg_fem_11' => 'Region 11', 
+		'reg_fem_12' => 'Region 12', 
+		'reg_fem_13' => 'Region 13', 
+		'reg_fem_14a' => 'Region 14A', 
+		'reg_fem_14b' => 'Region 14B', 
+		'reg_ace_1' => 'Region 1', 
+		'reg_ace_2' => 'Region 2', 
+		'reg_ace_3' => 'Region 3', 
+		'reg_ace_4' => 'Region 4', 
+);
+
+function BuildRegionArray($vis=array(), $fnames=array()) {
+	$reg_table=array();
+	$flds=sqlListFields('form_hip_region');
+	$reg_fem_label=array('Femur');
+	$reg_ace_label=array('Acetabulum');
+	// This puts the label at the front of the column
+	foreach($flds as $key => $fld) {
+		// echo "Assigning Key: $key to Field: $fld</br>\n";
+		// echo "Assigning Label: ".$fu_field_names[$fld]."</br>\n";
+		// Force a label row into the table here
+		if($fld == 'reg_fem_1a') { $reg_table['label_fem']= $reg_fem_label; }
+		if($fld == 'reg_ace_1') { $reg_table['label_ave']= $reg_ace_label; }
+		$reg_table[$fld][0]= $fnames[$fld];
+	}
+
+	$col_cnt=1;
+	$row_cnt=1;
+	foreach($vis as $prev) {
+		foreach($prev as $key => $val) {
+			// echo "$key&nbsp;&nbsp;::&nbsp;&nbsp;$val</br>\n";
+			$reg_table[$key][$col_cnt] = $val;
+		}
+		$col_cnt++;
+	}
+	// This will put the blank entry at the end of the table
+	foreach($flds as $key => $fld) {
+		$reg_table[$fld][$col_cnt]= '';
+	}
+	$col_cnt++;
+	// Then space it out with empties so it looks better
+	while($col_cnt <= 6) {
+		foreach($flds as $key => $fld) {
+			$reg_table[$fld][$col_cnt]= '';
+		}
+		$col_cnt++;
+	}
+	return($reg_table);
+}
+
+function SaveHipFollowUps($thisPid='', $enc, $fu_save= array(), $max=1)
+{
+	if(!VerifyPatientID($thisPid)) { return false; }
+	$fu_recs= array();
+	// First move all our inputs into an array of arrays (per record)
+	foreach($fu_save as $lbl => $val) {
+		$pos= strrpos($lbl, '_');
+		if(!$pos) { continue; }	
+		$lbl_base= substr($lbl, 0, $pos);
+		$cnt= substr($lbl, $pos+1);
+		// echo "Label: $lbl   Pos: $pos   Count: $cnt   Base: $lbl_base   Value: $val<br/>\n";
+		$fu_recs[$cnt][$lbl_base]= $val;
+	}
+
+	// First set the max used, and respect empty spaces	
+	$highest_used= -1;
+	$cnt= 0;
+	foreach($fu_recs as $fu) {
+		if(array_filter($fu)) { $highest_used= $cnt; }
+		$cnt++ ;
+	}
+	// echo "Count: $cnt   Highest Used: $highest_used<br/>\n";
+
+	// Now process each of the member (record) arrays
+	$cnt= 0;
+	foreach($fu_recs as $fu) {
+		if($cnt > $highest_used) { break; }
+		if($fu['hf_id'] == '') {
+			// First create the record, then update with the values we want to save
+			// echo "Created a new Record<br/>\n";
+			$sql = 'INSERT INTO form_hip_follow (date, pid, user) '.
+					'VALUES (NOW(), ?, ?)';
+			$fu_id= sqlInsert($sql, array($thisPid, $_SESSION['authUser']));
+		} else {
+			$fu_id= $fu['hf_id'];
+		}
+		// echo "Now completing the values<br/>\n";
+		$q1= 'UPDATE form_hip_follow SET ';
+		$parms= array();
+		foreach($fu as $key => $val) {
+			if($key == 'hf_id') { continue; }
+			$q1 .= "$key=?, ";
+			$parms[]= $val;
+		}
+		$parms[]= $fu_id;
+		$parms[]= $thisPid;
+		$q1 .= ' date=NOW() WHERE id=? AND pid=?';
+		// echo "Statement: $q1<br/>\n";
+		// echo print_r($parms),"<br/>\n";
+		sqlInsert($q1, $parms);
+		$cnt++;
+		LinkListEntry($thisPid, $fu_id, $enc, 'wmt_hip_follow');
+	}
+	// echo "Exited Loop, Count: $cnt   Max: $highest_used<br/>\n";	
+}
+
+function SaveRegionFollowUps($thisPid='', $enc, $fu_save= array(), $max=1, $type='')
+{
+	if(!VerifyPatientID($thisPid)) { return false; }
+	if($type == '') {
+		echo "<h>SaveRegionFollowUps Requires a Type...Fatal Error...Exiting</h><br>\n";
+		exit;
+	}
+	$fu_recs= array();
+	// First move all our inputs into an array of arrays (per record)
+	foreach($fu_save as $lbl => $val) {
+		$lbl = substr($lbl, 3);
+		$pos= strrpos($lbl, '_');
+		if(!$pos) { continue; }	
+		$lbl_base= substr($lbl, 0, $pos);
+		$cnt= substr($lbl, $pos+1);
+		// echo "Label: $lbl   Pos: $pos   Count: $cnt   Base: $lbl_base   Value: $val<br/>\n";
+		$fu_recs[$cnt][$lbl_base]= $val;
+	}
+
+	// First set the max used, and respect empty spaces	
+	$highest_used= -1;
+	$cnt= 0;
+	foreach($fu_recs as $fu) {
+		if(array_filter($fu)) { $highest_used= $cnt; }
+		$cnt++ ;
+	}
+	// echo "Count: $cnt   Highest Used: $highest_used<br/>\n";
+
+	// Now process each of the member (record) arrays
+	$cnt= 0;
+	foreach($fu_recs as $fu) {
+		if($cnt > $highest_used) { break; }
+		if($fu['id'] == '') {
+			// First create the record, then update with the values we want to save
+			// echo "Created a new Record<br/>\n";
+			$sql = 'INSERT INTO form_hip_region (date, pid, user, reg_type) '.
+					'VALUES (NOW(), ?, ?, ?)';
+			$fu_id= sqlInsert($sql, array($thisPid, $_SESSION['authUser'], $type));
+		} else {
+			$fu_id= $fu['id'];
+		}
+		// echo "Now completing the values<br/>\n";
+		$q1= 'UPDATE form_hip_region SET ';
+		$parms= array();
+		foreach($fu as $key => $val) {
+			if($key == 'id') { continue; }
+			$q1 .= "$key=?, ";
+			$parms[]= $val;
+		}
+		$parms[]= $fu_id;
+		$parms[]= $thisPid;
+		$q1 .= ' date=NOW() WHERE id=? AND pid=?';
+		// echo "Statement: $q1<br/>\n";
+		// echo print_r($parms),"<br/>\n";
+		sqlInsert($q1, $parms);
+		$cnt++;
+		LinkListEntry($thisPid, $fu_id, $enc, 'wmt_hr_'.$type);
+	}
+	// echo "Exited Loop, Count: $cnt   Max: $highest_used<br/>\n";	
+}
+
+?>

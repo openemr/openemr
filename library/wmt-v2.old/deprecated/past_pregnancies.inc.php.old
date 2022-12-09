@@ -1,0 +1,48 @@
+<?php
+echo "		<table width='100%' border='0' cellspacing='0' cellpadding='0'>\n";
+echo "			<tr>\n";
+echo "        <td style='width: 8%' class='Label3C'>Date</td>\n";
+echo "        <td class='Label3CBordLB' style='width: 8%' rowspan='2'>GA Weeks</td>\n";
+echo "        <td class='Label3CBordLB' style='width: 6%' rowspan='2'>Length of Labor</td>\n";
+echo "        <td class='Label3CBordL' colspan='2'>Birth Weight</td>\n";
+echo "        <td class='Label3CBordL' style='width: 6%'>Sex</td>\n";
+echo "        <td class='Label3CBordLB' style='width: 8%' rowspan='2'>Type Delivery</td>\n";
+echo "        <td class='Label3CBordLB' style='width: 9%' rowspan='2'>Anesthesia</td>\n";
+echo "        <td class='Label3CBordLB' style='width: 15%' rowspan='2'>Place of Delivery</td>\n";
+echo "        <td class='Label3CBordL' style='width: 8%'>Preterm</td>\n";
+echo "        <td class='Label3CBordLB' rowspan='2'>Comments/Complications</td>\n";
+echo "      </tr>\n";
+echo "      <tr>\n";
+echo "        <td class='Label3CBordB'>YYYY-MM</td>\n";
+echo "        <td class='Label3CBordLB' style='width: 4%'>lb.</td>\n";
+echo "        <td class='Label3CBordB' style='width: 4%'>oz.</td>\n";
+echo "        <td class='Label3CBordLB'>M/F</td>\n";
+echo "        <td class='Label3CBordLB'>Labor</td>\n";
+echo "			</tr>\n";
+$cnt=0;
+while($cnt < 8) {
+  echo "			<tr>\n";
+  echo "  			<td class='Body2BordB'><input name='pp_date_of_pregnancy_$cnt' id='pp_date_of_pregnancy_$cnt' class='FullInput2' type='text' value='",$dt['pp_date_of_pregnancy_'.$cnt],"' /></td>\n";
+  echo "  			<td class='Body2BordLB'><input name='pp_ga_weeks_$cnt' id='pp_ga_weeks_$cnt' class='FullInput2' type='text' value='",$dt['pp_ga_weeks_'.$cnt],"' /></td>\n";
+  echo "  			<td class='Body2BordLB'><input name='pp_labor_length_$cnt' id='pp_labor_length_$cnt' class='FullInput2' type='text' value='",$dt['pp_labor_length_'.$cnt],"' /></td>\n"; 
+  echo "  			<td class='Body2BordLB'><input name='pp_weight_lb_$cnt' id='pp_weight_lb_$cnt' class='FullInput2' type='text' value='",$dt['pp_weight_lb_'.$cnt],"' /></td>\n"; 
+  echo "	 			<td class='Body2BordLB'><input name='pp_weight_oz_$cnt' id='pp_weight_oz_$cnt' class='FullInput2' type='text' value='",$dt['pp_weight_oz_'.$cnt],"' /></td>\n";
+  echo "				 <td class='Body2BordLB'><select name='pp_sex_$cnt' id='pp_sex_$cnt' class='FullInput2'>";
+  ListSel($dt['pp_sex_'.$cnt],'WHC_Sex');
+  echo "			</select></td>\n";
+  echo "  			<td class='Body2BordLB'><select name='pp_delivery_$cnt' id='pp_delivery_$cnt' class='FullInput2'>";
+  ListSel($dt['pp_delivery_'.$cnt],'WHC_Delivery');
+  echo "				</select></td>\n";
+  echo "  			<td class='Body2BordLB'><select name='pp_anes_$cnt' id='pp_anes_$cnt' class='FullInput2'>";
+  ListSel($dt['pp_anes_'.$cnt],'WHC_Anesthesia');
+  echo "				</select></td>\n";
+  echo " 			 <td class='Body2BordLB'><input name='pp_place_$cnt' id='pp_place_$cnt' class='FullInput2' type='text' value='",$dt['pp_place_'.$cnt],"' /></td>\n";
+  echo "			 <td class='Body2BordLB'><select name='pp_preterm_$cnt' id='pp_preterm_$cnt' class='FullInput2'>";
+  ListSel($dt['pp_preterm_'.$cnt],'WHC_Preterm');
+  echo "				</select></td>\n";
+  echo "  			<td class='Body2BordLB'><input name='pp_comment_$cnt' id='pp_comment_$cnt' class='FullInput2' type='text' value='",$dt['pp_comment_'.$cnt],"' /><input name='pp_id_$cnt' id='pp_id_$cnt' type='hidden' value='",$dt['pp_id_'.$cnt],"' /></td>\n";
+  echo "			</tr>\n";
+	$cnt++;
+}
+echo "			</table>\n";
+?>

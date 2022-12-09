@@ -1,0 +1,281 @@
+div.tab {
+  width: 98%;
+}
+
+td {
+	text-align: left;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.wmtPrnDateCell {
+	width: 120px;
+}
+
+.wmtPrnIndentLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	padding-left: 25px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.wmtPrnIndentBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+}
+
+.wmtPrnIndentText {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+	width: 100%;
+}
+
+.wmtPrnHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnSubSection{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.wmtPrnLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnLabel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnLabel3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.wmtPrnLabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.4em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.wmtPrnHuge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.0em;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.wmtPrnLarge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.wmtPrnChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+	text-align: center;
+  text-transform: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+.wmtPrnBody {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: none;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnFullInput {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+	width: 100%;
+  font-size: 0.7em;
+	vertical-align: top;
+}
+
+.wmtPrnMainContainer {
+  border: solid 2px black;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	overflow: hidden;
+	white-space: pre-wrap;
+}
+
+.wmtPrnContainer {
+	background-color: transparent;
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnCollapseBar {
+  text-align: center;
+	border-bottom: solid 1px black;
+}
+
+.wmtPrnCollapseBox {
+	background-color: transparent;
+  text-align: center;
+  overflow: hidden;
+	margin: 0px;
+	border-collapse: collapse;
+}
+
+.wmtPrnDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: black;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.wmtPrnDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.wmtPrnBorder1L {
+	border-left: solid 1px black;
+}
+
+.wmtPrnBorder1T {
+	border-top: solid 1px black;
+}
+
+.wmtPrnBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.wmtPrnBorder1R {
+	border-right: solid 1px black;
+}
+
+.wmtPrnBorder1All {
+	border: solid 1px black;
+}
+
+.wmtPrnBorder2L {
+	border-left: solid 2px black;
+}
+
+.wmtPrnBorder2T {
+	border-top: solid 2px black;
+}
+
+.wmtPrnBorder2B {
+	border-bottom: solid 2px black;
+}
+
+.wmtPrnBorder2R {
+	border-right: solid 2px black;
+}
+
+.wmtPrnBorder2All {
+	border: solid 2px black;
+}
+
+.wmtPrnC {
+	text-align: center;
+}
+
+.wmtPrnR {
+	text-align: center;
+}
+
+.wmtPrnT {
+	vertical-align: top;
+}
+
+.wmtPrnUC {
+	text-transform: uppercase;
+}
+
+.wmtPrnHeadingBar {
+  text-align: left;
+  background-color: black;
+	color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+	font-weight: bold;
+	margin-left: 10px;
+	margin-right: 20px;
+}
+
+@media print {
+	#no_print_buttons {
+		display: none;
+		visibility: hidden;
+	}
+
+	.wmtNoPrint {
+		display: none;
+		visibility: hidden;
+	}
+}

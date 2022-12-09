@@ -1,0 +1,1 @@
+<div style="float: right; padding-right: 8px;"><a class="css_button_small" tabindex="-1" onClick="get_hpi('<?php echo $field_prefix.$field_name; ?>');" href="javascript:;"><span>Select Another HPI</span></a></div>

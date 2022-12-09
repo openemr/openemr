@@ -1,0 +1,111 @@
+textarea {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  width: 100%;
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+input {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+select {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.shLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10pt;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.shLabelRed {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10pt;
+  font-weight: bold;
+  text-transform: none;
+  color: #F50F0F;
+}
+
+.shHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  vertical-align: text-top;
+}
+
+.shHeaderCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12pt;
+  font-weight: bold;
+  text-transform: none;
+  vertical-align: text-top;
+}
+
+.shChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:16pt;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.shInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8pt;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+}
+
+.shReportLabel{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8pt;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.shReportText {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7pt;
+  font-weight: normal;
+}
+
+.shReportTextBox {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7pt;
+  vertical-align: top;
+  white-space: pre-wrap;
+  font-weight: normal;
+}
+
+.shPrintLabel{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9pt;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.shPrintText {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9pt;
+  font-weight: normal;
+}
+
+.shPrintTextBox {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9pt;
+  vertical-align: top;
+  white-space: pre-wrap;
+  font-weight: normal;
+}
+

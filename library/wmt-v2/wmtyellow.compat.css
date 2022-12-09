@@ -1,0 +1,587 @@
+.DateCell {
+	width: 110px;
+}
+
+.CalendarCell {
+	width: 26px;
+}
+
+.formBodyDark {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  background-color: #FFFFCC;
+}
+
+.formBodyLight {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  background-color: #FFFBEB;
+}
+
+.Input {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.FullInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  width: 100%;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.DateInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  width: 100px;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.InputBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border-bottom: solid 1px black;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.BigInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.LabelUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.Label {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.LabelRed {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+	color: red;
+  text-transform: none;
+	border: none;
+}
+
+.LabelR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+}
+
+.LabelT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.LabelTR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.Label2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.Label2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+}
+
+.Label2TR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.Label2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.LabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.LabelBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.LabelCenterBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.LabelBorderLBR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.LabelBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.LabelCenterBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform:none;
+  text-align: center;
+  border-left: solid 1px black;
+}
+
+.LabelBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  border-bottom: solid 1px black;
+}
+
+.LabelCenterBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-bottom: solid 1px black;
+}
+
+.LabelUCBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: solid 1px black;
+}
+
+.LabelUCBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.Label3C {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: center;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Label3CBordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	text-align: center;
+	font-weight: bold;
+	border-bottom: solid 1px black;
+	border-left: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Label3CBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: center;
+	border-bottom: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Label3CBordL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: center;
+	border-left: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.BodyBorderAll {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  text-transform: none;
+  border: solid 1px black;
+}
+
+.BodyBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.BodyBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.BodyBorderLR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.BodyBorderLBR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.BodyBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-bottom: solid 1px black;
+}
+
+.Giant {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.Huge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.7em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.Large {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.Chapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+}
+
+.Input2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.FullInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.Input3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.wmtInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.FullInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.Input4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.FullInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.BodyUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  text-transform: uppercase;
+}
+
+.Body {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+}
+
+.BodyR {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+	text-align: right;
+}
+
+.Body2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: none;
+}
+
+.Body2BordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+	border-bottom: solid 1px black;
+	border-left: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Body2BordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+	border-bottom: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Body2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: none;
+  text-align: right;
+}
+
+.Body2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+
+.Body3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  text-transform: uppercase;
+}
+
+.Body3BordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	border-bottom: solid 1px black;
+	border-left: solid 1px black;
+}
+
+.Body3BordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	border-bottom: solid 1px black;
+}
+
+.Body4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+}
+
+.Body4RT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+	text-align: right;
+	vertical-align: top;
+}
+
+.MainContainer {
+	background-color: #F8F1B9;
+  border: solid 2px black;
+	overflow: auto;
+  margin: 6px;
+}
+
+.MainContainerBottom1 {
+	background-color: #F8F1B9;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+  margin: 6px;
+	overflow: auto;
+}
+
+.CollapseBar {
+  text-align: center;
+  overflow: hidden;
+  /* background-color: #FFCC66; */
+  background-color: #FFCC66;
+  cursor: pointer;
+}
+
+.CollapseBox {
+  background-color: #FFCC66;
+  text-align: center;
+	overflow: auto;
+}
+
+.CollapseBoxWhite {
+  background-color: #FFFFFF;
+  text-align: center;
+	overflow: auto;
+}
+
+.DottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #FFCC66;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.mce {
+}
+
+.wmtListButton {
+	float: left;
+	padding-left: 2px;
+}

@@ -1,0 +1,1 @@
+<div style="float: right; padding-right: 10px;"><a class="css_button_small" href="javascript:;" onclick="wmtOpen('<?php echo $GLOBALS['webroot']; ?>/custom/document_popup.php?pid=<?php echo $pid; ?>', '_blank', 800, 600);"><span>View Documents</span></a></div>

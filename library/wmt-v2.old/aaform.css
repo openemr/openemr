@@ -1,0 +1,512 @@
+a {
+  font-family: Arial, Helvetica, sans-serif ! important;
+  font-size: 10px ! important;
+  color: #000000;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif ! important; 
+  font-size: 10px !important;
+  padding-top: 4px;
+  padding-right: 12px;
+  padding-bottom: 4px;
+  padding-left: 18px;
+}
+
+tr, td, p {
+  font-family: Arial, Helvetica, sans-serif ! important;
+  font-size:12px;
+}
+
+h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+}
+
+h1 small {
+  font-size: 10px;
+}
+
+h2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform:uppercase;
+  padding: 0;
+  margin: 0;
+}
+
+h2 small {
+  font-size: 11px;
+  text-transform: none;
+}
+
+input, textarea {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  vertical-align: bottom;
+  color:#000066;
+}
+
+p {
+  padding:0;
+  margin: 0;
+}  
+
+li {
+  text-transform: uppercase;
+  text-indent: 0pt;
+  list-style-position: inside;
+  list-style-type: square;
+  padding-top: 2px;
+  padding-bottom: 1px;
+  padding-left: 3px;
+}
+
+blockquote {
+  margin: 0px;
+  padding: 0px 0px 0px 24px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.aaCollapseBoxPrint {
+  background-color: transparent;
+  text-align: center;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.aaReportLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.aaPrintBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+	border: none;
+	color: #000000;
+}
+
+.aaReportBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  text-transform: uppercase;
+}
+
+.aaReportBodyCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+}
+
+.aaInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  border-top-style: none;
+  border-right-style: none;
+  border-bottom-style: none;
+  border-left-style: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFDD;
+}
+
+.aaInputBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  width: 95%;
+  font-size:12px;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 1px;
+  border-left-width: 0px;
+  border-top-style: none;
+  border-right-style: none;
+  border-bottom-style: solid;
+  border-left-style: none;
+  border-bottom-color: #000000;
+  padding: 0;
+  text-transform: none;
+}
+
+.aaLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.aaTitle{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:14px;
+  font-weight: bold;
+  text-transform:uppercase;
+  text-align: center;
+}
+
+.aaTitleBordB2{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:14px;
+  font-weight: bold;
+  text-transform:uppercase;
+  text-align: center;
+  border-bottom: solid 2px black;
+}
+
+.aaHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.aaHeader2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.aaReportHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.aaPrintHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.aaChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  color:#FFFFFF;
+  background-color:#000000;
+}
+
+.aaPrintChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  border: solid 1px black;
+}
+
+.aaInput2, input.aaInput2, textarea.aaInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFDD;
+}
+
+.aaPrint2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7pt;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+}
+
+.aaPrint3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:6pt;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+}
+
+.aaFullPrint2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8pt;
+  border: none;
+  padding: 0;
+  width: 100%;
+  text-transform: none;
+  color: #000000;
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+.aaPrint2BordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+}
+
+.aaInput3, input.aaInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFDD;
+}
+
+.aaInput4, input.aaInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFDD;
+}
+
+.aaBody2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transforim: uppercase;
+}
+
+.aaBody2CS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+}
+
+.aaBody2BordL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+}
+
+.aaBody2BordT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+}
+
+.aaBody2BordLT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+}
+
+.aaBody2CSBordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+}
+
+.aaBody2BordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+}
+
+.aaBody3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.aaBody4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.aaReportBody2BordL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: none;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+}
+
+.aaReportBody2BordT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: none;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+}
+
+.aaReportBody2BordLT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: none;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+}
+
+.aaBody3BordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7px;
+  text-transform: uppercase;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+}
+
+.aaBody3BordTLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+  background-color: #FFFFFF;
+}
+
+.aaReport4BordTLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  text-transform: none;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+}
+
+.aaReport4CenterBordTLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9px;
+  text-transform: none;
+  text-align: center;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000000;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+}
+
+.aaBody3CSBordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-left-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #000000;
+}
+
+.link_submit{
+  font-size: 9pt ! important;
+  padding : 4px;
+  border: 1px solid black;
+  background-color: #cccccc;
+}
+
+.aaWhiteBG {
+  background-color: #FFFFFF;
+}
+
+.aaBordB {
+  border-bottom: solid 1px black;
+}
+
+.aaReportBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  border-bottom: solid 1px black;
+}
+
+.aaBordL2B {
+  border-left: solid 2px black;
+  border-bottom: solid 1px black;
+}
+
+.aaReportBordL2B {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  border-left: solid 2px black;
+  border-bottom: solid 1px black;
+}
+
+.aaBordL2 {
+  border-left: solid 2px black;
+}
+
+.aaReportBordL2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  border-left: solid 2px black;
+}
+

@@ -1,0 +1,427 @@
+td {
+  text-align: left;
+}
+
+.dbChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.dbReportHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.dbReportLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.dbReportLabelTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+.dbReportLabelCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: none;
+  font-weight: bold;
+}
+
+.dbReportBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: none;
+}
+
+.dbReportBodyTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: none;
+  vertical-align: top;
+}
+
+.dbReportBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8px;
+  border-bottom: solid 1px black;
+  border-bottom-color: #000000;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbInputFull {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbInputBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  border-bottom: solid 1px black;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.dbLabelCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:none;
+}
+
+.dbLabel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.dbLabel2CS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform:none;
+}
+
+.dbLabelBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.dbBodyBorderLT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: normal;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-top: solid 1px black;
+}
+
+.dbBodyBorderT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: normal;
+  text-transform: none;
+  border-top: solid 1px black;
+}
+
+.dbBodyBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: normal;
+  text-transform: none;
+  border-left: solid 1px black;
+}
+
+.dbLabelBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-bottom: solid 1px #000055;
+}
+
+.dbLabelCSBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px #000055;
+  border-bottom: solid 1px #000055;
+}
+
+.dbLabelCSBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform: none;
+  border-bottom: solid 1px #000055;
+}
+
+.dbLabelCSBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px #000055;
+}
+
+.dbReportBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9px;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px #000055;
+  border-bottom: solid 1px #000055;
+}
+
+.dbInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbReport2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbPrint2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  white-space: pre-wrap;
+  text-transform: none;
+  color: #000000;
+}
+
+.dbReport2Full {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  width: 100%;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbPrint2Full {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  white-space: pre-wrap;
+  width: 100%;
+  color: #000000;
+}
+
+.dbPrint2FullTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  white-space: pre-wrap;
+  vertical-align: top;
+  width: 100%;
+  color: #000000;
+}
+
+.dbPrint2Top {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  white-space: pre-wrap;
+  vertical-align: top;
+  color: #000000;
+}
+
+.dbInput3, input.dbInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.dbBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  text-transform: none;
+}
+
+.dbBodyTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  text-transform: none;
+  vertical-align: top;
+}
+
+.dbBodyBorderAll {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  border: solid 1px black;
+}
+
+.dbBodyCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  text-transform: none;
+}
+
+.dbBody2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.dbBody3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.dblink_submit {
+  font-size: 9pt ! important;
+  padding : 4px;
+  border: 1px solid black;
+  background-color: #cccccc;
+}
+
+.dbMainContainer {
+  background-color: #CCEECC;
+  overflow: hidden;
+  border: solid 2px black;
+  margin: 4px;
+}
+
+.dbMainContainerSpecial {
+  background-color: #CCEECC;
+  overflow: hidden;
+  border-top: solid 2px black;
+  border-left: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: none;
+  margin: 4px;
+}
+
+.dbPrintContainer {
+  background-color: transparent;
+  border: solid 2px black;
+  margin: 4px;
+}
+
+.dbCollapseBar {
+  text-align: center;
+  overflow: hidden;
+  background-color: #8CACBB;
+  cursor: pointer;
+}
+
+.dbPrintBar {
+  text-align: center;
+  background-color: transparent;
+}
+
+.dbCollapseBox {
+  background-color: #D9DEE0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.dbCollapseBoxWhite {
+  background-color: #FFFFFF;
+  text-align: center;
+  overflow: hidden;
+}
+
+.dbCollapseBoxPrint{
+  background-color: transparent;
+  text-align: center;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.dbTextDiv {
+  background-color: #FFFFFF;
+  text-align: left;
+  overflow: hidden;
+  border: solid 1px #000055;
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.dbInnerTable {
+  border: solid 1px #000055;
+  background-color: #FFFFFF;
+}
+
+.dbDottedB {
+  width: 100%;
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #8CACBB;
+  border-bottom-width: 2px;
+}
+
+.dbDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.dbConfirmBox {
+  width: 10em;
+  height: 5em;
+  position: absolute;
+  z-index: 1;
+  visibility: hidden;
+  background: blue;
+  color: white;
+  border: 6px double white;
+  text-align: center;
+}

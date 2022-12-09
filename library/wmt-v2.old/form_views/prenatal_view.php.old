@@ -1,0 +1,169 @@
+<?php
+if(!isset($field_prefix)) $field_prefix = '';
+if(!isset($frmdir)) $frmdir = '';
+if(!isset($chp_title)) $chp_title = 'Prenatal Visits';
+$chp_printed = PrintChapter($chp_title, $chp_printed);
+if(($dt{'pre_preg_wt'} && $dt{'pre_preg_wt'} != 0) || 
+		($dt{'pre_preg_ht'} && $dt{'pre_preg_ht'} != 0) || 
+		($dt{'pre_preg_BMI'} && $dt{'pre_preg_BMI'} != 0) ||
+			$dt{'pre_preg_BMI_status'}) {
+	echo "<tr><td class='wmtPrnLabel'>&nbsp;Pre-Pregnancy</td></tr>\n";
+	echo "	<tr>\n";
+	echo "		<td class='wmtPrnBorder1B'><span class='wmtPrnLabel'>Weight:&nbsp;&nbsp;&nbsp;&nbsp;</span><span class='wmtPrnBody'>";
+	echo htmlspecialchars($dt{'pre_preg_wt'}, ENT_QUOTES, '', FALSE); 
+	echo "</span></td>\n";
+	echo "		<td class='wmtPrnBorder1B'><span class='wmtPrnLabel'>Height:&nbsp;&nbsp;&nbsp;&nbsp;</span><span class='wmtPrnBody'>";
+	echo htmlspecialchars($dt{'pre_preg_ht'}, ENT_QUOTES, '', FALSE); 
+	echo "</span></td>\n";
+	echo "		<td class='wmtPrnBorder1B'><span class='wmtPrnLabel'>BMI:&nbsp;&nbsp;&nbsp;&nbsp;</span><span class='wmtPrnBody'>";
+	echo htmlspecialchars($dt{'pre_preg_BMI'}, ENT_QUOTES, '', FALSE); 
+	echo "</span></td>\n";
+	echo "		<td class='wmtPrnBorder1B'><span class='wmtPrnLabel'>BMI Status:&nbsp;&nbsp;&nbsp;&nbsp;</span><span class='wmtPrnBody'>";
+	echo htmlspecialchars($dt{'pre_preg_BMI_status'}, ENT_QUOTES, '', FALSE); 
+	echo "</span></td>\n";
+	echo "	<tr>\n";
+	echo "</table>\n";
+	echo "<table width='100%' border='0' cellpadding='1' cellspacing='0'>\n";
+}
+?>
+  <tr>
+    <td style="width: 4%;" class="wmtPrnBody4 wmtPrnBorder1B">&nbsp;Date&nbsp;&nbsp;</td>
+    <td style="width: 6%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Weeks Gest.</td>
+    <td style="width: 6%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Fundal<br />Height</td>
+    <td style="width: 7%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Pres.</td>
+    <td style="width: 7%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">FHR</td>
+    <td style="width: 6%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Fetal<br/>Move</td>
+    <td style="width: 8%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Preterm<br/>Labor</td>
+    <td style="width: 9%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Cervix Exam</td>
+    <td style="width: 6%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">BP</td>
+    <td style="width: 6%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Weight</td>
+    <td style="width: 6%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Weight Gain</td>
+    <td class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B" colspan="2">Urine<br>Pro&nbsp;&nbsp;&nbsp;&nbsp;Glu</td>
+    <td style="width: 5%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Edema</td>
+		<?php if($client_id != 'wcs') { ?>
+    <td style="width: 5%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Pain Scale</td>
+		<?php } ?>
+    <td style="width: 8%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Next Appt</td>
+    <td style="width: 6%;" class="wmtPrnBody4 wmtPrnC wmtPrnBorder1L wmtPrnBorder1B">Dr.<br />Init</td>
+  </tr>
+  <?php
+	$cols = 16;
+	if($client_id != 'wcs') $cols = 17;
+  $cnt = 0;
+	$found = false;
+  while ($cnt < 35) {
+  	if($dt{'visit_'.$cnt} == '|~|~|~|~|~|~|~|~|~|~|~|~|~|~|~|~|~' || $dt{'visit_'.$cnt} == '') {
+			$cnt++;
+			continue;
+		}
+		$found = true;
+    list($pn_date, $pn_gest, $pn_fundal, $pn_pres, $pn_fhr, $pn_fetal, 
+			$pn_preterm, $pn_cervix, $pn_bp, $pn_weight, $pn_urine_p, $pn_edema, 
+			$pn_pain, $pn_next, $pn_init, $pn_urine_g, $pn_gain, $pn_comm) = 
+			explode('|~', $dt['visit_'.$cnt]);
+
+    echo "<tr>\n";
+    // echo "  <td class='aaReport4BordTLB'>&nbsp;$pn_visit</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_date, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_gest, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_fundal, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+    echo ListLook($pn_pres,'WHC_Presentation');
+    echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		if(checkSettingMode('wmt::fhr_text_entry','',$frmdir)) {
+    	echo htmlspecialchars($pn_fhr, ENT_QUOTES, '', FALSE);
+		} else {
+    	echo ListLook($pn_fhr,'WHC_FHR');
+		}
+    echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_fetal, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		if($client_id == 'wcs') {
+    	echo htmlspecialchars($pn_preterm, ENT_QUOTES, '', FALSE);
+		} else {
+    	echo ListLook($pn_preterm,'WHC_Labor');
+		}
+    echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_cervix, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_bp, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_weight, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+		echo htmlspecialchars($pn_gain, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B' style='width: 3%'>&nbsp;";
+		echo htmlspecialchars($pn_urine_p, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B' style='width: 3%'>&nbsp;";
+		echo htmlspecialchars($pn_urine_g, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+    echo ListLook($pn_edema,'WHC_Edema');
+    echo "</td>\n";
+		if($client_id != 'wcs') {
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+    echo ListLook($pn_pain,'WHC_Pain');
+    echo "</td>\n";
+		}
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+    echo ListLook($pn_next,'WHC_Weeks');
+    echo "</td>\n";
+    echo "  <td class='wmtPrnBody4 wmtPrnBorder1L wmtPrnBorder1B'>&nbsp;";
+    echo ListLook($pn_init,'WHC_Initials');
+    echo "</td>\n";
+		echo "</tr>\n";
+		echo "<tr>\n";
+		echo "	<td class='wmtPrnBody4 wmtPrnBorder1B'>Comment</td>\n";
+    echo "  <td class='wmtPrnBody2 wmtPrnBorder1L wmtPrnBorder1B' colspan='$cols' >&nbsp;";
+		echo htmlspecialchars($pn_comm, ENT_QUOTES, '', FALSE);
+		echo "</td>\n";
+    echo "</tr>\n";
+    $cnt++;
+  }
+	if(!$found) {
+		echo "	<tr>\n";
+		echo "		<td>&nbsp;<td>\n";
+		echo "		<td colspan='".($cols-1)."' class='wmtPrnBody3'>No Visits on File</td>\n";
+		echo "	</tr>\n";
+	}
+
+	$nt = trim($dt{'visit_problems'});
+	if($nt) {
+		$chp_printed = PrintChapter($chp_title, $chp_printed);
+		echo "	<tr>\n";
+		echo "		<td colspan='2' class='wmtPrnBody2'>Problems:</td>\n";
+		echo "	</tr>\n";
+		echo "	<tr>\n";
+		echo "		<td>&nbsp;<td>\n";
+		echo "		<td colspan='".($cols-1)."' class='wmtPrnBody2'>$nt</td>\n";
+		echo "	</tr>\n";
+	}
+
+	$nt = trim($dt{'visit_comments'});
+	if($nt) {
+		$chp_printed = PrintChapter($chp_title, $chp_printed);
+		echo "	<tr>\n";
+		echo "		<td colspan='2' class='wmtPrnBody2'>Comments:</td>\n";
+		echo "	</tr>\n";
+		echo "	<tr>\n";
+		echo "		<td>&nbsp;<td>\n";
+		echo "		<td colspan='".($cols-1)."' class='wmtPrnBody2'>$nt</td>\n";
+		echo "	</tr>\n";
+	}
+
+  ?>
+

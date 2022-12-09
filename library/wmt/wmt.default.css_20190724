@@ -1,0 +1,1348 @@
+/* 
+ * CUSTOM WILLIAMS MEDICAL TECHNOLOGIES
+ * ------------------------------------
+ * This section makes specific fixes to the default layouts.
+ */
+ 
+#encounter_forms {
+	padding: 5px;
+	width: auto;
+}
+											
+#partable {
+	width: 100%;
+}
+												
+#tooltipdiv {
+	min-width: 500px;
+}
+												
+.bkkDottedB {
+	border-bottom: 2px dotted #ffcc66;
+	height: 3px;
+	margin: 2px 5px;
+	text-align: center;
+}
+									
+.CalendarCell {
+	width: 26px;
+}
+												
+div.floating-buttons {
+	text-align: center;
+	position: fixed;
+	border: solid 1px black;
+	border-radius: 10px;
+	width: 110px;
+	z-index: 100;
+	cursor: move;
+	box-shadow: 10px 10px 5px #888888;
+}
+					
+div.notification {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 1.1em;
+	font-weight: bold;
+	text-align: center;
+	position: fixed;
+	border-radius: 8px;
+	width: 180px;
+	background: #B6D2E0;
+	z-index: 3000;
+	box-shadow: 8px 8px 5px #888888;
+	cursor: progress;
+}
+			
+div.tab {
+	width: 98%;
+}
+												
+td {
+	padding: 2px 4px 2px 4px;
+	text-align: left;
+}
+											
+td.tightFit {
+	padding: 1px 2px 1px 2px;
+}
+												
+														
+/* FORM MENU STYLING */														
+.form-menu-list {
+	vertical-align: top;
+	margin: 0;
+	padding: 0;
+}
+										
+.form-menu-list li {
+	background: rgba(0, 0, 0, 0) -moz-linear-gradient(center top, #16558C, #16558C) repeat scroll 0 0;
+	background: #16558c;
+	border: 1px solid #FEFDCF;
+	float: left;
+	vertical-align: top;
+	list-style: outside none none;
+	width: 120px;
+	text-align: center;
+}
+						
+.form-menu-list li a {
+	color: #FFFFFF;
+	display: block;
+	font-weight: normal;
+	font-size: 0.9em;
+	padding: 3px 16px 3px 16px;
+}
+								
+.form-menu-list li a:hover {
+	font-weight: bold;
+}
+												
+														
+/* UI MENU STYLING */														
+.ui-tabs {
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+										
+.ui-tabs .ui-tabs-nav {
+	margin: 0;
+	padding: .2em .2em 0;
+}
+											
+.ui-tabs .ui-tabs-nav li {
+	list-style: none;
+	float: left;
+	position: relative;
+	top: 0;
+	margin: 1px .2em 0 0;
+	border-bottom: 0;
+	padding: 0;
+	white-space: nowrap;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-right-width: 1px;
+	border-right-style: solid;
+}
+	
+.ui-tabs-vertical {
+	width: 100%;
+}
+												
+.ui-tabs-vertical .ui-tabs-nav {
+	padding: 0 .1em .4em 0;
+	float: left;
+	width: 100%;
+}
+										
+.ui-tabs-vertical .ui-tabs-nav li {
+	clear: left;
+	width: 100%;
+	margin: 0;
+}
+										
+.ui-tabs-vertical .ui-tabs-nav li a {
+	display: block;
+	float: left;
+	padding: .5em 1em;
+	text-decoration: none;
+	cursor: pointer;
+}
+								
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+	padding-bottom: 0;
+	border-right-width: 1px;
+}
+											
+.ui-tabs-vertical .ui-tabs-panel {
+	display: block;
+	border: none;
+	background: none;
+	height: 229px;
+	padding:10px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	margin-left: auto;
+}
+					
+.ui-tabs-vertical.ui-tabs-navli {
+	background-color: #8cacbb;
+	border-color: #000;
+}
+											
+														
+/* TEXT POSITIONING */														
+.wmtC,
+.wmtCenter {
+	text-align: center;
+}
+												
+.wmtL,
+.wmtLeft {
+	text-align: left;
+}
+												
+.wmtR,
+.wmtRight {
+	text-align: right;
+}
+												
+.wmtT,
+.wmtTop {
+	vertical-align: top;
+}
+												
+.wmtBreak {
+	padding-top: 10px;
+}
+												
+.wmtIndent {
+	padding-left:25px;
+}
+			
+.wmtFloatL {
+	float: left;
+}									
+														
+.wmtFloatR {
+	float: right;
+}									
+														
+/* TEXT SIZING */														
+.wmtGiant {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 2em;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+									
+.wmtHuge {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 1.7em;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+									
+.wmtLarge {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 1.5em;
+	font-weight: bold;
+	text-transform: none;
+}
+									
+.wmtHighlight {
+	background-color: #00FF22;
+}
+												
+														
+/* LABEL STYLES */														
+.bkkLabel, 
+.wmtLabel {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: middle;
+}
+								
+.bkkLabelR, 
+.wmtLabelR {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: middle;
+	text-align: right;
+	padding: 1px 2px 1px 2px;
+}
+						
+.bkkLabelT, 
+.wmtLabelT {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: top;
+}
+								
+.bkkLabelTR, 
+.wmtLabelTR {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: top;
+	text-align: right;
+}
+							
+.bkkLabelUC, 
+.wmtLabelUC {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+								
+.bkkLabelTiny, 
+.wmtLabelTiny {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.5em;
+	font-weight: bold;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+								
+.bkkLabelRed, 
+.wmtLabelRed {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: middle;
+	color: red;
+}
+
+.bkkLabelRed input,
+.wmtLabelRed input {
+	color: red;
+}
+							
+.wmtLabel2,
+.bkkLabel2 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.75em;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: middle;
+}
+								
+.wmtLabel2R {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.75em;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: middle;
+	text-align: right;
+}
+							
+.wmtLabel2TR {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.75em;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: top;
+	text-align: right;
+}
+							
+.wmtLabel2UC {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.75em;
+	font-weight: bold;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+								
+.wmtLabel3C {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.65em;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: middle;
+	text-align: center;
+}
+							
+														
+/* BODY STYLES */														
+.bkkBody,
+.wmtBody {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.8em;
+	font-weight: normal;
+	text-transform: none;
+}
+									
+.bkkBodyR,
+.wmtBodyR {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.8em;
+	font-weight: normal;
+	text-transform: none;
+	text-align: right;
+}
+								
+.wmtBodyUC,
+.wmtBodyUC {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.8em;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+									
+.bkkBody2,
+.wmtBody2 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.75em;
+	font-weight: normal;
+	text-transform: none;
+}
+									
+.bkkBody2R,
+.wmtBody2R {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.75em;
+	font-weight: normal;
+	text-transform: none;
+	text-align: right;
+}
+								
+.bkkBody2UC,
+.wmtBody2UC {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.75em;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+									
+.bkkBody3,
+.wmtBody3 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.65em;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+									
+.wmtBody4 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.55em;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+									
+.wmtBody4RT {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.55em;
+	font-weight: normal;
+	text-transform: uppercase;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtOutput {
+	font-size: 12px;
+	font-weight: normal;
+}
+											
+.wmtTitle {
+	margin-left: 5px;
+	margin-bottom: 10px;
+}
+											
+							
+														
+/* INPUT STYLES */														
+input, select, textarea {
+	box-sizing: border-box;
+	border: 1px inset threedlightshadow;
+}
+												
+select {
+	padding: 0 3px;
+	height: 1.7em;
+	font-size: 12px;
+}
+											
+input[type='text'] {
+	padding: 1px 3px;
+	height: 1.7em;
+	border: 1px inset threedlightshadow;
+}
+											
+input[type=checkbox] {
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: middle;
+	margin-left: 0;
+}
+
+input.wmtBtnSmall {
+	height: 22px;
+	padding: 0 8px;
+	font-size: 12px;
+	margin: 0;
+}				
+
+input.wmtButton {
+	height: 24px;
+	padding: 2px 8px;
+	font-size: 12px;
+	margin: 0;
+}				
+
+input[type=text].wmtInputBorderB {
+	font-size: 12px;
+	border: 1px solid transparent;
+	border-bottom: solid 1px black;
+	padding: 0;
+	text-transform: none;
+	color: #000000;
+	background-color: transparent;
+}
+						
+textarea {
+	font-size: 12px;
+	resize: vertical;
+}
+												
+.wmtInput {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	text-transform: none;
+	padding: 1px 3px;
+}
+						
+.wmtInput2 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.7em;
+	font-weight: normal;
+	text-transform: none;
+	padding: 1px 3px;
+	border: none;
+	color: #000000;
+}
+						
+.wmtInput3 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.65em;
+	font-weight: normal;
+	text-transform: none;
+	padding: 0 3px;
+	border: none;
+	color: #000000;
+}
+						
+.wmtInput4 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.6em;
+	font-weight: normal;
+	text-transform: none;
+	padding: 0 3px;
+	border: none;
+	color: #000000;
+}
+						
+.wmtInputBorderB {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	text-transform: none;
+	padding: 0 3px;
+	border-bottom: solid 1px black;
+	color: #000000;
+	background-color: transparent;
+}
+					
+.wmtFullInput,
+.FullInput, .wmtSelect {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	text-transform: none;
+	padding: 1px 3px;
+	width: 100%;
+}
+
+.wmtSelect {
+	padding-left: 0;
+	width: auto;
+}
+
+.wmtFullInput textarea {
+	width: 100% !important;
+}				
+
+.wmtFullInput2 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.7em;
+	font-weight: normal;
+	text-transform: none;
+	padding: 1px 3px;
+	width: 100%;
+}
+							
+.wmtFullInput3 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.65em;
+	font-weight: normal;
+	text-transform: none;
+	padding: 0 3px;
+	width: 100%;
+}
+							
+.wmtFullInput4 {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.6em;
+	font-weight: normal;
+	text-transform: none;
+	padding: 0 3px;
+	width: 100%;
+}
+							
+input.wmtHeaderInput {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	text-transform: none;
+	padding: 0 3px;
+	background-color: transparent;
+	color: #000000;
+	border: none;
+	border-bottom: solid 1px gray;
+}
+					
+input.wmtHighlightInput {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	text-transform: none;
+	padding: 0 3px;
+	background-color: #00BB11;
+	color: #000000;
+	border: none;
+}
+					
+.wmtCheck {
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: middle;
+}
+										
+.wmtRadio {
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: top;
+	height: 16px;
+	line-height:24px;
+}
+									
+.wmtButton {
+	padding: 2px 4px;
+	margin: 0px;
+	font-size: 11px;
+}
+									
+.wmtListButton {
+	float: left;
+	padding-left: 0px;
+}
+											
+.wmtBigInput {
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 0.9em;
+	text-transform: none;
+	font-weight: bold;
+	padding: 0;
+	background-color: #EAEAEA;
+	color: #000000;
+	border: none;
+}
+				
+														
+/* BORDER RENDERING */														
+.wmtBorder1All {
+	border: solid 1px black;
+}
+												
+.wmtBorder1B {
+	border-bottom: solid 1px black;
+}
+												
+.wmtBorder1L {
+	border-left: solid 1px black;
+}
+												
+.wmtBorder1R {
+	border-right: solid 1px black;
+}
+											
+.wmtBorder1T {
+	border-top: solid 1px black;
+}
+												
+.wmtBorderHighlight {
+	border: solid 1px #00FF22;
+	white-space: pre-wrap;
+}
+											
+.wmtRedBorder {
+	border: solid 1px #FF0000;
+	margin: 6px;
+	padding: 4px;
+}
+										
+														
+/* OLD BODY STYLING */														
+.wmtFormBodyDark {
+	background-color: #8CACBB;
+}
+										
+.wmtFormBodyLight {
+	background-color: #fffbeb;
+}
+										
+														
+/* CONTAINER DEFINITIONS */														
+.wmtMainContainer {
+	overflow: hidden;
+	border-radius: 5px;
+	margin: 4px 4px 8px;
+	background-color: #fff;
+	box-shadow: 1px 2px 4px #c0c0c0;
+}
+								
+.wmtMainContainer fieldset {
+	margin: 15px 2px;
+	padding: 10px 4px;
+}
+											
+.wmtMainContainer input.wmtButton[disabled] {
+	color: #888;
+	background-color: #ccc;
+	box-shadow: none;
+}
+										
+.wmtMainContainer input[readonly], 
+.wmtMainContainer textarea[readonly], 
+.wmtMainContainer select[readonly], 
+.wmtMainContainer input[disabled], 
+.wmtMainContainer textarea[disabled], 
+.wmtMainContainer select[disabled], 
+.wmtMainContainer option[disabled],  
+.wmtMainContainer optgroup[disabled], 
+.wmtMainContainer select[disabled] {
+	background-color: threedlightshadow;
+	color: greytext;
+}
+											
+.wmtMainContainer input[type=checkbox] {
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: middle;
+	margin-left: 0;
+	margin-top: 1px;
+}
+									
+.wmtMainContainer legend {
+	font-size: 14px;
+	font-weight: bold;
+}
+											
+.wmtMainContainer.group {
+	margin: 2px 0px;
+}
+												
+.wmtMainContainerBottom1 {
+	background-color: #CCEECC;
+	overflow: hidden;
+	border: solid 2px black;
+	margin: 6px;
+	border-bottom: solid 1px black;
+}
+								
+														
+/* COLLAPSE SECTIONS */														
+.wmtCollapseBar table, 
+.wmtBottomBar table  {
+	height: 22px;
+	vertical-align: middle;
+}
+											
+.wmtCollapseBar, 
+.wmtBottomBar {
+	text-align: center;
+	overflow: hidden;
+	cursor: pointer;
+	padding: 6px;
+	border: solid 1px black;
+	border-radius: 5px 5px 0 0;
+}
+							
+.wmtCollapseBarBlack {
+	text-align: center;
+	overflow: hidden;
+	cursor: pointer;
+	background-color: #fedf98;
+}
+									
+.wmtBottomBar {
+	border-radius: 0 0 5px 5px;
+}
+												
+.wmtCollapseBar.wmtBarClosed {
+	border-radius: 5px;
+}
+												
+.wmtBottomBar.wmtBarClosed {
+	display: none;
+}
+												
+.wmtCollapseBox {
+	display: block;
+	padding: 7px 7px 10px 7px;
+	text-align: center;
+	overflow: hidden;
+}
+									
+.wmtCollapseBoxWhite,
+.wmtCollapseBoxWide {
+	display: block;
+	text-align: center;
+	overflow: hidden;
+	padding: 0;
+	background-color: #FFFFFF;
+}
+										
+.wmtCollapseTitle {
+	font-weight: bold;
+	color: #4c2222;
+	font-size: 0.9em;
+}
+										
+.wmtChapter {
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+}
+										
+.wmtChapterWhite {
+	font-size: 1.1em;
+	font-weight: bold;
+	text-transform: none;
+	text-align: center;
+	color: white;
+}
+								
+.wmtNoResize {
+	resize: none;
+}
+												
+.wmtPadSides {
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+/* LB FORMS */											
+.wmtLBForm {
+	font-size: 12px;
+}
+
+.wmtLBForm .wmtGroup {
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 22px;
+}		
+
+.wmtLBForm input[type='text'],
+.wmtLBForm textarea {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	text-transform: none;
+	padding: 1px 3px;
+	width: 99%;
+}
+
+.wmtLBData {
+	padding: 0 4px;
+	margin: 0;
+	font-size: 12px;
+	border: 1px solid black;		
+} 
+
+.wmtLBData .wmtLabel {
+	font-size: 13px;
+}
+
+.wmtLBData .wmtRight,
+.wmtLBData .wmtLeft {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	text-transform: none;
+	white-space: nowrap;
+}
+
+.wmtLBData input[type='text'],
+.wmtLBData textarea {
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	text-transform: none;
+	padding: 1px 3px;
+	width: 100%;
+}
+
+.wmtLBForm textarea {
+	width: 99.7%;
+}
+						
+.wmtLBForm .wmtRed,
+.wmtLBData .wmtRed {
+	font-weight:bold;
+	color:#d00;
+}
+
+/* DATES */														
+.wmtCalendarCell {
+	width: 26px;
+}
+												
+.wmtDateCell {
+	width: 110px;
+}
+												
+.wmtDateCell {
+	width: 110px;
+}
+												
+.wmtDateInput {
+	border: none;
+	width: 100px;
+}
+											
+														
+.wmtDottedB {
+	text-align: center;
+	height: 3px;
+	border-bottom-style: dotted;
+	border-bottom-color: #8CACBB;
+	border-bottom-width: 2px;
+	margin: 4px 6px 5px 6px;
+}
+							
+.wmtDottedH {
+	text-align: center;
+	height: 3px;
+}
+											
+														
+/* LAB SECTION */														
+.wmtHeader {
+	font-size: 7pt;
+	font-weight: bold;
+	text-align: left;
+	white-space: nowrap;
+	text-transform: uppercase;
+	line-height: 12pt;
+	padding-top: 3px;
+	vertical-align: top;
+}
+					
+.wmtHeader {
+	font-size: 10px;
+	font-weight: normal;
+	text-transform: uppercase;
+	vertical-align: bottom;
+}
+										
+.wmtInnerLeft {
+	border-right: 1px solid black;
+	padding: 0 2px 0 1px;
+	width:49%;
+}
+											
+.wmtInnerRight {
+	padding: 0 2px 0 8px;
+	width:49%;
+}
+												
+.wmtInnerLeft table th, 
+.wmtInnerLeft table td, 
+.wmtInnerRight table th, 
+.wmtInnerRight table td {
+	padding: 0px 2px;
+}
+												
+.wmtInnerRight .wmtLabBody, 
+.wmtInnerLeft .wmtLabBody, 
+.wmtLabBody {
+	padding: 0;
+	vertical-align: top;
+	height: 250px;
+}
+										
+.wmtLabBar {
+	text-align: center;
+	padding: 10px;
+	font-weight: bold;
+	font-size: 16px;
+	color: black;
+}
+								
+.wmtLabBox {
+	width: 99%;
+	border-collapse: collapse;
+	border-width: 1px;
+	border-style: solid;
+}
+									
+.wmtLabHeader {
+	font-size: 14px;
+	font-weight: bold;
+	line-height:26px;
+}
+										
+.wmtLabTitle {
+	font-size: 14px;
+	font-weight: bold;
+}
+										
+.wmtLabMenu {
+	height: 280px;
+	float: left;
+	width: auto;
+	min-width: 20%;
+	font-size: 0.8em;
+	border-right-style: solid;
+	border-right-width: 1px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+.wmtQuick td, .wmtQuick td input {
+	height: 17px;
+	vertical-align: middle;
+	margin-top: 0;
+	margin-bottom: 0;
+	font-size: 0.75em;
+}
+									
+.wmtQuickItem {
+	white-space:nowrap;
+	width:60px;
+	margin: 0;
+	padding: 0;
+}
+									
+														
+														
+/* REPORT FORMATTING */														
+.wmtReport .container {
+	position: relative;
+	margin: 5px;
+	border: 2px dashed;
+}
+										
+.wmtReport .wmtBreak {
+	padding-top: 10px;
+}
+												
+.wmtReport .wmtFrame {
+	width: 100%;
+}
+												
+.wmtReport .wmtGroup,
+.wmtReport .wmtDetail {
+	font-size: 12px;
+	font-weight: bold;
+}
+											
+.wmtReport .wmtLabel {
+	font-size: 12px;
+	font-weight: bold;
+	text-align: right;
+	white-space: nowrap;
+	min-width: 90px;
+}
+								
+.wmtReport .wmtNotice {
+	color: #c00;
+	font-style: italic;
+	font-size: 12px;
+	font-family: times, serif;
+}
+									
+.wmtReport .wmtOutput {
+	font-size: 12px;
+	font-weight: normal;
+}
+											
+.wmtReport .wmtSection {
+	margin-top: 0;
+}
+												
+.wmtReport .wmtSectionBody {
+	padding: 5px 5px 10px 5px;
+	width: 99%;
+}
+											
+.wmtReport .wmtSectionTitle {
+	width: 99%;
+	background-color: #222;
+	color: white;
+	text-transform: uppercase;
+	font-size: 9pt;
+	font-weight: bold;
+	text-align: left;
+	line-height: 1.5em;
+	margin: 0;
+	padding: 0 0 0 10px;
+}
+			
+.wmtReport .wmtStatus .wmtLabel {
+	padding: 3px 3px 3px 20px;
+}
+												
+.wmtReport .wmtStatus .wmtOutput {
+	padding: 3px 60px 3px 3px;
+}
+												
+.wmtReport .wmtStatus {
+	border: solid 1px red;
+	width: 200px;
+	margin-bottom: 0px;
+}
+										
+.wmtReport fieldset {
+	margin-top: 15px;
+	margin-bottom: 0px;
+}
+											
+.wmtReport h3 {
+	font-size: 14px;
+	font-weight: bold;
+}
+											
+.wmtReport h4 {
+	font-size: 12px;
+	font-weight: bold;
+	margin-top: 10px;
+}
+										
+.wmtReport legend {
+	font-size: 14px;
+	font-weight: bold;
+}
+											
+.wmtReport small {
+	font-size:10px;
+}
+												
+div.wmtReport table td.wmtLabel {
+	padding-right: 10px;
+	vertical-align: baseline;
+	line-height: 12pt;
+	padding-top: 4px;
+}
+									
+div.wmtReport table td.wmtOutput {
+	vertical-align: baseline;
+	line-height: 12pt;
+	padding-top: 4px;
+}
+	
+										
+/* PRINT FORMATTING */														
+.wmtPrint .wmtHeader {
+	margin-top: 20px;
+}
+												
+.wmtPrint .wmtHeaderLabel {
+	font-size: 8pt;
+	font-weight: bold;
+	text-align: right;
+	white-space: nowrap;
+	text-transform: uppercase;
+}
+								
+.wmtPrint .wmtHeaderOutput {
+	width: 60pt;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid black;
+	margin-left: 5px;
+}
+							
+.wmtPrint .wmtInnerTable {
+	margin-top: 10px;
+}
+												
+.wmtPrint .wmtLabel {
+	font-size: 7pt;
+	font-weight: bold;
+	text-align: right;
+	white-space: nowrap;
+	text-transform: uppercase;
+	width: auto;
+}
+							
+.wmtPrint .wmtNotice {
+	color: #c00;
+	font-style: italic;
+	font-size: 80%;
+	font-family: times, serif;
+}
+									
+.wmtPrint .wmtOutput {
+	font-size: 10pt;
+	font-weight: normal;
+}
+											
+.wmtPrint .wmtSection {
+	border-style: solid;
+	border-width: 1px 2px;
+	margin-top: 10px;
+}
+
+.wmtPrint .wmtSection.first {
+	border-top: 2px solid black;
+	
+}											
+
+.wmtPrint .wmtSection.last {
+	border-bottom: 2px solid black;
+	
+}											
+
+.wmtPrint .wmtReport .wmtSection {
+	border-top: none;
+	margin-top: 0px;
+}
+											
+.wmtPrint .wmtSectionBody {
+	padding: 5px 5px 10px 5px;
+}
+												
+.wmtPrint .wmtSectionTitle {
+	width: 100%;
+	color: black;
+	background-color: #ddd;
+	border-bottom: 1px solid black;
+	text-transform: uppercase;
+	font-size: 9pt;
+	font-weight: bold;
+	text-align: center;
+	line-height: 1.5em;
+	margin: 0;
+	padding: 0;
+}
+		
+.wmtPrint .wmtStatus {
+	display: none;
+}
+												
+.wmtPrint .wmtTitle {
+	font-size: 7pt;
+	font-weight: bold;
+	text-align: left;
+	white-space: nowrap;
+	text-transform: uppercase;
+	line-height: 12pt;
+	padding-top: 3px;
+	vertical-align: top;
+}
+					
+.wmtPrint {
+	width: 525pt;
+	background: none;
+	margin: 10px;
+	font-size: 10pt;
+	vertical-align: absbottom;
+}
+								
+.wmtPrint h1 {
+	font-size: 1.2em;
+	font-width: bold;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+								
+.wmtPrint h2 {
+	font-size: 1em;
+	font-width: bold;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+								
+.wmtPrint label, .wmtPrint input {
+	display: inline;
+}
+		
+.wmtPrint table {
+	width: 100%;
+}				
+						
+.wmtPrint table, .wmtPrint td, .wmtPrint tr {
+	padding: 0;
+	margin: 6px;
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+									
+.wmtPrintBox {
+	padding: 0 5px 5px 5px;
+}
+												
+.wmtPrintBox h3 {
+	padding-bottom: 0;
+	margin-bottom: 3px;
+}
+											
+														
+/* SPECIAL REVIEW SECTION */														
+.wmtReview .wmtLabel, 
+.wmtReview .wmtBody,  
+.wmtReview .wmtBody4 {
+	font-size: 9px;
+	font-weight: bold;
+	vertical-align: middle;
+	text-transform: uppercase;
+	padding: 1px 2px;
+}
+								
+.wmtReview input, .wmtReview select {
+	margin: 0;
+	height: 21px;
+	font-size: 11px;
+}
+											
+.wmtReview td.wmtBody {
+	white-space: normal;
+}
+												
+.wmtSummary .wmtReport .wmtSectionBody {
+	margin-bottom: 5px;
+	background-color: #fff;
+}
+											
+.wmtSummary .wmtStatus {
+	display: none;
+}
+												
+														
+/* RICH NEW STUFF */
+.LabelBorderLB,
+.LabelCenterBorderB,
+.LabelCenterBorderLB {	
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: none;
+	vertical-align: middle;
+}
+
+.LabelCenterBorderB,
+.LabelCenterBorderLB {	
+	text-align: center;
+}
+
+.LabelBorderLB,
+.LabelCenterBorderLB {
+	border-left: 1px solid black;
+}
+
+.LabelBorderLB,
+.LabelCenterBorderB,
+.LabelCenterBorderLB {
+	border-bottom: 1px solid black;
+}

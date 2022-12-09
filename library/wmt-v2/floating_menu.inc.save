@@ -1,0 +1,98 @@
+<?php
+include_once($GLOBALS['srcdir'].'/wmt-v2/list_tools.inc');
+if(!isset($relink_list)) $relink_list = '';
+if(!isset($relink_list)) $relink_list = "'do_all', 'do_meds'";
+$lab_enabled = false;
+if(isset($GLOBALS['wmt_lab_enable'])) $lab_enabled = $GLOBALS['wmt_lab_enable'];
+$portal_enabled = false;
+if(isset($GLOBALS['wmt::pat_entry_portal'])) $portal_enabled = $GLOBALS['wmt::pat_entry_portal'];
+$menu_actions = LoadList($frmdir.'_action','active','seq','','LIKE "%Menu%"');
+?>
+
+<div id="float-menu" class="" style="position: absolute; top: 0; z-index: 800;">
+
+	<div class="floating-menu-item">
+	<a href="javascript:;" class="floating-menu-link" tabindex="-1" onclick="AutoSave('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','','<?php echo $id; ?>');" ><span class="wmtLabel">S &amp; C</span></a></td>
+
+	<td class="wmtC floating-menu_td">
+	<a href="javascript:;" class="floating-menu-link" tabidex="-1" onclick="wmtOpen('../../../custom/document_popup.php?pid=<?php echo $pid; ?>', '_blank', 800, 600);" ><span class="wmtLabel">Docs</span></a></td>
+
+	<?php if($portal_enabled) { ?>
+	<?php 	if(checkSettingMode('wmt::float_menu_portal_link','',$frmdir)) { ?>
+  <td class="wmtC floating-menu-td">
+	<a href="javascript:;" id="btn_hide" tabindex="-1" class="floating-menu-link"><span class="wmtLabel">Portal Data</span></a></td>
+	<?php 	} ?>
+	<?php } ?>
+
+	<?php if($lab_enabled) { ?>
+	<?php 	if(checkSettingMode('wmt::float_menu_lab_link','',$frmdir)) { ?>
+	<td class="wmtC floating-menu-td">
+	<a href="javascript:;" class="floating-menu-link" tabindex="-1" onclick="wmtOpen('<?php echo $GLOBALS['webroot']; ?>/interface/reports/laboratory/lab_analysis.php?popup=1&pid=<?php echo $pid; ?>', '_blank', 900, 800);" ><span class="wmtLabel">Lab Analysis</span></a></td>
+	<?php 	} ?>
+	<?php } ?>
+
+	<!-- KEEP THIS ONE AS A QUICK WAY TO SET UP ONE OPTION -->
+	<?php 
+	if($rto_type = checkSettingMode('wmt::float_menu_quick_rto','',$frmdir)) {
+		$title = 'Create Order';
+		$type = $rto_type;
+		if(strpos($rto_type, '::') !== false) {
+			list($type, $title) = explode('::', $rto_type);
+		}	
+	?>
+	<td class="wmtC floating-menu-td">
+	<a href="javascript:;" class="floating-menu-link" tabindex="-1" onclick="wmtOpen('<?php echo $GLOBALS['webroot']; ?>/interface/forms/rto/new.php?pop=<?php echo $type; ?>&pid=<?php echo $pid; ?>', '_blank', 1200, 400);" ><span class="wmtLabel"><?php echo $title; ?></span></a></td>
+	<?php } ?>
+
+	<td class="wmtC floating-menu-td">
+	<a href="javascript:;" class="floating-menu-link" tabindex="-1" onclick="wmtOpen('<?php echo $GLOBALS['webroot']; ?>/interface/forms/rto/new.php?pop=yes&pid=<?php echo $pid; ?>', '_blank', 1200, 400);" ><span class="wmtLabel">Orders</span></a></td>
+
+	<?php if(checkSettingMode('wmt::float_menu_summary_link','',$frmdir)) { ?>
+  <td class="wmtC floating-menu-td">
+  <a href="javascript: submit_print_form('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','','<?php echo $id; ?>','summary');" tabindex="-1" class="floating-menu-link"><span class="wmtLabel">Summary</span></a></td>
+	<?php } ?>
+
+  <td class="wmtC floating-menu-td">
+	<a href="javascript: submit_print_form('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','','<?php echo $id; ?>');" tabindex="-1" class="floating-menu-link"><span class="wmtLabel">Print</span></a></td>
+
+	<?php if(checkSettingMode('wmt::float_menu_problem_link','',$frmdir)) { ?>
+  <td class="wmtC floating-menu-td">
+	<a href="javascript: submit_print_form('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','','<?php echo $id; ?>','problems');" tabindex="-1" class="floating-menu-link"><span class="wmtLabel">Print Problems</span></a></td>
+	<?php } ?>
+
+	<?php if(checkSettingMode('wmt::float_menu_vital_trend','',$frmdir)) { ?>
+  <td class="wmtC floating-menu-td">
+	<a href="javascript:; " onclick="wmtOpen('<?php echo $GLOBALS['webroot']; ?>/library/wmt-v2/trend_vitals.php?pid=<?php echo $pid; ?>', '_blank', 800, 600);" tabindex="-1" class="floating-menu-link"><span class="wmtLabel">Trend Vitals</span></a></td>
+	<?php } ?>
+
+	<?php if(checkSettingMode('wmt::float_menu_relink','',$frmdir)) { ?>
+  <td class="wmtC floating-menu-td">
+	<a href="javascript: refresh_links(<?php echo $relink_list; ?>);" tabindex="-1" class="floating-menu-link"><span class="wmtLabel">Re-Link</span></a></td>
+	<?php } ?>
+
+	<?php if($clear = checkSettingMode('wmt::float_menu_clear','',$frmdir)) { ?>
+  <td class="bkkC floating-menu-td">
+	<a href="javascript: <?php echo $clear; ?>;" tabindex="-1" class="floating-menu-link"><span class="bkkLabel"><?php xl('Clear','e'); ?></span></a></td>
+	<?php } ?>
+
+	<?php if(checkSettingMode('wmt::float_menu_cancel','',$frmdir)) { ?>
+	<td class="bkkC floating-menu-td">
+	<a href="<?php echo ($pop_form) ? 'javascript: window.close();' : $GLOBALS['form_exit_url']; ?>" class="floating-menu-link" onclick="return cancelClicked();" ><span class="bkkLabel"><?php xl('Cancel','e'); ?></span></a></td>
+	<?php } ?>
+
+	</tr>
+	</table>
+</div>
+<script>
+$( "#btn_hide" ).click( function() {
+	// $( ".wmtPortalData" ).toggle();
+	if($( ".wmtPortalData" ).css('display') == 'none') {
+		$( ".wmtPortalData" ).show();
+		$( "#tmp_show_portal_data" ).val('yes');
+	} else {
+		$( ".wmtPortalData" ).hide();
+		$( "#tmp_show_portal_data" ).val('no');
+	}
+} );
+</script>
+

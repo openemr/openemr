@@ -1,0 +1,436 @@
+td {
+  text-align: left;
+}
+
+.alChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:14px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.alReportHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.alReportLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.alReportLabelTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+.alReportLabelCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: none;
+  font-weight: bold;
+}
+
+.alReportBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: none;
+}
+
+.alReportBodyTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: none;
+  vertical-align: top;
+}
+
+.alReportBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8px;
+  border-bottom: solid 1px black;
+  border-bottom-color: #000000;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alInputFull {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alInputBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  border-bottom: solid 1px black;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.alLabelCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:none;
+}
+
+.alLabel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.alLabel2CS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:10px;
+  font-weight: bold;
+  text-transform:none;
+}
+
+.alLabelBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.alBodyBorderLT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: normal;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-top: solid 1px black;
+}
+
+.alBodyBorderT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: normal;
+  text-transform: none;
+  border-top: solid 1px black;
+}
+
+.alBodyBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: normal;
+  text-transform: none;
+  border-left: solid 1px black;
+}
+
+.alLabelBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-bottom: solid 1px black;
+}
+
+.alLabelBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.alLabelCSBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.alLabelCSBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform: none;
+  border-bottom: solid 1px black;
+}
+
+.alLabelCSBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+}
+
+.alReportBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9px;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.alInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:9px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alReport2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alPrint2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  white-space: pre-wrap;
+  text-transform: none;
+  color: #000000;
+}
+
+.alReport2Full {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  width: 100%;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alPrint2Full {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  white-space: pre-wrap;
+  width: 100%;
+  color: #000000;
+}
+
+.alPrint2FullTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  white-space: pre-wrap;
+  vertical-align: top;
+  width: 100%;
+  color: #000000;
+}
+
+.alPrint2Top {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:7px;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  white-space: pre-wrap;
+  vertical-align: top;
+  color: #000000;
+}
+
+.alInput3, input.alInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:8px;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.alBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  text-transform: none;
+}
+
+.alBodyTop {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  text-transform: none;
+  vertical-align: top;
+}
+
+.alBodyBorderAll {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: solid 1px black;
+}
+
+.alBodyCS {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  text-transform: none;
+}
+
+.alBody2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.alBody3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.allink_submit {
+  font-size: 9pt ! important;
+  padding : 4px;
+  border: 1px solid black;
+  background-color: #cccccc;
+}
+
+.alMainContainer {
+  background-color: transparent;
+  overflow: hidden;
+  border: solid 2px black;
+  margin: 4px;
+}
+
+.alMainContainerSpecial {
+  background-color: #CCEECC;
+  overflow: hidden;
+  border-top: solid 2px black;
+  border-left: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: none;
+  margin: 4px;
+}
+
+.alPrintContainer {
+  background-color: transparent;
+  border: solid 2px black;
+  margin: 4px;
+}
+
+.alCollapseBar {
+  text-align: center;
+  overflow: hidden;
+  background-color: #8CACBB;
+  cursor: pointer;
+}
+
+.alPrintBar {
+  text-align: center;
+  background-color: transparent;
+}
+
+.alCollapseBox {
+  background-color: #D9DEE0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.alCollapseBoxWhite {
+  background-color: #FFFFFF;
+  text-align: center;
+  overflow: hidden;
+}
+
+.alCollapseBoxPrint{
+  background-color: transparent;
+  text-align: center;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.alTextDiv {
+  background-color: #FFFFFF;
+  text-align: left;
+  overflow: hidden;
+  border: solid 1px black;
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.alInnerTable {
+  border: solid 1px black;
+  background-color: #FFFFFF;
+}
+
+.alDottedB {
+  width: 100%;
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #8CACBB;
+  border-bottom-width: 2px;
+}
+
+.alDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.alConfirmBox {
+  width: 10em;
+  height: 5em;
+  position: absolute;
+  z-index: 1;
+  visibility: hidden;
+  background: blue;
+  color: white;
+  border: 6px double white;
+  text-align: center;
+}

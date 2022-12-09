@@ -1,0 +1,511 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+}
+
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+}
+
+.DateCell {
+	width: 140px;
+}
+.wmtPrnDateCell {
+	width: 100px;
+}
+
+.wmtPrnIndentLabel{
+	padding-left: 25px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.wmtPrnIndentBody{
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+}
+
+.wmtPrnIndentText {
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+	width: 100%;
+}
+
+.wmtPrnLabelUC {
+  font-weight: bold;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnSubSection{
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.wmtPrnLabel {
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnLabelR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtPrnLabel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtPrnLabel2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtPrnLabel2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  font-weight: bold;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnLabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.wmtPrnLabelBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelCenterBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelBorderLBR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.wmtPrnBorderT {
+	border-top: solid 1px black;
+}
+
+.wmtPrnLabelBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.wmtPrnLabelCenterBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform:none;
+  text-align: center;
+  border-left: solid 1px black;
+}
+
+.wmtPrnLabelBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelCenterBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelUCBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabelUCBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.wmtPrnLabel3{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 6pt;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.wmtPrnLabel3Center {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 6pt;
+  font-weight: bold;
+  text-transform:uppercase;
+	text-align: center;
+}
+
+.wmtPrnLabel3CenterBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  font-weight: bold;
+	text-align: center;
+  text-transform:uppercase;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnLabel3CenterBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  font-weight: bold;
+	text-align: center;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.wmtPrnLabel3CenterBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  font-weight: bold;
+  text-transform:uppercase;
+	text-align: center;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnBorder1All {
+  border: solid 1px black;
+}
+
+.wmtPrnBodyBorderAll {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+  border: solid 1px black;
+}
+
+.wmtPrnBodyBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.wmtPrnBodyBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnBodyBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: normal;
+  text-transform:none;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnHuge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16pt;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.wmtPrnLarge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14pt;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.wmtPrnChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+	text-align: center;
+  text-transform: none;
+}
+
+.wmtPrnBodyUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnBody {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnLetter{
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBodyR {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+	text-align: right;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  text-transform: none;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  text-transform: none;
+  text-align: right;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.wmtPrnBody3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody3BorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  text-transform: uppercase;
+	vertical-align: top;
+	border-bottom: solid 1px black;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody3BorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  text-transform: uppercase;
+	vertical-align: top;
+	border-left: solid 1px black;
+	border-bottom: solid 1px black;
+	white-space: pre-wrap;
+}
+
+.wmtPrnBody4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.wmtPrnFullInput {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+	width: 100%;
+  font-size: 8pt;
+	vertical-align: top;
+}
+
+.wmtPrnMainContainer {
+	background-color: transparent;
+  border: solid 2px black;
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+.wmtPrnContainer {
+	background-color: transparent;
+}
+
+.wmtPrnMainContainerBottom1 {
+	text-align: left;
+  background-color: transparent;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+}
+
+.wmtPrnContainerNoBorder {
+  text-align: left;
+  background-color: transparent;
+  border: none;
+}
+
+.wmtPrnContainerNoBottom {
+  text-align: left;
+  background-color: transparent;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+}
+
+.wmtPrnCollapseBar {
+  text-align: center;
+  background-color: transparent;
+  cursor: pointer;
+	border-top: solid 1px black;
+	border-bottom: solid 2px black;
+}
+
+.wmtPrnCollapseBox {
+  background-color: transparent;
+  text-align: left;
+  overflow: hidden;
+}
+
+.wmtPrnDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: black;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.wmtPrnDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.wmtPrnBorder1L {
+	border-left: solid 1px black;
+}
+
+.wmtPrnBorder1T {
+	border-top: solid 1px black;
+}
+
+.wmtPrnBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.wmtPrnBorder1R {
+	border-right: solid 1px black;
+}
+
+.wmtPrnR {
+	text-align: right;
+}
+
+.wmtPrnC {
+	text-align: center;
+}
+
+.wmtPrnT {
+	vertical-align: top;
+}
+
+.wmtNoPrint {
+	display: block;
+}
+
+.wmtPrnHeadingBar {
+  text-align: left;
+  background-color: black;
+	color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+	font-weight: bold;
+	margin-left: 10px;
+	margin-right: 20px;
+}
+
+@media print {
+	#no_print_buttons {
+		display: none;
+		visibility: hidden;
+	}
+
+	.wmtNoPrint {
+		display: none;
+		visibility: hidden;
+	}
+}
+

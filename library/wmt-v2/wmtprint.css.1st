@@ -1,0 +1,371 @@
+td {
+  text-align: left;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.DateCell {
+	width: 140px;
+}
+
+.IndentLabel{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+	padding-left: 25px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.IndentText {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+	padding-left: 25px;
+	padding-right: 25px;
+	white-space: pre-wrap;
+	vertical-align: top;
+	width: 100%;
+}
+
+.LabelUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.Header {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.SubSection{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.Label {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.LabelR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.Label2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.Label2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.Label2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.LabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.LabelBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.LabelCenterBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.LabelBorderLBR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.LabelBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.LabelCenterBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform:none;
+  text-align: center;
+  border-left: solid 1px black;
+}
+
+.LabelBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+  border-bottom: solid 1px black;
+}
+
+.LabelCenterBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-bottom: solid 1px black;
+}
+
+.LabelUCBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: solid 1px black;
+}
+
+.LabelUCBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.BodyBorderAll {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  text-transform: uppercase;
+  border: solid 1px black;
+}
+
+.BodyBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.BodyBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: normal;
+  text-transform:none;
+  border-bottom: solid 1px black;
+}
+
+.Huge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20pt;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.Large {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16pt;
+  font-weight: normal;
+	text-align: center;
+  text-transform: none;
+}
+
+.Chapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14pt;
+  font-weight: bold;
+	text-align: center;
+  text-transform: none;
+}
+
+.BodyUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.Body {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.BodyR {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+	text-align: right;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.Body2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: none;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.Body2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: none;
+  text-align: right;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.Body2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+	vertical-align: top;
+}
+
+.Body3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7pt;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.Body4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  text-transform: uppercase;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.FullInput {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+	width: 100%;
+  font-size: 10pt;
+	vertical-align: top;
+}
+
+.MainContainer {
+	background-color: transparent;
+  border: solid 2px black;
+  margin: 6px;
+}
+
+.PrintContainer {
+	background-color: transparent;
+  border: none;
+  margin: 6px;
+	padding: 6px;
+}
+
+.MainContainerBottom1 {
+  background-color: transparent;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+  margin: 6px;
+}
+
+.ContainerNoBorder {
+  text-align: left;
+  background-color: transparent;
+  border: none;
+  margin: 6px;
+}
+
+.ContainerNoBottom {
+  text-align: left;
+  background-color: transparent;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  margin: 6px;
+}
+
+.CollapseBar {
+  text-align: center;
+  background-color: transparent;
+  cursor: pointer;
+	border-bottom: solid 1px black;
+}
+
+.CollapseBox {
+  background-color: transparent;
+  text-align: center;
+  overflow: hidden;
+}
+
+.DottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #8CACBB;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.DottedH {
+  text-align: center;
+  height: 3px;
+}
+

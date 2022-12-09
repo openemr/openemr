@@ -1,0 +1,471 @@
+/* 
+ * CUSTOM WILLIAMS MEDICAL TECHNOLOGIES
+ * ------------------------------------
+ * This section makes specific fixes to the default layouts.
+ */
+textarea {
+	resize: vertical;
+}
+
+table,
+.wmtInnerLeft table,
+.wmtInnerRight table {
+    border-collapse: collapse;
+}
+
+th, td,
+.wmtInnerLeft table th, .wmtInnerLeft table td,
+.wmtInnerRight table th, .wmtInnerRight table td {
+    padding: 2px 3px;
+}
+
+#encounter_forms {
+	padding: 5px;
+	width: auto;
+}
+
+#partable {
+	width: 100%;
+}
+
+div.tab {
+	width: 98%;
+}
+
+/*
+ * The remaining entries are used to style custom forms.
+ */
+ 
+ .wmtSummary .wmtStatus {
+ 	display: none;
+ }
+ 
+.wmtSummary .wmtReport .wmtSectionBody {
+	margin-bottom: 5px;
+	background-color: #fff;
+}
+	
+.wmtCenter {
+	text-align: center;
+}
+
+.wmtIndent {
+	padding-left:25px;
+}
+
+.wmtNoResize {
+	resize: none;
+}
+
+.wmtBreak {
+	padding-top: 10px;
+}
+
+.wmtLeft {
+	text-align: left;
+}
+
+.wmtRight {
+	text-align: right;
+}
+
+.wmtTitle {
+	margin-left: 5px;
+	margin-bottom: 3px;
+}
+.wmtHeader {
+	font-size: 7pt;
+	font-weight: bold;
+	text-align: left;
+	white-space: nowrap;
+	text-transform: uppercase;
+	line-height: 12pt;
+	padding-top: 3px;
+	vertical-align: top;
+}
+
+.wmtOutput {
+	font-size: 12px;
+	font-weight: normal;
+}
+
+.wmtLabel {
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: middle;
+}
+
+.wmtRadio {
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: bottom;
+	padding-bottom: 6px;
+}
+
+.wmtCheck {
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: middle;
+	margin-left: 0;
+}
+
+.wmtHeader {
+	font-size: 10px;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+
+.wmtDateCell{
+	width: 90px;
+}
+
+.wmtInput {
+	padding: 1px;
+}
+
+.wmtMainContainer input[readonly],
+.wmtMainContainer textarea[readonly],
+.wmtMainContainer select[readonly] {
+	background-color: transparent;
+	border-style: none;
+	padding: 0;
+	vertical-align: bottom;
+}
+
+.wmtFullInput {
+	font-family: Arial,Helvetica,asns-serif; 
+	font-size: 12px;
+	width: 96%;
+	padding: 1px;
+/*	margin-right: 15px; */
+}
+
+.wmtInput2 {
+	font-size: 9px;
+	width: 100%;
+	border: none;
+	padding: 0;
+	background-color: #FEFDCF;
+}
+
+.wmtFullInput2 {
+	width: 100%;
+	padding: 0;
+}
+
+/* FORM STYLE */
+.wmtMainContainer {
+	overflow: hidden;
+	background-color: #F4F4F4;
+	border: solid 2px black;
+	margin: 4px;
+}
+
+.wmtMainContainer fieldset {
+	margin: 15px 2px;
+	padding: 10px 4px;
+}
+
+.wmtMainContainer legend {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.wmtCollapseBar {
+	text-align: center;
+	overflow: hidden;
+  	background-color: #FFFBEB;
+	cursor: pointer;
+	border-bottom: solid 1px black;
+	text-transform: uppercase;
+}
+
+.wmtCollapseBar.wmtBarClosed {
+	border-bottom: none;
+}
+
+.wmtCollapseBar table {
+	height: 22px;
+	vertical-align: middle;
+}
+
+.wmtInnerLeft {
+	border-right: 1px solid black;
+	padding: 0 7px 0 0;
+}
+
+.wmtInnerRight {
+	padding: 0 0 0 5px;
+}
+
+.wmtChapter {
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.wmtCollapseBox {
+	display: block;
+	padding: 7px 6px 3px 3px;
+}
+
+/* REPORT STYLE */
+div.wmtReport table td.wmtLabel {
+	padding-right: 10px;
+	vertical-align: baseline;
+	line-height: 12pt;
+	padding-top: 4px;
+}
+
+div.wmtReport table td.wmtOutput {
+	vertical-align: baseline;
+	line-height: 12pt;
+	padding-top: 4px;
+}
+
+.wmtReport .container {
+	position: relative;
+	margin: 5px;	
+	border: 2px dashed;
+}
+
+.wmtReport .wmtFrame {
+	width: 100%;
+}
+
+.wmtReport .wmtLabel {
+	font-size: 80%;
+	font-weight: bold;
+	text-align: right;
+	white-space: nowrap;
+	width: 200px;
+}
+
+.wmtReport .wmtNotice {
+	color: #c00;
+	font-style: italic;
+	font-size: 80%;
+	font-family: times, serif;
+}
+
+.wmtReport .wmtOutput {
+	font-size: 80%;
+	font-weight: normal;
+}
+
+.wmtReport .wmtBreak {
+	padding-top: 10px;
+}
+
+.wmtReport .wmtStatus {
+	border: solid 1px red;
+	width: 425px;
+	margin-bottom: 0px;
+}
+
+.wmtReport .wmtStatus .wmtLabel {
+	padding: 3px 3px 3px 20px;
+}
+
+.wmtReport .wmtStatus .wmtOutput {
+	padding: 3px 60px 3px 3px;
+}
+
+.wmtReport .wmtSection {
+	margin-top: 0;
+}
+
+.wmtReport fieldset {
+	margin-top: 15px;
+	margin-bottom: 0px;
+}
+
+.wmtReport legend {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.wmtReport .wmtSectionTitle {
+	width: 99%;
+	background-color: #222;
+	color: white;
+	text-transform: uppercase;
+	font-size: 9pt;
+	font-weight: bold;
+	text-align: left;
+	line-height: 1.5em;
+	margin: 0;
+	padding: 0 0 0 10px;
+}
+
+.wmtReport .wmtSectionBody {
+	padding: 5px 5px 10px 5px;
+	width: 99%;
+}
+
+
+/* PRINT DEFINITIONS */
+
+.wmtPrint {
+	width: 530pt;
+	background: none;
+	margin: 10px;
+	font-size: 10pt;
+	vertical-align: absbottom;
+}
+
+.wmtPrint table,
+.wmtPrint td,
+.wmtPrint tr {
+	padding: 0;
+	margin: 0;
+	border-spacing: 0;
+  	border-collapse: collapse;
+}
+
+.wmtPrint h1 {
+	font-size: 1.2em;
+	font-width: bold;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+.wmtPrint h2 {
+	font-size: 1em;
+	font-width: bold;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+.wmtPrint label,
+.wmtPrint input {
+	display: inline;
+}
+
+.wmtPrint .wmtNotice {
+	color: #c00;
+	font-style: italic;
+	font-size: 80%;
+	font-family: times, serif;
+}
+
+.wmtPrintBox {
+	padding: 0 5px 5px 5px;
+}
+
+.wmtPrintBox h3 {
+	padding-bottom: 0;
+	margin-bottom: 3px;
+}
+
+.wmtPrint .wmtStatus {
+	display: none;
+}
+
+.wmtPrint .wmtLabel {
+	font-size: 7pt;
+	font-weight: bold;
+	text-align: right;
+	white-space: nowrap;
+	text-transform: uppercase;
+	width: auto;
+	padding-left: 10pt;
+}
+
+.wmtPrint .wmtTitle {
+	font-size: 7pt;
+	font-weight: bold;
+	text-align: left;
+	white-space: nowrap;
+	text-transform: uppercase;
+	line-height: 12pt;
+	padding-top: 3px;
+	vertical-align: top;
+}
+
+.wmtPrint .wmtOutput {
+	font-size: 10pt;
+	font-weight: normal;
+}
+
+.wmtPrint .wmtHeader {
+	margin-top: 20px;
+}
+
+.wmtPrint .wmtHeaderLabel {
+	font-size: 8pt;
+	font-weight: bold;
+	text-align: right;
+	white-space: nowrap;
+	text-transform: uppercase;
+}
+
+.wmtPrint .wmtHeaderOutput {
+	width: 60pt;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid black;
+	margin-left: 5px;
+}
+
+.wmtPrint .wmtSection {
+	border: 2px solid black;
+	margin-top: 10px;
+}
+
+.wmtPrint .wmtSectionTitle {
+	width: 100%;
+	color: black;
+	background-color: transparent;
+	border-bottom: 1px solid black;
+	text-transform: uppercase;
+	font-size: 9pt;
+	font-weight: bold;
+	text-align: center;
+	line-height: 1.5em;
+	margin: 0;
+	padding: 0;
+}
+
+.wmtPrint .wmtSectionBody {
+	padding: 5px 5px 10px 5px;
+}
+
+
+.form-menu-list {
+	vertical-align: top;
+	margin: 0;
+	padding: 0;
+}
+
+.form-menu-list li {
+	/***
+	background: rgba(0, 0, 0, 0) -moz-linear-gradient(center top, #FE5301, #FEFDCF) repeat scroll 0 0;
+	background: -webkit-gradient(linear, left top, left bottom, from(#16558C), to(#16558C));
+	background: rgba(0, 0, 0, 0) -moz-linear-gradient(center top, #16558C, #16558C) repeat scroll 0 0;
+	***/
+	background: #15558C;
+	border: 1px solid #FEFDCF;
+	float: left;
+	vertical-align: top;
+	list-style: outside none none;
+}
+
+.form-menu-list li a {
+	color: #FFFFFF;
+	display: block;
+	font-weight: normal;
+	font-size: 0.9em;
+	padding: 3px 16px 3px 16px;
+}
+
+.form-menu-list li a:hover {
+	font-weight: bold;
+}
+
+.clickable {
+	cursor: pointer;
+}

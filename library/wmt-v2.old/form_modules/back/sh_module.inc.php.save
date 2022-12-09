@@ -1,0 +1,264 @@
+<?php 
+// This module now has some spaghetti in-line javascript, there are 
+// two different versions of 'ACE' extended alcohol questions, and another
+// 'AUDIT' alcohol questionnaire and the smoking cessation qustions.
+// These can all be toggled on and off in the form with user settings.
+
+if(!isset($field_prefix)) $field_prefix = '';
+if(!isset($portal_mode)) $portal_mode = false;
+if(!isset($pat_entries_exist)) $pat_entries_exist = false;
+$local_fields = array('sex_active', 'sex_act_nt', 'bc', 'smoking_status', 
+	'smoking', 'smoking_dt', 'alcohol', 'alcohol_note', 'alcohol_dt', 
+	'drug_use', 'drug_note', 'drug_dt', 'fyi_sh_nt', 'sex_nt');
+$flds = sqlListFields('form_lifestyle');
+$flds = array_slice($flds, 10);
+foreach($flds as $fld) { $local_fields[] = $fld; }
+foreach($local_fields as $tmp) {
+	if(!isset($dt[$field_prefix.$tmp])) $dt[$field_prefix.$tmp] = '';
+	if(!isset($pat_entries[$tmp])) $pat_entries[$tmp] = $portal_data_layout;
+}
+if(!isset($dt['fyi_sh_nt'])) $dt['fyi_sh_nt'] = '';
+?>
+    <table width="100%" border="0" cellspacing="0" cellpadding="3">
+      <tr>
+        <td class="<?php echo ($portal_mode) ? 'bkkBody' : 'wmtBody'; ?>" style="width: 120px;">Do you smoke?</td>
+        <td colspan="2"><select name="<?php echo $field_prefix; ?>smoking_status" id="<?php echo $field_prefix; ?>smoking_status" class="<?php echo ($portal_mode) ? 'bkkInput' : 'wmtInput'; ?>">
+					<!-- SELECTION OF 'option_id' 1, 2, 5, 15 or 16 
+					SHOULD TRIGGER THE LARGER SMOKING CESSATION QUESTIONNAIRE-->
+          <?php ListSel($dt{$field_prefix.'smoking_status'}, 'smoking_status'); ?>
+        </select></td>
+        <td><input name="<?php echo $field_prefix; ?>smoking" id="<?php echo $field_prefix; ?>smoking" class="<?php echo ($portal_mode) ? 'bkkFullInput' : 'wmtFullInput'; ?>" type="text" value="<?php echo htmlspecialchars($dt{$field_prefix.'smoking'}, ENT_QUOTES, '', FALSE); ?>" /></td>
+        <td class="<?php echo ($portal_mode) ? 'bkkBody' : 'wmtBody'; ?>" style="width: 120px;">Dt Quit (if appl):</td>
+        <td class="<?php echo ($portal_mode) ? 'bkkDateCell' : 'wmtDateCell'; ?>"><input name="<?php echo $field_prefix; ?>smoking_dt" id="<?php echo $field_prefix; ?>smoking_dt" class="<?php echo ($portal_mode) ? 'bkkDateInput' : 'wmtDateInput'; ?>" type="text" value="<?php echo $dt{$field_prefix.'smoking_dt'}; ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" title="YYYY-MM-DD" /></td>
+        <td class="<?php echo ($portal_mode) ? 'bkkCalendarCell' : 'wmtCalendarCell'; ?>"><img src="<?php echo $GLOBALS['rootdir']; ?>/pic/show_calendar.gif" align="absbottom" width="20" height="20" id="img_<?php echo $field_prefix; ?>smoking_dt" border="0" alt="[?]" style="cursor:pointer" title="Click here to choose a date"></td>
+					<script type="text/javascript">
+					Calendar.setup({inputField:"<?php echo $field_prefix; ?>smoking_dt", ifFormat:"%Y-%m-%d", button:"img_<?php echo $field_prefix; ?>smoking_dt"});
+					</script>
+      </tr>
+ 
+			<?php
+			if($pat_entries_exist && !$portal_mode) {
+				$inc = false;
+				$keys = array('smoking_status','smoking','smoking_dt');
+				foreach($keys as $key => $val) {
+					if($pat_entries[$val]['content'] && ($pat_entries[$val]['content'] != $dt{$field_prefix.$val})) $inc= true;
+				}
+				if($inc) {
+			?>
+			<tr class="wmtPortalData">
+				<td>&nbsp;</td>
+				<td colspan="2" class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>smoking_status" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars(ListLook($pat_entries['smoking_status']['content'],'smoking_status'), ENT_QUOTES, '', FALSE); ?></td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>smoking" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['smoking']['content'], ENT_QUOTES, '', FALSE); ?></td>
+				<td>&nbsp;</td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>smoking_dt" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['smoking_dt']['content'], ENT_QUOTES, '', FALSE); ?></td>
+			</tr>
+			<?php
+				}
+			}
+			?>
+
+			<!-- THIS ROW WILL CONTAIN THE SMOKING CESSATION QUESTIONS IF NEEDED -->
+			<?php if($use_cessation) { ?>
+			<tr>
+				<td class="<?php echo ($portal_mode) ? 'bkkBody' : 'wmtBody'; ?>" colspan="2">&nbsp;&nbsp;&nbsp;
+					<input name="tmp_cessation_check" id="tmp_cessation_check" type="checkbox" value="show" <?php echo ($dt['tmp_cessation_disp_mode'] == 'none') ? '' : 'checked'; ?> onchange="ToggleDivDisplay('smoke_cessation', 'tmp_cessation_check', 'tmp_cessation_disp_mode');" />
+					&nbsp;&nbsp;<label for="tmp_cessation_check">Show/Hide Smoking Cessation Questions</label>
+				</td>
+
+			</tr>
+			<tr id="smoke_cessation" style="width: 100%; display: <?php echo $dt['tmp_cessation_disp_mode']; ?>;">
+				<td colspan="6">
+					<!--fieldset style="margin: 6px; padding: 6px;"><legend class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtLabel'; ?>">&nbsp;Smoking Cessation&nbsp;</legend -->
+					<table width="100%" border="0" cellspacing="0" cellpadding="3">
+						<tr>
+							<td style="width: 50%;" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">Are you aware of the risks of smoking to your health and well being?</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_risks" id="<?php echo $field_prefix; ?>lf_sc_risks" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_sc_risks'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+						<tr>
+							<td class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">Have you tried to quit smoking?</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_tried" id="<?php echo $field_prefix; ?>lf_sc_tried" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_sc_tried'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+						<tr>
+							<td class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">What is the longest period you have gone without smoking?</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_wo" id="<?php echo $field_prefix; ?>lf_sc_wo" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_sc_wo'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+						<tr>
+							<td class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">Why did you start smoking again?</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_why_start" id="<?php echo $field_prefix; ?>lf_sc_why_start" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_sc_why_start'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+						<tr>
+							<td class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">Have you tried a structured treament plan?</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_treat" id="<?php echo $field_prefix; ?>lf_sc_treat" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_sc_treat'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+						<tr>
+							<td class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">Have you tried patches and/or gum?</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_patch" id="<?php echo $field_prefix; ?>lf_sc_patch" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_patch'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+						<tr>
+							<td class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">What is the primary reason you feel you have not been able to quit smoking?</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_reason" id="<?php echo $field_prefix; ?>lf_sc_reason" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_reason'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+						<tr>
+							<td class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtBody'; ?>">Patient referred to:</td>
+							<td><input name="<?php echo $field_prefix; ?>lf_sc_referred" id="<?php echo $field_prefix; ?>lf_sc_referred" type="text" class="<?php echo ($portal_mode) ? 'bkkLabel' : 'wmtFullInput'; ?>" value="<?php echo htmlspecialchars($dt[$field_prefix.'lf_referred'], ENT_QUOTES, '', FALSE); ?>" /></td>
+						</tr>
+					</table>
+					<!-- /fieldset -->
+				</td>
+			</tr>
+			<?php } ?>
+
+      <tr>
+        <td class="<?php echo ($portal_mode) ? 'bkkBody' : 'wmtBody'; ?>">Alcohol use</td>
+        <td colspan="2"><select name="<?php echo $field_prefix; ?>alcohol" id="<?php echo $field_prefix; ?>alcohol" class="<?php echo ($portal_mode) ? 'bkkInput' : 'wmtInput'; ?>">
+          <?php AlcoholUseListSel($dt{$field_prefix.'alcohol'}); ?>
+        </select></td>
+        <td><input name="<?php echo $field_prefix; ?>alcohol_note" id="<?php echo $field_prefix; ?>alcohol_note" class="<?php echo ($portal_mode) ? 'bkkFullInput' : 'wmtFullInput'; ?>" type="text" value="<?php echo htmlspecialchars($dt{$field_prefix.'alcohol_note'}, ENT_QUOTES, '', FALSE); ?>" /></td>
+        <td class="<?php echo ($portal_mode) ? 'bkkBody' : 'wmtBody'; ?>">Dt Quit (if appl):</td>
+        <td><input name="<?php echo $field_prefix; ?>alcohol_dt" id="<?php echo $field_prefix; ?>alcohol_dt" class="<?php echo ($portal_mode) ? 'bkkDateInput' : 'wmtDateInput'; ?>" type="text" value="<?php echo $dt{$field_prefix.'alcohol_dt'}; ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" title="YYYY-MM-DD" /></td>
+        <td class="<?php echo ($portal_mode) ? 'bkkCalendarCell' : 'wmtCalendarCell'; ?>"><img src="<?php echo $GLOBALS['rootdir']; ?>/pic/show_calendar.gif" align="absbottom" width="20" height="20" id="img_<?php echo $field_prefix; ?>alcohol_dt" border="0" alt="[?]" style="cursor:pointer" title="Click here to choose a date"></td>
+					<script type="text/javascript">
+					Calendar.setup({inputField:"<?php echo $field_prefix; ?>alcohol_dt", ifFormat:"%Y-%m-%d", button:"img_<?php echo $field_prefix; ?>alcohol_dt"});
+					</script>
+      </tr>
+ 
+			<?php
+			if($pat_entries_exist && !$portal_mode) {
+				$inc = false;
+				$keys = array('alcohol','alcohol_note','alcohol_dt');
+				foreach($keys as $key => $val) {
+					if($pat_entries[$val]['content'] && ($pat_entries[$val]['content'] != $dt{$field_prefix.$val})) $inc= true;
+				}
+				if($inc) {
+			?>
+			<tr class="wmtPortalData">
+				<td>&nbsp;</td>
+				<td  colspan="2" class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>alcohol" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars(ListLook($pat_entries['alcohol']['content'],'Alcohol_Use_Status'), ENT_QUOTES, '', FALSE); ?></td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>alcohol_note" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['alcohol_note']['content'], ENT_QUOTES, '', FALSE); ?></td>
+				<td>&nbsp;</td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>alcohol_dt" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['alcohol_dt']['content'], ENT_QUOTES, '', FALSE); ?></td>
+			</tr>
+			<?php
+				}
+			}
+			?>
+
+      <tr>
+        <td class="<?php echo ($portal_mode) ? 'bkkBody' : 'wmtBody'; ?>">Other Drugs</td>
+        <td colspan="2"><select name="<?php echo $field_prefix; ?>drug_use" id="<?php echo $field_prefix; ?>drug_use" class="<?php echo ($portal_mode) ? 'bkkInput' : 'wmtInput'; ?>">
+          <?php DrugUseListSel($dt{$field_prefix.'drug_use'}); ?>
+        </select></td>
+        <td><input name="<?php echo $field_prefix; ?>drug_note" id="<?php echo $field_prefix; ?>drug_note" class="<?php echo ($portal_mode) ? 'bkkFullInput' : 'wmtFullInput'; ?>" type="text" value="<?php echo htmlspecialchars($dt{$field_prefix.'drug_note'}, ENT_QUOTES, '', FALSE); ?>" /></td>
+        <td class="<?php echo ($portal_mode) ? 'bkkBody' : 'wmtBody'; ?>">Dt Quit (if appl):</td>
+        <td><input name="<?php echo $field_prefix; ?>drug_dt" id="<?php echo $field_prefix; ?>drug_dt" class="<?php echo ($portal_mode) ? 'bkkDateInput' : 'wmtDateInput'; ?>" type="text" value="<?php echo $dt{$field_prefix.'drug_dt'}; ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" title="YYYY-MM-DD" /></td>
+        <td class="<?php echo ($portal_mode) ? 'bkkCalendarCell' : 'wmtCalendarCell'; ?>"><img src="<?php echo $GLOBALS['rootdir']; ?>/pic/show_calendar.gif" align="absbottom" width="20" height="20" id="img_<?php echo $field_prefix; ?>drug_dt" border="0" alt="[?]" style="cursor:pointer" title="Click here to choose a date"></td>
+					<script type="text/javascript">
+					Calendar.setup({inputField:"<?php echo $field_prefix; ?>drug_dt", ifFormat:"%Y-%m-%d", button:"img_<?php echo $field_prefix; ?>drug_dt"});
+					</script>
+      </tr>
+ 
+			<?php
+			if($pat_entries_exist && !$portal_mode) {
+				$inc = false;
+				$keys = array('drug_use','drug_note','drug_dt');
+				foreach($keys as $key => $val) {
+					if($pat_entries[$val]['content'] && ($pat_entries[$val]['content'] != $dt{$field_prefix.$val})) $inc= true;
+				}
+				if($inc) {
+			?>
+			<tr class="wmtPortalData">
+				<td>&nbsp;</td>
+				<td colspan="2" class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>drug_use" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars(ListLook($pat_entries['drug_use']['content'],'Drug_Use_Status'), ENT_QUOTES, '', FALSE); ?></td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>drug_note" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['drug_note']['content'], ENT_QUOTES, '', FALSE); ?></td>
+				<td>&nbsp;</td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>drug_dt" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['drug_dt']['content'], ENT_QUOTES, '', FALSE); ?></td>
+			</tr>
+			<?php
+				}
+			}
+			?>
+
+		<?php if($field_prefix != 'ee1_') { ?>
+			<tr>
+				<td class="<?php echo $portal_mode ? 'bkkBody' : 'wmtBody' ;?>">Sexually active?&nbsp;&nbsp;&nbsp;</td>
+				<td class="<?php echo $portal_mode ? 'bkkBody' : 'wmtBody'; ?>" style="width: 100px;">
+					<input name="<?php echo $field_prefix; ?>sex_active" id="sex_active_yes" type="checkbox" value="y" <?php echo (($dt{$field_prefix.'sex_active'} == 'y') ? 'checked' : ''); ?> onClick="TogglePair('sex_active_yes','sex_active_no');" /><label for="sex_active_yes">&nbsp;Yes&nbsp;</label></td>
+				<td class="<?php echo $portal_mode ? 'bkkBody' : 'wmtBody'; ?>" style="width: 100px;">
+					<input name="<?php echo $field_prefix; ?>sex_active" id="sex_active_no" type="checkbox" value="n" <?php echo (($dt{$field_prefix.'sex_active'} == 'n') ? 'checked' : ''); ?> onClick="TogglePair('sex_active_no','sex_active_yes');" /><label for="sex_active_no">&nbsp;No&nbsp;</label></td>
+        <td colspan="5"><input name="<?php echo $field_prefix; ?>sex_act_nt" id="<?php echo $field_prefix; ?>sex_act_nt" class="<?php echo $portal_mode ? 'bkkFullInput' : 'wmtFullInput'; ?>" type="text" value="<?php echo htmlspecialchars($dt{$field_prefix.'sex_act_nt'}, ENT_QUOTES, '', FALSE); ?>" /></td>
+			</tr>
+
+			<?php
+			if($pat_entries_exist && !$portal_mode) {
+				if(($pat_entries['sex_active']['content'] && $pat_entries['sex_active']['content'] != $dt{$field_prefix.'sex_active'}) || ($pat_entries['sex_act_nt']['content'] && strpos($dt{$field_prefix.'sex_act_nt'},$pat_entries['sex_act_nt']['content']) === false)) {
+			?>
+			<tr class="wmtPortalData">
+				<td>&nbsp;</td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_sex_active_yes" onclick="AcceptPortalData(this.id,'sex_active_no');"><?php echo ($pat_entries['sex_active']['content'] == 'y') ? 'Checked' : 'Unchecked'; ?></td>
+				<td class="wmtBorderHighlight wmtBody" id="tmp_sex_active_no" onclick="AcceptPortalData(this.id,'sex_active_yes');"><?php echo ($pat_entries['sex_active']['content'] == 'n') ? 'Checked' : 'Unchecked'; ?></td>
+				<td colspan="4" class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>sex_act_nt" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['sex_act_nt']['content'], ENT_QUOTES, '', FALSE); ?></td>
+			</tr>
+			<?php
+				}
+			}
+			?>
+
+			<tr>
+				<td class="<?php echo $portal_mode ? 'bkkBody bkkT' : 'wmtBody wmtT'; ?>">Sexual History</td>
+        <td colspan="6"><textarea name="<?php echo $field_prefix; ?>sex_nt" id="<?php echo $field_prefix; ?>sex_nt" class="<?php echo $portal_mode ? 'bkkFullInput' : 'wmtFullInput'; ?>" rows="3"><?php echo htmlspecialchars($dt{$field_prefix.'sex_nt'}, ENT_QUOTES, '', FALSE); ?></textarea></td>
+			</tr>
+
+			<?php
+			if($pat_entries_exist && !$portal_mode) {
+				if($pat_entries['sex_nt']['content'] && (strpos($dt{$field_prefix.'sex_nt'},$pat_entries['sex_nt']['content']) === false)) {
+			?>
+			<tr class="wmtPortalData">
+				<td>&nbsp;</td>
+				<td colspan="6" class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>sex_nt" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['sex_nt']['content'], ENT_QUOTES, '', FALSE); ?></td>
+			</tr>
+			<?php
+				}
+			}
+			?>
+
+			<tr>
+        <td class="<?php echo $portal_mode ? 'bkkBody' : 'wmtBody'; ?>">Birth Control:</td>
+        <td colspan="6"><input name="<?php echo $field_prefix; ?>bc" id="<?php echo $field_prefix; ?>bc" class="<?php echo $portal_mode ? 'bkkFullInput' : 'wmtFullInput'; ?>" type="text" value="<?php echo htmlspecialchars($dt{$field_prefix.'bc'}, ENT_QUOTES, '', FALSE); ?>" /></td>
+			</tr>
+
+			<?php
+			if($pat_entries_exist && !$portal_mode) {
+				if($pat_entries['bc']['content'] && (strpos($dt{$field_prefix.'bc'},$pat_entries['bc']['content']) === false)) {
+			?>
+			<tr class="wmtPortalData">
+				<td>&nbsp;</td>
+				<td colspan="6" class="wmtBorderHighlight wmtBody" id="tmp_<?php echo $field_prefix; ?>bc" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['bc']['content'], ENT_QUOTES, '', FALSE); ?></td>
+			</tr>
+			<?php
+				}
+			}
+			?>
+
+		<?php } // The end of the ext exam exception ?>
+
+      <tr>
+				<td class="<?php echo ($portal_mode) ? 'bkkBody bkkT' : 'wmtBody wmtT'; ?>">Other Notes:</td>
+				<td colspan="6">
+					<?php $_tmp = $portal_mode ? 'prt_' : ''; ?>
+					<textarea name="<?php echo $portal_mode ? 'prt_' : ''; ?>fyi_sh_nt" id="<?php echo $portal_mode ? 'prt_' : ''; ?>fyi_sh_nt" class="<?php echo ($portal_mode) ? 'bkkFullInput' : 'wmtFullInput'; ?>" rows="3"><?php echo htmlspecialchars($dt{$_tmp.'fyi_sh_nt'}, ENT_QUOTES, '', FALSE); ?></textarea></td>
+			</tr>
+
+			<?php
+			if($pat_entries_exist && !$portal_mode) {
+				if($pat_entries['fyi_sh_nt']['content'] && (strpos($dt{'fyi_sh_nt'},$pat_entries['fyi_sh_nt']['content']) === false)) {
+			?>
+			<tr class="wmtPortalData">
+				<td>&nbsp;</td>
+				<td colspan="6" class="wmtBorderHighlight wmtBody" id="tmp_fyi_sh_nt" onclick="AcceptPortalData(this.id);"><?php echo htmlspecialchars($pat_entries['fyi_sh_nt']['content'], ENT_QUOTES, '', FALSE); ?></td>
+			</tr>
+			<?php
+				}
+			}
+			?>
+    </table>
+<?php ?>

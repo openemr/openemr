@@ -1,0 +1,1 @@
+<div style="float: right; padding-right: 10px; padding-bottom: 6px;"><a href="javascript: submit_print_form('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $field_prefix.$field_name; ?>','<?php echo $id; ?>','instruct');" tabindex="-1" class="css_button_small"><span>Print Instructions</span></a></div>

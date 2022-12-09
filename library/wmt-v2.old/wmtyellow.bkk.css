@@ -1,0 +1,532 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+label {
+	display: inline-block;
+}
+
+td {
+	padding: 2px 4px 2px 4px;
+}
+
+td.tightFit {
+	padding: 1px 2px 1px 2px;
+}
+
+input[type="text"] {
+	padding: 0px;
+	margin: 0px;
+}
+
+.bkkDateCell {
+	width: 95px;
+}
+
+.bkkCalendarCell {
+	width: 26px;
+}
+
+.bkkBorderHighlight {
+	border: solid 1px;
+	border-color: #FFFBEB;
+}
+
+.wmtNoteLabelDiv {
+	float: left;
+	text-align: left;
+  margin-left: 6px;
+}
+
+.wmtNoteInputDiv {
+	box-sizing: border-box;
+	float: left;
+  padding: 6px;
+	width: 100%;
+}
+
+.bkkHighlight {
+	background-color: #FFFBEB;
+}
+
+.bkkFormBodyDark {
+  font-size: 0.9em;
+  background-color: #FFFFCC;
+}
+
+.bkkFormBodyLight {
+  font-size: 0.9em;
+  background-color: #FEFDCF;
+}
+
+.bkkAltLight {
+  background-color: #FEFDCF;
+}
+
+.bkkInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: solid 1px gray;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkAltInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  text-transform: none;
+  color: #000000;
+  background-color: #FEFDCF;
+}
+
+.bkkFullInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: solid 1px gray;
+  width: 100%;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkDateInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  padding: 0px;
+  width: 89px;
+  border: solid 1px gray;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkHeaderInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: solid 1px gray;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.bkkInputBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+	border: none;
+  border-bottom: solid 1px black;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.bkkBigInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  border: none;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.bkkLabel {
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.bkkRed {
+	color: red;
+}
+
+.bkkBrown{
+	color: #BB6600;
+}
+
+.bkkLabel2 {
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.bkkLabelTiny {
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.bkkLabel3 {
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: left;
+	padding: 1px 2px 1px 2px;
+}
+
+.bkkBorder1L {
+	border-left: solid 1px black;
+}
+
+.bkkBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.bkkBorder1T {
+	border-top: solid 1px black;
+}
+
+.bkkBorder1R {
+	border-right: solid 1px black;
+}
+
+.bkkBorder1All {
+	border: solid 1px black;
+}
+
+.bkkBody {
+  font-size: 0.9em;
+  font-weight: normal;
+}
+
+.bkkGiant {
+  font-size: 2em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.bkkHuge {
+  font-size: 1.7em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.bkkLarge {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.bkkChapter {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+}
+
+.bkkChapterWhite {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+	color: white;	
+}
+
+.bkkInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  border: solid 1px gray;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkFullInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  width: 100%;
+  padding: 0px;
+  border: solid 1px gray;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  border: solid 1px gray;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkFullInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  width: 100%;
+  border: solid 1px gray;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  border: solid 1px gray;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkFullInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  width: 100%;
+  border: solid 1px gray;
+  padding: 0px;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.bkkUC {
+  text-transform: uppercase;
+}
+
+.bkkL {
+	text-align: left;
+}
+
+.bkkR {
+	text-align: right;
+}
+
+.bkkT {
+	vertical-align: top;
+}
+
+.bkkM {
+	vertical-align: middle;
+}
+
+.bkkB {
+	vertical-align: bottom;
+}
+
+.bkkC {
+	text-align: center;
+}
+
+.bkkBody2 {
+  font-size: 0.8em;
+}
+
+.bkkCheck {
+  font-size: 0.8em;
+	font-weight: bold;
+}
+
+.bkkCheckCell {
+	width: 20px;
+}
+
+.bkkBody3 {
+  font-size: 0.7em;
+  text-transform: uppercase;
+}
+
+.bkkBody4 {
+  font-size: 0.6em;
+  text-transform: uppercase;
+}
+
+.bkkMainContainer {
+	background-color: transparent;
+  border: solid 2px black;
+	overflow: auto;
+  margin: 6px;
+}
+
+.bkkMainContainerRound {
+	background-color: transparent;
+  border: solid 2px black;
+	overflow: auto;
+  margin: 6px;
+	border-radius: 8px;
+}
+
+.bkkMainContainerBottom1 {
+	background-color: #F8F1B9;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+  margin: 6px;
+	overflow: auto;
+}
+
+.bkkCollapseBar {
+  text-align: center;
+  overflow: hidden;
+  background-color: #FFCC66;
+  cursor: pointer;
+}
+
+.bkkCollapseBarBlack {
+  text-align: center;
+  overflow: hidden;
+  background-color: black;
+	color: white;
+  cursor: pointer;
+}
+
+.bkkCollapseBox {
+  background-color: transparent;
+  text-align: left;
+}
+
+.bkkCollapseBoxWhite {
+  background-color: #FFFFFF;
+  text-align: center;
+	overflow: auto;
+	padding-right: 3px;
+}
+
+.bkkDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #FFCC66;
+  border-bottom-width: 2px;
+	margin: 2px 5px 2px 5px;
+}
+
+.bkkDottedEdge {
+  text-align: center;
+  border-left-style: dotted;
+  border-left-color: #FFCC66;
+  border-left-width: 2px;
+	margin: 2px 3px 2px 3px;
+}
+
+.bkkDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.bkkRedBorder {
+	border: solid 1px #FF0000;
+	margin: 6px;
+	padding: 4px;
+}
+
+.bkkBrownBorder {
+	border: solid 1px #CC6633;
+	margin: 6px;
+	padding: 4px;
+}
+
+.bkkLightBG {
+	background-color: #FFFFCC;
+}
+
+.floating-menu-td {
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	color: white;
+}
+
+.floating-menu-link {
+	color: white;
+}
+
+.form-menu-list {
+	vertical-align: top;
+	margin: 0;
+	padding: 0;
+}
+
+.form-menu-list li {
+	/*
+	background: rgba(0, 0, 0, 0) -moz-linear-gradient(center top, #FE5301, #FEFDCF) repeat scroll 0 0;
+	*/
+	background: rgba(0, 0, 0, 0) -moz-linear-gradient(center top, #16558C, #16558C) repeat scroll 0 0;
+	border: 1px solid #FEFDCF;
+	float: left;
+	vertical-align: top;
+	list-style: outside none none;
+}
+
+.form-menu-list li a {
+	color: #FFFFFF;
+	display: block;
+	font-weight: normal;
+	font-size: 0.9em;
+	padding: 3px 16px 3px 16px;
+}
+
+.form-menu-list li a:hover {
+	font-weight: bold;
+}
+
+div.floating-buttons {
+	text-align: center;
+	position: fixed;
+	background: #16558C;
+	border: solid 1px black;
+	border-radius: 14px;
+	width: 110px;
+	z-index: 100;
+	cursor: move;
+	box-shadow: 10px 10px 5px #888888;
+}
+
+a:hover {
+	color: #CC0000;
+}
+
+div.notification {
+  font-size: 1.1em;
+  font-weight: bold;
+	text-align: center;
+	position: fixed;
+  background: #E2A76F;
+	border: solid 1px black;
+	border-radius: 10px;
+	width: 180px;
+	z-index: 3000;
+	cursor: progress;
+	box-shadow: 8px 8px 5px #888888;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li {
+	background-color: #FFCC66; 
+	border-color: #CC6633;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { 
+	background-color: #fff; 
+	border-right-color: #fff;
+	border-bottom-color: #CC6633;
+	border-top-color: #CC6633;
+}
+
+.bkkNoPrint {
+	display: block;
+}
+
+@media print {
+	#no_print_buttons {
+		display: none;
+		visibility: hidden;
+	}
+
+	.bkkNoPrint {
+		display: none;
+		visibility: hidden;
+	}
+}
+.mce {
+}

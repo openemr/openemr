@@ -1,0 +1,111 @@
+<table width='100%'	border='0' cellspacing='0' cellpadding='2'>
+	<tr><td colspan='6'><div style='height: 3px;'</td></tr>
+<?php
+if(!isset($rto_data)) { $rto_data = array(); }
+$cnt=1;
+foreach($rto_data as $rto) {
+	//echo "<tr><td colspan='3'>Test Date: (",$rto['test_target_dt'],")</td></tr>\n";
+?>
+	<tr>
+		<td class='bkkLabel2'>&nbsp;<?php xl('Order','e') ?>:</td>
+		<td><select name='rto_action_<?php echo $cnt; ?>' id='rto_action_<?php echo $cnt; ?>' class='bkkFullInput'>
+		<?php ListSel($rto['rto_action'], 'RTO_Action'); ?></select></td>
+		<td class='bkkLabel2'>&nbsp;<?php xl('Ordered By','e'); ?>:</td>
+		<td><select name='rto_ordered_by_<?php echo $cnt; ?>' id='rto_ordered_by_<?php echo $cnt; ?>' class='bkkFullInput' style='float: right;'>
+	 	<?php UserSelect($rto['rto_ordered_by']); ?></select></td>
+		<td class='bkkLabel2'>&nbsp;<?php xl('Notes','e'); ?>:</td>
+		<td>&nbsp;<input name='rto_id_<?php echo $cnt; ?>' id='rto_id_<?php echo $cnt; ?>' type='hidden' value="<?php echo $rto['id']; ?>" />
+		<?php if(isset($rto['test_target_dt'])) { ?>
+			<input name='rto_test_target_dt_<?php echo $cnt; ?>' id='rto_test_target_dt_<?php echo $cnt; ?>' type='hidden' value="<?php echo $rto['test_target_dt']; ?>" />
+		<?php } ?>
+	<?php if(\OpenEMR\Common\Acl\AclMain::aclCheckCore('admin','super')) { ?>
+		<a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return DeleteRTO('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');"><span><?php xl('Delete','e'); ?></span></a>
+	<?php } ?>
+		</td>
+	</tr>
+	<tr>
+		<td class='bkkLabel2'>&nbsp;<?php xl('Status','e'); ?>:</td>
+		<td><select name='rto_status_<?php echo $cnt; ?>' id='rto_status_<?php echo $cnt; ?>' class='bkkFullInput'>
+		<?php ListSel($rto['rto_status'], 'RTO_Status'); ?></select></td>
+		<td class='bkkLabel2'>&nbsp;<?php xl('Assigned To','e'); ?>:</td>
+		<td><select name='rto_resp_<?php echo $cnt; ?>' id='rto_resp_<?php echo $cnt; ?>' class='bkkFullInput'>
+		<?php UserSelect($rto['rto_resp_user']); ?></select></td>
+		<td rowspan='2'><div style='margin-left: 5px; margin-right: 5px;'>
+			<textarea name='rto_notes_<?php echo $cnt; ?>' id='rto_notes_<?php echo $cnt; ?>' class='bkkFullInput' rows='2'><?php echo $rto['rto_notes']; ?></textarea></div>
+		</td>
+		<td><a class='css_button_small' tabindex='-1' onClick="return UpdateRTO('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" href='javascript:;'><span><?php xl('Revise','e'); ?></span></a></td>
+	</tr>
+	<tr>
+		<td class='bkkLabel2'>&nbsp;<?php xl('Due Date','e'); ?>:</td>
+		<td><input name='rto_target_date_<?php echo $cnt; ?>' id='rto_target_date_<?php echo $cnt; ?>' class='bkkInput' type='text' style='width: 85px;' value="<?php echo $rto['rto_target_date']; ?>" 
+		<?php if(isset($rto['test_target_dt'])) { ?>
+			onchange="TestByAction('rto_test_target_dt_<?php echo $cnt; ?>','rto_target_date_<?php echo $cnt; ?>','rto_action_<?php echo $cnt; ?>');"	
+		<?php } ?>
+		/><div style="float: right;"><span class='bkkLabel2'>&nbsp;&nbsp;-<?php xl('or','e'); ?>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+	<select name='rto_num_<?php echo $cnt; ?>' id='rto_num_<?php echo $cnt; ?>' class='bkkInput' style='float: right;' onchange="FutureDate('rto_date_<?php echo $cnt; ?>','rto_num_<?php echo $cnt; ?>','rto_frame_<?php echo $cnt; ?>','rto_target_date_<?php echo $cnt; ?>');" >
+		<?php ListSel($rto['rto_num'], 'RTO_Number'); ?>
+		</select></div></td>
+		<td colspan='2'>&nbsp;&nbsp;<select name='rto_frame_<?php echo $cnt; ?>' id='rto_frame_<?php echo $cnt; ?>' class='bkkInput' onchange="FutureDate('rto_date_<?php echo $cnt; ?>','rto_num_<?php echo $cnt; ?>','rto_frame_<?php echo $cnt; ?>','rto_target_date_<?php echo $cnt; ?>');" >
+			<?php ListSel($rto['rto_frame'], 'RTO_Frame'); ?>
+			</select><span class='bkkLabel2'>&nbsp;&nbsp;<?php xl('from','e'); ?>&nbsp;&nbsp;</span>
+	<input name='rto_date_<?php echo $cnt; ?>' id='rto_date_<?php echo $cnt; ?>' class='bkkInput' type='text' style='width: 85px' value="<?php echo $rto['rto_date']; ?>"  onchange="FutureDate('rto_date_<?php echo $cnt; ?>','rto_num_<?php echo $cnt; ?>','rto_frame_<?php echo $cnt; ?>','rto_target_date_<?php echo $cnt; ?>');" /></td>
+		<td><a class='css_button_small' tabindex='-1' onClick="return RemindRTO('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" href='javascript:;'><span><?php xl('Send Reminder','e'); ?></span></a></td>
+	</tr>
+	<tr><td colspan='8'><div class='bkkDottedB'></div></td></tr>
+<?php
+	$cnt++;
+}
+echo "		<tr>\n";
+echo "			<td class='bkkLabel2' style='width: 70px;'>&nbsp;",xl('Order','e'),":</td>\n";
+echo "			<td style='width: 20%;'><select name='rto_action' id='rto_action' class='bkkFullInput' tabindex='10'>\n";
+echo ListSel($dt['rto_action'], 'RTO_Action');
+echo "				</select>\n";
+echo "			</td>\n";
+echo "			<td class='bkkLabel2' style='width: 95px;'>",xl('Ordered By','e'),":</td>\n";
+echo "			<td style='width: 20%;'><select name='rto_ordered_by' id='rto_ordered_by' class='bkkFullInput' tabindex='20'>\n";
+echo UserSelect($dt['rto_ordered_by']);
+echo "				</select>\n";
+echo "			</td>\n";
+echo "			<td class='bkkLabel2'>&nbsp;",xl('Notes','e'),":</td>\n";
+echo "			<td style='width: 95px;'>&nbsp;<input name='tmp_rto_cnt' id='tmp_rto_cnt' type='hidden' tabindex='-1' value='".($cnt - 1)."' /></td>\n";
+echo "		</tr>\n";
+echo "		<tr>\n";
+echo "			<td class='bkkLabel2'>",xl('Status','e'),":</td>\n";
+echo "			<td><select name='rto_status' id='rto_status' class='bkkFullInput' tabindex='80'>\n";
+echo ListSel($dt['rto_status'], 'RTO_Status');
+echo "				</select>\n";
+echo "			</td>\n";
+echo "			<td class='bkkLabel2'>&nbsp;",xl('Assigned To','e'),":</td>\n";
+echo "			<td class='bkkBody'><select name='rto_resp_user' id='rto_resp_user' class='bkkFullInput' tabindex='70'>\n";
+echo UserSelect($dt['rto_resp_user']);
+echo "				</select>\n";
+echo "			</td>\n";
+echo "			<td class='bkkBody' rowspan='2'><div style='margin-right: 5px; margin-left: 5px;'>\n";
+echo "				<textarea name='rto_notes' id='rto_notes' class='bkkFullInput' tabindex='200' rows='2'>".$dt['rto_notes']."</textarea></div>\n";
+echo "			</td>\n";
+echo "			<td>&nbsp;</td>\n";
+echo "		</tr>\n";
+echo "		<tr>\n";
+echo "			<td class='bkkLabel2'>&nbsp;",xl('Due Date','e'),":</td>\n";
+echo "			<td><input name='rto_target_date' id='rto_target_date' class='bkkInput' tabindex='30' style='text-align: right; width: 85px;' type='text' value='",$dt['rto_target_date'],"' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='YYYY-MM-DD' />";
+echo "			<img src='../../pic/show_calendar.gif' width='22' height='20' id='img_rto_target_dt' border='0' alt='[?]' style='cursor:pointer; vertical-align: middle;' tabindex='-1' title='",xl('Click here to choose a date','e'),"'>";
+echo "<div style='float: right;'><span class='bkkLabel2'>&nbsp;&nbsp;-",xl('or','e'),"-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><select name='rto_num' id='rto_num' class='bkkInput' tabindex='40' onchange='SetRTOStatus(\"rto_status\"); FutureDate(\"rto_date\",\"rto_num\",\"rto_frame\",\"rto_target_date\");'>";
+echo ListSel($dt['rto_num'], 'RTO_Number');
+echo "</select></div></td>";
+echo "<td colspan='2'>&nbsp;&nbsp;<select name='rto_frame' id='rto_frame' class='bkkInput' tabindex='50' onchange='SetRTOStatus(\"rto_status\"); FutureDate(\"rto_date\",\"rto_num\",\"rto_frame\",\"rto_target_date\");'>";
+echo ListSel($dt['rto_frame'], 'RTO_Frame');
+echo "</select><span class='bkkLabel2'>&nbsp;&nbsp;",xl('from','e'),"&nbsp;&nbsp;</span>";
+echo "<input name='rto_date' id='rto_date' class='bkkInput' type='text' tabindex='60' style='text-align: right; width: 85px;' value='",$dt['rto_date'],"' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' onchange='FutureDate(\"rto_date\",\"rto_num\",\"rto_frame\",\"rto_target_date\");' title='YYYY-MM-DD' />";
+echo "			<img src='../../pic/show_calendar.gif' width='22' height='20' id='img_rto_dt' border='0' alt='[?]' style='cursor:pointer; vertical-align: middle;' title='",xl('Click here to choose a date','e'),"'></td>\n";
+echo "		</tr>\n";
+echo "		<tr><td class='bkkBorder1B' colspan='6'><div style='height: 3px;'</td></tr>\n";
+echo "		<tr>\n";
+echo "			<td class='bkkCollapseBar' colspan='6' style='margin: 4px;'><a class='css_button' onClick='return SubmitRTO(\"$base_action\",\"$wrap_mode\",\"$id\");' href='javascript:;'><span style='text-transform: none;'>",xl('Add Another','e'),"</span></a>\n";
+if(isset($_GET['allrto'])) {
+echo "			<a class='css_button' style='float: right; padding-right: 10px;' onClick='return ShowPendingRTO(\"$base_action\",\"$wrap_mode\",\"$id\");' href='javascript:;'><span style='text-transform: none;'>",xl('Show Pending','e'),"</span></a></td>\n";
+} else {
+echo "			<a class='css_button' style='float: right; padding-right: 15px;' onClick='return ShowAllRTO(\"$base_action\",\"$wrap_mode\",\"$id\");' href='javascript:;'><span style='text-transform: none;'>",xl('Show ALL','e'),"</span></a></td>\n";
+}
+echo "		</tr>\n";
+echo "		</table>\n";
+?>

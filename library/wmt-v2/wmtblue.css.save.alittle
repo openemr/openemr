@@ -1,0 +1,1039 @@
+td {
+  text-align: left;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.DateCell {
+	width: 110px;
+}
+
+.wmtDateCell {
+	width: 110px;
+}
+
+.CalendarCell {
+	width: 26px;
+}
+
+.wmtCalendarCell {
+	width: 26px;
+}
+
+.formBodyDark {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  background-color: #8CACBB;
+}
+
+.wmtFormBodyDark {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  background-color: #8CACBB;
+}
+
+.formBodyLight {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  background-color: #B6D2E0;
+}
+
+.wmtFormBodyLight {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  background-color: #B6D2E0;
+}
+
+.Input {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.FullInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  width: 100%;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtFullInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  width: 100%;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.DateInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  width: 100px;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtDateInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: none;
+  width: 100px;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtHeaderInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: solid 1px gray;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.InputBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border-bottom: solid 1px black;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.wmtInputBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border-bottom: solid 1px black;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.BigInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtBigInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.LabelUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.wmtLabelUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.Label {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.wmtLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.LabelRed {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+	color: red;
+  text-transform: none;
+	border: none;
+}
+
+.wmtLabelRed {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+	color: red;
+  text-transform: none;
+	border: none;
+}
+
+.LabelR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+}
+
+.wmtLabelR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+}
+
+.LabelT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.wmtLabelT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.LabelTR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtLabelTR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.Label2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.wmtLabel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.Label2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+}
+
+.wmtLabel2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+}
+
+.Label2TR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtLabel2TR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+	text-align: right;
+	vertical-align: top;
+}
+
+.Label2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.wmtLabel2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform:uppercase;
+}
+
+.LabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.wmtLabelTiny {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.LabelBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.LabelCenterBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.LabelBorderLBR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.LabelBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.LabelCenterBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform:none;
+  text-align: center;
+  border-left: solid 1px black;
+}
+
+.LabelBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  border-bottom: solid 1px black;
+}
+
+.LabelCenterBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+  border-bottom: solid 1px black;
+}
+
+.LabelUCBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: solid 1px black;
+}
+
+.LabelUCBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform:uppercase;
+  border-left: solid 1px black;
+}
+
+.Label3C {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: center;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.wmtLabel3C {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: center;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Label3CBordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	text-align: center;
+	font-weight: bold;
+	border-bottom: solid 1px black;
+	border-left: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Label3CBordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: center;
+	border-bottom: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Label3CBordL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: center;
+	border-left: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.wmtLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  text-transform: none;
+	font-weight: bold;
+}
+
+.wmtBorder1L {
+	border-left: solid 1px black;
+}
+
+.wmtBorder1T {
+	border-top: solid 1px black;
+}
+
+.wmtBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.wmtBorder1R {
+	border-right: solid 1px black;
+}
+
+.BodyBorderAll {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  text-transform: none;
+  border: solid 1px black;
+}
+
+.wmtBody {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform: none;
+}
+
+.BodyBorderL {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+}
+
+.BodyBorderLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.BodyBorderLR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.BodyBorderLBR {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  border-right: solid 1px black;
+}
+
+.BodyBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  font-weight: normal;
+  text-transform:none;
+  border-bottom: solid 1px black;
+}
+
+.Giant {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.wmtGiant {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.Huge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.7em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.wmtHuge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.7em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.Large {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.wmtLarge {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.Chapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+}
+
+.wmtChapter {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+}
+
+.wmtChapterWhite {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+	color: white;	
+}
+
+.Input2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.FullInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtFullInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.Input3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.FullInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtFullInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.Input4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.FullInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.wmtFullInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #EAEAEA;
+}
+
+.BodyUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  text-transform: uppercase;
+}
+
+.wmtBodyUC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  text-transform: uppercase;
+}
+
+.Body {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+}
+
+.wmtBody {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+}
+
+.wmtBodyR {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+	text-align: right;
+}
+
+.BodyR {
+  text-transform: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+	text-align: right;
+}
+
+.wmtR {
+	text-align: right;
+}
+
+.wmtT {
+	vertical-align: top;
+}
+
+.wmtC {
+	text-align: center;
+}
+
+.Body2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: none;
+}
+
+.wmtBody2 {
+  font-size: 0.8em;
+  text-transform: none;
+}
+
+.Body2BordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+	border-bottom: solid 1px black;
+	border-left: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Body2BordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+	border-bottom: solid 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.Body2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: none;
+  text-align: right;
+}
+
+.wmtBody2R {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: none;
+  text-align: right;
+}
+
+.Body2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+
+.wmtBody2UC {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+
+.Body3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  text-transform: uppercase;
+}
+
+.wmtBody3 {
+  font-size: 0.7em;
+  text-transform: uppercase;
+}
+
+.Body3BordLB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	border-bottom: solid 1px black;
+	border-left: solid 1px black;
+}
+
+.Body3BordB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+	border-bottom: solid 1px black;
+}
+
+.Body4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+}
+
+.wmtBody4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+}
+
+.Body4RT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+	text-align: right;
+	vertical-align: top;
+}
+
+.wmtBody4RT {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  text-transform: uppercase;
+	text-align: right;
+	vertical-align: top;
+}
+
+.MainContainer {
+  background-color: #CCEECC;
+  overflow: hidden;
+  border: solid 2px black;
+  margin: 6px;
+}
+
+.wmtMainContainer {
+  background-color: #CCEECC;
+  overflow: hidden;
+  border: solid 2px black;
+  margin: 6px;
+}
+
+.MainContainerBottom1 {
+  background-color: #CCEECC;
+  overflow: hidden;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+  margin: 6px;
+}
+
+.wmtMainContainerBottom1 {
+  background-color: #CCEECC;
+  overflow: hidden;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+  margin: 6px;
+}
+
+.wmtCollapseBar {
+  text-align: center;
+  overflow: hidden;
+  background-color: #8CACBB;
+  cursor: pointer;
+}
+
+.wmtCollapseBarBlack {
+  text-align: center;
+  overflow: hidden;
+  background-color: black;
+	color: white;
+  cursor: pointer;
+}
+
+.CollapseBox {
+  background-color: #F8F1B9;
+  text-align: center;
+  overflow: hidden;
+}
+
+.wmtCollapseBox {
+  background-color: #F8F1B9;
+  text-align: center;
+  overflow: hidden;
+}
+
+.CollapseBoxWhite {
+  background-color: #FFFFFF;
+  text-align: center;
+  overflow: hidden;
+}
+
+.wmtCollapseBoxWhite {
+  background-color: #FFFFFF;
+  text-align: center;
+  overflow: hidden;
+}
+
+.DottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #8CACBB;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.wmtDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #8CACBB;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.wmtDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.wmtRedBorder {
+	border: solid 1px #FF0000;
+	margin: 6px;
+	padding: 4px;
+}
+
+.wmtLabBox {
+	background-color: #f0f0f0;
+	border-color: #666;
+}
+.wmtLabHeader {
+	background-color: #336666;
+	color: #FFFFFF;
+	line-height: 26px;
+}
+.wmtLabMenu {
+	background-color: #B6D2E0;
+	border-color: #B6D2E0;
+}
+.ui-tabs-vertical .ui-tabs-nav li {
+	background-color: #8cacbb; 
+	border-color: #000;
+}
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { 
+	background-color: #f0f0f0; 
+	border-right-color: #f0f0f0;
+	border-bottom-color: #000;
+	border-top-color: #000;
+}
+

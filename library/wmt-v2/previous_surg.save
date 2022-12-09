@@ -1,0 +1,36 @@
+<?php 
+echo "<table width='100%' border='0' cellspacing='0' cellpadding='0'>\n";
+echo "	<tr>\n";
+echo "		<td class='LabelCenterBorderB' style='width: 95px'>Date</td>\n";
+echo "		<td class='LabelCenterBorderLB'>Type of Surgery</td>\n";
+echo "		<td class='LabelCenterBorderLB'>Notes</td>\n";
+echo "		<td class='LabelCenterBorderLB'>Performed By</td>\n";
+echo "		<td class='LabelBorderLB' style='width: 120px'>&nbsp;</td>\n";
+echo "	</tr>\n";
+$cnt=1;
+if(isset($surg)) {
+	foreach($surg as $prev) {
+?>
+	<tr>
+		<td class='BodyBorderB'><input name="ps_id_<?php echo $cnt; ?>" id="ps_id_<?php echo $cnt; ?>" type='hidden' readonly='readonly' value="<?php echo $prev['id']; ?>" /><input name="ps_begdate_<?php echo $cnt; ?>" id="ps_begdate_<?php echo $cnt; ?>" class='FullInput' type='text' tabindex='-1' value="<?php echo $prev['begdate']; ?>" /></td>
+		<td class='BodyBorderLB'><input name="ps_title_<?php echo $cnt; ?>" id="ps_title_<?php echo $cnt; ?>" class='FullInput' type='text' tabindex='-1' value="<?php echo $prev['title']; ?>" /></td>
+		<td class='BodyBorderLB'><input name="ps_comments_<?php echo $cnt; ?>" id="ps_comments_<?php echo $cnt; ?>" class='FullInput' type='text' tabindex='-1' value="<?php echo $prev['comments']; ?>" /></td>
+		<td class='BodyBorderLB'><input name="ps_referredby_<?php echo $cnt; ?>" id="ps_referredby_<?php echo $cnt; ?>" class='FullInput' type='text' tabindex='-1' value="<?php echo $prev['referredby']; ?>" /></td>
+		<td class='BodyBorderLB'><a class='css_button_small' tabindex='-1' style='margin-left: 3px' onClick="return UpdateSurgery('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" href='javascript:;'><span>Update</span></a><a class='css_button_small' tabindex='-1' style='margin-left: 5px' onClick="return DeleteSurgery('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" href='javascript:;'><span>Delete</span></a></td>
+	</tr>
+<?php
+		$cnt++;
+	}
+}
+echo "	<tr>\n";
+echo "		<td class='BodyBorderB'><input name='ps_begdate' id='ps_begdate' class='FullInput' type='text' title='YYYY-MM-DD' value='".$dt{'ps_begdate'}."' /></td>\n";
+echo "		<td class='BodyBorderLB'><input name='ps_title' id='ps_title' class='FullInput' type='text' value='".$dt{'ps_title'}."' /></td>\n";
+echo "		<td class='BodyBorderLB'><input name='ps_comments' id='ps_comments' class='FullInput' type='text' value='".$dt{'ps_comments'}."' /></td>\n";
+echo "		<td class='BodyBorderLB'><input name='ps_referredby' id='ps_referredby' class='FullInput' type='text' value='".$dt{'ps_referredby'}."' /></td>\n";
+echo "		<td class='BodyBorderLB'>&nbsp;</td>\n";
+echo "	</tr>\n";
+echo "	<tr>\n";
+echo "		<td class='CollapseBar' colspan='6'><a class='css_button' onClick='return SubmitSurgery(\"$base_action\",\"$wrap_mode\",\"$id\");' href='javascript:;'><span>Add Another</span></a></td>\n";
+echo "	</tr>\n";
+echo "</table>\n";
+?>

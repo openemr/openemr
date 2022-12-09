@@ -1,0 +1,500 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  text-transform: none;
+  color: #000000;
+}
+
+label {
+	display: inline-block;
+}
+
+td.tightFit {
+	padding: 1px 2px 1px 2px;
+}
+
+input[type="text"] {
+	padding: 0px;
+	margin: 0px;
+}
+
+.wmtNoteLabelDiv {
+	float: left;
+	text-align: left;
+  margin-left: 6px;
+}
+
+.wmtNoteInputDiv {
+	box-sizing: border-box;
+	float: left;
+  padding: 6px;
+	width: 100%;
+}
+
+.wmtDateCell {
+	width: 100px;
+}
+
+.wmtCalendarCell {
+	width: 26px;
+}
+
+.wmtBorderHighlight {
+	border: solid 1px;
+	border-color: #FFEE22;
+	white-space: pre-wrap;
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+.wmtHighlight {
+	background-color: #FFEE22;
+}
+
+.wmtFormBodyDark {
+  font-size: 12px;
+  background-color: #FFFFCC;
+}
+
+.wmtFormBodyLight {
+  font-size: 12px;
+  background-color: #FFFBEB;
+}
+
+.wmtInput {
+  border: solid 1px gray;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtFullInput {
+  border: solid 1px gray;
+  width: 100%;
+  padding: 0;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtDateInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  padding: 0;
+  width: 92px;
+  border: solid 1px gray;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtHeaderInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  border: solid 1px gray;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.wmtInputBorderB {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+	border: none;
+  border-bottom: solid 1px black;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: white;
+}
+
+.wmtBigInput {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+.wmtLabel {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.wmtRed {
+	color: red;
+}
+
+.wmtBrown{
+	color: #BB6600;
+}
+
+.wmtLabel2 {
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.wmtLabelTiny {
+  font-size: 0.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.wmtLabel3 {
+  font-size: 0.7em;
+	font-weight: bold;
+	text-align: left;
+	padding: 1px 2px 1px 2px;
+}
+
+.wmtBorder1L {
+	border-left: solid 1px black;
+}
+
+.wmtBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.wmtBorder1T {
+	border-top: solid 1px black;
+}
+
+.wmtBorder1R {
+	border-right: solid 1px black;
+}
+
+.wmtBorder1All {
+	border: solid 1px black;
+}
+
+.wmtBody {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.wmtGiant {
+  font-size: 2em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.wmtHuge {
+  font-size: 1.7em;
+  font-weight: normal;
+  text-transform:uppercase;
+}
+
+.wmtLarge {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-transform: none;
+}
+
+.wmtChapter {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+}
+
+.wmtChapterWhite {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-transform: none;
+  text-align: center;
+	color: white;	
+}
+
+.wmtInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  border: solid 1px gray;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtFullInput2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  width: 100%;
+  padding: 0;
+  border: solid 1px gray;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  border: solid 1px gray;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtFullInput3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  width: 100%;
+  border: solid 1px gray;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  border: solid 1px gray;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtFullInput4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.6em;
+  width: 100%;
+  border: solid 1px gray;
+  padding: 0;
+  text-transform: none;
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+.wmtUC {
+  text-transform: uppercase;
+}
+
+.wmtL {
+	text-align: left;
+}
+
+.wmtR {
+	text-align: right;
+}
+
+.wmtT {
+	vertical-align: top;
+}
+
+.wmtM {
+	vertical-align: middle;
+}
+
+.wmtB {
+	vertical-align: bottom;
+}
+
+.wmtC {
+	text-align: center;
+}
+
+.wmtBody2 {
+  font-size: 0.8em;
+}
+
+.wmtCheck {
+  font-size: 0.8em;
+	font-weight: bold;
+}
+
+.wmtCheckCell {
+	width: 20px;
+}
+
+.wmtBody3 {
+  font-size: 0.7em;
+  text-transform: uppercase;
+}
+
+.wmtBody4 {
+  font-size: 0.6em;
+  text-transform: uppercase;
+}
+
+.wmtMainContainer {
+	background-color: transparent;
+  border: solid 2px black;
+	overflow: auto;
+  margin: 4px;
+}
+
+.wmtMainContainerBottom1 {
+	background-color: #F8F1B9;
+  border-left: solid 2px black;
+  border-top: solid 2px black;
+  border-right: solid 2px black;
+  border-bottom: solid 1px black;
+  margin: 6px;
+	overflow: auto;
+}
+
+.wmtCollapseBar {
+  text-align: center;
+  overflow: hidden;
+  background-color: #FFCC66;
+  cursor: pointer;
+}
+
+.wmtCollapseBarBlack {
+  text-align: center;
+  overflow: hidden;
+  background-color: black;
+	color: white;
+  cursor: pointer;
+}
+
+.wmtCollapseBox {
+  background-color: transparent;
+  text-align: left;
+}
+
+.wmtCollapseBoxWhite {
+  background-color: #FFFFFF;
+  text-align: center;
+	overflow: auto;
+	padding-right: 3px;
+}
+
+.wmtDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: #FFCC66;
+  border-bottom-width: 2px;
+	margin: 2px 5px 2px 5px;
+}
+
+.wmtDottedEdge {
+  text-align: center;
+  border-left-style: dotted;
+  border-left-color: #FFCC66;
+  border-left-width: 2px;
+	margin: 2px 3px 2px 3px;
+}
+
+.wmtDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.wmtRedBorder {
+	border: solid 1px #FF0000;
+	margin: 6px;
+	padding: 4px;
+}
+
+.wmtBrownBorder {
+	border: solid 1px #CC6633;
+	margin: 6px;
+	padding: 4px;
+}
+
+.wmtLightBG {
+	background-color: #FFFFCC;
+}
+
+.floating-menu-td {
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	color: white;
+}
+
+.floating-menu-link {
+	color: white;
+}
+
+div.floating-buttons {
+	text-align: center;
+	position: fixed;
+	background: #BB6600;
+	border: solid 1px black;
+	border-radius: 14px;
+	width: 90px;
+	z-index: 100;
+	cursor: move;
+	box-shadow: 10px 10px 5px #888888;
+}
+
+a:hover {
+	color: #CC0000;
+}
+
+.form-menu-list {
+	vertical-align: top;
+	margin: 0;
+	padding: 0;
+}
+
+.form-menu-list li {
+	/*
+	background: rgba(0, 0, 0, 0) -moz-linear-gradient(center top, #FE5301, #FFFBEB) repeat scroll 0 0;
+	*/
+	background: rgba(0, 0, 0, 0) -moz-linear-gradient(center top, #16558C, #16558C) repeat scroll 0 0;
+	border: 1px solid #FFFBEB;
+	float: left;
+	vertical-align: top;
+	list-style: outside none none;
+}
+
+.form-menu-list li a {
+	color: #FFFFFF;
+	display: block;
+	font-weight: normal;
+	font-size: 12px;
+	padding: 3px 16px 3px 16px;
+}
+
+.form-menu-list li a:hover {
+	font-weight: bold;
+}
+
+div.notification {
+  font-size: 1.1em;
+  font-weight: bold;
+	text-align: center;
+	position: fixed;
+  background: #E2A76F;
+	border: solid 1px black;
+	border-radius: 10px;
+	width: 180px;
+	z-index: 3000;
+	cursor: progress;
+	box-shadow: 8px 8px 5px #888888;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li {
+	background-color: #FFCC66; 
+	border-color: #CC6633;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { 
+	background-color: #fff; 
+	border-right-color: #fff;
+	border-bottom-color: #CC6633;
+	border-top-color: #CC6633;
+}
+
+.mce {
+}
+
+.wmtListButton {
+	float: left;
+	padding-left: 0px;
+}
+
+.wmtClick:hover {
+	cursor: pointer;
+}

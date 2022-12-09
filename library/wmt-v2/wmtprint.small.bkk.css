@@ -1,0 +1,163 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.bkkPrnDateCell {
+	width: 65px;
+}
+
+.bkkPrnHeader {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 6pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.bkkPrnLabel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 6.5pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.bkkPrnLabel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5pt;
+  font-weight: bold;
+  text-transform: none;
+	vertical-align: top;
+}
+
+.bkkPrnChapter {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  font-weight: bold;
+	text-align: center;
+  text-transform: none;
+}
+
+.bkkPrnBody {
+  font-family: Arial, Helvetica, sans-serif;
+  text-transform: none;
+  font-size: 6.5pt;
+	vertical-align: top;
+	white-space: pre-wrap;
+}
+
+.bkkPrnMainContainer {
+	background-color: transparent;
+  border: solid 2px black;
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+.bkkPrnEmphasisContainer {
+	background-color: transparent;
+  border: solid 1px black;
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+.bkkPrnCollapseBar {
+  text-align: center;
+  background-color: transparent;
+  cursor: pointer;
+	border-top: solid 1px black;
+	border-bottom: solid 2px black;
+}
+
+.bkkPrnCollapseBox {
+  background-color: transparent;
+  text-align: left;
+  overflow: hidden;
+}
+
+.bkkPrnDottedB {
+  text-align: center;
+  height: 3px;
+  border-bottom-style: dotted;
+  border-bottom-color: black;
+  border-bottom-width: 2px;
+	margin-right: 6px;
+	margin-left: 6px;
+	margin-top: 4px;
+	margin-bottom: 5px;
+}
+
+.bkkPrnDottedH {
+  text-align: center;
+  height: 3px;
+}
+
+.bkkPrnBorder1L {
+	border-left: solid 1px black;
+}
+
+.bkkPrnBorder1T {
+	border-top: solid 1px black;
+}
+
+.bkkPrnBorder1B {
+	border-bottom: solid 1px black;
+}
+
+.bkkPrnBorder1R {
+	border-right: solid 1px black;
+}
+
+.bkkPrnBorderAll {
+	border: solid 1px black;
+}
+
+.bkkPrnR {
+	text-align: right;
+}
+
+.bkkPrnC {
+	text-align: center;
+}
+
+.bkkPrnVM {
+	vertical-align: middle;
+}
+
+.bkkPrnVT {
+	vertical-align: top;
+}
+
+.bkkPrnVB {
+	vertical-align: bottom;
+}
+
+.bkkPrnUC {
+	text-transform: uppercase;
+}
+
+.bkkNoPrint {
+	display: block;
+}
+
+.bkkPrnHeadingBar {
+  text-align: left;
+  background-color: black;
+	color: white;
+  font-size: 8pt;
+	font-weight: bold;
+	margin-left: 10px;
+	margin-right: 20px;
+}
+
+@media print {
+	#no_print_buttons {
+		display: none;
+		visibility: hidden;
+	}
+
+	.bkkNoPrint {
+		display: none;
+		visibility: hidden;
+	}
+}
+
