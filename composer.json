@@ -70,7 +70,7 @@
         "symfony/http-client": "4.4.42",
         "symfony/http-foundation": "4.4.42",
         "symfony/yaml": "4.4.37",
-        "twig/twig": "3.4.1",
+        "twig/twig": "3.4.3",
         "vlucas/phpdotenv": "5.4.1",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2"
