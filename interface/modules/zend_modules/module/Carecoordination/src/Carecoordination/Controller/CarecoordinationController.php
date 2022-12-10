@@ -16,7 +16,6 @@ namespace Carecoordination\Controller;
 
 use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
-use Laminas\Console\Request as ConsoleRequest;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Laminas\View\Model\JsonModel;
@@ -225,43 +224,6 @@ class CarecoordinationController extends AbstractActionController
             sleep(1);
         }
         return $view;
-    }
-
-    public function newpatientImportCommandAction()
-    {
-        // get around a large ccda data array
-        ini_set("memory_limit", -1);
-
-        $request = $this->getRequest();
-        if (!$request instanceof ConsoleRequest) {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-        $document = $request->getParam('document');
-        $this->getCarecoordinationTable()->importNewPatient($document);
-        exit;
-    }
-
-    public function newpatientCommandAction()
-    {
-        $request = $this->getRequest();
-        if (!$request instanceof ConsoleRequest) {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-        $am_id = $request->getParam('am_id');
-        $document_id = $request->getParam('document_id');
-        $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);
-        exit;
-    }
-
-    public function importCommandAction()
-    {
-        $request = $this->getRequest();
-        if (!$request instanceof ConsoleRequest) {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-        $document_id = $request->getParam('document_id');
-        $this->getCarecoordinationTable()->import($document_id);
-        exit;
     }
 
     /*
@@ -957,7 +919,7 @@ class CarecoordinationController extends AbstractActionController
             // now we need to do our document import for our ccda for this patient
             if ($componentCount <= $patientNameIndex) {
                 $shouldDeleteIndex = false; // we don't want to delete if we are in folders before our patient name index
-            } else if ($componentCount == ($patientNameIndex + 1)) {
+            } elseif ($componentCount == ($patientNameIndex + 1)) {
                 // if they have more than maxDocuments in ccd files we need to break out of someone trying to directory
                 // bomb the file system
                 $patientCountHash[$patientNameIndex] = $patientCountHash[$patientNameIndex] ?? 0;
@@ -965,21 +927,21 @@ class CarecoordinationController extends AbstractActionController
                 // let's check for ccda
                 if ($patientCount > $maxPatients) {
                     $shouldDeleteIndex = true; // no more processing of patient ccdas as we've reached our max import size
-                } else if ($patientCountHash[$patientNameIndex] > $maxDocuments) {
+                } elseif ($patientCountHash[$patientNameIndex] > $maxDocuments) {
                     $shouldDeleteIndex = true;
                 // can fire off events for modifying what files we keep / process...
                 // we don't process anything but xml ccds
-                } else if (strrpos($fileComponents[$patientNameIndex], '.xml') === false) {
+                } elseif (strrpos($fileComponents[$patientNameIndex], '.xml') === false) {
                     $shouldDeleteIndex = true;
                     // if we have a ccd we need to set our document count and increment our patient count
                     // note this logic allows multiple patient ccds to be here as long as they are in the same folder
-                } else if (!isset($patientCountHash[$fileComponents[$patientNameIndex]])) {
+                } elseif (!isset($patientCountHash[$fileComponents[$patientNameIndex]])) {
                     $patientCountHash[$patientNameIndex] = 0;
                     $patientCount++;
                 } else {
                     $patientCountHash[$patientNameIndex];
                 }
-            } else if ($componentCount == ($patientDocumentsIndex + 1)) {
+            } elseif ($componentCount == ($patientDocumentsIndex + 1)) {
                 if ($patientCountHash[$patientNameIndex] > $maxDocuments) {
                     $shouldDeleteIndex = true;
                 } else {
