@@ -267,6 +267,7 @@ class UserVideoRegistrationRequest
             'userName' => $this->getUsername()
             ,'passwordString' => $this->getPassword()
             ,'registrationCode' => $this->getRegistrationCode()
+            ,'role' => $this->getArrayRole()
             ,"eu_profile" => [
                 'firstName' => $this->getFirstName()
                 ,'lastName' => $this->getLastName()
@@ -276,5 +277,13 @@ class UserVideoRegistrationRequest
                 ,'institutionName' => $this->getInstitutionName()
             ]
         ];
+    }
+
+    private function getArrayRole()
+    {
+        if ($this->isPatient) {
+            return 'patient';
+        }
+        return 'provider';
     }
 }
