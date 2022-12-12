@@ -47,7 +47,7 @@ if ($web_path) {
 <head>
     <title><?php echo xlt("Dicom Viewer"); ?></title>
 
-    <?php Header::setupHeader(['dwv', 'i18next', 'i18next-xhr-backend', 'i18next-browser-languagedetector', 'jszip', 'magic-wand', 'konva']); ?>
+    <?php Header::setupHeader(['dwv', 'i18next', 'i18next-http-backend', 'i18next-browser-languagedetector', 'jszip', 'magic-wand', 'konva']); ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/flot/dist/es5/jquery.flot.js"></script>
     <!-- Local (dwv) -->
     <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/dwv/gui/browser.js"></script>
