@@ -635,5 +635,5 @@ if (!($_POST['form_csvexport'] ?? null)) { ?>
     <?php
 } else { // end not form_csvexport
     $writer = IOFactory::createWriter($spreadsheet, 'Xls');
-        $writer->save('php://output');
+    $writer->save('php://output');
 }
