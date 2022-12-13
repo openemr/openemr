@@ -110,7 +110,7 @@ function isWhiteFile($file)
         }
         // allow module writers to modify the white list... this only gets executed the first time this function runs
         $event = new IsAcceptedFileFilterEvent($file, $white_list);
-        $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(IsAcceptedFileFilterEvent::EVENT_GET_ACCEPTED_LIST, $event);
+        $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_GET_ACCEPTED_LIST);
         $white_list = $resultEvent->getAcceptedList();
     }
 
@@ -129,7 +129,7 @@ function isWhiteFile($file)
             $event = new IsAcceptedFileFilterEvent($file, $white_list);
             $event->setAllowedFile(false);
             $event->setMimeType($mimetype);
-            $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $event);
+            $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE);
             $isAllowedFile = $resultEvent->isAllowedFile();
         }
     }

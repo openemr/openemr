@@ -46,9 +46,9 @@ function smarty_function_dispatchPatientDocumentEvent($params, &$smarty)
 
     $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     if ($event == "javascript_ready_fax_dialog") {
-        $eventDispatcher->dispatch(PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG, new GenericEvent());
+        $eventDispatcher->dispatch(new GenericEvent(), PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG);
     } elseif ($event == "actions_render_fax_anchor") {
-        $eventDispatcher->dispatch(PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR, new GenericEvent());
+        $eventDispatcher->dispatch(new GenericEvent(), PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR);
     } else {
         trigger_error("dispatchPatientDocumentEvent: invalid 'event' parameter", E_USER_WARNING);
         return;

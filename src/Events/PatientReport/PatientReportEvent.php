@@ -13,7 +13,7 @@
 
 namespace OpenEMR\Events\PatientReport;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientReportEvent extends Event
 {

@@ -212,7 +212,7 @@ class FacilityService extends BaseService
         );
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(FacilityUpdatedEvent::EVENT_HANDLE, $facilityUpdatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE, 10);
 
         return $result;
     }
@@ -228,7 +228,7 @@ class FacilityService extends BaseService
         );
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(FacilityCreatedEvent::EVENT_HANDLE, $facilityCreatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE, 10);
 
         return $facilityId;
     }

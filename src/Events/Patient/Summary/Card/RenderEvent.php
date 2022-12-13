@@ -13,7 +13,7 @@
 namespace OpenEMR\Events\Patient\Summary\Card;
 
 use OpenEMR\Events\Patient\Summary\Card\RenderInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class RenderEvent extends Event
 {

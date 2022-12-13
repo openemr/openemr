@@ -134,7 +134,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
         // Filter out appointments based on a custom module filter
         $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
-        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppointmentsFilterEvent::EVENT_HANDLE, $apptFilterEvent, 10);
+        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE, 10);
         $boundFilter = $apptFilterEvent->getBoundFilter();
         $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
         $where .= " AND " . $boundFilter->getFilterClause();

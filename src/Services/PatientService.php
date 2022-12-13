@@ -144,7 +144,7 @@ class PatientService extends BaseService
 
         // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
         $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientCreatedEvent::EVENT_HANDLE, $beforePatientCreatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE, 10);
         $data = $beforePatientCreatedEvent->getPatientData();
 
         $query = $this->buildInsertColumns($data);
@@ -156,7 +156,7 @@ class PatientService extends BaseService
 
         // Tell subscribers that a new patient has been created
         $patientCreatedEvent = new PatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientCreatedEvent::EVENT_HANDLE, $patientCreatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE, 10);
 
         // If we have a result-set from our insert, return the PID,
         // otherwise return false
@@ -220,7 +220,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientUpdatedEvent::EVENT_HANDLE, $beforePatientUpdatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -242,7 +242,7 @@ class PatientService extends BaseService
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientUpdatedEvent::EVENT_HANDLE, $patientUpdatedEvent, 10);
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
 
             return $data;
         } else {
@@ -274,7 +274,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(BeforePatientUpdatedEvent::EVENT_HANDLE, $beforePatientUpdatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -294,7 +294,7 @@ class PatientService extends BaseService
             // We have to do this here and in the databaseUpdate() because this lookup is
             // by uuid where the databseUpdate updates by pid.
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $processingResult->getData());
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientUpdatedEvent::EVENT_HANDLE, $patientUpdatedEvent, 10);
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
         }
         return $processingResult;
     }
