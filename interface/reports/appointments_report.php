@@ -34,11 +34,12 @@ use OpenEMR\Common\{
 };
 use OpenEMR\Core\Header;
 use PhpOffice\PhpSpreadsheet\{
+    Cell\Cell,
     IOFactory,
     Helper\Sample,
     Spreadsheet,
+    Style\NumberFormat
 };
-
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -84,6 +85,11 @@ if (!empty($_POST['with_out_provider'])) {
 $chk_with_out_facility = false;
 if (!empty($_POST['with_out_facility'])) {
     $chk_with_out_facility = true;
+}
+
+$chk_day_of_week = false;
+if (!empty($_POST['with_day_of_week'])) {
+    $chk_day_of_week = true;
 }
 
 $provider  = $_POST['form_provider'] ?? null;
@@ -178,10 +184,6 @@ if ($_POST['form_csvexport'] ?? null) {
             dlgopen('../main/calendar/add_edit_event.php?eid=' + encodeURIComponent(eventid), 'blank', 775, 500);
         }
 
-        function refreshme() {
-            // location.reload();
-            document.forms[0].submit();
-        }
         </script>
 
         <style>
@@ -312,7 +314,6 @@ if ($_POST['form_csvexport'] ?? null) {
                         </label>
                     </div>
                 </td>
-
             <tr>
                 <td></td>
                 <?php # these two selects will show entries that do not have a facility or a provider ?>
@@ -331,6 +332,18 @@ if ($_POST['form_csvexport'] ?? null) {
                 </td>
             </tr>
 
+            <tr>
+                <td></td>
+                <td>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="with_day_of_week" id="with_day_of_week"
+                        <?php echo ($chk_day_of_week ? ' checked' : ''); ?>>
+                        <?php echo xlt('Show Day of Week'); ?>
+                        </label>
+                    </div>
+                </td>
+            </tr>
+
         </table>
 
         </div>
@@ -342,7 +355,7 @@ if ($_POST['form_csvexport'] ?? null) {
                 <td>
                     <div class="text-center">
                         <div class="btn-group" role="group">
-                            <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").attr("value", null); $("#theform").submit();'>
                                 <?php echo xlt('Submit'); ?>
                             </a>
                             <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) { ?>
@@ -381,12 +394,21 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         // Set document properties
         $spreadsheet->getProperties()->setTitle('Appointments CSV Export');
         // Set font
-        $spreadsheet->getDefaultStyle()->getFont()->setName('Ubuntu');
+        $spreadsheet->getDefaultStyle()->getFont()->setName('Courier');
+        // formats dates
+        Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
+
+        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(12);
+        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(12);
+        $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(14);
+        $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(12);
 
         $spreadsheet->setActiveSheetIndex(0)
             ->setCellValue('A1', 'Contact')
-            ->setCellValue('B1', 'Phone')
-            ->setCellValue('C1', 'Start Time');
+            ->setCellValue('B1', 'DOB')
+            ->setCellValue('C1', 'Phone')
+            ->setCellValue('D1', 'Date')
+            ->setCellValue('E1', 'Time');
     } else {
         ?>
 <div id="report_results">
@@ -396,6 +418,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <th><a href="nojs.php" onclick="return dosort('doctor')"
         <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Provider'); ?>
         </a></th>
+
+        <th <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
+            <?php
+                echo xlt('DOW');
+            ?>
+        </th>
 
         <th <?php echo $showDate ? '' : 'style="display:none;"' ?>><a href="nojs.php" onclick="return dosort('date')"
         <?php echo ($form_orderby == "date") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
@@ -480,12 +508,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             }
 
             $name_csv = $appointment['fname'] . " " . substr($appointment['lname'], 0, 1);
-            $date_time_csv = oeFormatDateTime($appointment['pc_eventDate'] . $appointment['pc_startTime']);
+            $dob_csv = $appointment['DOB'];
+            $date_csv = $appointment['pc_eventDate'];
+            $time_csv = $appointment['pc_startTime'];
 
             $spreadsheet->setActiveSheetIndex(0)
                 ->setCellValue('A' . $cntr, $name_csv)
-                ->setCellValue('B' . $cntr, $phone_home_csv)
-                ->setCellValue('C' . $cntr, $date_time_csv);
+                ->setCellValue('B' . $cntr, $dob_csv)
+                ->setCellValue('C' . $cntr, $phone_home_csv)
+                ->setCellValue('D' . $cntr, $date_csv)
+                ->setCellValue('E' . $cntr, $time_csv);
         } else {
             ?>
 
@@ -493,7 +525,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : text($docname) ?>
         </td>
 
-        <td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>><?php echo text(oeFormatShortDate($appointment['pc_eventDate'])) ?>
+        <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
+            <?php
+                echo date('D', strtotime($appointment['pc_eventDate']));
+            ?>
+        </td>
+
+        <td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>>
+            <?php
+                echo text(oeFormatShortDate($appointment['pc_eventDate']));
+            ?>
         </td>
 
         <td class="detail"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?>
