@@ -742,7 +742,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new multi appointment has been set
         $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $e2f;  //setting the appointment id to an object
-        $eventDispatcher->dispatch(AppointmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
+        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE, 10);
     } else {
         /* =======================================================
      *                    INSERT NEW EVENT(S)
@@ -752,7 +752,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new single appointment has been set
         $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $eid;  //setting the appointment id to an object
-        $eventDispatcher->dispatch(AppointmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
+        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE, 10);
     }
 
         // done with EVENT insert/update statements
@@ -1094,7 +1094,7 @@ function sel_patient() {
 
 // This invokes javascript listener.
 <?php
-$eventDispatcher->dispatch(AppointmentRenderEvent::RENDER_JAVASCRIPT, new AppointmentRenderEvent($row), 10);
+$eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_JAVASCRIPT, 10);
 ?>
 
 // This is for callback by the find-group popup.
@@ -1492,7 +1492,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
             </div>
             <?php
                 // This invokes render below patient listener.
-                $eventDispatcher->dispatch(AppointmentRenderEvent::RENDER_BELOW_PATIENT, new AppointmentRenderEvent($row), 10);
+                $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_BELOW_PATIENT, 10);
             ?>
         </div>
     </div> <!-- End Jumbotron !-->

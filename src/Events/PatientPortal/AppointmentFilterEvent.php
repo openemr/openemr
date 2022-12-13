@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Events\PatientPortal;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class AppointmentFilterEvent extends Event
 {
