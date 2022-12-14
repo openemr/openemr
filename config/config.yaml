@@ -34,9 +34,9 @@ assets:
     i18next:
         basePath: '%assets_static_relative%/i18next/dist/umd/'
         script: i18next.min.js
-    i18next-http-backend:
-        basePath: '%assets_static_relative%/i18next-http-backend/'
-        script: i18nextHttpBackend.min.js
+    i18next-xhr-backend:
+        basePath: '%assets_static_relative%/i18next-xhr-backend/dist/umd/'
+        script: i18nextXHRBackend.min.js
     i18next-browser-languagedetector:
         basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
         script: i18nextBrowserLanguageDetector.min.js
