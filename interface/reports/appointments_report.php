@@ -507,10 +507,11 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $phone_home_csv = $appointment['phone_home'];
             }
 
-            $name_csv = $appointment['fname'] . " " . substr($appointment['lname'], 0, 1);
-            $dob_csv = $appointment['DOB'];
-            $date_csv = $appointment['pc_eventDate'];
-            $time_csv = $appointment['pc_startTime'];
+            $phone_home_csv = csvEscape($phone_home_csv, $surroundQuotes = false);
+            $name_csv = csvEscape($appointment['fname'] . " " . substr($appointment['lname'], 0, 1), false);
+            $dob_csv = csvEscape($appointment['DOB'], false);
+            $date_csv = csvEscape($appointment['pc_eventDate'], false);
+            $time_csv = csvEscape($appointment['pc_startTime'], false);
 
             $spreadsheet->setActiveSheetIndex(0)
                 ->setCellValue('A' . $cntr, $name_csv)
