@@ -168,6 +168,7 @@ function sqlQuery($statement, $link)
                                     echo "  <td><a href='portal/index.php?site=$sfname' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site $sfname'></i></a></td>\n";
                                 } else {
                                     echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
+                                    echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
                                 }
                             }
 
