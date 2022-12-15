@@ -130,6 +130,55 @@
         cvb = module;
     });
 
+    function RemoteCallerSlot(index, onhangup) {
+        // properties
+        // remote video
+        // remote screen share
+        // index
+        // is available
+        index = isNaN(+index) ? 0 : +index;
+        this.__callVideo = null;
+        this.__callScreenshare = null;
+        this.__video = document.getElementById("remote-video-" + index);
+        this.__screenshare = document.getElementById("remote-screenshare-" + index);
+        if (!this.__video)
+        {
+            throw new Error("Failed to find #remote-video-" + index +" element");
+        }
+        this.isAvailable = function() {
+            return this.__callVideo == null;
+        };
+
+
+        this.attach = function(call, stream) {
+            if (call == null || stream == null)
+            {
+                console.error("Call or stream were null.  Cannot proceed", {call: call, stream: stream});
+                throw new Error("call and stream cannot be null");
+            }
+            call.setUserData(this);
+            let videoElement = this.__video;
+            if (call.isScreenSharing()) {
+                videoElement = this.__screenshare;
+                this.__callScreenshare = call;
+
+            } else {
+                this.__callVideo = call;
+            }
+            videoElement.srcObject = stream;
+            videoElement.play();
+        };
+
+        this.detach = function() {
+            this.__callScreenshare.setUserData(null);
+            this.__callVideo.setUserData(null);
+            this.__callScreenshare = null;
+            this.__callVideo= null;
+            this.__video.srcObject = null;
+            this.__screenshare.srcObject = null;
+        };
+    }
+
     function ATSlot(index, onhangup) {
         /** @private */
         this.__call = null;
@@ -168,6 +217,61 @@
     // TODO: @adunsulag eventually we can merge this into our conference room app.
     function ATApp(conferenceRoom, params)
     {
+
+        return this;
+    }
+
+    function ConferenceRoom()
+    {
+        let conf = this;
+
+        this.waitingRoomTemplate = null;
+        this.conferenceRoomTemplate = null;
+        this.callerSettings = null;
+        this.telehealthSessionData = null;
+        this.videoBar = null;
+        this.ROOM_TYPE_WAITING = 'waiting';
+        this.ROOM_TYPE_CONFERENCE = 'conference';
+
+        this.buttonSettings = {
+            microphoneEnabled: true
+            ,cameraEnabled: true
+        };
+
+        /**
+         * Milliseconds to update the session information
+         * @type {number}
+         */
+        this.sessionUpdatePollingTime = 5000;
+
+        /**
+         * What type of room this conference room is
+         * @see ROOM_TYPE_WAITING
+         * @see ROOM_TYPE_CONFERENCE
+         * @type string
+         */
+        this.room = null;
+        // TODO: @adunsulag rename this variable to be roomModal
+        this.waitingRoomModal = null;
+
+        /**
+         * Are we currently in the conference room session
+         * @type {boolean}
+         */
+        this.inSession = false;
+
+        /**
+         * Is the conference room currently  minimized
+         * @type {boolean}
+         */
+        this.isMinimized = false;
+
+        /**
+         * Tracking interval for the conference room session polling
+         * @type {number}
+         */
+        this.sessionUpdateInterval = null;
+
         this.__hasLocalPermisions = false;
         /** @private */
         this.__bridge = null;
@@ -185,11 +289,7 @@
         /** @private */
         this.__slots = [];
 
-        /**
-         * @private
-         */
-        this.__serviceUrl = params.serviceUrl;
-
+        this.__remoteCaller = null;
         this.__remoteCallSlot = null;
 
         this.__isShutdown = true;
@@ -249,13 +349,13 @@
             return this.__hasLocalPermisions;
         };
 
-        this.start = function() {
+        this.startBridge = function() {
             // Create the bridge instance
-            this.__bridge = new cvb.VideoBridge({
+            conf.__bridge = new cvb.VideoBridge({
                 userId: this.__userId,
-                passwordHash: this.__passwordHash,
+                passwordHash: conf.callerSettings.apiKey,
                 type: 'normal',
-                serviceUrl: this.__serviceUrl // 'https://sandbox.mvoipctsi.com:22528'
+                serviceUrl: conf.callerSettings.serviceUrl
             });
             console.log("Instantiated bridge "  + this.__userId);
 
@@ -263,93 +363,93 @@
             //
             // When a new call comes in we'll ask the user if they want to accept or
             // reject it.
-            this.__bridge.onincomingcall = (call) => {
+            conf.__bridge.onincomingcall = (call) => {
                 console.log("Receiving call from " + call.getRemotePartyId() + " for "  + this.__userId);
 
-                conferenceRoom.handleIncomingCall(call);
+                conf.handleIncomingCall(call);
             };
 
             // Callback: bridge active
             //
             // When the bridge becomes active we'll ask it for the local media stream
             // which we will then play in the local video element.
-            this.__bridge.onbridgeactive = (bridge) => {
-                this.__bridge.getLocalMediaStream()
-                    .then(stream => this.handleLocalMediaStreamStarted(stream))
-                    .catch(error => this.handleLocalMediaStreamFailed(error));
+            conf.__bridge.onbridgeactive = (bridge) => {
+                conf.__bridge.getLocalMediaStream()
+                    .then(stream => conf.handleLocalMediaStreamStarted(stream))
+                    .catch(error => conf.handleLocalMediaStreamFailed(error));
 
-                console.log("The bridge is active " + this.__userId);
+                console.log("The bridge is active " + conf.callerSettings.callerUuid);
             };
 
             // Callback: bridge inactive
             //
             // When the bridge becomes inactive we'll stop the local stream video
             // element.
-            this.__bridge.onbridgeinactive = (bridge) => {
-                if (this.__localVideoElement && this.__localVideoElement.stop) {
-                    this.__localVideoElement.stop();
-                    this.__localVideoElement.srcObject = null;
+            conf.__bridge.onbridgeinactive = (bridge) => {
+                if (conf.__localVideoElement && conf.__localVideoElement.stop) {
+                    conf.__localVideoElement.stop();
+                    conf.__localVideoElement.srcObject = null;
                 }
 
-                console.log("The bridge is inactive " + this.__userId);
+                console.log("The bridge is inactive " + conf.callerSettings.callerUuid);
             };
 
             // Callback: bridge failure
             //
             // Similarly, if the bridge suffers a catastrophic failure we'll stop the
             // local stream video element.
-            this.__bridge.onbridgefailure = (bridge) => {
-                this.__localVideoElement.stop();
-                this.__localVideoElement.srcObject = null;
+            conf.__bridge.onbridgefailure = (bridge) => {
+                conf.__localVideoElement.stop();
+                conf.__localVideoElement.srcObject = null;
 
-                console.error("The bridge failed " + this.__userId);
+                console.error("The bridge failed " + conf.callerSettings.callerUuid);
             };
 
             // Finally spin up the bridge.
-            this.__bridge.start();
-            console.log("Started bridge "  + this.__userId);
-            this.__isShutdown = false;
+            conf.__bridge.start();
+            console.log("Started bridge "  + conf.callerSettings.callerUuid);
+            conf.__isShutdown = false;
         };
 
-        this.shutdown = function()
+        conf.shutdown = function()
         {
-            if (this.__isShutdown)
+            if (conf.__isShutdown)
             {
                 return;
             }
 
-            this.__bridge.shutdown();
-            this.__localVideoElement.srcObject = null;
-            console.log("Shutting down " +  this.__userId)
-            this.__isShutdown = true;
+            conf.__bridge.shutdown();
+            conf.__localVideoElement.srcObject = null;
+            console.log("Shutting down " +  conf.callerSettings.callerUuid)
+            conf.__isShutdown = true;
         };
 
         this.setCallHandlers = function(call) {
             // Callback: streams updated
             //
             call.oncallstarted = (call) => {
-                conferenceRoom.handleCallStartedEvent(call);
+                conf.handleCallStartedEvent(call);
             };
             // Once we have the remote stream we'll allocate a video slot.
             call.onstreamupdated =
                 (call, stream) => {
                     console.log("onstreamupdated " + this.__userId);
-                    this.allocateSlot(call, stream);
+                    conf.allocateSlot(call, stream);
                 };
 
             // Callback: call ended
             //
             // When the call ends we free the video slot.
             call.oncallended = (call) => {
-                this.freeSlot(call.getUserData());
-                conferenceRoom.handleCallEndedEvent(call);
+                conf.freeSlot(call.getUserData());
+                conf.handleCallEndedEvent(call);
             };
         };
 
         this.makeCall = function(calleeId) {
             const call = this.__bridge.createVideoCall(calleeId);
 
-            this.setCallHandlers(call);
+            conf.setCallHandlers(call);
 
             // Callback: outbound call rejected
             //
@@ -361,7 +461,7 @@
                 console.log("oncallrejected " + this.__userId);
                 // if the call is rejected the provider dropped off before we connected so we go back to the conference
                 // room
-                conferenceRoom.handleCallEndedEvent(call);
+                conf.handleCallEndedEvent(call);
             };
 
             // Finally, start the call
@@ -369,76 +469,35 @@
                 alert(translations.CALL_CONNECT_FAILED);
                 console.log("call exception " + this.__userId);
                 console.error(e);
-                conferenceRoom.handleCallEndedEvent(call);
+                conf.handleCallEndedEvent(call);
+            });
+        };
+
+        this.makeScreenshareCall = function(calleeId) {
+            const call = conf.__bridge.createScreenSharingCall(calleeId);
+            conf.setCallHandlers(call);
+            // for now we duplicate this as we play around to see how this works.
+            call.start().catch((e) => {
+                alert(translations.CALL_CONNECT_FAILED);
+                console.log("call exception " + this.__userId);
+                console.error(e);
+                conf.handleCallEndedEvent(call);
             });
         };
 
         this.enableMicrophone = function(flag) {
-            this.__bridge.enableMicrophone(flag);
+            conf.__bridge.enableMicrophone(flag);
         };
 
         this.enableCamera = function(flag) {
-            this.__bridge.enableCamera(flag);
+            conf.__bridge.enableCamera(flag);
         };
 
         this.hasLocalPermissionsEnabled = function()
         {
-            return this.__hasLocalPermisions;
+            return conf.__hasLocalPermisions;
         };
 
-        return this;
-    }
-
-    function ConferenceRoom()
-    {
-        let conf = this;
-
-        this.waitingRoomTemplate = null;
-        this.conferenceRoomTemplate = null;
-        this.callerSettings = null;
-        this.telehealthSessionData = null;
-        this.videoBar = null;
-        this.ROOM_TYPE_WAITING = 'waiting';
-        this.ROOM_TYPE_CONFERENCE = 'conference';
-
-        this.buttonSettings = {
-            microphoneEnabled: true
-            ,cameraEnabled: true
-        };
-
-        /**
-         * Milliseconds to update the session information
-         * @type {number}
-         */
-        this.sessionUpdatePollingTime = 5000;
-
-        /**
-         * What type of room this conference room is
-         * @see ROOM_TYPE_WAITING
-         * @see ROOM_TYPE_CONFERENCE
-         * @type string
-         */
-        this.room = null;
-        // TODO: @adunsulag rename this variable to be roomModal
-        this.waitingRoomModal = null;
-
-        /**
-         * Are we currently in the conference room session
-         * @type {boolean}
-         */
-        this.inSession = false;
-
-        /**
-         * Is the conference room currently  minimized
-         * @type {boolean}
-         */
-        this.isMinimized = false;
-
-        /**
-         * Tracking interval for the conference room session polling
-         * @type {number}
-         */
-        this.sessionUpdateInterval = null;
 
         /**
          * Checks to make sure that the user with the given calleeId is allowed to talk to the current conference room caller
@@ -548,7 +607,7 @@
                         password: conf.callerSettings.apiKey,
                         serviceUrl: conf.callerSettings.serviceUrl
                     });
-                    conf.app.start();
+                    conf.start();
                     conf.room = conf.ROOM_TYPE_WAITING;
                 })
                 .catch(function(error) {
@@ -685,16 +744,6 @@
                     }
                 }
             }
-        };
-
-        this.startVideoStreams = function()
-        {
-            conf.app = new ATApp(conf, {
-                userId: conf.callerSettings.callerUuid,
-                password: conf.callerSettings.apiKey,
-                serviceUrl: conf.callerSettings.serviceUrl
-            });
-            conf.app.start();
         };
 
         this.sessionClose = function()
@@ -985,6 +1034,8 @@
                 ,expandCallback: noop
                 ,hangup: false
                 ,hangupCallback: noop
+                ,screenshare: false
+                ,screenshareCallback: conf.toggleScreenSharing.bind(conf)
             };
         };
 
@@ -1001,6 +1052,7 @@
             settings.expand = true;
             settings.notes = false;
             settings.hangup = true;
+            settings.screenshare = false;
             return settings;
         };
 
@@ -1011,6 +1063,7 @@
             settings.expand = false;
             settings.notes = false; // patient doesn't get notes.
             settings.hangup = true;
+            settings.screenshare = true;
             return settings;
         };
 
@@ -1022,6 +1075,7 @@
             settings.expand = false;
             settings.notes = true;
             settings.hangup = true;
+            settings.screenshare = false;
             return settings;
         };
 
@@ -1182,6 +1236,21 @@
             }
         };
 
+        this.toggleScreenSharing = function(evt) {
+
+            // need to figure out how to use the event here.
+            if (true) {
+                conf.app.makeScreenshareCall(conf.callerSettings.calleeUuid);
+            } else {
+                // TODO: @adunsulag need to kill the call here.
+            }
+        };
+
+        this.toggleRemoteScreensharing = function(display)
+        {
+
+        };
+
         // don't really need any class member variables here so we will let JS hoist this up.
         function toggleClass(node, toggle, onClass, offClass)
         {
@@ -1283,8 +1352,11 @@
             setDefaultValue(options,'expandCallback', noop);
             setDefaultValue(options,'hangup', false);
             setDefaultValue(options,'hangupCallback', noop);
+            setDefaultValue(options,'screenshare', true);
+            setDefaultValue(options,'screenshareCallback', noop);
 
-            let btns = ['notes', 'microphone', 'video', 'expand', 'hangup'];
+
+            let btns = ['notes', 'microphone', 'video', 'expand', 'hangup', 'screenshare'];
             btns.forEach(btn => {
                 let node = bar.__container.querySelector(".telehealth-btn-" + btn);
                 let callback = options[btn + 'Callback'] || noop;
@@ -1437,9 +1509,11 @@
             patientConferenceRoom.app.makeCall(patientConferenceRoom.callerSettings.calleeUuid);
         };
 
-        patientConferenceRoom.handleIncomingCall = function()
+        patientConferenceRoom.handleIncomingCall = function(call)
         {
             // patient shouldn't get provider initiated call... so we will skip this for now.
+            console.log("Received call ", call);
+            // we need to hide the main video screen and show the screen share here...
         };
 
         patientConferenceRoom.handleCallEndedEvent = function(call)
