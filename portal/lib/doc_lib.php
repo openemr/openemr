@@ -120,11 +120,17 @@ try {
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
-
     // purify html
-    $htmlin = (new \HTMLPurifier(\HTMLPurifier_Config::createDefault()))->purify($htmlin);
-    $htmlin = "<html><body>$htmlin</body></html>";
-    // need custom stylesheet for templates
+    $config = HTMLPurifier_Config::createDefault();
+    $config->set('URI.AllowedSchemes', array('data' => true));
+
+    $purify = new \HTMLPurifier($config);
+    $htmlin = $purify->purify($htmlin);
+    // need to create custom stylesheet for templates
+    // also our styles_pdf.scss isn't being compiled!!!
+    $stylesheet = "<style>.signature {max-height:65px; height:65px !important;width:auto !important;}</style>";
+    $htmlin = "<!DOCTYPE html><html><head>" . $stylesheet . "</head><body>$htmlin</body></html>";
+
     $pdf->writeHtml($htmlin);
 
     if ($dispose == 'download') {

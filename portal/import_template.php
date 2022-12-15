@@ -421,7 +421,9 @@ function renderEditorHtml($template_id, $content)
             CKEDITOR.config.resize_maxHeight = max;
             CKEDITOR.config.resize_minWidth = '50%';
             CKEDITOR.config.resize_maxWidth = '100%';
-
+            CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
+            CKEDITOR.config.shiftEnterMode = CKEDITOR.ENTER_P;
+            CKEDITOR.config.autoParagraph = false;
             editor = CKEDITOR.replace('templateContent', {
                 removeButtons: 'PasteFromWord'
             });
