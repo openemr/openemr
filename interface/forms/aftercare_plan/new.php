@@ -91,7 +91,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                             <?php if (is_numeric($pid)) {
                                         $result = getPatientData($pid, "*");
                                         echo text($result['DOB']);
-                                }
+                            }
                                     $dob = ($result['DOB']);
                             ?>
                         </label>
