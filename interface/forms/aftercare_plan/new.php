@@ -91,7 +91,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                             <?php if (is_numeric($pid)) {
                                         $result = getPatientData($pid, "*");
                                         echo text($result['DOB']);
-                                    }
+                                }
                                     $dob = ($result['DOB']);
                             ?>
                         </label>
@@ -132,7 +132,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                         <textarea name="goal_a_acute_intoxication" rows="2"
                                   class = "form-control"
                                   cols="80" wrap="virtual name"><?php
-                                echo text($obj["goal_a_acute_intoxication"]);?></textarea>
+                                    echo text($obj["goal_a_acute_intoxication"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
@@ -141,7 +141,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                         <textarea name="goal_a_acute_intoxication_I"
                                   class = "form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                echo text($obj["goal_a_acute_intoxication_I"]);?></textarea>
+                                    echo text($obj["goal_a_acute_intoxication_I"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
@@ -150,7 +150,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                         <textarea name="goal_a_acute_intoxication_II"
                                   class = "form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                echo text($obj["goal_a_acute_intoxication_II"]);?></textarea>
+                                    echo text($obj["goal_a_acute_intoxication_II"]);?></textarea>
                     </td>
                 <tr>
                     <td class="forms-subtitle">
@@ -168,7 +168,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                                 name="goal_b_emotional_behavioral_conditions"
                                 class = "form-control"
                                 rows="2" cols="80" wrap="virtual name"><?php
-                               echo text($obj["goal_b_emotional_behavioral_conditions"]);?></textarea>
+                                echo text($obj["goal_b_emotional_behavioral_conditions"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
@@ -177,7 +177,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                         <textarea name="goal_b_emotional_behavioral_conditions_I"
                                   class = "form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                               echo text($obj["goal_b_emotional_behavioral_conditions_I"]);?></textarea>
+                                    echo text($obj["goal_b_emotional_behavioral_conditions_I"]);?></textarea>
                     </td>
                 </tr>
 
@@ -196,7 +196,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                         <textarea name="goal_c_relapse_potential"
                                   class = "form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                echo text($obj["goal_c_relapse_potential"]);?></textarea>
+                                    echo text($obj["goal_c_relapse_potential"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
@@ -205,7 +205,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                         <textarea name="goal_c_relapse_potential_I"
                                   class = "form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                echo text($obj["goal_c_relapse_potential_I"]);?></textarea>
+                                    echo text($obj["goal_c_relapse_potential_I"]);?></textarea>
                     </td>
 
                 </tr>
