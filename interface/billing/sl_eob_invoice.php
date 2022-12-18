@@ -495,7 +495,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
                         <input type="text" class="form-control" id='form_provider'
-                               name='form_provider' value='<?php echo attr($patient_id) . "." . attr($encounter_id); ?>'
+                               name='form_provider' value='<?php echo attr($patient_id) . "-" . attr($encounter_id); ?>'
                                disabled />
                     </div>
                     <div class="form-group col-lg">
