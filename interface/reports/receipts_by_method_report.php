@@ -728,7 +728,7 @@ if (!empty($_POST['form_refresh'])) {
 
             // Print last method total.
             ?>
-            <tr class="table-secondary scope="row">
+            <tr class="table-secondary" scope="row">
                 <td colspan="<?php echo $showing_ppd ? 8 : 4; ?>">
                     <?php echo xlt('Total for ') . text($paymethod); ?>
                 </td>
