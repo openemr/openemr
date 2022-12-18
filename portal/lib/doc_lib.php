@@ -120,15 +120,28 @@ try {
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
+
+    // snatch style tags content to insert after content purified
+    $style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', $htmlin, $style_matches);
+    $style = str_replace('<style type="text/css">', '<style>', $style_matches);
+    $pos = stripos($htmlin, "<style>");
+    $pos1 = stripos($htmlin, "</style>");
+
     // purify html
     $config = HTMLPurifier_Config::createDefault();
-    $config->set('URI.AllowedSchemes', array('data' => true));
-
+    $config->set('URI.AllowedSchemes', array('data' => true, 'http' => true, 'https' => true));
     $purify = new \HTMLPurifier($config);
     $htmlin = $purify->purify($htmlin);
     // need to create custom stylesheet for templates
     // also our styles_pdf.scss isn't being compiled!!!
-    $stylesheet = "<style>.signature {max-height:65px; height:65px !important;width:auto !important;}</style>";
+    // replace existing style tag in template after purifies removes! why!!!
+    // e,g this scheme gets removed <html><head><body> etc
+    if ($pos !== false && $pos1 !== false && !empty($style[0] ?? '')) {
+        $stylesheet = ".signature {max-height:65px; height:65px !important;width:auto !important;}</style>";
+        $stylesheet = str_replace('</style>', $stylesheet, $style[0]);
+    } else {
+        $stylesheet = "<style>.signature {max-height:65px; height:65px !important;width:auto !important;}</style>";
+    }
     $htmlin = "<!DOCTYPE html><html><head>" . $stylesheet . "</head><body>$htmlin</body></html>";
 
     $pdf->writeHtml($htmlin);
