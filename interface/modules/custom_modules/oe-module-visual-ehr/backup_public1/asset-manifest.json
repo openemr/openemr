@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/interface/modules/custom_modules/oe-module-visual-ehr/public/static/css/main.d59d3e7c.css",
+    "main.js": "/interface/modules/custom_modules/oe-module-visual-ehr/public/static/js/main.44903142.js",
+    "static/media/SFUIDisplay-Heavy.otf": "/interface/modules/custom_modules/oe-module-visual-ehr/public/static/media/SFUIDisplay-Heavy.89cc5408465b81d8b62c.otf",
+    "static/media/SFUIDisplay-Regular.otf": "/interface/modules/custom_modules/oe-module-visual-ehr/public/static/media/SFUIDisplay-Regular.824bcb096242327a0403.otf",
+    "index.html": "/interface/modules/custom_modules/oe-module-visual-ehr/public/index.html",
+    "main.d59d3e7c.css.map": "/interface/modules/custom_modules/oe-module-visual-ehr/public/static/css/main.d59d3e7c.css.map",
+    "main.44903142.js.map": "/interface/modules/custom_modules/oe-module-visual-ehr/public/static/js/main.44903142.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d59d3e7c.css",
+    "static/js/main.44903142.js"
+  ]
+}
