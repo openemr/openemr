@@ -32,7 +32,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -124,7 +124,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -216,7 +216,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -308,7 +308,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -400,7 +400,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -492,7 +492,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -584,7 +584,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -676,7 +676,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -768,7 +768,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -860,7 +860,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -952,7 +952,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -1044,7 +1044,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -1136,7 +1136,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
@@ -1228,7 +1228,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v1
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Dockers environment start
         run: |
