@@ -13,7 +13,7 @@
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ron Pulcer <rspulcer_2k@yahoo.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -546,8 +546,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $lastdocname = $docname;
         }
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
-    $_SESSION['pidList'] = $pid_list;
-    $_SESSION['apptdateList'] = $apptdate_list;
+        $_SESSION['pidList'] = $pid_list;
+        $_SESSION['apptdateList'] = $apptdate_list;
     } // end not form_csvexport
 
     if (empty($_POST['form_csvexport'])) { ?>

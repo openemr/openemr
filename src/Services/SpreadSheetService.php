@@ -1,11 +1,13 @@
 <?php
 
 /**
- *  @package OpenEMR
- *  @link    http://www.open-emr.org
- *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @copyright Copyright (c) 2021 - 2022  Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2021-2022  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  * This middleware is to allow a uniform use of the spreadsheet library.
  * By passing an array values, a spreadsheet can be dropped to the client from anywhere
@@ -24,18 +26,17 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use PhpOffice\PhpSpreadsheet\{
-    Cell\AdvancedValueBinder,
-    Cell\Cell,
     IOFactory,
     Helper\Sample,
     Spreadsheet,
-    Style\NumberFormat
 };
 
 class SpreadSheetService extends Spreadsheet
 {
     private array $arrayData;
     private string $fileName;
+    private array $header;
+    private array $row;
 
     public function __construct(
         $arrayData,
@@ -77,7 +78,7 @@ class SpreadSheetService extends Spreadsheet
         $sheet->fromArray($this->header, null, 'A1');
         $sheet->fromArray($this->row, null, 'A2');
         header('Content-Description: File Transfer');
-        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Type: application/' . $format);
         header('Content-Disposition: attachment; filename=' . basename($this->fileName . "." . $format));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
