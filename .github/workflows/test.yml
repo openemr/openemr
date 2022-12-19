@@ -13,13 +13,13 @@ jobs:
 
   build_apache_80_106:
     name: PHP 8.0 - Apache - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_80_106
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -30,7 +30,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -105,13 +105,13 @@ jobs:
 
   build_apache_81_1010:
     name: PHP 8.1 - Apache - MariaDB 10.10 (short term release)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_1010
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -122,7 +122,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -197,13 +197,13 @@ jobs:
 
   build_apache_81_109:
     name: PHP 8.1 - Apache - MariaDB 10.9 (short term release)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_109
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -214,7 +214,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -289,13 +289,13 @@ jobs:
 
   build_apache_81_108:
     name: PHP 8.1 - Apache - MariaDB 10.8 (short term release)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_108
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -306,7 +306,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -381,13 +381,13 @@ jobs:
 
   build_apache_81_107:
     name: PHP 8.1 - Apache - MariaDB 10.7 (short term release)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_107
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -398,7 +398,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -473,13 +473,13 @@ jobs:
 
   build_apache_81_106:
     name: PHP 8.1 - Apache - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_106
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -490,7 +490,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -565,13 +565,13 @@ jobs:
 
   build_apache_81_105:
     name: PHP 8.1 - Apache - MariaDB 10.5
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_105
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -582,7 +582,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -657,13 +657,13 @@ jobs:
 
   build_apache_81_104:
     name: PHP 8.1 - Apache - MariaDB 10.4
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_104
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -674,7 +674,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -749,13 +749,13 @@ jobs:
 
   build_apache_81_103:
     name: PHP 8.1 - Apache - MariaDB 10.3
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_103
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -766,7 +766,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -841,13 +841,13 @@ jobs:
 
   build_apache_81_8:
     name: PHP 8.1 - Apache - MySQL 8
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_8
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -858,7 +858,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -933,13 +933,13 @@ jobs:
 
   build_apache_81_57:
     name: PHP 8.1 - Apache - MySQL 5.7
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_81_57
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -950,7 +950,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -1025,13 +1025,13 @@ jobs:
 
   build_nginx_8:
     name: PHP 8.0 - Nginx - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_80
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1042,7 +1042,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -1117,13 +1117,13 @@ jobs:
 
   build_nginx_81:
     name: PHP 8.1 - Nginx - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_81
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1134,7 +1134,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -1209,13 +1209,13 @@ jobs:
 
   build_nginx_82:
     name: PHP 8.2 - Nginx - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_82
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1226,7 +1226,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
