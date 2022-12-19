@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ master ]
 
-permissions:
-  contents: read
-
 jobs:
 
   build_apache_80_106:
