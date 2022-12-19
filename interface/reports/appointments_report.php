@@ -545,11 +545,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
                 $lastdocname = $docname;
         }
-    } // end not form_csvexport
-
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
     $_SESSION['pidList'] = $pid_list;
     $_SESSION['apptdateList'] = $apptdate_list;
+    } // end not form_csvexport
 
     if (empty($_POST['form_csvexport'])) { ?>
     <tr>

@@ -63,7 +63,7 @@ function errorLogEscape($text)
  * If needed in future, will add a second parameter called 'options' which will be an array of option tokens that will allow
  * less stringent (or more stringent) mechanisms to escape for csv.
  */
-function csvEscape($text, bool $surroundQuotes = true): string
+function csvEscape($text)
 {
     // 1. Remove all the following characters:  = + " |
     $text = preg_replace('/[=+"|]/', '', $text);
@@ -73,12 +73,7 @@ function csvEscape($text, bool $surroundQuotes = true): string
     $text = preg_replace('/^[\-@]+/', '', $text);
 
     // 4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
-    // added bool parameter so phpoffice spreadsheets could optionally exclude the dbl quotes
-    if ($surroundQuotes) {
-        return '"' . $text . '"';
-    }
-
-    return $text;
+    return '"' . $text . '"';
 }
 
 /**
