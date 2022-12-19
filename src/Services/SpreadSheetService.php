@@ -37,10 +37,12 @@ class SpreadSheetService extends Spreadsheet
     private string $fileName;
     private array $header;
     private array $row;
+    private array $fields;
 
     public function __construct(
         $arrayData,
-        $fileName = 'report'
+        $fileName = 'report',
+        $fields
     ) {
         if ((new Sample())->isCli()) {
             (new SystemLogger())->error('This should only be run from a Web Browser' . PHP_EOL);
@@ -50,6 +52,7 @@ class SpreadSheetService extends Spreadsheet
 
         $this->fileName = $fileName;
         $this->arrayData = $arrayData;
+        $this->fields = $fields ?? [];
     }
 
     public function buildSpreadsheet()
@@ -59,14 +62,22 @@ class SpreadSheetService extends Spreadsheet
             return false;
         }
 
+        if ($this->fields == null) {
+            $this->fields = array_keys($this->arrayData[0]);
+        }
+
         $this->header = array_filter(array_keys($this->arrayData[0]), function ($v) {
-            return csvEscape($v);
+            if (in_array($v, $this->fields)) {
+                return csvEscape($v);
+            }
         });
 
         foreach ($this->arrayData as $item) {
-            $this->row[] = array_filter(array_values($item), function ($v) {
-                return csvEscape($v);
-            });
+            $this->row[] = array_filter($item, function ($v, $k) {
+                if (in_array($k, $this->fields)) {
+                    return csvEscape($v);
+                }
+            }, ARRAY_FILTER_USE_BOTH);
         }
 
         return true;

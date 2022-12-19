@@ -450,7 +450,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
-        $spreadsheet = new SpreadSheetService($appointments, 'appts');
+        $fields = ['pc_eventDate', 'pc_startTime', 'fname', 'lname', 'DOB'];
+        $spreadsheet = new SpreadSheetService($appointments, 'appts', $fields);
         if (!empty($spreadsheet->buildSpreadsheet())) {
             $spreadsheet->downloadSpreadsheet('Csv');
         }
