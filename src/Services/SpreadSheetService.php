@@ -59,13 +59,13 @@ class SpreadSheetService extends Spreadsheet
             return false;
         }
 
-        $this->header = array_filter(array_keys($this->arrayData[0]), function ($k) {
-            return empty($k) ? $k : csvEscape($k);
-        }, ARRAY_FILTER_USE_KEY);
+        $this->header = array_filter(array_keys($this->arrayData[0]), function ($v) {
+            return csvEscape($v);
+        });
 
         foreach ($this->arrayData as $item) {
             $this->row[] = array_filter(array_values($item), function ($v) {
-                return empty($v) ? $v : csvEscape($v);
+                return csvEscape($v);
             });
         }
 

@@ -66,7 +66,7 @@ function errorLogEscape($text)
 function csvEscape($text)
 {
     // 1. Remove all the following characters:  = + " |
-    $text = preg_replace('/[=+"|]/', '', $text);
+    $text = preg_replace('/[=+"|]/', '', $text ?? '');
 
     // 2. Only remove leading - characters (since need in dates)
     // 3. Only remove leading @ characters (since need in email addresses)
