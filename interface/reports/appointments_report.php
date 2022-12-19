@@ -450,9 +450,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
-        $spreadsheet = new SpreadSheetService($appointments);
+        $spreadsheet = new SpreadSheetService($appointments, 'appts');
         if (!empty($spreadsheet->buildSpreadsheet())) {
-            $spreadsheet->downloadSpreadsheet('ods');
+            $spreadsheet->downloadSpreadsheet('Csv');
         }
     } else {
         $pid_list = array();  // Initialize list of PIDs for Superbill option

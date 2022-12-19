@@ -39,7 +39,7 @@ class SpreadSheetService extends Spreadsheet
 
     public function __construct(
         $arrayData,
-        $fileName = 'report.xls'
+        $fileName = 'report'
     ) {
         if ((new Sample())->isCli()) {
             (new SystemLogger())->error('This should only be run from a Web Browser' . PHP_EOL);
@@ -71,22 +71,18 @@ class SpreadSheetService extends Spreadsheet
         return true;
     }
 
-    public function downloadSpreadsheet($format)
+    public function downloadSpreadsheet($format = 'Csv')
     {
         $sheet = $this->getActiveSheet();
         $sheet->fromArray($this->header, null, 'A1');
         $sheet->fromArray($this->row, null, 'A2');
         header('Content-Description: File Transfer');
         header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment; filename=' . basename($this->fileName));
+        header('Content-Disposition: attachment; filename=' . basename($this->fileName . "." . $format));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        if ($format == 'Csv') {
-            $writer = IOFactory::createWriter($this, 'Csv');
-        } else {
-            $writer = IOFactory::createWriter($this, 'Ods');
-        }
+        $writer = IOFactory::createWriter($this, $format);
         $writer->save("php://output");
     }
 }
