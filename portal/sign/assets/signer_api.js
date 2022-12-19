@@ -2,7 +2,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -356,12 +356,9 @@ function initSignerApi() {
     $(function (global) {
         var wrapper = document.getElementById("openSignModal");
         var canvasOptions = {
-            minWidth: 1.00,
-            maxWidth: 2.75,
-            penColor: 'rgb(0, 0, 0)',
-            minDistance: 4,
-            /*throttle: 0,*/
-            velocityFilterWeight: .5,
+            minWidth: 3.00,
+            maxWidth: 5.00,
+            penColor: 'rgb(0, 0, 255)',
         };
         var openPatientButton = document.querySelector("[data-type=patient-signature]");
         var openAdminButton = document.querySelector("[data-type=admin-signature]");
