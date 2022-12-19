@@ -33,13 +33,7 @@ use OpenEMR\Common\{
     Twig\TwigContainer,
 };
 use OpenEMR\Core\Header;
-use PhpOffice\PhpSpreadsheet\{
-    Cell\Cell,
-    IOFactory,
-    Helper\Sample,
-    Spreadsheet,
-    Style\NumberFormat
-};
+use OpenEMR\Services\SpreadSheetService;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -138,17 +132,7 @@ function fetch_reminders($pid, $appt_date)
 }
 
 // In the case of CSV export only, a download will be forced.
-if ($_POST['form_csvexport'] ?? null) {
-    $helper = new Sample();
-    if ($helper->isCli()) {
-        $helper->log('This example should only be run from a Web Browser' . PHP_EOL);
-
-        return;
-    }
-    header("Content-Type: text/csv");
-    header("Content-Disposition: attachment; filename=appt_list.xls");
-    header('Cache-Control: max-age=0');
-} else {
+if (empty($_POST['form_csvexport'])) {
     ?>
 
 <html>
@@ -388,28 +372,7 @@ if ($_POST['form_csvexport'] ?? null) {
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     $showDate = ($from_date != $to_date) || (!$to_date);
-    if ($_POST['form_csvexport']) {
-        // Create new Spreadsheet object
-        $spreadsheet = new Spreadsheet();
-        // Set document properties
-        $spreadsheet->getProperties()->setTitle('Appointments CSV Export');
-        // Set font
-        $spreadsheet->getDefaultStyle()->getFont()->setName('Courier');
-        // formats dates
-        Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
-
-        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(12);
-        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(12);
-        $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(14);
-        $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(12);
-
-        $spreadsheet->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Contact')
-            ->setCellValue('B1', 'DOB')
-            ->setCellValue('C1', 'Phone')
-            ->setCellValue('D1', 'Date')
-            ->setCellValue('E1', 'Time');
-    } else {
+    if (empty($_POST['form_csvexport'])) {
         ?>
 <div id="report_results">
 <table class='table'>
@@ -486,123 +449,109 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     }
 
     $appointments = sortAppointments($appointments, $form_orderby);
-    $pid_list = array();  // Initialize list of PIDs for Superbill option
-    $apptdate_list = array(); // same as above for the appt details
-    $totalAppontments = count($appointments);
+    if (!empty($_POST['form_csvexport'])) {
+        $spreadsheet = new SpreadSheetService($appointments);
+        if (!empty($spreadsheet->buildSpreadsheet())) {
+            $spreadsheet->downloadSpreadsheet('ods');
+        }
+    } else {
+        $pid_list = array();  // Initialize list of PIDs for Superbill option
+        $apptdate_list = array(); // same as above for the appt details
+        $totalAppontments = count($appointments);
 
-    $cntr = 1; // column labels above start at 1
-    foreach ($appointments as $appointment) {
-        $cntr++;
-        array_push($pid_list, $appointment['pid']);
-        array_push($apptdate_list, $appointment['pc_eventDate']);
-        $patient_id = $appointment['pid'];
-        $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
+        $cntr = 1; // column labels above start at 1
+        foreach ($appointments as $appointment) {
+            $cntr++;
+            array_push($pid_list, $appointment['pid']);
+            array_push($apptdate_list, $appointment['pc_eventDate']);
+            $patient_id = $appointment['pid'];
+            $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
 
-        $errmsg  = "";
-        $pc_apptstatus = $appointment['pc_apptstatus'];
-        if ($_POST['form_csvexport']) {
-            if (empty($appointment['phone_home'])) {
-                $phone_home_csv = $appointment['phone_cell'];
-            } else {
-                $phone_home_csv = $appointment['phone_home'];
-            }
-
-            $phone_home_csv = csvEscape($phone_home_csv, $surroundQuotes = false);
-            $name_csv = csvEscape($appointment['fname'] . " " . substr($appointment['lname'], 0, 1), false);
-            $dob_csv = csvEscape($appointment['DOB'], false);
-            $date_csv = csvEscape($appointment['pc_eventDate'], false);
-            $time_csv = csvEscape($appointment['pc_startTime'], false);
-
-            $spreadsheet->setActiveSheetIndex(0)
-                ->setCellValue('A' . $cntr, $name_csv)
-                ->setCellValue('B' . $cntr, $dob_csv)
-                ->setCellValue('C' . $cntr, $phone_home_csv)
-                ->setCellValue('D' . $cntr, $date_csv)
-                ->setCellValue('E' . $cntr, $time_csv);
-        } else {
+            $errmsg  = "";
+            $pc_apptstatus = $appointment['pc_apptstatus'];
             ?>
 
-        <tr valign='top' id='p1.<?php echo attr($patient_id) ?>' bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
-        <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : text($docname) ?>
-        </td>
+            <tr valign='top' id='p1.<?php echo attr($patient_id) ?>' bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
+            <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : text($docname) ?>
+            </td>
 
-        <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
-            <?php
-                echo date('D', strtotime($appointment['pc_eventDate']));
-            ?>
-        </td>
-
-        <td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>>
-            <?php
-                echo text(oeFormatShortDate($appointment['pc_eventDate']));
-            ?>
-        </td>
-
-        <td class="detail"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?>
-        </td>
-
-        <td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
-        </td>
-
-        <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
-
-        <td class="detail">&nbsp;<?php echo text($appointment['phone_home']) ?></td>
-
-        <td class="detail">&nbsp;<?php echo text($appointment['phone_cell']) ?></td>
-
-        <td class="detail">&nbsp;<?php echo text(xl_appt_category($appointment['pc_catname'])) ?></td>
-
-        <td class="detail">&nbsp;
-            <?php
-                //Appointment Status
-            if ($pc_apptstatus != "") {
-                echo text(getListItemTitle('apptstat', $pc_apptstatus));
-            }
-            ?>
-        </td>
-    </tr>
-
-            <?php
-            if ($patient_id && $incl_reminders) {
-                // collect reminders first, so can skip it if empty
-                $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
-            }
-            ?>
-            <?php
-            if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
-    <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >
-        <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
-       <td colspan='<?php echo ($incl_reminders ? "3" : "6") ?>' class="detail" align='left'>
+            <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
                 <?php
-                if (trim($appointment['pc_hometext'])) {
-                    echo '<strong>' . xlt('Comments') . '</strong>: ' . text($appointment['pc_hometext']);
-                }
+                    echo date('D', strtotime($appointment['pc_eventDate']));
+                ?>
+            </td>
 
-                if ($incl_reminders) {
-                    echo "<td class='detail' colspan='3' align='left'>";
-                    $new_line = '';
-                    foreach ($rems as $rem_due => $rem_items) {
-                        echo "$new_line<strong>$rem_due</strong>: " . attr($rem_items);
-                        $new_line = '<br />';
-                    }
+            <td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>>
+                <?php
+                    echo text(oeFormatShortDate($appointment['pc_eventDate']));
+                ?>
+            </td>
 
-                    echo "</td>";
+            <td class="detail"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?>
+            </td>
+
+            <td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
+            </td>
+
+            <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
+
+            <td class="detail">&nbsp;<?php echo text($appointment['phone_home']) ?></td>
+
+            <td class="detail">&nbsp;<?php echo text($appointment['phone_cell']) ?></td>
+
+            <td class="detail">&nbsp;<?php echo text(xl_appt_category($appointment['pc_catname'])) ?></td>
+
+            <td class="detail">&nbsp;
+                <?php
+                    //Appointment Status
+                if ($pc_apptstatus != "") {
+                    echo text(getListItemTitle('apptstat', $pc_apptstatus));
                 }
                 ?>
-        </td>
-    </tr>
-                <?php
-            } // End of row 2 display
+            </td>
+        </tr>
 
-            $lastdocname = $docname;
+                <?php
+                if ($patient_id && $incl_reminders) {
+                    // collect reminders first, so can skip it if empty
+                    $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
+                }
+                ?>
+                <?php
+                if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
+        <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >
+            <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
+        <td colspan='<?php echo ($incl_reminders ? "3" : "6") ?>' class="detail" align='left'>
+                    <?php
+                    if (trim($appointment['pc_hometext'])) {
+                        echo '<strong>' . xlt('Comments') . '</strong>: ' . text($appointment['pc_hometext']);
+                    }
+
+                    if ($incl_reminders) {
+                        echo "<td class='detail' colspan='3' align='left'>";
+                        $new_line = '';
+                        foreach ($rems as $rem_due => $rem_items) {
+                            echo "$new_line<strong>$rem_due</strong>: " . attr($rem_items);
+                            $new_line = '<br />';
+                        }
+
+                        echo "</td>";
+                    }
+                    ?>
+            </td>
+        </tr>
+                    <?php
+                } // End of row 2 display
+
+                $lastdocname = $docname;
         }
-    } // end form_csvexport
+    } // end not form_csvexport
 
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
     $_SESSION['pidList'] = $pid_list;
     $_SESSION['apptdateList'] = $apptdate_list;
 
-    if (!$_POST['form_csvexport']) { ?>
+    if (empty($_POST['form_csvexport'])) { ?>
     <tr>
         <td colspan="10" align="left"><?php echo xlt('Total number of appointments'); ?>:&nbsp;<?php echo text($totalAppontments);?></td>
     </tr>
@@ -615,7 +564,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php }
-if (!($_POST['form_csvexport'] ?? null)) { ?>
+if (empty($_POST['form_csvexport'])) { ?>
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" /> <input type="hidden" name="patient" value="<?php echo attr($patient) ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value='' />
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/></form>
@@ -626,7 +575,7 @@ if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 
-if (!($_POST['form_csvexport'] ?? null)) { ?>
+if (empty($_POST['form_csvexport'])) { ?>
 </script>
 
 </body>
@@ -634,7 +583,4 @@ if (!($_POST['form_csvexport'] ?? null)) { ?>
 </html>
 
     <?php
-} else { // end not form_csvexport
-    $writer = IOFactory::createWriter($spreadsheet, 'Xls');
-    $writer->save('php://output');
 }
