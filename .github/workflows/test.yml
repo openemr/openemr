@@ -406,11 +406,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -421,6 +416,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -498,11 +499,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -513,6 +509,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -590,11 +592,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -605,6 +602,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -682,11 +685,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -697,6 +695,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -774,11 +778,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -789,6 +788,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -866,11 +871,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -881,6 +881,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -958,11 +964,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -973,6 +974,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -1050,11 +1057,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -1065,6 +1067,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -1142,11 +1150,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -1157,6 +1160,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -1234,11 +1243,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -1249,6 +1253,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
