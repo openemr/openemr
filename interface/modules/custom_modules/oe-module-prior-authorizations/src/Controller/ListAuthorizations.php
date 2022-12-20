@@ -64,7 +64,7 @@ class ListAuthorizations
             if (!empty($insertArray)) {
                 foreach ($insertArray as $auth) {
                     $isinstalled = sqlQuery("SELECT 1 FROM `form_prior_auth` LIMIT 1");
-                    if ($isinstalled !== FALSE) {
+                    if ($isinstalled !== false) {
                         $getinfo = sqlQuery("SELECT date_from, date_to FROM `form_prior_auth` WHERE `prior_auth_number` = ? ORDER BY `id` DESC LIMIT 1 ", [$auth]);
                     }
                     if (!empty($getinfo['date_from'])) {
@@ -123,5 +123,4 @@ class ListAuthorizations
         }
         return $list;
     }
-
 }
