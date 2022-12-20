@@ -592,6 +592,8 @@ class CdaTemplateImportDispose
             if (!empty($value['date_end']) && ($revapprove == 0 || $revapprove == 1)) {
                 $encounter_date_end = date("Y-m-d H:i:s", $this->str_to_time($value['date_end']));
             }
+            $catname = '';
+            $pc_catid = null;
             $pc_catid_default = 5;
             $reason = null;
             if (!empty($value['code_text'] ?? null)) {
@@ -600,7 +602,7 @@ class CdaTemplateImportDispose
                 $reason = trim($cat[1]);
                 $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'];
             }
-            if (empty($pc_catid)) {
+            if (empty($pc_catid) && !empty($catname)) {
                 // create a new category to match the import
                 $const_id = str_replace(' ', '_', strtolower($catname));
                 $sql = "INSERT INTO openemr_postcalendar_categories(
