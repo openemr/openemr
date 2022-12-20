@@ -20,7 +20,6 @@ jobs:
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
       - uses: actions/checkout@v3
-      - uses: php-actions/composer@v6
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -35,11 +34,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -50,6 +44,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -127,11 +127,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -142,6 +137,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -219,11 +220,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -234,6 +230,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -311,11 +313,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -326,6 +323,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
