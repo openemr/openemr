@@ -673,7 +673,10 @@ class CdaTemplateParse
      */
     public function fetchProcedureActivityData($entry): void
     {
-        if (!empty($entry['procedure']['code']['code']) || !empty($entry['procedure']['code']["nullFlavor"])) {
+        if (
+            (!empty($entry['procedure']['code']['code']) || !empty($entry['procedure']['code']["nullFlavor"]))
+            && $entry['procedure']['code']["nullFlavor"] != 'NI'
+        ) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['procedure'])) {
                 $i += count($this->templateData['field_name_value_array']['procedure']);
