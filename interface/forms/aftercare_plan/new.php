@@ -60,12 +60,8 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                 <h1 class="forms-title"><?php echo xlt('After Care Planning'); ?></h1>
 
         <div class="col-md-12 mt-4">
-            <?php
-            echo "<form method='post' name='my_form' " .
-                "action='$rootdir/forms/aftercare_plan/save.php?id=" . attr_url($formid) . "'>\n";
-            ?>
+            <form method="post" name="my_form" action="<?php echo $form_action;?>">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
             <table class="table">
                 <tr>
                     <td  class="forms">
@@ -124,28 +120,28 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                 <tr>
                     <td class="forms">1.</td>
                     <td colspan="3">
-                        <textarea name="goal_a_acute_intoxication" rows="2"
+                        <textarea name="goal_a_I" rows="2"
                                   class="form-control"
                                   cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_a_acute_intoxication"]);?></textarea>
+                                    echo text($obj["goal_a_I"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">2.</td>
                     <td colspan="3">
-                        <textarea name="goal_a_acute_intoxication_I"
+                        <textarea name="goal_a_II"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_a_acute_intoxication_I"]);?></textarea>
+                                    echo text($obj["goal_a_II"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">3.</td>
                     <td colspan="3">
-                        <textarea name="goal_a_acute_intoxication_II"
+                        <textarea name="goal_a_III"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_a_acute_intoxication_II"]);?></textarea>
+                                    echo text($obj["goal_a_III"]);?></textarea>
                     </td>
                 <tr>
                     <td class="forms-subtitle">
@@ -160,19 +156,19 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms">1.</td>
                     <td colspan="3">
                         <textarea
-                                name="goal_b_emotional_behavioral_conditions"
+                                name="goal_b_I"
                                 class="form-control"
                                 rows="2" cols="80" wrap="virtual name"><?php
-                                echo text($obj["goal_b_emotional_behavioral_conditions"]);?></textarea>
+                                echo text($obj["goal_b_I"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">2.</td>
                     <td colspan="3">
-                        <textarea name="goal_b_emotional_behavioral_conditions_I"
+                        <textarea name="goal_b_II"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_b_emotional_behavioral_conditions_I"]);?></textarea>
+                                    echo text($obj["goal_b_II"]);?></textarea>
                     </td>
                 </tr>
 
@@ -188,19 +184,19 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                 <tr>
                     <td class="forms">1.</td>
                     <td colspan="3">
-                        <textarea name="goal_c_relapse_potential"
+                        <textarea name="goal_c_I"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_c_relapse_potential"]);?></textarea>
+                                    echo text($obj["goal_c_I"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">2.</td>
                     <td colspan="3">
-                        <textarea name="goal_c_relapse_potential_I"
+                        <textarea name="goal_c_II"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_c_relapse_potential_I"]);?></textarea>
+                                    echo text($obj["goal_c_II"]);?></textarea>
                     </td>
 
                 </tr>
