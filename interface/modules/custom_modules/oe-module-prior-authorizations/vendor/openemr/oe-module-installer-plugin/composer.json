@@ -1,0 +1,27 @@
+{
+    "name": "openemr/oe-module-installer-plugin",
+    "description": "OpenEMR Module Installer plugin for installing custom modules into the OpenEMR codebase.",
+    "type": "composer-plugin",
+    "license": "GPL-3.0",
+    "keywords": ["openemr", "openemr-module"],
+    "authors": [
+        {
+            "name": "Stephen Nielson",
+            "email": "stephen@nielson.org",
+	    "role": "Developer"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {"OpenEMR\\Composer\\ModuleInstallerPlugin\\": "src/"}
+    },
+    "extra": {
+        "class": "OpenEMR\\Composer\\ModuleInstallerPlugin\\Plugin"
+    },
+    "require": {
+        "composer-plugin-api": "^1.0"
+    },
+    "require-dev": {
+        "composer/composer": "^1.3"
+    }
+}
