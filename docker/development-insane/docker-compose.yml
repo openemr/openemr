@@ -17,7 +17,7 @@
 #        http://localhost:8090 (with Alpine 3.12 (Apache and PHP 7.3) with redis)
 #        http://localhost:8091 (with Alpine 3.15 (Apache and PHP 7.4) with redis)
 #        http://localhost:8092 (with Alpine 3.15 (Apache and PHP 8.0) with redis)
-#        http://localhost:8093 (with Alpine 3.16 (Apache and PHP 8.1) with redis)
+#        http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
 #        http://localhost:8094 (with Alpine Edge (Apache and now PHP 8.1) with redis)
 #        http://localhost:8100 (with Nginx and PHP-FPM 7.3)
 #        http://localhost:8101 (with Nginx and PHP-FPM 7.4)
@@ -37,7 +37,7 @@
 #        https://localhost:9090 with SSL and Alpine 3.12 (with Apache and PHP 7.3 with redis)
 #        https://localhost:9091 with SSL and Alpine 3.15 (with Apache and PHP 7.4 with redis)
 #        https://localhost:9092 with SSL and Alpine 3.15 (with Apache and PHP 8.0 with redis)
-#        https://localhost:9093 with SSL and Alpine 3.16 (with Apache and PHP 8.1 with redis)
+#        https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
 #        https://localhost:9094 with SSL and Alpine Edge (with Apache and now PHP 8.1 with redis)
 #        https://localhost:9100 with SSL (with Nginx and PHP-FPM 7.3)
 #        https://localhost:9101 with SSL (with Nginx and PHP-FPM 7.4)
@@ -109,7 +109,7 @@ services:
       EMPTY: "yes"
   openemr-8-1:
     restart: always
-    image: openemr/openemr:flex-3.16
+    image: openemr/openemr:flex-3.17
     ports:
     - 8083:80
     - 9083:443
@@ -213,7 +213,7 @@ services:
       EMPTY: "yes"
   openemr-8-1-redis:
     restart: always
-    image: openemr/openemr:flex-3.16
+    image: openemr/openemr:flex-3.17
     ports:
     - 8093:80
     - 9093:443
