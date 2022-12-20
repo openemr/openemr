@@ -56,11 +56,9 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 <body class="body_top">
 <div class="container">
     <div class="row">
-        <div class="mt-5">
-            <div class="col-md-12 mt-5">
+
                 <h1 class="forms-title"><?php echo xlt('After Care Planning'); ?></h1>
-            </div>
-        </div>
+
         <div class="col-md-12 mt-4">
             <?php
             echo "<form method='post' name='my_form' " .
@@ -70,17 +68,15 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 
             <table class="table">
                 <tr>
-                    <td  class="forms" class="forms">
+                    <td  class="forms">
                         <?php echo xlt('Client Name'); ?>:
                     </td>
                     <td class="forms">
                         <label class="forms-data">
-                            <?php if (is_numeric($pid)) {
+                            <?php
                                 $result = getPatientData($pid, "fname,lname,squad");
                                 echo text($result['fname']) . " " . text($result['lname']);
-                            }
-
-                            $patient_name = ($result['fname']) . " " . ($result['lname']);
+                                $patient_name = ($result['fname']) . " " . ($result['lname']);
                             ?>
                         </label>
                         <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
@@ -88,11 +84,10 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td   class="forms"><?php echo xlt('DOB'); ?>:</td>
                     <td class="forms">
                         <label class="forms-data">
-                            <?php if (is_numeric($pid)) {
-                                        $result = getPatientData($pid, "*");
-                                        echo text($result['DOB']);
-                            }
-                                    $dob = ($result['DOB']);
+                            <?php
+                                 $result = getPatientData($pid, "*");
+                                 echo text($result['DOB']);
+                                 $dob = ($result['DOB']);
                             ?>
                         </label>
                         <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
@@ -130,7 +125,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms">1.</td>
                     <td colspan="3">
                         <textarea name="goal_a_acute_intoxication" rows="2"
-                                  class = "form-control"
+                                  class="form-control"
                                   cols="80" wrap="virtual name"><?php
                                     echo text($obj["goal_a_acute_intoxication"]);?></textarea>
                     </td>
@@ -139,7 +134,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms">2.</td>
                     <td colspan="3">
                         <textarea name="goal_a_acute_intoxication_I"
-                                  class = "form-control"
+                                  class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
                                     echo text($obj["goal_a_acute_intoxication_I"]);?></textarea>
                     </td>
@@ -148,7 +143,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms">3.</td>
                     <td colspan="3">
                         <textarea name="goal_a_acute_intoxication_II"
-                                  class = "form-control"
+                                  class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
                                     echo text($obj["goal_a_acute_intoxication_II"]);?></textarea>
                     </td>
@@ -166,7 +161,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td colspan="3">
                         <textarea
                                 name="goal_b_emotional_behavioral_conditions"
-                                class = "form-control"
+                                class="form-control"
                                 rows="2" cols="80" wrap="virtual name"><?php
                                 echo text($obj["goal_b_emotional_behavioral_conditions"]);?></textarea>
                     </td>
@@ -175,7 +170,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms">2.</td>
                     <td colspan="3">
                         <textarea name="goal_b_emotional_behavioral_conditions_I"
-                                  class = "form-control"
+                                  class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
                                     echo text($obj["goal_b_emotional_behavioral_conditions_I"]);?></textarea>
                     </td>
@@ -194,7 +189,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms">1.</td>
                     <td colspan="3">
                         <textarea name="goal_c_relapse_potential"
-                                  class = "form-control"
+                                  class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
                                     echo text($obj["goal_c_relapse_potential"]);?></textarea>
                     </td>
@@ -203,7 +198,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms">2.</td>
                     <td colspan="3">
                         <textarea name="goal_c_relapse_potential_I"
-                                  class = "form-control"
+                                  class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
                                     echo text($obj["goal_c_relapse_potential_I"]);?></textarea>
                     </td>
@@ -211,12 +206,16 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                 </tr>
                 <tr>
                     <td></td>
-                    <td><input type='submit' value='<?php echo xla('Save'); ?>' class='btn btn-primary' />&nbsp;
-                        <input type='button' value='<?php echo xla('Print'); ?>'
-                               id='printbutton' class='btn btn-warning' />&nbsp;
-                        <input type='button' class='btn btn-danger' value='<?php echo xla('Cancel'); ?>'
-                               onclick="parent.closeTab(window.name, false)" /></td>
-                </tr>            </table>
+                    <td>
+                        <div class="btn-group">
+                            <button class='btn btn-primary btn-save'><?php echo xla('Save'); ?></button>&nbsp
+                            <button class='btn btn-secondary' id='printbutton'><?php echo xla('Print'); ?></button>
+                            <button type='button' class='btn btn-cancel' onclick="parent.closeTab(window.name, false)">
+                            <?php echo xla('Cancel'); ?></button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
             </form>
         </div>
     </div>
