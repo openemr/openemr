@@ -148,7 +148,7 @@ const TABLE_TD = "</td><td>";
                 </tr>
                 <?php
                 if (!empty($authList)) {
-                        while ($iter = sqlFetchArray($authList)) {
+                    while ($iter = sqlFetchArray($authList)) {
                             $editData = json_encode($iter);
                             $used = AuthorizationService::getUnitsUsed($iter['auth_num']);
                             $remaining = $iter['init_units'] - $used['count'];

@@ -85,9 +85,11 @@ $patients = $data->listPatientAuths();
                         print "<td>" . $iter['auth_num'] . "</td>";
                         print "<td>" . $iter['start_date'] . "</td>";
                         print "<td>" . $iter['end_date'] . "</td>";
-                    if (($iter['end_date'] < date('Y-m-d')) &&
-                        ($iter['end_date'] !== '0000-00-00') &&
-                        !empty($iter['auth_num'])) {
+                    if (
+                            ($iter['end_date'] < date('Y-m-d')) &&
+                            ($iter['end_date'] !== '0000-00-00') &&
+                            !empty($iter['auth_num'])
+                    ) {
                             print "<td style='color: red'><strong>" . xlt('Expired') . "</strong></td>";
                             print "<td></td>";
                     } else {
@@ -103,8 +105,8 @@ $patients = $data->listPatientAuths();
                         print "</tr>";
                         $name = $iter['fname'] . " " . $iter['lname'];
                         $count++;
-                    }
-            ?>
+                }
+                ?>
             </table>
             <table>
                 <tr>Count <?php echo $count; ?></tr>
