@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * Spreadsheet service
+ *
+ * Takes a key -> value array where the keys are the column names
+ * and downloads a csv spreadsheet to the browser. Optionally send in
+ * a fields array to select only those columns would like to export.
+ *
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -9,17 +15,6 @@
  * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
- * This middleware is to allow a uniform use of the spreadsheet library.
- * By passing an array values, a spreadsheet can be dropped to the client from anywhere
- * To use this service send the file name and an array like this
- * The first row is the headers that can be dynamcally generated or static
- * $sheet_array = [
- *     [NULL, 2010, 2011, 2012],
- *     ['Q1',   12,   15,   21],
- *     ['Q2',   56,   73,   86],
- *     ['Q3',   52,   61,   69],
- *     ['Q4',   30,   32, 'Harry'],
- *     ];
  */
 
 namespace OpenEMR\Services;
@@ -41,8 +36,8 @@ class SpreadSheetService extends Spreadsheet
 
     public function __construct(
         $arrayData,
-        $fileName = 'report',
-        $fields
+        $fields,
+        $fileName = 'report'
     ) {
         if ((new Sample())->isCli()) {
             (new SystemLogger())->error('This should only be run from a Web Browser' . PHP_EOL);
