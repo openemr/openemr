@@ -51,7 +51,6 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
             });
         });
     </script>
-
 </head>
 <body class="body_top">
 <div class="container">
@@ -109,94 +108,85 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
                     <td class="forms-subtitle" colspan="4"><strong><?php echo xlt('Goal and Methods');?></strong></td>
                 </tr>
                 <tr>
-                    <td class="forms-subtitle">
+                    <td class="forms-subtitle" colspan="4">
                         <strong><?php echo xlt('Goal A');?>:</strong>
-                    </td>
-                    <td colspan="3">
-                        <input type="text" class="form-control" name="goal_a" value=""
-                               placeholder="<?php echo xlt('Enter patient first goal'); ?>">
+                        <?php echo xlt(' Acute Intoxication/Withdrawal'); ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">1.</td>
                     <td colspan="3">
-                        <textarea name="goal_a_I" rows="2"
+                        <textarea name="goal_a_acute_intoxication" rows="2"
                                   class="form-control"
                                   cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_a_I"]);?></textarea>
+                                    echo text($obj["goal_a_acute_intoxication"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">2.</td>
                     <td colspan="3">
-                        <textarea name="goal_a_II"
+                        <textarea name="goal_a_acute_intoxication_I"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_a_II"]);?></textarea>
+                                    echo text($obj["goal_a_acute_intoxication_I"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">3.</td>
                     <td colspan="3">
-                        <textarea name="goal_a_III"
+                        <textarea name="goal_a_acute_intoxication_II"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_a_III"]);?></textarea>
+                                    echo text($obj["goal_a_acute_intoxication_II"]);?></textarea>
                     </td>
                 <tr>
-                    <td class="forms-subtitle">
+                    <td class="forms-subtitle" colspan="4">
                         <strong><?php echo xlt('Goal B');?>:</strong>
-                    </td>
-                    <td colspan="3">
-                        <input type="text" class="form-control" name="goal_b" value=""
-                               placeholder="<?php echo xlt('Enter patient second goal'); ?>">
+                        <?php  echo xlt(' Emotional / Behavioral Conditions & Complications'); ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">1.</td>
                     <td colspan="3">
                         <textarea
-                                name="goal_b_I"
+                                name="goal_b_emotional_behavioral_conditions"
                                 class="form-control"
                                 rows="2" cols="80" wrap="virtual name"><?php
-                                echo text($obj["goal_b_I"]);?></textarea>
+                                echo text($obj["goal_b_emotional_behavioral_conditions"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">2.</td>
                     <td colspan="3">
-                        <textarea name="goal_b_II"
+                        <textarea name="goal_b_emotional_behavioral_conditions_I"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_b_II"]);?></textarea>
+                                    echo text($obj["goal_b_emotional_behavioral_conditions_I"]);?></textarea>
                     </td>
                 </tr>
 
                 <tr>
-                    <td class="forms-subtitle">
+                    <td class="forms-subtitle" colspan="4">
                         <label for="goal_c"> <strong><?php echo xlt('Goal C');?>:</strong></label>
-                    </td>
-                    <td colspan="3">
-                        <input type="text" class="form-control" name="goal_c" value=""
-                               placeholder="<?php echo xlt('Enter patient third goal'); ?>">
+                        <?php  echo xlt('Relapse Potential'); ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">1.</td>
                     <td colspan="3">
-                        <textarea name="goal_c_I"
+                        <textarea name="goal_c_relapse_potential"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_c_I"]);?></textarea>
+                                    echo text($obj["goal_c_relapse_potential"]);?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td class="forms">2.</td>
                     <td colspan="3">
-                        <textarea name="goal_c_II"
+                        <textarea name="goal_c_relapse_potential_I"
                                   class="form-control"
                                   rows="2" cols="80" wrap="virtual name"><?php
-                                    echo text($obj["goal_c_II"]);?></textarea>
+                                    echo text($obj["goal_c_relapse_potential_I"]);?></textarea>
                     </td>
 
                 </tr>
