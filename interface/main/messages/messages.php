@@ -257,7 +257,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             <li class="nav-item">
                                 <?php if ($active == "all") : ?>
                                     <span class="nav-link disabled"><?php echo xlt('All Messages'); ?></span>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <a href="messages.php?show_all=yes" class="nav-link active" onclick="top.restoreSession()"><?php echo xlt('Show All'); ?></a>
                                 <?php endif; ?>
                             </li>
