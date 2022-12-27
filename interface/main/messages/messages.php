@@ -183,19 +183,19 @@ if (!empty($_REQUEST['go'])) { ?>
             <div class="col-sm-12">
                 <ul class="nav nav-pills bg-light" id="main-nav-pills" role="tablist">
                     <li class="nav-item" id='li-mess' role="presentation">
-                        <a href='#messages-div' class="active nav-link" id='messages-li' data-toggle="pill" role="tab" aria-controls="<?php echo xlt("Message");?>" aria-selected="true"><?php echo xlt('Messages'); ?></a>
+                        <a href='#messages-div' class="active nav-link" id='messages-li' data-toggle="pill" role="tab" aria-controls="<?php echo xla("Message");?>" aria-selected="true"><?php echo xlt('Messages'); ?></a>
                     </li>
                     <li class="nav-item" id='li-remi' role="presentation">
-                        <a href='#reminders-div' id='reminders-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xlt("Reminders");?>" aria-selected="true"><?php echo xlt('Reminders'); ?></a>
+                        <a href='#reminders-div' id='reminders-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Reminders");?>" aria-selected="true"><?php echo xlt('Reminders'); ?></a>
                     </li>
                     <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
                     <li class="nav-item" id='li-reca' role="presentation">
-                        <a href='#recalls-div' id='recalls-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xlt("Recalls");?>" aria-selected="true"><?php echo xlt('Recalls'); ?></a>
+                        <a href='#recalls-div' id='recalls-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Recalls");?>" aria-selected="true"><?php echo xlt('Recalls'); ?></a>
                     </li>
                     <?php }?>
                     <?php if ($logged_in) { ?>
                     <li class="nav-item" id='li-sms' role="presentation">
-                        <a href='#sms-div' id='sms-li' class="nav-link" data-toggle="pill"  role="tab" aria-controls="<?php echo xlt("SMS Zone");?>" aria-selected="true"><?php echo xlt('SMS Zone'); ?></a>
+                        <a href='#sms-div' id='sms-li' class="nav-link" data-toggle="pill"  role="tab" aria-controls="<?php echo xla("SMS Zone");?>" aria-selected="true"><?php echo xlt('SMS Zone'); ?></a>
                     </li>
                     <?php }?>
                 </ul>
