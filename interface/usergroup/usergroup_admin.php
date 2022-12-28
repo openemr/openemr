@@ -540,17 +540,7 @@ $form_inactive = empty($_POST['form_inactive']) ? false : true;
 <script>
 
 $(function () {
-
     tabbify();
-
-    $(".medium_modal").on('click', function(e) {
-        e.preventDefault();e.stopPropagation();
-        dlgopen('', '', 'modal-mlg', 450, '', '', {
-            type: 'iframe',
-            url: $(this).attr('href')
-        });
-    });
-
 });
 
 function authorized_clicked() {
@@ -665,7 +655,7 @@ function authorized_clicked() {
 
                             print "<tr>
                                 <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
-                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
+                                "' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
                                 <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
                                 <td align='left'><span>" . text($iter["authorized"]) . "</td>
