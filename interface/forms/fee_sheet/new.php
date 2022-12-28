@@ -208,7 +208,7 @@ function echoServiceLines()
         } else { // not billed
             if ($institutional) {
                 if ($codetype != 'COPAY' && $codetype != 'ICD10') {
-                    echo "  <td class='billcell'><select type='text' class='revcode form-control' name='bill[" . attr($lino) . "][revenue_code]' " .
+                    echo "  <td class='billcell'><select type='text' class='revcode form-control form-control-sm' name='bill[" . attr($lino) . "][revenue_code]' " .
                         "title='" . xla("Revenue Code for this item. Type to search") . "' " .
                         "value='" . attr($revenue_code) . "' size='4'></select></td>\n";
                 } else {
@@ -217,7 +217,7 @@ function echoServiceLines()
             }
             if (modifiers_are_used(true)) {
                 if ($codetype != 'COPAY' && (!empty($code_types[$codetype]['mod']) || $modifier)) {
-                    echo "  <td class='billcell'><input type='text' class='form-control' name='bill[" . attr($lino) . "][mod]' " .
+                    echo "  <td class='billcell'><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
                        "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
                 } else {
@@ -236,7 +236,7 @@ function echoServiceLines()
                     // Price display is conditional.
                     if ($fs->pricesAuthorized()) {
                         echo "  <td class='billcell text-right'>" .
-                            "<input type='text' class='form-control' name='bill[$lino][price]' " .
+                            "<input type='text' class='form-control form-control-sm' name='bill[$lino][price]' " .
                             "value='" . attr($li['price']) . "' size='6' onchange='setSaveAndClose()'";
                         if (!AclMain::aclCheckCore('acct', 'disc')) {
                             echo " readonly";
@@ -250,7 +250,7 @@ function echoServiceLines()
 
                     echo "  <td class='billcell text-center'>";
                     if ($codetype != 'COPAY') {
-                        echo "<input type='text' class='form-control text-right' name='bill[" . attr($lino) . "][units]' " .
+                        echo "<input type='text' class='form-control form-control-sm text-right' name='bill[" . attr($lino) . "][units]' " .
                         "value='" . attr($li['units']) . "' size='2'>";
                     } else {
                         echo "<input type='hidden' name='bill[" . attr($lino) . "][units]' value='" . attr($li['units']) . "' />";
@@ -260,7 +260,7 @@ function echoServiceLines()
 
                     if (!empty($code_types[$codetype]['just']) || !empty($li['justify'])) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
-                        echo "<select class='form-control' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
+                        echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
                         echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
                         echo "</td>\n";
                         $justinit .= "setJustify(f['bill[" . attr($lino) . "][justify]']);\n";
@@ -284,7 +284,7 @@ function echoServiceLines()
             echo "</td>\n";
 
             if (!empty($code_types[$codetype]['claim']) && empty($code_types[$codetype]['diag'])) {
-                echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control' name='bill[" . attr($lino) . "][notecodes]' " .
+                echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][notecodes]' " .
                 "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
             } else {
                 echo "  <td class='billcell text-center' $usbillstyle></td>\n";
@@ -308,13 +308,13 @@ function echoServiceLines()
             echo " <tr>\n";
             echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
             echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
-            echo "<input type='text' class='form-control' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
+            echo "<input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
             "size='11' />";
             echo " &nbsp;Qty:&nbsp;";
-            echo "<input type='text' class='form-control text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
+            echo "<input type='text' class='form-control form-control-sm text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
             "size='3' />";
             echo " ";
-            echo "<select class='form-control' name='bill[" . attr($lino) . "][ndcuom]'>";
+            echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
             foreach ($fs->ndc_uom_choices as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $li['ndcuom']) {
@@ -1200,40 +1200,42 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                         <div class='col-12 text-center table-responsive'>
                             <table name='selected_codes' id='selected_codes' class="table">
-                                <tr>
-                                    <td class='billcell font-weight-bold'><?php echo xlt('Type');?></td>
-                                    <td class='billcell font-weight-bold'><?php echo xlt('Code');?></td>
-                                    <td class='billcell font-weight-bold'><?php echo xlt('Description');?></td>
-                                    <?php if ($institutional) { ?>
-                                        <td class='billcell font-weight-bold'><?php echo xlt('Revenue');?></td>
-                                    <?php } ?>
-                                    <?php if (modifiers_are_used(true)) { ?>
-                                        <td class='billcell font-weight-bold'><?php echo xlt('Modifiers');?></td>
-                                    <?php } ?>
-                                    <?php if (fees_are_used()) { ?>
-                                        <?php if ($price_levels_are_used) { ?>
-                                            <td class='billcell text-center font-weight-bold'><?php echo xlt('Price Level');?>&nbsp;</td>
+                                <thead>
+                                    <tr>
+                                        <th class='billcell'><?php echo xlt('Type');?></th>
+                                        <th class='billcell'><?php echo xlt('Code');?></th>
+                                        <th class='billcell'><?php echo xlt('Description');?></th>
+                                        <?php if ($institutional) { ?>
+                                            <th class='billcell'><?php echo xlt('Revenue');?></th>
                                         <?php } ?>
-                                        <!-- Price display is conditional. -->
-                                        <?php if ($fs->pricesAuthorized()) { ?>
-                                        <td class='billcell text-right font-weight-bold'><?php echo xlt('Price');?>&nbsp;</td>
-                                        <?php } else { ?>
-                                        <td class='billcell' style='display:none'>&nbsp;</td>
+                                        <?php if (modifiers_are_used(true)) { ?>
+                                            <th class='billcell'><?php echo xlt('Modifiers');?></th>
                                         <?php } ?>
-                                        <td class='billcell text-center font-weight-bold'><?php echo xlt('Qty');?></td>
-                                    <?php } ?>
-                                    <?php if (justifiers_are_used()) { ?>
-                                        <td class='billcell text-center font-weight-bold'<?php echo $justifystyle; ?>><?php echo xlt('Justify');?></td>
-                                    <?php } ?>
-                                    <td class='billcell text-center font-weight-bold' <?php echo $liprovstyle; ?>><?php echo xlt('Provider/Warehouse');?></td>
-                                    <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Note Codes');?></td>
-                                    <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Auth');?></td>
-                                    <?php if (!empty($GLOBALS['gbl_auto_create_rx'])) { ?>
-                                        <td class='billcell text-center font-weight-bold'><?php echo xlt('Rx'); ?></td>
-                                    <?php } ?>
-                                    <td class='billcell text-center font-weight-bold'><?php echo xlt('Delete');?></td>
-                                </tr>
-
+                                        <?php if (fees_are_used()) { ?>
+                                            <?php if ($price_levels_are_used) { ?>
+                                                <th class='billcell'><?php echo xlt('Price Level');?>&nbsp;</th>
+                                            <?php } ?>
+                                            <!-- Price display is conditional. -->
+                                            <?php if ($fs->pricesAuthorized()) { ?>
+                                            <th class='billcell'><?php echo xlt('Price');?>&nbsp;</th>
+                                            <?php } else { ?>
+                                            <th class='billcell d-none'>&nbsp;</th>
+                                            <?php } ?>
+                                            <th class='billcell text-center'><?php echo xlt('Qty');?></th>
+                                        <?php } ?>
+                                        <?php if (justifiers_are_used()) { ?>
+                                            <th class='billcell'<?php echo $justifystyle; ?>><?php echo xlt('Justify');?></th>
+                                        <?php } ?>
+                                        <th class='billcell' <?php echo $liprovstyle; ?>><?php echo xlt('Provider/Warehouse');?></th>
+                                        <th class='billcell'<?php echo $usbillstyle; ?>><?php echo xlt('Note Codes');?></th>
+                                        <th class='billcell'<?php echo $usbillstyle; ?>><?php echo xlt('Auth');?></th>
+                                        <?php if (!empty($GLOBALS['gbl_auto_create_rx'])) { ?>
+                                            <th class='billcell'><?php echo xlt('Rx'); ?></th>
+                                        <?php } ?>
+                                        <th class='billcell'><?php echo xlt('Delete');?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                 <?php
                                     $justinit = "var f = document.forms[0];\n";
 
@@ -1600,6 +1602,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // Ensure DOM is updated.
                                     echo "<script>reinitForm();</script>";
                                 ?>
+                                </tbody>
                             </table>
                         </div>
 
