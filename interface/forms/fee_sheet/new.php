@@ -314,7 +314,7 @@ function echoServiceLines()
             echo "<input type='text' class='form-control form-control-sm text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
             "size='3' />";
             echo " ";
-            echo "<select class='form-control form-sontrol-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
+            echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
             foreach ($fs->ndc_uom_choices as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $li['ndcuom']) {
