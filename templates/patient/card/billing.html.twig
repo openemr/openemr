@@ -2,46 +2,46 @@
 
 {% block content %}
 <div class="container">
-    <div class="row"> <!--ALB Changed this to red and bold -->
-        <div class="col-4 font-weight-bold"><font color='red'>{{ "Patient Balance Due"|xlt }}</font></div>
-        <div class="col font-weight-bold"><font color='red'>{{ patientBalance|money|text }}</font></div>
+    <div class="row">
+        <div class="col-4">{{ "Patient Balance Due"|xlt }}</div>
+        <div class="col">{{ patientBalance|money|text }}</div>
     </div>
     <div class="row">
         <div class="col-4">{{ "Insurance Balance Due"|xlt }}</div>
         <div class="col">{{ insuranceBalance|money|text }}</div>
     </div>
     <div class="row">
-        <div class="col-4 font-weight-bold">{{ "Total Balance Due"|xlt }}</div>
-        <div class="col font-weight-bold">{{ totalBalance|money|text }}</div>
+        <div class="col-4">{{ "Total Balance Due"|xlt }}</div>
+        <div class="col">{{ totalBalance|money|text }}</div>
     </div>
 
     {% if unallocated > 0 %}{# ALB Show unallocated amount, if present #}
     <div class="row">
-        <div class="col-4 font-weight-bold"><font color='#ee6600'>{{ "Unallocated Patient Pre-Payment"|xlt }}</div>
-        <div class="col font-weight-bold">{{ unallocated|money|text }}</font></div>
+        <div class="col-4"><font color='#ee6600'>{{ "Unallocated Patient Pre-Payment"|xlt }}</div>
+        <div class="col">{{ unallocated|money|text }}</font></div>
     </div>
     {% endif %}
 
     {% if billingNote %}
     <div class="row"> <!--ALB Made all bold -->
-        <div class="col-4 font-weight-bold">{{ "Billing Note"|xlt }}</div>
-        <div class="col font-weight-bold">{{ billingNote|text }}</div>
+        <div class="col-4">{{ "Billing Note"|xlt }}</div>
+        <div class="col">{{ billingNote|text }}</div>
     </div>
     {% endif %}
     {% if provider %}
     <div class="row">
-        <div class="col-4 font-weight-bold">{{ "Primary Insurance"|xlt }}</div>
-        <div class="col font-weight-bold">{{ insName|text }}</div>
+        <div class="col-4">{{ "Primary Insurance"|xlt }}</div>
+        <div class="col">{{ insName|text }}</div>
     </div>
         {% if copay %}
         <div class="row">
-            <div class="col-4 font-weight-bold">{{ "Copay"|xlt }}</div>
-            <div class="col font-weight-bold">{{ copay|text }}</div>
+            <div class="col-4">{{ "Copay"|xlt }}</div>
+            <div class="col">{{ copay|text }}</div>
         </div>
         {% endif %}
     <div class="row">
-        <div class="col-4 font-weight-bold">{{ "Effective Date"|xlt }}</div>
-        <div class="col font-weight-bold">{{ effDate|shortDate|text }}</div>
+        <div class="col-4">{{ "Effective Date"|xlt }}</div>
+        <div class="col">{{ effDate|shortDate|text }}</div>
     </div>
     {% endif %}
 
