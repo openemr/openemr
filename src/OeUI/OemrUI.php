@@ -99,7 +99,18 @@ class OemrUI
             $action_icon = $this->actionIcon();
             $help_icon = $this->helpIcon();
             $expandable_icon = $arrexpandIcon[0];
-            $heading = "<h2>$heading $expandable_icon $action_icon $help_icon</h2>";
+            $heading = <<<HTML
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <h2>$heading</h2>
+                    </div>
+                    <div class="pt-2">
+                        $expandable_icon
+                        $action_icon
+                        $help_icon
+                    </div>
+                </div>
+            HTML;
         } else {
             $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-oe-smile-o' aria-hidden='true'></i></h2>";
         }
@@ -120,19 +131,15 @@ class OemrUI
         $current_state = $this->current_state;
         $expandable = $this->expandable;
 
-        if ($current_state) {
-            $container = 'container-fluid';
-            $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
-            $expand_icon_class = 'fa-compress oe-center';
-        } else {
-            $container = 'container';
-            $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
-            $expand_icon_class = 'fa-expand oe-expand';
-        }
+        $container = ($current_state) ? "container-fluid" : "container";
+        $text = ($current_state) ? xl('Click to contract page to center view') : xl('Click to expand page to full width');
+        $title = attr($text);
+        $anchor_class = ($current_state) ? 'oe-center' : 'oe-expand';
+        $icon = ($current_state) ? 'fa-compress' : 'fa-expand';
+
         $expandable_icon = '';
         if ($expandable) {
-            $expandable_icon = "<a href='#' id='exp_cont_icon' class='text-dark text-decoration-none oe-superscript-small expand_contract fa " .  attr($expand_icon_class) . "'" . " title='" . attr($expand_title) . "'
-            aria-hidden='true'></a>";
+            $expandable_icon = "<a href='#' id='exp_cont_icon' class='expand_contract $anchor_class' title='$title' aria-hidden='true'><i class='fa fa-fw fa-lg $icon'></i></a>";
         }
         return array($expandable_icon, $container);
     }
@@ -228,9 +235,9 @@ class OemrUI
                 $help_icon_title = xl("To enable help - Go to the User Name on top left > Settings > Features > Enable Help Modal");
             }
             if ($GLOBALS['enable_help'] == 1) {
-                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+                $help_icon = '<a class="oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="' . xla("Click to view Help") . '"><i class="fa fa-fw fa-lg fa-question-circle" aria-hidden="true"></i></a>';
             } elseif ($GLOBALS['enable_help'] == 2) {
-                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . attr($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+                $help_icon = '<a class="oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="' . attr($help_icon_title)    . '"><i class="fa fa-fw fa-lg fa-question-circle" aria-hidden="true"></i></a>';
             } elseif ($GLOBALS['enable_help'] == 0) {
                  $help_icon = '';
             }
@@ -338,12 +345,11 @@ JQD;
                 var arrFiles = {$arrFiles};
                 if ($(this).is('.oe-expand')) {
                     elementTitle = expandTitle;
-                    $(this).toggleClass('fa-expand fa-compress');
+                    $("a.oe-expand i").toggleClass('fa-expand fa-compress');
                     $(this).toggleClass('oe-expand oe-center');
                     $('#container_div').toggleClass('container container-fluid');
                     if ($(arrFiles).length) {
                         $.each(arrFiles, function (index, value) {
-
                             $.post(
                                 "{$web_root}/library/ajax/user_settings.php",
                                 {
@@ -356,7 +362,7 @@ JQD;
                     }
                 } else if ($(this).is('.oe-center')) {
                     elementTitle = contractTitle;
-                    $(this).toggleClass('fa-compress fa-expand');
+                    $("a.oe-center i").toggleClass('fa-compress fa-expand');
                     $(this).toggleClass('oe-center oe-expand');
                     $('#container_div').toggleClass('container-fluid container');
                     if ($(arrFiles).length) {
