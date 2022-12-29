@@ -28,6 +28,8 @@ require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/group.inc");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
+require_once("./messages_fragment_columns.php");
+require_once ($GLOBALS['srcdir'].'/OemrAD/oemrad.globals.php');
 
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
@@ -47,6 +49,7 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\OemrAd\EmailMessage;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
@@ -324,13 +327,20 @@ $arrOeUiSettings = array(
     'help_file_name' => "medical_dashboard_help.php"
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
+$oemr_ui->heading =  $oemr_ui->heading . ((isset($result['nickname33']) && !empty($result['nickname33'])) ? " ". htmlspecialchars('"'.$result['nickname33'].'"', ENT_NOQUOTES) : "");
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
     <?php
-    Header::setupHeader(['common']);
+    // OEMRAD - Change
+    Header::setupHeader(['common', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'oemr_ad']);
+
+    ?>
+    <link rel="stylesheet" href="../../public/assets/jquery-ui/jquery-ui.css">
+    <?php
+
     require_once("$srcdir/options.js.php");
     ?>
     <script>
@@ -596,6 +606,394 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         });
                 });
             });
+
+            /* OEMRAD - Changes */
+            placeHtml("<?php echo $GLOBALS['webroot'] . '/interface/patient_file/summary/messages_fragment.php'; ?>", 'messages_ps_expand').then(() => {
+
+                tabbify();
+
+                $("#add_internal_button").click(async function(e) {
+                    top.restoreSession();
+                    e.preventDefault();e.stopPropagation();
+                    let title = '<?php echo xla('Add an Internal Message'); ?>';
+                    openInternalNotesPopup('?pid=<?php echo $pid ?>', title);
+                });
+
+                $("#add_phone_call_button").click(function(e) {
+                    top.restoreSession();
+                    e.preventDefault();e.stopPropagation();
+                    let title = '<?php echo xla('Log a Phone Call'); ?>';
+                    openPhonePopup('?pid=<?php echo $pid ?>', title);
+                });
+
+                $("#add_email_button").click(async function(e) {
+                    top.restoreSession();
+                    e.preventDefault();e.stopPropagation();
+                    let title = '<?php echo xla('Send An Email'); ?><div style="font-size:14px"><b>Disclaimer:</b> Maximum allowed size for attachment is <?php echo EmailMessage::getMaxSize(); ?> mb.</div>';
+                    openEmailPopup('?pid=<?php echo $pid ?>', title);
+                });
+
+                $("#add_portal_button").click(function(e) {
+                    top.restoreSession();
+                    e.preventDefault();e.stopPropagation();
+                    let title = '<?php echo xla('Send A Portal Message'); ?>';
+                    openPortalPopup('?pid=<?php echo $pid ?>', title);
+                });
+
+                $("#add_sms_button").click(function(e) {
+                    top.restoreSession();
+                    e.preventDefault();e.stopPropagation();
+                    let title = '<?php echo xla('Send An SMS'); ?><div style="font-size:14px"><b>Disclaimer:</b> Attachments and special characters such as emoji’s are not supported</div>';
+                    openSMSPopup('?pid=<?php echo $pid ?>', title);
+                });
+
+                $("#add_fax_button").click(function(e) {
+                    top.restoreSession();
+                    e.preventDefault();e.stopPropagation();
+                    let title = '<?php echo xla('Send A Fax'); ?><div style="font-size:14px"><b>Disclaimer:</b> Result will contains only active entries with fax numbers.</div>';
+                    openFaxPopup('?pid=<?php echo $pid ?>', title);
+                });
+
+                $("#add_postal_letter_button").click(function(e) {
+                    top.restoreSession();
+                    e.preventDefault();e.stopPropagation();
+                    let title = '<?php echo xla('Send A Postal Letter'); ?>';
+                    openPostalLetterPopup('?pid=<?php echo $pid ?>', title);
+                });
+
+                let internalnotes_dataTable_format = function(d) {
+                    return '<div class="text"><table class="table text row-details-table mb-0"><tr><td>'+(d['content'] ? d['content'] : '')+'</td></tr></table></div>';
+                }
+
+                let internal_note_table = $('#internal_note_table').dataTable({
+                    'processing': true,
+                    'serverSide': true,
+                    'serverMethod': 'post',
+                    'ajax': {
+                        url:'<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/ajax/messages_full_ajax.php?pid=<?php echo $pid; ?>&action=internal_msg',
+                        data: function(adata) {
+                            //Append Filter Value
+                            adata['filterVal'] = {};
+                            //adata['filterVal']['active'] = '<?php echo $activity; ?>';
+                        },
+                        type: "POST",   // connection method (default: GET)
+                    },
+                    'initComplete': function(settings){
+                        let rowD = $(this).rowDetails({
+                            format : internalnotes_dataTable_format,
+                            api: this.api()
+                        });
+
+                        rowD.expandAllRow(true);
+                    },
+                    "drawCallback": function (settings) {
+                        setTimeout(function(){
+                            $('#internal_note_table').find('.contentiFrame').iframereadmoretext();
+                        }, 0);
+                    },
+                    'autoWidth': false,
+                    'columns': prepareColumns('<?php echo json_encode($internalNoteColumnList); ?>'),
+                    "columnDefs": [
+                        {
+                            "render": function ( data, type, row ) {
+                                if(row['active'] == "checked") {
+                                    return "<center><i class='fa fa-check-circle' style='font-size: 18px;vertical-align: middle;color:#059862;' title='Active' /></center>";
+                                } else {
+                                    return "<center><i class='fa fa-times-circle' style='font-size: 18px;vertical-align: middle;color:#F44336;' title='Inactive' /></center>";
+                                }
+                            },
+                            "targets": 1
+                        }
+                    ],
+                    "order": [[ 2, "desc" ]],
+                    "lengthChange": false,
+                    "pageLength": 3,
+                    "searching": false,
+                    "dom": "lrt",
+                    "ordering": false
+
+                });
+
+                let email_dataTable_format = function(d) {
+                    return '<div class="text"><table class="table text row-details-table mb-0"><tr><td style="width:50%;"><span><b><?php echo xlt('To/From'); ?>: </b> '+(d['to_from'] ? d['to_from'] : '<i>Empty</i>')+'</td><td><span><b><?php echo xlt('Status'); ?>: </b> '+(d['status'] ? d['status'] : '<i>Empty</i>')+'</td></tr><tr><td colspan="2"><span><b><?php echo xlt('Subject'); ?>: </b> '+(d['subject'] ? d['subject'] : '<i>Empty</i>')+'</span></td></tr><tr><td colspan="2">'+(d['content'] ? d['content'] : '<i>Empty</i>')+'</td></tr></div>';
+                }
+
+                let email_table = $('#email_table').dataTable({
+                    'processing': true,
+                    'serverSide': true,
+                    'serverMethod': 'post',
+                    'ajax': {
+                        url:'<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/ajax/messages_full_ajax.php?pid=<?php echo $pid; ?>&action=email_msg',
+                        data: function(adata) {
+                            if(typeof data !== 'undefined') {
+                                for (let key in data) {
+                                    adata[key] = data[key];
+                                }
+                            }
+
+                            //Append Filter Value
+                            adata['filterVal'] = {};
+                        },
+                        type: "POST",   // connection method (default: GET)
+                    },
+                    'initComplete': function(settings){
+                        let rowD = $(this).rowDetails({
+                            format : email_dataTable_format,
+                            api: this.api()
+                        });
+
+                        rowD.expandAllRow(true);
+                    },
+                    "drawCallback": function (settings) {
+                        $('#email_count').html(this.api().data().count());
+                        setTimeout(function(){
+                            $('#email_table').find('.contentiFrame').iframereadmoretext();
+                        }, 0);
+                    },
+                    'autoWidth': false,
+                    'columns': prepareColumns('<?php echo json_encode($emailColumnList); ?>'),
+                    "columnDefs": [
+                        {
+                            "render": function ( data, type, row ) {
+                                if(row['active'] == "checked") {
+                                    return "<center><i class='fa fa-check-circle' style='font-size: 18px;vertical-align: middle;color:#059862;' title='Active' /></center>";
+                                } else {
+                                    return "<center><i class='fa fa-times-circle' style='font-size: 18px;vertical-align: middle;color:#F44336;' title='Inactive' /></center>";
+                                }
+                            },
+                            "targets": 1
+                        }
+                    ],
+                    "lengthChange": false,
+                    "pageLength": 3,
+                    "searching": false,
+                    "dom": "lrt",
+                    "ordering": false
+                });
+
+                let sms_dataTable_format = function(d) {
+                    return '<div class="text"><table class="table text row-details-table mb-0"><tr><td style="width:50%;"><span><b><?php echo xlt('To/From'); ?>: </b> '+(d['to_from'] ? d['to_from'] : '<i>Empty</i>')+'</td><td><span><b><?php echo xlt('Status'); ?>: </b> '+(d['status'] ? d['status'] : '<i>Empty</i>')+'</td></tr><tr><td colspan="2">'+(d['content'] ? d['content'] : '<i>Empty</i>')+'</td></tr></div>';
+                }
+
+                let sms_table = $('#sms_table').dataTable({
+                    'processing': true,
+                    'serverSide': true,
+                    'serverMethod': 'post',
+                    'ajax': {
+                        url:'<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/ajax/messages_full_ajax.php?pid=<?php echo $pid; ?>&action=sms_msg',
+                        data: function(adata) {
+                            if(typeof data !== 'undefined') {
+                                for (let key in data) {
+                                    adata[key] = data[key];
+                                }
+                            }
+
+                            //Append Filter Value
+                            adata['filterVal'] = {};
+                        },
+                        type: "POST",   // connection method (default: GET)
+                    },
+                    'initComplete': function(settings){
+                        let rowD = $(this).rowDetails({
+                            format : sms_dataTable_format,
+                            api: this.api()
+                        });
+
+                        rowD.expandAllRow(true);
+                    },
+                    "drawCallback": function (settings) {
+                        $('#sms_count').html(this.api().data().count());
+                        setTimeout(function(){
+                            $('#sms_table').find('.contentiFrame').iframereadmoretext();
+                        }, 0);
+                    },
+                    'autoWidth': false,
+                    'columns': prepareColumns('<?php echo json_encode($smsColumnList); ?>'),
+                    "columnDefs": [
+                        {
+                            "render": function ( data, type, row ) {
+                                if(row['active'] == "checked") {
+                                    return "<center><i class='fa fa-check-circle' style='font-size: 18px;vertical-align: middle;color:#059862;' title='Active' /></center>";
+                                } else {
+                                    return "<center><i class='fa fa-times-circle' style='font-size: 18px;vertical-align: middle;color:#F44336;' title='Inactive' /></center>";
+                                }
+                            },
+                            "targets": 1
+                        }
+                    ],
+                    "order": [[ 3, "desc" ]],
+                    "lengthChange": false,
+                    "pageLength": 3,
+                    "searching": false,
+                    "dom": "lrt",
+                    "ordering": false
+                });
+
+                let fax_dataTable_format = function(d) {
+                    return '<div class="text"><table class="table text row-details-table mb-0"><tr><td style="width:50%;"><span><b><?php echo xlt('To/From'); ?>: </b> '+(d['to_from'] ? d['to_from'] : '<i>Empty</i>')+'</td><td><span><b><?php echo xlt('Status'); ?>: </b> '+(d['status'] ? d['status'] : '<i>Empty</i>')+'</td></tr><tr><td colspan="2">'+(d['content'] ? d['content'] : '<i>Empty</i>')+'</td></tr></div>';
+                }
+
+                let fax_table = $('#fax_table').dataTable({
+                    'processing': true,
+                    'serverSide': true,
+                    'serverMethod': 'post',
+                    'ajax': {
+                        url:'<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/ajax/messages_full_ajax.php?pid=<?php echo $pid; ?>&action=fax_msg',
+                        data: function(adata) {
+                            if(typeof data !== 'undefined') {
+                                for (let key in data) {
+                                    adata[key] = data[key];
+                                }
+                            }
+
+                            //Append Filter Value
+                            adata['filterVal'] = {};
+                        },
+                        type: "POST",   // connection method (default: GET)
+                    },
+                    'initComplete': function(settings){
+                        let rowD = $(this).rowDetails({
+                            format : fax_dataTable_format,
+                            api: this.api()
+                        });
+
+                        rowD.expandAllRow(true);
+                    },
+                    "drawCallback": function (settings) {
+                        $('#fax_count').html(this.api().data().count());
+                        setTimeout(function(){
+                            $('#fax_table').find('.contentiFrame').iframereadmoretext();
+                        }, 0);
+                    },
+                    'autoWidth': false,
+                    'columns': prepareColumns('<?php echo json_encode($faxColumnList); ?>'),
+                    "columnDefs": [
+                        {
+                            "render": function ( data, type, row ) {
+                                if(row['active'] == "checked") {
+                                    return "<center><i class='fa fa-check-circle' style='font-size: 18px;vertical-align: middle;color:#059862;' title='Active' /></center>";
+                                } else {
+                                    return "<center><i class='fa fa-times-circle' style='font-size: 18px;vertical-align: middle;color:#F44336;' title='Inactive' /></center>";
+                                }
+                            },
+                            "targets": 1
+                        }
+                    ],
+                    "order": [[ 3, "desc" ]],
+                    "lengthChange": false,
+                    "pageLength": 3,
+                    "searching": false,
+                    "dom": "lrt",
+                    "ordering": false
+                });
+
+                let postal_letter_dataTable_format = function(d) {
+                    return '<div class="text"><table class="table text row-details-table mb-0"><tr><td style="width:50%;"><span><b><?php echo xlt('To/From'); ?>: </b> '+(d['to_from'] ? d['to_from'] : '<i>Empty</i>')+'</td><td><span><b><?php echo xlt('Status'); ?>: </b> '+(d['status'] ? d['status'] : '<i>Empty</i>')+'</td></tr><tr><td colspan="2">'+(d['content'] ? d['content'] : '<i>Empty</i>')+'</td></tr></div>';
+                }
+
+                let postal_letter_table = $('#postal_letter_table').dataTable({
+                    'processing': true,
+                    'serverSide': true,
+                    'serverMethod': 'post',
+                    'ajax': {
+                        url:'<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/ajax/messages_full_ajax.php?pid=<?php echo $pid; ?>&action=postal_letter_msg',
+                        data: function(adata) {
+                            if(typeof data !== 'undefined') {
+                                for (let key in data) {
+                                    adata[key] = data[key];
+                                }
+                            }
+
+                            //Append Filter Value
+                            adata['filterVal'] = {};
+                        },
+                        type: "POST",   // connection method (default: GET)
+                    },
+                    'initComplete': function(settings){
+                        let rowD = $(this).rowDetails({
+                            format : postal_letter_dataTable_format,
+                            api: this.api()
+                        });
+
+                        rowD.expandAllRow(true);
+                    },
+                    "drawCallback": function (settings) {
+                        $('#postal_letter_count').html(this.api().data().count());
+                        setTimeout(function(){
+                            $('#postal_letter_table').find('.contentiFrame').iframereadmoretext();
+                        }, 0);
+                    },
+                    'autoWidth': false,
+                    'columns': prepareColumns('<?php echo json_encode($postalLetterColumnList); ?>'),
+                    "columnDefs": [
+                        {
+                            "render": function ( data, type, row ) {
+                                if(row['active'] == "checked") {
+                                    return "<center><i class='fa fa-check-circle' style='font-size: 18px;vertical-align: middle;color:#059862;' title='Active' /></center>";
+                                } else {
+                                    return "<center><i class='fa fa-times-circle' style='font-size: 18px;vertical-align: middle;color:#F44336;' title='Inactive' /></center>";
+                                }
+                            },
+                            "targets": 1
+                        }
+                    ],
+                    "order": [[ 3, "desc" ]],
+                    "lengthChange": false,
+                    "pageLength": 3,
+                    "searching": false,
+                    "dom": "lrt",
+                    "ordering": false
+                });
+
+
+                /* Readmore */
+                $('ul.tabNav li a').click(function(){
+                    $('.contentiFrame').iframereadmoretext({ reset:true });
+                });
+
+                $(internal_note_table).on('click', 'tbody td.dt-control', function () {
+                    setTimeout(function(){
+                        $('.contentiFrame').iframereadmoretext();
+                    }, 0);
+                });
+
+                $(email_table).on('click', 'tbody td.dt-control', function () {
+                    setTimeout(function(){
+                        $('.contentiFrame').iframereadmoretext();
+                    }, 0);
+                });
+
+                $(sms_table).on('click', 'tbody td.dt-control', function () {
+                    setTimeout(function(){
+                        $('.contentiFrame').iframereadmoretext();
+                    }, 0);
+                });
+
+                $(fax_table).on('click', 'tbody td.dt-control', function () {
+                    setTimeout(function(){
+                        $('.contentiFrame').iframereadmoretext();
+                    }, 0);
+                });
+
+                $(postal_letter_table).on('click', 'tbody td.dt-control', function () {
+                    setTimeout(function(){
+                        $('.contentiFrame').iframereadmoretext();
+                    }, 0);
+                });
+
+                /* End */
+                
+
+                $('table').on('click', 'tbody td.dt-control', function () {
+                    //Readmore
+                    $('.messagebox').readmoretext();
+                    $('ul.tabNav li a').click(function(){
+                        $('.messagebox').readmoretext();
+                    });    
+                }); 
+            });
+            /* End */
+
             placeHtml("disc_fragment.php", "disclosures_ps_expand");
             placeHtml("labdata_fragment.php", "labdata_ps_expand");
             placeHtml("track_anything_fragment.php", "track_anything_ps_expand");
@@ -786,6 +1184,26 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 openReminderPopup();
             <?php } ?>
 
+            /* OEMRAD - Changes */
+            function openAlertInfoPopup() {
+                top.restoreSession()
+                dlgopen('<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/patient_file/summary/alert_popup.php?pid=$pid"; ?>', 'alert_info_popup', 500, 250, '', '', {
+                  buttons: [
+                      {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                  ],
+                  allowResize: true,
+                  allowDrag: true,
+                  dialogId: '',
+                  type: 'iframe'
+                });
+            }
+
+            <?php if(isset($result['alert_info']) && !empty(trim($result['alert_info']))) { ?>
+                openAlertInfoPopup();
+            <?php } ?>
+
+            /* End */
+
             // $(".card-title").on('click', "button", (e) => {
             //     console.debug("click");
             //     updateUserVisibilitySetting(e);
@@ -953,8 +1371,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         .section-header-dynamic {
             border-bottom: none;
+        }  
+
+        /* OEMRAD - Changes */
+        #myNavbar > ul {
+            flex-wrap: wrap;
         }
     </style>
+    
     <title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
 </head>
 
@@ -1132,6 +1556,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $row['dispFromDate'] = $row['date'] ? true : false;
                                 $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
+
+                                $row['phone_number'] = $icobj->get_phone();
                                 $insArr[] = $row;
                                 $prior_ins_type = $row['type'];
                             }
@@ -1185,6 +1611,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                     endif;  // end if demographics authorized
 
+                    /* OEMRAD - Changes */
+                    if($GLOBALS['wmt::sms_chat']) :
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('note'));
+                        // Messages expand collapse widget
+                        $id = "messages_ps_expand";
+                        $viewArgs = [
+                            'title' => xl("Messages"),
+                            'id' => $id,
+                            'btnLabel' => "Edit",
+                            'btnLink' => $GLOBALS['webroot'] . '/interface/patient_file/summary/messages_full.php?form_active=1',
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                            'linkMethod' => "html",
+                            'bodyClass' => "notab",
+                            'auth' => AclMain::aclCheckCore('patients', 'notes', '', 'write'),
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                        ];
+                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                    else:
                     if (AclMain::aclCheckCore('patients', 'notes')) :
                         $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('note'));
                         // Notes expand collapse widget
@@ -1203,6 +1648,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end if notes authorized
+                    endif;
+                    /* End */
 
                     if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) :
                         // patient reminders collapse widget
