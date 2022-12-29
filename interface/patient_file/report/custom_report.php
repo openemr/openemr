@@ -42,6 +42,9 @@ if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
 
 $facilityService = new FacilityService();
 
+// OEMRAD - Facility services.
+$facility = $facilityService->getById('3');
+
 $staged_docs = array();
 $archive_name = '';
 
@@ -103,6 +106,257 @@ $N = $PDF_OUTPUT ? 4 : 6;
 
 $first_issue = 1;
 
+/* OEMRAD - Changes */
+if(!function_exists('cm_display_layout_rows')) {
+function cm_display_layout_rows($formtype, $result1, $result2 = '', $incGroup = array())
+{
+    global $item_count, $cell_count, $last_group, $CPR;
+
+    if ('HIS' == $formtype) {
+        $formtype .= '%'; // TBD: DEM also?
+    }
+    $pres = sqlStatement(
+        "SELECT grp_form_id, grp_seq, grp_title " .
+        "FROM layout_group_properties " .
+        "WHERE grp_form_id LIKE ? AND grp_group_id = '' " .
+        "ORDER BY grp_seq, grp_title, grp_form_id",
+        array("$formtype")
+    );
+    while ($prow = sqlFetchArray($pres)) {
+        $formtype = $prow['grp_form_id'];
+        $last_group = '';
+        $cell_count = 0;
+        $item_count = 0;
+
+        $grparr = array();
+        getLayoutProperties($formtype, $grparr, '*');
+
+        $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
+
+        $fres = sqlStatement("SELECT * FROM layout_options " .
+        "WHERE form_id = ? AND uor > 0 " .
+        "ORDER BY group_id, seq", array($formtype));
+
+        while ($frow = sqlFetchArray($fres)) {
+            $this_group = $frow['group_id'];
+            $titlecols  = $frow['titlecols'];
+            $datacols   = $frow['datacols'];
+            $data_type  = $frow['data_type'];
+            $field_id   = $frow['field_id'];
+            $list_id    = $frow['list_id'];
+            $currvalue  = '';
+            $jump_new_row = isOption($frow['edit_options'], 'J');
+            $prepend_blank_row = isOption($frow['edit_options'], 'K');
+            $portal_exclude = (!empty($_SESSION["patient_portal_onsite_two"]) && isOption($frow['edit_options'], 'EP')) ?? null;
+            $span_col_row = isOption($frow['edit_options'], 'SP');
+            
+            $grpName = $grparr[$this_group]['grp_title'];
+            if(!empty($incGroup) && !in_array($grpName, $incGroup)) {
+                continue;
+            }
+
+            if (!empty($portal_exclude)) {
+                continue;
+            }
+
+            $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
+
+            if ($formtype == 'DEM') {
+                if (strpos($field_id, 'em_') === 0) {
+                    // Skip employer related fields, if it's disabled.
+                    if ($GLOBALS['omit_employers']) {
+                        continue;
+                    }
+
+                    $tmp = substr($field_id, 3);
+                    if (isset($result2[$tmp])) {
+                        $currvalue = $result2[$tmp];
+                    }
+                } else {
+                    if (isset($result1[$field_id])) {
+                        $currvalue = $result1[$field_id];
+                    }
+                }
+            } else {
+                if (isset($result1[$field_id])) {
+                    $currvalue = $result1[$field_id];
+                }
+            }
+
+            // Handle a data category (group) change.
+            if (strcmp($this_group, $last_group) != 0) {
+                $group_name = $grparr[$this_group]['grp_title'];
+                // totally skip generating the employer category, if it's disabled.
+                if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+                    continue;
+                }
+
+                disp_end_group();
+                $last_group = $this_group;
+            }
+
+            // filter out all the empty field data from the patient report.
+            if (!empty($currvalue) && !($currvalue == '0000-00-00 00:00:00')) {
+                // Handle starting of a new row.
+                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
+                    disp_end_row();
+                    if ($prepend_blank_row) {
+                        echo "<tr><td class='label' colspan='" . ($CPR + 1) . "'>&nbsp;</td></tr>\n";
+                    }
+                    echo "<tr>";
+                    if ($group_name) {
+                        echo "<td class='groupname'>";
+                        echo text(xl_layout_label($group_name));
+                        $group_name = '';
+                    } else {
+                        echo "<td class='align-top'>&nbsp;";
+                    }
+
+                        echo "</td>";
+                }
+
+                if ($item_count == 0 && $titlecols == 0) {
+                    $titlecols = 1;
+                }
+
+                // Handle starting of a new label cell.
+                if ($titlecols > 0 || $span_col_row) {
+                    disp_end_cell();
+                    $titlecols = $span_col_row ? 0 : $titlecols;
+                    $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
+                    if (!$span_col_row) {
+                        echo "<td class='label_custom' colspan='$titlecols_esc' ";
+                        echo ">";
+                    }
+                    $cell_count += $titlecols;
+                }
+
+                ++$item_count;
+
+                // Prevent title write if span entire row.
+                if (!$span_col_row) {
+                    // Added 5-09 by BM - Translate label if applicable
+                    if ($frow['title']) {
+                        $tmp = xl_layout_label($frow['title']);
+                        echo text($tmp);
+                        // Append colon only if label does not end with punctuation.
+                        if (strpos('?!.,:-=', substr($tmp, -1, 1)) === false) {
+                            echo ':';
+                        }
+                    } else {
+                        echo "&nbsp;";
+                    }
+                }
+                // Handle starting of a new data cell.
+                if ($datacols > 0) {
+                    disp_end_cell();
+                    $datacols = $span_col_row ? $CPR : $datacols;
+                    $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
+                    echo "<td class='text data' colspan='$datacols_esc'";
+                    echo ">";
+                    $cell_count += $datacols;
+                }
+
+                ++$item_count;
+                echo generate_display_field($frow, $currvalue);
+            }
+        }
+        disp_end_group();
+    } // End this layout, there may be more in the case of history.
+}
+}
+
+if(!function_exists('replaceHTMLContentForPrint')) {
+function replaceHTMLContentForPrint($html = '') {
+    $doc = new \DOMDocument();
+    $doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+
+    $xpath = new \DOMXpath($doc);
+    $nodes = $xpath->query("//*[contains(@class, 'class_dictation')]");
+
+    foreach ($nodes as $node) {
+        $htmlReplace = $node->ownerDocument->saveHTML( $node );
+        $htmlReplace = preg_replace('/<table/', "<div class='newTable'", $htmlReplace);
+        $htmlReplace = preg_replace('/<tbody/', "<div class='tableTbody'", $htmlReplace);
+        $htmlReplace = preg_replace('/<tr/', "<div class='tableRow'", $htmlReplace);
+        $htmlReplace = preg_replace('/<td/', "<div class='tableCell'", $htmlReplace);
+        $htmlReplace = preg_replace('/<\/td/', "</div", $htmlReplace);
+        $htmlReplace = preg_replace('/<\/tr/', "</div", $htmlReplace);
+        $htmlReplace = preg_replace('/<\/tbody/', "</div", $htmlReplace);
+        $htmlReplace = preg_replace('/<\/table/', "</div", $htmlReplace);
+
+        $domDocumentReplace = new \DOMDocument;
+        $domDocumentReplace->loadHTML($htmlReplace, LIBXML_HTML_NOIMPLIED);
+
+        $htmlReplaceNode = $doc->importNode($domDocumentReplace->documentElement, true);
+
+        $node->parentNode->replaceChild($htmlReplaceNode, $node);
+    }
+    return @$doc->saveHTML();
+}
+}
+
+// Generate a report title including report name and facility name, address
+// and phone.
+if(!function_exists('genFacilityTitleForReport')) {
+function genFacilityTitleForReport($repname = '', $facid = 0, $logo = "")
+{
+    $s = '';
+    $s .= "<table class='ftitletable' width='100%'>\n";
+    $s .= " <tr>\n";
+    if (empty($logo)) {
+        $s .= "  <td align='left' class='ftitlecell1'>" . text($repname) . "</td>\n";
+    } else {
+        $s .= "  <td align='left' class='ftitlecell1'><img class='h-auto' style='max-height:8%;' src='" . attr($logo) . "' /></td>\n";
+        $s .= "  <td align='left' class='ftitlecellm'><h2>" . text($repname) . "</h2></td>\n";
+    }
+    $s .= "  <td align='right' class='ftitlecell2'>\n";
+    $r = getFacility($facid);
+    if (!empty($r)) {
+        $s .= "<b>" . text($GLOBALS['openemr_name'] ?? '') . "</b>\n";
+        if (!empty($r['street'])) {
+            $s .= "<br />" . text($r['street']) . "\n";
+        }
+
+        if (!empty($r['city']) || !empty($r['state']) || !empty($r['postal_code'])) {
+            $s .= "<br />";
+            if ($r['city']) {
+                $s .= text($r['city']);
+            }
+
+            if ($r['state']) {
+                if ($r['city']) {
+                    $s .= ", \n";
+                }
+
+                $s .= text($r['state']);
+            }
+
+            if ($r['postal_code']) {
+                $s .= " " . text($r['postal_code']);
+            }
+
+            $s .= "\n";
+        }
+
+        if (!empty($r['country_code'])) {
+            $s .= "<br />" . text($r['country_code']) . "\n";
+        }
+
+        if (preg_match('/[1-9]/', ($r['phone'] ?? ''))) {
+            $s .= "<br />" . text($r['phone']) . "\n";
+        }
+    }
+
+    $s .= "  </td>\n";
+    $s .= " </tr>\n";
+    $s .= "</table>\n";
+    return $s;
+}
+}
+/*End*/
+
+if(!function_exists('getContent')) {
 function getContent()
 {
     global $web_root, $webserver_root;
@@ -125,9 +379,14 @@ function getContent()
         }
     }
 
+    // OEMRAD - Replace HTML Content.
+    $content = replaceHTMLContentForPrint($content);
+
     return $content;
 }
+}
 
+if(!function_exists('postToGet')) {
 function postToGet($arin)
 {
     $getstring = "";
@@ -143,7 +402,9 @@ function postToGet($arin)
 
     return $getstring;
 }
+}
 
+if(!function_exists('report_basename')) {
 function report_basename($pid)
 {
     $ptd = getPatientData($pid, "fname,lname");
@@ -154,7 +415,9 @@ function report_basename($pid)
 
     return array('base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']);
 }
+}
 
+if(!function_exists('zip_content')) {
 function zip_content($source, $destination, $content = '', $create = true)
 {
     if (!extension_loaded('zip')) {
@@ -180,6 +443,21 @@ function zip_content($source, $destination, $content = '', $create = true)
 
     return $zip->close();
 }
+}
+
+/* OEMRAD - Changes */
+$titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+if(!function_exists('replaceHTMLTags')) {
+function replaceHTMLTags($string, $tags) {
+    $tags_to_strip = $tags;
+    foreach ($tags_to_strip as $tag){
+        $string = preg_replace("/<\\/?" . $tag . "(.|\\s)*?>/","",$string);
+    }
+
+    return $string;
+}
+}
+/*End*/
 
 ?>
 
@@ -189,6 +467,13 @@ function zip_content($source, $destination, $content = '', $create = true)
 <html>
 <head>
     <?php Header::setupHeader(['esign-theme-only', 'search-highlight']); ?>
+
+    <!-- OEMRAD - Changes -->
+    <?php if ($printable) { ?>
+    <title><?php echo xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS']; ?></title>
+    <?php } ?>
+    <!-- End -->
+
     <?php } ?>
 
     <?php // do not show stuff from report.php in forms that is encaspulated
@@ -211,6 +496,12 @@ function zip_content($source, $destination, $content = '', $create = true)
 
       img {
         max-width: 700px;
+      }
+
+      @media print {
+        .encounter {
+            page-break-before: always;
+        }
       }
     </style>
 
@@ -239,10 +530,15 @@ function zip_content($source, $destination, $content = '', $create = true)
                  *******************************************************************/
                 $facility = null;
                 if ($_SESSION['pc_facility']) {
-                    $facility = $facilityService->getById($_SESSION['pc_facility']);
+                    // OEMRAD - Changes
+                    // $facility = $facilityService->getById($_SESSION['pc_facility']);
                 } else {
-                    $facility = $facilityService->getPrimaryBillingLocation();
+                    // OEMRAD - Changes
+                    // $facility = $facilityService->getPrimaryBillingLocation();
                 }
+
+                // OEMRAD - Facility services.
+                $facility = $facilityService->getById('4');
 
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
@@ -265,7 +561,10 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
                 }
 
-                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo);?>
+                // OEMRAD - Replaced function with custom function to generate pdf header.
+                //echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo);
+                echo genFacilityTitleForReport(getPatientName($pid), '3', $logo);
+                ?>
 
             <?php } else { // not printable
                 ?>
@@ -411,7 +710,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                         $result1 = getPatientData($pid);
                         $result2 = getEmployerData($pid);
                         echo "   <div class='table-responsive'><table class='table'>\n";
-                        display_layout_rows('DEM', $result1, $result2);
+                        // OEMRAD - Replaced with customized function
+                        cm_display_layout_rows('DEM', $result1, $result2, array('Who', 'Contact'));
                         echo "   </table></div>\n";
                         echo "</div>\n";
                     } elseif ($val == "history") {
@@ -788,7 +1088,8 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                             if ($res[1] == 'newpatient') {
                                 echo "<div class='text encounter'>\n";
-                                echo "<h4>" . xlt($formres["form_name"]) . "</h4>";
+                                // OEMRAD - Change
+                                // echo "<h4>" . xlt($formres["form_name"]) . "</h4>";
                             } else {
                                 echo "<div class='text encounter_form'>";
                                 echo "<h4>" . text(xl_form_title($formres["form_name"])) . "</h4>";
@@ -812,7 +1113,13 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     if (substr($res[1], 0, 3) == 'LBF') {
                                         call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
                                     } else {
-                                        call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                                        // OEMRAD - Change
+                                        if ($res[1] == 'newpatient') {
+                                            // OEMRAD - Change
+                                            call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id, TRUE);
+                                        } else {
+                                            call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                                        }
                                     }
                                 } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
                                     if (substr($res[1], 0, 3) == 'LBF') {
@@ -857,7 +1164,8 @@ function zip_content($source, $destination, $content = '', $create = true)
             } // end $ar loop
 
             if ($printable && !$PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
-                echo "<br /><br />" . xlt('Signature') . ": _______________________________<br />";
+                // OEMRAD - Change
+                // echo "<br /><br />" . xlt('Signature') . ": _______________________________<br />";
             }
             ?>
 
@@ -881,6 +1189,10 @@ function zip_content($source, $destination, $content = '', $create = true)
         }
 
         try {
+            
+            // OEMRAD - Change
+            $fContent = replaceHTMLTags($content, Array("html","head","body"));
+
             $pdf->writeHTML($content); // convert html
         } catch (MpdfException $exception) {
             die(text($exception));

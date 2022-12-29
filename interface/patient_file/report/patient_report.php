@@ -18,6 +18,7 @@ require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -28,6 +29,7 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use OpenEMR\OemrAd\Utility;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reports")]);
@@ -41,6 +43,11 @@ $auth_coding   = AclMain::aclCheckCore('encounters', 'coding');
 $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = AclMain::aclCheckCore('patients', 'med');
 $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
+
+/* OEMRAD - Changes */
+if(!isset($_GET['order'])) $_GET['order'] = 'ASC';
+$pat_rpt_order = $_GET['order'];
+/*End*/
 
 /**
  * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
@@ -355,7 +362,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <!-- Encounters and Forms -->
                             <div class="col-md-6">
                                 <div class='encounters table-responsive'>
+                                    <!-- OEMRAD - Changes -->
                                     <span class='font-weight-bold oe-report-section-header'><?php echo xlt('Encounters & Forms'); ?>:</span>
+                                    <!-- End -->
+                                    <span style="float: right; padding-left:24px;"><input type="button" class="reorder genreport btn btn-primary btn-save btn-sm" value="<?php echo $pat_rpt_order == 'ASC' ? 'Descending Order' : 'Ascending Order'; ?>" /></span>
                                     <br />
                                     <br />
 
@@ -366,14 +376,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     } else { ?>
                                         <?php
                                         $isfirst = 1;
+                                        /* OEMRAD - Changes */
                                         $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
                                         "forms.formdir, forms.date AS fdate, form_encounter.date " .
-                                        ",form_encounter.reason " .
-                                        "FROM forms, form_encounter WHERE " .
+                                        ",form_encounter.reason, u.lname, u.fname, ".
+                                        "CONCAT(fname, ' ', lname) AS drname ".
+                                        "FROM forms, form_encounter LEFT JOIN users AS u ON ".
+                                        "(form_encounter.provider_id = u.id) WHERE " .
                                         "forms.pid = ? AND form_encounter.pid = ? AND " .
                                         "form_encounter.encounter = forms.encounter " .
                                         " AND forms.deleted=0 " . // --JRM--
-                                        "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", array($pid, $pid));
+                                        "ORDER BY form_encounter.date $pat_rpt_order, form_encounter.encounter $pat_rpt_order, fdate ASC", array($pid, $pid));
+                                        /*End*/
                                         $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
                                         $html_strings = array();
                                         $registry_form_name = array();
@@ -381,7 +395,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             array_push($registry_form_name, trim($result2['name']));
                                         }
 
-                                        while ($result = sqlFetchArray($res)) {
+                                        // OEMRAD - Change
+                                        $preparedResultData = Utility::prepareEncounterReportListData($res);
+
+                                        // OEMRAD - Change
+                                        //while ($result = sqlFetchArray($res)) {
+                                        foreach ($preparedResultData as $pIK => $result) {
                                             if ($result["form_name"] == "New Patient Encounter") {
                                                 if ($isfirst == 0) {
                                                     foreach ($registry_form_name as $var) {
@@ -411,9 +430,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     // The default encoding for this mb_substr() call is set near top of globals.php
                                                     $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength) . " ... ";
                                                 }
+                                                // OEMRAD - Change
                                                 echo text($result["reason"]) .
                                                 " (" . text(date("Y-m-d", strtotime($result["date"]))) .
-                                                ")\n";
+                                                ") ". $result['drname'] . "\n";
                                                 echo "<div class='encounter_forms'>\n";
                                             } else {
                                                 $form_name = trim($result["form_name"]);
@@ -565,6 +585,9 @@ $(function () {
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
+
+    // OEMRAD - Change
+    $(".reorder").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; document.report_form.action = '../report/patient_report.php?order=<?php echo $pat_rpt_order == 'ASC' ? 'DESC' : 'ASC'; ?>'; $("#report_form").submit(); });
 
     $(".genreport").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; $("#report_form").submit(); });
     $(".genpdfrep").click(function() { top.restoreSession(); document.report_form.pdf.value = 1; $("#report_form").submit(); });
