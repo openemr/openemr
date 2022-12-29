@@ -205,18 +205,13 @@ if(isset($_REQUEST['ajax'])) {
 <head>
 	<title><?php echo htmlspecialchars( xl('Insurance Companies Finder'), ENT_NOQUOTES); ?></title>
 	<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'fontawesome', 'main-theme']); ?>
+	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'fontawesome', 'oemr_ad']); ?>
 
-	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-1-3-2/js/dataTables.colReorder.min.js"></script>
-    <link rel="stylesheet" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css">
-    <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/tiny-mce-nwt/tinymce.min.js"></script>
+	<link rel="stylesheet" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css">
+	<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
 
     <style type="text/css">
-		table#insDataTable thead th, table#insDataTable thead td {
+		/*table#insDataTable thead th, table#insDataTable thead td {
 			border-bottom: 0px solid black;
 		}
 		table#insDataTable thead th, table#insDataTable thead td,
@@ -253,7 +248,7 @@ if(isset($_REQUEST['ajax'])) {
 			margin-top: 20px;
 		}
 		#insDataTable_wrapper {
-			/*margin-bottom: 10px;*/
+			
 		}
 		#insDataTable_wrapper input{
 			padding: 5px 12px;
@@ -268,7 +263,7 @@ if(isset($_REQUEST['ajax'])) {
 		#insDataTable_filter {
 			margin-right: 10px;
 			margin-bottom: 20px;
-		}
+		}*/
 		.disclaimersContainer {
 			font-size: 14px;
 			padding: 15px;
@@ -296,18 +291,20 @@ if(isset($_REQUEST['ajax'])) {
 	<div class="disclaimersContainer">
 		<b>Disclaimer:</b> <span>Result will contain only active entries</span>
 	</div>
-	<table id='insDataTable' class='display dataTable insDataTable'>
-	  <thead>
-	    <tr>
-	      <th>Name</th>
-	      <th width="120">Fax</th>
-	      <th>Address</th>
-	      <th>City, State</th>
-		  <th>Zip</th>
-	      <th>Phone</th>
-	    </tr>
-	  </thead>
-	</table>
+	<div class="table-responsive table-container">
+		<table id='insDataTable' class='table table-sm addressDataTable'>
+		  <thead class="thead-dark">
+		    <tr>
+		      <th>Name</th>
+		      <th width="120">Fax</th>
+		      <th>Address</th>
+		      <th>City, State</th>
+			  <th>Zip</th>
+		      <th>Phone</th>
+		    </tr>
+		  </thead>
+		</table>
+	</div>
 	<script type="text/javascript">
 		$(document).ready(function(){
 		   $('#insDataTable').DataTable({

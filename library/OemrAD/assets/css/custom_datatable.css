@@ -44,7 +44,7 @@ div.dataTables_wrapper div.dataTables_processing {
     color: var(--danger);
     transform: translateX(-50%);
 }
-.card {
+div.dataTables_wrapper .card {
     border: 0;
     border-radius: 0;
 }
@@ -58,13 +58,13 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /* Color Overrides for jQuery-DT */
-table.dataTable thead th,
+table.dataTable.borderBottom thead th,
 table.dataTable thead td {
     border-bottom: 1px solid var(--gray900) !important;
 }
 
-table.dataTable tfoot th,
-table.dataTable tfoot td {
+table.dataTable.borderTop tfoot th,
+table.dataTable.borderTop tfoot td {
     border-top: 1px solid var(--gray900) !important;
 }
 
@@ -313,3 +313,179 @@ table.dataTable.mt-0 {
 }
 
 /*End*/
+
+/* DataTable Row Details */
+.dataTable td.dt-control, .dataTable tr th .dt-control,
+.dataTable tr.shown td.dt-control, .dataTable tr.shown th .dt-control {
+    background: none;
+    cursor: pointer !important;
+}
+
+.dataTable tr td.dt-control:before, .dataTable tr th .dt-control:before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f077" !important;
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: 900;
+    padding-right: 3px;
+    vertical-align: middle;
+    background-color: transparent !important;
+    color: #000;
+    border-radius: 0px;
+    width: 100%;
+    height: auto;
+    box-shadow: none;
+    margin: auto;
+    text-align: center;
+    border: 0px;
+}
+
+.dataTable tr.shown td.dt-control:before, .dataTable tr.shown th .dt-control:before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f078" !important;
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: 900;
+    padding-right: 3px;
+    vertical-align: middle;
+    background-color: transparent !important;
+    color: #000;
+    border-radius: 0px;
+    width: 100%;
+    height: auto;
+    box-shadow: none;
+    margin: auto;
+    text-align: center;
+    border: 0px;
+}
+
+.tableRowHighLight.dataTable tr.shown > td {
+    box-shadow: inset 0 0 0 9999px rgb(0 0 0 / 5%) !important;
+}
+
+table.subdetails-table tbody tr:first-child td {
+    border-top: 0px !important;
+}
+
+table.table-layout-fixed {
+    table-layout: fixed;
+}
+
+table.table-remove-top-border tr > th {
+    border-top: 0px !important;
+}
+
+/* End DataTable Row Details */
+
+/*Read More*/
+.messagebox {
+    white-space: normal!important;
+}
+
+.messagebox input {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.messagebox .content {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+}
+  
+.messagebox input:focus ~ label {
+    outline: -webkit-focus-ring-color auto 5px;
+}
+  
+.messagebox input:checked + .content {
+    -webkit-line-clamp: unset;
+}
+  
+.messagebox input:checked ~ label.readmore, 
+.messagebox input:not(:checked) ~ label.lessmore {
+    display: none;
+}
+
+.messagebox input:checked ~ label.lessmore,
+.messagebox input:not(:checked) ~ label.readmore {
+    display: inline-block;
+}
+
+.messagebox .content:not(.truncated) ~ label{
+    display: none!important;
+}
+
+.messagebox .content {
+    margin: 0;
+}
+  
+/*.messagebox label {
+    border-radius: 4px;
+    padding: 0.2em 0.6em;
+    border: 1px solid #009ce2;
+    background-color: #00acff;
+    color: #fff;
+    font-size: 0.8em;
+}*/
+
+/*.messagebox .readmore,
+.messagebox .lessmore {
+    border-radius: 0px;
+    background: #2672ec;
+    text-decoration: none;
+    padding: 3px 8px;
+    cursor: pointer;
+    color: #ffffff !important;
+    display: block;
+    float: left;
+    font-weight: 400;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 12px;
+}*/
+
+.messageiFrame {
+    width: 100%;
+    /*height: 0px;*/
+    border: 0px;
+}
+
+/*End Read More*/
+
+
+/* Text Overflow */
+.ellipsisWrapText {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ellipsisWrapMultiLineText {
+    white-space: nowrap;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+}
+
+/**/
+
+/* tabbify table*/
+
+div.tab .table td {
+    padding-right: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+}
+
+div.tab .table.table-sm td {
+    padding-right: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
+}
+
+.dataTables_wrapper  .card {
+    box-shadow: none !important;
+}
+
+/* tabbify table end */

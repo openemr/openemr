@@ -2,9 +2,9 @@
 
 namespace OpenEMR\OemrAd;
 
-require_once("../interface/globals.php");
-require_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
-require_once('./mdTwilioUtilitylib.class.php');
+@include_once("../interface/globals.php");
+@include_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
+@include_once($GLOBALS['srcdir']."/OemrAD/oemrad.globals.php");
 
 class TwilioUtilitylib {
 	/**

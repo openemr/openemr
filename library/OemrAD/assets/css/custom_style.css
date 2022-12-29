@@ -229,5 +229,14 @@
 	display: none !important;
 }
 
+/* Iframe */
+
+.contentiFrame {
+	width: 100%;
+	border: 0px solid;
+	height: 0px;
+}
+
+/* End Iframe */
 
 

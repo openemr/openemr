@@ -119,6 +119,21 @@ $jsonData = addslashes(json_encode($encfData['json_items']));
 		return Object.values(selectedEncounterForms);
 	}
 
+	function getCountOfChild() {
+		let parentId = {};
+		jQuery.each(selectedEncounterForms, function(i, obj) {
+			if(obj['parentId'] != undefined) {
+				if(parentId[obj['parentId']] == undefined) {
+					parentId[obj['parentId']] = 0;
+				}
+
+				parentId[obj['parentId']] = parentId[obj['parentId']] + 1;
+			}
+		});
+
+		return parentId;
+	}
+
 	$(document).ready(function() {
 		$( ".encounter_data input[type=checkbox]" ).each(function( index ) {
 			if(selectedEncounterForms.hasOwnProperty($(this).attr('id'))) {
@@ -128,12 +143,27 @@ $jsonData = addslashes(json_encode($encfData['json_items']));
 
 		$(document).on("click", ".encounter_form", function(e) {
 			var isChecked = $(this).prop("checked");
-			let parentId = $(this).data('id');;
+			let parentId = $(this).data('id');
+			let childParentId = jsonData[parentId]['parentId'] != undefined ? jsonData[parentId]['parentId'] : '';
 
 			if(isChecked == true) {
 				selectedEncounterForms[parentId] = jsonData[parentId];
 			} else {
 				delete selectedEncounterForms[parentId];
+			}
+
+			if(childParentId != '') {
+				let pCountData = getCountOfChild();
+				if(pCountData[childParentId] != undefined && pCountData[childParentId] > 0) {
+					$('input[data-id="'+childParentId+'"]').prop('checked', true);
+					selectedEncounterForms[childParentId] = jsonData[childParentId];
+				} else {
+					let isChecked = $('input[data-id="'+childParentId+'"]').prop('checked');
+					if(isChecked === true) {
+						$('input[data-id="'+childParentId+'"]').prop('checked', false);
+						delete selectedEncounterForms[childParentId]
+					}
+				}
 			}
 		});
 

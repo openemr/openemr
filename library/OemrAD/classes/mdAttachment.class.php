@@ -6,8 +6,10 @@ namespace OpenEMR\OemrAd;
 @include_once($GLOBALS['srcdir']."/patient.inc");
 @include_once($GLOBALS['srcdir']."/wmt-v2/wmtstandard.inc");
 @include_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
+@include_once($GLOBALS['srcdir']."/OemrAD/oemrad.globals.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\OemrAd\MessagesLib;
 
 
 /**
@@ -146,7 +148,7 @@ class Attachment {
                 $jsonList[$prefix . $parentId] = array(
                     "id" => $prefix . $parentId,
                     "pid" => $pid,
-                    "text_title" => xl_form_title($pData{"form_name"}),
+                    "text_title" => xl_form_title($pData{"raw_text"}),
                     "data" => array(
                         "formid" => $parentId ? $parentId : ""
                     )
@@ -161,6 +163,21 @@ class Attachment {
                         $childId = $c1Data['id'];
 
                         if(empty($formid) || in_array($childId, $formid)) {
+                            if(!in_array($parentId, $formid)) {
+                                //Prepare data
+                                $jsonList[$prefix . $parentId] = array(
+                                    "id" => $prefix . $parentId,
+                                    "pid" => $pid,
+                                    "text_title" => xl_form_title($pData{"raw_text"}),
+                                    "data" => array(
+                                        "formid" => $parentId ? $parentId : ""
+                                    )
+                                ); 
+
+                                $attachmentList[$pData["formdir"] ."_". $pData["form_id"]] = $pData["encounter"];
+                            }
+
+
                             $jsonList[$prefix . $childId] = array(
                                 "id" => $prefix . $childId,
                                 "pid" => $pid,
@@ -753,6 +770,8 @@ class Attachment {
                     }
                 }
 
+                if(empty($docIds)) continue;
+
                 $pData = self::getDocumentDataForSelection(array('doc_id' => $docIds));
                 $items[$iType] = isset($pData['json_items']) ? array_values($pData['json_items']) : array();
             } else if($iType === "encounter_forms") {
@@ -763,6 +782,8 @@ class Attachment {
                     }
                 }
 
+                if(empty($formIds)) continue;
+
                 $pData = self::getEncounterFormDataForSelection(array('formid' => $formIds));
                 $items[$iType] = isset($pData['json_items']) ? array_values($pData['json_items']) : array();
             } else if($iType === "encounters") {
@@ -772,6 +793,8 @@ class Attachment {
                         $encIds[] = $eItem['encounter_id'];
                     }
                 }
+
+                if(empty($encIds)) continue;
 
                 $pData = array();
                 if(!empty($encIds)) {
@@ -787,6 +810,8 @@ class Attachment {
                     }
                 }
 
+                if(empty($orderIds)) continue;
+
                 $pData = array();
                 if(!empty($orderIds)) {
                     $pData = self::getOrderDataForSelection(array('order_id' => $orderIds), 'fr.*');
@@ -800,6 +825,8 @@ class Attachment {
                         $msgIds[] = $mItem['message_id'];
                     }
                 }
+
+                if(empty($msgIds)) continue;
 
                 $pData = array();
                 if(!empty($msgIds)) {
@@ -828,6 +855,8 @@ class Attachment {
                 foreach ($iItem as $lfKey => $lfItem) {
                     $caseIds[] = $lfItem['id'];
                 }
+
+                if(empty($caseIds)) continue;
 
                 $pData = array();
                 if(!empty($caseIds)) {
@@ -1019,7 +1048,7 @@ class Attachment {
     }
 
     // Assign msg to user
-    public function assignUserToMSG($msgId) {
+    public static function assignUserToMSG($msgId) {
         if(!empty($msgId)) {
             sqlStatementNoLog("UPDATE `message_log` SET assigned = userid WHERE id = ?", array($msgId));
         }
@@ -1074,6 +1103,31 @@ class Attachment {
         }
 
         return $attachmentList;
+    }
+
+    public static function updateRequest($attachmentList, $request_data) {
+
+        $tLocalFiles = array();
+        foreach ($attachmentList as $ak => $aItem) {
+            if($aItem['action'] == 'upload') {
+
+                $sUrl = str_replace($GLOBALS["webserver_root"], "", $aItem['path']);
+                $file_url = substr($sUrl, strpos($sUrl, "/sites/"));
+
+                $tLocalFiles[] = array(
+                    'type' => 'upload',
+                    'file_path' => $file_url,
+                    'file_name'=> $aItem['name']
+                );
+            }
+        }
+
+        if(isset($request_data['local_files'])) {
+            $tmpl = array_merge(json_decode($request_data['local_files'], true) , $tLocalFiles);
+            $request_data['local_files'] = json_encode($tmpl);
+        }
+
+        return $request_data;
     }
 
     // Prepare Attachment file and notes for email content (Attachment)
@@ -1972,5 +2026,296 @@ class Attachment {
         $pData = (isset($pid) && !empty($pid)) ? self::getPatientDataAttachment($pid) : array();
 
         return '<div><table style="width: 100%;"><tr><td style="text-align:left;">Patient ID: '.$pData['pubpid'].'</td><td style="text-align:center;">DOB: '.$pData['DOB'].'</td><td style="text-align:right;">Name: '.($pData['fname'].' '.$pData['lname']).'</td></tr></table></div>';
+    }
+
+
+    /*Get Email Attachments*/
+    public static function getAttachmentList($id) {
+        $bind = array($id);
+        $query = "SELECT * " .
+        "FROM message_attachments AS ma WHERE " .
+        "ma.`message_id` = ? ";
+
+        $query .= "ORDER BY ma.`date` DESC";
+        $dres = sqlStatement($query, $bind);
+
+        $list = array();
+        while ($drow = sqlFetchArray($dres)) {
+            $list[] = $drow;
+        }
+        return $list;
+    }
+
+    /*Email Attachment doc*/
+    public static function generateFinalDoc($type, $data, $file_name, $pid, $category_id, $doc_date = '') {
+        global $webserver_root;
+
+        try {
+
+            // We want to overwrite so only one PDF is stored per form/encounter
+            $config_mpdf = array(
+                'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+                'mode' => $GLOBALS['pdf_language'],
+                'format' => 'A4',
+                'default_font_size' => '9',
+                'default_font' => 'dejavusans',
+                'margin_left' => '12.6mm',
+                'margin_right' => '12.6mm',
+                'margin_top' => '13.5mm',
+                'margin_bottom' => '13.5mm',
+                'orientation' => $GLOBALS['pdf_layout'],
+                'shrink_tables_to_fit' => 1,
+                'use_kwt' => true,
+                'keep_table_proportions' => true
+            );
+            $pdf = new mPDF($config_mpdf);
+
+            $pdf->allow_charset_conversion=true;
+            $pdf->charset_in='UTF-8';
+
+            $allowedImage = array('jpg','jpeg','jpe','png');
+            $allowedFile = array('pdf');
+
+            foreach($data as $dE => $data_item) {
+                if($dE > 0) {
+                    $pdf->AddPage();
+                }
+
+                $imageFiles = array();
+                $dataFiles = array();
+
+                $emailHtml = self::generateMsgHTML($type, $data_item);
+                $pdf->writeHTML(utf8_decode($emailHtml));    
+
+                foreach($data_item['attachments'] as $item) {
+                    $fileExt = end(explode(".", $item['url']));
+                    if(in_array($fileExt, $allowedImage) == true) {
+                        $imageFiles[] = array(
+                            'file_name' => $item['file_name'],
+                            'path' => $webserver_root . $item['url']
+                        );
+                    } else if(in_array($fileExt, $allowedFile) == true) {
+                        $dataFiles[] = $webserver_root . $item['url'];
+                    } else {
+                        $messages[] = "Skipped file becuase of UnSupported File Type: ".$item['filename'];
+                    }
+                }
+
+                foreach($dataFiles as $file){
+                    $fileExt = end(explode(".", $file));
+                        //$pdf->SetImportUse();
+                        $rsponceFile = self::checkFPDI($file);
+                        if($rsponceFile != false && !empty($rsponceFile)) {
+                            $pagecount = $pdf->setSourceFile($rsponceFile);
+                            for ($i=1; $i<=($pagecount); $i++) {
+                                $pdf->AddPage();
+                                $import_page = $pdf->importPage($i);
+                                $pdf->useTemplate($import_page);
+                            }
+                        }
+                }
+
+                if(!empty($imageFiles)) {
+                    $pdf->AddPage();
+                    foreach($imageFiles as $file){
+                        $htmlStr = '<div><img src="'.$file['path'].'"/><div style="margin-top:5px;margin-bottom:25px;"><span><b>'.$file['file_name'].'</b></span></div></div>';
+                        $pdf->writeHTML($htmlStr);
+                    }
+                }
+            }
+
+            $pagecount = $pdf->page;
+            
+            $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/message_attachments/";
+            $fullfilename = $file_location . strtotime(date('Y-m-d H:i:s')) . "_adddpc.pdf";
+            
+            $content_pdf = $pdf->Output($fullfilename, 'S');
+
+            //Generate tmp file of documents
+            $tmpfname = tempnam(sys_get_temp_dir(), 'POST');
+            rename($tmpfname, $tmpfname .= '.tmp');
+            file_put_contents($tmpfname, $content_pdf);
+
+            $docResponce = self::doAddToDocument($tmpfname, $file_name, $pid, $category_id, $doc_date);
+
+            return array(
+                'status' => true,
+                'error' => isset($docResponce['error']) ? $docResponce['error'] : "",
+                'message' => isset($docResponce['message']) ? $docResponce['message'] : "",
+                'page_count' => $pagecount 
+            );
+
+        } catch (Exception $e) {
+
+            $status = $e->getMessage();
+
+            return array(
+                'status' => false,
+                'error' => $status
+            );
+        
+        }
+    }
+
+    public static function generateMsgHTML($type, $data) {
+        $html = '';
+
+        if(!empty($data)) {
+            $field_to_label = 'To';
+            $field_to_val = '';
+
+            $raw_data = array();
+            if(isset($data) && !empty($data['raw_data'])) {
+                $raw_data = json_decode($data['raw_data'], true);
+            }
+            
+            if($type == "email") {
+                if(isset($data['direction']) && $data['direction'] == 'out') {
+                    $field_to_label = 'Email To:';
+                    $field_to_val =  $data['msg_to'];
+
+                    $field_to_label_1 = 'Subject:';
+                    $field_to_val_1 = isset($raw_data['subject']) ? $raw_data['subject'] : '';
+                } else if(isset($data['direction']) && $data['direction'] == 'in') {
+                    $field_to_label = 'Email From:';
+                    $field_to_val =  $data['msg_from'];
+
+                    $field_to_label_1 = 'Subject:';
+                    $field_to_val_1 = $data['message_subject'];
+                }
+            } else if($type == "sms") {
+                if(isset($data['direction']) && $data['direction'] == 'out') {
+                    $field_to_label = 'SMS To:';
+                    $field_to_val =  $data['msg_to'];
+                } else if(isset($data['direction']) && $data['direction'] == 'in') {
+                    $field_to_label = 'SMS From:';
+                    $field_to_val =  $data['msg_from'];
+                }
+
+                $field_to_label_1 = 'Message Time:';
+                $field_to_val_1 = $data['msg_time'];
+            } else if($type == "fax") {
+                if(isset($data['direction']) && $data['direction'] == 'out') {
+                    $field_to_label = 'Fax To:';
+                    $field_to_val =  $data['msg_to'];
+                } else if(isset($data['direction']) && $data['direction'] == 'in') {
+                    $field_to_label = 'Fax From:';
+                    $field_to_val =  $data['msg_from'];
+                }
+            } else if($type == "postal_letter") {
+                if(isset($data['direction']) && $data['direction'] == 'out') {
+                    $field_to_label = 'Address To:';
+                    $field_to_val =  $data['msg_to'];
+                } else if(isset($data['direction']) && $data['direction'] == 'in') {
+                    $field_to_label = 'Address From:';
+                    $field_to_val =  $data['msg_from'];
+                }
+            }
+
+            $field_message = isset($data['message']) ? MessagesLib::displayMessageContent($data['message'], false, true) : "";
+
+            ob_start();
+            ?>
+                <table style="overflow:wrap;">
+                    <tr>
+                        <td width="150"><b><?php echo $field_to_label; ?></b></td>
+                        <td><?php echo $field_to_val; ?></td>
+                    </tr>
+                    <?php if(isset($field_to_label_1) && !empty($field_to_label_1)) {?>
+                    <tr>
+                        <td width="100"><b><?php echo $field_to_label_1; ?></b></td>
+                        <td><?php echo $field_to_val_1; ?></td>
+                    </tr>
+                    <?php } ?>
+                    <tr>
+                        <td colspan="2"><b>Message:</b></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><?php echo $field_message; ?></td>
+                    </tr>
+                </table>
+            <?php
+            $html = ob_get_clean();
+        }
+        return $html;
+    }
+
+    public static function checkFPDI($file) {
+        $filepdf = fopen($file,"r");
+        if ($filepdf) {
+        $line_first = fgets($filepdf);
+            fclose($filepdf);
+        } else{
+            return false;
+            //echo "error opening the file.";
+        }
+
+        // extract number such as 1.4 ,1.5 from first read line of pdf file
+        preg_match_all('!\d+!', $line_first, $matches); 
+        // save that number in a variable
+        $pdfversion = implode('.', $matches[0]);
+
+        $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/message_attachments/";
+        $fullfilename = $file_location . strtotime(date('Y-m-d H:i:s')) . "_temdoc.pdf";
+
+        $final_file = $file;
+
+        if($pdfversion > "1.4"){
+            shell_exec('gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="'.$fullfilename.'" "'.$file.'"'); 
+            $final_file = $fullfilename;
+        }
+        else{
+            $final_file = $file;
+        }
+
+        return $final_file;
+    }
+
+    public static function doAddToDocument($file_path, $file_name, $pid, $category_id, $doc_date = '') {
+        $fname = $file_name.'.pdf';
+        $filesize = filesize($file_path);
+        $tmpfile = fopen($file_path, "r");
+        $filetext = fread($tmpfile, $filesize);
+        fclose($tmpfile);
+
+        // set mime, test for single DICOM and assign extension if missing.
+        $mimetype = mime_content_type($file_path);
+
+        if (strpos($filetext, 'DICM') !== false) {
+            $mimetype = 'application/dicom';
+            $parts = pathinfo($fname);
+            if (!$parts['extension']) {
+                $fname .= '.dcm';
+            }
+        }
+
+        $d = new \Document();
+
+        if(!empty($doc_date)) {
+            $d->set_docdate($doc_date);
+        }
+
+        $rc = $d->createDocument(
+            $pid,
+            $category_id,
+            $fname,
+            $mimetype,
+            $filetext,
+            '',
+            1,
+            0,
+            $file_path
+        );
+        if ($rc) {
+            $error = $rc;
+        } else {
+            $message = "Success";
+        }
+
+        return array(
+            'status' => false,
+            'error' => isset($error) ? $error : "",
+            'message' => isset($message) ? $message : ""
+        );
     }
 }

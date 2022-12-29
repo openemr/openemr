@@ -1466,6 +1466,22 @@ class OrderLbfForm {
 		}
 	}
 
+	function addMessageOrderLog($pid, $type = '', $orderList = array(), $msgLogId = '', $to = '') {
+		if(!empty($orderList)) {
+			foreach ($orderList as $oi => $orderItem) {
+				$orderId = isset($orderItem['order_id']) ? $orderItem['order_id'] : "";
+				if(!empty($orderId)) {
+					$type = $type;
+					$createdBy = $_SESSION['authUserID'];
+					$relation_id = isset($msgLogId) && !empty($msgLogId) ? $msgLogId : NULL;
+					$operationType = 'Sent';
+
+					self::saveOrderLog($type, $orderId, $relation_id, $to, $pid, $operationType, $createdBy);
+				}
+			}
+		}
+	}
+
 	function add_email_message_order_log($pid) {
 		global $msgLogId, $email_data;
 

@@ -2,9 +2,9 @@
 
 namespace OpenEMR\OemrAd;
 
-require_once("../interface/globals.php");
-require_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
-require_once('./mdTwiliolib.class.php');
+@include_once("../interface/globals.php");
+@include_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
+@include_once($GLOBALS['srcdir']."/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\Twiliolib;
 
@@ -22,7 +22,7 @@ class Smslib {
 
 	    $sms = null;
 		if($serviceType == "nexmo") {
-			$sms = new \wmt\Nexmo($from);
+			//$sms = new \wmt\Nexmo($from);
 		} else if($serviceType == "twilio") {
 			$sms = new Twiliolib($from);
 		}

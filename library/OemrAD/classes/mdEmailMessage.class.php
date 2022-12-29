@@ -2,14 +2,9 @@
 
 namespace OpenEMR\OemrAd;
 
-include_once("../interface/globals.php");
-include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtstandard.inc");
-include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtpatient.class.php");
-include_once($GLOBALS['fileroot'].'/mdEmailReader.class.php');
-include_once($GLOBALS['fileroot'].'/mdUtility.class.php');
-#include_once("$srcdir/OemrAD/oemrad.globals.php");
-
-use OpenEMR\OemrAd\EmailMessage;
+@include_once("../interface/globals.php");
+@include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtstandard.inc");
+@include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtpatient.class.php");
 
 class EmailMessage {
 
@@ -117,7 +112,7 @@ class EmailMessage {
 	}
 
 	/*Get message by id log*/
-	public function getMessageById($msgId = '') {
+	public static function getMessageById($msgId = '') {
 		$email_list = array();
 		$binds = array();
 
@@ -214,168 +209,6 @@ class EmailMessage {
 		self::emailScript($pid);
 	}
 
-	/*Help to Get file upload component*/
-	public function getFileUploadEle($pid, $type = '') {
-		?>
-		<div class="containerEmail">
-		<div class="files" id="filesDoc">
-			<?php if($type == 'EMAIL') { ?>
-			<div class="btnContainer uploadBtnContainer">
-			<span class="btn btn-flie-b btn-file">
-		        Upload File  <input type="file" name="files1" multiple />
-		    </span>
-			</div>
-			<?php } ?>
-			<div class="btnContainer">
-				<button type="button" id="select_document" onClick="handleSelectDocument()">Select Documents</button>
-			</div>
-			<!-- <div class="btnContainer">
-				<button type="button" id="select_notes" onClick="handleSelectNotes()">Select Internal Notes</button>
-			</div> -->
-			<div class="btnContainer">
-				<button type="button" id="select_encounters" onClick="handleSelectEncounters()">Select Encounters & Forms</button>
-			</div>
-			<div class="btnContainer">
-				<button type="button" id="select_encounters_1" onClick="handleDemosInsurances()">Demos and Ins</button>
-			</div>
-			<div class="btnContainer">
-				<button type="button" id="select_document" onClick="handleSelectOrder()">Order</button>
-			</div>
-			<div><ul class="fileList"></ul></div>
-    	</div>
-    	</div>
-    	<?php
-	}
-
-	/*Doc file list container*/
-	public function getFileContainer($pid) {
-		?>
-		<div class="containerFile">
-		<div class="files" id="filesDoc">
-			<div><ul class="fileList"></ul></div>
-    	</div>
-    	</div>
-    	<?php
-	}
-
-	/*Page head scripts*/
-	public function pageHead() {
-		?>
-		<!-- DataTable -->
-	  	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
-	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
-	    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
-	    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-1-3-2/js/dataTables.colReorder.min.js"></script>
-	    <link rel="stylesheet" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css">
-	    <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
-	    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/tiny-mce-nwt/tinymce.min.js"></script>
-
-	    <style type="text/css">
-			body {
-				overflow-y: auto!important;
-			}
-			.btn-file {
-			    position: relative;
-			    overflow: hidden;
-			}
-		    .btn-file input[type=file] {
-		       	background: #1050b6;
-			    color: #ffffff !important;
-			    display: block;
-			    float: left;
-			    font-weight: 400;
-		        position: absolute;
-		        top: 0;
-		        right: 0;
-		        min-width: 100%;
-		        min-height: 100%;
-		        text-align: right;
-		        filter: alpha(opacity=0);
-		        opacity: 0;
-		        outline: none;
-		        cursor: inherit;
-		        border-radius: 0px!important; 
-		    }
-		    .uploadBtnContainer {
-		    	width: 95px;
-    			height: 30px;
-		    }
-		    .btn-flie-b {
-		    	background: #2672ec;
-			    color: #ffffff !important;
-			    display: block;
-			    font-weight: 400;
-			    margin-right: 3px;
-			    padding-right: 10px;
-			    text-decoration: none;
-			    padding: 5px 12px 5px;
-			    border: none;
-			    border-radius: 0px!important; 
-		    }
-		    .files input[type="button"], input[type="submit"], .files button {
-		    	float: none!important;
-		    }
-		    .files .btnContainer {
-		    	display: inline-block;
-		    	vertical-align: top;
-		    }
-		    .files .fileList {
-		    	padding-left: 20px;
-    			margin-top: 15px;
-    			margin-bottom: 20px;
-    			float: left;
-		    }
-		    body {
-		    	/*min-height: 600px;*/
-		    }
-		    textarea.form-control {
-		    	height: 100px!important;
-		    }
-		    main {
-		    	flex-grow: unset!important;
-		    }
-		    #send_email {
-		    	float: right;
-		    }
-		    .containerEmail {
-		    	order: 3;
-		    	width: 100%;
-		    	margin-top: 15px;
-		    }
-		    .containerFile {
-		    	order: 3;
-		    	width: 100%;
-		    	margin-top: 15px;
-		    }
-		    .fileList li {
-		    	border-bottom: 1px solid;
-		    }
-		    .childContainer li:last-child {
-		    	border-bottom: 0px solid;
-		    }
-		    .counterListContainer {
-		    	padding: 10px;
-		    	margin-bottom: 10px;
-		    }
-		    .encounter_data input[type=checkbox] {
-		    	margin-right: 8px;
-		    }
-		    .encounter_data .encounter_forms {
-		    	padding-left: 20px;
-		    }
-		    .includeDemoContainer {
-		    	display: grid;
-    			grid-template-columns: auto 1fr;
-    			padding: 10px;
-		    }
-		    .include_demo {
-		    	margin-left: 10px !important;
-		    }
-		</style>
-
-		<?php
-	}
-
 	/*Bottom Script*/
 	public static function emailScript($pid = '') {
 		
@@ -420,746 +253,6 @@ class EmailMessage {
 				}
 			}
 		</script>
-		<?php
-	}
-
-	public static function getAttachmentScript($pid, $requestStr, $docsList = array(), $baseDocList = array()) {
-		?>
-		<script type="text/javascript">
-			var filesToUpload = [];
-			var uploadFileList = {};
-	    	var selectedDocuments = {};
-	    	var selectedNotes = {};
-	    	var selectedEncounterList = {};
-	    	var selectedEncounterList1 = {};
-	    	var selectedEncounterIns = {};
-	    	var selectedOrder = {};
-	    	var checkEncounterDemo = false;
-	    	var checkEncounterInsDemo = false;
-
-	    	<?php if(isset($baseDocList['uploadFileList']) && !empty($baseDocList['uploadFileList'])) { ?>
-	    		uploadFileList = JSON.parse(atob("<?php echo base64_encode(json_encode($baseDocList['uploadFileList'])) ?>"));
-	    		handleUploadFileListCallBack();
-	    	<?php } ?>
-
-	    	<?php if(isset($baseDocList['selectedDocuments']) && !empty($baseDocList['selectedDocuments'])) { ?>
-	    		selectedDocuments = JSON.parse(atob("<?php echo base64_encode(json_encode($baseDocList['selectedDocuments'])) ?>"));
-	    		handleDocumentCallBack();
-	    	<?php } ?>
-
-	    	<?php if(isset($baseDocList['selectedNotes']) && !empty($baseDocList['selectedNotes'])) { ?>
-	    		selectedNotes = JSON.parse(atob("<?php echo base64_encode(json_encode($baseDocList['selectedNotes'])) ?>"));
-	    		handleInternalNoteCallBack();
-	    	<?php } ?>
-
-	    	<?php if(isset($baseDocList['selectedEncounterList']) && !empty($baseDocList['selectedEncounterList'])) { ?>
-	    		selectedEncounterList = JSON.parse(atob("<?php echo base64_encode(json_encode($baseDocList['selectedEncounterList'])) ?>"));
-	    		checkEncounterDemo = "<?php echo $baseDocList['checkEncounterDemo']; ?>";
-	    		handleEncountersCallBack();
-	    	<?php } ?>
-
-	    	<?php if(isset($baseDocList['selectedEncounterIns']) && !empty($baseDocList['selectedEncounterIns'])) { ?>
-	    		selectedEncounterIns = JSON.parse(atob("<?php echo base64_encode(json_encode($baseDocList['selectedEncounterIns'])) ?>"));
-	    		checkEncounterInsDemo = "<?php echo $baseDocList['checkEncounterInsDemo']; ?>";
-	    		handleDemosInsurancesCallBack();
-	    	<?php } ?>
-
-	    	<?php if(isset($baseDocList['selectedOrder']) && !empty($baseDocList['selectedOrder'])) { ?>
-	    		selectedOrder = JSON.parse(atob("<?php echo base64_encode(json_encode($baseDocList['selectedOrder'])) ?>"));
-	    		handleOrderCallBack();
-	    	<?php } ?>
-
-	    	$docsList = <?php echo isset($docsList) ? json_encode($docsList) : '{}'; ?>;
-
-	    	$.fn.fileUploader = function (filesToUpload, sectionIdentifier) {
-			    var fileIdCounter = 0;
-
-			    this.closest(".files").change(function (evt) {
-			        var output = [];
-
-			        for (var i = 0; i < evt.target.files.length; i++) {
-			            fileIdCounter++;
-			            var file = evt.target.files[i];
-			            var fileId = sectionIdentifier + fileIdCounter;
-
-			            filesToUpload.push({
-			                id: fileId,
-			                file: file
-			            });
-
-			            var removeLink = "<a class=\"removeFile\" href=\"#\" data-fileid=\"" + fileId + "\">Remove</a>";
-
-			            output.push("<li><strong>", escape(file.name), "</strong> - ", file.size, " bytes. &nbsp; &nbsp; ", removeLink, "</li> ");
-			        };
-
-			        $(this).find("div .fileList")
-			            .append(output.join(""));
-
-			        //reset the input to null - nice little chrome bug!
-			        evt.target.value = null;
-			    });
-
-			    $(this).on("click", ".removeFile", function (e) {
-			        e.preventDefault();
-
-			        var fileId = $(this).parent().children("a").data("fileid");
-
-			        // loop through the files array and check if the name of that file matches FileName
-			        // and get the index of the match
-			        for (var i = 0; i < filesToUpload.length; ++i) {
-			            if (filesToUpload[i].id === fileId)
-			                filesToUpload.splice(i, 1);
-			        }
-
-			        $(this).parent().remove();
-			    });
-
-			    this.clear = function () {
-			        for (var i = 0; i < filesToUpload.length; ++i) {
-			            if (filesToUpload[i].id.indexOf(sectionIdentifier) >= 0)
-			                filesToUpload.splice(i, 1);
-			        }
-
-			        $(this).children(".fileList").empty();
-			    }
-
-			    return this;
-			};
-
-			function arrayUnique(array) {
-		    var a = array.concat();
-		    for(var i=0; i<a.length; ++i) {
-		        for(var j=i+1; j<a.length; ++j) {
-		            if(a[i] === a[j])
-		                a.splice(j--, 1);
-		        }
-		    }
-
-		    return a;
-		}
-
-			function setLegalTeamEmails(caseItem) {
-				let emailsAddress = caseItem['notes'];
-				console.log(emailsAddress);
-				if(emailsAddress != "") {
-					let cEmailValue = $('#custom_email_id').val();
-					let cEmailList = cEmailValue != "" ? cEmailValue.split(",").map(function(item) {return item.trim();}) : [];
-					let em_list = emailsAddress.split(",").map(element => element.trim());
-					//let mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-					let mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w+)+$/;
-					let newEmList = [];
-
-					em_list.forEach((eItem, ei) => {
-						if(eItem != "" && eItem.match(mailformat)) {
-							newEmList.push(eItem);
-						}
-					});
-
-					//Merge two array
-					cEmailList = arrayUnique(cEmailList.concat(newEmList));
-
-					if(cEmailList.length > 0) {
-						$('#custom_email_id').val(cEmailList.join(","));
-					}
-				} else {
-					alert('Empty email address');
-				}
-			}
-
-			function setMulticase(caseList = []) {
-					if(Array.isArray(caseList) && caseList.length === 1) {
-						let caseItem = caseList[0];
-						setLegalTeamEmails(caseItem);
-					}
-			}
-
-			async function getLegalTeamEmails(pid) {
-				if(pid != "") {
-					var bodyObj = { pid : pid };
-					const result = await $.ajax({
-						type: "GET",
-						url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/ajax/get_pitype_insurance.php'; ?>",
-						datatype: "json",
-						data: bodyObj
-					});
-
-					if(result != '') {
-						var resultObj = JSON.parse(result);
-						if(Array.isArray(resultObj) && resultObj.length > 0) {
-							if(resultObj.length === 1) {
-								setLegalTeamEmails(resultObj[0]);
-							} else {
-								dlgopen('', '', 550, 300, '', 'Select Legal Team', {
-				            //onClosed: 'refreshme',
-				            allowResize: false,
-				            allowDrag: true,
-				            dialogId: '',
-				            type: 'iframe',
-				            url: '<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/select_pitype_insurance.php?pid='; ?>'+pid
-				        });
-							}
-						}
-					}
-				}
-			} 
-
-			/*Custom email check*/
-			$("#email_id").change(function() {
-				var isMessagingEnable = $('#messaging_enable_input').val();
-
-				if($(this).val() == "legal_team") {
-					getLegalTeamEmails($('#pid').val());
-				}
-
-				if($(this).val() == "custom_email" || $(this).val() == "legal_team") {
-					$(".custom_email_container").attr('class', 'custom_email_container');
-					if($(this).val() == "custom_email") {
-						$(".custom_email_container").addClass('cemail');
-					}
-					$('.custom_email_container').show();
-
-					if(isMessagingEnable == 0) {
-						$('#actionBtnContainer1').addClass("hide")
-						$('#actionBtnContainer2').removeClass("hide");
-					}
-				} else {
-					$(".custom_email_container").attr('class', 'custom_email_container');
-					$('.custom_email_container').hide();
-
-					if(isMessagingEnable == 0) {
-						$('#actionBtnContainer1').removeClass("hide")
-						$('#actionBtnContainer2').addClass("hide");
-					}
-				}
-			});
-
-			/*Remove selected document from the list*/
-			$('#filesDoc').on("click", ".removeDocumentFile", function (e) {
-		        e.preventDefault();
-
-		        var fileId = $(this).data("fileid");
-
-		        delete selectedDocuments[fileId];
-
-		        $(this).parent().remove();
-		    });
-
-		    /*Remove selected document from the list*/
-			$('#filesDoc').on("click", ".removeOrderFile", function (e) {
-		        e.preventDefault();
-
-		        var fileId = $(this).data("fileid");
-
-		        delete selectedOrder[fileId];
-
-		        $(this).parent().remove();
-		    });
-
-			// (function () {
-			//     var files1Uploader = $("#filesDoc").fileUploader(filesToUpload, "filesDoc");
-			// })()
-
-			/*Remove selected note from the list*/
-			$('#filesDoc').on("click", ".removeNotesFile", function (e) {
-		        e.preventDefault();
-
-		        var fileId = $(this).data("fileid");
-
-		        delete selectedNotes[fileId];
-
-		        $(this).parent().remove();
-		    });
-
-		    /*Remove selected encounters from the list*/
-			$('#filesDoc').on("click", ".removeEncountersFile", function (e) {
-		        e.preventDefault();
-
-		        var fileId = $(this).data("fileid");
-		        var list = $(this).data("list");
-
-		        $selectedEnc = window[list];
-		        delete $selectedEnc[fileId];
-
-		        $(this).parent().remove();
-		    });
-
-		    /*Remove selected encounters from the list*/
-			$('#filesDoc').on("click", ".removeEncountersInsFile", function (e) {
-		        e.preventDefault();
-
-		        var fileId = $(this).data("fileid");
-
-		        delete selectedEncounterIns[fileId];
-
-		        $(this).parent().parent().remove();
-		    });
-
-			/*Init file uploader to upload file*/
-			(function () {
-			    var files1Uploader = $("#filesDoc").fileUploader(filesToUpload, "filesDoc");
-			})()
-
-			/*Handle Upload File List Callback*/
-			function handleUploadFileListCallBack() {
-				var output = [];
-				$.each(uploadFileList, function(i, n){
-				    //console.log(n['file_name']);
-				    var removeLink = "<a class=\"removeUploadFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-					output.push("<li><strong>", n['file_name'], "</strong> - ",n['size'], " bytes. &nbsp; &nbsp; ", removeLink, "</li> ");
-				});
-
-				$('.removeUploadFile').parent().remove();
-				$('#filesDoc').find("div .fileList")
-			            .append(output.join(""));
-			}
-
-			/*Handle Document Callback*/
-			function handleDocumentCallBack() {
-				var output = [];
-				$.each(selectedDocuments, function(i, n){
-				    var removeLink = "<a class=\"removeDocumentFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-					output.push("<li><strong>", n['baseName'], "</strong> - ",n['size'], " bytes. &nbsp; &nbsp; ", removeLink, "</li> ");
-				});
-
-				$('.removeDocumentFile').parent().remove();
-				$('#filesDoc').find("div .fileList")
-			            .append(output.join(""));
-			}
-
-			/*Handle Document Callback*/
-			function handleInternalNoteCallBack() {
-				var output = [];
-				$.each(selectedNotes, function(i, n){
-				    var removeLink = "<a class=\"removeNotesFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-					output.push("<li><strong>", n['raw_body'], "</strong> - ", removeLink, "</li> ");
-				});
-
-				$('.removeNotesFile').parent().remove();
-				$('#filesDoc').find("div .fileList")
-			            .append(output.join(""));
-			}
-
-
-			function childGenerate(id, finalVariableStr) {
-				var output = [];
-				$.each(window[finalVariableStr], function(i, n){
-					if(n['parentId'] == id) {
-						var removeLink = "<a class=\"removeEncountersFile\" data-list='" + finalVariableStr + "' href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-						output.push("<li><strong>", n['title'], "</strong> - ", removeLink, "</li> ");
-					}
-				});
-
-				return '<ul class="childContainer">'+output.join("")+'</ul>';
-			}
-
-			/*Handle Select Encounters*/
-			function handleEncountersCallBack(list) {
-				$finalVariableStr = 'selectedEncounterList';
-
-				if(list && list != '') {
-					$finalVariableStr = list;
-				}
-
-				var output = [];
-				$.each(window[$finalVariableStr], function(i, n){
-				    if(n['parentId'] == undefined) {
-				    	var removeLink = "<a class=\"removeEncountersFile\" href=\"#\" data-list='" + $finalVariableStr + "' data-fileid=\"" + i + "\">Remove</a>";
-						output.push("<li class='removeEncountersFileContainer_"+$finalVariableStr+"'><span><strong>", n['title'], "</strong> - ", removeLink, "</span>", childGenerate(i, $finalVariableStr), "</li> ");
-					}
-				});
-
-				$('.removeEncountersFileContainer_'+$finalVariableStr).remove();
-				$('#filesDoc').find("div .fileList")
-			             .append(output.join(""));
-			}
-
-			/*Handle Select Order*/
-			function handleOrderCallBack(list) {
-			    var output = [];
-				$.each(selectedOrder, function(i, n){
-				    var removeLink = "<a class=\"removeOrderFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-					output.push("<li><strong>", n['title'], "</strong> - ", removeLink, "</li> ");
-				});
-
-				$('.removeOrderFile').parent().remove();
-				$('#filesDoc').find("div .fileList")
-			            .append(output.join(""));
-			}
-
-			/*Handle Select Document*/
-			function handleSelectDocument(pid, case_id, cnt) {
-				var url = '<?php echo $GLOBALS['webroot']."/modules/ext_message/message/documentList.php?pid=". $pid; ?>';
-				dlgopen(url,'selectDocPop', 800, 300, '', 'Documents', {
-					buttons: [
-						{text: '<?php echo xla('Select'); ?>', close: true, style: 'saveBtn btn-sm'},
-		                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-		            ],
-		            onClosed: '',
-		            type: 'GET',
-		            callBack: {call : 'handleDocumentCallBack'}
-				});
-			}
-
-			/*Handle Select Notes*/
-			function handleSelectNotes(pid, case_id, cnt) {
-				var url = '<?php echo $GLOBALS['webroot']."/modules/ext_message/message/internalNoteList.php?pid=". $pid; ?>';
-				dlgopen(url,'selectNotesPop', 800, 300, '', 'Internal Notes', {
-					buttons: [
-						{text: '<?php echo xla('Select'); ?>', close: true, style: 'notesaveBtn btn-sm'},
-		                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-		            ],
-		            onClosed: '',
-		            type: 'GET',
-		            callBack: {call : 'handleInternalNoteCallBack'}
-				});
-			}
-
-			/*Handle Select Encounters*/
-			function handleSelectEncounters(list = '') {
-				var url = '<?php echo $GLOBALS['webroot']."/modules/ext_message/message/encouterList.php?pid=". $pid; ?>&list='+list;
-				dlgopen(url,'selectNotesPop', 800, 300, '', 'Encounters & Forms', {
-					buttons: [
-						{text: '<?php echo xla('Select'); ?>', close: true, style: 'encountersaveBtn btn-sm'},
-		                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-		            ],
-		            onClosed: '',
-		            type: 'GET',
-		            callBack: {call : 'handleEncountersCallBack', args : list}
-				});
-			}
-
-			/*Handle Select Order*/
-			function handleSelectOrder(list = '') {
-				var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/orderList.php?pid=". $pid; ?>&list='+list;
-				dlgopen(url,'selectOrderPop', 800, 300, '', 'Orders', {
-					buttons: [
-						{text: '<?php echo xla('Select'); ?>', close: true, style: 'ordersaveBtn btn-sm'},
-		                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-		            ],
-		            onClosed: '',
-		            type: 'GET',
-		            callBack: {call : 'handleOrderCallBack', args : list}
-				});
-			}
-
-			function childGenerate1(id, n) {
-				var output = [];
-				for($i=1; $i<=3;$i++) {
-					if(n['cnt'+$i] != undefined) {
-						$child = n['cnt'+$i];
-						//var removeLink = "<a class=\"removeEncountersInsChildFileContainer\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-						output.push("<li><strong>", $i ,". ", $child['name'], "</strong> ", "</li> ");
-					}
-				}
-
-				return '<ul class="childContainer">'+output.join("")+'</ul>';
-			}
-
-			function handleDemosInsurancesCallBack(args) {
-				var output = [];
-
-				if(checkEncounterInsDemo == true) {
-						var removeLink = "<a class=\"removeEncountersInsFile\" href=\"#\"  data-fileid='checkEncounterInsDemo'>Remove</a>";
-						output.push("<li class='removeEncountersInsFileContainer'><span><strong>Report: Patient Demographics only. ", "</strong> - ", removeLink, "</span>", "</li> ");
-				}
-
-				$.each(selectedEncounterIns, function(i, n){
-				    if(n['id'] != undefined) {
-				    	var removeLink = "<a class=\"removeEncountersInsFile\" href=\"#\"  data-fileid=\"" + i + "\">Remove</a>";
-						output.push("<li class='removeEncountersInsFileContainer'><span><strong>Case Id ", n['id'], "</strong> - ", removeLink, "</span>", childGenerate1(i, n), "</li> ");
-					}
-				});
-
-				$('.removeEncountersInsFileContainer').remove();
-				$('#filesDoc').find("div .fileList")
-			             .append(output.join(""));
-			}
-
-			function handleDemosInsurances() {
-				var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/caseInsList.php?pid=". $pid; ?>';
-				dlgopen(url,'selectNotesPop', 800, 300, '', 'Demos & Insurances', {
-					buttons: [
-						{text: '<?php echo xla('Select'); ?>', close: true, style: 'demosinsurancessaveBtn btn-sm'},
-		                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-		            ],
-		            onClosed: '',
-		            type: 'GET',
-		            callBack: {call : 'handleDemosInsurancesCallBack'}
-				});
-				//dlgopen(url, 'findIns', 1100, 500, '', "gf");
-			}
-
-			function appendDataToForm(formData) {
-				// organize the file data
-				formData.append("files_length", filesToUpload.length);
-				for (var i = 0; i < filesToUpload.length; i++) {
-		            formData.append("files["+i+"]", filesToUpload[i].file);
-		        }
-
-		        // organize the document data
-		        if(selectedDocuments) {
-		        	var tempfiles = [];
-		        	$.each(selectedDocuments, function(i, n){
-		        		tempfiles.push(n);
-		        	});
-		        	formData.append("documentFiles", JSON.stringify(tempfiles));
-		        }
-
-		        // organize the notes data
-		        if(selectedNotes) {
-		        	var tempnotes = [];
-		        	$.each(selectedNotes, function(i, n){
-		        		tempnotes.push(n);
-		        	});
-		        	formData.append("notes", JSON.stringify(tempnotes));
-		        }
-
-		        // organize the encounter data
-		        if(selectedEncounterList) {
-		        	var tempencounters = {};
-		        	$.each(selectedEncounterList, function(i, n){
-		        		if(n['parentId'] == undefined) {
-		        			tempencounters[i] = { title : n['title'], value: n['value'], child : [], id : i, pid : n['pid']};
-		        		} else {
-		        			if(tempencounters[n['parentId']] != undefined) {
-		        				tempencounters[n['parentId']]['child'].push({ title : n['title'], value: n['value'], id : i, pid : n['pid']});
-		        			} else {
-		        				tempencounters[i] = { title : n['title'], value: n['value'], id : i, pid : n['pid']};
-		        			}
-		        		}
-		        	});
-		        	formData.append("encounters", JSON.stringify(tempencounters));
-		        }
-
-		        // organize the encounter data
-		        if(selectedEncounterList1) {
-		        	var tempencounters = {};
-		        	$.each(selectedEncounterList1, function(i, n){
-		        		if(n['parentId'] == undefined) {
-		        			tempencounters[i] = { title : n['title'], value: n['value'], child : [], id : i};
-		        		} else {
-		        			if(tempencounters[n['parentId']] != undefined) {
-		        				tempencounters[n['parentId']]['child'].push({ title : n['title'], value: n['value'], id : i});
-		        			} else {
-		        				tempencounters[i] = { title : n['title'], value: n['value'], id : i};
-		        			}
-		        		}
-		        	});
-		        	formData.append("encounters1", JSON.stringify(tempencounters));
-		        }
-
-		        if(selectedEncounterIns) {
-		        	formData.append("encounterIns", JSON.stringify(selectedEncounterIns));
-		        }
-
-		        if($docsList) {
-		        	formData.append("docsList", JSON.stringify($docsList));
-		        }
-
-		        if(uploadFileList) {
-		        	formData.append("uploadFileList", JSON.stringify(uploadFileList));
-		        }
-
-		        if(selectedOrder) {
-		        	var tempOrderfiles = [];
-		        	$.each(selectedOrder, function(i, n){
-		        		tempOrderfiles.push(n);
-		        	});
-		        	formData.append("orderList", JSON.stringify(tempOrderfiles));
-		        }
-
-		      formData.append("isCheckEncounterDemo", checkEncounterDemo);
-		      formData.append("isCheckEncounterInsDemo", checkEncounterInsDemo);
-
-		    	formData.append("baseDocList", JSON.stringify({
-		    		uploadFileList : uploadFileList,
-		    		selectedDocuments : selectedDocuments,
-		    		selectedEncounterList : selectedEncounterList,
-		    		selectedEncounterList1 : selectedEncounterList1,
-		    		selectedEncounterIns : selectedEncounterIns,
-		    		selectedOrder: selectedOrder,
-		    		checkEncounterDemo : checkEncounterDemo,
-		    		checkEncounterInsDemo : checkEncounterInsDemo
-		    	}));
-			}
-
-			//Open popup for patient selection
-			function selectPatientButton() {
-				dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 800, 400);
-			}
-
-			// This is for callback by the find-patient popup.
-			function setpatient(pid, lname, fname, dob) {
-				var form_action = $('#re_form_action').val();
-				if(form_action == "resend") {
-					$('#re_pid').val(pid);
-					$('#resend_form').submit();
-				}
-			}
-		</script>
-		<?php
-	}
-
-	/*Javascript related to attache file.*/
-	public function getFileUploadScript($pid, $requestStr, $form_action, $readOnly = 0) {
-		?>
-		<script type="text/javascript">
-			  var tinymceReadOnly = <?php echo $readOnly; ?>;
-	    	var tinyMCE = tinymce.init({
-				entity_encoding : "raw",
-				selector: "#content",
-				setup: function (editor) {
-		        editor.on('change', function () {
-		            editor.save();
-		        });
-			  },
-			  readonly : tinymceReadOnly,
-				theme : "modern",
-				mode : "exact",
-				br_in_pre : false,
-				force_br_newlines : true,
-				force_p_newlines : false,
-				forced_root_block : false,
-				relative_urls : false,
-				document_base_url : "<?php echo $GLOBALS['web_root'] ?>/",
-				plugins  : "visualblocks visualchars image link media template code codesample table hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools contextmenu colorpicker textpattern",
-				toolbar1 : "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
-				toolbar2 : "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | insertdatetime preview | forecolor backcolor",
-				toolbar3 : "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | visualchars visualblocks nonbreaking template pagebreak restoredraft | code",
-	//			toolbar1 : "formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat",
-				toolbar_items_size : "small",
-				templates : [
-					{ title: 'PDF Document', description: 'Default layout for PDF documents', url: 'pdf_template.html' }
-				],
-				menubar : false
-			});
-
-			// background update process
-			function ajaxTransmitWithFile(type) {
-				top.restoreSession();
-				//if($('#message').val() == 'free_text') {
-					var _msg = '';
-					if($('#email_id').val() == '') _msg = 'Please select email address.';
-					if($('#subject').val() == '') _msg = 'Please specify a subject.';
-					if($('#content').val() == '') {
-						if(_msg) _msg = '      ' + _msg + "\n";
-						_msg += 'You must include text in the message.';
-					}
-					if(_msg) {
-						alert(_msg);
-						return false;
-					}
-				//}
-
-				//Custom Email Id Check
-				var emailId = $('#email_id').val();
-				var isCustomEmailSelected = false;
-
-				if(emailId == "custom_email" || emailId == "legal_team") {
-					isCustomEmailSelected = emailId;
-					emailId = $('#custom_email_id').val();
-				}
-
-				// show spinner
-				$('#send_spinner_container').show();
-
-				// organize the data
-				var status = '';
-				var formData = new FormData(); // Currently empty
-				formData.append('mode', 'transmit');
-				formData.append('message', $('#message').val());
-				formData.append('pid', $('#pid').val());
-				formData.append('email_id', emailId);
-				formData.append('custom_email_id', $('#custom_email_id').val());
-				formData.append('custom_email_check', isCustomEmailSelected);
-				
-				if($('#message').val() == 'free_text') {
-					formData.append('subject', $('#subject').val());
-					formData.append('content', tinymce.get('content').getContent());
-				} else {
-					formData.append('subject', $('#subject').val());
-					formData.append('content', tinymce.get('content').getContent());
-				}
-
-				appendDataToForm(formData);
-
-	   			// run request
-	 			$.ajax ({
-					type: "POST",
-					url: "<?php echo $GLOBALS['webroot'].'/interface/main/messages/email_message.php?'.$requestStr; ?>",
-					processData: false,
-	            	contentType: false,
-					data: formData,
-					success: function(resultStr) {
-						var result = JSON.parse(resultStr);
-
-						$('#send_spinner_container').hide();
-
-			 			if (result.status == '') {
-			 				// Close window and refresh
-			 				opener.doRefresh('<?php echo $form_action ?>');
-							dlgclose();
-
-			 			} else {
-							// Display error condition
-				 	 		alert(result.status);
-			 			} 				
-					},
-					error: function() {
-						$('#send_spinner_container').hide();
-						alert('Send Failed...')
-					}, 	 					
-
-					async:   true
-				});
-			}
-
-			// background refresh process
-			function ajaxRetrieveWithHTML() {
-				top.restoreSession();
-				if($('#message').val() == 'free_text') {
-					//$('#subject_tr').css("display", "table-row");
-					//$('#content').attr("readonly", false);
-					//return true;
-				} else {
-					//$('#subject_tr').css("display", "none");
-					//$('#content').attr("readonly", true);
-				}
-				if($('#message').val() == '') return true;
-
-				// organize the data
-				var data = [];
-				data.push({name: "mode", value: "retrieve"});
-				data.push({name: "message", value: $('#message').val()});
-				data.push({name: "pid", value: $('#pid').val()});			
-
-	 			$.ajax ({
-					type: "POST",
-					url: "<?php echo $GLOBALS['webroot'].'/interface/main/messages/email_message.php?'.$requestStr; ?>",
-					dataType: "json",
-					data: $.param(data),
-					success: function(result) {
-			 			if (result.content == 'error') {
-		 	 				alert('Retrieve Failed...');
-		 				} else {
-	 	 					$('#content').val(result.content_html);
-	 	 					tinymce.get('content').setContent(result.content_html);
-
-							$('#content').animate({
-								scrollTop: 0
-							});
-
-							$('#subject').val(result.subject);
-		 				}
-					},
-					error: function() {
-						alert('Retrieve Failed...');
-					}, 	 					
-
-					async:   true
-				});
-			}
-	    </script>
 		<?php
 	}
 
@@ -2228,76 +1321,9 @@ class EmailMessage {
 		}
 	}
 
-	public static function removeElementsByTagName($tagName, $document) {
-	  $nodeList = $document->getElementsByTagName($tagName);
-	  for ($nodeIdx = $nodeList->length; --$nodeIdx >= 0; ) {
-	    $node = $nodeList->item($nodeIdx);
-	    $node->parentNode->removeChild($node);
-	  }
-	}
-
 	public static function is_html($string) {
 		//return preg_match( "/\/[a-z]*>/i", $string ) != 0;
 		return preg_match( "/^<.*>(.*)/", $string ) != 0;
-	}
-
-	public static function formateMessageContent($content_str) {
-			$content = html_entity_decode($content_str, ENT_COMPAT);
-			$htmlContent = "";
-
-			$isHTML = self::is_html($content);
-
-			if($isHTML === false) {
-				$htmlContent .= "<div id=\"textContainer\" class=\"plainText\">";
-				$htmlContent .= $content;
-				$htmlContent .= "</div>";
-			} else {
-				$htmlContent = $content;
-			}
-
-			return $htmlContent;
-	}
-
-	//Formate HTML
-	public static function displayMessageContent($content, $break = true, $utf_encoding = false) {
-		$content = html_entity_decode($content, ENT_COMPAT);
-
-		// create a new DomDocument object
-		$doc = new \DOMDocument();
-
-		// load the HTML into the DomDocument object (this would be your source HTML)
-		$doc->loadHTML($content);
-
-		self::removeElementsByTagName('script', $doc);
-		self::removeElementsByTagName('style', $doc);
-		self::removeElementsByTagName('link', $doc);
-
-		$doc->saveHtml();
-
-		//$html = '';
-		// $body = $doc->getElementsByTagName('body');
-		// if ( $body && 0<$body->length ) {
-		//     $body = $body->item(0);
-		//     $html = $doc->savehtml($body);
-		// }
-
-		$xpath = new \DOMXpath($doc);
-		$result = '';
-		foreach ($xpath->evaluate('//body/node()') as $node) {
-		  $result .= $doc->saveHtml($node);
-		}
-
-		if($break === true) {
-			$result = str_replace(chr(10), "<br>", $result);
-		}
-
-		if($utf_encoding === true) {
-			$result = mb_convert_encoding($result, 'UTF-8', 'UTF-8');
-		} else {
-			$result = utf8_decode($result);
-		}
-
-		return $result;
 	}
 
 	//Format HTML
@@ -2650,97 +1676,6 @@ class EmailMessage {
 		<?php
 	}
 
-	/*public function setupGlobalField(&$GLOBALS_METADATA, &$USER_SPECIFIC_TABS, &$USER_SPECIFIC_GLOBALS) {
-		$GLOBALS_METADATA['Notifications']['IMAP_SERVER_URL'] = array(
-			xl('IMAP Server URL'),
-            'text',                           // data type
-            '',                      // default
-            xl('IMAP Server URL used for get incoming emails')
-		);
-		
-		$GLOBALS_METADATA['Notifications']['IMAP_USER'] = array(
-            xl('IMAP User for Authentication'),
-            'text',                           // data type
-            '',                               // default
-            xl('Must be empty if IMAP authentication is not used.')
-        );
-
-        $GLOBALS_METADATA['Notifications']['IMAP_PASS'] = array(
-            xl('IMAP Password for Authentication'),
-            'text',                           // data type
-            '',                               // default
-            xl('Must be empty if IMAP authentication is not used.')
-        );
-
-        $GLOBALS_METADATA['Notifications']['IMAP_ON_MESSAGE_BOARD_PAGE_SYNC'] = array(
-						xl('Sync Emails On Message Board Page'),
-            array(
-                'true' => 'True',
-                'false' => 'False'
-            ),                          // data type
-            'false',                      // default
-            xl('Sync email on message board page')
-				);
-
-        $GLOBALS_METADATA['Notifications']['IMAP_ON_PAGE_SYNC'] = array(
-						xl('IMAP On Page Sync Run'),
-            array(
-                'true' => 'True',
-                'false' => 'False'
-            ),                          // data type
-            'true',                      // default
-            xl('Used to run sync email on page')
-				);
-
-				$GLOBALS_METADATA['Notifications']['IMAP_DELETE_AFTER_SYNC'] = array(
-						xl('IMAP Delete Email After Sync'),
-            array(
-                'true' => 'Yes',
-                'false' => 'No'
-            ),                          // data type
-            'false',                      // default
-            xl('Used for delete email after sync.')
-				);
-
-				$GLOBALS_METADATA['Notifications']['SYNC_EXIST_USER_EMAIL'] = array(
-            xl('Sync Emails For NonExisting Email Addresses'),
-            array(
-                'true' => 'True',
-                'false' => 'False'
-            ),                          // data type
-            'false',                                  // default
-            xl('Sync Emails For NonExisting Email Addresses')
-        );
-
-        $GLOBALS_METADATA['Notifications']['EMAIL_MAX_ATTACHMENT_SIZE'] = array(
-           xl('Email Max Attachment Size in MB'),
-            'text',                           // data type
-            '10',                               // default
-            xl('Email Max Attachment Size in MB')
-        );
-
-        $GLOBALS_METADATA['Notifications']['EMAIL_FROM_NAME'] = array(
-           xl('Email From name'),
-            'text',                           // data type
-            '',                               // default
-            xl('Email From name')
-        );
-
-        $GLOBALS_METADATA['PDF']['pdf_header_margin'] = array(
-           xl('Header margin (mm)'),
-            'text',                           // data type
-            '0',                               // default
-            xl('Header margin (mm)')
-        );
-
-        $GLOBALS_METADATA['PDF']['pdf_footer_margin'] = array(
-           xl('Footer margin (mm)'),
-            'text',                           // data type
-            '0',                               // default
-            xl('Header margin (mm)')
-        );
-	}*/
-
 	public static function getMessageContent($message, $version = 1) {
 			$messageHTML = html_entity_decode($message);
 			$messageResponce = $messageHTML;
@@ -2769,7 +1704,7 @@ class EmailMessage {
 			return $messageResponce;
 	}
 
-	public function getMsgLogHTML($id) {
+	public static function getMsgLogHTML($id) {
 		$messageData = self::getMessageById($id);
 		if(count($messageData) > 0) {
 			$message = isset($messageData[0]['message']) ? html_entity_decode($messageData[0]['message']) : "";
@@ -2794,7 +1729,7 @@ class EmailMessage {
 		return false;
 	}
 
-	public function getMsgContent($message) {
+	public static function getMsgContent($message) {
 		$msgText = '';
 		$msgHtml = '';
 
@@ -2811,7 +1746,7 @@ class EmailMessage {
 		);
 	}
 
-	public function getSMSMsgContent($message) {
+	public static function getSMSMsgContent($message) {
 		$msgText = '';
 		$msgHtml = '';
 
@@ -2853,7 +1788,7 @@ class EmailMessage {
 	    $orderid = 0,
 	    $n_orderby = ''
 	) {
-
+		
 	    $sqlParameterArray = array();
 	    if ($docid) {
 	        $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
@@ -2900,6 +1835,8 @@ class EmailMessage {
 	    if ($limit != "all") {
 	        $sql .= " LIMIT ".escape_limit($start).", ".escape_limit($limit);
 	    }
+
+	    print_r($sql);
 
 	    $res = sqlStatement($sql, $sqlParameterArray);
 
@@ -3075,6 +2012,7 @@ class EmailMessage {
         }
 	}
 
+
 	public static function getMsgDocs($id) {
 		$docs_list = array();
 		$binds = array($id);
@@ -3091,7 +2029,7 @@ class EmailMessage {
 		return $docs_list;
 	}
 
-	public function generateDocList($docList) {
+	public static function generateDocList($docList) {
 		$docs = array();
 		if(!empty($docList)) {
 			foreach ($docList as $key => $docItem) {
@@ -3117,7 +2055,7 @@ class EmailMessage {
 		return $docs;
 	}
 
-	public function htmlDocFileList($docList = array(), $docsData = array(), $msgData = array()) {
+	public static function htmlDocFileList($docList = array(), $docsData = array(), $msgData = array()) {
 		global $webserver_root;
 
 		$downloadLink = $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/downloadDoc.php";
@@ -3197,7 +2135,7 @@ class EmailMessage {
 		}
 	}
 
-	public function extractVariable($data, $list) {
+	public static function extractVariable($data, $list) {
 		$varList = array();
 
 		if(!empty($data) && is_array($data)) {
@@ -3430,171 +2368,6 @@ class EmailMessage {
 		return $html;
 	}
 
-	/*Email Attachment doc*/
-	public static function generateFinalDoc($type, $data, $file_name, $pid, $category_id, $doc_date = '') {
-		global $webserver_root;
-
-		try {
-
-			$pdf = new \mPDF('utf-8',array(215.9, 279.4));
-
-			$pdf->allow_charset_conversion=true;
-			$pdf->charset_in='UTF-8';
-
-			$pdf->AddPageByArray([
-				'margin-left' => '12.6mm',
-				'margin-right' => '12.6mm',
-				'margin-top' => '13.5mm',
-				'margin-bottom' => '13.5mm',
-			]);
-
-			$allowedImage = array('jpg','jpeg','jpe','png');
-			$allowedFile = array('pdf');
-
-			foreach($data as $dE => $data_item) {
-				if($dE > 0) {
-					$pdf->AddPage();
-				}
-
-				$imageFiles = array();
-				$dataFiles = array();
-
-				$emailHtml = self::generateEmailHTML($type, $data_item);
-				$pdf->writeHTML(utf8_decode($emailHtml), false);	
-
-				foreach($data_item['attachments'] as $item) {
-					$fileExt = end(explode(".", $item['url']));
-					if(in_array($fileExt, $allowedImage) == true) {
-						$imageFiles[] = array(
-							'file_name' => $item['file_name'],
-							'path' => $webserver_root . $item['url']
-						);
-					} else if(in_array($fileExt, $allowedFile) == true) {
-						$dataFiles[] = $webserver_root . $item['url'];
-					} else {
-						$messages[] = "Skipped file becuase of UnSupported File Type: ".$item['filename'];
-					}
-				}
-
-				foreach($dataFiles as $file){
-					$fileExt = end(explode(".", $file));
-						$pdf->SetImportUse();
-						$rsponceFile = self::checkFPDI($file);
-						if($rsponceFile != false && !empty($rsponceFile)) {
-							$pagecount = $pdf->SetSourceFile($rsponceFile);
-							for ($i=1; $i<=($pagecount); $i++) {
-								$pdf->AddPage();
-								$import_page = $pdf->ImportPage($i);
-								$pdf->UseTemplate($import_page);
-							}
-						}
-				}
-
-				if(!empty($imageFiles)) {
-					$pdf->AddPage();
-					foreach($imageFiles as $file){
-						$htmlStr = '<div><img src="'.$file['path'].'"/><div style="margin-top:5px;margin-bottom:25px;"><span><b>'.$file['file_name'].'</b></span></div></div>';
-						$pdf->writeHTML($htmlStr, false);
-					}
-				}
-			}
-
-			$pagecount = $pdf->page;
-			
-			$file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/message_attachments/";
-			$fullfilename = $file_location . strtotime(date('Y-m-d H:i:s')) . "_adddpc.pdf";
-			
-			$content_pdf = $pdf->Output($fullfilename, 'S');
-
-			//Generate tmp file of documents
-			$tmpfname = tempnam(sys_get_temp_dir(), 'POST');
-			rename($tmpfname, $tmpfname .= '.tmp');
-			file_put_contents($tmpfname, $content_pdf);
-
-			$docResponce = self::doAddToDocument($tmpfname, $file_name, $pid, $category_id, $doc_date);
-
-			return array(
-				'status' => true,
-				'error' => isset($docResponce['error']) ? $docResponce['error'] : "",
-				'message' => isset($docResponce['message']) ? $docResponce['message'] : "",
-				'page_count' => $pagecount 
-			);
-
-		} catch (Exception $e) {
-
-			$status = $e->getMessage();
-
-			return array(
-				'status' => false,
-				'error' => $status
-			);
-		
-		}
-	}
-
-	public static function doAddToDocument($file_path, $file_name, $pid, $category_id, $doc_date = '') {
-		$fname = $file_name.'.pdf';
-		$filesize = filesize($file_path);
-		$tmpfile = fopen($file_path, "r");
-        $filetext = fread($tmpfile, $filesize);
-        fclose($tmpfile);
-
-        // set mime, test for single DICOM and assign extension if missing.
-        $mimetype = mime_content_type($file_path);
-
-        if (strpos($filetext, 'DICM') !== false) {
-	        $mimetype = 'application/dicom';
-	        $parts = pathinfo($fname);
-	        if (!$parts['extension']) {
-	            $fname .= '.dcm';
-	        }
-	    }
-
-	    $d = new \Document();
-
-	    if(!empty($doc_date)) {
-	    	$d->set_docdate($doc_date);
-		}
-
-        $rc = $d->createDocument(
-            $pid,
-            $category_id,
-            $fname,
-            $mimetype,
-            $filetext,
-            '',
-            1,
-            0,
-            $file_path
-        );
-        if ($rc) {
-            $error = $rc;
-        } else {
-            $message = "Success";
-        }
-
-        return array(
-			'status' => false,
-			'error' => isset($error) ? $error : "",
-			'message' => isset($message) ? $message : ""
-		);
-	}
-
-	function addDocuments($type, $list, $file_name, $pid, $category_id, $doc_date = '') {
-		if(!empty($list)) {
-			$messagesList = self::getMessageByIds($list);
-
-			$emailItem = array();
-			foreach ($messagesList as $key => $item) {
-				$attachmentList = self::getEmailAttachmentList($item['id']);
-				$emailItem[] = array_merge($item, array('attachments' => $attachmentList));
-			}
-			return self::generateFinalDoc($type, $emailItem, $file_name, $pid, $category_id, $doc_date);
-		}
-
-		return false;
-	}
-
 	// TransmitEmail
   public static function TransmitEmail($eData = array(), $opts = array()) {
     global $username;
@@ -3611,6 +2384,7 @@ class EmailMessage {
             // Attache Files
             $attachmentList = Attachment::prepareAttachment($pid, $request_data, $files);
             $attachmentList = Attachment::saveAttachmentFile($attachmentList);
+            $request_data = Attachment::updateRequest($attachmentList, $request_data);
 
             // Check and calculate attachments size
             $attachmentStatus = self::calculateAttachmentSize($attachmentList);
@@ -3631,9 +2405,11 @@ class EmailMessage {
                 'errors' => array()
             );
 
+            $emailData['request_data'] = $request_data;
+
             try {
-                //if(empty($emailData['from'])) $emailData['from'] = "PATIENT SUPPORT";
-            		if(empty($emailData['from'])) $emailData['from'] = "devlog1@zohomail.in";
+                if(empty($emailData['from'])) $emailData['from'] = "PATIENT SUPPORT";
+            		//if(empty($emailData['from'])) $emailData['from'] = "";
                 if(empty($emailData['from_name'])) $emailData['from_name'] = $GLOBALS['EMAIL_FROM_NAME'];
 
                 if(!isset($emailData['from']) || empty($emailData['from'])) {
@@ -3671,7 +2447,9 @@ class EmailMessage {
                 $emailStatus = $email->TransmitEmail($email_data);
 
                 if($emailStatus == "552") {
-                    throw new \Exception(self::getMaxSizeErrorMsg()); 
+                  throw new \Exception(self::getMaxSizeErrorMsg()); 
+                } else if(!empty($emailStatus)) {
+                	throw new \Exception($emailStatus); 
                 }
 
             } catch(\Throwable $e) {

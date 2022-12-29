@@ -6,8 +6,10 @@ namespace OpenEMR\OemrAd;
 @include_once($GLOBALS['srcdir']."/patient.inc");
 @include_once($GLOBALS['srcdir']."/wmt-v2/wmtstandard.inc");
 @include_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
+@include_once($GLOBALS['srcdir']."/OemrAD/oemrad.globals.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\OemrAd\Attachment;
 
 /**
  * Messages Class
@@ -386,7 +388,7 @@ class MessagesLib {
 		</script>
 		<?php
 	}
-
+	/*
 	function internal_note_head() {
 		?>
 		<script type="text/javascript">
@@ -406,6 +408,7 @@ class MessagesLib {
 		</script>
 		<?php
 	}
+	*/
 
 	public static function checkGroupUserExits_Js() {
 		?>
@@ -1656,4 +1659,238 @@ class MessagesLib {
 		}
 		return $results;
 	}
+
+	//Formate HTML
+	public static function displayMessageContent($content, $break = true, $utf_encoding = false) {
+		$content = html_entity_decode($content, ENT_COMPAT);
+
+		// create a new DomDocument object
+		$doc = new \DOMDocument();
+
+		// load the HTML into the DomDocument object (this would be your source HTML)
+		$doc->loadHTML($content);
+
+		self::removeElementsByTagName('script', $doc);
+		self::removeElementsByTagName('style', $doc);
+		self::removeElementsByTagName('link', $doc);
+
+		$doc->saveHtml();
+
+		//$html = '';
+		// $body = $doc->getElementsByTagName('body');
+		// if ( $body && 0<$body->length ) {
+		//     $body = $body->item(0);
+		//     $html = $doc->savehtml($body);
+		// }
+
+		$xpath = new \DOMXpath($doc);
+		$result = '';
+		foreach ($xpath->evaluate('//body/node()') as $node) {
+		  $result .= $doc->saveHtml($node);
+		}
+
+		if($break === true) {
+			$result = str_replace(chr(10), "<br>", $result);
+		}
+
+		if($utf_encoding === true) {
+			$result = mb_convert_encoding($result, 'UTF-8', 'UTF-8');
+		} else {
+			$result = utf8_decode($result);
+		}
+
+		return $result;
+	}
+
+	public static function removeElementsByTagName($tagName, $document) {
+	  $nodeList = $document->getElementsByTagName($tagName);
+	  for ($nodeIdx = $nodeList->length; --$nodeIdx >= 0; ) {
+	    $node = $nodeList->item($nodeIdx);
+	    $node->parentNode->removeChild($node);
+	  }
+	}
+
+	public function filterMsg(&$data) {
+		if(preg_match('#<div class="attachmentContainer">(.*?)</div>#', $data['message'])) {
+			if($data['direction'] == "in" && $data['type'] == "EMAIL") {
+				$data['message'] = preg_replace('#<div class="attachmentContainer">(.*?)</div>#', '', $data['message']);;
+			}
+		}
+	}
+
+	public static function formateMessageContent($content_str) {
+			$content = html_entity_decode($content_str, ENT_COMPAT);
+			$htmlContent = "";
+
+			$isHTML = self::is_html($content);
+
+			if($isHTML === false) {
+				$htmlContent .= "<div id=\"textContainer\" class=\"plainText\">";
+				$htmlContent .= $content;
+				$htmlContent .= "</div>";
+			} else {
+				$htmlContent = $content;
+			}
+
+			return $htmlContent;
+	}
+
+	public static function getTextTitle($strText = '', $replaceStr = "\r\n") {
+		$breaks = array("<br />","<br>","<br/>");  
+    	$str = str_ireplace($breaks, $replaceStr, $strText); 
+
+		return '<span title="'.strip_tags($str).'">'.$strText.'</span>';
+	}
+
+	public static function is_html($string) {
+		//return preg_match( "/\/[a-z]*>/i", $string ) != 0;
+		return preg_match( "/^<.*>(.*)/", $string ) != 0;
+	}
+
+	/*Get website url*/
+	public static function getWebsiteURL() {
+		global $web_root, $webserver_root;
+		$prefix = 'http://';
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+            $prefix = "https://";
+        }
+        return $prefix . $_SERVER['HTTP_HOST'] . $web_root;
+	}
+
+	/*Help to get save url*/
+	public static function getSaveURL($url) {
+		global $webserver_root;
+		$site_url = self::getWebsiteURL();
+		$sUrl = str_replace($webserver_root, "", $url);
+		$sUrl = substr($sUrl, strpos($sUrl, "/sites/"));
+		return $sUrl;
+	}
+
+	public static function getMsgDocs($id) {
+		$docs_list = array();
+		$binds = array($id);
+
+		$sql = "SELECT ma.* ";
+		$sql .= "FROM `message_attachments` ma ";
+		$sql .= "WHERE ma.`message_id` = ? ";
+
+		$docs_result = sqlStatementNoLog($sql, $binds);
+
+		while ($docs_data = sqlFetchArray($docs_result)) {
+			$docs_list[] = $docs_data;
+		}
+		return $docs_list;
+	}
+
+	public static function displayAttachment($type, $id, $data) {
+		global $webserver_root;
+
+		if(preg_match('#<div class="attachmentContainer">(.*?)</div>#', $data['message'])) {
+			return false;
+		}
+
+		$docsList = self::getMsgDocs($id);
+		$downloadLink = $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/downloadDoc.php";
+
+		if((!empty($docsList) && is_array($docsList) && count($docsList) > 0) || !empty($data['url'])) {
+			?>
+			<div class="attachmentContainer">
+				<br/>
+				<ul>
+					<?php
+						foreach ($docsList as $key => $doc) {
+							if($data['direction'] == "in" && $data['type'] == "EMAIL") {
+								$doc['url'] = self::getSaveURL($doc['url']);
+							}
+
+							$file_url = $webserver_root . $doc['url'];
+							if(isset($doc['doc_id']) && !empty($doc['doc_id'])) {
+								?>
+								<li>
+									<a href="<?php echo $downloadLink.'?path='.$file_url.'&name='.$doc['file_name']; ?>"><?php echo $doc['file_name']; ?></a> - <a style="cursor: pointer;" class="docrow" id="<?php echo $doc['doc_id']; ?>" >(View)</a>
+								</li>
+								 <?php
+							} else {
+								?>
+								<li>
+									<a href="<?php echo $downloadLink.'?path='.$file_url.'&name='.$doc['file_name']; ?>"><?php echo $doc['file_name']; ?></a>
+								</li>
+								<?php
+							}
+						}
+
+						if($type == "P_LETTER") {
+							if(!empty($data['file_name']) && !empty($data['url'])) {
+								$file_url = $webserver_root . $data['url'];
+								?>
+								<li>
+									<a href="<?php echo $downloadLink.'?path='.$file_url.'&name='.$data['file_name']; ?>"><?php echo $data['file_name']; ?></a>
+								</li>
+								<?php
+							}
+						}
+
+					?>
+				</ul>
+			</div>
+			<?php
+		}
+	}
+
+	/*Get message by ids log*/
+	public static function getMessageByIds($msgIds = array()) {
+		$email_list = array();
+		$binds = array();
+
+		$sql = "SELECT ml.* ";
+		$sql .= "FROM `message_log` ml ";
+		$sql .= "WHERE ml.`type` IS NOT NULL ";
+
+		if(!empty($msgIds)) {
+			$sql .= "AND ml.`id` IN(".implode(",", $msgIds).") ";
+		}
+		$sql .= "order by ml.`msg_time` DESC";
+
+		$email_result = sqlStatementNoLog($sql, $binds);
+
+		while ($email_data = sqlFetchArray($email_result)) {
+			$email_list[] = $email_data;
+		}
+		return $email_list;
+	}
+
+	public function addDocuments($type, $list, $file_name, $pid, $category_id, $doc_date = '') {
+        if(!empty($list)) {
+            $messagesList = self::getMessageByIds($list);
+
+            $emailItem = array();
+            foreach ($messagesList as $key => $item) {
+                $attachmentList = Attachment::getAttachmentList($item['id']);
+                $emailItem[] = array_merge($item, array('attachments' => $attachmentList));
+            }
+
+            return Attachment::generateFinalDoc($type, $emailItem, $file_name, $pid, $category_id, $doc_date);
+        }
+
+        return false;
+    }
+
+    public static function displayIframeMsg($msg = '', $body_class = '') {
+    	$formatedMessage = MessagesLib::formateMessageContent($msg);
+
+    	if(preg_match('#<div class="attachmentContainer">(.*?)</div>#', $formatedMessage)) {
+			//if($data['direction'] == "in" && $data['type'] == "EMAIL") {
+				$formatedMessage = preg_replace('#<div class="attachmentContainer">(.*?)</div>#', '', $formatedMessage);
+			//}
+		}
+
+		$formatedMessage = str_replace("\r\n","",$formatedMessage);
+		$formatedMessage = '<html><body class="'.$body_class.'">'.$formatedMessage.'</body></html>';
+		
+		$styleCss = '<link rel="stylesheet" href="'.$GLOBALS['webroot'].'/public/themes/style_light.css?v=71" type="text/css">';
+		//$styleCss .= '<style type="text/css">.plainText {white-space: pre;font-family:  -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji; font-size: 12px;} body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"; font-size: 1rem; font-weight: 400; line-height: 1.5;}</style>';
+		$formatedMessage = $styleCss . $formatedMessage;
+
+		return $formatedMessage;
+    }
 }

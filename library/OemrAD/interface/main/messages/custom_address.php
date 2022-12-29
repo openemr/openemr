@@ -42,10 +42,6 @@ if($mode == "ajax") {
   			width:100%;
         	max-width:500px;
   		}
-  		.formControlSelect{
-  			padding: 3px;
-    		margin: 3px;
-  		}
   		.body_top{
   			margin: 8px;
   		}
@@ -109,7 +105,7 @@ if($mode == "ajax") {
 		</div>
 		<br/>
 		<footer style="border:none">
-			<button id="submit_address" type="button">Submit</button>
+			<button id="submit_address" class="btn btn-primary" type="button">Submit</button>
 		</footer>
 	</form>
 	<script type="text/javascript">

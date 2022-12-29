@@ -304,4 +304,8 @@ class Utility {
 
 	    return $mIElement;
 	}
+
+	public static function getHtmlString($text) {
+		return addslashes(htmlspecialchars($text));
+	}
 }

@@ -2,8 +2,8 @@
 
 namespace OpenEMR\OemrAd;
 
-include_once("../interface/globals.php");
-include_once($GLOBALS['fileroot'].'/mdEmailMessage.class.php');
+@include_once("../interface/globals.php");
+@include_once('./mdEmailMessage.class.php');
 
 use OpenEMR\OemrAd\EmailMessage;
 use Mpdf\Mpdf;
@@ -20,122 +20,6 @@ class FaxMessage {
 		$returnList->fax_pass = isset($GLOBALS['FAX_PASS']) ? $GLOBALS['FAX_PASS'] : "";
 
 		return $returnList;
-	}
-
-	/*Page head scripts*/
-	public function pageHead() {
-		?>
-		<!-- DataTable -->
-	  	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
-	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
-	    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
-	    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-1-3-2/js/dataTables.colReorder.min.js"></script>
-	    <link rel="stylesheet" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css">
-	    <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
-	    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/tiny-mce-nwt/tinymce.min.js"></script>
-
-	    <style type="text/css">
-			body {
-				overflow-y: auto!important;
-			}
-			.btn-file {
-			    position: relative;
-			    overflow: hidden;
-			}
-		    .btn-file input[type=file] {
-		       	background: #1050b6;
-			    color: #ffffff !important;
-			    display: block;
-			    float: left;
-			    font-weight: 400;
-		        position: absolute;
-		        top: 0;
-		        right: 0;
-		        min-width: 100%;
-		        min-height: 100%;
-		        text-align: right;
-		        filter: alpha(opacity=0);
-		        opacity: 0;
-		        outline: none;
-		        cursor: inherit;
-		        border-radius: 0px!important; 
-		    }
-		    .uploadBtnContainer {
-		    	width: 95px;
-    			height: 30px;
-		    }
-		    .btn-flie-b {
-		    	background: #2672ec;
-			    color: #ffffff !important;
-			    display: block;
-			    font-weight: 400;
-			    margin-right: 3px;
-			    padding-right: 10px;
-			    text-decoration: none;
-			    padding: 5px 12px 5px;
-			    border: none;
-			    border-radius: 0px!important; 
-		    }
-		    .files input[type="button"], input[type="submit"], .files button {
-		    	float: none!important;
-		    }
-		    .files .btnContainer {
-		    	display: inline-block;
-		    	vertical-align: top;
-		    }
-		    .files .fileList {
-		    	padding-left: 20px;
-    			margin-top: 15px;
-    			margin-bottom: 20px;
-    			float: left;
-		    }
-		    body {
-		    	/*min-height: 600px;*/
-		    }
-		    textarea.form-control {
-		    	height: 100px!important;
-		    }
-		    main {
-		    	flex-grow: unset!important;
-		    }
-		    #send_fax {
-		    	float: right;
-		    }
-		    .containerFax {
-		    	order: 3;
-		    	width: 100%;
-		    	margin-top: 15px;
-		    }
-		    .containerFile {
-		    	order: 3;
-		    	width: 100%;
-		    	margin-top: 15px;
-		    }
-		    .fileList li {
-		    	border-bottom: 1px solid;
-		    }
-		    .childContainer li:last-child {
-		    	border-bottom: 0px solid;
-		    }
-		    .counterListContainer {
-		    	padding: 10px;
-		    	margin-bottom: 10px;
-		    }
-		    .encounter_data input[type=checkbox] {
-		    	margin-right: 8px;
-		    }
-		    .encounter_data .encounter_forms {
-		    	padding-left: 20px;
-		    }
-		    .hideContainer {
-		    	display: none;
-		    }
-		    .readonlyInput {
-		    	background-color: #fff!important;
-		    }
-		</style>
-
-		<?php
 	}
 
 	/*Merge message with attachment document*/
@@ -155,74 +39,6 @@ class FaxMessage {
 			$messageStr .= '</ul></div>';
 		}
 		return $messageStr;
-	}
-
-	public function getFaxNumber($pid, $readonly = 0) {
-		?>
-		<tr>
-			<td style='text-align:right'>
-				<b><?php echo xlt('Select recipient'); ?>:&nbsp;</b>
-			</td>
-			<td>
-				<select id="fax_from" name="fax_from" class="form-control form-select">
-					<option value="">Please Select</option>
-					<option value="address_book">Address Book</option>
-					<option value="insurance_companies">Insurance Companies</option>
-					<option value="patient">Patient</option>
-					<option value="custom">Custom</option>
-				</select>
-			</td>
-		</tr>
-		<tr id="address_book_container" class="hideContainer searchContainer">
-			<td style='text-align:right'>
-				<b><?php echo xlt('Address Book'); ?>:&nbsp;</b>
-			</td>
-			<td>
-				<input type='text' id="address_book" name="address_book" onClick='sel_addressbook_fax()' class='form-control readonlyInput' value='' readonly/>
-			</td>
-		</tr>
-		<tr id="insurance_companies_container" class="hideContainer searchContainer">
-			<td style='text-align:right'>
-				<b><?php echo xlt('Insurance Companies'); ?>:&nbsp;</b>
-			</td>
-			<td>
-				<input type='text' id="insurance_companies" name="insurance_companies" onClick="sel_insurancecompanies_fax()" class='form-control readonlyInput' value='' readonly/>
-			</td>
-		</tr>
-		<?php
-	}
-
-	/*Help to Get file upload component*/
-	public function getFileUploadEle($pid, $type = '') {
-		?>
-		<div class="containerFax">
-		<div class="files" id="filesDoc">
-			<?php if($type == 'FAX') { ?>
-			<div class="btnContainer uploadBtnContainer">
-			<span class="btn btn-flie-b btn-file">
-		        Upload File  <input type="file" name="files1" multiple accept="application/pdf, image/*" />
-		    </span>
-			</div>
-			<?php } ?>
-			<div class="btnContainer">
-				<button type="button" id="select_document" onClick="handleSelectDocument()">Select Documents</button>
-			</div>
-			<!-- <div class="btnContainer">
-				<button type="button" id="select_notes" onClick="handleSelectNotes()">Select Internal Notes</button>
-			</div> -->
-			<div class="btnContainer">
-				<button type="button" id="select_encounters" onClick="handleSelectEncounters('selectedEncounterList')">Select Encounters & Forms</button>
-			</div>
-			<div class="btnContainer">
-				<button type="button" id="select_encounters_1" onClick="handleDemosInsurances()">Demos and Ins</button>
-			</div>
-			<div class="btnContainer">
-				<button type="button" id="select_document" onClick="handleSelectOrder()">Order</button>
-			</div>
-			<div><ul class="fileList"></ul></div>
-    	</div>
-    	</div>
-    	<?php
 	}
 
 	public static function getFormEncounters($pid) {
@@ -379,282 +195,6 @@ class FaxMessage {
 				selectedEncounterList = tempSelected;
 			});
 		</script>
-		<?php
-	}
-
-	/*Javascript related to attache file.*/
-	public function getFileUploadScript($pid, $pat_data, $requestStr = '', $form_action, $readOnly = 0) {
-		?>
-		<script type="text/javascript">
-			$('#fax_from').change(function(){
-				var selectedFaxTypeVal = $(this).children("option:selected").val();
-				$('.searchContainer').hide();
-				$('#'+selectedFaxTypeVal+'_container').css('display', 'table-row');;
-				
-				var fax_val = "";
-				var rec_val = "";
-				var isDisabled = true;
-				if(selectedFaxTypeVal == "patient") {
-					var fax_val = '<?php echo $pat_data->fax_number; ?>'; 
-					var rec_val = decodeHTMLEntities('<?php echo htmlspecialchars($pat_data->format_name, ENT_QUOTES); ?>'); 
-				} else if(selectedFaxTypeVal == "custom") {
-					isDisabled = false;
-				}
-				$('#'+selectedFaxTypeVal).val("");
-				$('#fax_number').val(fax_val).attr("disabled", isDisabled);
-				$('#rec_name').val(rec_val).attr("disabled", isDisabled);
-			});
-
-			//Help to decode HTML entities 
-			function decodeHTMLEntities (str) {
-				var element = document.createElement('div');
-			    if(str && typeof str === 'string') {
-			      // strip script/html tags
-			      str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, '');
-			      str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, '');
-			      element.innerHTML = str;
-			      str = element.textContent;
-			      element.textContent = '';
-			    }
-
-			    return str;
-			}
-
-			// This is for callback by the find-addressbook popup.
-			function setAddressBook(id, name, fax) {
-				$('#address_book').val(name);
-				$('#rec_name').val(name);
-				$('#fax_number').val(fax);
-			}
-
-			// This invokes the find-addressbook popup.
-			function sel_addressbook_fax() {
-				var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_addressbook_popup.php?pid=". $pid; ?>&pagetype=fax';
-			  	let title = '<?php echo xlt('Address Book Search'); ?>';
-			  	dlgopen(url, 'findAddressbook', 1100, 500, '', title);
-			}
-
-			// This is for callback by the find-insurance_companies popup.
-			function setInsurancecompanies(id, name, fax) {
-				$('#insurance_companies').val(name);
-				$('#rec_name').val(name);
-				$('#fax_number').val(fax);
-			}
-
-			// This invokes the find-insurance_companies popup.
-			function sel_insurancecompanies_fax() {
-				var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_insurancecompanies_popup.php?pid=". $pid; ?>&pagetype=fax';
-			  	let title = '<?php echo xlt('Insurance Companies Search'); ?>';
-			  	dlgopen(url, 'findInsurancecompanies', 1100, 500, '', title);
-			}
-		</script>
-		<script type="text/javascript">
-			var tinymceReadOnly = <?php echo $readOnly; ?>;
-	    	var tinyMCE = tinymce.init({
-				entity_encoding : "raw",
-				selector: "#content",
-				setup: function (editor) {
-			        editor.on('change', function () {
-			            editor.save();
-			        });
-			    },
-			    readonly : tinymceReadOnly,
-				theme : "modern",
-				mode : "exact",
-				br_in_pre : false,
-				force_br_newlines : true,
-				force_p_newlines : false,
-				forced_root_block : false,
-				relative_urls : false,
-				document_base_url : "<?php echo $GLOBALS['web_root'] ?>/",
-				plugins  : "visualblocks visualchars image link media template code codesample table hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools contextmenu colorpicker textpattern",
-				toolbar1 : "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
-				toolbar2 : "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | insertdatetime preview | forecolor backcolor",
-				toolbar3 : "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | visualchars visualblocks nonbreaking template pagebreak restoredraft | code",
-	//			toolbar1 : "formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat",
-				toolbar_items_size : "small",
-				templates : [
-					{ title: 'PDF Document', description: 'Default layout for PDF documents', url: 'pdf_template.html' }
-				],
-				menubar : false
-			});
-
-			// background update process
-			function ajaxTransmitWithFile(type) {
-				top.restoreSession();
-				
-				var _msg = '';
-				if($('#content').val() == '') {
-					if(_msg) _msg = '' + _msg + "\n";
-					_msg += 'You must include text in the message.';
-				}
-				if($('#fax_number').val() == '') {
-					if(_msg) _msg = '' + _msg + "\n";
-					_msg += 'You must enter fax number.';
-				}
-				if($('#rec_name').val() == '') {
-					if(_msg) _msg = '' + _msg + "\n";
-					_msg += 'You must enter receivers name.';
-				}
-				if(_msg) {
-					alert(_msg);
-					return false;
-				}
-				
-
-				// show spinner
-				$('#send_spinner_container').show();
-
-				// organize the data
-				var status = '';
-				var formData = new FormData(); // Currently empty
-				formData.append('mode', 'transmit');
-				formData.append('message', $('#message').val());
-				formData.append('pid', $('#pid').val());
-				formData.append('fax_number', $('#fax_number').val());
-				formData.append('rec_name', $('#rec_name').val());
-				
-				formData.append('content', tinymce.get('content').getContent());
-
-				//Extra param
-				formData.append('fax_from', $('#fax_from').val());
-				formData.append('address_book', $('#address_book').val());
-				formData.append('insurance_companies', $('#insurance_companies').val());
-				appendDataToForm(formData);
-
-	   			// run request
-	 			$.ajax ({
-					type: "POST",
-					url: "<?php echo $GLOBALS['webroot'].'/interface/main/messages/fax_message.php?submod=check'.$requestStr; ?>",
-					processData: false,
-	            	contentType: false,
-					data: formData,
-					success: function(resultStr) {
-						//console.log(resultStr);
-						var result = JSON.parse(resultStr);
-
-			 			if (result.status == true) {
-
-			 				if(result.data.cost_data != undefined && result.data.cost_data.alert) {
-			 					alert(result.data.cost_data.alert);
-			 					ajaxTransmitConfirm(formData, result.data);
-			 				}
-
-			 				if(result.data.cost_data != undefined && result.data.cost_data.confirm) {
-			 					var confirmResult = confirm(result.data.cost_data.confirm);
-
-			 					if(confirmResult == true) {
-			 						ajaxTransmitConfirm(formData, result.data);
-			 					} else {
-			 						$('#send_spinner_container').hide();
-			 					}
-			 				}
-
-			 				if(result.data.cost_data != undefined && result.data.cost_data.noalert) {
-			 					ajaxTransmitConfirm(formData, result.data);
-			 				}
-
-			 				if(result.data.cost_data != undefined && result.data.cost_data.error) {
-			 					$('#send_spinner_container').hide();
-
-								// Display error condition
-					 	 		alert(result.data.cost_data.error);
-			 				}
-
-			 			} else if (result.status == false) {
-			 				$('#send_spinner_container').hide();
-
-							// Display error condition
-				 	 		alert(result.error);
-			 			} 				
-					},
-					error: function() {
-						$('#send_spinner_container').hide();
-						alert('Send Failed...')
-					}, 	 					
-
-					async:   true
-				});
-			}
-
-			// background update process confirm
-			function ajaxTransmitConfirm(formData, prevData) {
-				
-				//Added prevData
-				formData.append("prevData", JSON.stringify(prevData));
-
-				// run request
-	 			$.ajax ({
-					type: "POST",
-					url: "<?php echo $GLOBALS['webroot'].'/interface/main/messages/fax_message.php?submod=confirm'.$requestStr; ?>",
-					processData: false,
-	            	contentType: false,
-					data: formData,
-					success: function(resultStr) {
-						//console.log(resultStr);
-						var result = JSON.parse(resultStr);
-
-						$('#send_spinner_container').hide();
-
-			 			if (result.status == true) {
-							if(result.message) {
-								alert(result.message);
-							}
-
-			 				// Close window and refresh
-			 				opener.doRefresh();
-							dlgclose();
-
-			 			} else if (result.status == false) {
-							// Display error condition
-				 	 		alert(result.error);
-			 			} 				
-					},
-					error: function() {
-						$('#send_spinner_container').hide();
-						alert('Send Failed...')
-					}, 	 					
-
-					async:   true
-				});
-			}
-
-			// background refresh process
-			function ajaxRetrieveWithHTML() {
-				top.restoreSession();
-
-				if($('#message').val() == '') return true;
-
-				// organize the data
-				var data = [];
-				data.push({name: "mode", value: "retrieve"});
-				data.push({name: "message", value: $('#message').val()});			
-
-	 			$.ajax ({
-					type: "POST",
-					url: "<?php echo $GLOBALS['webroot'].'/interface/main/messages/fax_message.php'; ?>",
-					dataType: "json",
-					data: $.param(data),
-					success: function(result) {
-			 			if (result.content == 'error') {
-		 	 				alert('Retrieve Failed...');
-		 				} else {
-	 	 					$('#content').val(result.content_html);
-	 	 					tinymce.get('content').setContent(result.content_html);
-
-							$('#content').animate({
-								scrollTop: 0
-							});
-		 				}
-					},
-					error: function() {
-						alert('Retrieve Failed...');
-					}, 	 					
-
-					async:   true
-				});
-			}
-	    </script>
 		<?php
 	}
 
@@ -1506,7 +1046,7 @@ class FaxMessage {
 	}
 
 	/* Get Fax data from datatable by passing different parameters */
-	public function getFax($fax_id = '', $messageId= '', $pid = '') {
+	public static function getFax($fax_id = '', $messageId= '', $pid = '') {
 		$binds = array();
 		$where = '';
 		if(!empty($fax_id)) {
@@ -1717,6 +1257,7 @@ class FaxMessage {
                 // Attache Files
                 $attachmentList = Attachment::prepareAttachment($pid, $request_data, $files);
                 $attachmentList = Attachment::saveAttachmentFile($attachmentList);
+                $request_data = Attachment::updateRequest($attachmentList, $request_data);
 
                 foreach ($attachmentList as $iIndex => $item) {
                     if(!isset($item['path'])) continue;
@@ -1747,6 +1288,7 @@ class FaxMessage {
                     $costStatus = self::calculateCost($totalPageCount);
                     $fData[$fk]['cost_data'] = $costStatus;
                     $fData[$fk]['attachments'] = $attachmentItem;
+                    $fData[$fk]['request_data'] = $request_data;
                 }
 
                 // If only to calculatecost
@@ -1776,7 +1318,7 @@ class FaxMessage {
             foreach ($fData as $fk => $faxData) {
                 $responceData[$fk] = array(
                     'status' => true, 
-                    'to' => isset($faxData['fax_number']) ? $faxData['fax_number'] : '', 
+                    'fax_number' => isset($faxData['fax_number']) ? $faxData['fax_number'] : '', 
                     'errors' => array()
                 );
 
@@ -1814,7 +1356,13 @@ class FaxMessage {
 					$responce = self::Transmit($faxData);
 
 					if(isset($responce) && isset($responce['status']) && $responce['status'] == false) {
-						throw new \Exception($responce['error']);
+						if(isset($responce['error'])) {
+							throw new \Exception($responce['error']);
+						}
+					}
+
+					if(isset($responce['message'])) {
+						$responceData[$fk]['errors'][] = $responce['message']; 
 					}
 
                 } catch(\Throwable $e) {
@@ -1824,6 +1372,9 @@ class FaxMessage {
                 }
 
                 if(isset($logMsg) && $logMsg === false) {
+                	// Clear Generated files.
+                	$faxData['attachments'] = Attachment::clearAttachmentFile($faxData['attachments']);
+
                     //Skip iteration
                     continue;
                 }
@@ -1853,6 +1404,7 @@ class FaxMessage {
                             }
                         }
                     }
+
                     if(!empty($msgAttachmentList)) $extrainfo['attachments'] = $msgAttachmentList;
 
                     $msgData = array(
@@ -1889,6 +1441,11 @@ class FaxMessage {
                     // Write log and file
                     if(!empty($msgLogId) && !empty($faxData['attachments'])) {
                         foreach ($faxData['attachments'] as $key => $attachItem) {
+                        	if($attachItem['name'] == "fax_message.pdf") {
+                        		unlink($attachItem['path']);
+                        		continue;
+                        	}
+
                             $sUrl = str_replace($GLOBALS["webserver_root"], "", $attachItem['path']);
                             $file_url = substr($sUrl, strpos($sUrl, "/sites/"));
                             $file_name = isset($attachItem['name']) ? $attachItem['name'] : "";
@@ -1906,6 +1463,8 @@ class FaxMessage {
                         $responceData[$fk]['data'] = array();
                     }
                     $responceData[$fk]['data'][] = array('to' => $faxData['fax_number'], 'msgid' => $msgLogId);
+                } else {
+                	$faxData['attachments'] = Attachment::clearAttachmentFile($faxData['attachments']);
                 }
             }
 
