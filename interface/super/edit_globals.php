@@ -22,6 +22,7 @@ require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
@@ -33,10 +34,14 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
+use OpenEMR\OemrAd\Globals;
 
 
 // Set up crypto object
 $cryptoGen = new CryptoGen();
+
+// OEMRAD - Setup Fields
+Globals::setupGlobalField($GLOBALS_METADATA, $USER_SPECIFIC_TABS, $USER_SPECIFIC_GLOBALS);
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 
@@ -543,6 +548,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                                         echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                             "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                                            } else if ($fldtype == 'textarea') {
+                                                // OEMRAD - Added support for "textarea".
+                                                if ($userMode) {
+                                                    $globalTitle = $globalValue;
+                                                }
+                                                          echo "  <textarea type='text' class='form-control' style='min-height:80px;' name='form_$i' id='form_$i' " .
+                                                            ">" . attr($fldvalue) . "</textarea>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;

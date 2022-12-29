@@ -527,7 +527,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     opts.resolvePromiseOn = opts.resolvePromiseOn ?? 'init';
     var mHeight, mWidth, mSize, msSize, dlgContainer, fullURL, where; // a growing list...
 
-    where = (opts.type === 'iframe') ? top : window;
+    /* OEMRAD - Change */
+    where = (opts.type === 'iframe' || opts.topWindow === true) ? top : window;
 
     // get url straight...
     fullURL = "";
@@ -671,6 +672,13 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                             sizing(e, height); // must be full height of container
                         }
                     }, 800);
+                });
+
+                //Return elements.
+                resolve({
+                    where,
+                    modalwin,
+                    dlgContainer
                 });
             } else {
                 var modalwin = where.jQuery('body').find("[name='" + winname + "']");
