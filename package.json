@@ -97,7 +97,8 @@
     "select2": "4.0.13",
     "sortablejs": "1.15.0",
     "underscore": "1.13.4",
-    "validate.js": "0.13.1"
+    "validate.js": "0.13.1",
+    "tinymce": "4.5.0"
   },
   "napa": {
     "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/d10bd73477b879e78a4f71874af18747d285b6e8.zip",

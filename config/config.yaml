@@ -255,6 +255,8 @@ assets:
         script: 
             - assets/js/script.js
             - assets/js/coverage.js
+            - assets/js/datatable_customization.js
+            - assets/js/message_script.js
         link:
             - assets/css/custom_style.css
             - assets/css/custom_datatable.css
