@@ -26,6 +26,7 @@ class InsuranceCompany extends ORDataObject
     var $id;
     var $name;
     var $phone_numbers;
+    var $fax;
     var $attn;
     var $cms_id;
     var $alt_cms_id;
@@ -90,6 +91,8 @@ class InsuranceCompany extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
+
+        $this->fax = $fax;
 
         $this->X12Partner = new X12Partner();
         $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSop();
@@ -354,5 +357,21 @@ class InsuranceCompany extends ORDataObject
         } else {
             return $string;
         }
+    }
+
+    function get_fax_number()
+    {
+        foreach ($this->phone_numbers as $fax) {
+            if ($fax->type == TYPE_FAX) {
+                return $fax->get_phone_display();
+            }
+        }
+
+        return "";
+    }
+
+    function set_fax_number($fax)
+    {
+        $this->_set_number($fax, TYPE_FAX);
     }
 }
