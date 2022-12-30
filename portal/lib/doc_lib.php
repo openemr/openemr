@@ -7,7 +7,7 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -62,8 +62,8 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib')) {
 }
 
 $logit = new ApplicationTable();
-$htmlin = $_POST['content'];
-$dispose = $_POST['handler'];
+$htmlin = $_POST['content'] ?? null;
+$dispose = $_POST['handler'] ?? null;
 $cpid = $_POST['cpid'] ?: $GLOBALS['pid'];
 $category = $_POST['catid'] ?? 0;
 
@@ -136,14 +136,11 @@ try {
     // also our styles_pdf.scss isn't being compiled!!!
     // replace existing style tag in template after purifies removes! why!!!
     // e,g this scheme gets removed <html><head><body> etc
+    $stylesheet = "<style>.signature {vertical-align: middle;max-height:65px; height:65px !important;width:auto !important;}</style>";
     if ($pos !== false && $pos1 !== false && !empty($style[0] ?? '')) {
-        $stylesheet = ".signature {max-height:65px; height:65px !important;width:auto !important;}</style>";
         $stylesheet = str_replace('</style>', $stylesheet, $style[0]);
-    } else {
-        $stylesheet = "<style>.signature {max-height:65px; height:65px !important;width:auto !important;}</style>";
     }
     $htmlin = "<!DOCTYPE html><html><head>" . $stylesheet . "</head><body>$htmlin</body></html>";
-
     $pdf->writeHtml($htmlin);
 
     if ($dispose == 'download') {
@@ -164,7 +161,19 @@ try {
         $rc = $d->createDocument($cpid, $category, $form_filename, 'application/pdf', $data);
         $logit->portalLog('chart document', $cpid, ('document:' . $form_filename));
         exit();
-    };
+    }
+
+    if ($dispose == 'fetch_pdf') {
+        try {
+            $file = $pdf->Output($form_filename, 'S');
+            $file = base64_encode($file);
+            echo $file;
+            $logit->portalLog('fetched PDF', $cpid, ('document:' . $form_filename));
+            exit;
+        } catch (Exception $e) {
+            die(text($e->getMessage()));
+        }
+    }
 } catch (Exception $e) {
     die(text($e->getMessage()));
 }
