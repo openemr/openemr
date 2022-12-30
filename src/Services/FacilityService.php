@@ -145,6 +145,7 @@ class FacilityService extends BaseService
             // Not okay to throw exception here. Most UI are pulldowns which init to empty.
             return false;
         }
+        // $id has to be a string for TokenSearchField()
         $result = $this->search(['id' => new TokenSearchField('id', $id, false)]);
         if (!empty($result->getData())) {
             $facility_result = $result->getData();
