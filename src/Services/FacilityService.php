@@ -146,7 +146,7 @@ class FacilityService extends BaseService
             return false;
         }
         // $id has to be a string for TokenSearchField()
-        $result = $this->search(['id' => new TokenSearchField('id', $id, false)]);
+        $result = $this->search(['id' => new TokenSearchField('id', (string) $id, false)]);
         if (!empty($result->getData())) {
             $facility_result = $result->getData();
             $facility = array_pop($facility_result);
