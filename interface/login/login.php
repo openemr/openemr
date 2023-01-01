@@ -223,6 +223,8 @@ if (session_name()) {
     $cookie = json_encode($cookie);
 }
 
+$loginlogolocation = dirname(__DIR__, 2) . "/sites/" . $_SESSION['site_id'] . "/images/login-logo.svg";
+
 $viewArgs = [
     'title' => $openemr_name,
     'displayLanguage' => ($GLOBALS["language_menu_login"] && (count($languageList) != 1)) ? true : false,
@@ -238,7 +240,7 @@ $viewArgs = [
     'googleSigninClientID' => $GLOBALS['google_signin_client_id'],
     'logoArea' => $logoarea,
     'displayExtraLogo' => $GLOBALS['extra_logo_login'],
-    'primaryLogoSrc' => file_get_contents($GLOBALS["images_static_absolute"] . "/login-logo.svg"),
+    'primaryLogoSrc' => file_get_contents($loginlogolocation),
     'logocode' => $logocode,
     'displayLoginLabel' => ($GLOBALS["show_label_login"]) ? true : false,
     'displayTinyLogo' => $displayTinyLogo,
