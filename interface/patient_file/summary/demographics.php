@@ -308,7 +308,14 @@ $vitals_is_registered = $tmp['count'];
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
-$result3 = getInsuranceData($pid, "primary", "copay, provider, DATE_FORMAT(`date`,'%Y-%m-%d') as effdate");
+$result3 = getInsuranceData(
+    $pid,
+    "primary",
+    "copay,
+    provider,
+    DATE_FORMAT(`date`,'%Y-%m-%d') as effdate,
+    DATE_FORMAT(`date_end`,'%Y-%m-%d') as effdate_end"
+);
 $insco_name = "";
 if (!empty($result3['provider'])) {   // Use provider in case there is an ins record w/ unassigned insco
     $insco_name = getInsuranceProvider($result3['provider']);
@@ -1072,6 +1079,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $viewArgs['insName'] = $insco_name;
                             $viewArgs['copay'] = $result3['copay'];
                             $viewArgs['effDate'] = $result3['effdate'];
+                            $viewArgs['effDateEnd'] = $result3['effdate_end'];
                         }
 
                         echo $twig->getTwig()->render('patient/card/billing.html.twig', $viewArgs);

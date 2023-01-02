@@ -274,3 +274,7 @@ UPDATE `background_services` SET `require_once` = '/library/direct_message_check
 #IfRow2D registry directory procedure_order category Administrative
 UPDATE `registry` SET `category` = 'Orders' WHERE `directory` = 'procedure_order' AND `category` = 'Administrative';
 #EndIf
+
+#IfMissingColumn insurance_data date_end
+ALTER TABLE `insurance_data` ADD `date_end` date NULL;
+#EndIf

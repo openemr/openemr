@@ -193,7 +193,7 @@ class Claim
     }
 
     // X12 likes 9 digit zip codes also moving this from X125010837P to pursue PSR-0 and PSR-4
-    public function x12Zip($zip)
+    public function x12Zip($zip, $plus_four = true)
     {
         $zip = $this->x12Clean($zip);
         // this will take out dashes and pad with trailing 9s if not 9 digits

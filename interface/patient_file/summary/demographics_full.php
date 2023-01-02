@@ -677,6 +677,18 @@ if (! $GLOBALS['simplified_demographics']) {
           </div><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pb-1 label_custom ">
+              <span class='required'><?php echo xlt('Effective Date End'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type='entry' size='16' class='datepicker form-control form-control-sm mb-1'
+               id='i<?php echo attr($i); ?>effective_date_end'
+               name='i<?php echo attr($i); ?>effective_date_end'
+               value='<?php echo attr(oeFormatShortDate($result3['date_end'] ?? '')); ?>' />
+            </div>
+          </div><!-- end nested row -->
+
+          <div class="form-row"><!-- start nested row -->
             <div class="col-md-3 pb-1 label_custom">
               <span class='required'><?php echo xlt('Policy Number'); ?>:</span>
             </div>
