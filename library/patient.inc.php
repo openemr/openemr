@@ -1427,7 +1427,8 @@ function newInsuranceData(
                 $pid,
                 $effective_date,
                 $accept_assignment,
-                $policy_type
+                $policy_type,
+                $effective_date_end
             ]
         );
     }
