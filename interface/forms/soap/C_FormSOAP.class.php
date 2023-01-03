@@ -51,7 +51,7 @@ class C_FormSOAP extends Controller
             $form = new FormSOAP();
         }
 
-        return $this->template->render(
+        return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
                 "FORM_ACTION" => $GLOBALS['web_root'],
