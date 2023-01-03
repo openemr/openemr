@@ -13,23 +13,27 @@
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
-require_once("Bootstrap.php");
 
+use OpenEMR\Common\Twig\TwigContainer;
 
 class C_FormSOAP extends Controller
 {
-    private \Twig\Environment $template;
-
+    private TwigContainer $twig;
     public function __construct()
     {
-        $twig = new Bootstrap();
-        $this->template = $twig->twigEnv();
+        $path = self::getTemplatePath();
+        $this->twig = new TwigContainer($path);
     }
 
+    /**
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Twig\Error\LoaderError
+     */
     function default_action()
     {
-         $form = new FormSOAP();
-        return $this->template->render(
+        $form = new FormSOAP();
+        return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
                 "FORM_ACTION" => $GLOBALS['web_root'],
@@ -82,5 +86,12 @@ class C_FormSOAP extends Controller
             );
             $_POST['process'] = "";
         }
+    }
+    /**
+     * @return string
+     */
+    public function getTemplatePath(): string
+    {
+        return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "soap/templates" . DIRECTORY_SEPARATOR;
     }
 }
