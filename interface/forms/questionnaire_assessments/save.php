@@ -28,8 +28,8 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -46,7 +46,10 @@ $qid = null;
 $qrid = null;
 // so form save will work
 unset($_POST['select_item']);
-
+// security
+if ($isPortal && $mode == 'update' && !empty($formid)) {
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
+}
 if ($mode !== 'new' && $mode !== 'new_repository_form') {
     $service = new QuestionnaireService();
     $responseService = new QuestionnaireResponseService();
@@ -104,6 +107,8 @@ if (empty($formid)) {
     addForm($encounter, $form_name, $newid, "questionnaire_assessments", $pid, $userauthorized);
     $formid = $newid;
 } elseif (!empty($formid)) {
+    // just to be sure
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
     $success = formUpdate("form_questionnaire_assessments", $_POST, $formid, $userauthorized);
 }
 

@@ -28,8 +28,8 @@
 // +------------------------------------------------------------------------------+
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;

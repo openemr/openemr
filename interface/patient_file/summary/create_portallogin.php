@@ -10,19 +10,28 @@
  * @author    Paul Simon <paul@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org
  * @copyright Copyright (c) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
 require_once('../../../library/amc.php');
 
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\ {
+    Auth\AuthHash,
+    Csrf\CsrfUtils,
+    Logging\EventAuditLogger,
+    Twig\TwigContainer,
+    Utils\RandomGenUtils,
+};
+use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
+use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use Twig\Environment;
 
@@ -107,6 +116,38 @@ function displayLogin($patient_id, $message, $emailFlag)
     return $message;
 }
 
+/**
+ * Takes in a twig template and data for a given patient pid and notifies module listeners that we are about to
+ * render a twig template and let them modify the data.   Note we do NOT allow the module writer to change the template
+ * name here.
+ * @param $twig
+ * @param $pid
+ * @param $templateName
+ * @param $data
+ * @return mixed The rendered twig output
+ */
+function filterTwigTemplateData($twig, $pid, $templateName, $data)
+{
+
+    $filterEvent = new PortalCredentialsTemplateDataFilterEvent($twig, $data);
+    $filterEvent->setPid($pid);
+    $filterEvent->setData($data);
+    $filterEvent->setTemplateName($templateName);
+    /**
+     * @var \OpenEMR\Core\Kernel
+     */
+    $kernel = $GLOBALS['kernel'] ?? null;
+    if (!empty($kernel)) {
+        $filterEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($filterEvent, PortalCredentialsTemplateDataFilterEvent::EVENT_HANDLE);
+    }
+    $paramData = $filterEvent->getData();
+    if (!is_array($paramData)) {
+        $paramData = []; // safety
+    }
+
+    return $twig->render($templateName, $paramData);
+};
+
 if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -115,39 +156,64 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     $clear_pass = $_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array($pid));
-    $query_parameters = array($_POST['uname'],$_POST['login_uname']);
+    // we let module writers know we are about to update the patient portal credentials in case any additional stuff needs to happen
+    // such as MFA update, other data tied to the portal credentials etc.
+    $preUpdateEvent = new PortalCredentialsUpdatedEvent($pid);
+    $preUpdateEvent->setUsername($_POST['uname'] ?? '')
+        ->setLoginUsername($_POST['login_uname'] ?? '');
+
+    $updatedEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($preUpdateEvent, PortalCredentialsUpdatedEvent::EVENT_UPDATE_PRE) ?? $preUpdateEvent;
+    $query_parameters = array($updatedEvent->getUsername(),$updatedEvent->getLoginUsername());
     $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
     if (empty($hash)) {
         // Something is seriously wrong
         error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
         die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
     }
-    array_push($query_parameters, $hash);
 
+    array_push($query_parameters, $hash);
     array_push($query_parameters, $pid);
+
+    EventAuditLogger::instance()->newEvent(
+        "patient-access",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "updated credentials",
+        $pid,
+        'open-emr',
+        'dashboard'
+    );
     if (sqlNumRows($res)) {
-        // TODO: @adunsulag is there a reason why we don't audit the fact that the patient credentials were created and updated?
-        // That seems like a pretty important security event we want to be aware of.
-        sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0 WHERE pid=?", $query_parameters);
+        sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?, portal_login_username=?, portal_pwd=?, portal_pwd_status=0 WHERE pid=?", $query_parameters);
     } else {
         sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0,pid=?", $query_parameters);
     }
+    $postUpdateEvent = new PortalCredentialsUpdatedEvent($pid);
+    $postUpdateEvent->setUsername($updatedEvent->getUsername())
+        ->setLoginUsername($updatedEvent->getLoginUsername());
+
+    // we let module writers know we have updated the patient portal credentials in case any additional stuff needs to happen
+    // such as MFA update, other data tied to the portal credentials etc.
+    $updatedEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($preUpdateEvent, PortalCredentialsUpdatedEvent::EVENT_UPDATE_POST) ?? $preUpdateEvent;
 
     // Create the message
     $fhirServerConfig = new ServerConfig();
     $data = [
         'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
         ,'enforce_signin_email' => $GLOBALS['enforce_signin_email']
-        ,'uname' => $_POST['uname']
-        ,'login_uname' => $_POST['login_uname']
+        ,'uname' => $updatedEvent->getUsername()
+        ,'login_uname' => $updatedEvent->getLoginUsername()
         ,'pwd' => $clear_pass
         ,'email_direct' => trim($trustedEmail['email_direct'])
         ,'fhir_address' => $fhirServerConfig->getFhirUrl()
         ,'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
     ];
 
-    $htmlMessage = $twig->render('emails/patient/portal_login/message.html.twig', $data);
-    $plainMessage = $twig->render('emails/patient/portal_login/message.text.twig', $data);
+    // we run the twigs through this filterTwigTemplateData function as we want module writers to be able to modify the passed
+    // in $data value.  The rendered twig output ($twig->render) is returned from this function.
+    $htmlMessage = filterTwigTemplateData($twig, $pid, 'emails/patient/portal_login/message.html.twig', $data);
+    $plainMessage = filterTwigTemplateData($twig, $pid, 'emails/patient/portal_login/message.text.twig', $data);
 
     // Email and display/print the message
     if (emailLogin($pid, $htmlMessage, $plainMessage, $twig)) {
@@ -160,9 +226,15 @@ if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     // need to track that credentials were created
 } else {
     $credMessage = '';
+    if (
+        empty($GLOBALS['enforce_signin_email'])
+        && empty($row['portal_username'])
+    ) {
+        $trustedUserName = $row['fname'] . $row['id'];
+    }
 }
 
-echo $twig->render('patient/portal_login/print.html.twig', [
+echo filterTwigTemplateData($twig, $pid, 'patient/portal_login/print.html.twig', [
         'credMessage' => $credMessage
         , 'csrfToken' => CsrfUtils::collectCsrfToken()
         , 'fname' => $row['fname']
@@ -173,4 +245,10 @@ echo $twig->render('patient/portal_login/print.html.twig', [
         , 'pwd' => RandomGenUtils::generatePortalPassword()
         , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
         , 'email_direct' => trim($trustedEmail['email_direct'])
+        // if someone wants to add additional data fields they can add this in as a
+        // key => [...] property where the key is the template filename
+        // which must exist inside a twig directory path of 'patient/partials/' and end with the '.html.twig' extension
+        // the mapped value is the data array that will be passed to the twig template.
+        , 'extensionsFormFields' => []
+        , 'extensionsJavascript' => []
 ]);

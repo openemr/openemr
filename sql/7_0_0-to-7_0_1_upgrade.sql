@@ -105,6 +105,10 @@
 --    desc: Change Layout edit options.
 --    arguments: mode(add or remove) layout_form_id the_edit_option comma_separated_list_of_field_ids
 
+--  #IfVitalsDatesNeeded
+--    desc: Change date from zeroes to date of vitals form creation.
+--    arguments: none
+
 #IfNotTable questionnaire_repository
 CREATE TABLE `questionnaire_repository` (
     `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -131,9 +135,7 @@ CREATE TABLE `questionnaire_repository` (
 
 -- At this point below table was never used. Simply recreating with additions
 #IfMissingColumn questionnaire_response response_id
-#IfMissingColumn questionnaire_response encounter
 DROP TABLE `questionnaire_response`;
-#EndIf
 #EndIf
 
 #IfMissingColumn questionnaire_repository lform
@@ -227,5 +229,48 @@ ALTER TABLE `form_questionnaire_assessments` CHANGE `code_type` `questionnaire_i
 #EndIf
 
 #IfNotRow2D list_options list_id Document_Template_Categories option_id questionnaire
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',101,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
+#EndIf
+
+#IfMissingColumn layout_group_properties grp_unchecked
+ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfMissingColumn form_encounter in_collection
+ALTER TABLE `form_encounter` ADD `in_collection` tinyint(1) DEFAULT NULL;
+#EndIf
+
+#IfVitalsDatesNeeded
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Information
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Information';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient ID card
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID card';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Photograph
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
+#EndIf
+
+#IfNotColumnType audit_details field_value LONGTEXT
+ALTER TABLE `audit_details` CHANGE `field_value` `field_value` LONGTEXT COMMENT 'openemr table field value';
+#EndIf
+
+#IfMissingColumn audit_master is_unstructured_document
+ALTER TABLE `audit_master` ADD `is_unstructured_document` BOOLEAN NULL DEFAULT FALSE;
+#EndIf
+
+#IfNotColumnType ccda ccda_data LONGTEXT
+ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
+#EndIf
+
+#IfNotRow2D background_services name phimail require_once /library/direct_message_check.inc.php
+UPDATE `background_services` SET `require_once` = '/library/direct_message_check.inc.php' WHERE `name` = 'phimail';
+#EndIf
+
+#IfRow2D registry directory procedure_order category Administrative
+UPDATE `registry` SET `category` = 'Orders' WHERE `directory` = 'procedure_order' AND `category` = 'Administrative';
 #EndIf

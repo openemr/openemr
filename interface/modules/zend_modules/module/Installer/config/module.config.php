@@ -27,13 +27,22 @@ return array(
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new InstModule());
                 $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
-
                 $InstModuleTable = new Installer\Model\InstModuleTable($tableGateway, $container);
                 return new Installer\Controller\InstallerController($InstModuleTable);
             },
         ]
     ),
-
+    'service_manager' => [
+        'factories' => [
+            Installer\Model\InstModuleTable::class => function (ContainerInterface $container, $requestedName) {
+                $dbAdapter = $container->get(Adapter::class);
+                $resultSetPrototype = new ResultSet();
+                $resultSetPrototype->setArrayObjectPrototype(new InstModule());
+                $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
+                return new Installer\Model\InstModuleTable($tableGateway, $container);
+            },
+        ]
+    ],
     'router' => array(
         'routes' => array(
             'Installer' => array(
@@ -51,73 +60,7 @@ return array(
                 ),
             ),
 
-                ),
-            ),
-    'console' => array(
-        'router' => array(
-            'routes' => array(
-
-                'zfc-module' => array(
-                    'options' => array(
-                        'route' => 'zfc-module --site= --modaction= --modname= ',
-                        'defaults' => array(
-                            'controller' => Installer\Controller\InstallerController::class,
-                            'action' => 'command-install-module',
-                        ),
-                    )
-                ),
-
-                'acl-modify' => array(
-                    'options' => array(
-                        'route' => 'acl-modify --site= --modname= --aclgroup= --aclaction= ',
-                        'defaults' => array(
-                            'controller' => Acl\Controller\AclController::class,
-                            'action' => 'acl-modify-command',
-                        ),
-                    )
-                ),
-
-                'register' => array(
-                    'options' => array(
-                        'route'    => 'register --mtype= --modname=',
-                        'defaults' => array(
-                            'controller' => Installer\Controller\InstallerController::class,
-                            'action'     => 'register',
-                        ),
-                    ),
-                ),
-
-                'ccda-import' => array(
-                    'options' => array(
-                        'route'    => 'ccda-import --site= --document_id=',
-                        'defaults' => array(
-                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
-                            'action'     => 'import-command',
-                        ),
-                    ),
-                ),
-
-                'ccda-newpatient' => array(
-                    'options' => array(
-                        'route'    => 'ccda-newpatient --site= --am_id= --document_id=',
-                        'defaults' => array(
-                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
-                            'action'     => 'newpatient-command',
-                        ),
-                    ),
-                ),
-
-                'ccda-newpatient-import' => array(
-                    'options' => array(
-                        'route'    => 'ccda-newpatient-import --site= --document=',
-                        'defaults' => array(
-                            'controller' => Carecoordination\Controller\CarecoordinationController::class,
-                            'action'     => 'newpatient-import-command',
-                        ),
-                    ),
-                ),
-            )
-        )
+        ),
     ),
     'view_manager' => array(
         'template_map' => array(

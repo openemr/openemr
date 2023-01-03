@@ -21,7 +21,7 @@ require_once("verysimple/DB/DatabaseConfig.php");
  */
 class DataDriverMySQLi implements IDataDriver
 {
-    /** @var characters that will be escaped */
+    /** @var array characters that will be escaped */
     static $BAD_CHARS = array (
             "\\",
             "\0",
@@ -32,7 +32,7 @@ class DataDriverMySQLi implements IDataDriver
             '"'
     );
 
-    /** @var characters that will be used to replace bad chars */
+    /** @var array characters that will be used to replace bad chars */
     static $GOOD_CHARS = array (
             "\\\\",
             "\\0",

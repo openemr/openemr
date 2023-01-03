@@ -14,7 +14,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("$srcdir/payment_jav.inc.php");
@@ -54,7 +54,7 @@ $comarr = array
     "allow_email" => xl("Allow Email")
 );
 
-// get array of all insurance companies from function in patient.inc
+// get array of all insurance companies from function in patient.inc.php
 $insarr = getInsuranceProviders();
 
 $_POST['form_details'] = true;

@@ -13,7 +13,7 @@
  */
 
 require_once("../../../interface/globals.php");
-require_once("$srcdir/pid.inc");
+require_once("$srcdir/pid.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;

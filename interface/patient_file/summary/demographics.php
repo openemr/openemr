@@ -22,11 +22,11 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
-require_once("$srcdir/group.inc");
+require_once("$srcdir/group.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
@@ -52,7 +52,7 @@ $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
-    require_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc.php");
     setpid($_GET['set_pid']);
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];
@@ -140,55 +140,104 @@ function pic_array($pid, $picture_directory)
     return ($pics);
 }
 
-// Get the document ID of the first document in a specific catg.
-function get_document_by_catg($pid, $doc_catg)
+// Get the document ID's in a specific catg.
+// this is only used in one place, here for id photos
+function get_document_by_catg($pid, $doc_catg, $limit = 1)
 {
-    $result = array();
+    $results = null;
 
     if ($pid and $doc_catg) {
-        $result = sqlQuery("SELECT d.id, d.date, d.url
+        $query = sqlStatement("SELECT d.id, d.date, d.url
             FROM documents AS d, categories_to_documents AS cd, categories AS c
             WHERE d.foreign_id = ?
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
+            ORDER BY d.date DESC LIMIT " . escape_limit($limit), array($pid, $doc_catg));
     }
-
-    return ($result['id'] ?? false);
+    while ($result = sqlFetchArray($query)) {
+        $results[] = $result['id'];
+    }
+    return ($results ?? false);
 }
 
-function portalAuthorized($pid)
+function isPortalEnabled(): bool
 {
-    if (!$GLOBALS['portal_onsite_two_enable'] && !$GLOBALS['portal_onsite_two_address']) {
+    if (
+        !$GLOBALS['portal_onsite_two_enable']
+    ) {
         return false;
     }
 
-    $return = [
-        'isAllowed' => false
-        ,'allowed' => [
-                'api' => false
-                ,'portal' => false
-        ],
-        'credentials' => [
-                'created' => false
-                ,'date' => null
-        ]
-    ];
+    return true;
+}
 
-    $portalStatus = sqlQuery("SELECT allow_patient_portal,prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
-    $return['allowed']['portal'] = $portalStatus['allow_patient_portal'] == 'YES';
-    $return['allowed']['api'] = strtoupper($portalStatus['prevent_portal_apps'] ?? '') != 'YES';
-    if ($return['allowed']['portal'] || $return['allowed']['api']) {
-        $return['isAllowed'] = true;
-        $portalLogin = sqlQuery("SELECT pid,date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
-        if ($portalLogin) {
-            $return['credentials']['date'] = $portalLogin['date_created'];
-            $return['credentials']['created'] = true;
-        }
-        return $return;
+function isPortalSiteAddressValid(): bool
+{
+    if (
+        // maybe can use filter_var() someday but the default value in GLOBALS
+        // fails with FILTER_VALIDATE_URL
+        !isset($GLOBALS['portal_onsite_two_address'])
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+function isPortalAllowed($pid): bool
+{
+    $return = false;
+
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid = ?", [$pid]);
+    if ($portalStatus['allow_patient_portal'] == 'YES') {
+        $return = true;
     }
     return $return;
+}
+
+function isApiAllowed($pid): bool
+{
+    $return = false;
+
+    $apiStatus = sqlQuery("SELECT prevent_portal_apps FROM patient_data WHERE pid = ?", [$pid]);
+    if (strtoupper($apiStatus['prevent_portal_apps'] ?? '') != 'YES') {
+        $return = true;
+    }
+    return $return;
+}
+
+function areCredentialsCreated($pid): bool
+{
+    $return = false;
+    $credentialsCreated = sqlQuery("SELECT date_created FROM `patient_access_onsite` WHERE `pid`=?", [$pid]);
+    if ($credentialsCreated['date_created'] ?? null) {
+        $return = true;
+    }
+
+    return $return;
+}
+
+function isContactEmail($pid): bool
+{
+    $return = false;
+
+    $email = sqlQuery("SELECT email, email_direct FROM patient_data WHERE pid = ?", [$pid]);
+    if (!empty($email['email']) || !empty($email['email_direct'])) {
+        $return = true;
+    }
+    return $return;
+}
+
+function isEnforceSigninEmailPortal(): bool
+{
+    if (
+        $GLOBALS['enforce_signin_email']
+    ) {
+        return true;
+    }
+
+    return false;
 }
 
 function deceasedDays($days_deceased)
@@ -234,16 +283,15 @@ function image_widget($doc_id, $doc_catg)
             " onclick='top.restoreSession();' class='image_modal'>" .
             " <img src = '$web_root" .
             "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
-            " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file) . "'>  </a> </td> <td class='align-middle'>" .
-            text($doc_catg) . '<br />&nbsp;' . text($image_file) .
-            "</td>";
+            " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file_name) . "'>  </a> </td> <td class='align-middle'>" .
+            text($doc_catg) . '<br />&nbsp;' . text($image_file_name) . "</td>";
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
             "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
             " onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" .
             xlt("View") . "</a> &nbsp;" .
-            text("$doc_catg - $image_file") .
+            text("$doc_catg - $image_file_name") .
             "</span> </td>";
     }
 
@@ -777,7 +825,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         // Update the User's visibility setting when the card header is clicked
         function cardTitleButtonClickListener() {
-            const buttons = document.querySelectorAll(".card-title button[data-toggle='collapse']");
+            const buttons = document.querySelectorAll(".card-title a[data-toggle='collapse']");
             buttons.forEach((b) => {
                 b.addEventListener("click", (e) => {
                     updateUserVisibilitySetting(e);
@@ -917,7 +965,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
-    $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(ViewEvent::EVENT_HANDLE, $viewEvent, 10);
+    $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE, 10);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
@@ -948,7 +996,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
         if ($GLOBALS['patient_id_category_name']) {
-            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
+            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name'], 3);
         }
         ?>
         <div class="main mb-5">
@@ -963,7 +1011,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ]);
                     endif;
 
-                    $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('primary'));
+                    $sectionRenderEvents = $ed->dispatch(new SectionEvent('primary'), SectionEvent::EVENT_HANDLE);
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     $t = $twig->getTwig();
@@ -1001,7 +1049,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
                         $totalbalance = $patientbalance + $insurancebalance;
                         $id = "billing_ps_expand";
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('billing'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('billing'), CardRenderEvent::EVENT_HANDLE);
                         $viewArgs = [
                             'title' => xl('Billing'),
                             'id' => $id,
@@ -1030,10 +1078,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // End the hide_billing_widget
 
                     // if anyone wants to render anything before the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, new RenderEvent($pid), 10);
+                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, 10);
 
                     if (AclMain::aclCheckCore('patients', 'demo')) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('demographic'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('demographic'), CardRenderEvent::EVENT_HANDLE);
                         // Render the Demographics box
                         $viewArgs = [
                             'title' => xl("Demographics"),
@@ -1118,7 +1166,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
 
                         $id = "insurance_ps_expand";
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('insurance'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('insurance'), CardRenderEvent::EVENT_HANDLE);
                         $viewArgs = [
                             'title' => xl("Insurance"),
                             'id' => $id,
@@ -1140,7 +1188,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;  // end if demographics authorized
 
                     if (AclMain::aclCheckCore('patients', 'notes')) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('note'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('note'), CardRenderEvent::EVENT_HANDLE);
                         // Notes expand collapse widget
                         $id = "pnotes_ps_expand";
                         $viewArgs = [
@@ -1160,7 +1208,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) :
                         // patient reminders collapse widget
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('reminder'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('reminder'), CardRenderEvent::EVENT_HANDLE);
                         $id = "patient_reminders_ps_expand";
                         $viewArgs = [
                             'title' => xl('Patient Reminders'),
@@ -1180,7 +1228,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (AclMain::aclCheckCore('patients', 'disclosure')) :
                         $authWriteDisclosure = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
                         $authAddonlyDisclosure = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('disclosure'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('disclosure'), CardRenderEvent::EVENT_HANDLE);
                         // disclosures expand collapse widget
                         $id = "disclosures_ps_expand";
                         $viewArgs = [
@@ -1199,7 +1247,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end if disclosures authorized
 
                     if ($GLOBALS['amendments'] && AclMain::aclCheckCore('patients', 'amendment')) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('amendment'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('amendment'), CardRenderEvent::EVENT_HANDLE);
                         // Amendments widget
                         $sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
                         $result = sqlStatement($sql, [$pid]);
@@ -1227,7 +1275,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end amendments authorized
 
                     if (AclMain::aclCheckCore('patients', 'lab')) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('lab'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('lab'), CardRenderEvent::EVENT_HANDLE);
                         // labdata expand collapse widget
                         // check to see if any labdata exist
                         $spruch = "SELECT procedure_report.date_collected AS date
@@ -1255,7 +1303,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end labs authorized
 
                     if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('vital_sign'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('vital_sign'), CardRenderEvent::EVENT_HANDLE);
                         // vitals expand collapse widget
                         // check to see if any vitals exist
                         $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid));
@@ -1278,7 +1326,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end vitals
 
                     // if anyone wants to render anything after the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, new RenderEvent($pid), 10);
+                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, 10);
 
                     // This generates a section similar to Vitals for each LBF form that
                     // supports charting.  The form ID is used as the "widget label".
@@ -1305,7 +1353,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $widgetAuth = $existVitals;
                         }
 
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent($gfrow['title']));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent($gfrow['title']), CardRenderEvent::EVENT_HANDLE);
                         $viewArgs = [
                             'title' => xl($gfrow['title']),
                             'id' => $vitals_form_id,
@@ -1325,11 +1373,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    if ($GLOBALS['portal_onsite_two_enable']) :
-                        $portalCard = new PortalCard($GLOBALS);
-                    endif;
+                    // it's important enough to always show it
+                    $portalCard = new PortalCard($GLOBALS);
 
-                    $sectionRenderEvents = $ed->dispatch(SectionEvent::EVENT_HANDLE, new SectionEvent('secondary'));
+                    $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     $t = $twig->getTwig();
@@ -1351,7 +1398,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'card' => $card,
                             'title' => $card->getTitle(),
-                            'id' => $card->getIdentifier(),
+                            'id' => $card->getIdentifier() . "_expand",
                             'auth' => $auth,
                             'linkMethod' => 'html',
                             'initiallyCollapsed' => !$card->isInitiallyCollapsed(),
@@ -1359,14 +1406,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => 'test',
+                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
                     }
 
                     if ($GLOBALS['erx_enable']) :
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('demographics'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('demographics'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render('patient/partials/erx.html.twig', [
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
@@ -1377,7 +1424,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
                     if ($photos or $idcard_doc_id) {
                         $id = "photos_ps_expand";
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('patient_photo'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('patient_photo'), CardRenderEvent::EVENT_HANDLE);
                         $viewArgs = [
                             'title' => xl("ID Card / Photos"),
                             'id' => $id,
@@ -1440,7 +1487,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $id = "adv_directives_ps_expand";
 
-                            $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('advance_directive'));
+                            $dispatchResult = $ed->dispatch(new CardRenderEvent('advance_directive'), CardRenderEvent::EVENT_HANDLE);
                             $viewArgs = [
                                 'title' => xl("Advance Directives"),
                                 'id' => $id,
@@ -1466,7 +1513,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (!empty($clin_rem_check) && $cdr && $cdr_crw && AclMain::aclCheckCore('patients', 'alert')) {
                         // clinical summary expand collapse widget
                         $id = "clinical_reminders_ps_expand";
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('clinical_reminders'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('clinical_reminders'), CardRenderEvent::EVENT_HANDLE);
                         $viewArgs = [
                             'title' => xl("Clinical Reminders"),
                             'id' => $id,
@@ -1626,7 +1673,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         if ($resNotNull) {
                             // Show Recall if one exists
-                            $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?", [$pid]);
+                            $query = sqlStatement("SELECT * FROM `medex_recalls` WHERE `r_pid` = ?", [(int)$pid]);
                             $recallArr = [];
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
@@ -1638,7 +1685,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $count2++;
                             }
                             $id = "recall_ps_expand";
-                            $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('recall'));
+                            $dispatchResult = $ed->dispatch(new CardRenderEvent('recall'), CardRenderEvent::EVENT_HANDLE);
                             echo $twig->getTwig()->render('patient/card/recall.html.twig', [
                                 'title' => xl('Recall'),
                                 'id' => $id,
@@ -1732,7 +1779,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Display the Appt card
                     $id = "appointments_ps_expand";
-                    $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('appointment'));
+                    $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
                     echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
                         'title' => xl("Appointments"),
                         'id' => $id,
@@ -1764,7 +1811,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $spruch = "SELECT id FROM forms WHERE pid = ? AND formdir = ?";
                         $existTracks = sqlQuery($spruch, array($pid, "track_anything"));
                         $id = "track_anything_ps_expand";
-                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('track_anything'));
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('track_anything'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', [
                             'title' => xl("Tracks"),
                             'id' => $id,
@@ -1797,6 +1844,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ];
             checkSkipConditions();
 
+
+
             var isPost = <?php echo js_escape($showEligibility ?? false); ?>;
             var listId = '#' + <?php echo js_escape($list_id); ?>;
             $(function() {
@@ -1808,5 +1857,5 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
         </script>
 </body>
-
+<?php $ed->dispatch(new RenderEvent($pid), RenderEvent::EVENT_RENDER_POST_PAGELOAD, 10); ?>
 </html>

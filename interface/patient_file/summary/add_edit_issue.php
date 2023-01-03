@@ -15,8 +15,8 @@
  */
 
 require_once '../../globals.php';
-require_once $GLOBALS['srcdir'] . '/lists.inc';
-require_once $GLOBALS['srcdir'] . '/patient.inc';
+require_once $GLOBALS['srcdir'] . '/lists.inc.php';
+require_once $GLOBALS['srcdir'] . '/patient.inc.php';
 require_once $GLOBALS['srcdir'] . '/options.inc.php';
 require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
@@ -51,7 +51,7 @@ if (!empty($_POST['form_save'])) {
     // A nonempty thisenc means we are to link the issue to the encounter.
     $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 }
-// NOTE: $ISSUE_TYPES is defined in lists.inc
+// NOTE: $ISSUE_TYPES is defined in lists.inc.php
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
@@ -662,6 +662,16 @@ function getCodeText($code)
             document.forms[0].rem_selected_code.disabled = document.forms[0].form_selected_codes.selectedIndex == -1
         }
 
+        function processUdiEnter(event) {
+            if (event.key == 'Enter') {
+                event.preventDefault();
+                processUdi(document.getElementById('udi_process_button'));
+                return false;
+            } {
+                return true;
+            }
+        }
+
         function processUdi(param) {
             let udi = document.getElementById("form_udi").value;
             if (!udi) {
@@ -835,8 +845,8 @@ function getCodeText($code)
                         <?php if ($thistype == 'medical_device' || (!empty($irow['type']) && $irow['type'] == 'medical_device')) { ?>
                             <div class="form-group col-12">
                                 <label class="col-form-label" for="form_udi"><?php echo xlt('UDI{{Unique Device Identifier}}'); ?>:</label>
-                                <input type='text' class="form-control" name='form_udi' id='form_udi' value='<?php echo attr($irow['udi'] ?? '') ?>' />
-                                <button type="button" class="btn btn-primary btn-sm" style="margin-right:5px;" onclick='processUdi(this)'><?php echo (!empty($irow['udi_data'])) ? xlt('Re-Process UDI') : xlt('Process UDI'); ?></button>
+                                <input type='text' class="form-control" name='form_udi' id='form_udi' onkeydown="processUdiEnter(event)" value='<?php echo attr($irow['udi'] ?? '') ?>' />
+                                <button type="button" class="btn btn-primary btn-sm" id='udi_process_button' style="margin-right:5px;" onclick='processUdi(this)'><?php echo (!empty($irow['udi_data'])) ? xlt('Re-Process UDI') : xlt('Process UDI'); ?></button>
                                 <div id="udi_display" class="shadow p-3 mb-5 rounded">
                                     <?php if (!empty($irow['udi_data'])) { ?>
                                         <?php echo (new MedicalDevice($irow['udi_data']))->fullOutputHtml(false); ?>

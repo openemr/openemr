@@ -220,7 +220,7 @@ function getRemindersHTML($today, $reminders = array())
             </p>';
     }
 
-    return ($pdHTML == '' ? '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('No Reminders') : $pdHTML);
+    return ($pdHTML == '' ? '<i class=\'fa fa-exclamation-circle fa-lg\' aria-hidden=\'true\'></i> ' . xlt('No Reminders') : $pdHTML);
 }
 
 // ------------------------------------------------

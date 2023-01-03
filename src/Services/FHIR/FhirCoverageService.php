@@ -67,7 +67,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
         $coverageResource = new FHIRCoverage();
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = array('versionId' => '1', 'lastUpdated' => UtilsService::getDateFormattedAsUTC());
         $coverageResource->setMeta($meta);
 
         $id = new FHIRId();

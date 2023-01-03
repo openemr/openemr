@@ -23,8 +23,8 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once($GLOBALS['srcdir'] . "/forms.inc");
-require_once($GLOBALS['srcdir'] . "/pnotes.inc");
+require_once($GLOBALS['srcdir'] . "/forms.inc.php");
+require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;

@@ -14,8 +14,8 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
@@ -101,7 +101,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         <div class="form-row">
                                             <div class="forms col-md-2">
                                                 <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" 
+                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code"
                                                   value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(<?php echo attr_js($GLOBALS['webroot']) ?>,
                                                   this.parentElement.parentElement.parentElement.id);' data-toggle='tooltip' data-placement='bottom' title='<?php echo attr($obj['code']) . "'"; ?> />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"><?php echo text($obj["codetext"] ?? ''); ?></span>

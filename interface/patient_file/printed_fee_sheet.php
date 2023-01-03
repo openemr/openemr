@@ -19,8 +19,8 @@
 
 require_once("../globals.php");
 require_once("$srcdir/appointments.inc.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -356,9 +356,9 @@ if (empty($frow)) {
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
+    $logo = "$web_root/$ma_logo_path";
 } else {
-    $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    $logo = "";
 }
 
 // Loop on array of PIDS

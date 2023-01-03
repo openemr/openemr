@@ -1,7 +1,9 @@
 <?php
 
 /**
- * pid.inc
+ * Part of .inc migration to .inc.php to better support source code editors.
+ *  - pid.inc stub that redirects to pid.inc.php
+ *  - Timeframe: this script can be remove in mid 2023
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -10,10 +12,4 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\PatientSessionUtil;
-
-// Function called to set the global session variable for patient id (pid) number.
-function setpid($new_pid)
-{
-    PatientSessionUtil::setPid($new_pid);
-}
+require_once(dirname(__FILE__) . "/pid.inc.php");

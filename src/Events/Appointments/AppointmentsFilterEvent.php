@@ -11,7 +11,7 @@ namespace OpenEMR\Events\Appointments;
 
 use OpenEMR\Events\AbstractBoundFilterEvent;
 use OpenEMR\Events\BoundFilter;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event object for creating custom appointment filters, affecting the queries for patient tracker

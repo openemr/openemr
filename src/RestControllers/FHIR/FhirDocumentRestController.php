@@ -20,9 +20,11 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
 use OpenEMR\Services\FHIR\Document\IDocumentDownloader;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\ReferenceSearchField;
 use Psr\Http\Message\ResponseInterface;
 use Ramsey\Uuid\Uuid;
@@ -51,7 +53,7 @@ class FhirDocumentRestController
      * expiration are checked against the document.
      * @param $documentId  The document we are requesting to access
      */
-    public function downloadDocument($documentId): ResponseInterface
+    public function downloadDocument($documentId, $patientUuid = null): ResponseInterface
     {
         $document = $this->findDocumentForDocumentId($documentId);
         if (empty($document)) {
@@ -64,6 +66,15 @@ class FhirDocumentRestController
         // return 404 if our document is deleted.
         if ($document->is_deleted()) {
             return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+        }
+
+        // patients need to be able to access their own documents, we expose that here if we have a patientUuid
+        if (!empty($patientUuid)) {
+            $pid = (new PatientService())->getPidByUuid(UuidRegistry::uuidToBytes($patientUuid));
+            // allows for both checking the patient id, and any Information Blocking / Access rules to the document
+            if (!$document->can_patient_access($pid)) {
+                return (new Psr17Factory())->createResponse(StatusCode::UNAUTHORIZED);
+            }
         }
 
         if (!$document->can_access()) {

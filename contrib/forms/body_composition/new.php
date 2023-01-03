@@ -15,8 +15,8 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -62,8 +62,8 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
     if ($formid) {
-        $query = "UPDATE form_body_composition SET 
-        body_type = ?, height = ?, weight = ?, bmi = ?, bmr = ?, impedance = ?, 
+        $query = "UPDATE form_body_composition SET
+        body_type = ?, height = ?, weight = ?, bmi = ?, bmr = ?, impedance = ?,
         fat_pct = ?, fat_mass = ?, ffm = ?, tbw = ?, other = ? WHERE id = ?";
 
         sqlStatement($query, array(rbvalue('form_body_type'),  trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']),

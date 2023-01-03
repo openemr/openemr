@@ -795,11 +795,7 @@ class DocumentTemplateService extends QuestionnaireService
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', array('Document_Template_Categories'));
         $category_list = array();
-        $category_list[''] = array(
-            'option_id' => '',
-            'title' => '',
-            'seq' => '',
-        );
+
         $category_list['General'] = array(
             'option_id' => '',
             'title' => '',
@@ -845,7 +841,7 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchTemplateStatus($pid, $name)
     {
-        $sql = "SELECT `pid`, `create_date`, `doc_type`, `patient_signed_time`, `authorize_signed_time`, `patient_signed_status`, `review_date`, `denial_reason`, `file_name`, `file_path` FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1";
+        $sql = "SELECT `pid`, `create_date`, `doc_type`, `patient_signed_time`, `authorize_signed_time`, `patient_signed_status`, `review_date`, `denial_reason`, `file_name`, `file_path`, `encounter` FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1";
         return sqlQuery($sql, array($pid, $name));
     }
 

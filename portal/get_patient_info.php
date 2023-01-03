@@ -63,8 +63,18 @@ $ignoreAuth_onsite_portal = true;
 
 // Authentication
 require_once('../interface/globals.php');
+
+if (
+    $GLOBALS['enforce_signin_email']
+    && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
+) {
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    header('Location: ' . $landingpage . '&w&c');
+    exit();
+}
+
 require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -245,8 +255,8 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         $_SESSION['patient_portal_onsite_two'] = 1;
 
         $tmp = getUserIDInfo($userData['providerID']);
-        $_SESSION['providerName'] = $tmp['fname'] . ' ' . $tmp['lname'];
-        $_SESSION['providerUName'] = $tmp['username'];
+        $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
+        $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
         $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];

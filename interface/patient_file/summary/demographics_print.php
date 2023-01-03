@@ -26,7 +26,7 @@ if (
 }
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
@@ -208,10 +208,9 @@ td.dcols3 { width: 80%; }
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
-} else {
-    $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    $logo = "$web_root/$ma_logo_path";
 }
+
 echo genFacilityTitle(xl('Registration Form'), -1, $logo);
 
 function end_cell()

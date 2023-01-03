@@ -15,9 +15,9 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -272,7 +272,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <?php
 
-                            $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
+                            $eventDispatcher->dispatch(new GenericEvent(), PatientReportEvent::ACTIONS_RENDER_POST);
 
                         ?>
                         <input type='hidden' name='pdf' value='0' />
@@ -755,7 +755,7 @@ $(function () {
 
     <?php
         //event dispatch
-        $eventDispatcher->dispatch(PatientReportEvent::JAVASCRIPT_READY_POST, new GenericEvent());
+        $eventDispatcher->dispatch(new GenericEvent(), PatientReportEvent::JAVASCRIPT_READY_POST);
 
     ?>
 

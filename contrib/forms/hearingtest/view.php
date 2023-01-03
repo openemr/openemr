@@ -31,7 +31,7 @@ use OpenEMR\Core\Header;
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <?php
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_hearingtest", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/hearingtest/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">

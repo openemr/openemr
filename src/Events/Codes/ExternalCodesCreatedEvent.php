@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Events\Codes;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class ExternalCodesCreatedEvent extends Event
 {

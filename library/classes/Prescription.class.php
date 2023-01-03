@@ -80,7 +80,7 @@
 //
 
 
-require_once(dirname(__FILE__) . "/../lists.inc");
+require_once(dirname(__FILE__) . "/../lists.inc.php");
 
 
 /**

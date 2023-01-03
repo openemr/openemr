@@ -42,14 +42,14 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc');
-require_once($GLOBALS['srcdir'] . '/forms.inc');
-require_once($GLOBALS['srcdir'] . '/calendar.inc');
+require_once($GLOBALS['srcdir'] . '/patient.inc.php');
+require_once($GLOBALS['srcdir'] . '/forms.inc.php');
+require_once($GLOBALS['srcdir'] . '/calendar.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/encounter_events.inc.php');
 require_once($GLOBALS['srcdir'] . '/patient_tracker.inc.php');
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
-require_once($GLOBALS['srcdir'] . '/group.inc');
+require_once($GLOBALS['srcdir'] . '/group.inc.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -742,7 +742,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new multi appointment has been set
         $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $e2f;  //setting the appointment id to an object
-        $eventDispatcher->dispatch(AppointmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
+        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE, 10);
     } else {
         /* =======================================================
      *                    INSERT NEW EVENT(S)
@@ -752,7 +752,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         //Tell subscribers that a new single appointment has been set
         $patientAppointmentSetEvent = new AppointmentSetEvent($_POST);
         $patientAppointmentSetEvent->eid = $eid;  //setting the appointment id to an object
-        $eventDispatcher->dispatch(AppointmentSetEvent::EVENT_HANDLE, $patientAppointmentSetEvent, 10);
+        $eventDispatcher->dispatch($patientAppointmentSetEvent, AppointmentSetEvent::EVENT_HANDLE, 10);
     }
 
         // done with EVENT insert/update statements
@@ -1094,7 +1094,7 @@ function sel_patient() {
 
 // This invokes javascript listener.
 <?php
-$eventDispatcher->dispatch(AppointmentRenderEvent::RENDER_JAVASCRIPT, new AppointmentRenderEvent($row), 10);
+$eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_JAVASCRIPT, 10);
 ?>
 
 // This is for callback by the find-group popup.
@@ -1492,7 +1492,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
             </div>
             <?php
                 // This invokes render below patient listener.
-                $eventDispatcher->dispatch(AppointmentRenderEvent::RENDER_BELOW_PATIENT, new AppointmentRenderEvent($row), 10);
+                $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_BELOW_PATIENT, 10);
             ?>
         </div>
     </div> <!-- End Jumbotron !-->
@@ -1737,16 +1737,28 @@ function isRegularRepeat($repeat)
         </div>
         <div class="col-sm input-group" id="days">
             <?php
-            foreach (
-                array(1 => xl('Su{{Sunday}}'), 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('We{{Wednesday}}'),
-                5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value
-            ) {
-                echo "<div class='form-check-inline'><input class='form-check-input' type='checkbox' name='day_" . attr($key) . "'";
-                //Checks appropriate days according to days in recurrence string.
-                if (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) {
-                    echo " checked";
-                }
-                echo " /><label class='form-check-label'>" . text($value) . "</label></div>\n";
+            $weekdays = [
+                1 => xl('Su{{Sunday}}'),
+                2 => xl('Mo{{Monday}}'),
+                3 => xl('Tu{{Tuesday}}'),
+                4 => xl('We{{Wednesday}}'),
+                5 => xl('Th{{Thursday}}'),
+                6 => xl('Fr{{Friday}}'),
+                7 => xl('Sa{{Saturday}}')
+            ];
+            foreach ($weekdays as $key => $value) {
+                $key_attr = attr($key);
+                $value_text = text($value);
+                $checked = (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) ? "checked" : "";
+                $html = <<<HTML
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="day_$key_attr" id="day_$key_attr" $checked>
+                    <label class="form-check-label" for="day_$key_attr">
+                        $value_text
+                    </label>
+                </div>
+                HTML;
+                echo $html;
             }
             ?>
         </div>

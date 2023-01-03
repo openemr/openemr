@@ -159,7 +159,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $observation->setMeta($meta);
 
         $id = new FHIRId();
@@ -167,7 +167,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $observation->setId($id);
 
         if (!empty($dataRecord['report_date'])) {
-            $observation->setEffectiveDateTime(gmdate('c', strtotime($dataRecord['report_date'])));
+            $observation->setEffectiveDateTime(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
         } else {
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }

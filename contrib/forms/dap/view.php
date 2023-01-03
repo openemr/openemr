@@ -9,7 +9,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 require("C_FormDAP.class.php");
 

@@ -17,7 +17,7 @@ use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
 use Interop\Container\ContainerInterface;
 
-require_once($GLOBALS['srcdir'] . '/direct_message_check.inc');
+require_once($GLOBALS['srcdir'] . '/direct_message_check.inc.php');
 
 class Phimail extends AbstractPlugin
 {

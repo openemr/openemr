@@ -258,10 +258,7 @@ class HttpRestRouteHandler
 
         if ($restRequest->isFhir()) {
             // don't do any checks on our open fhir resources
-            if (
-                $restRequest->getResource() == 'metadata'
-                || $restRequest->getResource() == '.well-known'
-            ) {
+            if (self::fhirRestRequestSkipSecurityCheck($restRequest)) {
                 return;
             }
             // we do NOT want logged in patients writing data at this point so we fail
@@ -304,5 +301,13 @@ class HttpRestRouteHandler
 
         // handle our scope checks
         $config::scope_check($scopeType, $resource, $permission);
+    }
+
+    public static function fhirRestRequestSkipSecurityCheck(HttpRestRequest $restRequest): bool
+    {
+        $resource = $restRequest->getResource();
+        // capability statement, smart well knowns, and operation definitions are skipped.
+        $skippedChecks = ['metadata', '.well-known', 'OperationDefinition'];
+        return array_search($resource, $skippedChecks) !== false;
     }
 }

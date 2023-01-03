@@ -2,7 +2,7 @@
 
 //------------Forms generated from formsWiz
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 function obstetrical_report($pid, $encounter, $cols, $id)
 {
     $count = 0;

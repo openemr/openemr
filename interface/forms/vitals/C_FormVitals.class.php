@@ -10,8 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormVitals;
@@ -295,7 +295,7 @@ class C_FormVitals
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;
         } else {
-            $vitalsHistoryLookback = $results;
+            $vitalsHistoryLookback = $results ?? null;
         }
 
         $data = [
@@ -446,7 +446,7 @@ class C_FormVitals
 
                 if (empty($value)) {
                     $details->clear_interpretation();
-                } else if (isset($interpretationList[$value])) {
+                } elseif (isset($interpretationList[$value])) {
                     $interpretation = $interpretationList[$value];
 
                     // we save off both the code and the text value here which duplicates the data.  However, since

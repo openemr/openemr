@@ -74,7 +74,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $conditionResource->setMeta($meta);
 
         $id = new FHIRId();

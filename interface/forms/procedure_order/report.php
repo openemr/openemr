@@ -11,7 +11,7 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 

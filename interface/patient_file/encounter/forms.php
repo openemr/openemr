@@ -13,9 +13,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/encounter.inc");
-require_once("$srcdir/group.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/encounter.inc.php");
+require_once("$srcdir/group.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/amc.php");
 require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -511,7 +511,7 @@ function findPosY(obj) {
 <body>
 <nav>
 <?php //DYNAMIC FORM RETREIVAL
-include_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 
 $reg = getFormsByCategory();
 $old_category = '';
