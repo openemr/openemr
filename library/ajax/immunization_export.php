@@ -11,10 +11,23 @@
 
 require_once(dirname(__FILE__, 3) . "/interface/globals.php");
 
-use OpenEMR\Services\ImmunizationSpreadsheet;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\SpreadSheetService;
 
-$singlesheet = new ImmunizationSpreadsheet();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
+}
+
 $query = json_decode($_GET['sql']);
 $bindings = unserialize($_GET['bindings']);
 $res = sqlStatement($query, $bindings);
-$singlesheet->generateSpreadsheetArray($res, 'ImmunizationReport.xlsx');
+while ($row = sqlFetchArray($res)) {
+    $immunizations[] = $row;
+}
+
+$spreadsheet = new SpreadSheetService($immunizations, null, 'immunizations');
+if (!empty($spreadsheet->buildSpreadsheet())) {
+    $spreadsheet->downloadSpreadsheet('Xls');
+}
+
+//$singlesheet->generateSpreadsheetArray($res, 'ImmunizationReport.xlsx');

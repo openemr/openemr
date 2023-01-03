@@ -387,7 +387,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                                         ?>
                                     </td>
                                     <td class='col-form-label'>
-                                        <?php echo xlt('From'); ?>:
+                                        <?php echo xlt('From VIS Date'); ?>:
                                     </td>
                                     <td>
                                         <input type='text' name='form_from_date' id="form_from_date"
@@ -395,7 +395,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                                             size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>' />
                                     </td>
                                     <td class='col-form-label'>
-                                        <?php echo xlt('To{{Range}}'); ?>:
+                                        <?php echo xlt('To VIS Date{{Range}}'); ?>:
                                     </td>
                                     <td>
                                         <input type='text' name='form_to_date' id="form_to_date"
@@ -512,9 +512,23 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
          * The better thing to do here would be to uncouple the query from this report
          */
         function exportData() {
-           let query = JSON.stringify("<?php echo $export_res; ?>");
-           let bindings = '<?php echo $export_bindings; ?>';
-           dlgopen("../../library/ajax/immunization_export.php?sql=" + encodeURIComponent(query) + "&bindings=" + encodeURIComponent(bindings));
+            let query = JSON.stringify("<?php echo $export_res; ?>");
+            let bindings = '<?php echo $export_bindings; ?>';
+            let csrf_token = '<?php echo CsrfUtils::collectCsrfToken(); ?>';
+            dlgopen(
+                "../../library/ajax/immunization_export.php?sql=" + encodeURIComponent(query) + "&bindings=" + encodeURIComponent(bindings) + "&csrf_token_form=" + encodeURIComponent(csrf_token),
+                'Export',
+                'modal-xs',
+                300,
+                false,
+                'Export',
+                {
+                    buttons: [
+                        {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                    ]
+                }
+            );
+            return false;
         }
     </script>
 </body>
