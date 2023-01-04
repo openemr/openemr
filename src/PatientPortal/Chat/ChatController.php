@@ -63,7 +63,7 @@ class ChatController extends ChatDispatcher
         if ($username && $message) {
             $cleanUsername = preg_replace('/^' . ADMIN_USERNAME_PREFIX . '/', '', $username);
             $result = array(
-                'success' => $this->getModel()->addMessage($cleanUsername, $message, $ip, $senderid, $recipid)
+                'success' => $this->getModel()->addMessage($cleanUsername, text($message), $ip, $senderid, $recipid)
             );
         }
 
