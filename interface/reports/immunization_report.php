@@ -20,7 +20,14 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Immunization Registry")]);
+    echo (
+        new TwigContainer(
+            null,
+            $GLOBALS['kernel']
+        ))->getTwig()->render(
+            'core/unauthorized.html.twig',
+            ['pageTitle' => xl("Immunization Registry")]
+        );
     exit;
 }
 
@@ -460,7 +467,6 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                     <tbody>
                     <?php
                     $total = 0;
-                    //echo "<p> DEBUG query: $query </p>\n"; // debugging
 
                     $query = str_replace(["\r", "\n"], '', $query);
                     $export_res = $query;
@@ -516,7 +522,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             let bindings = '<?php echo $export_bindings; ?>';
             let csrf_token = '<?php echo CsrfUtils::collectCsrfToken(); ?>';
             dlgopen(
-                "../../library/ajax/immunization_export.php?sql=" + encodeURIComponent(query) + "&bindings=" + encodeURIComponent(bindings) + "&csrf_token_form=" + encodeURIComponent(csrf_token),
+                "../../library/ajax/immunization_export.php?sql=" + encodeURIComponent(query) +
+                    "&bindings=" +
+                    encodeURIComponent(bindings)
+                    + "&csrf_token_form="
+                    + encodeURIComponent(csrf_token),
                 'Export',
                 'modal-xs',
                 300,

@@ -29,5 +29,3 @@ $spreadsheet = new SpreadSheetService($immunizations, null, 'immunizations');
 if (!empty($spreadsheet->buildSpreadsheet())) {
     $spreadsheet->downloadSpreadsheet('Xls');
 }
-
-//$singlesheet->generateSpreadsheetArray($res, 'ImmunizationReport.xlsx');
