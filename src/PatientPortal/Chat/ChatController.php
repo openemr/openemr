@@ -40,6 +40,7 @@ class ChatController extends ChatDispatcher
         $messages = $this->getModel()->getMessages();
         foreach ($messages as &$message) {
             $message['me'] = C_USER === $message['sender_id']; // $this->getServer('REMOTE_ADDR') === $message['ip'];
+            $message['message'] = text($message['message']);
         }
 
         return json_encode($messages);
@@ -63,24 +64,24 @@ class ChatController extends ChatDispatcher
         if ($username && $message) {
             $cleanUsername = preg_replace('/^' . ADMIN_USERNAME_PREFIX . '/', '', $username);
             $result = array(
-                'success' => $this->getModel()->addMessage($cleanUsername, text($message), $ip, $senderid, $recipid)
+                'success' => $this->getModel()->addMessage($cleanUsername, $message, $ip, $senderid, $recipid)
             );
         }
 
-        if ($this->_isAdmin($username)) {
-            $this->_parseAdminCommand($message);
+        if ($this->isAdmin($username)) {
+            $this->parseAdminCommand($message);
         }
 
         $this->setHeader(array('Content-Type' => 'application/json'));
         return json_encode($result);
     }
 
-    private function _isAdmin($username)
+    private function isAdmin($username)
     {
         return (bool)IS_DASHBOARD;
     }
 
-    private function _parseAdminCommand($message)
+    private function parseAdminCommand($message)
     {
         if (str_contains($message, '/clear')) {
             $this->getModel()->removeMessages();
@@ -100,7 +101,7 @@ class ChatController extends ChatDispatcher
         }
     }
 
-    private function _getMyUniqueHash()
+    private function getMyUniqueHash()
     {
         $unique = $this->getServer('REMOTE_ADDR');
         $unique .= $this->getServer('HTTP_USER_AGENT');
@@ -112,7 +113,7 @@ class ChatController extends ChatDispatcher
     public function pingAction()
     {
         $ip = $this->getServer('REMOTE_ADDR');
-        $hash = $this->_getMyUniqueHash();
+        $hash = $this->getMyUniqueHash();
         $user = $this->getRequest('username', 'No Username');
         if ($user == 'currentol') {
             $onlines = $this->getModel()->getOnline(false);
