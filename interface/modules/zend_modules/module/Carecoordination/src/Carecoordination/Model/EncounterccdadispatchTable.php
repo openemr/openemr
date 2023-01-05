@@ -929,7 +929,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         // Note for NPI: Many times a care team member may not have an NPI so instead of
         // an NPI OID use facility/document unique OID with user table reference for extension.
-        $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid));
+        $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid) ?? '');
         if (empty($getprovider)) {
             // Last chance. Get the first care team member as primary.
             if (!empty($get_care_team_provider[0])) {
@@ -1233,8 +1233,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $code_text = lookup_code_descriptions($single_code);
 
                 $age = $this->getAge($pid, $row['begdate']);
-                $start_date = str_replace('-', '', $row['begdate']);
-                $end_date = str_replace('-', '', $row['enddate']);
+                $start_date = str_replace('-', '', $row['begdate'] ?? '');
+                $end_date = str_replace('-', '', $row['enddate'] ?? '');
 
                 $status = $status_table = '';
                 $start_date = $start_date ?: '0';
@@ -1706,7 +1706,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $primary_diagnosis = '';
         $results = "<encounter_list>";
         foreach ($res as $row) {
-            $tmp = explode(":", $row['physician_type_code']);
+            $tmp = explode(":", $row['physician_type_code'] ?? '');
             $physician_code_type = str_replace('-', ' ', $tmp[0]);
             $row['physician_type_code'] = $tmp[1] ?? '';
             $date_zone = !empty($row['date']) ? date("Y-m-d H:i:sO", strtotime(($row['date']))) : '';
@@ -2649,7 +2649,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $social_history .= "<social_history>";
         foreach ($res as $row) {
-            $tobacco = explode('|', $row['tobacco']);
+            $tobacco = explode('|', $row['tobacco'] ?? '');
             $status_code = (new CarecoordinationTable())->getListCodes($tobacco[3] ?? '', 'smoking_status');
             $status_code = str_replace("SNOMED-CT:", "", $status_code);
             $provenanceRecord = [
@@ -2668,7 +2668,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <date_formatted>" . (($tobacco[2] ?? '') ? xmlEscape(preg_replace('/-/', '', $tobacco[2])) : '') . "</date_formatted>
                                   <code>" . xmlEscape(($arr['smoking'] ? $arr['smoking'] : '')) . "</code>
                             </history_element>";
-            $alcohol = explode('|', $row['alcohol']);
+            $alcohol = explode('|', $row['alcohol'] ?? '');
             $social_history .= "<history_element>" . $provenanceXml . "
                                   <extension>" . xmlEscape(base64_encode('alcohol' . $_SESSION['site_id'] . $row['id'])) . "</extension>
                                   <sha_extension>" . xmlEscape("37f76c51-6411-4e1d-8a37-957fd49d2cef") . "</sha_extension>
