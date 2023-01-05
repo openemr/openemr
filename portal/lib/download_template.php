@@ -171,17 +171,17 @@ function doSubs($s)
 
         if (keySearch($s, '{PatientSignature}')) {
             $sigfld = '<script>page.presentPatientSignature=true;</script><span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
             $sigfld = '<script>page.presentAdminSignature=true;</script><span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
             $sigfld = '<script>page.presentWitnessSignature=true;</script><span>';
-            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:65px !important;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{SignaturesRequired}')) {
@@ -509,12 +509,23 @@ if ($encounter) {
         $encounter
     ));
 }
-$template = $templateService->fetchTemplate($form_id);
-$edata = $template['template_content'];
-
+// From database
+$template = $templateService->fetchTemplate($form_id)['template_content'];
+// snatch style tag content to replace after content purified. Ho-hum!
+$style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', $template, $style_matches);
+$style = str_replace('<style type="text/css">', '<style>', $style_matches);
 // purify html (and remove js)
-$edata = (new \HTMLPurifier(\HTMLPurifier_Config::createDefault()))->purify($edata);
-
+$config = \HTMLPurifier_Config::createDefault();
+$purify = new \HTMLPurifier($config);
+$edata = $purify->purify($template);
+// insert style tag from raw template content
+if ($style_flag && !empty($style[0] ?? '')) {
+    $edata = $style[0] . $edata;
+}
+// Purify escapes URIs.
+// Add back escaped directive delimiters so any directives in a URL will be parsed by our engine.
+$edata = str_replace('%7B', '{', $edata);
+$edata = str_replace('%7D', '}', $edata);
 // do the substitutions (ie. magic)
 $edata = doSubs($edata);
 

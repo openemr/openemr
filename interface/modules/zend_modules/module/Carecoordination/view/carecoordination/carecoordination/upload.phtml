@@ -287,11 +287,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
             let nameArr = files[i].name.split(".");
             let extension = nameArr.pop();
-            if (nameArr.length > 1 && (extension !== 'xml' && extension !== 'zip')) {
+            if (extension > "" && (extension !== 'xml' && extension !== 'zip')) {
                 if (fnames == '') {
                     fnames = files[i].name;
                 } else {
-                    fnames += ',' + files[i].name;
+                    fnames += ' | ' + files[i].name;
                 }
                 continue;
             }
@@ -310,7 +310,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             });
         }
         if (fnames != '') {
-            alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> ' + fnames);
+            alert('<?php echo $this->listenerObject->z_xlt("Abort upload wrong document type for!");?> ' + fnames);
         }
         $('#form_ccda_import').submit();
     }
@@ -404,11 +404,6 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 </label>
                 <input type="hidden" id="sort_direction" name="sort_direction" value="<?php echo attr($_REQUEST['sort_direction'] ?? 'DESC'); ?>" />
             </div>
-            <div class="clear"></div>
-
-            <!--Display upload status-->
-            <div style="display: none" id="status1"></div>
-            <!---->
 
             <div class="clear"></div>
             <div class="se_in_8">
@@ -416,16 +411,16 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     <span id="uploadFlashText"><?php echo $this->listenerObject->z_xlt('Nothing to display'); ?></span>
                 </div>
                 <?php if (count($this->records ?? []) > 0) { ?>
-                    <table class="responsive">
+                    <table class="table responsive">
                         <?php
                         $slno = 0;
                         foreach ($this->records as $row) {
                             if ($slno % 12 == 0) { ?>
-                                <tr class="se_in_9">
+                                <thead class="se_in_9">
                                     <th>&nbsp;</th>
                                     <th style="height: 20px;">#</th>
                                     <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
-                                    <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
+                                    <th nowrap><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
                                     <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
                                     <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
                                     <th><?php echo $this->listenerObject->z_xlt('Race'); ?></th>
@@ -440,12 +435,12 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                     <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
                                     <th><?php echo $this->listenerObject->z_xlt('Duplicate'); ?></th>
                                     <th nowrap><?php echo $this->listenerObject->z_xlt('Type'); ?></th>
-                                    <th>
+                                    <th nowrap>
                                         <button type="submit" id="delete_all_imports" class="btn btn-secondary" name="delete_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Undo all pending imports"); ?>'>
-                                            <img src="<?php echo $this->basePath(); ?>/css/icons/undo.png"><span style="margin-left: 5px;"><?php echo $this->listenerObject->z_xlt("Undo Imports"); ?></span>
+                                            <img src="<?php echo $this->basePath(); ?>/css/icons/undo.png"><span style="margin-left: 5px;"><?php echo $this->listenerObject->z_xlt("Undo All"); ?></span>
                                         </button>
                                     </th>
-                                </tr>
+                                </thead>
                             <?php } ?>
                             <tr>
                                 <td id="expandAuditDetails_<?php echo $this->escapeHtml($row['amid']) . '-' . $this->escapeHtml($row['pid']); ?>" class="expandAuditDetails se_in_23"></td>
@@ -529,10 +524,13 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             </tr>
                         <?php } ?>
                     </table>
-                    <div style="text-align: center;">
-                        <button type="button" class="btn btn-primary" style="margin-top: .250rem;" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"><?php echo xlt('Scroll to Top'); ?></button>
-                    </div>
                 <?php } ?>
+                <div class="clear"></div>
+                <!--Display upload status-->
+                <div class="container float-right" style="display: none" id="status1"></div>
+                <div style="text-align: center;">
+                    <button type="button" class="btn btn-primary" style="margin-top: .250rem;" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"><?php echo xlt('Scroll to Top'); ?></button>
+                </div>
             </div>
         </div>
     </form>
