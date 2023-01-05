@@ -308,7 +308,14 @@ $vitals_is_registered = $tmp['count'];
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
-$result3 = getInsuranceData($pid, "primary", "copay, provider, DATE_FORMAT(`date`,'%Y-%m-%d') as effdate");
+$result3 = getInsuranceData(
+    $pid,
+    "primary",
+    "copay,
+    provider,
+    DATE_FORMAT(`date`,'%Y-%m-%d') as effdate,
+    DATE_FORMAT(`date_end`,'%Y-%m-%d') as effdate_end"
+);
 $insco_name = "";
 if (!empty($result3['provider'])) {   // Use provider in case there is an ins record w/ unassigned insco
     $insco_name = getInsuranceProvider($result3['provider']);
@@ -1072,6 +1079,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $viewArgs['insName'] = $insco_name;
                             $viewArgs['copay'] = $result3['copay'];
                             $viewArgs['effDate'] = $result3['effdate'];
+                            $viewArgs['effDateEnd'] = $result3['effdate_end'];
                         }
 
                         echo $twig->getTwig()->render('patient/card/billing.html.twig', $viewArgs);
@@ -1110,12 +1118,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $params[] = $pid;
                         $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
-                        $prior_ins_type = '';
 
                         while ($row = sqlFetchArray($res)) {
                             if ($row['provider']) {
                                 // since the query is sorted by DATE DESC can use prior ins type to identify
-                                $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
+                                $row['isOld'] = ($row['date_end']) ? true : false;
                                 $icobj = new InsuranceCompany($row['provider']);
                                 $adobj = $icobj->get_address();
                                 $insco_name = trim($icobj->get_name());
@@ -1135,7 +1142,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
                                 $insArr[] = $row;
-                                $prior_ins_type = $row['type'];
                             }
                         }
 

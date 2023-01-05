@@ -3161,6 +3161,7 @@ CREATE TABLE `insurance_data` (
   `policy_type` varchar(25) NOT NULL default '',
   `subscriber_street_line_2` TINYTEXT,
   `subscriber_employer_street_line_2` TINYTEXT,
+  `date_end` date NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
