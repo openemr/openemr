@@ -447,8 +447,8 @@ class CdaTemplateParse
                 ($entry['act']['entryRelationship']['observation']['value']['codeSystemName'] ?? '') ?: $entry['act']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
                 $entry['act']['entryRelationship']['observation']['value']['displayName']
             );
-            $this->templateData['field_name_value_array']['lists1'][$i]['list_code'] = $code['formatted_code'];
-            $this->templateData['field_name_value_array']['lists1'][$i]['list_code_text'] = $code['code_text'];
+            $this->templateData['field_name_value_array']['lists1'][$i]['list_code'] = $code['formatted_code'] ?: $entry['act']['entryRelationship']['observation']['value']['code'] ?? '';
+            $this->templateData['field_name_value_array']['lists1'][$i]['list_code_text'] = $code['code_text'] ?: $entry['act']['entryRelationship']['observation']['value']['displayName'] ?? '';
 
             $this->templateData['field_name_value_array']['lists1'][$i]['type'] = 'medical_problem';
             $this->templateData['field_name_value_array']['lists1'][$i]['extension'] = $entry['act']['id']['extension'] ?? null;
