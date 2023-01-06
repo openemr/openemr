@@ -40,7 +40,6 @@ class ChatController extends ChatDispatcher
         $messages = $this->getModel()->getMessages();
         foreach ($messages as &$message) {
             $message['me'] = C_USER === $message['sender_id']; // $this->getServer('REMOTE_ADDR') === $message['ip'];
-            $message['message'] = $message['message'];
         }
 
         return json_encode($messages);
