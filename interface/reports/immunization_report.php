@@ -43,8 +43,6 @@ if (!empty($_POST)) {
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : '';
 $form_to_date = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : '';
-$export_res = '';
-$export_bindings = '';
 
 function tr($a)
 {
@@ -472,13 +470,10 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                     <?php
                     $total = 0;
 
-                    $query = str_replace(["\r", "\n"], '', $query);
-                    $export_res = $query;
-                    $export_bindings = serialize($sqlBindArray);
-
                     $res = sqlStatement($query, $sqlBindArray);
 
                     while ($row = sqlFetchArray($res)) {
+                        $rows[] = $row;
                         ?>
                         <tr>
                             <td>
@@ -518,19 +513,13 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         <?php } ?>
     </form>
     <script>
-        /*
-         * The better thing to do here would be to uncouple the query from this report
-         */
+        
         function exportData() {
-            let query = JSON.stringify("<?php echo $export_res; ?>");
-            let bindings = '<?php echo $export_bindings; ?>';
+            let data = '<?php echo json_encode($rows ?? ''); ?>';
             let csrf_token = '<?php echo CsrfUtils::collectCsrfToken(); ?>';
             dlgopen(
-                "../../library/ajax/immunization_export.php?sql=" + encodeURIComponent(query) +
-                    "&bindings=" +
-                    encodeURIComponent(bindings)
-                    + "&csrf_token_form="
-                    + encodeURIComponent(csrf_token),
+                "../../library/ajax/immunization_export.php?csrf_token_form=" + encodeURIComponent(csrf_token) +
+                    "&data=" + encodeURIComponent(data),
                 'Export',
                 'modal-xs',
                 300,

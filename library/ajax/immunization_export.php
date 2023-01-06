@@ -13,19 +13,29 @@
 
 require_once(dirname(__FILE__, 3) . "/interface/globals.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\{
+    Acl\AclMain,
+    Csrf\CsrfUtils,
+};
 use OpenEMR\Services\SpreadSheetService;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    echo (
+        new TwigContainer(
+            null,
+            $GLOBALS['kernel']
+        ))->getTwig()->render(
+            'core/unauthorized.html.twig',
+            ['pageTitle' => xl("Immunization Registry")]
+        );
+    exit;
+}
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$query = json_decode($_GET['sql']);
-$bindings = unserialize($_GET['bindings']);
-$res = sqlStatement($query, $bindings);
-while ($row = sqlFetchArray($res)) {
-    $immunizations[] = $row;
-}
+$immunizations = json_decode($_GET['data'], true);
 
 $spreadsheet = new SpreadSheetService($immunizations, null, 'immunizations');
 if (!empty($spreadsheet->buildSpreadsheet())) {
