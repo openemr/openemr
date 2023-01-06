@@ -406,7 +406,7 @@ $msgApp = new ChatController();
             };
 
             $scope.renderMessageBody = function (html) {
-                return js_Attr(html);
+                return encodeURI(html);
             };
             $scope.init();
         }]);
