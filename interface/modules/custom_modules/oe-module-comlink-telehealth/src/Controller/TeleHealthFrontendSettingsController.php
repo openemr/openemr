@@ -44,6 +44,7 @@ class TeleHealthFrontendSettingsController
     {
         $translations = [
                 'CALL_CONNECT_FAILED' => xl("Failed to connect the call."),
+                'BRIDGE_FAILED' => xl("Failed to establish a connection with the telehealth service provider.  Check your internet connection or contact support to verify the service is setup correctly."),
                 'SESSION_LAUNCH_FAILED' => xl("There was an error in launching your telehealth session.  Please try again or contact support"),
                 'DUPLICATE_SESSION' => xl("You are already in a conference session.  Please hangup the current call to start a new telehealth session"),
                 'HOST_LEFT' => xl("Host left the call"),

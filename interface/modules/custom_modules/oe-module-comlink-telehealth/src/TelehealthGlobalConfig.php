@@ -12,8 +12,10 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
+use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\Globals\GlobalSetting;
+use OpenEMR\Services\Globals\GlobalsService;
 
 class TelehealthGlobalConfig
 {
@@ -26,6 +28,7 @@ class TelehealthGlobalConfig
     const COMLINK_AUTO_PROVISION_PROVIDER = 'comlink_autoprovision_provider';
     const UNIQUE_INSTALLATION_ID = "unique_installation_id";
     const INSTALLATION_NAME  = "openemr_name";
+    const DEBUG_MODE_FLAG = "comlink_telehealth_debug";
 
     // character length to generate for the unique registration code for the user
     const APP_REGISTRATION_CODE_LENGTH = 12;
@@ -33,14 +36,17 @@ class TelehealthGlobalConfig
     // TODO: @adunsulag replace this with the name of the app that comlink is using.
     const COMLINK_MOBILE_APP_TITLE = "Comlink App";
 
+    const VERIFY_SETTINGS_BUTTON = "comlink_verify_settings_button";
+
     /**
      * @var CryptoGen
      */
     private $cryptoGen;
 
-    public function __construct()
+    public function __construct($publicWebPath)
     {
         $this->cryptoGen = new CryptoGen();
+        $this->publicWebPath = $publicWebPath;
     }
 
     /**
@@ -70,6 +76,12 @@ class TelehealthGlobalConfig
             }
         }
         return true;
+    }
+
+    public function isDebugModeEnabled()
+    {
+        $setting = $this->getGlobalSetting(self::DEBUG_MODE_FLAG);
+        return $setting !== "";
     }
 
     public function getInstitutionId()
@@ -165,12 +177,57 @@ class TelehealthGlobalConfig
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => '1'
             ]
+            ,self::DEBUG_MODE_FLAG => [
+                'title' => 'Debug Mode'
+                , 'description' => 'Turn on debug versions of javascript and other debug settings'
+                ,'type' => GlobalSetting::DATA_TYPE_BOOL
+                ,'default' => ''
+            ]
+            ,self::VERIFY_SETTINGS_BUTTON => [
+                'title' => 'Verify Comlink Installation Settings'
+                ,'description' => 'Verifies the comlink telehealth provisioning settings are correct. Requires the settings to be saved first'
+                ,'type' => GlobalSetting::DATA_TYPE_BUTTON_AJAX_DISPLAY
+                ,'default' => ''
+                ,'options' => [
+                    GlobalSetting::DATA_TYPE_OPTION_AJAX_URL => $this->publicWebPath . 'index.php?action=verify_installation_settings'
+                ]
+            ]
         ];
         return $settings;
     }
 
+    public function setupConfiguration(GlobalsService $service)
+    {
+        global $GLOBALS;
+        $section = xlt("TeleHealth");
+        $service->createSection($section, 'Portal');
+
+        $settings = $this->getGlobalSettingSectionConfiguration();
+
+        foreach ($settings as $key => $config) {
+            $value = $GLOBALS[$key] ?? $config['default'];
+            $setting = new GlobalSetting(
+                xlt($config['title']),
+                $config['type'],
+                $value,
+                xlt($config['description']),
+                true
+            );
+            if (!empty($config['options'])) {
+                foreach ($config['options'] as $key => $option) {
+                    $setting->addFieldOption($key, $option);
+                }
+            }
+            $service->appendToSection(
+                $section,
+                $key,
+                $setting
+            );
+        }
+    }
+
     private function isOptionalSetting($key)
     {
-        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER;
+        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER || $key == self::VERIFY_SETTINGS_BUTTON;
     }
 }

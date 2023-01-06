@@ -118,9 +118,9 @@ class Bootstrap
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
 
-        $this->globalsConfig = new TelehealthGlobalConfig($GLOBALS);
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
+        $this->globalsConfig = new TelehealthGlobalConfig($this->getPublicPath());
     }
 
     public function getTemplatePath()
@@ -231,10 +231,11 @@ class Bootstrap
 
     public function renderMainBodyTelehealthScripts()
     {
+        $scriptMinExtension = $this->globalsConfig->isDebugModeEnabled() ? ".js" : ".min.js";
         ?>
         <script src="<?php echo $this->getAssetPath();?>../<?php echo CacheUtils::addAssetCacheParamToPath("index.php"); ?>&action=get_telehealth_settings"></script>
         <link rel="stylesheet" href="<?php echo $this->getAssetPath();?>css/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth.css"); ?>">
-        <script src="<?php echo $this->getAssetPath();?>js/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth.js"); ?>"></script>
+        <script src="<?php echo $this->getAssetPath();?>js/dist/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth" . $scriptMinExtension); ?>"></script>
         <script src="<?php echo $this->getAssetPath();?>js/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth-provider.js"); ?>"></script>
         <?php
     }
@@ -246,28 +247,8 @@ class Bootstrap
 
     public function addGlobalTeleHealthSettings(GlobalsInitializedEvent $event)
     {
-        global $GLOBALS;
-
         $service = $event->getGlobalsService();
-        $section = xlt("TeleHealth");
-        $service->createSection($section, 'Portal');
-
-        $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
-
-        foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
-            $service->appendToSection(
-                $section,
-                $key,
-                new GlobalSetting(
-                    xlt($config['title']),
-                    $config['type'],
-                    $value,
-                    xlt($config['description']),
-                    true
-                )
-            );
-        }
+        $this->globalsConfig->setupConfiguration($service);
     }
 
     public function getTeleconferenceRoomController($isPatient): TeleconferenceRoomController

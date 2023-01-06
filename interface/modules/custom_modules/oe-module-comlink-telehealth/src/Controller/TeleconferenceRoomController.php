@@ -15,10 +15,12 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProviderNotEnrolledException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TeleHealthProviderSuspendedException;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProvisioningServiceRequestException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettingsController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
@@ -128,10 +130,33 @@ class TeleconferenceRoomController
             return $this->checkRegistrationAction($queryVars);
         } else if ($action == 'get_telehealth_settings') {
             return $this->getTeleHealthFrontendSettingsAction($queryVars);
+        } else if ($action == 'verify_installation_settings') {
+            return $this->verifyInstallationSettings($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
             return;
+        }
+    }
+
+    public function verifyInstallationSettings($queryVars) {
+        $config = new TelehealthGlobalConfig($this->assetPath);
+        if (!$config->isTelehealthConfigured()) {
+            echo xlt("Telehealth settings must be saved to verify configuration");
+        } else {
+//             settings have been saved... now we need to hit the remote server and verify we can talk to them
+//             TODO: we need a mechanism to verify the video bridge is working
+            $verificationResult = $this->telehealthRegistrationController->verifyProvisioningServiceIsValid();
+            if ($verificationResult['status'] == 200) {
+                echo xlt("Settings verified");
+            } else {
+                http_response_code($verificationResult['status']);
+                if ($verificationResult['status'] == 401) {
+                    echo xlt("Could not successfully communicate with provisioning server.  Check that your Telehealth registration settings are valid.");
+                } else {
+                    echo text($verificationResult['message']);
+                }
+            }
         }
     }
 
@@ -217,10 +242,15 @@ class TeleconferenceRoomController
                 , 'conferenceRoom' => $conferenceRoom
             ];
             echo json_encode($result);
+        } catch (TelehealthProvisioningServiceRequestException $exception) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Telehealth Provisioning Failed', 'code' => $exception->getCode()]);
         } catch (\Exception $exception) {
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
             http_response_code(500);
+            header('Content-Type: application/json');
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
         }
     }
@@ -613,6 +643,12 @@ class TeleconferenceRoomController
         return false;
     }
 
+    /**
+     * @param $queryVars
+     * @return array
+     * @throws AccessDeniedException
+     * @throws TelehealthProvisioningServiceRequestException
+     */
     private function getProviderSettings($queryVars)
     {
         $pid = $queryVars['pid'];
@@ -684,6 +720,11 @@ class TeleconferenceRoomController
     }
 
 
+    /**
+     * @param $queryVars
+     * @return array
+     * @throws TelehealthProvisioningServiceRequestException
+     */
     private function getPatientSettings($queryVars)
     {
         $pid = $queryVars['pid'];
@@ -743,6 +784,11 @@ class TeleconferenceRoomController
         return $data;
     }
 
+    /**
+     * @param $user
+     * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
+     * @throws TelehealthProvisioningServiceRequestException
+     */
     private function getOrCreateTelehealthProvider($user)
     {
         $providerTelehealthSettings = $this->telehealthUserRepo->getUser($user['uuid']);
@@ -751,7 +797,7 @@ class TeleconferenceRoomController
                 if ($this->telehealthRegistrationController->createUserRegistration($user)) {
                     $providerTelehealthSettings = $this->telehealthUserRepo->getUser($user['uuid']);
                 } else {
-                    throw new RuntimeException("Could not create telehealth registration for user " . $user['uuid']);
+                    throw new TelehealthProvisioningServiceRequestException("Could not create telehealth registration for user " . $user['uuid']);
                 }
             } else {
                 // we should never hit this situation as we are supposed to prevent launching of appointments on the client side of things.
@@ -764,6 +810,11 @@ class TeleconferenceRoomController
         return $providerTelehealthSettings;
     }
 
+    /**
+     * @param $patient
+     * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
+     * @throws TelehealthProvisioningServiceRequestException
+     */
     private function getOrCreateTelehealthPatient($patient)
     {
         $telehealthSettings = $this->telehealthUserRepo->getUser($patient['uuid']);
@@ -771,7 +822,7 @@ class TeleconferenceRoomController
             if ($this->telehealthRegistrationController->createPatientRegistration($patient)) {
                 $telehealthSettings = $this->telehealthUserRepo->getUser($patient['uuid']);
             } else {
-                throw new RuntimeException("Could not create video registration for patient " . $patient['uuid']);
+                throw new TelehealthProvisioningServiceRequestException("Could not create video registration for patient " . $patient['uuid']);
             }
         }
         return $telehealthSettings;
