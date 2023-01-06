@@ -1,5 +1,5 @@
 
-export function ConfirmSessionCloseDialog(pc_eid, scriptLocation)
+export function ConfirmSessionCloseDialog(pc_eid, scriptLocation, closeCallback)
 {
     let dialog = this;
     let modal = null;
@@ -60,7 +60,7 @@ export function ConfirmSessionCloseDialog(pc_eid, scriptLocation)
         jQuery(container).on("hidden.bs.modal", function () {
             try {
                 jQuery(container).off("hidden.bs.modal");
-                conf.sessionClose();
+                closeCallback();
             }
             catch (error)
             {

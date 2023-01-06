@@ -111,4 +111,20 @@ export class TelehealthBridge
     getLocalMediaStream() {
         return this.bridge.getLocalMediaStream();
     }
+
+    enableMicrophone(toggle) {
+        return this.bridge.enableMicrophone(toggle);
+    }
+
+    enableCamera(toggle) {
+        return this.bridge.enableCamera(toggle);
+    }
+
+    makeScreenshareCall(calleeUuid) {
+        return this.bridge.makeScreenshareCall(calleeUuid);
+    }
+
+    setCallHandlers(call) {
+        return this.bridge.setCallHandlers(call);
+    }
 }

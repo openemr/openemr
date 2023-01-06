@@ -330,7 +330,7 @@ export function ConferenceRoom(translations, scriptLocation)
                     return;
                 }
 
-                conf.app.setCallHandlers(result.call);
+                conf.__bridge.setCallHandlers(result.call);
                 result.call.accept();
                 console.log("Call accepted from " + result.call.getRemotePartyId() + " for "  + conf.callerSettings.callerUuid);
                 // NOTE that result.call.accept does NOT fire the oncallstarted event for the call stream... so we have to
@@ -377,7 +377,7 @@ export function ConferenceRoom(translations, scriptLocation)
             .catch(function(error) {
                 console.error(error);
                 // null out our values if we never started our session.
-                if (!conf.app) {
+                if (!conf.__bridge) {
                     alert(translations.SESSION_LAUNCH_FAILED);
                     conf.destruct(); // shut things down if we don't have a valid session.
                 }
@@ -407,11 +407,11 @@ export function ConferenceRoom(translations, scriptLocation)
             conf.sessionUpdateInterval = null;
         }
         let container = document.getElementById('telehealth-container');
-        if (conf.app && conf.app.shutdown)
+        if (conf.__bridge && conf.__bridge.shutdown)
         {
             // catch any problems from the library so we can still clean up.
             try {
-                conf.app.shutdown();
+                conf.__bridge.shutdown();
             }
             catch (error)
             {
@@ -526,7 +526,9 @@ export function ConferenceRoom(translations, scriptLocation)
             conf.sessionClose();
         }
         else {
-            let dialog = new ConfirmSessionCloseDialog(conf.telehealthSessionData.pc_eid, getTeleHealthScriptLocation(false));
+            let dialog = new ConfirmSessionCloseDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
+                conf.sessionClose();
+            });
             dialog.show();
         }
     };
@@ -534,11 +536,11 @@ export function ConferenceRoom(translations, scriptLocation)
     this.shutdownProviderWaitingRoom =  function()
     {
         let container = document.getElementById('telehealth-container');
-        if (conf.app && conf.app.shutdown)
+        if (conf.__bridge && conf.__bridge.shutdown)
         {
             // catch any problems from the library so we can still clean up.
             try {
-                conf.app.shutdown();
+                conf.__bridge.shutdown();
             }
             catch (error)
             {
@@ -815,10 +817,10 @@ export function ConferenceRoom(translations, scriptLocation)
         let toggle = !conf.buttonSettings.microphoneEnabled;
         conf.buttonSettings.microphoneEnabled = toggle;
         node.dataset.enabled = toggle;
-        if (conf.app && conf.app.enableMicrophone) {
-            conf.app.enableMicrophone(toggle);
+        if (conf.__bridge && conf.__bridge.enableMicrophone) {
+            conf.__bridge.enableMicrophone(toggle);
         } else {
-            console.error("app is not initalized and cannot toggle microphone");
+            console.error("__bridge is not initalized and cannot toggle microphone");
         }
         toggleClass(node, toggle, 'fa-microphone','fa-microphone-slash');
     };
@@ -834,8 +836,8 @@ export function ConferenceRoom(translations, scriptLocation)
         conf.buttonSettings.cameraEnabled = toggle;
         // TODO: @adunsulag remove this reliance on the node.dataset here.
         node.dataset.enabled = toggle;
-        if (conf.app && conf.app.enableCamera) {
-            conf.app.enableCamera(toggle);
+        if (conf.__bridge && conf.__bridge.enableCamera) {
+            conf.__bridge.enableCamera(toggle);
         } else {
             console.error("app is not initalized and cannot toggle microphone");
         }
@@ -862,7 +864,7 @@ export function ConferenceRoom(translations, scriptLocation)
 
         // need to figure out how to use the event here.
         if (true) {
-            conf.app.makeScreenshareCall(conf.callerSettings.calleeUuid);
+            conf.__bridge.makeScreenshareCall(conf.callerSettings.calleeUuid);
         } else {
             // TODO: @adunsulag need to kill the call here.
         }
