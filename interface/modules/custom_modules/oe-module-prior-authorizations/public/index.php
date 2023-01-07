@@ -19,13 +19,13 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 $pid = $_SESSION['pid'];
 
 
-function isValid($date, $format = 'Y-m-d') {
+function isValid($date, $format = 'Y-m-d')
+{
     $dt = DateTime::createFromFormat($format, $date);
     return $dt && $dt->format($format) === $date;
 }
 
 if (!empty($_POST['token'])) {
-
     if (!CsrfUtils::verifyCsrfToken($_POST["token"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -147,29 +147,29 @@ const TABLE_TD = "</td><td>";
                     <th scope="col"></th>
                 </tr>
                 <?php
-                    if (!empty($authList)) {
-                        while ($iter = sqlFetchArray($authList)) {
-                            $editData = json_encode($iter);
-                            $used = AuthorizationService::getUnitsUsed($iter['auth_num']);
-                            $remaining = $iter['init_units'] - $used['count'];
-                            print "<tr><td>";
-                            print $iter['auth_num'];
-                            print TABLE_TD . $iter['init_units'];
-                            print TABLE_TD . $remaining;
-                            print TABLE_TD . $iter['start_date'];
-                            if ($iter['end_date'] == '0000-00-00') {
-                                print TABLE_TD;
-                            } else {
-                                print TABLE_TD . $iter['end_date'];
-                            }
-                            print TABLE_TD . $iter['cpt'];
-                            print TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . $iter['id'] . ")>" . xlt('Edit') . "</button>
-                            <input type='hidden' id='" . $iter['id'] . "' value='" . $editData . "' ></td>";
-                            print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . $iter['id'] . ")>" . xlt('Delete') . "</a></td>";
-
-                            print "</tr>";
+                if (!empty($authList)) {
+                    while ($iter = sqlFetchArray($authList)) {
+                        $editData = json_encode($iter);
+                        $used = AuthorizationService::getUnitsUsed($iter['auth_num']);
+                        $remaining = $iter['init_units'] - $used['count'];
+                        print "<tr><td>";
+                        print $iter['auth_num'];
+                        print TABLE_TD . $iter['init_units'];
+                        print TABLE_TD . $remaining;
+                        print TABLE_TD . $iter['start_date'];
+                        if ($iter['end_date'] == '0000-00-00') {
+                            print TABLE_TD;
+                        } else {
+                            print TABLE_TD . $iter['end_date'];
                         }
+                        print TABLE_TD . $iter['cpt'];
+                        print TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . $iter['id'] . ")>" . xlt('Edit') . "</button>
+                        <input type='hidden' id='" . $iter['id'] . "' value='" . $editData . "' ></td>";
+                        print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . $iter['id'] . ")>" . xlt('Delete') . "</a></td>";
+
+                        print "</tr>";
                     }
+                }
                 ?>
             </table>
         </div>
