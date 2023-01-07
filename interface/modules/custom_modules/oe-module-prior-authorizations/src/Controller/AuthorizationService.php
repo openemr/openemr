@@ -176,7 +176,7 @@ class AuthorizationService
         if ($_SESSION['site_id'] == 'serenity') {
             $where = "(pd.Ref_Req = 'Yes' OR mpa.pid = pd.pid)";
         } else {
-            $where = "mpa.pid = pd.pid";
+           $where = "mpa.pid = pd.pid";
         }
 
         $sql = "SELECT DISTINCT pd.pid AS mrn, pd.fname, pd.lname, mpa.pid, mpa.auth_num, mpa.start_date, mpa.end_date, mpa.cpt, mpa.init_units, ins.provider " . "
@@ -205,11 +205,7 @@ class AuthorizationService
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array(
-                "name" => $clinic['name'],
-                "phone" => $clinic['phone'],
-                "email" => $clinic['email']
-            ),
+            CURLOPT_POSTFIELDS => array("name"=>$clinic['name'],"phone"=>$clinic['phone'],"email"=>$clinic['email']),
         ));
 
         $response = curl_exec($curl);
@@ -242,4 +238,5 @@ WHERE `t`.`pid` = ? AND `d`.`field_id` = 'authorization_001'";
     {
         return sqlQuery("SELECT `ps`.`status` FROM `patient_status` ps WHERE `ps`.`pid` = ? ORDER BY `ps`.`statusId` DESC", [$pid]);
     }
+
 }

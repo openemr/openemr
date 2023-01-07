@@ -54,11 +54,11 @@ function oe_module_priorauth_patient_menu_item(PatientMenuEvent $menuEvent)
     return $menuEvent;
 }
 
-function renderButtonPostLoad(Event $event)
-{
+function renderButtonPostLoad(Event $event) {
+
     $patient_status = sqlQuery("SELECT `status` FROM `patient_status` WHERE `pid` = ? ORDER BY `statusId` DESC LIMIT 1", [$_SESSION['pid']]);
     if (($patient_status['status'] != 'inactive') && (AclMain::aclCheckCore('admin', 'super'))) {
-        ?>
+    ?>
     <script>
         let navbar = document.querySelector('nav.navbar:first-of-type');
         let ele = document.createElement("div");
@@ -66,9 +66,9 @@ function renderButtonPostLoad(Event $event)
             ele.innerHTML = '<button class="btn btn-danger" id="addButton">Mark Inactive</button>'
         navbar.appendChild(ele);
     </script>
-        <?php
+    <?php
     } else {
-        ?>
+    ?>
     <script>
         let navbar = document.querySelector('nav.navbar:first-of-type');
         let ele = document.createElement("div");
@@ -76,7 +76,7 @@ function renderButtonPostLoad(Event $event)
             ele.innerHTML = '<button class="btn btn-success" id="addButton">Mark Active</button>';
         navbar.appendChild(ele);
     </script>
-        <?php
+    <?php
     }
     ?>
     <script>
@@ -105,7 +105,8 @@ function renderButtonPostLoad(Event $event)
             }
         });
     </script
-    <?php
+<?php
+
 }
 
 /**

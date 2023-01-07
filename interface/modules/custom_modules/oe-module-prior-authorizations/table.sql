@@ -1,11 +1,5 @@
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT = @@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS = @@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION = @@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
+#IfNotTable module_prior_authorizations
 CREATE TABLE IF NOT EXISTS `module_prior_authorizations`
 (
     `id`  INT NOT NULL PRIMARY KEY auto_increment,
@@ -17,3 +11,4 @@ CREATE TABLE IF NOT EXISTS `module_prior_authorizations`
     `init_units` INT(5) NULL,
     `remaining_units` INT(5) NULL
 ) ENGINE = InnoDB COMMENT = 'Store authorizations';
+#EndIf
