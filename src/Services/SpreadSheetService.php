@@ -57,7 +57,7 @@ class SpreadSheetService extends Spreadsheet
             return false;
         }
 
-        if ($this->fields == null) {
+        if (empty($this->fields)) {
             $this->fields = array_keys($this->arrayData[0]);
         }
 
