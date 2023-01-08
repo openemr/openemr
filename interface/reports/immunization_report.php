@@ -515,7 +515,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     <script>
         
         function exportData() {
-            let data = <?php echo js_escape(json_encode($rows ?? '')); ?>;
+            let data = <?php echo json_encode($rows ?? ''); ?>;
             let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
             dlgopen(
                 "../../library/ajax/immunization_export.php?csrf_token_form=" + encodeURIComponent(csrf_token) +
