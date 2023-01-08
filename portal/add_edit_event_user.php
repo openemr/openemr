@@ -64,6 +64,19 @@ if (!empty($eid) && !$checkEidInAppt) {
     exit();
 }
 
+if (!empty($_POST['form_pid'])) {
+    if ($_POST['form_pid'] != $_SESSION['pid']) {
+        echo js_escape("error");
+    }
+
+    if (! getAvailableSlots($_POST['form_date'], date('Y-m-d', strtotime("+1 year " . $_POST['form_date'])), $_POST['form_provider_ae'])) {
+        echo js_escape("error");
+        exit();
+    }
+}
+
+
+
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
 } else {
@@ -91,6 +104,8 @@ if (isset($_GET['starttimeh'])) {
 $startampm = '';
 
 $info_msg = "";
+
+
 
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
@@ -135,7 +150,7 @@ if (($_POST['form_action'] ?? null) == "save") {
     $event_date = fixDate($_POST['form_date']);
 
 // Compute start and end time strings to be saved.
-    if ($_POST['form_allday']) {
+    if ($_POST['form_allday'] ?? null) {
         $tmph = 0;
         $tmpm = 0;
         $duration = 24 * 60;
@@ -165,7 +180,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 
 // More garbage, but this time 1 character of it is used to save the
 // repeat type.
-    if ($_POST['form_repeat']) {
+    if ($_POST['form_repeat'] ?? null) {
         $recurrspec = 'a:5:{' .
             's:17:"event_repeat_freq";s:1:"' . $_POST['form_repeat_freq'] . '";' .
             's:22:"event_repeat_freq_type";s:1:"' . $_POST['form_repeat_type'] . '";' .
@@ -185,7 +200,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 //for example monday, or thursday. We set the start date on the first day of the week
 //that the event is scheduled. For example if you set the event to repeat on each monday
 //the start date of the event will be set on the first monday after the day the event is scheduled
-    if ($_POST['form_repeat_type'] == 5) {
+    if (($_POST['form_repeat_type'] ?? null) == 5) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Tue") {
@@ -201,7 +216,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Sun") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 6) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 6) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Wed") {
@@ -217,7 +232,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Mon") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 7) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 7) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Thu") {
@@ -233,7 +248,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Tue") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 8) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 8) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Fri") {
@@ -249,7 +264,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Wed") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 9) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 9) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Sat") {
@@ -371,16 +386,16 @@ if (($_POST['form_action'] ?? null) == "save") {
                 "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
                 "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
                 "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'] ?? '')) . "', " .
                 "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-                "pc_recurrtype = '" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                "pc_recurrtype = '" . (($_POST['form_repeat'] ?? null) ? '1' : '0') . "', " .
                 "pc_recurrspec = '" . add_escape_custom($recurrspec) . "', " .
                 "pc_startTime = '" . add_escape_custom($starttime) . "', " .
                 "pc_endTime = '" . add_escape_custom($endtime) . "', " .
-                "pc_alldayevent = '" . add_escape_custom($_POST['form_allday']) . "', " .
+                "pc_alldayevent = '" . add_escape_custom(($_POST['form_allday'] ?? '')) . "', " .
                 "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-                "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "', " .
-                "pc_facility = '" . (int)$_POST['facility'] . "' " . // FF stuff
+                "pc_prefcatid = '" . add_escape_custom(($_POST['form_prefcat'] ?? '')) . "', " .
+                "pc_facility = '" . (int)($_POST['facility'] ?? null) . "' " . // FF stuff
                 "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
         }
 
@@ -452,18 +467,18 @@ if (($_POST['form_action'] ?? null) == "save") {
                 "'" . add_escape_custom($_POST['form_comments']) . "', " .
                 "'" . add_escape_custom($_SESSION['providerId']) . "', " .
                 "'" . add_escape_custom($event_date) . "', " .
-                "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                "'" . add_escape_custom(fixDate(($_POST['form_enddate'] ?? ''))) . "', " .
                 "'" . add_escape_custom(($duration * 60)) . "', " .
-                "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                "'" . (($_POST['form_repeat'] ?? null) ? '1' : '0') . "', " .
                 "'" . add_escape_custom($recurrspec) . "', " .
                 "'" . add_escape_custom($starttime) . "', " .
                 "'" . add_escape_custom($endtime) . "', " .
-                "'" . add_escape_custom($_POST['form_allday']) . "', " .
+                "'" . add_escape_custom(($_POST['form_allday'] ?? '')) . "', " .
                 "'" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-                "'" . add_escape_custom($_POST['form_prefcat']) . "', " .
+                "'" . add_escape_custom(($_POST['form_prefcat'] ?? null)) . "', " .
                 "'" . add_escape_custom($locationspec) . "', " .
                 "1, " .
-                "1, " . (int)$_POST['facility'] . ")"); // FF stuff
+                "1, " . (int)($_POST['facility'] ?? null) . ")"); // FF stuff
         } // INSERT single
     } // else - insert
 } elseif (($_POST['form_action'] ?? null) == "delete") {
@@ -657,12 +672,12 @@ if ($userid) {
         <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
             <div class="col-12">
                 <input type="hidden" name="form_action" id="form_action" value="" />
-                <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
-                <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
+                <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
+                <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo ($row['pc_apptstatus'] ?? '') ? attr($row['pc_apptstatus'] ?? '') : "^" ?>' />
                 <div class="row form-group">
                     <div class="input-group col-12 col-md-6">
                         <label class="mr-2" for="form_category"><?php echo xlt('Visit'); ?>:</label>
-                        <select class="form-control mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
+                        <select class="form-control mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo (($row['pc_catid'] ?? '') > "") ? attr($row['pc_catid']) : '5'; ?>'>
                             <?php echo $catoptions ?>
                         </select>
                     </div>
@@ -684,7 +699,7 @@ if ($userid) {
                         </div>
                         <div class="input-group">
                             <label class="mr-2" for="form_duration"><?php echo xlt('Duration'); ?></label>
-                            <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
+                            <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo ($row['pc_duration'] ?? '') ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
                             <span class="input-group-append">
                             <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
                         </span>
@@ -730,7 +745,7 @@ if ($userid) {
                     </div>
                 </div>
                 <div class="row input-group my-1">
-                    <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
+                    <?php if (($_GET['eid'] ?? null) && $row['pc_apptstatus'] !== 'x') { ?>
                         <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
                     <?php } ?>
                     <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
