@@ -43,7 +43,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/appointments.inc.php");
 
-use OpenEMR\Core\Header;
+use OpenEMR\Services\AppointmentService;
 
 // Things that might be passed by our opener.
 //
@@ -73,9 +73,13 @@ if (!empty($_POST['form_pid'])) {
         echo js_escape("error");
         exit();
     }
+
+    $appointment_service = (new AppointmentService())->getOneCalendarCategory($_POST['form_category']);
+    if (($_POST['form_duration'] * 60) != ($appointment_service[0]['pc_duration'])) {
+        echo js_escape("error");
+        exit();
+    }
 }
-
-
 
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
