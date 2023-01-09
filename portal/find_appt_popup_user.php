@@ -88,7 +88,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
                         $slots[$i] |= 2;
                     }
                 } else {
-                    $slots[$i] = 1;
+                    $slots[$i] |= 1;
                 }
             } else {
                 $slots[$i] |= 1;
