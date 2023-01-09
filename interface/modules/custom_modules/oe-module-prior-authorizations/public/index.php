@@ -156,9 +156,9 @@ const TABLE_TD = "</td><td>";
                         $remaining = $iter['init_units'] - $used['count'];
                         print "<tr><td>";
                         print text($iter['auth_num']);
-                        print text(TABLE_TD) . $iter['init_units'];
-                        print text(TABLE_TD) . $remaining;
-                        print text(TABLE_TD) . $iter['start_date'];
+                        print text(TABLE_TD) . text($iter['init_units']);
+                        print text(TABLE_TD) . text($remaining);
+                        print text(TABLE_TD) . text($iter['start_date']);
                         if ($iter['end_date'] == '0000-00-00') {
                             print TABLE_TD;
                         } else {
