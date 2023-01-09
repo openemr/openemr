@@ -8,11 +8,13 @@
  *  All Rights Reserved
  */
 
-use OpenEMR\Core\Header;
-use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
+
 
 require_once dirname(__FILE__, 6) . "/globals.php";
 require_once dirname(__FILE__, 3) . "/vendor/autoload.php";
+
+use OpenEMR\Core\Header;
+use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 
 $data = new AuthorizationService();
 $patients = $data->listPatientAuths();
@@ -74,25 +76,25 @@ $patients = $data->listPatientAuths();
                     $insurance = AuthorizationService::insuranceName($pid);
 
                     if ($name !== $iter['fname'] . " " . $iter['lname']) {
-                        print "<tr><td><a href='#' onclick='openNewTopWindow(" . $pid . ")'>" . $pid . "</a></td>";
-                        print "<td><strong>" . $iter['lname'] . ", " . $iter['fname'] . "</strong></td>";
-                        print "<td style='max-width:75px;'>" . $insurance['name'] . "</td>";
+                        print "<tr><td><a href='#' onclick='openNewTopWindow(" . attr_js($pid) . ")'>" . text($pid) . "</a></td>";
+                        print "<td><strong>" . text($iter['lname']) . ", " . text($iter['fname']) . "</strong></td>";
+                        print "<td style='max-width:75px;'>" . text($insurance['name']) . "</td>";
                     } else {
                         print "<td></td>";
                         print "<td></td>";
                         print "<td></td>";
                     }
-                    print "<td>" . $iter['auth_num'] . "</td>";
-                    print "<td>" . $iter['start_date'] . "</td>";
-                    print "<td>" . $iter['end_date'] . "</td>";
+                    print "<td>" . text($iter['auth_num']) . "</td>";
+                    print "<td>" . text($iter['start_date']) . "</td>";
+                    print "<td>" . text($iter['end_date']) . "</td>";
                     if (($iter['end_date'] < date('Y-m-d')) && ($iter['end_date'] !== '0000-00-00') && !empty($iter['auth_num'])) {
                         print "<td style='color: red'><strong>" . xlt('Expired') . "</strong></td>";
                         print "<td></td>";
                     } else {
-                        print "<td>" . $iter['init_units'] . "</td>";
+                        print "<td>" . text($iter['init_units']) . "</td>";
                         $unitCount = $iter['init_units'] - $numbers['count'];
                         if ($unitCount > 0) {
-                            print "<td>" . $unitCount . "</td>";
+                            print "<td>" . text($unitCount) . "</td>";
                         } else {
                             print "<td>&nbsp</td>";
                         }

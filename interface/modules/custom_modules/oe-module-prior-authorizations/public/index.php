@@ -92,7 +92,8 @@ const TABLE_TD = "</td><td>";
     <div class="container">
         <div class="m-4">
                 <span style="font-size: xx-large; padding-right: 20px"><?php echo xlt('Prior Authorization Manager'); ?></span>
-                <a href="../../../../patient_file/summary/demographics.php" onclick="top.restoreSession()" title="Go Back">
+                <a href="../../../../patient_file/summary/demographics.php" onclick="top.restoreSession()"
+                   title="<?php echo xla('Go Back') ?>">
                     <i id="advanced-tooltip" class="fa fa-undo fa-2x small" aria-hidden="true"></i></a>
 
         </div>
@@ -109,33 +110,34 @@ const TABLE_TD = "</td><td>";
                 <input type="hidden" id="id" name="id" value="">
                 <div class="form-row">
                     <div class="col">
-                        <input class="form-control" id="authorization" name="authorization" value="" placeholder="<?php echo xlt('Authorization Number') ?>">
+                        <input class="form-control" id="authorization" name="authorization" value="" placeholder="
+                        <?php echo xla('Authorization Number') ?>">
                     </div>
                     <div class="col">
-                        <input class="form-control" id="units" name="units" value="" placeholder="<?php echo xlt('Units') ?>">
+                        <input class="form-control" id="units" name="units" value="" placeholder="<?php echo xla('Units') ?>">
                     </div>
                     <div class="col">
-                        <input class="form-control datepicker" id="start_date" name="start_date" value="" placeholder="<?php echo xlt('Start Date') ?>" readonly>
+                        <input class="form-control datepicker" id="start_date" name="start_date" value="" placeholder="<?php echo xla('Start Date') ?>" readonly>
                     </div>
                     <div class="col">
-                        <input class="form-control datepicker" id="end_date" name="end_date" value="" placeholder="<?php echo xlt('End Date') ?>" readonly>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="col">
-                        <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xlt('CPTs') ?>">
+                        <input class="form-control datepicker" id="end_date" name="end_date" value="" placeholder="<?php echo xla('End Date') ?>" readonly>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="col">
-                        <input class="form-control btn btn-primary" type="submit" value="Save">
+                        <input class="form-control" id="cpts" name="cpts" value="" placeholder="<?php echo xla('CPTs') ?>">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <input class="form-control btn btn-primary" type="submit" value="<?php echo xla('Save') ?>">
                     </div>
                 </div>
             </form>
         </div>
         <div class="m-4">
             <table class="table table-striped">
-                <caption><?php echo xlt('Display of authorization code'); ?></caption>
+                <caption><?php echo xla('Display of authorization code'); ?></caption>
                 <tr>
                     <th scope="col"><?php echo xlt('Authorization Number'); ?></th>
                     <th scope="col"><?php echo xlt('Allocated Units'); ?></th>
@@ -153,19 +155,19 @@ const TABLE_TD = "</td><td>";
                         $used = AuthorizationService::getUnitsUsed($iter['auth_num']);
                         $remaining = $iter['init_units'] - $used['count'];
                         print "<tr><td>";
-                        print $iter['auth_num'];
-                        print TABLE_TD . $iter['init_units'];
-                        print TABLE_TD . $remaining;
-                        print TABLE_TD . $iter['start_date'];
+                        print text($iter['auth_num']);
+                        print text(TABLE_TD) . $iter['init_units'];
+                        print text(TABLE_TD) . $remaining;
+                        print text(TABLE_TD) . $iter['start_date'];
                         if ($iter['end_date'] == '0000-00-00') {
                             print TABLE_TD;
                         } else {
-                            print TABLE_TD . $iter['end_date'];
+                            print text(TABLE_TD) . text($iter['end_date']);
                         }
-                        print TABLE_TD . $iter['cpt'];
-                        print TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . $iter['id'] . ")>" . xlt('Edit') . "</button>
-                        <input type='hidden' id='" . $iter['id'] . "' value='" . $editData . "' ></td>";
-                        print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . $iter['id'] . ")>" . xlt('Delete') . "</a></td>";
+                        print text(TABLE_TD) . text($iter['cpt']);
+                        print text(TABLE_TD) . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
+                        <input type='hidden' id='" . attr_js($iter['id']) . "' value='" . attr($editData) . "' ></td>";
+                        print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . attr_js($iter['id']) . ")>" . xlt('Delete') . "</a></td>";
 
                         print "</tr>";
                     }
@@ -189,10 +191,10 @@ const TABLE_TD = "</td><td>";
     }
 
     function removeEntry(id) {
-        let url = 'deleter.php?id=' + encodeURIComponent(id);
+        let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;;
         dlgopen(url, '_blank', 290, 290, '', 'Delete Entry', {
             buttons: [
-                {text: 'Done', style: 'danger btn-sm', close: true}
+                {text: <?php echo xlj('Done') ?>, style: 'danger btn-sm', close: true}
             ],
             onClosed: 'refreshme'
         })

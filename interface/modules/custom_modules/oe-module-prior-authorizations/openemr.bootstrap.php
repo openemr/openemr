@@ -63,7 +63,7 @@ function renderButtonPostLoad(Event $event)
         let navbar = document.querySelector('nav.navbar:first-of-type');
         let ele = document.createElement("div");
             ele.id = "customepatientnav";
-            ele.innerHTML = '<button class="btn btn-danger" id="addButton">Mark Inactive</button>'
+            ele.innerHTML = '<button class="btn btn-danger" id="addButton">'<?php echo xlt("Mark Inactive") ?>'</button>';
         navbar.appendChild(ele);
     </script>
         <?php
@@ -73,7 +73,7 @@ function renderButtonPostLoad(Event $event)
         let navbar = document.querySelector('nav.navbar:first-of-type');
         let ele = document.createElement("div");
             ele.id = "customepatientnav";
-            ele.innerHTML = '<button class="btn btn-success" id="addButton">Mark Active</button>';
+            ele.innerHTML = '<button class="btn btn-success" id="addButton">'<?php echo xlt("Mark Active") ?>'</button>';
         navbar.appendChild(ele);
     </script>
         <?php
@@ -83,13 +83,13 @@ function renderButtonPostLoad(Event $event)
         document
                 .getElementById('addButton')
                 .addEventListener("click", function (e){
-                    if( ! confirm('Do you really want to do this?')){
+                    if( ! confirm(<?php echo xlj('Do you really want to do this?') ?>)){
                          e.preventDefault();
                     } else {
-                    alert('Ok, lets do this! Click ok to really mark inactive.');
+                    alert(<?php echo xlj('Ok, lets do this! Click ok to really mark inactive.') ?>));
                     let libUrl = 'patient_status.php';
-                    let pid = <?php echo $_SESSION['pid']; ?>;
-                    let csrf = <?php echo xlj(CsrfUtils::collectCsrfToken()); ?>;
+                    let pid = <?php echo js_escape($_SESSION['pid']); ?>;
+                    let csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
                 $.ajax({
                     type: "POST",
                     url: libUrl,

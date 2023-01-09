@@ -8,7 +8,19 @@
  *  license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once dirname(__FILE__, 5) . '/globals.php';
+    use OpenEMR\Common\Csrf\CsrfUtils;
+    use OpenEMR\Common\Acl\AclMain;
+
+    require_once dirname(__FILE__, 5) . '/globals.php';
+
+if (!AclMain::aclCheckCore('admin', 'practice')) {
+    echo xlt('Unauthorized');
+    die;
+}
+
+if (CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'])) {
+    CsrfUtils::csrfNotVerified();
+}
 sqlQuery("delete from `module_prior_authorizations` where `id` = ?", [$_GET['id']]);
 
 ?>
