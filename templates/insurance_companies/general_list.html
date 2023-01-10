@@ -1,9 +1,10 @@
 <a href="{$CURRENT_ACTION}action=edit" onclick="top.restoreSession()"
    class="btn btn-secondary btn-add">
     {xlt t='Add a Company'}</a>
+    {headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
     <br /><br />
 <div class="table-responsive">
-  <table class="table table-striped">
+    <table class="table table-striped" id="insurance">
       <thead>
           <tr>
               <th>{xlt t='Name'}</th>
@@ -39,4 +40,12 @@
           {/foreach}
       </tbody>
   </table>
+    <script>
+        {literal}
+        $(document).ready(function () {
+            $('#insurance').DataTable();
+        });
+        {/literal}
+
+    </script>
 </div>
