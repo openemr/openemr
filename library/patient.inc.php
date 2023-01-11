@@ -402,7 +402,6 @@ function getInsuranceDataByDate(
     return sqlQuery($sql, array($pid,$date,$type));
 }
 
-//ALB Calculates unallocated patient balance (pre-payments)
 function get_unallocated_patient_balance($pid)
 {
     $unallocated = '';
@@ -420,7 +419,6 @@ function get_unallocated_patient_balance($pid)
     return sprintf('%01.2f', $unallocated);
 }
 
-//ALB Added this function
 function getInsuranceNameByDate(
     $pid,
     $date,
