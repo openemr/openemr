@@ -14,6 +14,10 @@ namespace OpenEMR\OeUI;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
+use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Events\UserInterface\SampleActionButtonClass;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.
@@ -53,6 +57,8 @@ class OemrUI
     private $print;
     private $target;
     private $web_root;
+    private $ed;
+    private $twig;
 
     /**
     * Create the html string that will display the formatted heading with selected icons - expandable,
@@ -82,39 +88,51 @@ class OemrUI
         if (!empty($arrOeUiSettings['expandable']) && !empty($arrOeUiSettings['expandable_files'])) {
             $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
         }
+        /**
+         * @var EventDispatcher
+         */
+        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+
+        /**
+         * @var TwigEnvironment
+         */
+        $this->twig = $GLOBALS['twig']->getTwig();
+
+        if ($this->expandable) {
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'expandIconListener']);
+        }
+
+        if ($this->action !== "") {
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'actionIconListener']);
+        }
+
+        if ($GLOBALS['enable_help'] !== 0 && $this->display_help_icon) {
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'helpIconListener']);
+        }
     }
 
     /**
-    * Creates the html string that will display the formatted heading with selected icons - expandable, action and help.
+    * Returns the page heading based on the options passed into the constructor.
     *
-    * @return array containing string $heading - the formatted html string of the actual heading and string $container
-    * - the value of the container class 'container' or 'container-fluid'
+    * @var bool $render If true, will echo the results from within this function
+    * @return string The Twig-rendered html content, suitable for simply echo'ing
     *
     */
-    public function pageHeading()
+    public function pageHeading(bool $render = false): null|string
     {
-        $heading = text($this->heading);
-        if (!empty($heading)) {
-            $arrexpandIcon = $this->expandIcon();// returns and array containing expandable icon string and container class string
-            $action_icon = $this->actionIcon();
-            $help_icon = $this->helpIcon();
-            $expandable_icon = $arrexpandIcon[0];
-            $heading = <<<HTML
-                <div class="d-flex">
-                    <div class="flex-grow-1">
-                        <h5 class="pb-0 mb-0 pt-1">$heading</h5>
-                    </div>
-                    <div class="pt-1">
-                        $expandable_icon
-                        $action_icon
-                        $help_icon
-                    </div>
-                </div>
-            HTML;
+        $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent(), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
+        $vars = [
+            "buttonList" => $pageHeadingEvent->getActions(),
+            "heading" => text($this->heading),
+        ];
+
+        $html = $this->twig->render("oemr_ui/page_heading/partials/page_heading.html.twig", $vars);
+
+        if ($render) {
+            echo $html;
         } else {
-            $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-oe-smile-o' aria-hidden='true'></i></h2>";
+            return $html;
         }
-        return $heading;
     }
 
     /**
@@ -144,6 +162,36 @@ class OemrUI
         return array($expandable_icon, $container);
     }
 
+    public function expandIconListener(PageHeadingRenderEvent $e)
+    {
+        $current_state = $this->current_state;
+        $expandable = $this->expandable;
+
+        $text = ($current_state) ? xl('Click to contract page to center view') : xl('Click to expand page to full width');
+        $title = attr($text);
+        $anchor_class = ($current_state) ? 'oe-center' : 'oe-expand';
+        $icon = ($current_state) ? 'fa-compress' : 'fa-expand';
+
+        $opts = [
+            'id' => 'exp_cont_icon',
+            'title' => $title,
+            'displayText' => '',
+            'iconClass' => "fa fa-fw fa-lg $icon",
+            'displayAttributes' => [
+                'aria-hidden' => 'true',
+            ],
+            'classes' => [
+                $anchor_class,
+                'expand_contract',
+            ],
+        ];
+        $expandClass = new BaseActionButtonHelper($opts);
+        $actions = $e->getActions();
+        $actions[] = $expandClass;
+        $e->setActions($actions);
+        return $e;
+    }
+
     /**
     * Will return the container class value either 'container' or 'container-fluid'
     *
@@ -154,6 +202,71 @@ class OemrUI
         $arrexpandIcon = $this->expandIcon();
         $container = $arrexpandIcon[1] ? $arrexpandIcon[1] : 'container';
         return $container;
+    }
+
+    public function actionIconListener(PageHeadingRenderEvent $e)
+    {
+        $arrAction = $this->arrAction;
+        if ($arrAction) {
+            $action = $arrAction[0];
+            $action_title = $arrAction[1];
+            $action_href = $arrAction[2];
+        }
+
+        if (!$action) {
+            return;
+        }
+
+        $action_href = ($action_href) ? $action_href : "#";
+        switch ($action) {
+            case "reset":
+                $action_title = ($action_title) ? $action_title : xl("Reset");
+                $icon = "fa-undo";
+                break;
+            case "conceal":
+                $action_title = xl("Click to Hide"); // default needed for jQuery to function
+                $icon = "fa-eye-slash";
+                break;
+            case "reveal":
+                $action_title = xl("Click to Show"); // default needed for jQuery to function
+                $icon = "fa-eye";
+                break;
+            case "search":
+                $action_title = xl("Click to show search"); // default needed for jQuery to function
+                $icon = "fa-search";
+                break;
+            case "link":
+                $target = (strpos($action_href, 'http') !== false) ? "_blank" : "_self";
+                $action_title = ($action_title) ? $action_title : xl("Click to go to page");
+                $icon = "fa-external-link-alt";
+                break;
+            case "back":
+                $action_title = ($action_title) ? $action_title : xl("Go Back");
+                $arrow_direction = ($_SESSION['language_direction'] == 'rtl') ? "fa-arrow-circle-right" : "fa-arrow-circle-left";
+                $icon = $arrow_direction;
+                break;
+            default:
+                $icon = '';
+        }
+
+        // @TBD Handle the HREF and onclick
+        $opts = [
+            'id' => 'TBD',
+            'title' => attr($action_title),
+            'displayText' => '',
+            'href' => "#",
+            'iconClass' => "fa fa-fw fa-lg {$icon}",
+            'dataAttributes' => [
+                'aria-hidden' => 'true',
+            ],
+        ];
+
+        $actionClass = new BaseActionButtonHelper($opts);
+        $actions = $e->getActions();
+        $actions[] = $actionClass;
+        $e->setActions($actions);
+
+        return $e;
     }
 
     /**
@@ -243,6 +356,37 @@ class OemrUI
             }
         }
         return $help_icon;
+    }
+
+    public function helpIconListener(PageHeadingRenderEvent $e)
+    {
+        $title = "";
+        if ($GLOBALS['enable_help'] == "1") {
+            $title = xla("Click to view Help");
+        } elseif ($GLOBALS['enable_help'] == "2") {
+            $title = xla("Enable help under your User Menu > Settings > Featurees > Enable Help Modal");
+        }
+
+        $id = 'help-href';
+        $opts = [
+            'id' => $id,
+            'title' => $title,
+            'iconClass' => "fa fa-fw fa-lg fa-question-circle",
+            'href' => "#",
+            'anchorClasses' => [
+                'oe-help-redirect',
+            ],
+            'attributes' => [
+                'data-target' => "#myModal",
+                'data-toggle' => 'modal',
+                'name' => $id,
+            ]
+        ];
+
+        $a = $e->getActions();
+        $a[] = new BaseActionButtonHelper($opts);
+        $e->setActions($a);
+        return $e;
     }
 
     /**
