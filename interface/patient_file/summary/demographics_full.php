@@ -637,7 +637,7 @@ if (! $GLOBALS['simplified_demographics']) {
             <div class="col-md-9">
               <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
                onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
-              <select name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+              <select name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
                 foreach ($insurancei as $iid => $iname) {

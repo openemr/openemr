@@ -92,7 +92,7 @@ $query = "SELECT " .
     "a.line1, a.line2, a.city, a.state, a.zip ";
 
 $any_phone_numbers = sqlQuery("SELECT COUNT(*) AS count FROM phone_numbers");
-if ($any_phone_numbers['count'] > 0) {
+if ($any_phone_numbers['count'] > 0 && !empty($_GET['form_phone'])) {
     $query .= ", p.area_code, p.prefix, p.number " .
         "FROM insurance_companies as i, addresses AS a " .
         ", phone_numbers AS p ";
