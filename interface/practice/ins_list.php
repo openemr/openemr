@@ -53,6 +53,9 @@ $where = addwhere($where, 'a.state', $_GET['form_state']);
 $where = addwhere($where, 'a.zip', $_GET['form_zip']);
 
 $phone_parts = array();
+$area_code = null;
+$prefix = null;
+$digits = null;
 
 // Search by area code if there is one.
 if (
@@ -62,7 +65,8 @@ if (
         $phone_parts
     )
 ) {
-    $where = addwhere($where, 'p.area_code', $phone_parts[1]);
+    $area_code = $phone_parts[1];
+    $where = addwhere($where, 'p.area_code', $area_code);
 }
 
 // If there is also an exchange, search for that too.
@@ -73,7 +77,8 @@ if (
         $phone_parts
     )
 ) {
-    $where = addwhere($where, 'p.prefix', $phone_parts[1]);
+    $prefix = $phone_parts[1];
+    $where = addwhere($where, 'p.prefix', $prefix);
 }
 
 // If the last 4 phone number digits are given, search for that too.
@@ -84,25 +89,19 @@ if (
         $phone_parts
     )
 ) {
-    $where = addwhere($where, 'p.number', $phone_parts[1]);
+    $digits = $phone_parts[1];
+    $where = addwhere($where, 'p.number', $digits);
 }
 
 $query = "SELECT " .
     "i.id, i.name, i.attn, " .
-    "a.line1, a.line2, a.city, a.state, a.zip ";
+    "a.line1, a.line2, a.city, a.state, a.zip, " .
+    "p.area_code, p.prefix, p.number " .
+    "FROM insurance_companies as i, addresses AS a, " .
+    "phone_numbers AS p " .
+    "WHERE a.foreign_id = i.id ";
 
-$any_phone_numbers = sqlQuery("SELECT COUNT(*) AS count FROM phone_numbers");
-if ($any_phone_numbers['count'] > 0 && !empty($_GET['form_phone'])) {
-    $query .= ", p.area_code, p.prefix, p.number " .
-        "FROM insurance_companies as i, addresses AS a " .
-        ", phone_numbers AS p ";
-} else {
-    $query .= "FROM insurance_companies AS i, addresses AS a ";
-}
-
-$query .= "WHERE a.foreign_id = i.id ";
-
-if (!empty($phone_parts)) {
+if (!empty($area_code || $prefix || $digits)) {
     $query .= "AND p.foreign_id = i.id ";
 }
 
