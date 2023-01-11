@@ -97,13 +97,9 @@ $query = "SELECT " .
     "i.id, i.name, i.attn, " .
     "a.line1, a.line2, a.city, a.state, a.zip, " .
     "p.area_code, p.prefix, p.number " .
-    "FROM insurance_companies as i, addresses AS a, " .
-    "phone_numbers AS p " .
-    "WHERE a.foreign_id = i.id ";
-
-if (!empty($area_code || $prefix || $digits)) {
-    $query .= "AND p.foreign_id = i.id ";
-}
+    "FROM insurance_companies i " .
+    "LEFT JOIN addresses a ON a.foreign_id = i.id " .
+    "LEFT JOIN phone_numbers p ON p.foreign_id = i.id WHERE 1=1 ";
 
 $query .= $where . " ORDER BY i.name, a.zip";
 $res = sqlStatement($query);
@@ -149,6 +145,9 @@ td {
  </tr>
 
 <?php
+if (empty($res->_numOfRows)) {
+    echo " <td>" . xlt('No matches found.') . "</td>";
+}
 while ($row = sqlFetchArray($res)) {
     $anchor = "<a href=\"\" onclick=\"return setins(" .
     attr_js($row['id']) . "," . attr_js($row['name']) . ")\">";
@@ -166,8 +165,8 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td valign='top'>" . text($row['state']) . "&nbsp;</td>\n";
     echo "  <td valign='top'>" . text($row['zip']) . "&nbsp;</td>\n";
     echo "  <td valign='top'>" . $phone . "</td>\n";
-    echo " </tr>\n";
 }
+echo " </tr>\n";
 ?>
 </table>
 
