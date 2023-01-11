@@ -17,7 +17,7 @@
 
     {% if unallocated > 0 %}{# ALB Show unallocated amount, if present #}
     <div class="row">
-        <div class="col-4"><font color='#ee6600'>{{ "Unallocated Patient Pre-Payment"|xlt }}</div>
+        <div class="col-4">{{ "Unallocated Patient Pre-Payment"|xlt }}</div>
         <div class="col">{{ unallocated|money|text }}</font></div>
     </div>
     {% endif %}

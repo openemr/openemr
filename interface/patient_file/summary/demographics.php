@@ -1139,11 +1139,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $row['dispFromDate'] = $row['date'] ? true : false;
                                 $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
-                                if ($row['isOld']) { //ALB Added all this
-                                    $row['until_date'] = date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d');
-                                } else {
-                                    $row['until_date'] = 'Present';
-                                }
+                                $row['until_date'] = ($row['isOld']) ? date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d') : xlt('Present');
                                 $insArr[] = $row;
                                 $prev_eff_date = $row['date']; //ALB Update previous effective date
                                 $prior_ins_type = $row['type'];
@@ -1164,11 +1160,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $row['policy_type'] = false;
                                 $mname = ''; //($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = ' '; // str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
-                                if ($row['isOld']) { //ALB
-                                    $row['until_date'] = date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d');
-                                } else {
-                                    $row['until_date'] = 'Present';
-                                }
+                                $row['until_date'] = ($row['isOld']) ? date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d') : xlt("Present");
                                 $prev_eff_date = $row['date']; //ALB Added all this
                                 $prior_ins_type = $row['type'];
                                 if ($row['type'] != 'primary') {
@@ -1780,7 +1772,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayPastAppts = true;
                         //ALB Added pc_facility below
-                        $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, c.pc_catname, e.pc_apptstatus, e.pc_facility 
+                        $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, c.pc_catname, e.pc_apptstatus, e.pc_facility
                             FROM openemr_postcalendar_events AS e,
                                 users AS u,
                                 openemr_postcalendar_categories AS c
@@ -1814,9 +1806,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['etitle'] = $petitle; //ALB Added this
 
                             $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
-                            if ($row['pc_status'] == 'None') {
-                                $row['pc_status'] = 'Scheduled';
-                            } //ALB Added this
 
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem; //ALB Added this
