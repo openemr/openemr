@@ -276,7 +276,7 @@ class Bootstrap
     public function getPatientPortalController(): TeleHealthPatientPortalController
     {
         if (empty($this->patientPortalController)) {
-            $this->patientPortalController = new TeleHealthPatientPortalController($this->twig, $this->getAssetPath());
+            $this->patientPortalController = new TeleHealthPatientPortalController($this->twig, $this->getAssetPath(), $this->globalsConfig);
         }
         return $this->patientPortalController;
     }

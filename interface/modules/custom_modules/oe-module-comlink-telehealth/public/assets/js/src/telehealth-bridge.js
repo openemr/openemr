@@ -6,6 +6,10 @@ export class TelehealthBridge
     userId = null;
     passwordHash = null;
     serviceUrl = null;
+    /**
+     *
+     * @type cvb.VideoBridge
+     */
     bridge = null;
 
     constructor(userId, passwordHash, serviceUrl) {
@@ -120,8 +124,12 @@ export class TelehealthBridge
         return this.bridge.enableCamera(toggle);
     }
 
-    makeScreenshareCall(calleeUuid) {
-        return this.bridge.makeScreenshareCall(calleeUuid);
+    createScreenSharingCall(calleeUuid) {
+        return this.bridge.createScreenSharingCall(calleeUuid);
+    }
+
+    createVideoCall(calleeUuid) {
+        return this.bridge.createVideoCall(calleeUuid);
     }
 
     setCallHandlers(call) {

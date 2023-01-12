@@ -10,7 +10,7 @@ export function PatientConferenceRoom(translations,scriptLocation) {
     {
         let pc_eid = patientConferenceRoom.telehealthSessionData.pc_eid;
         window.top.restoreSession();
-        window.fetch(scriptLocation + 'public/index-portal.php?action=patient_appointment_ready&eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
+        window.fetch(scriptLocation + '?action=patient_appointment_ready&eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
             .then(result => {
                 if (result.ok) {
                     return result.json();
@@ -45,11 +45,17 @@ export function PatientConferenceRoom(translations,scriptLocation) {
 
     patientConferenceRoom.getFullConferenceVideoBarSettings = patientConferenceRoom.getFullConferenceVideoBarPatientSettings;
 
+
     patientConferenceRoom.startConferenceRoom = function()
     {
         patientConferenceRoom.stopProviderReadyCheck();
         patientConferenceRoom.startProviderConferenceRoom(); // not sure there is much difference here
-        patientConferenceRoom.app.makeCall(patientConferenceRoom.callerSettings.calleeUuid);
+        patientConferenceRoom.makeCall(patientConferenceRoom.callerSettings.calleeUuid);
+        // patientConferenceRoom.makeScreenshareCall(patientConferenceRoom.callerSettings.calleeUuid);
+    };
+
+    patientConferenceRoom.toggleScreenSharing = function(evt) {
+        patientConferenceRoom.makeScreenshareCall(patientConferenceRoom.callerSettings.calleeUuid);
     };
 
     patientConferenceRoom.handleIncomingCall = function(call)

@@ -90,7 +90,7 @@ export function ConferenceRoom(translations, scriptLocation)
     };
 
     this.setupRemoteCaller = function() {
-        this.__remoteCaller = new CallerSlot('remote-video-1', 'remote-screenshare-1');
+        this.__remoteCaller = new CallerSlot('remote-video-0', 'remote-screenshare-0');
         this.__slots.push(this.__remoteCaller);
     };
 
@@ -217,8 +217,12 @@ export function ConferenceRoom(translations, scriptLocation)
         };
     };
 
+    /**
+     * Used to make a video call to the bridge
+     * @param calleeId
+     */
     this.makeCall = function(calleeId) {
-        const call = this.__bridge.createVideoCall(calleeId);
+        const call = conf.__bridge.createVideoCall(calleeId);
 
         conf.setCallHandlers(call);
 
@@ -330,7 +334,7 @@ export function ConferenceRoom(translations, scriptLocation)
                     return;
                 }
 
-                conf.__bridge.setCallHandlers(result.call);
+                conf.setCallHandlers(result.call);
                 result.call.accept();
                 console.log("Call accepted from " + result.call.getRemotePartyId() + " for "  + conf.callerSettings.callerUuid);
                 // NOTE that result.call.accept does NOT fire the oncallstarted event for the call stream... so we have to
@@ -615,6 +619,7 @@ export function ConferenceRoom(translations, scriptLocation)
         conf.room = conf.ROOM_TYPE_CONFERENCE;
 
         this.sessionUpdateInterval = setInterval(conf.updateConferenceRoomSession.bind(conf), conf.sessionUpdatePollingTime);
+        conf.setupRemoteCaller(); // need to make sure we allocate a slot for our remote caller.
         conf.updateConferenceRoomSession();
     };
 
@@ -864,7 +869,7 @@ export function ConferenceRoom(translations, scriptLocation)
 
         // need to figure out how to use the event here.
         if (true) {
-            conf.__bridge.makeScreenshareCall(conf.callerSettings.calleeUuid);
+            conf.__bridge.createScreenSharingCall(conf.callerSettings.calleeUuid);
         } else {
             // TODO: @adunsulag need to kill the call here.
         }
@@ -872,6 +877,7 @@ export function ConferenceRoom(translations, scriptLocation)
 
     this.toggleRemoteScreensharing = function(display)
     {
+
 
     };
 

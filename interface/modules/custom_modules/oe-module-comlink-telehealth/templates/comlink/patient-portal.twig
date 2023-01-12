@@ -1,4 +1,8 @@
 <script src="{{ assetPath }}../{{ "index-portal.php"|addCacheParam()}}&action=get_telehealth_settings"></script>
 <link rel="stylesheet" href="{{ assetPath }}css/{{ "telehealth.css"|addCacheParam()}}" type="text/css" />
-<script src="{{ assetPath }}js/{{ "telehealth.js"|addCacheParam()}}"></script>
+{% if debug %}
+    <script src="{{ assetPath }}js/dist/{{ "telehealth.js"|addCacheParam()}}"></script>
+{% else %}
+    <script src="{{ assetPath }}js/dist/{{ "telehealth.min.js"|addCacheParam()}}"></script>
+{% endif %}
 <script src="{{ assetPath }}js/{{ "telehealth-patient.js"|addCacheParam()}}"></script>

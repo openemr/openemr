@@ -26,7 +26,6 @@ export function ConfirmSessionCloseDialog(pc_eid, scriptLocation, closeCallback)
     };
 
     this.processConfirmYesAction = function(evt) {
-        // conf.app.shutdown();
         container.querySelector('.row-confirm').classList.add('d-none');
         container.querySelector('.row-update-status').classList.remove('d-none');
     };
