@@ -1139,14 +1139,15 @@ function addPNoteAfterAssing($set_id, $set_assign_pid, $set_uid, $set_username, 
 		}
 	</script>
 </head>
-<body class="body_top">
+<body>
+	<div class="container-fluid">
 	<div class="page-title">
 	    <h2><?php echo xlt('Patient Message Board'); ?></h2>
 	</div>
 
 	<div class="dataTables_wrapper datatable_filter mb-4">
 		<form id="page_report_filter">
-			<div class="container-fluid">
+			<div>
 				<div class="row">
   					<div class="col-3">
 				      <div class="form-group">
@@ -1240,25 +1241,23 @@ function addPNoteAfterAssing($set_id, $set_assign_pid, $set_uid, $set_username, 
 			
 		</form>
 	</div>
-
-	<div class="table-responsive">
-		<div id="page_report_container" class="datatable_container">
-			<table id='page_report' class="text table table-sm msg-table tableRowHighLight" style="width:100%">
-			  <thead>
-			    <tr>
-			      <?php
-			      	foreach ($columnList as $clk => $cItem) {
-			      		if($cItem["name"] == "dt_control") {
-			      		?> <th><div class="dt-control text"></div></th> <?php
-			      		} else {
-			      		?> <th><?php echo $cItem["title"] ?></th> <?php
-			      		}
-			      	}
-			      ?>
-			    </tr>
-			  </thead>
-			</table>
-		</div>
+	<div id="page_report_container" class="datatable_container table-responsive">
+		<table id='page_report' class="text table table-sm msg-table tableRowHighLight" style="width:100%">
+		  <thead>
+		    <tr>
+		      <?php
+		      	foreach ($columnList as $clk => $cItem) {
+		      		if($cItem["name"] == "dt_control") {
+		      		?> <th><div class="dt-control text"></div></th> <?php
+		      		} else {
+		      		?> <th><?php echo $cItem["title"] ?></th> <?php
+		      		}
+		      	}
+		      ?>
+		    </tr>
+		  </thead>
+		</table>
+	</div>
 	</div>
 
 <script type='text/javascript'>
