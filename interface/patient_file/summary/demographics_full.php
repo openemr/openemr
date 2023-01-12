@@ -340,18 +340,15 @@ function InsSaveClose() {
 }
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
- var thesel = document.forms[0]['i' + insurance_index + 'provider'];
- var theopts = thesel.options; // the array of Option objects
- var i = 0;
- for (; i < theopts.length; ++i) {
-  if (theopts[i].value == ins_id) {
-   theopts[i].selected = true;
-   return;
-  }
- }
+ thesel = $('#i' + insurance_index + 'provider');
+ if ($(thesel).find("option[value='" + ins_id  + "']").length) {
+    thesel.val(ins_id).trigger('change');
+ } else {
  // no matching option was found so create one, append it to the
  // end of the list, and select it.
- theopts[i] = new Option(ins_name, ins_id, false, true);
+   let newOption = new Option(ins_name, ins_id, true, true);
+   thesel.append(newOption).trigger('change');
+ }
 }
 
 // This capitalizes the first letter of each word in the passed input
@@ -637,7 +634,7 @@ if (! $GLOBALS['simplified_demographics']) {
             <div class="col-md-9">
               <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
                onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
-              <select name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+              <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
                 foreach ($insurancei as $iid => $iname) {
@@ -1210,7 +1207,6 @@ $use_validate_js = $GLOBALS['new_validate'];
             width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
         });
-
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
