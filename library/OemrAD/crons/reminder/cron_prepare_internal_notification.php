@@ -13,7 +13,6 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\Reminder;
-use OpenEMR\OemrAd\IdempiereWebservice;
 
 $uniqId = time().'_'.rand();
 
@@ -53,29 +52,28 @@ if(isCommandLineInterface() === true) {
 ?>
 
 <?php
+	
 	//Cron lock file
-	$cron_lock = fopen("./cron_idempierewebservice.lock", "w+");
+	$cron_lock = fopen(dirname( __FILE__, 1 )."/cron_internal_notification.lock", "w+");
 	if (flock($cron_lock, LOCK_EX | LOCK_NB)) { // do an exclusive lock
 		
-		//Reminder::writeLog("Applied cron lock");
 		Reminder::writeSqlLog("Acquire lock", $uniqId);
 
-		$ide_responce = IdempiereWebservice::prepareNotificationData('both', $eventid_param, $configid_param);
+		$notification_responce = Reminder::prepareInternalNotificationData('both', $eventid_param, $configid_param);
 				
-		echo "Total Prepared Items: ". ($ide_responce['total_prepared_item'] );
+		echo "Total Prepared Items: ". ($notification_responce['total_prepared_item']);
 
-		//$statusMsg = Reminder::prepareStatusMsg(array($notification_responce, $ide_responce));
+		//$statusMsg = Reminder::prepareStatusMsg(array($notification_responce));
 		//Reminder::writeLog($statusMsg);
+
+		Reminder::writeSqlLog(json_encode($notification_responce), $uniqId, (isset($notification_responce) && !empty($notification_responce['exceptionList']) ? 1 : 0));
 
 		flock($cron_lock, LOCK_UN); // release the lock
 
-		//Reminder::writeLog("Released cron lock");
 		Reminder::writeSqlLog("Release lock", $uniqId);
 	
 	} else {
-		echo "Cron Already Running.";
-
-		//Reminder::writeLog("Cron Already Running");
+		//echo "Cron Already Running.";
 		Reminder::writeSqlLog("Cron Already Running", $uniqId);
 	}
 

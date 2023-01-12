@@ -12,7 +12,6 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\Reminder;
-use OpenEMR\OemrAd\IdempiereWebservice;
 
 $uniqId = time().'_'.rand();
 
@@ -68,45 +67,49 @@ if($type_param == 'both') {
 }
 ?>
 <?php
+
+	/*Obj Object*/
+	$reminderObj = new \ntf\Reminder();
+	//$idempiereWebserviceObj = new ntf\IdempiereWebservice();
+	
 	//Cron lock file
-	$cron_lock = fopen("./cron_idempierewebservice.lock", "w+");
+	$cron_lock = fopen(dirname( __FILE__, 1 )."/cron_internal_notification.lock", "w+");
 	if (flock($cron_lock, LOCK_EX | LOCK_NB)) { // do an exclusive lock
 
-		//Reminder::writeLog("Applied cron lock");
 		Reminder::writeSqlLog("Acquire lock", $uniqId);
 
 		$isEventIdExists = Reminder::isSpecificEventIdExists($eventid_param, $configid_param);
 
 		if(isset($isEventIdExists) && $isEventIdExists !== false) {
-			$sync_info_responce = @IdempiereWebservice::syncInfoToIdempiereByEvent($event_type, $eventid_param, $configid_param);
+			$int_message_responce = @Reminder::sendIntMsgNotificationByEvent($event_type, $eventid_param, $configid_param);
 		} else {
-			$sync_info_responce = @IdempiereWebservice::syncInfoToIdempiere($event_type);
+			$int_message_responce = @Reminder::sendIntMsgNotification($event_type);
 		}
 
 		$total_items = 0;
 		$total_sent_item = 0;
 
-		if($sync_info_responce['total_items'] > 0) {
-			$total_items += $sync_info_responce['total_items'];
+		if($int_message_responce['total_items'] > 0) {
+			$total_items += $int_message_responce['total_items'];
 		}
 
-		if($sync_info_responce['total_sent_item'] > 0) {
-			$total_sent_item += $sync_info_responce['total_sent_item'];
+
+		if($int_message_responce['total_sent_item'] > 0) {
+			$total_sent_item += $int_message_responce['total_sent_item'];
 		}
 
 		echo "Total Items: ".$total_items .", Total Sent Items: ".$total_sent_item;
 
-		//Reminder::writeLog("Sent Items:\n-"."Total Items: ".$total_items .", Total Sent Items: ".$total_sent_item);
+		Reminder::writeSqlLog(json_encode(array(
+			'internal_message' => $int_message_responce
+		)), $uniqId, (isset($int_message_responce) && !empty($int_message_responce['exceptionList'])) ? 1 : 0);
 
 		flock($cron_lock, LOCK_UN); // release the lock
 
-		//Reminder::writeLog("Released cron lock");
 		Reminder::writeSqlLog("Release lock", $uniqId);
 	
 	} else {
-		echo "Cron Already Running.";
-
-		//Reminder::writeLog("Cron Already Running");
+		//echo "Cron Already Running.";
 		Reminder::writeSqlLog("Cron Already Running", $uniqId);
 	}
 

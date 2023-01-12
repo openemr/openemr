@@ -410,11 +410,12 @@ class ActionEvent {
 						$eOperationType = isset($eventData['operation_type']) ? $eventData['operation_type'] : 0;
 						$eMsg = 'Something went wrong.';
 
-						//Skip Test Mode
-						if(!empty($ignoreConfigs) && isset($ignoreConfigs[$eventData['config_id']])) {
-							$testModeItems = self::handleTestItems($eventData, $testModeItems, $ignoreConfigs);
-							$totalItem++;
-							continue;
+						if($eOperationType != 2) {
+							//Skip Test Mode
+							if(!empty($ignoreConfigs) && isset($ignoreConfigs[$eventData['config_id']])) {
+								$testModeItems = $this->handleTestItems($eventData, $testModeItems, $ignoreConfigs);
+								$totalItem++;
+							}
 						}
 
 						//Query End point
@@ -1422,14 +1423,11 @@ class ActionEvent {
 			try {
 
 				$email_direct = '';
-				$env_mode = Reminder::getEnvMode();
-				if($env_mode == "test") {
-					$email_direct = Reminder::getTestModeValue("email");
-				}
+				$env_mode = $reminderObj->getEnvMode();
 				
-				if($email_direct === false) {
-					return false;
-				}
+				// if($email_direct === false) {
+				// 	return false;
+				// }
 
 				$message_list = new \wmt\Options('Reminder_Email_Messages');
 
@@ -1441,9 +1439,27 @@ class ActionEvent {
 				}
 
 				$fromValue = isset($data['email_from']) ? $data['email_from'] : $GLOBALS['patient_reminder_sender_email'];
-				$email_direct = isset($data['to_send']) ? $data['to_send'] : '';
-				if(!empty($email_direct)) {
-					$email_direct = explode(",",$email_direct);
+				$temail_direct = isset($data['to_send']) ? $data['to_send'] : '';
+				$email_direct = array();
+				if(!empty($temail_direct)) {
+					$temail_direct = explode(",",$temail_direct);
+					foreach ($temail_direct as $edi => $edItem) {
+						$edItem = trim($edItem);
+						if(filter_var($edItem, FILTER_VALIDATE_EMAIL)) {
+							if(!in_array($edItem, $email_direct)) {
+								$email_direct[] = $edItem;
+							}
+						}
+					}
+				}
+
+				if(empty($email_direct)) {
+					throw new \Exception("Empty email list.");
+				}
+
+				if(isset($data['config_item']) && isset($data['config_item']['test_mode']) && $data['config_item']['test_mode'] == 1) {
+					$data['message'] = "Message To: ". implode(',', $email_direct) ."<br/>" . $data['message'];
+					$email_direct = $reminderObj->getTestModeValue("email");
 				}
 
 				$patientValue = isset($data['email_patient']) ? $data['email_patient'] : ' ';
@@ -1472,5 +1488,11 @@ class ActionEvent {
 		}
 
 		return $status;
+	}
+
+	/*Get Patient Data*/
+	public static function getPatientData($pid, $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS"){
+	    $sql = "select $given from patient_data where pid=? order by date DESC limit 0,1";
+	    return sqlQuery($sql, array($pid));
 	}
 }

@@ -81,7 +81,7 @@ if($type_param == 'both') {
 
 		if(isset($isEventIdExists) && $isEventIdExists !== false) {
 			$notification_responce = @Reminder::sendNotificationByEvent($event_type, $eventid_param, $configid_param);
-			$int_message_responce = @Reminder::sendIntMsgNotificationByEvent($event_type, $eventid_param, $configid_param);
+			//$int_message_responce = @Reminder::sendIntMsgNotificationByEvent($event_type, $eventid_param, $configid_param);
 			$api_responce = @Reminder::sendApiDataByEvent($event_type, $eventid_param, $configid_param);
 			//$sync_info_responce = @$idempiereWebserviceObj->syncInfoToIdempiereByEvent($event_type, $eventid_param, $configid_param);
 		} else {
@@ -98,9 +98,9 @@ if($type_param == 'both') {
 			$total_items += $notification_responce['total_items'];
 		}
 
-		if($int_message_responce['total_items'] > 0) {
-			$total_items += $int_message_responce['total_items'];
-		}
+		// if($int_message_responce['total_items'] > 0) {
+		// 	$total_items += $int_message_responce['total_items'];
+		// }
 
 		if($api_responce['total_items'] > 0) {
 			$total_items += $api_responce['total_items'];
@@ -114,9 +114,9 @@ if($type_param == 'both') {
 			$total_sent_item += $notification_responce['total_sent_item'];
 		}
 
-		if($int_message_responce['total_sent_item'] > 0) {
-			$total_sent_item += $int_message_responce['total_sent_item'];
-		}
+		// if($int_message_responce['total_sent_item'] > 0) {
+		// 	$total_sent_item += $int_message_responce['total_sent_item'];
+		// }
 
 		if($api_responce['total_sent_item'] > 0) {
 			$total_sent_item += $api_responce['total_sent_item'];
@@ -130,9 +130,8 @@ if($type_param == 'both') {
 
 		Reminder::writeSqlLog(json_encode(array(
 			'notification' => $notification_responce,
-			'internal_message' => $int_message_responce,
 			'api' => $api_responce,
-		)), $uniqId, ((isset($notification_responce) && !empty($notification_responce['exceptionList'])) || (isset($int_message_responce) && !empty($int_message_responce['exceptionList'])) || (isset($api_responce) && !empty($api_responce['exceptionList']))) ? 1 : 0);
+		)), $uniqId, ((isset($notification_responce) && !empty($notification_responce['exceptionList'])) || (isset($api_responce) && !empty($api_responce['exceptionList']))) ? 1 : 0);
 
 		flock($cron_lock, LOCK_UN); // release the lock
 

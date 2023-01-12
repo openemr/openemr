@@ -1109,7 +1109,7 @@ class IdempiereWebservice {
 		return $dataItems;
 	}
 
-	public static function getDataForProcess($ids = array(), $event_type = false, $limit = 100, $offset = 0) {
+	public static function getDataForProcess($ids = array(), $event_type = false, $limit = 5000, $offset = 0) {
 		$sql = "SELECT * FROM `vh_idempiere_webservice_notif_log` WHERE ";
 
 		if(!empty($ids)) {

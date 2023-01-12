@@ -1985,6 +1985,55 @@ class Reminder {
 		}
 	}
 
+	public function prepareInternalNotificationData($prepareFor = 'both', $eventid_param = '', $configid_param = '') {
+		$exceptionList = array();
+
+		try {
+			$configs = self::getActionConfigurationByParam(array(
+				'id' => $eventid_param,
+				'config_id' => $configid_param
+			));
+			$totalPreparedItem = 0;
+			$preparedItemStatus = array();
+			
+			if(isset($configs)) {
+				foreach ($configs as $key => $action_config) {
+					foreach ($action_config['config_data'] as $key => $config_data) {
+						try {
+							$config = array_merge($action_config, $action_config['config_data'][$key]);
+							$event_id = $config['event_id'];
+
+							if(isset($config['configuration_id']) && !empty($config['configuration_id']) && $config['active'] == "0" && !empty($config['id'])) {
+								if($config['action_type'] == "internal_messaging"){
+									//Handle Internal Messaging Prepare
+									try {
+										$totalPreparedInternalMessagingItem = self::prepareInternalMessagingData($prepareFor, $config_data, $config);
+
+										if(isset($totalPreparedInternalMessagingItem) && $totalPreparedInternalMessagingItem > 0) {
+											$totalPreparedItem = $totalPreparedItem + $totalPreparedInternalMessagingItem;
+
+											//Prepare Item Status
+											$preparedItemStatus = self::prepareItemStatus($config, $preparedItemStatus);
+										}
+									} catch(\Exception $e) {
+										$exceptionList[] = 'Internal Messaging Error: ' . $e->getMessage();
+									}
+								}
+							}
+						} catch(\Exception $e) {
+							$exceptionList[] = 'Config Error: ' . $e->getMessage();
+						}
+					}
+				}
+			}
+		} catch(\Exception $e) {
+			//Exception
+			$exceptionList[] = 'Main Error: ' . $e->getMessage();
+		}
+
+		return array('total_prepared_item' => $totalPreparedItem, 'prepared_item_status' => $preparedItemStatus, 'exceptionList' => $exceptionList);
+	}
+
 	public static function prepareNotificationData($prepareFor = 'both', $eventid_param = '', $configid_param = '') {
 		$exceptionList = array();
 
@@ -2107,6 +2156,7 @@ class Reminder {
 									}
 								} else if($config['action_type'] == "internal_messaging"){
 									//Handle Internal Messaging Prepare
+									/*
 									try {
 										$totalPreparedInternalMessagingItem = self::prepareInternalMessagingData($prepareFor, $config_data, $config);
 
@@ -2119,6 +2169,7 @@ class Reminder {
 									} catch(\Exception $e) {
 										$exceptionList[] = 'Internal Messaging Error: ' . $e->getMessage();
 									}
+									*/
 								} else if($config['action_type'] == "api") {
 									//Handle API Prepare
 									try {

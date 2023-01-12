@@ -2522,4 +2522,14 @@ EOF;
 		    echo "</option>";
 		 }
 	}
+
+	public static function get15kThresholdData($case_id = '') {
+		$resultData = array();
+		if(!empty($case_id)) {
+			$sql = "select vtd.*, date(vtd.reported_datetime_whencrossed15k) as reported_date_whencrossed15k from vh_15000threshold_data vtd where vtd.case_id = ?";
+			return sqlQuery($sql, array($case_id));
+		}
+
+		return $resultData;
+	}
 }

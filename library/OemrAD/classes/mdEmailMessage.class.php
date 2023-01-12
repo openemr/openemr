@@ -1848,7 +1848,7 @@ class EmailMessage {
 	    return $all;
 	}
 
-	public function checkIsExistOrNot($msg_from) {
+	public static function checkIsExistOrNot($msg_from) {
 
 		if(empty($msg_from)) {
 			return "";
