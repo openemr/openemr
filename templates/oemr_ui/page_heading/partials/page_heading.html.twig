@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     {% if a.getClickHandlerFunctionName() %}
         var actionButton = document.getElementById({{ a.getID()|js_escape }});
         actionButton.addEventListener('click', () => {
-            {{ a.getClickHandlerFunctionName() }}();
+            {{ a.getClickHandlerFunctionName()|text }}();
         });
     {% endif %}
 {% endfor %}
@@ -45,6 +45,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 {# Convert a key/value array into a key="value" string for injection into an element tag. #}
 {% macro renderAttributeArray(attributes) %}
     {% for attribute, value in attributes %}
-        {{ attribute }}="{{ value|attr }}"
+        {{ attribute|text }}="{{ value|attr }}"
     {% endfor %}
 {% endmacro %}

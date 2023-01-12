@@ -49,19 +49,29 @@ interface ActionButtonInterface
      * Return an array of key/value pairs where key is the name of the attribute and value is the value of the attribute.
      * Will be escaped at render time.
      *
+     * An important note about injecting your own attributes, the value of the attribute is escaped using attr()
+     * which will cause problems if you are attempting to use javascript in the value of your attribute
+     * (i.e. an onclick attribute). If you need javascript, see getClickHandlerFunctionName() and getClickHandlerTemplateName().
+     *
      * @return array
      */
     public function getAttributes();
 
     /**
-     * Get the name of the function handling click events
+     * Get the name of the function handling click events.
+     *
+     * This is the name of the function that is attached to the click event of the button. Do not include `()` in the name.
      *
      * @return string|null
      */
     public function getClickHandlerFunctionName();
 
     /**
-     * Get the path of the file containing the click handler function
+     * Get the path of the file containing the click handler function.
+     *
+     * This is the path to a twig file which should contain only the function referenced in getClickHandlerFunctionName()
+     * that processes whatever action is required when the user clicks the button. do not include `<script>` tags in the
+     * template.
      *
      * @return void
      */
