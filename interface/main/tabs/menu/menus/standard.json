@@ -47,27 +47,12 @@
     "label": "Message Board",
     "menu_id": "pmb0",
     "target": "mgb",
-    "url": "/interface/patient_tracker/message_tracker.php",
-    "children": [],
-    "requirement": 0,
-    "acl_req": [
-      "patients",
-      "appt"
-    ],
-    "global_req_strict": [
-      "!disable_msg_board"
-    ]
-  },
-  {
-    "label": "New MSGB",
-    "menu_id": "pmb0_new",
-    "target": "mgb",
     "url": "/interface/patient_tracker/message_tracker_new.php",
     "children": [],
     "requirement": 0,
     "acl_req": [
       "patients",
-      "newmsg"
+      "appt"
     ],
     "global_req_strict": [
       "!disable_msg_board"

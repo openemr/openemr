@@ -1816,50 +1816,43 @@ $(document).ready(function(){
     $("#add_internal_button").click(async function(e) {
         top.restoreSession();
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Add an Internal Message'); ?>';
-	    openInternalNotesPopup('?pid=<?php echo $pid ?>', title)
+	    openInternalNotesPopup('?pid=<?php echo $pid ?>');
     });
 
     $("#add_phone_call_button").click(function(e) {
         top.restoreSession();
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Log a Phone Call'); ?>';
-        openPhonePopup('?pid=<?php echo $pid ?>', title);
+        openPhonePopup('?pid=<?php echo $pid ?>');
     });
 
     $("#add_email_button").click(async function(e) {
         top.restoreSession();
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Send An Email'); ?><div style="font-size:14px"><b>Disclaimer:</b> Maximum allowed size for attachment is <?php echo EmailMessage::getMaxSize(); ?> mb.</div>';
-	    openEmailPopup('?pid=<?php echo $pid ?>', title);
+	    openEmailPopup('?pid=<?php echo $pid ?>');
     });
 
     $("#add_portal_button").click(function(e) {
         top.restoreSession();
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Send A Portal Message'); ?>';
-        openPortalPopup('?pid=<?php echo $pid ?>', title);
+        openPortalPopup('?pid=<?php echo $pid ?>');
     });
 
     $("#add_sms_button").click(function(e) {
         top.restoreSession();
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Send An SMS'); ?><div style="font-size:14px"><b>Disclaimer:</b> Attachments and special characters such as emoji’s are not supported</div>';
-        openSMSPopup('?pid=<?php echo $pid ?>', title);
+        openSMSPopup('?pid=<?php echo $pid ?>');
     });
 
     $("#add_fax_button").click(function(e) {
         top.restoreSession();
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Send A Fax'); ?><div style="font-size:14px"><b>Disclaimer:</b> Result will contains only active entries with fax numbers.</div>';
-        openFaxPopup('?pid=<?php echo $pid ?>', title);
+        openFaxPopup('?pid=<?php echo $pid ?>');
     });
 
 	$("#add_postal_letter_button").click(function(e) {
         top.restoreSession();
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Send A Postal Letter'); ?>';
-		openPostalLetterPopup('?pid=<?php echo $pid ?>', title);
+		openPostalLetterPopup('?pid=<?php echo $pid ?>');
     });
 
     $("#printnote").click(function() { 
@@ -1873,36 +1866,21 @@ $(document).ready(function(){
 async function resendButton(e, type, messageId) {
 	top.restoreSession();
     e.preventDefault();e.stopPropagation();
-
-    if(type == "email") {
-		let title = '<?php echo xla('Send An Email'); ?><div style="font-size:14px"><b>Disclaimer:</b> Maximum allowed size for attachment is <?php echo EmailMessage::getMaxSize(); ?> mb.</div>';
-	    openEmailPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=resend', title);
-	} else if(type == "sms") {
-		let title = '<?php echo xla('Send An SMS'); ?><div style="font-size:14px"><b>Disclaimer:</b> Attachments and special characters such as emoji’s are not supported</div>';
-    	openSMSPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=resend', title);
-	} else if(type == "fax") {
-		let title = '<?php echo xla('Send A FAX'); ?><div style="font-size:14px"><b>Disclaimer:</b> Result will contains only active entries with fax numbers.</div>';
-    	openFaxPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=resend', title);
-	} else if(type == "postal_letter") {
-		let title = '<?php echo xla('Send A Postal Letter'); ?>';
-    	openPostalLetterPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=resend', title);
-	}
+    resendMsgPopup(type, '<?php echo $pid ?>', messageId);
 }
 
 function replyEmailButton(e, messageId) {
 	$('#set_id').val(messageId);
     top.restoreSession();
     e.preventDefault();e.stopPropagation();
-    let title = '<?php echo xla('Reply A Email'); ?><div style="font-size:14px"><b>Disclaimer:</b> Maximum allowed size for attachment is <?php echo EmailMessage::getMaxSize(); ?> mb.</div>';
-    openEmailPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=reply', title);
+    openEmailPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=reply');
 }
 
 function replySMSButton(e, messageId) {
 	$('#set_id').val(messageId);
     top.restoreSession();
     e.preventDefault();e.stopPropagation();
-    let title = '<?php echo xla('Reply An SMS'); ?><div style="font-size:14px"><b>Disclaimer:</b> Attachments and special characters such as emoji’s are not supported</div>';
-    openSMSPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=reply', title);
+    openSMSPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=reply');
 }
 
 function handleSelectCheckBox(el, id, type = '') {
@@ -1931,8 +1909,7 @@ function checkSelectedItem(type = '') {
 function replyPortalMSGButton(e, messageId) {
     top.restoreSession();
     e.preventDefault();e.stopPropagation();
-    let title = '<?php echo xla('Reply An SMS'); ?>';
-    openPortalPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=reply', title);
+    openPortalPopup('?pid=<?php echo $pid ?>&msgId='+messageId+'&action=reply');
 }
 
 function doShow(active) {

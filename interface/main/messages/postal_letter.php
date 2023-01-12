@@ -505,10 +505,12 @@ if($form_id) {
 				empty_title: "No items"
 			});
 
+			<?php if($readonly !== 1) { ?>
 			<?php if(!empty($default_baseDocList)) { ?>
 				attachClassObject.setItemsList(<?php echo json_encode(Attachment::prepareMessageAttachment($default_baseDocList)); ?>, false);
 			<?php } else if(!empty($default_attachments)) { ?>
 				attachClassObject.setItemsList(<?php echo json_encode(Attachment::prepareMessageAttachment($default_attachments)); ?>, false);
+			<?php } ?>
 			<?php } ?>
 			
 		});
