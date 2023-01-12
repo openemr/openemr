@@ -25,7 +25,8 @@ class BaseActionButtonHelper implements ActionButtonInterface
     private $displayText = "";
     private $iconClass = "";
     private $attributes = [];
-    private $jsTemplatePath;
+    private $clickHandlerTemplateName;
+    private $clickHandlerFunctionName;
     private $anchorClasses = [];
     private $href = "#";
 
@@ -59,7 +60,8 @@ class BaseActionButtonHelper implements ActionButtonInterface
             'iconClass',
             'attributes',
             'anchorClasses',
-            'jsTemplatePath',
+            'clickHandlerTemplateName',
+            'clickHandlerFunctionName',
             'href',
         ];
 
@@ -109,9 +111,14 @@ class BaseActionButtonHelper implements ActionButtonInterface
         return $this->attributes;
     }
 
-    public function getJavascriptTemplatePath(): string|null
+    public function getClickHandlerTemplateName(): string|null
     {
-        return $this->jsTemplatePath;
+        return $this->clickHandlerTemplateName;
+    }
+
+    public function getClickHandlerFunctionName(): string|null
+    {
+        return $this->clickHandlerFunctionName;
     }
 
     public function getHref()

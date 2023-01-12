@@ -185,8 +185,7 @@ class OemrUI
     */
     public function oeContainer()
     {
-        $arrexpandIcon = $this->expandIcon();
-        $container = $arrexpandIcon[1] ? $arrexpandIcon[1] : 'container';
+        $container = ($this->current_state) ? 'container-fluid' : 'container';
         return $container;
     }
 

@@ -54,11 +54,18 @@ interface ActionButtonInterface
     public function getAttributes();
 
     /**
-     * Get the path of the template to be loaded to manage javascript code interacting with the button
+     * Get the name of the function handling click events
      *
      * @return string|null
      */
-    public function getJavascriptTemplatePath();
+    public function getClickHandlerFunctionName();
+
+    /**
+     * Get the path of the file containing the click handler function
+     *
+     * @return void
+     */
+    public function getClickHandlerTemplateName();
 
     /**
      * Return a simple array of class names that will be added to the anchor's class attribute

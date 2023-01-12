@@ -24,16 +24,25 @@ The HTML rendering a Page Heading from OemrUI->pageHeading()
         {% endblock %}
 </nav>
 <script>
+document.addEventListener('DOMContentLoaded', (event) => {
 {% for a in buttonList %}
-    {% if a.getJavascriptTemplatePath() %}
-        {% include a.getJavascriptTemplatePath() %}
+    {% if a.getClickHandlerFunctionName() %}
+        var actionButton = document.getElementById({{ a.getID()|js_escape }});
+        actionButton.addEventListener('click', () => {
+            {{ a.getClickHandlerFunctionName() }}();
+        });
+    {% endif %}
+{% endfor %}
+});
+
+{% for a in buttonList %}
+    {% if a.getClickHandlerTemplateName() %}
+        {% include a.getClickHandlerTemplateName() %}
     {% endif %}
 {% endfor %}
 </script>
 
-{#
-Convert a key/value array into a key="value" string for injection into an element tag.
-#}
+{# Convert a key/value array into a key="value" string for injection into an element tag. #}
 {% macro renderAttributeArray(attributes) %}
     {% for attribute, value in attributes %}
         {{ attribute }}="{{ value|attr }}"
