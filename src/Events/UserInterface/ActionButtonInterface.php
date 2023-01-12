@@ -15,7 +15,6 @@ namespace OpenEMR\Events\UserInterface;
 
 interface ActionButtonInterface
 {
-
     /**
      * Get the ID of the element, used to populate the ID attribute of the anchor element
      *
@@ -73,5 +72,4 @@ interface ActionButtonInterface
      * @return void
      */
     public function getHref();
-
 }

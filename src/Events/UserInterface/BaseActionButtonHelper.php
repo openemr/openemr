@@ -15,11 +15,11 @@
  * @copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace OpenEMR\Events\UserInterface;
 
 class BaseActionButtonHelper implements ActionButtonInterface
 {
-
     private $id;
     private $title;
     private $displayText;

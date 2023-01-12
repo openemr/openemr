@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Events\UserInterface;
 
-
 class PageHeadingRenderEvent
 {
     const EVENT_PAGE_HEADING_RENDER = 'oemrui.page.header.render';

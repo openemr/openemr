@@ -16,6 +16,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\UserInterface\SampleActionButtonClass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -88,6 +89,14 @@ class OemrUI
         if (!empty($arrOeUiSettings['expandable']) && !empty($arrOeUiSettings['expandable_files'])) {
             $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
         }
+
+        $act = $this->arrAction;
+        $this->action = false;
+        // This is a holdover, the original code does not have a boolean for action, just a bunch of options, easier to keep for now
+        if ($act[0] != "") {
+            $this->action = true;
+        }
+
         /**
          * @var EventDispatcher
          */
@@ -96,13 +105,14 @@ class OemrUI
         /**
          * @var TwigEnvironment
          */
-        $this->twig = $GLOBALS['twig']->getTwig();
+        $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+        $this->twig = $twigContainer->getTwig();
 
         if ($this->expandable) {
             $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'expandIconListener']);
         }
 
-        if ($this->action !== "") {
+        if ($this->action) {
             $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'actionIconListener']);
         }
 
@@ -175,12 +185,12 @@ class OemrUI
         $opts = [
             'id' => 'exp_cont_icon',
             'title' => $title,
-            'displayText' => '',
+            'href' => "#",
             'iconClass' => "fa fa-fw fa-lg $icon",
             'displayAttributes' => [
                 'aria-hidden' => 'true',
             ],
-            'classes' => [
+            'anchorClasses' => [
                 $anchor_class,
                 'expand_contract',
             ],
@@ -218,22 +228,30 @@ class OemrUI
         }
 
         $action_href = ($action_href) ? $action_href : "#";
+        $id = "advanced-action";
         switch ($action) {
             case "reset":
                 $action_title = ($action_title) ? $action_title : xl("Reset");
                 $icon = "fa-undo";
+                $action_href = attr($action_href);
                 break;
             case "conceal":
                 $action_title = xl("Click to Hide"); // default needed for jQuery to function
                 $icon = "fa-eye-slash";
+                $id = "show_hide";
+                $action_href = "#";
                 break;
             case "reveal":
                 $action_title = xl("Click to Show"); // default needed for jQuery to function
                 $icon = "fa-eye";
+                $id = "show_hide";
+                $action_href = "#";
                 break;
             case "search":
                 $action_title = xl("Click to show search"); // default needed for jQuery to function
                 $icon = "fa-search";
+                $id = "show_hide";
+                $action_href = "#";
                 break;
             case "link":
                 $target = (strpos($action_href, 'http') !== false) ? "_blank" : "_self";
@@ -251,10 +269,10 @@ class OemrUI
 
         // @TBD Handle the HREF and onclick
         $opts = [
-            'id' => 'TBD',
+            'id' => $id,
             'title' => attr($action_title),
             'displayText' => '',
-            'href' => "#",
+            'href' => $action_href,
             'iconClass' => "fa fa-fw fa-lg {$icon}",
             'dataAttributes' => [
                 'aria-hidden' => 'true',
@@ -430,7 +448,7 @@ class OemrUI
                 </div>
             </div>
         </div>
-HELP;
+        HELP;
         echo $help_modal . "\r\n";
 
         $jquery_draggable = <<<JQD
@@ -446,7 +464,7 @@ HELP;
                 $('#help-href').prop('title', helpTitle);
             });
         </script>
-JQD;
+        JQD;
         echo $jquery_draggable . "\r\n";
         return;
     }
@@ -526,7 +544,7 @@ JQD;
             });
         });
         </script>
-EXP;
+        EXP;
         echo $header_expand_js . "\r\n";
         return;
     }
@@ -575,19 +593,25 @@ EXP;
             $actionClasses
             $('#show_hide').click(function () {
                 var elementTitle = '';
-SHWTOP;
-        echo $action_top_js . "\r\n";
+                let element = document.querySelector('a#show_hide i');
+                let elementIcon = document.querySelector('a#show_hide i');
+        SHWTOP;
+            echo $action_top_js . "\r\n";
 
                 $action_bot_js = <<<SHWBOT
 
-                $(this).toggleClass(showActionClass + ' ' + hideActionClass);
+                elementIcon.classList.toggle(showActionClass);
+                elementIcon.classList.toggle(hideActionClass);
+                document.querySelector('.hideaway').classList.toggle('d-none');
 
-                $('.hideaway').toggle(500);
-                if ($(this).is('.' + showActionClass)) {
+                if (element.classList.contains(showActionClass)) {
                     elementTitle = showTitle;
-                } else if ($(this).is('.' + hideActionClass)) {
+                }
+
+                if (element.classList.contains(hideActionClass)) {
                     elementTitle = hideTitle;
                 }
+
                 $(this).prop('title', elementTitle);
 
                 // Remember our hideaway setting in local storage. If it's visible, show it on next page load
@@ -599,21 +623,20 @@ SHWTOP;
             // getItem() returns a string which is why we have to check for the string 'true'
             const elementTitle = localStorage.getItem('display#$page');
             let shouldDisplay = false;
-            if (typeof hideTitle != 'undefined' &&
-                (elementTitle == hideTitle || elementTitle == null)) {
+            if (typeof hideTitle != 'undefined' && (elementTitle == hideTitle || elementTitle == null)) {
                 shouldDisplay = true
             }
 
             // We display if we remember we're showing it, but we don't intentionally hide it (no else here to hide)
             // Because the hideaway is probably shown by default for a reason like in the billing manager
             if (shouldDisplay) {
-                $('.hideaway').show(500);
-                $('#show_hide').removeClass(showActionClass);
-                $('#show_hide').addClass(hideActionClass);
+                document.querySelector('.hideaway').classList.remove('d-none');
+                elementIcon.classList.remove(showActionClass);
+                elementIcon.classList.add(hideActionClass);
             }
         });
         </script>
-SHWBOT;
+        SHWBOT;
         echo $action_bot_js . "\r\n";
         return;
     }

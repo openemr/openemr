@@ -9,12 +9,18 @@ The HTML rendering a Page Heading from OemrUI->pageHeading()
 @copyright Copyright (c) 2023 Providence Healthtech
 #}
 <nav class="navbar navbar-light navbar-expand-sm bg-light pt-0">
-    <span class="navbar-brand mb-0 h1">{{ heading }}</span>
-    <div class="collapse navbar-collapse">
-        <div class="navbar-nav ml-auto" id="pageHeadingNav">
-            {% for a in buttonList %}
-                <a href="{{ a.getHref() }}" id="{{ a.getId() }}" title="{{ a.getTitle() }}" {{ a.getAttributes() }} class="nav-link {{ a.getAnchorClasses()|join(' ') }} "><i class="{{ a.getIconClass() }}">&nbsp;</i>{{ a.getDisplayText() }}</a>
-            {% endfor %}
+    {% block pageHeading %}
+        <span class="navbar-brand mb-0 h1">{{ heading }}</span>
+    {% endblock %}
+
+    {% block actionButtons %}
+        <div class="collapse navbar-collapse">
+            <div class="navbar-nav ml-auto" id="pageHeadingNav">
+                {% for a in buttonList %}
+                    <a href="{{ a.getHref() }}" id="{{ a.getId() }}" title="{{ a.getTitle() }}" {{ a.getAttributes() }} class="nav-link {{ a.getAnchorClasses()|join(' ') }} "><i class="{{ a.getIconClass() }}">&nbsp;</i>{{ a.getDisplayText() }}</a>
+                {% endfor %}
+            </div>
         </div>
-    </div>
+        {% endblock %}
 </nav>
+{% block pageHeadingJavascript %}{% endblock %}
