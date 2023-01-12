@@ -19,7 +19,14 @@ class PageHeadingRenderEvent
 {
     const EVENT_PAGE_HEADING_RENDER = 'oemrui.page.header.render';
 
-    private $actions;
+    /**
+     * The PageID being rendered
+     *
+     * @var string
+     */
+    private string $page_id;
+
+    private array $actions;
 
     /**
      * UserEditRenderEvent constructor.
@@ -27,15 +34,26 @@ class PageHeadingRenderEvent
      * @param int|null $userId The userid that is being edited, null if this is a brand new user
      * @param array $context
      */
-    public function __construct()
+    public function __construct(string $page_id)
     {
-        // $this->setActions($actions);
+        $this->page_id = $page_id;
+        $this->actions = [];
+    }
+
+    /**
+     * Return the page ID being rendered
+     *
+     * @return string
+     */
+    public function getPageId(): string
+    {
+        return $this->page_id;
     }
 
     /**
      * @return array|null
      */
-    public function getActions()
+    public function getActions(): array
     {
         return $this->actions;
     }

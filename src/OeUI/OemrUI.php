@@ -13,11 +13,10 @@
 namespace OpenEMR\OeUI;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Events\UserInterface\SampleActionButtonClass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
@@ -60,6 +59,7 @@ class OemrUI
     private $web_root;
     private $ed;
     private $twig;
+    private $page_id;
 
     /**
     * Create the html string that will display the formatted heading with selected icons - expandable,
@@ -80,6 +80,7 @@ class OemrUI
     {
         global $v_js_includes;
 
+        $this->page_id = $arrOeUiSettings['page_id'] ?? 'unknown';
         $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientFullNameAsString($_SESSION['pid']) : ($arrOeUiSettings['heading_title'] ?? '');
         $this->expandable = $arrOeUiSettings['expandable'] ?? null;
         $this->arrFiles = $arrOeUiSettings['expandable_files'] ?? null;
@@ -130,10 +131,10 @@ class OemrUI
     */
     public function pageHeading(bool $render = false): null|string
     {
-        $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent(), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
+        $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent($this->page_id), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
         $vars = [
             "buttonList" => $pageHeadingEvent->getActions(),
-            "heading" => text($this->heading),
+            "heading" => $this->heading,
         ];
 
         $html = $this->twig->render("oemr_ui/page_heading/partials/page_heading.html.twig", $vars);
@@ -147,38 +148,13 @@ class OemrUI
 
     /**
     * Creates the html string that will display the formatted expandable icon - fa-expand or fa-compress.
-    *
-    * @param $expandable - int|bool - whether form is expandable or not and $current_state int|bool - the current state of the form
-    *
-    * @return array containing string $expandable_icon - the formatted html string of the expand icon and string
-    * $container - the value of the container class 'container' or 'container-fluid'
-    *
     */
-    private function expandIcon($expandable = '', $current_state = '')
+    public function expandIconListener(PageHeadingRenderEvent $e): PageHeadingRenderEvent
     {
         $current_state = $this->current_state;
-        $expandable = $this->expandable;
-
-        $container = ($current_state) ? "container-fluid" : "container";
-        $text = ($current_state) ? xl('Click to contract page to center view') : xl('Click to expand page to full width');
-        $title = attr($text);
-        $anchor_class = ($current_state) ? 'oe-center' : 'oe-expand';
-        $icon = ($current_state) ? 'fa-compress' : 'fa-expand';
-
-        $expandable_icon = '';
-        if ($expandable) {
-            $expandable_icon = "<a href='#' id='exp_cont_icon' class='expand_contract $anchor_class' title='$title' aria-hidden='true'><i class='fa fa-fw fa-lg $icon'></i></a>";
-        }
-        return array($expandable_icon, $container);
-    }
-
-    public function expandIconListener(PageHeadingRenderEvent $e)
-    {
-        $current_state = $this->current_state;
-        $expandable = $this->expandable;
 
         $text = ($current_state) ? xl('Click to contract page to center view') : xl('Click to expand page to full width');
-        $title = attr($text);
+        $title = $text;
         $anchor_class = ($current_state) ? 'oe-center' : 'oe-expand';
         $icon = ($current_state) ? 'fa-compress' : 'fa-expand';
 
@@ -187,7 +163,7 @@ class OemrUI
             'title' => $title,
             'href' => "#",
             'iconClass' => "fa fa-fw fa-lg $icon",
-            'displayAttributes' => [
+            'attributes' => [
                 'aria-hidden' => 'true',
             ],
             'anchorClasses' => [
@@ -214,6 +190,17 @@ class OemrUI
         return $container;
     }
 
+    /**
+    * Creates the html string that will display the formatted action/re-direction icon - for conceal, reveal, search, reset, link and back.
+    *
+    * Considers the following
+    * * $action (reset/conceal/reveal/search/link/back), what kind of action is being taken
+    * * $action_title, the Tooltip title, optional
+    * * $action_href, the HREF (used only for reset, link, and back)
+    *
+    * @TBD this was narrowly scoped when introduced. These actions should probably be there own separate buttons with custom listeners
+    *
+    */
     public function actionIconListener(PageHeadingRenderEvent $e)
     {
         $arrAction = $this->arrAction;
@@ -233,7 +220,6 @@ class OemrUI
             case "reset":
                 $action_title = ($action_title) ? $action_title : xl("Reset");
                 $icon = "fa-undo";
-                $action_href = attr($action_href);
                 break;
             case "conceal":
                 $action_title = xl("Click to Hide"); // default needed for jQuery to function
@@ -270,7 +256,7 @@ class OemrUI
         // @TBD Handle the HREF and onclick
         $opts = [
             'id' => $id,
-            'title' => attr($action_title),
+            'title' => $action_title,
             'displayText' => '',
             'href' => $action_href,
             'iconClass' => "fa fa-fw fa-lg {$icon}",
@@ -288,66 +274,6 @@ class OemrUI
     }
 
     /**
-    * Creates the html string that will display the formatted action/re-direction icon - for conceal, reveal, search, reset, link and back.
-    *
-    * @param array $arrAction has 3 elements - string - type of action, string - optional title to be used in tooltip
-    * and string - the file name or url to be redirected to, only the 3 re-directions reset, link or back need a href value
-    * the 3 actions conceal, reveal, search will only use the default title strings
-    *
-    * @return string $action_icon that will output the action icon html string
-    *
-    */
-    private function actionIcon($arrAction = array())
-    {
-        $arrAction = $this->arrAction;
-        if ($arrAction) {
-            $action = $arrAction[0];
-            $action_title = $arrAction[1];
-            $action_href = $arrAction[2];
-        }
-        $action_href = ($action_href) ? $action_href : "#";
-        switch ($action) {
-            case "reset":
-                $action_title = ($action_title) ? $action_title : xl("Reset");
-                $action_icon = "<a href='" . attr($action_href) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-fw fa-lg fa-undo' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
-                break;
-            case "conceal":
-                $action_title = xl("Click to Hide"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-fw fa-lg fa-eye-slash' title='" . attr($action_title) . "'></i>";
-                break;
-            case "reveal":
-                $action_title = xl("Click to Show"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-fw fa-lg fa-eye' title='" . attr($action_title) . "'></i>";
-                break;
-            case "search":
-                $action_title = xl("Click to show search"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-search fa-fw fa-lg' title='" . attr($action_title) . "'></i>";
-                break;
-            case "link":
-                if (strpos($action_href, 'http') !== false) {
-                    $target = '_blank';
-                } else {
-                    $target = '_self';
-                }
-                $action_title = ($action_title) ? $action_title : xl("Click to go to page");
-                $action_icon = "<a href='" . attr($action_href) . "' target = '" . attr($target) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link-alt fa-fw fa-lg' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
-                break;
-            case "back":
-                $action_title = ($action_title) ? $action_title : xl("Go Back");
-                if ($_SESSION ['language_direction'] == 'ltr') {
-                    $arrow_direction = 'fa-arrow-circle-left';
-                } elseif ($_SESSION ['language_direction'] == 'rtl') {
-                    $arrow_direction = 'fa-arrow-circle-right';
-                }
-                $action_icon = "<a href='" . attr($action_href) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-fw fa-lg' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
-                break;
-            default:
-                $action_icon = '';
-        }
-        return $action_icon;
-    }
-
-    /**
     * Creates the html string that will display the formatted help icon - fa-question-circle.
     *
     * @param int|bool  $display_help_icon
@@ -355,34 +281,13 @@ class OemrUI
     * @return string $help_icon that will output the help icon html string
     *
     */
-    private function helpIcon($display_help_icon = '')
-    {
-        $help_icon = '';
-        $display_help_icon = $this->display_help_icon;
-        if ($display_help_icon) {
-            if ($_SESSION ['language_direction'] == 'ltr') {
-                $help_icon_title = xl("To enable help - Go to the User Name on top right > Settings > Features > Enable Help Modal");
-            } elseif ($_SESSION ['language_direction'] == 'rtl') {
-                $help_icon_title = xl("To enable help - Go to the User Name on top left > Settings > Features > Enable Help Modal");
-            }
-            if ($GLOBALS['enable_help'] == 1) {
-                $help_icon = '<a class="oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="' . xla("Click to view Help") . '"><i class="fa fa-fw fa-lg fa-question-circle" aria-hidden="true"></i></a>';
-            } elseif ($GLOBALS['enable_help'] == 2) {
-                $help_icon = '<a class="oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="' . attr($help_icon_title)    . '"><i class="fa fa-fw fa-lg fa-question-circle" aria-hidden="true"></i></a>';
-            } elseif ($GLOBALS['enable_help'] == 0) {
-                 $help_icon = '';
-            }
-        }
-        return $help_icon;
-    }
-
     public function helpIconListener(PageHeadingRenderEvent $e)
     {
         $title = "";
         if ($GLOBALS['enable_help'] == "1") {
-            $title = xla("Click to view Help");
+            $title = xl("Click to view Help");
         } elseif ($GLOBALS['enable_help'] == "2") {
-            $title = xla("Enable help under your User Menu > Settings > Featurees > Enable Help Modal");
+            $title = xl("Enable help under your User Menu > Settings > Featurees > Enable Help Modal");
         }
 
         $id = 'help-href';
@@ -412,6 +317,8 @@ class OemrUI
     *
     * $param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
     * will echo the entire html string of the help modal and the jQuery, needs to be used as the first line after the container div
+    *
+    * @todo Move this to a twig file, RD 1/12/2023
     *
     * @return void
     *
@@ -471,6 +378,8 @@ class OemrUI
 
     /**
     * Generates the jQuery for the form to toggle between 'expanded' and 'centered' states.
+    *
+    * @todo Move this to a twig file, RD 1/12/2023
     *
     * @param array $arrFiles - that contains the files names that need to be toggled between 'expanded' and 'centered' states
     * will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()
@@ -551,6 +460,8 @@ class OemrUI
 
     /**
     * Generates the jQuery to enable an element to toggle between hidden and revealed states.
+    *
+    * @todo Move this to a twig file, RD 1/12/2023
     *
     * @param array $arrAction - first element contains the string for type of action - needed only for actions search, reveal and conceal
     * will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()

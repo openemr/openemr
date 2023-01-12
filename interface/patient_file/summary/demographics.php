@@ -322,6 +322,7 @@ if (!empty($result3['provider'])) {   // Use provider in case there is an ins re
 }
 
 $arrOeUiSettings = array(
+    'page_id' => 'core.mrd',
     'heading_title' => xl('Medical Record Dashboard'),
     'include_patient_name' => true,
     'expandable' => false,

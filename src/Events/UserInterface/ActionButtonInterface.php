@@ -46,7 +46,8 @@ interface ActionButtonInterface
     /**
      * Get any data-attributes required.
      *
-     * Should return a string in the form of 'name="value"'
+     * Return an array of key/value pairs where key is the name of the attribute and value is the value of the attribute.
+     * Will be escaped at render time.
      *
      * @return array
      */

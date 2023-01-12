@@ -20,14 +20,14 @@ namespace OpenEMR\Events\UserInterface;
 
 class BaseActionButtonHelper implements ActionButtonInterface
 {
-    private $id;
-    private $title;
-    private $displayText;
-    private $iconClass;
-    private $attributes;
+    private $id = "";
+    private $title = "";
+    private $displayText = "";
+    private $iconClass = "";
+    private $attributes = [];
     private $jsTemplatePath;
-    private $anchorClasses;
-    private $href;
+    private $anchorClasses = [];
+    private $href = "#";
 
     /**
      * Populate the critical parts of an action button.
@@ -70,12 +70,6 @@ class BaseActionButtonHelper implements ActionButtonInterface
 
             $this->$k = $v;
         }
-
-        foreach ($allowedKeys as $k) {
-            if (!$this->$k) {
-                $this->$k = "";
-            }
-        }
     }
 
     public function getID(): string
@@ -110,13 +104,9 @@ class BaseActionButtonHelper implements ActionButtonInterface
      *
      * @return string|null
      */
-    public function getAttributes(): string|null
+    public function getAttributes(): array
     {
-        $r = [];
-        foreach ($this->attributes as $k => $v) {
-            $r[] = $k . '="' . attr($v) . '"';
-        }
-        return implode(" ", $r);
+        return $this->attributes;
     }
 
     public function getJavascriptTemplatePath(): string|null
