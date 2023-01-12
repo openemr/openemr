@@ -340,15 +340,15 @@ function InsSaveClose() {
 }
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
- thesel = $('#i' + insurance_index + 'provider');
- if ($(thesel).find("option[value='" + ins_id  + "']").length) {
-    thesel.val(ins_id).trigger('change');
- } else {
- // no matching option was found so create one, append it to the
- // end of the list, and select it.
-   let newOption = new Option(ins_name, ins_id, true, true);
-   thesel.append(newOption).trigger('change');
- }
+    thesel = $('#i' + insurance_index + 'provider');
+    if ($(thesel).find("option[value='" + ins_id  + "']").length) {
+        thesel.val(ins_id).trigger('change');
+    } else {
+        // no matching option was found so create one, append it to the
+        // end of the list, and select it.
+        let newOption = new Option(ins_name, ins_id, true, true);
+        thesel.append(newOption).trigger('change');
+    }
 }
 
 // This capitalizes the first letter of each word in the passed input
