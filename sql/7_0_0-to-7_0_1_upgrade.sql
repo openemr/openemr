@@ -278,3 +278,11 @@ UPDATE `registry` SET `category` = 'Orders' WHERE `directory` = 'procedure_order
 #IfMissingColumn insurance_data date_end
 ALTER TABLE `insurance_data` ADD `date_end` date NULL;
 #EndIf
+
+#IfNotColumnType user user VARCHAR(255)
+ALTER TABLE `form_questionnaire_assessments` CHANGE `user` `user` VARCHAR(255) NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn module_configuration date_created
+ALTER TABLE `module_configuration` ADD COLUMN `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created';
+#EndIf
