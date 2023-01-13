@@ -34,7 +34,11 @@
     "engines": {
         "node": ">= 0.10.0"
     },
+    "bundleDependencies": true,
     "dependencies": {
+        "libxmljs2": "0.26.6",
+        "moment": "~2.19.3",
+        "uuid": "^2.0.1"
     },
     "devDependencies": {}
 }
