@@ -10,11 +10,12 @@ Beside installing the C-CDA service, also included in this installation are two 
 * Add any appropriate settings like granting Access Control for the appropriate users. Menu item: `Modules->Manage Modules->Access Control->General->Care Coordination`.
 * Ensure all appropriate fields are populated in `Modules->Manage Modules Settings` tab such as Author, Primary Care Provider and so forth.
 ## Updating
+#### It's important to note when updating or re-installing to stop any existing node processes before implementing any changes to the service.
 Whenever there are new versions or updates, be sure to navigate into the ccdaservice directory and run:
 - `npm i --omit=dev`
 - `npm ci --omit=dev`
 
-To ensure the lastest libraries are installed, node version changes or the package lock file is for a different build version then it is necessary to run `node install` to update dependencies to locked versions. Next, ensure the installation is renewed by running `node ci` (clean install) to ensure package dependencies are in sync and the node_modules directory is deleted and rebuilt.
+To ensure the lastest libraries are installed, node version changes or the package lock file is for a different build version then it is necessary to run `node install` to update dependencies to locked versions. Next, ensure the installation is renewed by running `node ci` (clean install) will ensure package dependencies are in sync and the node_modules directory is deleted and rebuilt.
 
 
 ## Ubuntu Setup
