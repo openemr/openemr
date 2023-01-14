@@ -27,4 +27,4 @@ You can activate your module in OpenEMR by doing the following.
 
 ### Service Cost
 *Notice: Pricing subject to change*
- 1. $16/mo. per provider unlimited sessions.
+  - $16/mo. per provider unlimited sessions.
