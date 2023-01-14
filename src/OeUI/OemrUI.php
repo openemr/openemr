@@ -499,6 +499,8 @@ class OemrUI
         $action_top_js = <<<SHWTOP
         <script>
         $(function () {
+            let element = document.querySelector('a#show_hide i');
+            let elementIcon = document.querySelector('a#show_hide i');
             $labels
             $actionClasses
             $('#show_hide').click(function () {
@@ -541,8 +543,10 @@ class OemrUI
             // Because the hideaway is probably shown by default for a reason like in the billing manager
             if (shouldDisplay) {
                 document.querySelector('.hideaway').classList.remove('d-none');
-                elementIcon.classList.remove(showActionClass);
-                elementIcon.classList.add(hideActionClass);
+                if (document.getElementById(showActionClass) && document.getElementById(hideActionClass)) {
+                    elementIcon.classList.remove(showActionClass);
+                    elementIcon.classList.add(hideActionClass);
+                }
             }
         });
         </script>
