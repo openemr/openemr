@@ -2871,13 +2871,13 @@ function getMeta(pd) {
         "type": pd.doc_type,
         "identifiers": [
             {
-                "identifier": oidFacility || "",
+                "identifier": oidFacility || "NI",
                 "extension": "TT988"
             }
         ],
         "confidentiality": "Normal",
         "set_id": {
-            "identifier": oidFacility || "",
+            "identifier": oidFacility || "NI",
             "extension": "sTT988"
         }
     }
@@ -3433,7 +3433,7 @@ function processConnection(connection) {
     conn = connection; // make it global
     let remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
     conn.setEncoding('utf8');
-
+    //console.log('server remote address ', remoteAddress);
     let xml_complete = "";
 
     function eventData(xml) {
@@ -3520,8 +3520,8 @@ function processConnection(connection) {
 
 function setUp(server) {
     server.on('connection', processConnection);
-    server.listen(6661, 'localhost', function () { // never change port!
-        //console.log('server listening to %j', server.address());
+    server.listen(6661, '127.0.0.1', function () { // never change port!
+        //console.log('server listening to ', server.address());
     });
 }
 
