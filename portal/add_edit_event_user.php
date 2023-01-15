@@ -325,7 +325,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                         "'" . add_escape_custom($_POST['form_category']) . "', " .
                         "'" . add_escape_custom($row['pc_multiple']) . "', " .
                         "'" . add_escape_custom($to_be_inserted) . "', " .
-                        "'" . add_escape_custom($_SESSION['form_pid']) . "', " .
+                        "'" . add_escape_custom($_SESSION['pid']) . "', " .
                         "'" . add_escape_custom($_POST['form_title']) . "', " .
                         "NOW(), " .
                         "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -352,7 +352,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             foreach ($_POST['form_provider_ae'] as $provider) {
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
-                    "pc_pid = '" . add_escape_custom($_SESSION['form_pid']) . "', " .
+                    "pc_pid = '" . add_escape_custom($_SESSION['pid']) . "', " .
                     "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                     "pc_time = NOW(), " .
                     "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -385,7 +385,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
                 "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
                 "pc_aid = '" . add_escape_custom($prov) . "', " .
-                "pc_pid = '" . add_escape_custom($_SESSION['form_pid']) . "', " .
+                "pc_pid = '" . add_escape_custom($_SESSION['pid']) . "', " .
                 "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                 "pc_time = NOW(), " .
                 "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -436,7 +436,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                     "'" . add_escape_custom($_POST['form_category']) . "', " .
                     "'" . add_escape_custom($new_multiple_value) . "', " .
                     "'" . add_escape_custom($provider) . "', " .
-                    "'" . add_escape_custom($_SESSION['form_pid']) . "', " .
+                    "'" . add_escape_custom($_SESSION['pid']) . "', " .
                     "'" . add_escape_custom($_POST['form_title']) . "', " .
                     "NOW(), " .
                     "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -466,7 +466,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                 ") VALUES ( " .
                 "'" . add_escape_custom($_POST['form_category']) . "', " .
                 "'" . add_escape_custom($_POST['form_provider_ae']) . "', " .
-                "'" . add_escape_custom($_SESSION['form_pid']) . "', " .
+                "'" . add_escape_custom($_SESSION['pid']) . "', " .
                 "'" . add_escape_custom($_POST['form_title']) . "', " .
                 "NOW(), " .
                 "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -516,7 +516,7 @@ if (!empty($_POST['form_action'])) {
     $note .= ". " . xl("Use Portal Dashboard to confirm with patient.");
     $title = xl("Patient Reminders");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
-    $rtn = addPnote($_SESSION['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
+    $rtn = addPnote($_SESSION['pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
     $_SESSION['whereto'] = '#appointmentcard';
     header('Location:./home.php');
