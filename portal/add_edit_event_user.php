@@ -110,8 +110,6 @@ $startampm = '';
 
 $info_msg = "";
 
-
-
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
 // edit event case - if there is no association made, then insert one with the first facility
