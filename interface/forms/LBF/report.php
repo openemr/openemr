@@ -14,6 +14,7 @@
 
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
+include_once($GLOBALS["srcdir"] . "/wmt-v2/printvisit.class.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
@@ -23,7 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 
 function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
 {
-    global $CPR;
+    global $CPR, $doNotPrintField;
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
     $grparr = array();
@@ -38,6 +39,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
         }
     }
 
+    $visit = wmtPrintVisit::getEncounter($encounter);
     $arr = array();
     $shrow = getHistoryData($pid);
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -62,6 +64,12 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
             continue;
         }
 
+        if(isset($doNotPrintField) && $doNotPrintField === true) {
+            if(isOption($frow['edit_options'], 'X') === true) {
+                continue;
+            }
+        }
+
         // $arr[$field_id] = $currvalue;
         // A previous change did this instead of the above, not sure if desirable? -- Rod
         // $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
@@ -71,11 +79,15 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
         if ($no_wrap || ($frow['data_type'] == 34 || $frow['data_type'] == 25)) {
             $arr[$field_id] = $currvalue;
         } else {
-            $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+            // RPG, WMT  changed from 30 to 150 to improve LBF display
+            $arr[$field_id] = wordwrap($currvalue, 150, "\n", true);
         }
     }
 
     echo "<table>\n";
     display_layout_rows($formname, $arr);
+    echo '<tr><td colspan="2" class="label_custom">';
+    echo $visit->signed_by;
+    echo '</td></tr>';
     echo "</table>\n";
 }

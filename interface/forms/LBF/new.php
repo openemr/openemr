@@ -31,10 +31,13 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
+require_once("$srcdir/wmt-v2/wmtstandard.inc");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\OemrAd\LbfForm;
 
 $CPR = 4; // cells per row
 
@@ -124,6 +127,18 @@ if ($patientPortalSession && !empty($formid)) {
 }
 
 $visitid = (int)(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
+
+
+//Set Form Id
+if(!isset($formid) || empty($formid) || $formid == 0) {
+    $formData = sqlQuery(
+        "SELECT pid, encounter, form_id FROM forms WHERE " .
+        "encounter = ? AND formdir = ?",
+        array($encounter, $formname)
+    );
+
+    $formid = isset($formData['form_id']) ? $formData['form_id'] : 0;
+}
 
 // If necessary get the encounter from the forms table entry for this form.
 if ($formid && !$visitid && $is_core) {
@@ -229,6 +244,12 @@ if (
 
     $my_form_id = $formid ? $formid : $newid;
 
+    //Update Deleted Status
+    sqlStatement(
+        "UPDATE forms SET deleted = 0 WHERE formdir = ? AND form_id = ? AND deleted = 1",
+        array($formname, $my_form_id)
+    );
+
     // If there is an issue ID, update it in the forms table entry.
     if (isset($_POST['form_issue_id'])) {
         sqlStatement(
@@ -251,6 +272,19 @@ if (
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
         "edit_options != 'H' AND edit_options NOT LIKE '%0%' " .
         "ORDER BY group_id, seq", array($formname));
+
+    //Handle Checked Sections List
+    $c_grp_ids = array();
+    foreach ($_POST as $pk => $p_val) {
+        if(substr($pk, 0, 11) === "form_cb_lbf") {
+            $grpInx = substr($pk, 11);
+
+            if(!empty($grpInx) && $p_val == "1") {
+                $c_grp_ids[] = $grpInx;
+            }
+        }
+    }
+
     while ($frow = sqlFetchArray($fres)) {
         $field_id = $frow['field_id'];
         $data_type = $frow['data_type'];
@@ -269,6 +303,13 @@ if (
             continue; // skip static text fields
         }
         $value = get_layout_form_value($frow);
+
+        //Make values empty if section is unchecked
+        $fgroup_id = $frow['group_id'];
+        if(!in_array($fgroup_id, $c_grp_ids)) {
+            $value = '';
+        }
+
         // If edit option P or Q, save to the appropriate different table and skip the rest.
         $source = $frow['source'];
         if ($source == 'D' || $source == 'H') {
@@ -884,6 +925,8 @@ if (
         ?>
 
     </script>
+
+    <?php echo LbfForm::lbf_form_head_section(); ?>
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
@@ -966,6 +1009,7 @@ if (
                                 echo "</select>\n";
                             }
                             ?>
+                            <?php echo LbfForm::lbf_form_top_section($pid); ?>
                         </div>
                     </div>
                     <?php $cmsportal_login = $enrow['cmsportal_login'] ?? '';
@@ -1003,6 +1047,9 @@ if (
                 $form_is_graphable = false;
 
                 $condition_str = '';
+
+                //Process Before Save
+                LbfForm::ext_lbf_before_process($pid);
 
                 while ($frow = sqlFetchArray($fres)) {
                     $this_group = $frow['group_id'];
@@ -1128,15 +1175,30 @@ if (
 
                         $display_style = $grouprow['grp_init_open'] ? 'block' : 'none';
 
+                        if (strlen($gname)) {
+                            if(isset($group_check_list['form_cb_'.$group_seq])) {
+                                if($group_check_list['form_cb_'.$group_seq] === 1) {
+                                    $display_style = 'block';
+                                } else {
+                                    $display_style = 'none';
+                                }
+                            }
+                        }
+
                         // If group name is blank, no checkbox or div.
                         if (strlen($gname)) {
                             // <label> was inheriting .justify-content-center from .form-inline,
                             // dunno why but we fix that here.
-                            echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
+                            echo "<br /><span style='display: grid;grid-template-columns: 1fr auto;'><label class='mb-1 justify-content-start' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
                             if ($display_style == 'block') {
                                 echo " checked";
                             }
-                            echo " /><strong>" . text(xl_layout_label($group_name)) . "</strong></label></span>\n";
+                            echo " /><strong>" . text(xl_layout_label($group_name)) . "</strong></label>\n";
+
+                            echo LbfForm::lbf_form_sub_section($pid);
+
+                            echo "</span>\n";
+
                             // table-responsive removed below because it added a scrollbar regardless of screen width.
                             echo "<div id='div_" . attr($group_seq) . "' class='section clearfix' style='display:" . attr($display_style) . ";'>\n";
                         }
@@ -1285,6 +1347,15 @@ if (
                         }
                     } else {
                         echo "&nbsp;";
+                    }
+
+                    if($data_type == 3) {
+                        $frmdir = 'LBF';
+                        $use_break = TRUE;
+                        $field_prefix = 'form_';
+                        $field_name = $field_id;
+                        $form_module = $field_id;
+                        include(FORM_BUTTONS . 'btn_snippets.inc.php');
                     }
 
                     // Note the labels are not repeated in the history columns.
@@ -1847,6 +1918,9 @@ if (
 
                 <!-- include support for the list-add selectbox feature -->
                 <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+
+                <script src="<?php echo $GLOBALS['webroot']; ?>/library/wmt-v2/wmtpopup.js" type="text/javascript"></script>
+                <script src="<?php echo $GLOBALS['webroot']; ?>/library/wmt-v2/wmt.forms.js" type="text/javascript"></script>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.
