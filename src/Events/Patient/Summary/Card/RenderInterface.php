@@ -9,8 +9,7 @@
  * @package   OpenEMR\Events\Patient\Summary\Card
  *
  * @author    Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2023 Providence Healthtech
- * @copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
  */
 
 namespace OpenEMR\Events\Patient\Summary\Card;
