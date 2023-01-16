@@ -25,12 +25,28 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 require_once "$srcdir/user.inc";
 require_once("$srcdir/MedEx/API.php");
+require_once("$srcdir/wmt-v2/wmt.msg.inc");
+require_once("$srcdir/wmt-v2/wmtstandard.inc");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\OemrAd\MessagesLib;
+use OpenEMR\OemrAd\OrderLbfForm;
+
+// OEMRAD - Changes
+if(!isset($_REQUEST['sortby'])) $_REQUEST['sortby'] = 'pnotes.date';
+if(!isset($_REQUEST['sortorder'])) $_REQUEST['sortorder'] = 'DESC';
+if(!isset($_REQUEST['begin'])) $_REQUEST['begin'] = '0';
+if(!isset($_REQUEST['form_start'])) $_REQUEST['form_start'] = date('Y-m-d', strtotime("-1 year"));
+if(!isset($_REQUEST['form_end'])) $_REQUEST['form_end'] = date('Y-m-d', strtotime("+7 day"));
+if(!isset($_REQUEST['task'])) $_REQUEST['task'] = 'delete';
+if(isset($_REQUEST['form_active']) && $_REQUEST['form_active'] == "1") {
+    $_REQUEST['form_active'] = "~active~";
+}
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
@@ -41,6 +57,19 @@ if (empty($collectthis)) {
 }
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
+
+/* OEMRAD - Changes */
+$use_alerts = TRUE;
+$patientname = $noteid = $title = $assigned_to = $reply_to = $note = '';
+$templates = array();
+$delete_id = array();
+$templates = array();
+$user_default_date = checkSettingMode('global:messages_date_delay','','messages');
+$user_default_order = strtoupper(checkSettingMode('global:messages_sort_order','','messages'));
+if(!$user_default_order) $user_default_order = 'DESC';
+if($user_default_date == '') $user_default_date = 30;
+if(!isset($GLOBALS['wmt::client_id'])) $GLOBALS['wmt::client_id'] = '';
+/*End*/
 
 if ($GLOBALS['medex_enable'] == '1') {
     if ($_REQUEST['SMS_bot']) {
@@ -59,6 +88,36 @@ $uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
+
+/* OEMRAD - Custom Development */
+// RPG - WMT
+// THIS SECTION COULD BE PULLED INTO AN INCLUDE TO CUT DOWN ON MANUAL UPDATES
+$show_from  = isset($_REQUEST['show_from']) ? $_REQUEST['show_from'] : '~all~';
+$show_to    = isset($_REQUEST['show_to']) ? $_REQUEST['show_to'] : $_SESSION['authUser'];
+$show_to_name = UserNameFromName($show_to, $user_lookup_order);
+$form_active= isset($_REQUEST['form_active']) ? $_REQUEST['form_active'] : '~active~';
+if($form_active == 1) $form_active = '~active~';
+if(!isset($_POST['form_note_type'])) $_POST['form_note_type'] = '';
+if(!isset($_POST['note'])) $_POST['note'] = '';
+if(!isset($_POST['noteid'])) $_POST['noteid'] = '';
+if(!isset($_POST['title'])) $_POST['title'] = '';
+if(!isset($_POST['assigned_to'])) $_POST['assigned_to'] = '';
+if(!isset($_POST['reply_to'])) $_POST['reply_to'] = '';
+if(!isset($_POST['form_message_status'])) $_POST['form_message_status'] = '';
+if(!isset($_POST['delete_id'])) $_POST['delete_id'] = array();
+$form_type  = isset($_REQUEST['form_type']) ? $_REQUEST['form_type'] : '';
+
+$tmp = mktime(0,0,0,date('m'),date('d')-$user_default_date,date('Y'));
+$form_start = isset($_REQUEST['form_start']) ? $_REQUEST['form_start'] : date('Y-m-d', $tmp);
+$form_end   = isset($_REQUEST['form_end']) ? $_REQUEST['form_end'] : date('Y-m-d');
+
+$task= isset($_REQUEST['task']) ? $_REQUEST['task'] : '';
+// This is for sorting the records.
+$sort = array("u.lname", "msg_to_lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
+$sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby']!="")) ? $_REQUEST['sortby'] : $sort[4];
+$sortorder = (isset($_REQUEST['sortorder'])  && ($_REQUEST['sortorder']!="")) ? strtoupper($_REQUEST['sortorder'])  : $user_default_order;
+$begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+/*End*/
 
 if (
     (array_key_exists('setting_bootstrap_submenu', $_POST)) ||
@@ -80,7 +139,7 @@ if (
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="MedEx Bank" />
     <meta name="author" content="OpenEMR: MedExBank" />
-    <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2', 'oemr_ad']); ?>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
 
     <script>
@@ -102,6 +161,19 @@ if (
             }
         }
     </style>
+
+    <!-- OEMRAD - Internal message head script and style. -->
+    <style type="text/css">
+        .ext_button_container {
+            /*float: left;*/
+            display: inline-block;
+            margin-left: 30px;
+        }
+    </style>
+    <script type="text/javascript">
+        let messagelib = MessageLib();
+    </script>
+    <!-- End -->
 
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
@@ -184,7 +256,8 @@ if (!empty($_REQUEST['go'])) { ?>
                 <li class="nav-item" id='li-mess'>
                     <a href='#' class="active nav-link font-weight-bold" id='messages-li'><?php echo xlt('Messages'); ?></a>
                 </li>
-                <li class="nav-item" id='li-remi'>
+                <!-- OEMRAD - Hide item -->
+                <li class="nav-item" id='li-remi' style="display: none;">
                     <a href='#' id='reminders-li' class="nav-link font-weight-bold"><?php echo xlt('Reminders'); ?></a>
                 </li>
                 <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
@@ -250,12 +323,13 @@ if (!empty($_REQUEST['go'])) { ?>
                         </div>
                         <div class="oe-margin-b-10">
                             <?php
+                            /* OEMRAD - Commented changes. */
                             //show the activity links
-                            if (empty($task) || $task == "add" || $task == "delete") { ?>
+                            /*if (empty($task) || $task == "add" || $task == "delete") { ?>
                                     <?php if ($active == "all") { ?>
                                 <span class="font-weight-bold"><?php echo xlt('All Messages'); ?></span>
                                     <?php } else { ?>
-                                <a href="messages.php" class="link btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Show All'); ?></a>
+                                <a href="messages.php?show_all=yes" class="link btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Show All'); ?></a>
                                     <?php } ?>
                                     |
                                     <?php if ($active == '1') { ?>
@@ -269,7 +343,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <?php } else { ?>
                                 <a href="messages.php?form_inactive=1" class="link btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Show Inactive'); ?></a>
                                     <?php } ?>
-                            <?php } ?>
+                            <?php }*/ ?>
                         </div>
                         <?php
                         $note = '';
@@ -288,10 +362,23 @@ if (!empty($_REQUEST['go'])) { ?>
                                 $form_message_status = $_POST['form_message_status'];
                                 $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
                                 $assigned_to_list = explode(';', $_POST['assigned_to']);
+                                // OEMRAD - Changes
+                                $noteNewMsg = false;
                                 $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                                 foreach ($assigned_to_list as $assigned_to) {
                                     if ($noteid && $assigned_to != '-patient-') {
+                                        /* OEMRAD - Get Message Data. */
+                                        $note_row = getPnoteById($noteid);
+                                        $noteNewMsg = $note_row['body'];
+                                        /* End */
+
                                         updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
+
+                                        /* OEMRAD - Update Files List */
+                                        MessagesLib::update_files_list();
+                                        OrderLbfForm::add_message_note($pid);
+                                        /* End */
+
                                         $noteid = '';
                                     } else {
                                         if ($noteid && $assigned_to == '-patient-') {
@@ -307,11 +394,31 @@ if (!empty($_REQUEST['go'])) { ?>
                                             $patientname = $pres['lname'] . ", " . $pres['fname'];
                                             $note .= "\n\n$patientname on " . $row['date'] . " wrote:\n\n";
                                             $note .= $row['body'];
+
+                                            // OEMRAD - update files to list.
+                                            MessagesLib::update_files_list();
                                         }
+
+                                        /* OEMRAD - Changes */
+                                        if($noteNewMsg !== false && empty($noteid)) {
+                                            $noteNewMsg = $noteNewMsg . "\n" . date('Y-m-d H:i') . ' (' . $_SESSION['authUser'];
+                                            if ($assigned_to) {
+                                                $noteNewMsg .= " to $assigned_to";
+                                            }
+
+                                            $noteNewMsg = $noteNewMsg . ') ' . $note;
+                                            $note = $noteNewMsg;
+                                        }
+                                        /* End */
+
                                         // There's no note ID, and/or it's assigned to the patient.
                                         // In these cases a new note is created.
                                         foreach ($reply_to as $patient) {
-                                            addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, $datetime, $form_message_status);
+                                           // OEMRAD - Get note id.
+                                           $new_noteid = addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, $datetime, $form_message_status);
+
+                                           // OEMRAD - add files to list.
+                                           MessagesLib::add_files_list();
                                         }
                                     }
                                 }
@@ -327,10 +434,20 @@ if (!empty($_REQUEST['go'])) { ?>
                                 } else {
                                     updatePnotePatient($noteid, $reply_to);
                                 }
+
+                                /* OEMRAD - Changes */
+                                $result = getPnoteById($noteid);
+                                $body = $result['body'];
+                                /* End */
+
                                 $task = "edit";
                                 $note = $_POST['note'];
                                 $title = $_POST['form_note_type'];
                                 $reply_to = $_POST['reply_to'];
+
+                                // OEMRAD - Message note. 
+                                OrderLbfForm::add_message_note($pid);
+
                                 break;
                             case "edit":
                                 if ($noteid == "") {
@@ -362,10 +479,13 @@ if (!empty($_REQUEST['go'])) { ?>
                                 break;
                         }
                         // This is for sorting the records.
+                        /*
+                        OEMRAD - Commented
                         $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
                         $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
                         $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
                         $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+                        */
 
                         if ($task == "addnew" or $task == "edit") {
                             // Display the Messages page layout.
@@ -374,7 +494,18 @@ if (!empty($_REQUEST['go'])) { ?>
                                     action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\"
                                     method='post'>
                                     <input type='hidden' name='noteid' id='noteid' value='" . attr($noteid) . "' />
-                                    <input type='hidden' name='task' id='task' value='add' />";
+                                    <input type='hidden' name='task' id='task' value='add' />
+                                    <!-- OEMRAD - Changes -->
+                                    <input type='hidden' name='show_from' id='show_from' value='".attr( $show_from)."' />
+                                    <input type='hidden' name='show_to' id='show_to' value='".attr( $show_to)."' />
+                                    <input type='hidden' name='form_active' id='form_active' value='".attr( $form_active)."' />
+                                    <input type='hidden' name='form_type' id='form_type' value='".attr( $form_type)."' />
+                                    <input type='hidden' name='form_start' id='form_start' value='".attr( $form_start )."' />
+                                    <!-- End -->";
+
+                            // OEMRAD - Change
+                            if($use_alerts) include_once($GLOBALS['srcdir'].'/wmt-v2/wmt.msg.php');
+
                             if ($task == "addnew") {
                                 $message_legend = xl('Create New Message');
                                 $onclick = "onclick=multi_sel_patient()";
@@ -460,11 +591,14 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 </div>
                                                 <div class="col-6 col-sm-4">
                                                     <label class="oe-empty-label" for="users"></label>
-                                                    <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
+                                                    <!-- OEMRAD - Added class and data-title. -->
+                                                    <select name='users' id='users' class='form-control usersSelectList' data-title="To" onchange='addtolist(this);'>
                                                         <?php
                                                         echo "<option value='--'";
-                                                        echo ">" . xlt('Select User');
+                                                        // OEMRAD - Change
+                                                        echo ">" . xlt('Select User/Group');
                                                         echo "</option>\n";
+                                                        /* OEMRAD - Commented
                                                         $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                                                             "WHERE username != '' AND active = 1 AND " .
                                                             "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
@@ -476,7 +610,14 @@ if (!empty($_REQUEST['go'])) { ?>
                                                                 echo ", " . text($urow['fname']);
                                                             }
                                                             echo "</option>\n";
-                                                        }
+                                                        }*/
+
+                                                        /* OEMRAD - User option list. */
+                                                        MsgUserGroupSelect($assigned_to, TRUE, $use_alerts, FALSE, $ustat, false, true);
+                                                        echo "<option value='" . xla('-patient-') . "'";
+                                                        if($assigned_to == xla('-patient-')) echo "selected";
+                                                        echo ">" . xlt('-patient-') . "</option>";
+                                                        /* End */ 
                                                         ?>
                                                     </select>
                                                 </div>
@@ -510,6 +651,9 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 echo "  </td>\n";
                                                 echo " </tr>\n";
                                             }
+
+                                            // OEMRAD - Display linked messages.
+                                            MessagesLib::linked_doc_list();
                                         }
                                         ?>
                                     </div>
@@ -528,16 +672,29 @@ if (!empty($_REQUEST['go'])) { ?>
                                             ?>
                                             <textarea name='note' id='note' class='form-control oe-margin-t-3 p-1' rows="5"><?php echo nl2br(text($note)); ?></textarea>
                                         </div>
+
+                                        <!-- OEMRAD - Selected item list. -->
+                                        <div class='col-12'>
+                                            <div id="itemsContainer" class="file-items-container mt-4 mb-3" role="alert"></div>
+                                        </div>
+                                        <!-- End -->
+
                                         <div class="col-12 position-override oe-margin-t-10">
                                             <?php if ($noteid) { ?>
                                                 <!-- This is for displaying an existing note. -->
                                                 <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
                                                 <button type="button" class="btn btn-primary btn-print" id="printnote" value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
                                                 <button type="button" class="btn btn-secondary btn-cancel" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+
+                                                <!-- OEMRAD - Internal message elements. -->
+                                                <?php MessagesLib::internal_message(); ?>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
                                                 <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
                                                 <button type="button" class="btn btn-cancel btn-secondary" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+
+                                                <!-- OEMRAD - Internal message elements. -->
+                                                <?php MessagesLib::internal_message(); ?>
                                             <?php }
                                             ?>
                                         </div>
@@ -564,7 +721,9 @@ if (!empty($_REQUEST['go'])) { ?>
                             }
                             // Manage page numbering and display beneath the Messages table.
                             $listnumber = 25;
-                            $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
+                            //$total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
+                            // OEMRAD - Get total.
+                            $total = getPnotesByUserWmt($form_active, $show_from, $show_to, TRUE, $sortby, $sortorder, '', '', $form_start, $form_end, $form_type);
                             if ($begin == "" or $begin == 0) {
                                 $begin = 0;
                             }
@@ -593,33 +752,115 @@ if (!empty($_REQUEST['go'])) { ?>
                             } else {
                                 $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                             }
+
+                            /* OEMRAD - Changes */
+                            ob_start();
+                            MsgUserGroupSelect($show_from);
+                            $showFromList = ob_get_clean();
+
+                            ob_start();
+                            MsgUserGroupSelect($show_to, true);
+                            $showToList = ob_get_clean();
+
+                            ob_start();
+                            MsgTypeSelect($form_type, 'note_type');
+                            $formTypeList = ob_get_clean();
+
+                            ob_start();
+                            MsgSelect($form_active, 'message_status');
+                            $formStatusList = ob_get_clean();
+
+                            if(AclMain::aclCheckCore('messages','view_all')) {
+                                $showToElement = "<select name=\"show_to\" id=\"show_to\" class=\"form-control\" >" . $showToList . "</select>";
+                            } else {
+                                $showToElement = $show_to_name;    
+                            }
+                            /* End */
+
                             // Display the Messages table header.
                             echo "
                                 <table class=\"w-100\">
                                     <tr>
                                         <td>
                                             <form name='MessageList' id='MessageList' action=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&$activity_string_html\" method='post'>
+                                                
+                                                <!-- OEMRAD - Filter Section -->
+                                                <div class=\"mt-2 mb-4\">
+                                                    <div class=\"row\">
+                                                    <div class=\"col-10 oe-custom-line\">
+                                                        <div class=\"row\">
+                                                            <div class=\"col-4 col-md-4 oe-custom-line\">
+                                                                <label for=\"show_from\">" . xlt('From:') . "</label>
+                                                                <select name=\"show_from\" id=\"show_from\" class=\"form-control\"> ". $showFromList . "</select>
+                                                            </div>
+                                                            <div class=\"col-4 col-md-4 oe-custom-line\">
+                                                                <label for=\"show_to\">" . xlt('To:') . "</label>
+                                                                " . $showToElement . "
+                                                            </div>
+                                                            <div class=\"col-4 col-md-4 oe-custom-line\">
+                                                                <label for=\"form_type\">" . xlt('Type:') . "</label>
+                                                                <select name=\"form_type\" id=\"form_type\" class=\"form-control\">
+                                                                    " . $formTypeList . "
+                                                                </select>
+                                                            </div>
+                                                            <div class=\"col-4 col-md-4 oe-custom-line\">
+                                                                <label for=\"form_start\">" . xlt('Start:') . "</label>
+                                                                <input type=\"date\" name=\"form_start\" id=\"form_start\" class=\"form-control\" value=\"". $form_start . "\" />
+                                                            </div>
+                                                            <div class=\"col-4 col-md-4 oe-custom-line\">
+                                                                <label for=\"form_end\">" . xlt('End:') . "</label>
+                                                                <input type=\"date\" name=\"form_end\" id=\"form_end\" class=\"form-control\" value=\"". $form_end . "\" />
+                                                            </div>
+                                                            <div class=\"col-4 col-md-4 oe-custom-line\">
+                                                                <label for=\"form_active\">" . xlt('Status:') . "</label>
+                                                                <select name=\"form_active\" id=\"form_active\" class=\"form-control\">
+                                                                    " . $formStatusList . "
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class=\"col-2 oe-custom-line d-flex justify-content-center text-center align-items-center\">
+                                                        <a href=\"javascript:;\" class=\"btn btn-primary\" onclick=\"document.forms[0].action='messages.php?sortby=".$sortby."&sortorder=".$sortorder."&begin=0'; top.restoreSession(); document.forms[0].submit();\"><i class=\"fa fa-refresh\"></i> " . xlt('Refresh') . "</a>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                <!-- End -->
+
                                                 <table class='table table-sm table-hover w-100'>
                                                     <input type='hidden' name='task' value='delete' />
                                                     <thead class='table-primary'>
                                                       <tr height='24'>
                                                           <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
                                                           <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
-                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
-                                                          <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
-                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
-                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
+                                                          <!-- OEMRAD - Added 'to' table column end made other changes. -->
+                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('To') . " $sortlink[1]</th>
+                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[2]</th>
+                                                          <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[3]</th>
+                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[4]</th>
+                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[5]</th>
+                                                          <!-- End -->
                                                       </tr>
                                                     </thead>";
                             // Display the Messages table body.
                             $count = 0;
-                            $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
+                            // OEMRAD - Get message results.
+                            //$result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
+                            $result = getPnotesByUserWmt($form_active, $show_from, $show_to, false, $sortby, $sortorder, $begin, $listnumber, $form_start, $form_end, $form_type);
                             while ($myrow = sqlFetchArray($result)) {
                                 $name = $myrow['user'];
                                 $name = $myrow['users_lname'];
                                 if ($myrow['users_fname']) {
                                     $name .= ", " . $myrow['users_fname'];
                                 }
+
+                                /* OEMRAD - Message to. */
+                                if(empty($name)) $name = $myrow['user'];
+                                $msg_to = $myrow['msg_to_lname'];
+                                if ($myrow['msg_to_fname']) {
+                                    $msg_to .= ", " . $myrow['msg_to_fname'];
+                                }
+                                /* End */
+
                                 $patient = $myrow['pid'];
                                 if ($patient > 0) {
                                     $patient = $myrow['patient_data_lname'];
@@ -638,6 +879,13 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <td>
                                             <div>" . text($name) . "</div>
                                         </td>
+
+                                        <!-- OEMRAD - Message to column -->
+                                        <td>
+                                            <div>" . text($msg_to) . "</div>
+                                        </td>
+                                        <!-- End -->
+
                                         <td>
                                             <div><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=edit&noteid=" .
                                             attr_url($myrow['id']) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
@@ -660,7 +908,9 @@ if (!empty($_REQUEST['go'])) { ?>
                                             </form>
                                             <div class='row oe-margin-t-10'>
 
-                                                <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-primary btn-add\" onclick=\"top.restoreSession()\">" .
+                                                <div class=\"col-12 col-md-12 col-lg-12\">
+                                                <!-- OEMRAD - Added param to href link. -->
+                                                <a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&show_from=" . attr($show_from) . "&show_to=" . attr($show_to) . "&form_active=" . attr($form_active) . "&form_type=" . attr($form_type) . "&form_start=" . attr($form_start) . "&form_end=" . attr($form_end) . "&task=addnew&$activity_string_html\" class=\"btn btn-primary btn-add\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-danger btn-delete\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Delete') . "</a>";
 
@@ -741,7 +991,8 @@ if (!empty($_REQUEST['go'])) { ?>
                         // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
                         // I am asuming that at this point security checks have been performed
                         //require_once '../dated_reminders/dated_reminders.php';
-                        require_once '../dated_reminders/dated_reminders.php';
+                        // OEMRAD - Commented
+                        //require_once '../dated_reminders/dated_reminders.php';
                         ?>
                     </div>
                 </div>
@@ -939,10 +1190,13 @@ if (!empty($_REQUEST['go'])) { ?>
                 PrintNote();
             });
 
-            var obj = $("#form_message_status");
-            obj.onchange = function () {
+            /* OEMRAD - Commented and code for save note. */
+            //var obj = $("#form_message_status");
+            //obj.onchange = function () {
+            $("#form_message_status").change(function () {
                 SaveNote();
-            };
+            });
+            /* End */
 
             $("#cancel").click(function () {
                 CancelNote();
@@ -974,6 +1228,12 @@ if (!empty($_REQUEST['go'])) { ?>
             else{
                 delete collectvalidation.assigned_to;
             }
+
+            /* OEMRAD - Changes */
+            if(document.getElementById("form_message_status").value == 'Done'){               
+                delete collectvalidation.note;
+            }
+            /* End */
 
             $('#newnote').attr('disabled', true);
 
@@ -1085,6 +1345,16 @@ if (!empty($_REQUEST['go'])) { ?>
                 window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m), 'SMS_bot', 'width=370,height=600,resizable=0');
             }
         }
+
+        /* OEMRAD - Changes */
+        function goPid(pid) {
+            top.restoreSession();
+            <?php
+              echo "top.RTop.location = '../../patient_file/summary/demographics.php' " .
+              "+ '?set_pid=' + pid;\n";
+            ?>
+        }
+        /* End */
     </script>
     <?php
 }

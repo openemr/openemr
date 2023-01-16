@@ -15,6 +15,8 @@ require_once("$include_root/globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/auth.inc");
+// OEMRAD - Include
+require_once("$srcdir/formdata.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
