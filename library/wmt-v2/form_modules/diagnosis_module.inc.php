@@ -14,7 +14,7 @@ if(!isset($first_pass)) $first_pass = FALSE;
 if(!isset($draw_display)) $draw_display = TRUE;
 if(!$portal_mode) include_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 if(!isset($show_unlink)) 
-	$show_unlink = (acl_check('patients', 'med') || acl_check('super', 'admin'));
+	$show_unlink = (\OpenEMR\Common\Acl\AclMain::aclCheckCore('patients', 'med') || \OpenEMR\Common\Acl\AclMain::aclCheckCore('super', 'admin'));
 if(!isset($frmdir)) {
 	echo "Warning - The Diagnosis Window Include has no form directory!<br>\n";
 	$frmdir = '';

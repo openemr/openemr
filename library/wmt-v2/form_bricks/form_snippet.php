@@ -13,9 +13,9 @@ if(!isset($_GET['fld'])) $_GET['fld'] = '';
 $target = strip_tags($_GET['fld']);
 if(!isset($_GET['module'])) $_GET['module'] = '';
 $calling_module = strip_tags($_GET['module']);
-$allow_add = acl_check('snippets', 'add');
-$allow_edit = acl_check('snippets', 'edit');
-$allow_delete = acl_check('snippets', 'delete');
+$allow_add = \OpenEMR\Common\Acl\AclMain::aclCheckCore('snippets', 'add');
+$allow_edit = \OpenEMR\Common\Acl\AclMain::aclCheckCore('snippets', 'edit');
+$allow_delete = \OpenEMR\Common\Acl\AclMain::aclCheckCore('snippets', 'delete');
 	
 $template_types = LoadList('Templated_Fields', 'active', 'notes', '', '', 
 		'GROUP BY notes ');
@@ -27,13 +27,12 @@ $target_type = GetListNoteByKey($target, 'Templated_Fields');
 	<head>
 		<title><?php echo xl('Snippet Manager'); ?></title>
 		<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+		<?php \OpenEMR\Core\Header::setupHeader(['jquery', 'jquery-ui']); ?>
+
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/templates.css" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/wmt.default.css" type="text/css">
-<?php if($v_major > 4) { ?>
-		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<?php } else { ?>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery-ui-1.7.1.custom.min.js"></script>
-<?php } ?>
+
 	</head>
 	<body class="body_top" style="height: 96vh">
 		<div class="demographics_form_option_wrap">
@@ -64,7 +63,7 @@ $target_type = GetListNoteByKey($target, 'Templated_Fields');
 											//v(!$GLOBALS['wmt::snippets::restrict_edit_to_user'])) {
 									?>
 									<div style="float: right;">
-									<a href="javascript:;" class="css_button_small" onclick="editThisTemplate(<?php echo $snip['id']; ?>)"><?php echo xl('Edit'); ?></a>
+									<a href="javascript:;" class="btn btn-primary btn-sm css_button_small" onclick="editThisTemplate(<?php echo $snip['id']; ?>)"><?php echo xl('Edit'); ?></a>
 									</div>
 									<?php 
 										// }
@@ -81,15 +80,15 @@ $target_type = GetListNoteByKey($target, 'Templated_Fields');
 						<td style="padding-left: 12px; border-left: solid 1px black;">
 							<div style="padding:10px; margin-bottom: 10px;">
 								<div style="float: left;">
-								<a href="javascript:;" class="css_button" onclick="copyContent('<?php echo $target; ?>');"><span><?php echo xl('Save ' . $field_title); ?></span></a>
+								<a href="javascript:;" class="btn btn-primary btn-sm css_button" onclick="copyContent('<?php echo $target; ?>');"><span><?php echo xl('Save ' . $field_title); ?></span></a>
 								</div>
 								<?php if($allow_add) { ?>
 								<div style="float: right;">
-								<a href="javascript:;" class="css_button" onClick="toggleAddEditTemplate();"><span><?php echo xl('Add New Snippet'); ?></span></a> &nbsp;
+								<a href="javascript:;" class="btn btn-primary btn-sm css_button" onClick="toggleAddEditTemplate();"><span><?php echo xl('Add New Snippet'); ?></span></a> &nbsp;
 								</div>
 								<?php } ?>
 							</div><br>
-							<textarea name="demographics_form_option_txt" id="demographics_form_option_txt" rows="16"></textarea>
+							<textarea name="demographics_form_option_txt" id="demographics_form_option_txt" class="form-control" rows="16"></textarea>
 						</td>
 					</tr>
 				</table>
@@ -131,10 +130,10 @@ $target_type = GetListNoteByKey($target, 'Templated_Fields');
 							<tr>
 								<td style="padding-left: 12px;">
 									<div class="error_msg" style="color:red;padding:10px;"></div>
-									<button type="submit"><?php echo xl('Save Snippet'); ?></button>&nbsp;&nbsp;&nbsp;
-									<a href="javascript:;" class="css_button" onClick="resetAddEditForm();"><?php echo xl('Cancel'); ?></a>
+									<button type="submit" class="btn btn-primary btn-sm"><?php echo xl('Save Snippet'); ?></button>&nbsp;&nbsp;&nbsp;
+									<a href="javascript:;" class="btn btn-primary btn-sm css_button" onClick="resetAddEditForm();"><?php echo xl('Cancel'); ?></a>
 									<?php if($allow_delete) { ?>
-									<div style="float: right; padding-right: 10px;"><a href="javascript:;" class="css_button" onClick="deleteSnip();"><?php echo xl('Delete'); ?></a></div>
+									<div style="float: right; padding-right: 10px;"><a href="javascript:;" class="btn btn-primary btn-sm css_button" onClick="deleteSnip();"><?php echo xl('Delete'); ?></a></div>
 									<?php } ?>
 									<input type="hidden" name="save_templates" id="save_templates" value="add" />
 									<input type="hidden" name="from_form" id="from_form" value="1" />
@@ -198,7 +197,7 @@ $target_type = GetListNoteByKey($target, 'Templated_Fields');
 										appendValue += '<span id="category_label_' + jsonData.id + '">' + jsonData.category + '</span>';
 										appendValue += '</label>';
 										<?php if($allow_edit) { ?>
-										appendValue += '<div style="float:right;"><a href="javascript:;" class="css_button_small" onclick="editThisTemplate(' + jsonData.id + ')"><span><?php echo xl('Edit'); ?></span></a></div></li>';
+										appendValue += '<div style="float:right;"><a href="javascript:;" class="btn btn-primary btn-sm css_button_small" onclick="editThisTemplate(' + jsonData.id + ')"><span><?php echo xl('Edit'); ?></span></a></div></li>';
 										<?php } ?>
 										$(".category_list").append(appendValue);
 									}
