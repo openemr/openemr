@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @subpackage Events
  * @author Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2022-2023 Robert Down
+ * @copyright Copyright (c) 2023 Robert Down
  * @copyright Copyright (c) 2023 Providence Healthtech
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
