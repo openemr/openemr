@@ -94,7 +94,7 @@ class ConditionService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['condition_uuid', 'puuid', 'encounter_uuid', 'uuid', 'patient_uuid'];
+        return ['condition_uuid', 'puuid', 'encounter_uuid', 'uuid', 'patient_uuid', 'provider_uuid'];
     }
 
     public function createResultRecordFromDatabaseResult($row)
@@ -119,7 +119,11 @@ class ConditionService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
-        $newSearch = [];
+        // override puuid with the token search field for binary search
+        if (isset($search)) {
+            $newSearch['puuid'] = new TokenSearchField('puuid', $search, true);
+        }
+
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
                 $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);

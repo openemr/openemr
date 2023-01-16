@@ -15,6 +15,7 @@
 namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 // TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService
@@ -34,8 +35,8 @@ class ListService
         $validator->required('type')->lengthBetween(2, 255);
         $validator->required('pid')->numeric();
         $validator->optional('diagnosis')->lengthBetween(2, 255);
-        $validator->required('begdate')->datetime('Y-m-d');
-        $validator->optional('enddate')->datetime('Y-m-d');
+        $validator->optional('begdate')->datetime('Y-m-d H:i:s');
+        $validator->optional('enddate')->datetime('Y-m-d H:i:s');
 
         return $validator->validate($list);
     }
@@ -48,6 +49,7 @@ class ListService
 
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             array_push($results, $row);
         }
 
