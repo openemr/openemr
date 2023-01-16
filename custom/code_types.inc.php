@@ -47,7 +47,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
