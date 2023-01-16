@@ -17,12 +17,14 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\OemrAd\FeeSheet;
 
 //acl check
 if (!AclMain::aclCheckForm('fee_sheet')) {
@@ -260,7 +262,7 @@ function echoServiceLines()
 
                     if (!empty($code_types[$codetype]['just']) || !empty($li['justify'])) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
-                        echo "<select class='form-control' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
+                        echo "<select class='form-control selJustify'  name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
                         echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
                         echo "</td>\n";
                         $justinit .= "setJustify(f['bill[" . attr($lino) . "][justify]']);\n";
@@ -532,7 +534,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))
 // If Save or Save-and-Close was clicked, save the new and modified billing
 // lines; then if no error, redirect to $GLOBALS['form_exit_url'].
 //
-if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
+if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']) || !empty($_POST['bn_hl7']))) {
     $main_provid = (int) ($_POST['ProviderID'] ?? 0);
     $main_supid  = 0 + (int)($_POST['SupervisorID'] ?? 0);
 
@@ -562,7 +564,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
         // duplicated from the database.
         unset($_POST['bill']);
         unset($_POST['prod']);
-    } elseif (!isset($_POST['bn_save_stay'])) { // not running as ajax
+    } elseif (!isset($_POST['bn_save_stay']) && !isset($_POST['bn_hl7'])) { // not running as ajax
         // If appropriate, update the status of the related appointment to
         // "In exam room".
         updateAppointmentStatus($fs->pid, $fs->visit_date, '<');
@@ -628,6 +630,20 @@ if (!$alertmsg && (!empty($_POST['bn_reopen']) || !empty($_POST['form_reopen']))
     // Remove the line items so they are refreshed from the database on redisplay.
     unset($_POST['bill']);
     unset($_POST['prod']);
+}
+
+if($_POST['bn_hl7']) {
+    $sql = 'SELECT * FROM `billing` WHERE `pid`=? AND `encounter`=?';
+    $items = sqlStatement($sql, array($fs->pid, $fs->encounter));
+    $upd = 'INSERT INTO `hl7_queue` (`hl7_msg_group`, `hl7_msg_type`, '.
+        '`oemr_table`, `oemr_ref_id`, `flag`, `processed`) VALUES '.
+        '("DFT", "P03", ?, ?, ?, 0) ON DUPLICATE KEY UPDATE '.
+        '`processed` = 0';
+    while($item = sqlFetchArray($items)) {
+        sqlStatement($upd, array('billing', $item{'id'}, $fs->pid));    
+    }
+    // THEN GET THE OVERALL ENCOUNTER RECORD    
+    sqlStatement($upd, array('form_encounter',$fs->encounter, $fs->pid));   
 }
 
 $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, "*");
@@ -943,6 +959,8 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
+
+<?php echo FeeSheet::feesheet_head() ?>
 </head>
 
 
@@ -1675,7 +1693,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     if ($rapid_data_entry) {
                                         echo " style='background-color: #cc0000'; color: var(--white)'";
                                     } ?>><?php echo xla('Save');?></button>
-                                    <button type='submit' name='bn_save_stay' class='btn btn-primary btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
+                                    <button type='submit' name='bn_save_stay' class='btn btn-primary btn-save' value='<?php echo xla('Save Current'); ?>' onclick='return this.clicked = true;'><?php echo xlt('Save Current'); ?></button>
                                     <?php if ($GLOBALS['ippf_specific'] && (AclMain::aclCheckForm('admin', 'super') || AclMain::aclCheckForm('acct', 'bill') || AclMain::aclCheckForm('acct', 'disc'))) { // start ippf-only stuff ?>
                                         <?php if ($fs->hasCharges) { // unbilled with charges ?>
                                                 <button type='submit' name='bn_save_close' class='btn btn-primary btn-save' value='<?php echo xla('Save and Checkout'); ?>'><?php echo xlt('Save and Checkout'); ?></button>
@@ -1710,6 +1728,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php echo xlt('Add More Items'); ?>
                                     </button>
                                 <?php } // end billed ?>
+                                    <button type='submit' name='bn_hl7' class='btn btn-primary btn-queue' value='<?php echo xla('Queue HL7'); ?>' >
+                                        <?php echo xlt('Queue HL7'); ?>
+                                    </button>
+                                    <button type='button' name='bn_justify' class='btn btn-primary btn-justify' value='<?php echo xla('Justify All'); ?>' onClick="open_justify_form('<?php echo $fs->pid ?>', '<?php echo $fs->encounter ?>')" >
+                                        <?php echo xlt('Justify All'); ?>
+                                    </button>
+                                    
                                     <button type='button' class='btn btn-secondary btn-cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />

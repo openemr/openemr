@@ -129,6 +129,17 @@ function update_justify(data, event) {
     }
     var skip_issues = data.duplicates().length > 0;
     top.restoreSession();
+
+    let el = event.target;
+    let billing = {};
+    let bills = el.closest('form').querySelectorAll('[name^="bill"]');
+
+    if (bills) {
+        bills.forEach(item => {
+            billing[item.name] = item.value;
+        });
+    }
+
     $.post(justify_ajax, {
             skip_issues: skip_issues,
             pid: data.patient_id,

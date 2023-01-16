@@ -83,4 +83,39 @@ if ($task == 'update') {
 
     update_justify($req_pid, $req_encounter, $diags, $billing_id);
     $database->CompleteTrans();
+
+    // save current bill input values
+    if (isset($_REQUEST['billing'])) {
+        $billing = json_decode($_REQUEST['billing'], true);
+        $billData = array();
+        $fields = array(
+            'auth' => 'authorized',
+            'price' => 'fee',
+            'mod' => 'modifier',
+            'provid' => 'provider_id',
+            'ndcnum' => 'ndc_info'
+        );
+
+        foreach($billing as $key => $value) {
+            preg_match('/bill\[(.*)\]\[(.*)\]/', $key, $arr);
+            $id = $arr[1];
+            $name = $arr[2];
+            $billData[$id][$name] = $value;
+        }
+
+        sqlBeginTrans();
+
+        foreach($billData as $bill) {
+            $id = $bill['id'];
+
+            foreach($bill as $key => $value) {
+               if (in_array($key, array('code', 'auth', 'units', 'price', 'pricelevel', 'mod', 'provid', 'ndcnum', 'notecodes', 'exclude'))) {
+                   $field = isset($fields[$key]) ? $fields[$key] : $key;
+                   sqlStatement("UPDATE billing SET `$field` = ? WHERE id = ?", array($value, $id));
+               }
+            }
+        }
+
+        sqlCommitTrans();
+    }
 }

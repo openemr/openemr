@@ -51,3 +51,9 @@ div.code-choice {
 div.code-choice:hover {
   background-color: var(--warning);
 }
+
+
+/*Custom Style*/
+center > div.code-choices {
+  z-index: 1;
+}
