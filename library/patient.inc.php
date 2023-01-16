@@ -404,7 +404,7 @@ function getInsuranceDataByDate(
 
 function get_unallocated_patient_balance($pid)
 {
-    $unallocated = '';
+    $unallocated = 0.0;
     $query = "SELECT a.session_id, a.pay_total, a.global_amount " .
         "FROM ar_session AS a " .
         "WHERE a.patient_id = ? AND " .
