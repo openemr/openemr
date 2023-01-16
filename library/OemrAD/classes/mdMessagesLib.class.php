@@ -1201,7 +1201,7 @@ class MessagesLib {
 		}
 	}
 
-	function after_msg_assign() {
+	public static function after_msg_assign() {
 		global $assignNoteId, $set_id, $set_action;
 
 		if($set_action == 'assign' && !empty($assignNoteId) && !empty($set_id)) {
