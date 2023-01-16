@@ -48,7 +48,7 @@ if ($jobid) {
         die(xlt("Cannot find postscript document reference in ") . text($jfname));
     }
 } elseif ($_GET['scan']) {
-    $ffname = $GLOBALS['scanner_output_directory'] . '/' . check_file_dir_name($_GET['scan']);
+    $ffname = $GLOBALS['scanner_output_directory'] . '/' . $_GET['scan'];
 } else {
     $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . check_file_dir_name($_GET['file']);
 }

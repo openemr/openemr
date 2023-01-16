@@ -122,7 +122,7 @@ if ($_POST['form_save']) {
         }
 
         // Compute the name of the target directory and make sure it exists.
-        $docdir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($patient_id);
+        $docdir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . $patient_id; // check_file_dir_name($patient_id);
         exec("mkdir -p " . escapeshellarg($docdir));
 
         // If copying to patient documents...
@@ -154,10 +154,16 @@ if ($_POST['form_save']) {
             // Create the target PDF.  Note that we are relying on the .tif files for
             // the individual pages to already exist in the faxcache directory.
             //
-            $info_msg .= mergeTiffs();
-            // The -j option here requires that libtiff is configured with libjpeg.
-            // It could be omitted, but the output PDFs would then be quite large.
-            $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($target) . " " . escapeshellarg($faxcache . '/temp.tif'), $tmp1, $tmp2);
+            if(strtolower($ext) != '.pdf') {
+                $info_msg .= mergeTiffs();
+                // The -j option here requires that libtiff is configured with libjpeg.
+                // It could be omitted, but the output PDFs would then be quite large.
+                $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($target) . " " . escapeshellarg($faxcache . '/temp.tif'), $tmp1, $tmp2);
+            } else {
+                $tmp = "cp " . escapeshellarg($filepath) . ' ' . escapeshellarg($target);
+                $tmp0 = exec($tmp, $tmp1, $tmp2);
+                if($tmp2) die('Could NOT Copy File to Ptient Chart - Probably Permission Issue!');
+            }
 
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
@@ -220,9 +226,11 @@ if ($_POST['form_save']) {
             }
 
             if (!$info_msg) {
-                // Merge the selected pages.
-                $info_msg .= mergeTiffs();
-                $tmp_name = "$faxcache/temp.tif";
+                if(strtolower($ext) != '.pdf') {
+                    // Merge the selected pages.
+                    $info_msg .= mergeTiffs();
+                    $tmp_name = "$faxcache/temp.tif";
+                } else $tmp_name =  $filename;
             }
 
             if (!$info_msg) {
@@ -241,6 +249,12 @@ if ($_POST['form_save']) {
                 //
                 $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($patient_id) . "/encounters";
                 $imagepath = "$imagedir/" . check_file_dir_name($encounter_id) . "_" . check_file_dir_name($formid) . ".jpg";
+                if(strtolower($ext) == '.pdf') {
+                  $imagepath .= '.pdf';
+                } else {
+                  $imagepath .= '.jpg';
+                }
+
                 if (! is_dir($imagedir)) {
                         $tmp0 = exec('mkdir -p ' . escapeshellarg($imagedir), $tmp1, $tmp2);
                     if ($tmp2) {
@@ -256,10 +270,13 @@ if ($_POST['form_save']) {
 
                 // TBD: There may be a faster way to create this file, given that
                 // we already have a jpeg for each page in faxcache.
-                $cmd = "convert -resize 800 -density 96 " . escapeshellarg($tmp_name) . " -append " . escapeshellarg($imagepath);
-                $tmp0 = exec($cmd, $tmp1, $tmp2);
-                if ($tmp2) {
-                    die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
+                if(strtolower($ext) == '.pdf') {
+                } else {
+                    $cmd = "convert -resize 800 -density 96 " . escapeshellarg($tmp_name) . " -append " . escapeshellarg($imagepath);
+                    $tmp0 = exec($cmd, $tmp1, $tmp2);
+                    if ($tmp2) {
+                        die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
+                    }
                 }
             }
 
@@ -397,13 +414,16 @@ if ($_POST['form_save']) {
 
     if ($info_msg || $form_cb_delete != '1') {
         // Close this window and refresh the fax list.
-        echo "<html>\n<body>\n<script>\n";
+        echo "<html>\n<head>";
+        echo Header::setupHeader(['opener']);
+        echo "</head>\n";
+        echo "<body>\n<script>\n";
         if ($info_msg) {
             echo " alert('" . addslashes($info_msg) . "');\n";
         }
 
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
-        echo " window.close();\n";
+        echo " dlgclose();\n";
         echo "</script>\n</body>\n</html>\n";
         exit();
     }
@@ -426,7 +446,7 @@ if (! is_dir($faxcache)) {
         die("mkdir returned " . text($tmp2) . ": " . text($tmp0));
     }
 
-    if (strtolower($ext) != '.tif') {
+    if (strtolower($ext) != '.tif' && (strtolower($ext) != '.pdf')) {
         // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
         // not very good, so we upgrade it to "fine mode" fax quality.  It's really
         // better and faster if the scanner produces TIFFs instead of PDFs.
@@ -439,27 +459,49 @@ if (! is_dir($faxcache)) {
         if ($tmp2) {
             die("tiffsplit/rm returned " . text($tmp2) . ": " . text($tmp0));
         }
-    } else {
+    } else if(strtolower($ext) != '.pdf') {
         $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; tiffsplit " . escapeshellarg($filepath), $tmp1, $tmp2);
         if ($tmp2) {
             die("tiffsplit returned " . text($tmp2) . ": " . text($tmp0));
         }
     }
 
-    $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
-    if ($tmp2) {
-        die("mogrify returned " . text($tmp2) . ": " . text($tmp0) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'");
+    if(strtolower($ext) == '.pdf') {
+        $tmp = "cp " . escapeshellarg($filepath) . ' ' . escapeshellarg($faxcache) . '/' . $filebase . $ext;
+                // echo "Copy Command: $tmp<br>\n";
+        $tmp0 = exec("cp " . escapeshellarg($filepath) . ' ' . escapeshellarg($faxcache) . '/' . $filebase . $ext, $tmp1, $tmp2);
     }
+
+    if(strtolower($ext) != '.pdf') {
+        $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
+        if ($tmp2) {
+            die("mogrify returned " . text($tmp2) . ": " . text($tmp0) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'");
+        }
+    }
+} else if(strtolower($ext) == '.pdf') {
+     $tmp = "cp " . escapeshellarg($filepath) . ' ' . escapeshellarg($faxcache) . $filebase . $ext;
+        // echo "Copy Command: $tmp<br>\n";
+    $tmp0 = exec("cp " . escapeshellarg($filepath) . ' ' . escapeshellarg($faxcache) . '/' . $filebase . $ext, $tmp1, $tmp2);
 }
 
 // Get the categories list.
 $categories = array();
 getKittens(0, '', $categories);
 
+$sql = 'SELECT `username`, `info`, `lname`, `fname` FROM `users` WHERE ' .
+            '`active` = 1 AND `username` != "" AND (UPPER(`info`) NOT LIKE ' .
+            '"%MESSAGE EXCLUDE%" OR `info` IS NULL) ';
+ 
+$sql .= 'UNION ALL SELECT CONCAT("GRP:",option_id) AS username, ';
+$sql .= '`notes` AS `info`, ';
+$sql .= '`title` AS lname, `notes` AS fname ';
+$sql .= 'FROM `list_options` WHERE `list_id` = "Messaging_Groups" ';
+$sql .= 'AND (UPPER(`notes`) NOT LIKE "%MESSAGE EXCLUDE%" OR ' .
+    '`notes` IS NULL) ';
+$sql .= 'ORDER BY lname, fname';
+
 // Get the users list.
-$ures = sqlStatement("SELECT username, fname, lname FROM users " .
-  "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-  "ORDER BY lname, fname");
+$ures = sqlStatement($sql);
 ?>
 <html>
 <head>
@@ -510,8 +552,13 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   var f = document.forms[0];
 
   if (f.form_cb_copy.checked) {
-   if (! f.form_pid.value) {
+   if (! f.form_pid.value || f.form_pid.value == 0) {
     alert('You have not selected a patient!');
+    return false;
+   }
+
+   if(f.form_category.selectedIndex == 0) {
+    alert('You have not selected a category!');
     return false;
    }
   }
@@ -601,7 +648,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<p><input type='checkbox' name='form_cb_copy' value='1'
+<p><input type='checkbox' name='form_cb_copy' id='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
 <span class="font-weight-bold"><?php echo xlt('Copy Pages to Patient Chart'); ?></span></p>
 
@@ -635,7 +682,8 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                 <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Category'); ?></label>
                     <div class="col-10">
-                        <select name='form_category' class='form-control'>
+                        <select name='form_category' id="form_category" class='form-control'>
+                            <option value="">- Choose a Category -</option>
                             <?php
                             foreach ($categories as $catkey => $catname) {
                                 echo "         <option value='" . attr($catkey) . "'";
@@ -714,12 +762,13 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     <select name='form_note_to' class='form-control'>
                         <?php
                         while ($urow = sqlFetchArray($ures)) {
-                            echo "         <option value='" . attr($urow['username']) . "'";
-                            echo ">" . text($urow['lname']);
+                            $optText = text($urow['lname']);
                             if ($urow['fname']) {
-                                echo ", " . text($urow['fname']);
+                                $optText .= ", " . text($urow['fname']);
                             }
 
+                            echo "<option value='" . attr($urow['username']) . "' >";
+                            echo trim($optText,", ");
                             echo "</option>\n";
                         }
                         ?>
@@ -742,7 +791,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     </div>
 </div>
 
-<p><input type='checkbox' name='form_cb_forward' value='1'
+<p <?php echo (strtolower($ext) == '.pdf') ? ' style="display: none;"' : ''; ?>><input type='checkbox' name='form_cb_forward' value='1'
  onclick='return divclick(this,"div_forward");' />
 <span class="font-weight-bold"><?php echo xlt('Forward Pages via Fax'); ?></span></p>
 
@@ -796,60 +845,84 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 </div>
 
 <div class="form-group form-inline">
-    <label class="font-weight-bold"><?php echo xlt('Delete Pages'); ?>:</label>
+    <label class="font-weight-bold"><?php echo (strtolower($ext) == '.pdf') ? xlt('Delete PDF') : xlt('Delete Pages'); ?>:</label>
     <div class="form-check form-check-inline">
-        <input type='radio' class='form-check-input' name='form_cb_delete' value='2' />
-        <label class="form-check-label">All</label>
+        <input type='radio' class='form-check-input' name='form_cb_delete' id='form_ob_delete_all' value='2' <?php echo (strtolower($ext) == '.pdf') ? 'checked' : ''; ?> />
+        <label for='form_ob_delete_all' class="form-check-label"><?php echo (strtolower($ext) == '.pdf') ? xlt('Yes') : xlt('All'); ?></label>
     </div>
+    <?php if(strtolower($ext) != '.pdf') { ?>
     <div class="form-check form-check-inline">
-        <input type='radio' class='form-check-input' name='form_cb_delete' value='1' checked />
+        <input type='radio' class='form-check-input' id='form_ob_delete_sel' name='form_cb_delete' value='1' checked />
         <label class="form-check-label">Selected</label>
     </div>
+    <?php } ?>
     <div class="form-check form-check-inline">
-        <input type='radio' class='form-check-input' name='form_cb_delete' value='0' />
-        <label class="form-check-label">None</label>
+        <input type='radio' class='form-check-input' name='form_cb_delete' id='form_ob_delete_none' value='0' />
+        <label class="form-check-label"><?php echo (strtolower($ext) == '.pdf') ? xlt('No') : xlt('None'); ?></label>
     </div>
 </div>
 
 <div class="btn-group">
     <button type='submit' class='btn btn-primary btn-save' name='form_save' value='<?php echo xla('OK'); ?>'><?php echo xla('OK'); ?></button>
     <button type='button' class='btn btn-secondary btn-cancel' value='<?php echo xla('Cancel'); ?>' onclick='window.close()'><?php echo xla('Cancel'); ?></button>
+    <?php if(strtolower($ext) != '.pdf') { ?>
     <button type='button' class='btn btn-secondary' value='<?php echo xla('Select All'); ?>' onclick='allCheckboxes(true)'><?php echo xla('Select All'); ?></button>
     <button type='button' class='btn btn-secondary' value='<?php echo xla('Clear All'); ?>' onclick='allCheckboxes(false)'><?php echo xla('Clear All'); ?></button>
+    <?php } ?>
 </div>
 
+<?php if(strtolower($ext) != '.pdf') { ?>
 <p class="mt-2 font-weight-bold"><?php echo xlt('Please select the desired pages to copy or forward:'); ?></p>
-<table>
+<?php } ?>
+
 
 <?php
-$dh = opendir($faxcache);
-if (! $dh) {
-    die("Cannot read " . text($faxcache));
-}
-
-$jpgarray = array();
-while (false !== ($jfname = readdir($dh))) {
-    if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {
-        $jpgarray[$matches[1]] = $jfname;
+if(strtolower($ext) == '.pdf') {
+    // BUILD A RELATIVE PATH
+    $path_parts = explode('/', $faxcache);
+    $path_parts = array_slice($path_parts, 4);
+    $local_path = '/' . implode('/', $path_parts);
+    $local_path .= '/' . $filebase . $ext;
+    // echo "Local Path: ($local_path)<br>\n";
+    // $tmp_path = $GLOBALS['webroot'] . '/sites/default/faxcache/scan/' 
+    // . $filebase . '/' . $filebase . $ext;
+        echo "<br>";
+        echo "<div style='display: block;'>";
+        echo "<iframe src='$local_path' style='width: 900px; height: 900px;'></iframe>";
+        echo "   <input type='hidden' name='form_images[]' value='1' checked />";
+        echo "</div>\n";
+} else {
+    echo " <table>";
+    $dh = opendir($faxcache);
+    if (! $dh) {
+        die("Cannot read " . text($faxcache));
     }
-}
 
-closedir($dh);
-// readdir does not read in any particular order, we must therefore sort
-// by filename so the display order matches the original document.
-ksort($jpgarray);
-$page = 0;
-foreach ($jpgarray as $jfnamebase => $jfname) {
-    ++$page;
-    echo " <tr>\n";
-    echo "  <td valign='top'>\n";
-    echo "   <img src='../../sites/" . attr($_SESSION['site_id']) . "/faxcache/" . attr($mode) . "/" . attr($filebase) . "/" . attr($jfname) . "' />\n";
-    echo "  </td>\n";
-    echo "  <td align='center' valign='top'>\n";
-    echo "   <input type='checkbox' name='form_images[]' value='" . attr($jfnamebase) . "' checked />\n";
-    echo "   <br />" . text($page) . "\n";
-    echo "  </td>\n";
-    echo " </tr>\n";
+    $jpgarray = array();
+    while (false !== ($jfname = readdir($dh))) {
+        if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {
+            $jpgarray[$matches[1]] = $jfname;
+        }
+    }
+
+    closedir($dh);
+    // readdir does not read in any particular order, we must therefore sort
+    // by filename so the display order matches the original document.
+    ksort($jpgarray);
+    $page = 0;
+    foreach ($jpgarray as $jfnamebase => $jfname) {
+        ++$page;
+        echo " <tr>\n";
+        echo "  <td valign='top'>\n";
+        echo "   <img src='../../sites/" . attr($_SESSION['site_id']) . "/faxcache/" . attr($mode) . "/" . attr($filebase) . "/" . attr($jfname) . "' />\n";
+        echo "  </td>\n";
+        echo "  <td align='center' valign='top'>\n";
+        echo "   <input type='checkbox' name='form_images[]' value='" . attr($jfnamebase) . "' checked />\n";
+        echo "   <br />" . text($page) . "\n";
+        echo "  </td>\n";
+        echo " </tr>\n";
+    }
+    echo " </table>";
 }
 ?>
 
