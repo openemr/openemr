@@ -6,6 +6,7 @@ include_once("$srcdir/options.inc.php");
 include_once($GLOBALS['srcdir'].'/OemrAD/oemrad.globals.php');
 
 use OpenEMR\OemrAd\Caselib;
+use OpenEMR\Core\Header;
 
 $form_act_val = isset($_REQUEST['form_act']) ? $_REQUEST['form_act'] : "";
 $form_action_val = isset($_REQUEST['form_action']) ? $_REQUEST['form_action'] : '';
@@ -283,16 +284,13 @@ if($form_act_val != "") {
 <html>
 <head>
 	<title><?php echo xlt('Attorney in Case'); ?></title>
-	<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 	<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
-	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
+	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
+
+	<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 	<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/modules/ext_utility/dummy.php?bootstrap.min.js"></script>
 	<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/modules/ext_utility/dummy.php?bootstrap.min.css" type="text/css">
-
-	<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-	<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=41"></script>
 
 	<style type="text/css">
 		.page-title h2 {
