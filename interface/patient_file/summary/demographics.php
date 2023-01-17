@@ -1176,7 +1176,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     continue;
                                 }
                                 $insArr[] = $row;
-
                             }
                         }
 
