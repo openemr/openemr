@@ -45,7 +45,7 @@ function TimeToHHMMSS_js(value){
 }
 
 function DateToYYYYMMDDHHMMSS_js(value){
-    if (typeof value === 'undefined') {
+    if (typeof value === 'undefined' || value.trim() == '') {
         return undefined;
     }
     var parts = value.split(' ');
