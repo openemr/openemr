@@ -1156,9 +1156,9 @@ function make_insurance() {
                                 <div class="col-12 oe-custom-line">
                                     <label class="control-label" for="unallocated"><?php
                                                 echo xlt('Patient has an unallocated pre-payment amount of ') .
-                                                    get_unallocated_patient_balance($pid); ?></label><br>
+                                                    xlt(get_unallocated_patient_balance($pid)); ?></label><br>
                                     <a href="../billing/edit_payment.php?payment_id=<?php
-                                        echo xla(get_unallocated_payment_id($pid)); ?>"
+                                        echo attr_url(get_unallocated_payment_id($pid)); ?>"
                                        target="_self"><?php echo xlt('Apply unallocated pre-payments here') ?></a>
                                 </div><br>
                             <?php endif;  ?>
