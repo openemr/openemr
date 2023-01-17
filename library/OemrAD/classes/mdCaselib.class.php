@@ -1678,6 +1678,7 @@ class Caselib {
 	}
 	*/
 
+	/*
 	public static function add_calender_script() {
 		return <<<EOF
 			<script type="text/javascript">
@@ -1923,6 +1924,7 @@ EOF;
 		</script>
 		<?php
 	}
+	*/
 
 	function case_header_authorization_elements($dt, $field_prefix) {
 		?>
