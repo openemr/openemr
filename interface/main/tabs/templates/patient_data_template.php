@@ -13,7 +13,7 @@
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017-2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>

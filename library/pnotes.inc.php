@@ -389,7 +389,7 @@ function addPnote(
         'INSERT INTO pnotes (date, body, pid, user, groupname, ' .
         'authorized, activity, title, assigned_to, message_status, update_by, update_date) VALUES ' .
         '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-        array($datetime, $body, $pid, $user, $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status, $_SESSION['authUserID'])
+        array($datetime, $body, $pid, $user, ($_SESSION['authProvider'] ?? null), $authorized, $activity, $title, $assigned_to, $message_status, ($_SESSION['authUserID'] ?? null))
     );
 }
 
