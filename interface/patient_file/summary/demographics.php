@@ -1056,8 +1056,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $patientbalance = get_patient_balance($pid, false);
                         $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
                         $totalbalance = $patientbalance + $insurancebalance;
+                        $unallocated_amt = get_unallocated_patient_balance($pid);
+
                         $id = "billing_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('billing'), CardRenderEvent::EVENT_HANDLE);
+
                         $viewArgs = [
                             'title' => xl('Billing'),
                             'id' => $id,
@@ -1066,6 +1069,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'patientBalance' => $patientbalance,
                             'insuranceBalance' => $insurancebalance,
                             'totalBalance' => $totalbalance,
+                            'unallocated' => $unallocated_amt,
                             'forceAlwaysOpen' => $forceBillingExpandAlways,
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
@@ -1119,6 +1123,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $params[] = $pid;
                         $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
+                        $prior_ins_type = '';
+                        $prev_eff_date = 'Present';
 
                         while ($row = sqlFetchArray($res)) {
                             if ($row['provider']) {
@@ -1142,6 +1148,33 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $row['dispFromDate'] = $row['date'] ? true : false;
                                 $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
+                                $row['until_date'] = ($row['isOld']) ? date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d') : xlt('Present');
+                                $insArr[] = $row;
+                                $prev_eff_date = $row['date'];
+                                $prior_ins_type = $row['type'];
+                            } else {
+                                $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
+                                $row['dispFromDate'] = $row['date'] ? true : false;
+                                $row['insco'] = [
+                                    'name' => 'Self-Pay',
+                                    'address' => [
+                                        'line1' => '',
+                                        'line2' => '',
+                                        'city' => '',
+                                        'state' => '',
+                                        'postal' => '',
+                                        'country' => ''
+                                    ],
+                                ];
+                                $row['policy_type'] = false;
+                                $mname = ''; //($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
+                                $row['subscriber_full_name'] = ' '; // str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
+                                $row['until_date'] = ($row['isOld']) ? date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d') : xlt("Present");
+                                $prev_eff_date = $row['date'];
+                                $prior_ins_type = $row['type'];
+                                if ($row['type'] != 'primary') {
+                                    continue;
+                                }
                                 $insArr[] = $row;
                             }
                         }
@@ -1652,6 +1685,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $etitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $etitle;
                             }
 
+                            $row['etitle'] = $etitle;
+
                             if ($extraApptDate && $count > $firstApptIndx) {
                                 $apptStyle = $apptStyle2;
                             } else {
@@ -1665,6 +1700,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
                             $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
+                            if ($row['pc_status'] == 'None') {
+                                $row['pc_status'] = 'Scheduled';
+                            }
 
                             if (in_array($row['pc_catid'], $therapyGroupCategories)) {
                                 $row['groupName'] = getGroup($row['pc_gid'])['group_name'];
@@ -1742,7 +1780,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayPastAppts = true;
-                        $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, c.pc_catname, e.pc_apptstatus
+
+                        $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, c.pc_catname, e.pc_apptstatus, e.pc_facility
                             FROM openemr_postcalendar_events AS e,
                                 users AS u,
                                 openemr_postcalendar_categories AS c
@@ -1759,7 +1798,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($row = sqlFetchArray($pres)) {
                             $count++;
                             $dayname = date("D", strtotime($row['pc_eventDate']));
-                            $displayMeridiem = "am";
+                            $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
                             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
                             $dispmin = substr($row['pc_startTime'], 3, 2);
                             if ($disphour >= 12) {
@@ -1773,9 +1812,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($row['pc_hometext'] != "") {
                                 $petitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $petitle;
                             }
+                            $row['etitle'] = $petitle;
 
                             $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
+
                             $row['dayName'] = $dayname;
+                            $row['displayMeridiem'] = $displayMeridiem;
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
                             $row['uname'] = text($row['fname'] . " " . $row['lname']);
                             $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
