@@ -1,6 +1,6 @@
 ### Comlink Telehealth Module
 
-This project implements the Comlink Telehealth system for video conferencing for OpenEMR installations.  
+This project implements the Comlink Telehealth system for video conferencing for OpenEMR installations.
 
 ### Activating Your Module
 You can activate your module in OpenEMR by doing the following.
@@ -13,7 +13,7 @@ You can activate your module in OpenEMR by doing the following.
   6. Finally click the *Enable* button for your module.
 
 ### Configuring The Telehealth Settings
-*Note In future versions we plan on automating much of this process* 
+*Note In future versions we plan on automating much of this process*
   1. Click the gear icon on the module
   2. Signup for a Telehealth Subscription to receive your subscription settings.
   3. Once your credit card information has been processed the screen will show the following settings.  Write these down or copy them to another document
@@ -24,3 +24,7 @@ You can activate your module in OpenEMR by doing the following.
   - Telehealth Installation CMSID
   4. Now go to the main menu bar in Admin -> Config and open up the Telehealth settings
   5. Fill out Telehealth settings with what you received when you subscribed.
+
+### Service Cost
+*Notice: Pricing subject to change*
+  - $16/mo. per provider unlimited sessions.
