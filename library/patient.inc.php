@@ -1822,3 +1822,17 @@ function updateDupScore($pid)
     );
     return $dupscore;
 }
+
+function get_unallocated_payment_id($pid)
+{
+    $query = "SELECT a.session_id " .
+        "FROM ar_session AS a " .
+        "WHERE a.patient_id = ? AND " .
+        "a.adjustment_code = 'pre_payment' AND a.closed = 0 ORDER BY a.check_date ASC LIMIT 1";
+    $res = sqlQuery($query, array($pid));
+    if ($res['session_id']) {
+        return $res['session_id'];
+    } else {
+        return '';
+    }
+}
