@@ -36,8 +36,8 @@ function TimeToHHMMSS_js(value){
         return '';
     }
 
-    var is_pm = toUpperCase(value.trim()).indexOf('PM');
-    if (is_pm) {
+    var is_pm = value.trim().toUpperCase().indexOf('PM');
+    if (is_pm > 0) {
         let d = new Date("1970-01-01 " + value);
         let value = d.setHours(d.getHours() + 12).toTimeString();
     }
