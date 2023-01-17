@@ -16,6 +16,9 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/encounter.inc");
 
+// OEMR - A
+require_once("$srcdir/wmt-v2/case_functions.inc.php");
+
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\CodeTypesService;
@@ -52,11 +55,21 @@ $discharge_disposition = $discharge_disposition != '_blank' ? $discharge_disposi
 $facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
+/* OEMR - A */
+$provider_id = $_POST['provider_id'] ?? null;
+$supervisor_id = $_POST['supervisor_id'] ?? null;
+$case_id = $_POST['form_case'] ?? null;
+if(!$case_id || $case_id == '0') {
+  $case_id = mostRecentCase($pid, $_POST['force_new']);
+}
+/* End */
+
 $normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
-$provider_id = $_SESSION['authUserID'] ? $_SESSION['authUserID'] : 0;
+// OEMR - Commeted
+//$provider_id = $_SESSION['authUserID'] ? $_SESSION['authUserID'] : 0;
 $provider_id = $encounter_provider ? $encounter_provider : $provider_id;
 
 $encounter_type = $_POST['encounter_type'] ?? '';
@@ -79,6 +92,7 @@ if (!empty($encounter_type)) {
 
 if ($mode == 'new') {
     $encounter = generate_id();
+    // OEMR - Added supervisor_id field and value
     addForm(
         $encounter,
         "New Patient Encounter",
@@ -103,7 +117,8 @@ if ($mode == 'new') {
                 discharge_disposition = ?,
                 referring_provider_id = ?,
                 encounter_type_code = ?,
-                encounter_type_description = ?",
+                encounter_type_description = ?,
+                supervisor_id = ?",
             [
                 $date,
                 $onset_date,
@@ -124,7 +139,8 @@ if ($mode == 'new') {
                 $discharge_disposition,
                 $referring_provider_id,
                 $encounter_type_code,
-                $encounter_type_description
+                $encounter_type_description,
+                $supervisor_id
             ]
         ),
         "newpatient",
@@ -147,6 +163,7 @@ if ($mode == 'new') {
         $datepart = "date = ?, ";
         $sqlBindArray[] = $date;
     }
+    // OEMR - Added supervisor_id field and value
     array_push(
         $sqlBindArray,
         $onset_date,
@@ -164,6 +181,7 @@ if ($mode == 'new') {
         $referring_provider_id,
         $encounter_type_code,
         $encounter_type_description,
+        $supervisor_id,
         $id
     );
     sqlStatement(
@@ -183,7 +201,8 @@ if ($mode == 'new') {
             discharge_disposition = ?,
             referring_provider_id = ?,
             encounter_type_code = ?,
-            encounter_type_description = ?
+            encounter_type_description = ?,
+            supervisor_id = ? 
             WHERE id = ?",
         $sqlBindArray
     );
@@ -202,6 +221,34 @@ if (!empty($_POST['issues']) && is_array($_POST['issues'])) {
         sqlStatement($query, array($pid, $issue, $encounter));
     }
 }
+
+/* OEMR - A */
+if($case_id) {
+    $exists = sqlQuery('SELECT * FROM case_appointment_link WHERE ' .
+        'enc_case = ?', array($case_id));
+    if(!isset($exists{'pid'})) $exists{'pid'} = '';
+    if($exists{'pid'}) {
+        $msg = 'Patient Mis-Match - Case ['.$case_id.'] Is Currently Linked To PID ('.$exists{'pid'}.') And This Encounter is PID -'.$pid.'-';
+        if($pid != $exists{'pid'}) die($msg);
+    }
+    $exists = sqlQuery('SELECT id, pid FROM form_cases WHERE ' .
+        'id = ?', array($case_id));
+    if(!isset($exists{'pid'})) $exists{'pid'} = '';
+    if($exists{'pid'}) {
+        $msg = 'Patient Mis-Match - Case ['.$case_id.'] Is Currently Attached To PID ('.$exists{'pid'}.') And This Encounter is PID -'.$pid.'-';
+        if($pid != $exists{'pid'}) die($msg);
+    }
+    sqlInsert('INSERT INTO case_appointment_link SET enc_case = ?, '.
+        'encounter = ?, pid = ? ON DUPLICATE KEY UPDATE enc_case = ?',
+        array($case_id, $encounter, $pid, $case_id));
+    $link = sqlQuery('SELECT * FROM case_appointment_link WHERE ' .
+        'encounter = ?', array($encounter));
+    if($link{'pc_eid'} && ($link{'pc_pid'} == $pid || !$link['pc_pid'])) {
+        sqlStatement('UPDATE openemr_postcalendar_events SET pc_case ' .
+            '= ? WHERE pc_eid = ?', array($case_id, $link{'pc_eid'}));
+    }
+}
+/* End */
 
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));

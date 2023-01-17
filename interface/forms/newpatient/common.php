@@ -15,6 +15,8 @@
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc");
+require_once("$srcdir/wmt-v2/wmtstandard.inc");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Acl\AclExtended;
@@ -26,6 +28,7 @@ use OpenEMR\Services\ListService;
 use OpenEMR\Services\UserService;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\OeUI\RenderFormFieldHelper;
+use OpenEMR\OemrAd\Caselib;
 
 $facilityService = new FacilityService();
 
@@ -53,6 +56,8 @@ if ($mode === "followup") {
 }
 
 if ($viewmode) {
+    // OEMR - Change
+    $case_desc = 'No Case Attached';
     $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
     $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", array($id));
     $encounter = $result['encounter'];
@@ -74,6 +79,28 @@ if ($viewmode) {
         $encounterId = $result['id'];
     }
 
+    /* OEMR - A */
+    $case_link = sqlQuery('SELECT * FROM case_appointment_link WHERE encounter = ?', array($encounter));
+    if(!isset($case_link{'pc_eid'})) $case_link{'pc_eid'} = '';
+    if(!isset($case_link{'enc_case'})) $case_link{'enc_case'} = '';
+    if($case_link{'pc_eid'}) {
+        $sql = 'SELECT oe.pc_case, c.*, c.id AS case_id, users.* FROM ' .
+          'openemr_postcalendar_events AS oe LEFT JOIN form_cases AS c ' .
+          'ON (oe.pc_case = c.id) LEFT JOIN users ON (c.employer = users.id) ' .
+          'WHERE oe.pc_eid = ?';
+    $case = sqlQuery($sql, array($case_link{'pc_eid'}));
+        } else if($case_link{'enc_case'}) {
+            $sql = 'SELECT c.*, c.id AS case_id, users.* FROM ' .
+              'form_cases AS c LEFT JOIN users ON (c.employer = users.id) ' .
+              'WHERE c.id = ?';
+            $case = sqlQuery($sql, array($case_link{'enc_case'}));
+    }
+    if(!isset($case{'case_id'})) $case{'case_id'} = '';
+    $result{'form_case'} = $case{'case_id'};
+    if($case{'case_id'}) $case_desc = oeFormatShortDate($case{'form_dt'}) . 
+        ' - [ ' . $case{'case_description'} . ' ]';
+    /* End */
+
     if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
         echo "<body>\n<html>\n";
         echo "<p>" . xlt('You are not authorized to see this encounter.') . "</p>\n";
@@ -81,6 +108,16 @@ if ($viewmode) {
         exit();
     }
 }
+
+/* OEMR - A */
+$sql= 'SELECT * FROM `form_cases` WHERE `pid` = ? ORDER BY `form_dt` '.
+    'DESC LIMIT 1';
+$frow = sqlQuery($sql, array($pid));
+if(!isset($frow{'id'})) $frow{'id'} = '';
+if(!isset($frow{'closed'})) $frow{'closed'} = '';
+$recent_case = $frow{'id'};
+$recent_closed = $frow{'closed'};
+/* End */
 
 $displayMode = ($viewmode && $mode !== "followup") ? "edit" : "new";
 
@@ -109,7 +146,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 ?>
 <!DOCTYPE html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'common', 'jquery', 'oemr_ad']); ?>
     <title><?php echo xlt('Patient Encounter'); ?></title>
 
 
@@ -120,6 +157,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
     <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
+
+    <!-- OEMR - A -->
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/wmt-v2/wmtpopup.js"></script>
+
     <script>
         const mypcc = '' + <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
@@ -151,9 +192,74 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
         ?>
         let collectvalidation = <?php echo $collectthis; ?>;
         $(function () {
-            window.saveClicked = function (event) {
+            window.saveClicked = async function (event) {
                 const submit = submitme(1, event, 'new-encounter-form', collectvalidation);
                 if (submit) {
+                    /* OEMR - A */
+                    var case_id = document.getElementById('form_case');
+                    if(case_id != null) case_id = case_id.value;
+
+                        if(!case_id || case_id == 0) {
+                            var cCount = await caseCount('<?php echo $pid; ?>');
+                            cCount = 0;
+                            if(Number(cCount) > 0) {
+                                alert('<?php echo xls("You must choose a case"); ?>');
+                                return false;
+                            }
+                        }
+
+                    if(!case_id || case_id == 0) {
+                        var cCount = await caseCount('<?php echo $pid; ?>');
+
+                        if(Number(cCount) > 0) {
+                            alert('<?php echo xls("You must choose a case"); ?>');
+                            $('#form_save').attr('disabled', false);
+                            return false;
+                        } else {
+                            var msg = '<?php echo xls('Case will be created'); ?>';
+                            alert(msg);
+                        }
+                    } else {
+                        var isRecentCaseInActive = await checkRecentInactive('<?php echo $pid; ?>',case_id);
+                        if(isRecentCaseInActive == true) {
+                            var msg1 = '<?php echo xls('Selected case is inactive. Choose "OK" to save the chosen case and change the case state from inactive to active.  Choose "Cancel" to choose another case or create a new case'); ?>?';
+                            var confirmRes  = confirm(msg1);
+                            if(confirmRes) {
+                                var activateCaseDAta = await activateCase('<?php echo $pid; ?>', case_id)
+                            } else if(!confirmRes) {
+                                return false;
+                            }
+                        }
+                    }
+
+                  // if(!case_id || case_id == 0) {
+                  //   var msg = '<?php //echo xls('Create a new case for this encounter?'); ?>?';
+                  //   <?php if($recent_case) { ?>
+                  //     msg = '<?php //echo xls('Use the most recent existing case for this encounter'); ?>?';
+                  //     <?php if($recent_closed) { ?>
+                  //         msg = '<?php //echo xls('Use most recent existing case for this encounter, even though it is closed'); ?>?';
+                  //     <?php } ?>
+                  //     if(!confirm(msg)) {
+                  //       msg = '<?php //echo xls('Create a new case for this encounter'); ?>?';
+                  //     } else {
+                  //        top.restoreSession();
+                  //        $('#new-encounter-form').submit();
+                  //        return;
+                  //     }
+                  //   <?php } ?>
+
+                  //   if(!confirm(msg)) {
+                  //     alert('<?php //echo xls("Then you must choose a case"); ?>');
+                  //     // $('#form_save').attr('disabled', false);
+                  //     return;
+                  //   } else {
+                  //     <?php if($recent_case) { ?>
+                  //       document.getElementById('force_new').value = 1;
+                  //     <?php } ?>
+                  //   }
+                  // }
+                  /* End */
+                  
                     top.restoreSession();
                     $('#new-encounter-form').submit();
                 }
@@ -239,6 +345,26 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             location.href = '<?php echo "$rootdir/patient_file/encounter/forms.php"; ?>';
             return false;
         }
+
+        /* OEMR - A */
+        // This is for callback by the find-patient popup.
+        function setCase(case_id, case_dt, desc) {
+          var decodedDesc = '';
+          if(desc) decodedDesc = window.atob(desc);
+          var desc = case_dt + ' - [ ' + decodedDesc + ' ]';
+            var target = document.getElementById('case_desc');
+            while(target.firstChild) {
+                target.removeChild( target.firstChild );
+            }
+            target.appendChild( document.createTextNode(desc));
+            document.getElementById('form_case').value = case_id;
+        }
+
+        function sel_case() {
+          var href = "<?php echo $rootdir; ?>/forms/cases/case_list.php?mode=choose&popup=pop&pid=<?php echo $pid; ?>";
+          dlgopen(href, 'findCase', 'modal-lg', '800', '', '<?php echo xlt('Case List'); ?>');
+        }
+        /* End */
 
     </script>
     <style>
@@ -327,6 +453,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             <?php } else { ?>
                 <input type='hidden' name='mode' value='new' />
             <?php } ?>
+            <!-- OEMR - A -->
+            <input type=hidden name='force_new' id="force_new" value='0'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <?php if ($mode === "followup") { ?>
@@ -487,9 +615,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                     $pc = new POSRef();
                                     foreach ($pc->get_pos_ref() as $pos) {
                                         echo "<option value=\"" . attr($pos["code"]) . "\"";
+                                        // OEMR - Condition Change
                                         if (
-                                            ($pos["code"] == ($result['pos_code'] ?? '') && $viewmode)
-                                            || ($pos["code"] == ($posCode ?? '') && !$viewmode)
+                                            ($pos["code"] == ($result['pos_code'] ?? '') || $pos["code"] == $posCode)
                                         ) {
                                             echo " selected";
                                         }
@@ -503,39 +631,49 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     </div>
 
                     <div class="form-row align-items-center">
+                        <!-- OEMR - Change -->
                         <div class="col-sm">
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for='provider_id' class="text-right"><?php echo xlt('Encounter Provider'); ?>:</label>
                                 <select name='provider_id' id='provider_id' class='form-control' onChange="newUserSelected()">
                                     <?php
-                                    if ($viewmode) {
-                                        $provider_id = $result['provider_id'];
-                                    }
-                                    $userService = new UserService();
-                                    $users = $userService->getActiveUsers();
-                                    foreach ($users as $activeUser) {
-                                        $p_id = (int)$activeUser['id'];
-                                        // Check for the case where an encounter is created by non-auth user
-                                        // but has permissions to create/edit encounter.
-                                        $flag_it = "";
-                                        if ($activeUser['authorized'] != 1) {
-                                            if ($p_id === (int)($result['provider_id'] ?? null)) {
-                                                $flag_it = " (" . xlt("Non Provider") . ")";
-                                            } else {
-                                                continue;
-                                            }
-                                        }
-                                        echo "<option value='" . attr($p_id) . "'";
-                                        if ((int)$provider_id === $p_id) {
-                                            echo "selected";
-                                        }
-                                        echo ">" . text($activeUser['lname']) . ' ' .
-                                            text($activeUser['fname']) . ' ' . text($activeUser['mname']) . $flag_it . "</option>\n";
-                                    }
+                                    // if ($viewmode) {
+                                    //     $provider_id = $result['provider_id'];
+                                    // }
+                                    // $userService = new UserService();
+                                    // $users = $userService->getActiveUsers();
+                                    // foreach ($users as $activeUser) {
+                                    //     $p_id = (int)$activeUser['id'];
+                                    //     // Check for the case where an encounter is created by non-auth user
+                                    //     // but has permissions to create/edit encounter.
+                                    //     $flag_it = "";
+                                    //     if ($activeUser['authorized'] != 1) {
+                                    //         if ($p_id === (int)($result['provider_id'] ?? null)) {
+                                    //             $flag_it = " (" . xlt("Non Provider") . ")";
+                                    //         } else {
+                                    //             continue;
+                                    //         }
+                                    //     }
+                                    //     echo "<option value='" . attr($p_id) . "'";
+                                    //     if ((int)$provider_id === $p_id) {
+                                    //         echo "selected";
+                                    //     }
+                                    //     echo ">" . text($activeUser['lname']) . ' ' .
+                                    //         text($activeUser['fname']) . ' ' . text($activeUser['mname']) . $flag_it . "</option>\n";
+                                    // }
                                     ?>
+                                </select>
+                            </div> -->
+
+                            <div class="form-group">
+                                <label for='provider_id' class="text-right"><?php echo xlt('Provider:'); ?></label>
+                                <select name='provider_id' id='provider_id' class='form-control' <?php echo $approved ? 'disabled="disabled"' : ''; ?> <?php echo $approved ? 'title="This encounter has approved forms, the provider cannot be changed"' : ''; ?>>
+                                    <option value=""><?php echo xlt('-- Please Select --'); ?></option>
+                                    <?php ProviderSelect($result['provider_id'], false); ?>
                                 </select>
                             </div>
                         </div>
+                        <!-- End -->
                         <div class="col-sm <?php displayOption('enc_enable_referring_provider');?>">
                             <div class="form-group">
                                 <label for='referring_provider_id' class="text-right"><?php echo xlt('Referring Provider'); ?>:</label>
@@ -567,9 +705,17 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                         if ($def_facility === $iter['id']) {
                                             $selected_fac = " selected";
                                             if (!$viewmode) {
-                                                $posCode = $iter['pos_code'];
+                                                // OEMR - Commented
+                                                //$posCode = $iter['pos_code'];
                                             }
-                                        } ?>
+                                        }
+
+                                        /* OEMR - A */
+                                        if ($iter['billing_location'] == 1) {
+                                            $posCode = $iter['pos_code'];
+                                        }
+                                        /* End */
+                                    ?>
                                     <option value="<?php echo attr($iter['id']); ?>"<?php echo $selected_fac; ?>><?php echo text($iter['name']); ?></option>
                                     <?php } ?>
                                 </select>
@@ -598,7 +744,30 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         </div>
                     </div>
+                    <!-- OEMR - A -->
                     <div class="form-row align-items-center">
+                        <!-- Provider/Supervisor -->
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for='form_case' class="text-right"><?php echo xlt('Case:'); ?></label>
+                                <input type='text' name='form_case' class='form-control' id="form_case" placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo $result['form_case']; ?>' onclick='sel_case()' <?php echo $approved ? 'disabled="disabled"' : ''; ?> <?php echo $approved ? 'title="This encounter has approved forms, the case cannot be changed"' : ''; ?> />
+                                <div>
+                                    <i><span id="case_desc"><?php echo $case_desc; ?></span></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for='supervisor_id' class="text-right"><?php echo xlt('Supervisor:'); ?></label>
+                                <select name='supervisor_id' id='supervisor_id' class='form-control' <?php echo $approved ? 'disabled="disabled"' : ''; ?> <?php echo $approved ? 'title="This encounter has approved forms, the provider cannot be changed"' : ''; ?>>
+                                    <option value=""><?php echo xlt('-- Please Select --'); ?></option>
+                                    <?php SupervisorSelect($result['supervisor_id'], false); ?>
+                                </select>
+                            </div>
+                        </div>    
+                    </div>
+                    <!-- End -->
+                    <div class="form-row">
                         <!-- Discharge Disposition -->
                         <div class="col-sm <?php displayOption('enc_enable_discharge_disposition'); ?>">
                             <div class="form-group">
