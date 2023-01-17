@@ -1,9 +1,6 @@
-<a href="{$CURRENT_ACTION}action=edit" onclick="top.restoreSession()"
-   class="btn btn-secondary btn-add">
-    {xlt t='Add a Company'}</a>
-    {headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
-    <br /><br />
-<div class="table-responsive">
+{headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
+<a href="{$CURRENT_ACTION}action=edit" onclick="top.restoreSession()" class="btn btn-secondary btn-add">{xlt t='Add a Company'}</a>
+<div class="table-responsive pt-3">
     <table class="table table-striped" id="insurance">
       <thead>
           <tr>
@@ -40,12 +37,9 @@
           {/foreach}
       </tbody>
   </table>
-    <script>
-        {literal}
-        $(document).ready(function () {
-            $('#insurance').DataTable();
-        });
-        {/literal}
-
-    </script>
 </div>
+<script>
+$(document).ready(function () {
+    $('#insurance').DataTable();
+});
+</script>
