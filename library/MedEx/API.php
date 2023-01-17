@@ -367,17 +367,12 @@ class Events extends Base
                     $timing2 = ($timing + 1) . ":1:1";
                 }
 
-                if ($info['ME_hipaa_default_override'] != '1') {
-                    $hipaa_override = " and hipaa_notice='YES' AND ";
-                }
-
                 if (!empty($prefs['ME_facilities'])) {
                     $places = str_replace("|", ",", $prefs['ME_facilities']);
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                 LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                 WHERE
                                 " . $target_lang . "
-                                " . $hipaa_override . "
                                 (
                                   (
                                     pc_eventDate > CURDATE() " . $interval . " INTERVAL " . $timing . " DAY AND
@@ -1688,10 +1683,7 @@ class Display extends base
                                                            title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>".
                                                             <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
                                                             <?php echo xlt('Assume patients receive HIPAA policy'); ?>
-                                                     </label><br />
-                                                     <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes'] == '1') {
-                                                                echo "checked='checked'";} ?> /><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
-                                                               <?php echo xlt('Assume patients permit Messaging'); ?></label>
+                                                     </label>
                                                     </div>
                                                 </div>
                                                 <div class="divTableRow">

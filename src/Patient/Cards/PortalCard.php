@@ -59,7 +59,7 @@ class PortalCard extends CardModel
 
     private function renderCard()
     {
-        $dispatchResult = $this->ed->dispatch(RenderEvent::EVENT_HANDLE, new RenderEvent(self::CARD_ID));
+        $dispatchResult = $this->ed->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $this->opts['templateVariables']['prependedInjection'] = $dispatchResult->getPrependedInjection();
         $this->opts['templateVariables']['appendedInjection'] = $dispatchResult->getAppendedInjection();
     }

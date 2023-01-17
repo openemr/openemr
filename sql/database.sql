@@ -3161,6 +3161,7 @@ CREATE TABLE `insurance_data` (
   `policy_type` varchar(25) NOT NULL default '',
   `subscriber_street_line_2` TINYTEXT,
   `subscriber_employer_street_line_2` TINYTEXT,
+  `date_end` date NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
@@ -6922,6 +6923,7 @@ CREATE TABLE `module_configuration` (
   `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the record was initially created',
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified',
+  `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created',
   PRIMARY KEY (`module_config_id`)
 ) ENGINE=InnoDB;
 
@@ -7829,7 +7831,7 @@ INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:1
 INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
 INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding', NULL);
 INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding', NULL);
-INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '',1,0,'patients|lab', NULL);
+INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Orders', '',1,0,'patients|lab', NULL);
 INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
 INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
 INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
@@ -13218,7 +13220,7 @@ CREATE TABLE `form_questionnaire_assessments` (
   `date` datetime DEFAULT current_timestamp(),
   `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository',
   `pid` bigint(21) NOT NULL DEFAULT 0,
-  `user` bigint(21) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
   `authorized` tinyint(4) NOT NULL DEFAULT 0,
   `activity` tinyint(4) NOT NULL DEFAULT 1,

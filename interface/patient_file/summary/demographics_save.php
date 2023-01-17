@@ -97,6 +97,7 @@ if (!empty($addressFieldsToSave)) {
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
+$i1date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date_end"));
 
 newInsuranceData(
     $pid,
@@ -127,14 +128,15 @@ newInsuranceData(
     filter_input(INPUT_POST, 'form_i1subscriber_sex'),
     $i1date,
     filter_input(INPUT_POST, 'i1accept_assignment'),
-    filter_input(INPUT_POST, 'i1policy_type')
+    filter_input(INPUT_POST, 'i1policy_type'),
+    $i1date_end
 );
 
 //Dont save more than one insurance since only one is allowed / save space in DB
 if (!$GLOBALS['insurance_only_one']) {
     $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
     $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
-
+    $i2date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date_end"));
 
     newInsuranceData(
         $pid,
@@ -165,11 +167,13 @@ if (!$GLOBALS['insurance_only_one']) {
         filter_input(INPUT_POST, 'form_i2subscriber_sex'),
         $i2date,
         filter_input(INPUT_POST, 'i2accept_assignment'),
-        filter_input(INPUT_POST, 'i2policy_type')
+        filter_input(INPUT_POST, 'i2policy_type'),
+        $i2date_end
     );
 
     $i3dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
     $i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
+    $i3date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date_end"));
 
     newInsuranceData(
         $pid,
@@ -200,7 +204,8 @@ if (!$GLOBALS['insurance_only_one']) {
         filter_input(INPUT_POST, 'form_i3subscriber_sex'),
         $i3date,
         filter_input(INPUT_POST, 'i3accept_assignment'),
-        filter_input(INPUT_POST, 'i3policy_type')
+        filter_input(INPUT_POST, 'i3policy_type'),
+        $i3date_end
     );
 }
 

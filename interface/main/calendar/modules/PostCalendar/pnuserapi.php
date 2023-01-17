@@ -926,7 +926,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(CalendarFilterEvent::EVENT_HANDLE, $calFilterEvent, 10);
+    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE, 10);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 

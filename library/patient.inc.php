@@ -1297,7 +1297,8 @@ function newInsuranceData(
     $subscriber_sex = "",
     $effective_date = null,
     $accept_assignment = "TRUE",
-    $policy_type = ""
+    $policy_type = "",
+    $effective_date_end = null
 ) {
 
     if (strlen($type) <= 0) {
@@ -1317,6 +1318,9 @@ function newInsuranceData(
     }
     if (empty($subscriber_DOB)) {
         $subscriber_DOB = null;
+    }
+    if (empty($effective_date_end)) {
+        $effective_date_end = null;
     }
 
     $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .
@@ -1395,6 +1399,7 @@ function newInsuranceData(
         $data['date'] = $effective_date;
         $data['accept_assignment'] = $accept_assignment;
         $data['policy_type'] = $policy_type;
+        $data['date_end'] = $effective_date_end;
         updateInsuranceData($idrow['id'], $data);
         return $idrow['id'];
     } else {
@@ -1427,7 +1432,8 @@ function newInsuranceData(
             `pid` = ?,
             `date` = ?,
             `accept_assignment` = ?,
-            `policy_type` = ?",
+            `policy_type` = ?,
+            `date_end` = ?",
             [
                 $type,
                 $provider,
@@ -1457,7 +1463,8 @@ function newInsuranceData(
                 $pid,
                 $effective_date,
                 $accept_assignment,
-                $policy_type
+                $policy_type,
+                $effective_date_end
             ]
         );
     }

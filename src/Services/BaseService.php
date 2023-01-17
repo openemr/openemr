@@ -188,16 +188,14 @@ class BaseService
             if ($value === null || $value === false) {
                 $value = $null_value;
             }
-
-            $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            // for dates which should be saved as null
-            if (
-                empty($value) &&
-                (strpos($key, 'date') !== false)
-            ) {
-                $bind[] = null;
-            } else {
-                $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            if (!empty($key)) {
+                $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
+                // for dates which should be saved as null
+                if (empty($value) && (strpos($key, 'date') !== false)) {
+                    $bind[] = null;
+                } else {
+                    $bind[] = ($value === null || $value === false) ? $null_value : $value;
+                }
             }
         }
 
@@ -238,7 +236,12 @@ class BaseService
             }
             if (!in_array($key, $this->fields)) {
                 // placeholder. could be for where clauses
-                $bind[] = ($value == 'NULL') ? $null_value : $value;
+                /*
+                 * // Patched out 11/15/22 to match buildInsertColumns()
+                 * WHERE part should be handled by calling method.
+                 * Also prevents adding a bind because of a missing column in query part.
+                 * $bind[] = ($value == 'NULL') ? $null_value : $value;
+                */
                 continue;
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
@@ -248,15 +251,13 @@ class BaseService
                 // in case unwanted values passed in.
                 continue;
             }
-
-            $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            if (
-                empty($value) &&
-                (strpos($key, 'date') !== false)
-            ) {
-                $bind[] = null;
-            } else {
-                $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            if (!empty($key)) {
+                $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
+                if (empty($value) && (strpos($key, 'date') !== false)) {
+                    $bind[] = null;
+                } else {
+                    $bind[] = $value;
+                }
             }
         }
 

@@ -76,7 +76,7 @@ function oeFormatTime($time, $format = "global", $seconds = false)
  */
 function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
 {
-    return oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 11), $formatTime, $seconds);
+    return oeFormatShortDate(substr($datetime ?? '', 0, 10)) . " " . oeFormatTime(substr($datetime ?? '', 11), $formatTime, $seconds);
 }
 
 /**

@@ -118,6 +118,11 @@ class ModulesApplication
         $this->application->run();
     }
 
+    public function getServiceManager(): ServiceManager
+    {
+        return $this->application->getServiceManager();
+    }
+
     /**
      * Given a list of module files (javascript, css, etc) make sure they are locked down to be just inside the modules
      * folder.  The intent is to prevent module writers from including files outside the modules installation directory.

@@ -201,7 +201,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
-$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientFinderFilterEvent::EVENT_HANDLE, $patientFinderFilterEvent, 10);
+$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE, 10);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
 $customWhere = $boundFilter->getFilterClause();
 $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);

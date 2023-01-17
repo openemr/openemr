@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Menu;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientMenuEvent extends Event
 {

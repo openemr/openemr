@@ -452,7 +452,7 @@ class HTML_TreeNode
     * @access public
     * @param  object $node The new node
     */
-    function &addItem(&$node)
+    function &addItem($node)
     {
         $node->parent  = &$this;
         $this->items[] = &$node;

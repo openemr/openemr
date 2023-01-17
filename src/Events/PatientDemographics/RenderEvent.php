@@ -9,7 +9,7 @@
 
 namespace OpenEMR\Events\PatientDemographics;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  *  Event object for restricting access to users viewing patients' demographics screen
@@ -34,6 +34,13 @@ class RenderEvent extends Event
      * list.
      */
     const EVENT_SECTION_LIST_RENDER_AFTER = 'patientDemographics.render.section.after';
+
+    /**
+     * This event occurs after a patient demographics page has been rendered
+     * It allows event listeners to render additional functionality after the page
+     * has loaded.
+     */
+    const EVENT_RENDER_POST_PAGELOAD = 'patientDemographics.render.post_page_load';
 
     /**
      * @var null|integer

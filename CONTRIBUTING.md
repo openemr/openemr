@@ -9,6 +9,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 ---
 
 ### Starting with OpenEMR Development Docker Environment
+- For the highly recommended free course "You Can Be a OpenEMR Developer in 5 Easy Steps", click below:
+
+    [You Can Be a OpenEMR Developer in 5 Easy Steps](https://www.open-emr.org/blog/you-can-be-a-openemr-developer-in-5-easy-steps/)
 
 - For the Video Tutorial, click below:
 
@@ -49,11 +52,13 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - Use `username/user`: openemr, `password`: openemr .
 6. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on.
 
-    - For the Video Tutorial, click below:
+    - For the Video Tutorials, click below:
 
       [![Getting Started Video Tutorial](Documentation/images/easy-dev-vscode-xdebug.png)](https://youtu.be/XJl7SQGNhpw)
 
-      - (Recommend using Ubuntu Desktop 22.04 for above video and other videos in the [OpenEMR Easy Docker Development Environment Video Series](https://www.youtube.com/playlist?list=PLFiWG_dDadgQT7zjqvEqbXm1OiuubOVO8). Easiest way to do this is setting up a [Ubuntu Desktop 22.04 Virtual Machine on VirtualBox](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox), which recommend configuring with 40GB hard drive, assigning 25% of computer memory, and assigning 25% of cpu cores to the virtual machine.)
+      [![Getting Started Video Tutorial](Documentation/images/easy-dev-advanced-vscode-xdebug.png)](https://youtu.be/0dEYDHWECMI)
+
+      - (Recommend using Ubuntu Desktop 22.04 for above videos and other videos in the [OpenEMR Easy Docker Development Environment Video Series](https://www.youtube.com/playlist?list=PLFiWG_dDadgQT7zjqvEqbXm1OiuubOVO8). Easiest way to do this is setting up a [Ubuntu Desktop 22.04 Virtual Machine on VirtualBox](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox), which recommend configuring with 40GB hard drive, assigning 25% of computer memory, and assigning 25% of cpu cores to the virtual machine.)
 
     - An exception to this is if making changes to styling scripts in interface/themes/. In that case will need to clear web browser cache and run the following command to rebuild the theme files:
       ```sh
@@ -164,7 +169,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools register-oauth2-client-demo https://eleven.openemr.io/a/openemr'
           ```
 3. <a name="other_php_versions"></a>Testing other PHP versions.
-    - The standard `flex` docker used in the easy development environments is PHP 8.1. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.0, then just need to change it to `image: openemr/openemr:flex-3.15-8`. To use PHP 7.4, then just need to change it to `image: openemr/openemr:flex-3.15`.
+    - The standard `flex` docker used in the easy development environments is PHP 8.1. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.0, then just need to change it to `image: openemr/openemr:flex-3.15-8`. To use PHP 8.2, then just need to change it to `image: openemr/openemr:flex-edge`.
 4. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh

@@ -272,7 +272,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <?php
 
-                            $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
+                            $eventDispatcher->dispatch(new GenericEvent(), PatientReportEvent::ACTIONS_RENDER_POST);
 
                         ?>
                         <input type='hidden' name='pdf' value='0' />
@@ -755,7 +755,7 @@ $(function () {
 
     <?php
         //event dispatch
-        $eventDispatcher->dispatch(PatientReportEvent::JAVASCRIPT_READY_POST, new GenericEvent());
+        $eventDispatcher->dispatch(new GenericEvent(), PatientReportEvent::JAVASCRIPT_READY_POST);
 
     ?>
 

@@ -306,7 +306,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <status>" . xmlEscape($result['status'] ?: "") . "</status>
             <status_code>" . xmlEscape($result['status'] ? strtoupper(substr($result['status'], 0, 1)) : 0) . "</status_code>
             <phone_home>" . xmlEscape(($result['phone_home'] ?: '')) . "</phone_home>
-            <phone_mobile>" . xmlEscape(($result['phone_home'] ? $result['phone_cell'] : '')) . "</phone_mobile>
+            <phone_mobile>" . xmlEscape(($result['phone_cell'] ? $result['phone_cell'] : '')) . "</phone_mobile>
+            <phone_work>" . xmlEscape(($result['phone_biz'] ?: '')) . "</phone_work>
+            <phone_emergency>" . xmlEscape(($result['phone_contact'] ?: '')) . "</phone_emergency>
             <email>" . xmlEscape(($result['email'] ?: '')) . "</email>
             <religion>" . xmlEscape(Listener::z_xlt($result['religion'] ?: "")) . "</religion>
             <religion_code>" . xmlEscape($result['religion_code'] ?: '') . "</religion_code>
@@ -497,13 +499,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         if (!$details) {
             $providerId = $this->getProviderId($pid);
-            if (empty($providerId)) {
-                // at this point we really can't do anything as we can't provide an author piece
-                (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
-                return null;
+            if (!empty($providerId)) {
+                $details = $this->getDetails(intval($providerId));
             }
-            $details = $this->getDetails(intval($providerId));
+            if (!$details) {
+                $details = $this->getDetails('hie_primary_care_provider_id');
+            }
         }
+        if (!$details) {
+            // at this point we really can't do anything as we can't provide an author piece
+            (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
+            return null;
+        }
+
         return $details;
     }
 
@@ -921,7 +929,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         // Note for NPI: Many times a care team member may not have an NPI so instead of
         // an NPI OID use facility/document unique OID with user table reference for extension.
-        $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid));
+        $get_care_team_provider = explode("|", $this->getCareTeamProviderId($pid) ?? '');
         if (empty($getprovider)) {
             // Last chance. Get the first care team member as primary.
             if (!empty($get_care_team_provider[0])) {
@@ -1225,8 +1233,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $code_text = lookup_code_descriptions($single_code);
 
                 $age = $this->getAge($pid, $row['begdate']);
-                $start_date = str_replace('-', '', $row['begdate']);
-                $end_date = str_replace('-', '', $row['enddate']);
+                $start_date = str_replace('-', '', $row['begdate'] ?? '');
+                $end_date = str_replace('-', '', $row['enddate'] ?? '');
 
                 $status = $status_table = '';
                 $start_date = $start_date ?: '0';
@@ -1698,7 +1706,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $primary_diagnosis = '';
         $results = "<encounter_list>";
         foreach ($res as $row) {
-            $tmp = explode(":", $row['physician_type_code']);
+            $tmp = explode(":", $row['physician_type_code'] ?? '');
             $physician_code_type = str_replace('-', ' ', $tmp[0]);
             $row['physician_type_code'] = $tmp[1] ?? '';
             $date_zone = !empty($row['date']) ? date("Y-m-d H:i:sO", strtotime(($row['date']))) : '';
@@ -1759,25 +1767,25 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     // diagnosis for care plan forms etc.
                     if ($i === 1) {
                         $encounter_diagnosis = "
-                <encounter_diagnosis>
-                <extension>" . $issue_ext . "</extension>
-                <code>" . xmlEscape($tmp[1]) . "</code>
-                <code_type>" . xmlEscape($code_type) . "</code_type>
-                <text>" . xmlEscape(Listener::z_xlt($issue['title'])) . "</text>
-                <status>" . xmlEscape($encounter_activity) . "</status>
-                </encounter_diagnosis>";
+                        <encounter_diagnosis>
+                        <extension>" . $issue_ext . "</extension>
+                        <code>" . xmlEscape($tmp[1]) . "</code>
+                        <code_type>" . xmlEscape($code_type) . "</code_type>
+                        <text>" . xmlEscape(Listener::z_xlt($issue['title'])) . "</text>
+                        <status>" . xmlEscape($encounter_activity) . "</status>
+                        </encounter_diagnosis>";
                         if (empty($primary_diagnosis) && !empty($code_type)) {
                             $primary_diagnosis = "
-                    <primary_diagnosis>
-                    <root>" . xmlEscape($encounter_root) . "</root>
-                    <extension>" . xmlEscape($encounter_ext) . "</extension>
-                    <encounter_date>" . xmlEscape($date_zone) . "</encounter_date>
-                    <encounter_end_date>" . xmlEscape($date_zone_end) . "</encounter_end_date>
-                    <code>" . xmlEscape($tmp[1] ?? '') . "</code>
-                    <code_type>" . xmlEscape($code_type ?? '') . "</code_type>
-                    <text>" . xmlEscape(Listener::z_xlt($issue['title'] ?? '')) . "</text>
-                    <status>" . xmlEscape($encounter_activity ?? '') . "</status>
-                    </primary_diagnosis>";
+                        <primary_diagnosis>
+                        <root>" . xmlEscape($encounter_root) . "</root>
+                        <extension>" . xmlEscape($encounter_ext) . "</extension>
+                        <encounter_date>" . xmlEscape($date_zone) . "</encounter_date>
+                        <encounter_end_date>" . xmlEscape($date_zone_end) . "</encounter_end_date>
+                        <code>" . xmlEscape($tmp[1] ?? '') . "</code>
+                        <code_type>" . xmlEscape($code_type ?? '') . "</code_type>
+                        <text>" . xmlEscape(Listener::z_xlt($issue['title'] ?? '')) . "</text>
+                        <status>" . xmlEscape($encounter_activity ?? '') . "</status>
+                        </primary_diagnosis>";
                         }
                     }
                 }
@@ -2493,7 +2501,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 JOIN form_vitals AS fv ON fv.id = f.form_id
                 LEFT JOIN users as u on u.username = fv.user
                 WHERE f.pid = ? AND f.formdir = 'vitals' AND f.deleted=0 $wherCon
-                ORDER BY fe.date DESC LIMIT 1";
+                ORDER BY fe.date DESC";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, array($pid));
 
@@ -2641,7 +2649,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $social_history .= "<social_history>";
         foreach ($res as $row) {
-            $tobacco = explode('|', $row['tobacco']);
+            $tobacco = explode('|', $row['tobacco'] ?? '');
             $status_code = (new CarecoordinationTable())->getListCodes($tobacco[3] ?? '', 'smoking_status');
             $status_code = str_replace("SNOMED-CT:", "", $status_code);
             $provenanceRecord = [
@@ -2660,7 +2668,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <date_formatted>" . (($tobacco[2] ?? '') ? xmlEscape(preg_replace('/-/', '', $tobacco[2])) : '') . "</date_formatted>
                                   <code>" . xmlEscape(($arr['smoking'] ? $arr['smoking'] : '')) . "</code>
                             </history_element>";
-            $alcohol = explode('|', $row['alcohol']);
+            $alcohol = explode('|', $row['alcohol'] ?? '');
             $social_history .= "<history_element>" . $provenanceXml . "
                                   <extension>" . xmlEscape(base64_encode('alcohol' . $_SESSION['site_id'] . $row['id'])) . "</extension>
                                   <sha_extension>" . xmlEscape("37f76c51-6411-4e1d-8a37-957fd49d2cef") . "</sha_extension>

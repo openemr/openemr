@@ -37,7 +37,7 @@ $result2 = getEmployerData($pid);
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UpdateEvent::EVENT_HANDLE, $updateEvent, 10);
+    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE, 10);
 
     if (
         !$updateEvent->authorized() ||
@@ -673,6 +673,18 @@ if (! $GLOBALS['simplified_demographics']) {
                id='i<?php echo attr($i); ?>effective_date'
                name='i<?php echo attr($i); ?>effective_date'
                value='<?php echo attr(oeFormatShortDate($result3['date'] ?? '')); ?>' />
+            </div>
+          </div><!-- end nested row -->
+
+          <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pb-1 label_custom ">
+              <span class='required'><?php echo xlt('Effective Date End'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type='entry' size='16' class='datepicker form-control form-control-sm mb-1'
+               id='i<?php echo attr($i); ?>effective_date_end'
+               name='i<?php echo attr($i); ?>effective_date_end'
+               value='<?php echo attr(oeFormatShortDate($result3['date_end'] ?? '')); ?>' />
             </div>
           </div><!-- end nested row -->
 

@@ -3,7 +3,7 @@
 namespace OpenEMR\Events\RestApiExtend;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class RestApiCreateEvent extends Event
 {

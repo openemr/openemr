@@ -318,7 +318,7 @@ if ($isLocalApi) {
 
 //Extend API using RestApiCreateEvent
 $restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP, $restRequest);
-$restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
+$restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE, 10);
 $gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
 $gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
 $gbl::$PORTAL_ROUTE_MAP = $restApiCreateEvent->getPortalRouteMap();
