@@ -117,7 +117,7 @@ $.fn.attachment = function (opts = {}) {
                 //Li items.
                 let liItem = document.createElement('li');
                 liItem.className = liClass;
-                let clickFun = tempThis.clickable_link === true ? "gotoReport('"+itemData.data['doc_id']+"','"+itemData['pid']+"')" : "";
+                let clickFun = tempThis.clickable_link === true ? "handlegotoReport('"+itemData.data['doc_id']+"','"+itemData['pid']+"')" : "";
 
                 liItem.innerHTML = "<span><a href=\"javascript:void(0);\" onClick=\""+clickFun+"\">" + itemData['text_title'] + "</a>&nbsp;<span class=\"" + typeClass + "\">Document</span>&nbsp;- </span>";
                 liItem.appendChild(removeLink);

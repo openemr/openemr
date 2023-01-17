@@ -1041,27 +1041,49 @@ async function handleSetPatient(pid) {
         data: bodyObj
     });
 
+    if(result) {
+        return JSON.parse(result);
+    }
+
     return true;
 }
 
-function handleSetPatientData(pid, pubpid, pname, dobstr) {
-    parent.left_nav.setPatient(pname, pid, pubpid, '',dobstr);
+function handleSetPatientData(pid, pubpid = '', pname = '', dobstr = '') {
+    //parent.left_nav.setPatient(pname, pid, pubpid, '',dobstr);
+    top.RTop.location = top.webroot_url + "/interface/patient_file/summary/demographics.php?set_pid=" + pid;
+}
+
+async function handlegotoReport(doc_id, pid) {
+    const pData = await handleSetPatient(pid);
+    if(pData !== false && pData['data']) {
+        handleSetPatientData(pid, pData['data']['pubpid'], pData['data']['pname'], pData['data']['pdob']);
+    }
+    var docurl = '../controller.php?document&view' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
+    parent.left_nav.loadFrame('RTop', 'RTop', docurl);
+    //top.activateTabByName('enc', true);
 }
 
 // used to display the patient demographic and encounter screens
-async function handleGoToMessage(id, pid, pubpid, pname, dobstr) {
-    await handleSetPatient(pid);
-    handleSetPatientData(pid, pubpid, pname, dobstr);
-    top.RTop.location = top.webroot_url + "/interface/main/messages/messages.php?task=edit&noteid="+id;
+async function handleGoToMessage(id, pid, pubpid = '', pname = '', dobstr = '') {
+    const pData = await handleSetPatient(pid);
+    if(pData !== false && pData['data']) {
+        handleSetPatientData(pid, pData['data']['pubpid'], pData['data']['pname'], pData['data']['pdob']);
+    }
+
+    parent.left_nav.loadFrame('RTop', 'RTop', top.webroot_url + "/interface/main/messages/messages.php?task=edit&noteid="+id);
 }
 
-async function handleGoToOrder(id, pid, pubpid, pname, dobstr) {
-    await handleSetPatient(pid);
-    handleSetPatientData(pid, pubpid, pname, dobstr);
-    top.RTop.location = top.webroot_url + "/interface/forms/rto1/new.php?pop=db&id="+id;
+async function handleGoToOrder(id, pid, pubpid = '', pname = '', dobstr = '') {
+    const pData = await handleSetPatient(pid);
+    if(pData !== false && pData['data']) {
+        handleSetPatientData(pid, pData['data']['pubpid'], pData['data']['pname'], pData['data']['pdob']);
+    }
+
+    parent.left_nav.loadFrame('RTop', 'RTop', top.webroot_url + "/interface/forms/rto1/new.php?pop=db&id="+id);
+    //top.RTop.location = top.webroot_url + "/interface/forms/rto1/new.php?pop=db&id="+id;
 }
 
-function handleGoToEncounter(pid, pubpid, pname, enc, dobstr) {
+function handleGoToEncounter(pid, pubpid = '', pname = '', enc = '', dobstr = '') {
     top.restoreSession();
     handleLoadpatient(pid,enc);
 }

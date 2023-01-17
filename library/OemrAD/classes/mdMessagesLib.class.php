@@ -19,427 +19,6 @@ class MessagesLib {
 	function __construct(){
 	}
 
-	public static function internal_message_head() {
-		?>
-		<style type="text/css">
-			/*.ext_button_container {
-				display: inline-block;
-				margin-left: 30px;
-			}*/
-		</style>
-		<script type="text/javascript">
-
-			//let messagelib = MessageLib();
-
-			// var attachClassObject = null;
-
-			// $(document).ready(function(){
-			// 	attachClassObject = $('#itemsContainer').attachment({
-			// 		empty_title: "No items",
-			// 		onPrepareFiles: onPrepareFiles
-			// 	});
-			// });
-
-			// var selectedEncounterList = {};
-			// var selectedDocuments = {};
-			// var selectedMessages = {};
-			// var selectedOrders = {};
-
-			/*Handle Select Encounters*/
-			// function handleSelectEncounters() {
-			// 	var pid = $("#reply_to").val();
-
-			// 	if(pid == "") {
-			// 		alert("Please select patient");
-			// 		return false;
-			// 	}
-
-			// 	//Handle Encounter
-			// 	attachClassObject.handleEncounter(pid);
-
-			// 	// var url = '<?php //echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/msg_select_encounter.php"; ?>?pid='+pid;
-			// 	// dlgopen(url,'_blank', 1100, 300, '', 'Encounters', {
-			// 	// 	buttons: [
-			// 	// 		{text: '<?php //echo xla('Select'); ?>', click: handleEncountersCallBack, style: 'primary encountersaveBtn btn-sm'},
-		 //  //               {text: '<?php //echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
-		 //  //           ],
-		 //  //           onClosed: '',
-		 //  //           type: 'iframe',
-		 //  //           callBack: {call : '', args : pid}
-			// 	// });
-			// }
-
-			/*Handle Select Document*/
-			function handleDocuments() {
-				var pid = $("#reply_to").val();
-
-				if(pid == "") {
-					alert("Please select patient");
-					return false;
-				}
-
-
-				//Handle Document
-				attachClassObject.handleDocument(pid);
-
-				// var url = '<?php //echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/msg_select_document.php"; ?>?pid='+pid;
-				// dlgopen(url,'selectDocPop', 1100, 450, '', 'Documents', {
-				// 	buttons: [
-				// 		{text: '<?php //echo xla('Select'); ?>', click: handleDocumentCallBack, style: 'primary documentsaveBtn btn-sm'},
-		  //               {text: '<?php //echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
-		  //           ],
-		  //           onClosed: '',
-		  //           type: 'iframe',
-		  //           callBack: {call : '', args : pid}
-				// });
-			}
-
-			/*Handle Select Messages*/
-			// function handleMessages() {
-			// 	var pid = $("#reply_to").val();
-			// 	var assigned_to = '<?php //echo $_SESSION['authUser'] ?>';
-
-			// 	if(pid == "") {
-			// 		alert("Please select patient");
-			// 		return false;
-			// 	}
-
-			// 	//Handle Message
-			// 	attachClassObject.handleMessage(pid, { assigned_to: assigned_to});
-
-			// 	// var url = '<?php //echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/msg_select_messages.php"; ?>?pid='+pid+'&assigned_to='+assigned_to;
-			// 	// dlgopen(url,'selectDocPop', 1100, 450, '', 'Messages', {
-			// 	// 	buttons: [
-			// 	// 		{text: '<?php //echo xla('Select'); ?>', click: handleMessagesCallBack, style: 'primary messagesaveBtn btn-sm'},
-		 //  //               {text: '<?php //echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
-		 //  //           ],
-		 //  //           onClosed: '',
-		 //  //           type: 'iframe',
-		 //  //           callBack: {call : '', args : pid}
-			// 	// });
-			// }
-
-			/*Handle Select Document*/
-			// function handleOrders() {
-			// 	var pid = $("#reply_to").val();
-
-			// 	if(pid == "") {
-			// 		alert("Please select patient");
-			// 		return false;
-			// 	}
-
-			// 	//Handle Order
-			// 	attachClassObject.handleOrder(pid);
-
-			// 	// var url = '<?php //echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/msg_select_order.php"; ?>?pid='+pid;
-			// 	// dlgopen(url,'selectOrderPop', 1100, 450, '', 'Orders', {
-			// 	// 	buttons: [
-			// 	// 		{text: '<?php //echo xla('Select'); ?>', click: handleOrderCallBack, style: 'primary messagesaveBtn btn-sm'},
-		 //  //               {text: '<?php //echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
-		 //  //           ],
-		 //  //           onClosed: '',
-		 //  //           type: 'iframe',
-		 //  //           callBack: {call : '', args : pid}
-			// 	// });
-			// }
-
-			// function onPrepareFiles(items) {
-			// 	var finalList = {
-			// 		encounters : items['encounters'] ? items['encounters'] : {},
-			// 		documents : items['documents'] ? items['documents'] : {},
-			// 		messages : items['messages'] ? items['messages'] : {},
-			// 		orders : items['orders'] ? items['orders'] : {},
-			// 	};
-
-			// 	var finalListJSONStr = JSON.stringify(finalList);
-
-			// 	$('#filesDocList').val(finalListJSONStr);
-			// }
-
-			// function getIframeContentWindow(e) {
-			// 	return e.target.parentElement.parentElement.querySelector('iframe').contentWindow
-			// }
-
-			/*Handle Select Encounters*/
-			// function handleEncountersCallBack(e) {
-			// 	var iframeContentWindow = getIframeContentWindow(e);
-			// 	selectedEncounterList = iframeContentWindow.getSelectedEncounterList();
-				
-			// 	var output = [];
-			// 	$.each(selectedEncounterList, function(i, n){
-			// 	    var removeLink = "<a class=\"removeEncounterFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-			// 	    var clickFun = "goToEncounter('"+n['pid']+"', '"+n['pubpid']+"', '"+n['patientname']+"', '"+n['id']+"', '"+n['patientdob']+"')";
-			// 		output.push('<li><a href="javascript:void(0)" onClick="'+clickFun+'">', n['title'], '</a> - ', removeLink, '</li> ');
-			// 	});
-
-			// 	generateFinalList();
-
-			// 	$('.removeEncounterFile').parent().remove();
-			// 	$('#filesDoc').find("div .fileList").append(output.join(""));
-
-			// 	iframeContentWindow.document.dispatchEvent(new Event("close-dialog"));
-			// }
-
-			/*Handle Document Callback*/
-			// function handleDocumentCallBack(e) {
-			// 	var iframeContentWindow = getIframeContentWindow(e);
-			// 	selectedDocuments = iframeContentWindow.getSelectedDocumentList();
-
-			// 	var output = [];
-			// 	$.each(selectedDocuments, function(i, n){
-			// 	    var removeLink = "<a class=\"removeDocumentFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-			// 	    var clickFun = "gotoReport('"+n['id']+"','"+n['patient_name']+"','"+n['pid']+"','"+n['pubpid']+"','"+n['patient_DOB']+"')";
-			// 		output.push('<li><a href="javascript:void(0)" onClick="'+clickFun+'">', n['baseName'], '</a>&nbsp; &nbsp; - ', removeLink, '</li> ');
-			// 	});
-
-			// 	generateFinalList();
-
-			// 	$('.removeDocumentFile').parent().remove();
-			// 	$('#filesDoc').find("div .fileList").append(output.join(""));
-
-			// 	iframeContentWindow.document.dispatchEvent(new Event("close-dialog"));
-			// }
-
-			/*Handle Document Callback*/
-			// function handleMessagesCallBack(e) {
-			// 	var iframeContentWindow = getIframeContentWindow(e);
-			// 	selectedMessages = iframeContentWindow.getSelectedMessageList();
-
-			// 	var output = [];
-			// 	$.each(selectedMessages, function(i, n){
-			// 	    var removeLink = "<a class=\"removeMessagesFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-			// 	    var clickFun = "goToMessage('"+n['id']+"', '"+n['pid']+"', '"+n['pubpid']+"', '"+n['patientname']+"', '"+n['patientdob']+"')";
-			// 		output.push('<li><a href="javascript:void(0)" onClick="'+clickFun+'">'+removeBack(n['link_title'])+'</a>&nbsp; &nbsp; - ', removeLink, '</li> ');
-			// 	});
-
-			// 	generateFinalList();
-
-			// 	$('.removeMessagesFile').parent().remove();
-			// 	$('#filesDoc').find("div .fileList").append(output.join(""));
-
-			// 	iframeContentWindow.document.dispatchEvent(new Event("close-dialog"));
-			// }
-
-			/*Handle Order Callback*/
-			// function handleOrderCallBack(e) {
-			// 	var iframeContentWindow = getIframeContentWindow(e);
-			// 	selectedOrders = iframeContentWindow.getSelectedOrderList();
-
-			// 	var output = [];
-			// 	$.each(selectedOrders, function(i, n){
-			// 	    var removeLink = "<a class=\"removeOrdersFile\" href=\"#\" data-fileid=\"" + i + "\">Remove</a>";
-			// 	    var clickFun = "goToOrder('"+n['id']+"', '"+n['pid']+"', '"+n['pubpid']+"', '"+n['patientname']+"', '"+n['patientdob']+"')";
-			// 		output.push('<li><a href="javascript:void(0)" onClick="'+clickFun+'">'+removeBack(n['link_title'])+'</a>&nbsp; &nbsp; - ', removeLink, '</li> ');
-			// 	});
-
-			// 	generateFinalList();
-
-			// 	$('.removeOrdersFile').parent().remove();
-			// 	$('#filesDoc').find("div .fileList").append(output.join(""));
-
-			// 	iframeContentWindow.document.dispatchEvent(new Event("close-dialog"));
-			// }
-
-			// function generateFinalList() {
-			// 	var finalList = {
-			// 		encounters : selectedEncounterList,
-			// 		documents : selectedDocuments,
-			// 		messages : selectedMessages,
-			// 		orders : selectedOrders,
-			// 	};
-
-			// 	var finalListJSONStr = JSON.stringify(finalList);
-
-			// 	$('#filesDocList').val(finalListJSONStr);
-			// }
-
-			// async function setPatient(pid) {
-			// 	var bodyObj = { set_pid : pid};
-			// 	const result = await $.ajax({
-			// 		type: "GET",
-			// 		url: "<?php //echo $GLOBALS['webroot'].'/library/OemrAD/interface/new/ajax/set_patient.php'; ?>",
-			// 		datatype: "json",
-			// 		data: bodyObj
-			// 	});
-
-			// 	return true;
-			// }
-
-			// function setPatientData(pid, pubpid, pname, dobstr) {
-			// 	parent.left_nav.setPatient(pname, pid, pubpid, '',dobstr);
-			// }
-
-			// used to display the patient demographic and encounter screens
-	        // async function goToMessage(id, pid, pubpid, pname, dobstr) {
-	        // 	await setPatient(pid);
-	        // 	setPatientData(pid, pubpid, pname, dobstr);
-	        // 	top.RTop.location = "<?php //echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?task=edit&noteid="+id;
-	        // }
-
-	   //      async function goToOrder(id, pid, pubpid, pname, dobstr) {
-				// await setPatient(pid);
-	   //      	setPatientData(pid, pubpid, pname, dobstr);
-	   //      	top.RTop.location = "<?php //echo $GLOBALS['webroot']; ?>/interface/forms/rto1/new.php?pop=db&id="+id;
-	   //      }
-
-			// function goToEncounter(pid, pubpid, pname, enc, dobstr) {
-	  //           top.restoreSession();
-	  //           loadpatient(pid,enc);
-	  //       }
-
-	        // used to display the patient demographic and encounter screens
-	        // function loadpatient(newpid, enc) {
-	        //     if ($('#setting_new_window').val() === 'checked') {
-	        //         document.fnew.patientID.value = newpid;
-	        //         document.fnew.encounterID.value = enc;
-	        //         document.fnew.submit();
-	        //     }
-	        //     else {
-	        //         if (enc > 0) {
-	        //             top.RTop.location = "<?php //echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
-	        //         }
-	        //         else {
-	        //             top.RTop.location = "<?php //echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
-	        //         }
-	        //     }
-	        // }
-
-	        // function removeBack(b) {
-	        // 	var str = b.replace(/\\/g, '');
-	        // 	return str;
-	        // }
-
-	  //       function setMessage(type, message_id, pid) {
-			// 	loadMessage(type, message_id, pid)
-			// }
-
-
-			// function loadMessage(type, id, pid) {
-			// 	var url = "<?php //echo $GLOBALS['webroot'] ?>/interface/main/messages/portal_message.php?pid="+pid+"&id=" + id;
-			// 	if (type == 'PHONE') url = "<?php //echo $GLOBALS['webroot'] ?>/interface/main/messages/phone_call.php?pid="+pid+"&id=" + id;
-			// 	if (type == 'SMS') url = "<?php //echo $GLOBALS['webroot'] ?>/interface/main/messages/sms_message.php?pid="+pid+"&id=" + id + "&onlymsg=1";
-			// 	if (type == 'EMAIL') url = "<?php //echo $GLOBALS['webroot'] ?>/interface/main/messages/email_message.php?pid="+pid+"&id=" + id + "&enable_btn=reply";
-			// 	if (type == 'FAX') url = "<?php //echo $GLOBALS['webroot'] ?>/interface/main/messages/fax_message.php?pid="+pid+"&id=" + id;
-			// 	if (type == 'P_LETTER') url = "<?php //echo $GLOBALS['webroot'] ?>/interface/main/messages/postal_letter.php?pid="+pid+"&id=" + id;
-			// 	dlgopen(url, 'view_msg', 700, 500);
-			// }
-
-
-			// $(document).ready(function(){
-			// 	/*Remove selected document from the list*/
-			// 	$('#filesDoc').on("click", ".removeEncounterFile", function (e) {
-			//         e.preventDefault();
-
-			//         var fileId = $(this).data("fileid");
-
-			//         delete selectedEncounterList[fileId];
-
-			//         generateFinalList();
-
-			//         $(this).parent().remove();
-			//     });
-
-			//     $('#filesDoc').on("click", ".removeDocumentFile", function (e) {
-			//         e.preventDefault();
-
-			//         var fileId = $(this).data("fileid");
-
-			//         delete selectedDocuments[fileId];
-
-			//         generateFinalList();
-
-			//         $(this).parent().remove();
-			//     });
-
-			//     $('#filesDoc').on("click", ".removeMessagesFile", function (e) {
-			//         e.preventDefault();
-
-			//         var fileId = $(this).data("fileid");
-
-			//         delete selectedMessages[fileId];
-
-			//         generateFinalList();
-
-			//         $(this).parent().remove();
-			//     });
-
-			//     $('#filesDoc').on("click", ".removeOrdersFile", function (e) {
-			//         e.preventDefault();
-
-			//         var fileId = $(this).data("fileid");
-
-			//         delete selectedOrders[fileId];
-
-			//         generateFinalList();
-
-			//         $(this).parent().remove();
-			//     });
-		 //    });
-
-		    <?php //self::checkGroupUserExits_Js(); ?>
-
-		 //    $(document).ready(function(){
-			// 	$('.usersSelectList').on("change", function (e) {
-			// 		var select_val = $(this).val();
-			// 		isGroupUserExists(select_val);				
-			// 	});
-			// });
-
-		</script>
-		<?php
-	}
-	/*
-	function internal_note_head() {
-		?>
-		<script type="text/javascript">
-			<?php //self::checkGroupUserExits_Js(); ?>
-
-			$(document).ready(function(){
-				$('.usersSelectList').on("change", function (e) {
-					var select_val = $(this).val();
-					isGroupUserExists(select_val);				
-				});
-
-				$('#assigned_to').on("change", function (e) {
-					var select_val = $(this).val();
-					isGroupUserExists(select_val);				
-				});
-			});
-		</script>
-		<?php
-	}
-	*/
-
-	public static function checkGroupUserExits_Js() {
-		?>
-		/*async function isGroupUserExists(userVal) {
-			var select_val = userVal;
-
-			const result = await $.ajax({
-				type: "GET",
-				url: "<?php //echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/ajax/check_group_user_exists.php?user='; ?>"+select_val,
-				datatype: "json",
-			});
-
-			if(result != '') {
-				var resultObj = JSON.parse(result);
-				if(resultObj && resultObj['status'] == true && resultObj['isGroup'] == true) {
-					if(resultObj['data'] && Number(resultObj['data']) == 0) {
-						alert("Selected group doesn't have a valid member.")
-					}
-				}
-			}
-		}*/
-
-		/*$(document).ready(function(){
-			$('.usersSelectList').on("change", function (e) {
-				var select_val = $(this).val();
-				isGroupUserExists(select_val);				
-			});
-		});*/
-		<?php
-	}
-
 	public static function add_files_list() {
 		global $new_noteid;
 
@@ -533,7 +112,7 @@ class MessagesLib {
 		$intData = self::getInternalNote($noteid);
 		if(!empty($intData)) {
 			$orderData = self::fetchOrderById($intData['rto_id']);
-        	$clickFun = "goToOrder('".$intData['rto_id']."', '".$orderData['pid']."', '".$orderData['pubpid']."', '".$orderData['patient_name']."', '".$orderData['patient_DOB']."')";
+        	$clickFun = "handleGoToOrder('".$intData['rto_id']."', '".$orderData['pid']."')";
 
 			echo " <tr>\n";
             echo "  <td class='text'><br/><b>";
@@ -558,7 +137,7 @@ class MessagesLib {
             while ($gprow = sqlFetchArray($tmp)) {
             	$msgData = self::fetchMsgById($gprow['id1']);
             	if(!empty($msgData)) {
-	            	$clickFun = "setMessage('".$msgData['type']."', '".$msgData['id']."', '".$msgData['pid']."')";
+	            	$clickFun = "loadMessage('".$msgData['type']."', '".$msgData['id']."', '".$msgData['pid']."')";
 	                echo '<a href="javascript:void(0)" onclick="'.$clickFun.'">';
 	                echo text($msgData['link_title']);
 	                echo "</a><br/>\n";
@@ -581,7 +160,7 @@ class MessagesLib {
             while ($gprow = sqlFetchArray($tmp)) {
             	$encounterData = self::getEncounterData($gprow['id1']);
             	if(!empty($encounterData)) {
-	            	$clickFun = "goToEncounter('".$encounterData['pid']."', '".$encounterData['pubpid']."', '".$encounterData['patient_name']."', '".$encounterData['encounter']."', '".$encounterData['patient_DOB']."')";
+	            	$clickFun = "handleGoToEncounter('".$encounterData['pid']."', '".$encounterData['pubpid']."', '".$encounterData['patient_name']."', '".$encounterData['encounter']."', '".$encounterData['patient_DOB']."')";
 
 	                echo '<a href="javascript:void(0)" onclick="'.$clickFun.'">';
 	                echo text($encounterData['titleLink']);
@@ -605,7 +184,7 @@ class MessagesLib {
             while ($gprow = sqlFetchArray($tmp)) {
             	$docData = self::getDocumentData($gprow['id1']);
             	if(!empty($docData)) {
-	            	$clickFun = "gotoReport('".$docData['id']."', '".$docData['patient_name']."', '".$docData['pid']."', '".$docData['pubpid']."', '".$docData['patient_DOB']."')";
+	            	$clickFun = "handlegotoReport('".$docData['id']."', '".$docData['pid']."')";
 	                echo '<a href="javascript:void(0)" onclick="'.$clickFun.'">';
 	                echo text($docData['baseName']);
 	                echo "</a><br/>\n";
@@ -628,7 +207,7 @@ class MessagesLib {
             while ($gprow = sqlFetchArray($tmp)) {
             	$msgData = self::fetchMessageById($gprow['id1']);
             	if(!empty($msgData)) {
-	            	$clickFun = "goToMessage('".$msgData['id']."', '".$msgData['pid']."', '".$msgData['pubpid']."', '".$msgData['patient_name']."', '".$msgData['patient_DOB']."')";
+	            	$clickFun = "handleGoToMessage('".$msgData['id']."', '".$msgData['pid']."')";
 	                echo '<a href="javascript:void(0)" onclick="'.$clickFun.'">';
 	                echo text($msgData['link_title']);
 	                echo "</a><br/>\n";
@@ -652,7 +231,7 @@ class MessagesLib {
             while ($gprow = sqlFetchArray($tmp)) {
             	$orderData = self::fetchOrderById($gprow['id1']);
             	if(!empty($orderData)) {
-	            	$clickFun = "goToOrder('".$orderData['id']."', '".$orderData['pid']."', '".$orderData['pubpid']."', '".$orderData['patient_name']."', '".$orderData['patient_DOB']."')";
+	            	$clickFun = "handleGoToOrder('".$orderData['id']."', '".$orderData['pid']."')";
 	                echo '<a href="javascript:void(0)" onclick="'.$clickFun.'">';
 	                echo text($orderData['link_title']);
 	                echo "</a><br/>\n";
