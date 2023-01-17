@@ -1152,6 +1152,75 @@ async function isGroupUserExists(userVal) {
 
 /*------------------- End ----------------*/
 
+/* add_edit_calender */
+
+
+
+/* End */
+
+/* CaseLib */
+
+async function checkRecentInactive(pid = '', case_id = '') {
+    var bodyObj = { pid : pid, case_id : case_id };
+    const result = await $.ajax({
+        type: "GET",
+        url: top.webroot_url + "/library/OemrAD/interface/forms/rto1/ajax/check_recent_case.php",
+        datatype: "json",
+        data: bodyObj
+    });
+
+    if(result != '') {
+        var resultObj = JSON.parse(result);
+        if(resultObj && resultObj['status'] == true) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+async function activateCase(pid = '', case_id = '') {
+    var bodyObj = { pid : pid, case_id : case_id };
+    const result = await $.ajax({
+        type: "GET",
+        url: top.webroot_url + "/library/OemrAD/interface/forms/rto1/ajax/activate_case.php",
+        datatype: "json",
+        data: bodyObj
+    });
+
+    if(result != '') {
+        var resultObj = JSON.parse(result);
+        if(resultObj && resultObj['status'] == true) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+async function caseCount(pid = '') {
+    var bodyObj = { pid : pid };
+    var cCount = 0;
+
+    const result = await $.ajax({
+        type: "GET",
+        url: top.webroot_url + "/library/OemrAD/interface/forms/rto1/ajax/get_case_count.php",
+        datatype: "json",
+        data: bodyObj
+    });
+
+    if(result != '') {
+        var resultObj = JSON.parse(result);
+        if(resultObj && resultObj['status'] == true) {
+            cCount = resultObj['count'];
+        }
+    }
+
+    return cCount;
+}
+
+/* End */ 
+
 /* Utiliy */
 
 function isJson(str) {

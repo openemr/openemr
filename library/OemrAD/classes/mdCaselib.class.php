@@ -1611,6 +1611,7 @@ class Caselib {
 		<?php
 	}*/
 
+	/*
 	public static function save_appt_script() {
 		?>
 		<script type="text/javascript">
@@ -1675,6 +1676,7 @@ class Caselib {
 		</script>
 		<?php
 	}
+	*/
 
 	public static function add_calender_script() {
 		return <<<EOF
