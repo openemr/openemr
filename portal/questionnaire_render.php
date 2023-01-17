@@ -43,13 +43,17 @@ if (!empty($q)) {
     <?php Header::setupHeader(['opener']); ?>
     <script>
         let lform, qform;
+        let baseMsg = xl('Convert and verify import');
 
         function renderForm(type) {
             if (type === 'lForm') {
                 LForms.Util.addFormToPage(lform, 'formContainer');
+                baseMsg = xl('Rendering LHC Form');
             } else {
                 LForms.Util.addFormToPage(qform, 'formContainer');
+                baseMsg = xl('Rendering Questionnaire');
             }
+            document.getElementById('subtitle').innerHTML = baseMsg;
         }
 
         function doCancel() {
@@ -84,12 +88,11 @@ if (!empty($q)) {
         let gotL = false;
         function typeAndConvert(file, displayMsg = true) {
             let obj = JSON.parse(file);
-            let baseMsg = xl('Convert and verify import');
             // reformat file to get rid of lf
             file = JSON.stringify(obj)
             if (obj && obj.resourceType === "Questionnaire") {
                 gotQ = true;
-            } else if (obj.items[0].dataType) {
+            } else if (obj) {
                 gotL = true;
             }
             if (gotL) {
@@ -98,7 +101,7 @@ if (!empty($q)) {
                 lform = file;
                 opener.document.getElementById('questionnaire').value = JSON.stringify(qform);
                 opener.document.getElementById('lform').value = file;
-                baseMsg += ' ' + xl('LHC Form to Questionnaire');
+                baseMsg += ' ' + xl('Rendering LHC-Form');
                 LForms.Util.addFormToPage(opener.document.getElementById('lform').value, 'formContainer');
             } else if (gotQ) {
                 // convert to lform
@@ -106,7 +109,7 @@ if (!empty($q)) {
                 qform = file;
                 opener.document.getElementById('lform').value = JSON.stringify(lform);
                 opener.document.getElementById('questionnaire').value = file;
-                baseMsg += ' ' + xl('Questionnaire to LHC Form');
+                baseMsg += ' ' + xl('Rendering Questionnaire');
                 LForms.Util.addFormToPage(opener.document.getElementById('questionnaire').value, 'formContainer');
             } else {
                 alert(xl('Error! Import conversion failed.'));
@@ -149,8 +152,22 @@ if (!empty($q)) {
         <div class="my-2">
             <h3><?php echo xlt("FHIR Questionnaire"); ?><small id="subtitle" class="ml-2"></small></h3>
         </div>
-        <div id=formContainer></div>
         <form id="qForm">
+            <div class="isManual isRender d-none">
+                <label for="q_import"><strong><?php echo xlt("To manually import paste json here"); ?></strong></label>
+                <textarea id="q_import" cols="120" rows="20" class="form-control"></textarea>
+            </div>
+            <div class="my-2">
+                <button type="button" class="isManual btn btn-sm btn-primary btn-save d-none" onclick="doManualImport()"><?php echo xlt("Render"); ?></button>
+                <button type="button" class="isManual isRender btn btn-sm btn-primary btn-save" onclick="doImport()"><?php echo xlt("Import"); ?></button>
+                <div class="btn-group">
+                    <button type="button" class="isManual isRender btn btn-sm btn-success" onclick="renderForm('lForm')"><?php echo xlt("LHC Form Version"); ?></button>
+                    <button type="button" class="isManual isRender btn btn-sm btn-success" onclick="renderForm('qForm')"><?php echo xlt("Questionnaire Version"); ?></button>
+                </div>
+                <button type="button" class="isManual isRender btn btn-sm btn-primary btn-save" onclick="saveQR()"><?php echo xlt("View Response"); ?></button>
+                <button type="button" class="btn btn-sm btn-secondary btn-cancel" onclick="doCancel()"><?php echo xlt("Cancel"); ?></button>
+            </div>
+            <div id=formContainer></div>
             <div class="isManual isRender d-none">
                 <label for="q_import"><strong><?php echo xlt("To manually import paste json here"); ?></strong></label>
                 <textarea id="q_import" cols="120" rows="20" class="form-control"></textarea>

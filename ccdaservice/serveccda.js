@@ -279,6 +279,18 @@ function fetchPreviousAddresses(pd) {
 }
 
 function populateDemographic(pd, g) {
+    let first = 'NI';
+    let middle = 'NI';
+    let last = 'NI';
+    const names = g.display_name.split(' ');
+    if (names.length === 2) {
+        first = names[0];
+        last = names[1];
+    }
+    if (names.length === 3) {
+        first = names[0];
+        last = names[2];
+    }
     let guardian = [{
         "relation": g.relation,
         "addresses": [{
@@ -290,8 +302,8 @@ function populateDemographic(pd, g) {
             "use": "primary home"
         }],
         "names": [{
-            "last": g.display_name, //@todo parse first/last
-            "first": g.display_name
+            "last": last,
+            "first": first
         }],
         "phone": [{
             "number": g.telecom,
@@ -342,6 +354,12 @@ function populateDemographic(pd, g) {
                 "number": pd.phone_mobile,
                 "type": "primary mobile"
             }, {
+                "number": pd.phone_work,
+                "type": "work place"
+            }, {
+                "number": pd.phone_emergency,
+                "type": "emergency contact"
+            },{
                 "email": pd.email,
                 "type": "contact_email"
             }
@@ -390,7 +408,7 @@ function populateDemographic(pd, g) {
                 }
             ],
         },
-        //"guardians": g.display_name ? guardian : '' //not required
+        "guardians": g.display_name ? guardian : '' //not required
     }
 }
 
@@ -975,10 +993,10 @@ function populateEncounter(pd) {
 
     return {
         "encounter": {
-            "name": pd.visit_category ? (pd.visit_category + " | " + pd.encounter_reason) : 'UNK',
-            "code": "185347001",
-            "code_system": "2.16.840.1.113883.6.96",
-            "code_system_name": "SNOMED CT",
+            "name": pd.visit_category ? (pd.visit_category + " | " + pd.encounter_reason) : pd.code_description,
+            "code": pd.code || "185347001",
+            //"code_system": "2.16.840.1.113883.6.96",
+            "code_system_name": pd.code_type || "SNOMED CT",
             "translations": [{
                 "name": "Ambulatory",
                 "code": "AMB",
@@ -2853,13 +2871,13 @@ function getMeta(pd) {
         "type": pd.doc_type,
         "identifiers": [
             {
-                "identifier": oidFacility || "",
+                "identifier": oidFacility || "NI",
                 "extension": "TT988"
             }
         ],
         "confidentiality": "Normal",
         "set_id": {
-            "identifier": oidFacility || "",
+            "identifier": oidFacility || "NI",
             "extension": "sTT988"
         }
     }
@@ -2903,7 +2921,6 @@ function generateCcda(pd) {
     if (pd.primary_care_provider) {
         Object.assign(demographic, populateProviders(pd));
     }
-
     data.demographics = Object.assign(demographic);
 // Encounters
     let encs = [];
@@ -2927,14 +2944,25 @@ function generateCcda(pd) {
         data.encounters = Object.assign(encs.encounters);
     }
 // vitals
-    many.vitals = [];
+    let vitals = [];
+    let vital = {};
+    vitals.vitals = [];
     try {
         count = isOne(pd.history_physical.vitals_list.vitals);
     } catch (e) {
         count = 0
     }
+    if (count > 1) {
+        for (let i in pd.history_physical.vitals_list.vitals) {
+            vitals[i] = populateVital(pd.history_physical.vitals_list.vitals[i]);
+            vitals.vitals.push(vitals[i]);
+        }
+    } else if (count !== 0) {
+        vital = populateVital(pd.history_physical.vitals_list.vitals);
+        vitals.vitals.push(vital);
+    }
     if (count !== 0) {
-        data.vitals = Object.assign(populateVital(pd.history_physical.vitals_list.vitals));
+        data.vitals = Object.assign(vitals.vitals);
     }
 // Medications
     let meds = [];
@@ -3405,7 +3433,7 @@ function processConnection(connection) {
     conn = connection; // make it global
     let remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
     conn.setEncoding('utf8');
-
+    //console.log('server remote address ', remoteAddress);
     let xml_complete = "";
 
     function eventData(xml) {
@@ -3492,8 +3520,8 @@ function processConnection(connection) {
 
 function setUp(server) {
     server.on('connection', processConnection);
-    server.listen(6661, 'localhost', function () { // never change port!
-        //console.log('server listening to %j', server.address());
+    server.listen(6661, '127.0.0.1', function () { // never change port!
+        //console.log('server listening to ', server.address());
     });
 }
 

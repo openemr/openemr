@@ -7,13 +7,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @package   OpenEMR\Events\Patient\Summary\Card
  * @author    Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
  */
 
 namespace OpenEMR\Events\Patient\Summary\Card;
 
 use OpenEMR\Events\Patient\Summary\Card\RenderInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class RenderEvent extends Event
 {

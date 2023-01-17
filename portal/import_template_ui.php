@@ -336,11 +336,19 @@ $none_message = xlt("Nothing to show for current actions.");
             $('#fetch_files').change(function (e) {
                 const file = document.getElementById("fetch_files").files.item(0);
                 const fileName = file.name;
+                let howManyFiles = document.getElementById("fetch_files").files.length;
                 $('#upload_submit').removeClass('d-none');
-                if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
-                    $('#upload_submit_questionnaire').removeClass('d-none');
-                    if (document.getElementById("upload_scope").checked) {
+                if (howManyFiles === 1 && document.getElementById("upload_scope").checked) {
+                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
+                        $('#upload_submit_questionnaire').removeClass('d-none');
                         resolveImport();
+                    }
+                } else {
+                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
+                        document.getElementById("upload_submit_questionnaire").type = 'submit';
+                        document.getElementById("upload_submit_questionnaire").removeAttribute("onclick");
+                        document.getElementById("upload_submit_questionnaire").innerText = xl("Questionnaires Repository All")
+                        $('#upload_submit_questionnaire').removeClass('d-none');
                     }
                 }
                 return false;
@@ -519,18 +527,19 @@ $none_message = xlt("Nothing to show for current actions.");
                                 <div id='upload_scope_category'></div>
                                 <div class="input-group">
                                     <label class="form-check"><?php echo xlt('If questionnaire import, use Questionnaire tool'); ?>
-                                    <input type="checkbox" class='form-check-inline ml-1' id='upload_scope' checked>
+                                        <input type="checkbox" class='form-check-inline ml-1' id='upload_scope' checked>
                                 </div>
                             </div>
                             <div class='form-group col'>
                                 <input type='file' class='btn btn-outline-info mr-1 mt-1' id="fetch_files" name='template_files[]' multiple />
                                 <div class="mt-1">
-                                <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
-                                    <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
-                                <button class='btn btn-outline-success d-none' type='button' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>" onclick="return resolveImport();">
-                                    <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
-                                <button type='button' id='render-nav-button' name='render-nav-button' class='btn btn-save btn-outline-primary' onclick="return resolveImport('render_import_manual');" title="<?php echo xla('Used to cut and paste Questionnaire or LHC Form json. Will then convert and import to questionnaire repository.') ?>"><?php echo xlt('Manual Questionnaire') ?></button>
-                                <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();" title="<?php echo xla('Use this to create a new empty template for use with built in editor.') ?>"><?php echo xlt('New Empty Template') ?></button></div>
+                                    <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
+                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Templates"); ?></button>
+                                    <button class='btn btn-outline-success d-none' type='button' name='upload_submit_questionnaire' id='upload_submit_questionnaire' title="<?php echo xla("Import to the questionnaire repository for later use in encounters or FHIR API"); ?>" onclick="return resolveImport();">
+                                        <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt("Questionnaires Repository"); ?></button>
+                                    <button type='button' id='render-nav-button' name='render-nav-button' class='btn btn-save btn-outline-primary' onclick="return resolveImport('render_import_manual');" title="<?php echo xla('Used to cut and paste Questionnaire or LHC Form json. Will then convert and import to questionnaire repository.') ?>"><?php echo xlt('Manual Questionnaire') ?></button>
+                                    <button type='submit' id='blank-nav-button' name='blank-nav-button' class='btn btn-save btn-outline-primary' onclick="return createBlankTemplate();" title="<?php echo xla('Use this to create a new empty template for use with built in editor.') ?>"><?php echo xlt('New Empty Template') ?></button>
+                                </div>
                             </div>
                             <div class="mt-2">
                                 <div class="text-center m-0 p-0"><small class="my-1 font-weight-bolder font-italic"><?php echo xlt("Shows all existing Questionnaires available from repository. Select to automatically create template."); ?></small></div>

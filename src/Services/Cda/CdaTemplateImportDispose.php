@@ -21,6 +21,8 @@ use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\ListService;
 
+require_once __DIR__ . '/../../../library/forms.inc.php';
+
 class CdaTemplateImportDispose
 {
     protected $codeService;
@@ -524,21 +526,18 @@ class CdaTemplateImportDispose
         foreach ($enc_array as $key => $value) {
             $encounter_id = $appTable->generateSequenceID();
 
-            if (empty($value['provider_npi'])) {
-                $value['provider_npi'] = CarecoordinationTable::NPI_SAMPLE;
+            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
+                $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
+                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi'], $value['provider_name'], $value['provider_family']));
             }
-            if (!empty($value['provider_npi'])) {
-                $query_sel_users = "SELECT * FROM users WHERE npi=?";// abook_type='external_provider' AND
-                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
-            }
-            if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
+            if (!empty($res_query_sel_users) && ($res_query_sel_users->count() ?? []) > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
             } else {
                 $provider_id = $this->insertImportedUser($value, true);
             }
-
             //facility
             if (empty($value['represented_organization_name'])) {
                 $value['represented_organization_name'] = CarecoordinationTable::ORGANIZATION_SAMPLE;
@@ -594,16 +593,33 @@ class CdaTemplateImportDispose
             if (!empty($value['date_end']) && ($revapprove == 0 || $revapprove == 1)) {
                 $encounter_date_end = date("Y-m-d H:i:s", $this->str_to_time($value['date_end']));
             }
+            $catname = '';
+            $pc_catid = null;
             $pc_catid_default = 5;
             $reason = null;
             if (!empty($value['code_text'] ?? null)) {
                 $cat = explode('|', $value['code_text'] ?? null);
                 $catname = trim($cat[0]);
                 $reason = trim($cat[1]);
-                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'] ?: $pc_catid_default;
+                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'];
             }
+            if (empty($pc_catid) && !empty($catname)) {
+                // create a new category to match the import
+                $const_id = str_replace(' ', '_', strtolower($catname));
+                $sql = "INSERT INTO openemr_postcalendar_categories(
+                    `pc_catname`,
+                    `pc_constant_id`,
+                    `pc_catcolor`,
+                    `pc_cattype`,
+                    `pc_active`
+                )
+                VALUES(?, ?, ?, ?, ?)";
+                $pc_catid = sqlInsert($sql, array($catname, $const_id, '#BFBFBF', 0, 1));
+            }
+            $pc_catid = $pc_catid ?: $pc_catid_default;
+
             if (!empty($value['extension'])) {
-                $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id=? AND pid=?";
+                $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id = ? AND pid = ?";
                 $res_q_sel_encounter = $appTable->zQuery($q_sel_encounter, array($value['extension'], $pid));
             }
             if (empty($value['extension']) || $res_q_sel_encounter->count() === 0) {
@@ -740,16 +756,12 @@ class CdaTemplateImportDispose
 
         foreach ($imm_array as $key => $value) {
             //provider
-            if (empty($value['provider_npi'])) {
-                $value['provider_npi'] = CarecoordinationTable::NPI_SAMPLE;
+            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
+                $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
+                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi'], $value['provider_name'], $value['provider_family']));
             }
-            if (!empty($value['provider_npi'])) {
-                $query_sel_users = "SELECT *
-                              FROM users
-                              WHERE npi=?";//abook_type='external_provider' AND
-                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
-            }
-            if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
+            if (!empty($res_query_sel_users) && ($res_query_sel_users->count() ?? []) > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
@@ -1000,17 +1012,12 @@ class CdaTemplateImportDispose
                 $value['begdate'] = ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             }
 
-            //provider
-            if (empty($value['provider_npi'])) {
-                $value['provider_npi'] = CarecoordinationTable::NPI_SAMPLE;
+            $value['provider_npi'] = $value['provider_npi'] ?? '';
+            if (!empty($value['provider_npi']) || (!empty($value['provider_fname']) && !empty($value['provider_lname']))) {
+                $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";
+                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi'], $value['provider_fname'], $value['provider_lname']));
             }
-            if (!empty($value['provider_npi'])) {
-                $query_sel_users = "SELECT *
-                              FROM users
-                              WHERE npi=?";// abook_type='external_provider' AND
-                $res_query_sel_users = $appTable->zQuery($query_sel_users, array($value['provider_npi']));
-            }
-            if (!empty($value['provider_npi']) && $res_query_sel_users->count() > 0) {
+            if (!empty($res_query_sel_users) && ($res_query_sel_users->count() ?? []) > 0) {
                 foreach ($res_query_sel_users as $value1) {
                     $provider_id = $value1['id'];
                 }
@@ -1360,24 +1367,36 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         $userName = "";
 
-        if (!empty($value['provider_fname'])) {
-            $value['provider_name'] = ($value['provider_fname'] ?? '') ?: 'External';
+        if (!empty($value['provider_fname'] ?? '')) {
+            $value['provider_name'] = $value['provider_fname'];
         }
-        if (!empty($value['provider_lname'])) {
-            $value['provider_family'] = ($value['provider_lname'] ?? '') ?: 'Provider';
+        if (!empty($value['provider_lname'] ?? '')) {
+            $value['provider_family'] = $value['provider_lname'];
+        }
+
+        // so for those that don't use NPI's or npi was missed we'll take a look for user by name.
+        $is_user = sqlQuery(
+            "Select id From users Where fname = ? And lname = ?",
+            array($value['provider_name'] ?? null, $value['provider_family'] ?? null)
+        );
+        if (empty($is_user['id'])) {
+            $is_user = sqlQuery("Select id From users Where fname = ? And lname = ?", array('External', 'Provider'));
+        }
+        if (!empty($is_user['id'])) {
+            return $is_user['id'];
         }
 
         if ($create_user_name) {
             $userName = (($value['provider_name'] ?? '') ?: 'External') . (($value['provider_family'] ?? '') ?: 'Provider');
         }
         $query_ins_users = "INSERT INTO users
-        ( username, fname, lname, npi, authorized, organization, street, city, state, zip, active, abook_type)
+        (username, fname, lname, npi, authorized, organization, street, city, state, zip, active, abook_type)
         VALUES(?, ?, ?, ?, 1, ?, ?, ?, ?, ?, 1, 'external_provider')";
         $res_query_ins_users = $appTable->zQuery($query_ins_users, array(
             $userName,
             ($value['provider_name'] ?? '') ?: 'External',
             ($value['provider_family'] ?? '') ?: 'Provider',
-            ($value['provider_npi'] ?? '') ?: CarecoordinationTable::NPI_SAMPLE,
+            $value['provider_npi'] ?? null,
             $value['represented_organization_name'] ?? null,
             $value['provider_address'] ?? null,
             $value['provider_city'] ?? null,
@@ -2060,7 +2079,6 @@ class CdaTemplateImportDispose
         if (empty($arr_file)) {
             return;
         }
-        $appTable = new ApplicationTable();
         foreach ($arr_file as $key => $value) {
             $exist = sqlQuery("SELECT id  FROM `documents` WHERE `foreign_id` = ? AND `hash` = ? LIMIT 1", array($pid, $value['hash']));
             if (!empty($exist['id'])) {

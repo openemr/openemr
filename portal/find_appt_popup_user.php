@@ -81,10 +81,14 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             // only IN events with a matching preferred category or with no preferred
             // category; other IN events are to be treated as OUT events.
             if ($input_catid) {
-                if ($prefcatid == $input_catid || !$prefcatid) {
-                    $slots[$i] |= 1;
+                if (!empty($slots[$i])) {
+                    if ($prefcatid == $input_catid || !$prefcatid) {
+                        $slots[$i] |= 1;
+                    } else {
+                        $slots[$i] |= 2;
+                    }
                 } else {
-                    $slots[$i] |= 2;
+                    $slots[$i] |= 1;
                 }
             } else {
                 $slots[$i] |= 1;
@@ -114,7 +118,7 @@ if ($input_catid) {
 $info_msg = "";
 
 $searchdays = 7; // default to a 1-week lookahead
-if ($_REQUEST['searchdays']) {
+if ($_REQUEST['searchdays'] ?? null) {
     $searchdays = $_REQUEST['searchdays'];
 }
 
