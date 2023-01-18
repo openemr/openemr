@@ -1153,7 +1153,7 @@ function make_insurance() {
                         <legend><?php echo xlt('Payment'); ?></legend>
                         <?php
                             $prepayment_bal = get_unallocated_patient_balance($pid);
-                            if ($prepayment_bal > 0) : ?>
+                        if ($prepayment_bal > 0) : ?>
                                 <div class="col-12 oe-custom-line">
                                     <label class="control-label" for="unallocated"><?php
                                                 echo xlt('Patient has an unallocated pre-payment amount of ') .
