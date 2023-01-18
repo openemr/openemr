@@ -17,14 +17,14 @@ require_once("../globals.php");
 
 use OpenEMR\Core\Header;
 
-$order = 0 + $_GET['order'];
+$order = (int) ($_GET['order'] ?? null);
 $labid = (int) ($_GET['labid'] ?? null);
 
 //////////////////////////////////////////////////////////////////////
 // The form was submitted with the selected code type.
 if (isset($_GET['typeid'])) {
     $grporders = array();
-    $typeid = $_GET['typeid'] + 0;
+    $typeid = (int) $_GET['typeid'];
     $name = '';
     if ($typeid) {
         $ptrow = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", array($typeid));
