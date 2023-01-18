@@ -2,6 +2,7 @@ import {ConfirmSessionCloseDialog} from "./confirm-session-close-dialog.js";
 import {VideoBar} from "./video-bar.js";
 import {CallerSlot} from "./caller-slot.js";
 import {TelehealthBridge} from "./telehealth-bridge.js";
+import {PresentationScreen} from "./presentation-screen";
 import * as cvb from "./cvb.min.js";
 
 // TODO: @adunsulag convert this to class nomenclature
@@ -20,6 +21,7 @@ export function ConferenceRoom(translations, scriptLocation)
     this.buttonSettings = {
         microphoneEnabled: true
         ,cameraEnabled: true
+        ,screensharingEnabled: false
     };
 
     /**
@@ -63,7 +65,10 @@ export function ConferenceRoom(translations, scriptLocation)
     /** @private */
     this.__localVideoElement = null;
 
-    /** @private */
+    /**
+     * @type CallerSlot[]
+     * @private
+     * */
     this.__slots = [];
 
     /**
@@ -84,31 +89,95 @@ export function ConferenceRoom(translations, scriptLocation)
 
     this.__isShutdown = true;
 
-    this.setupCallers = function() {
-        this.__localCaller = new CallerSlot('local-video', 'local-screenshare');
-        this.setupRemoteCaller();
-    };
+    this.__callerIdx = 0;
 
-    this.setupRemoteCaller = function() {
-        this.__remoteCaller = new CallerSlot('remote-video-0', 'remote-screenshare-0');
-        this.__slots.push(this.__remoteCaller);
-    };
+    // let's allow for our max slots for now
+    this.__maxSlots = 3;
+
+    /**
+     *
+     * @type PresentationScreen
+     * @private
+     */
+    this.__presentationScreen = null;
+
+    /**
+     *
+     * @type cvb.VideoCall
+     * @private
+     */
+    this.__localScreenshareCall = null;
 
     this.allocateSlot = function(call, stream) {
         // as we can get multiple events we only want to allocate on the call if we don't have any stream data setup.
         if (!call.getUserData()) {
-            // we are leaving this in place in case we want to extend things and add additional callers to the call
-            // in the future
+            // in the event of a network hiccup we go through and allocate the slot
+            let needNewSlot = true;
             for (var i = 0; i < this.__slots.length; i++) {
                 if (this.__slots[i].isAvailableForCall(call)) {
                     this.__slots[i].attach(call, stream);
-                    return;
+                    needNewSlot = false;
+                    break;
                 }
             }
-            // TODO: @adunsulag do we need to free up the remote slot again?  such as when a connection is being
-            // re-established?
-            console.error("allocateSlot called but all slots are full");
+            if (needNewSlot && this.__slots.length <= this.__maxSlots) {
+                let newCaller = new CallerSlot('participant-list-container', this.__callerIdx++);
+                this.__slots.push(newCaller);
+                newCaller.attach(call, stream);
+                if (this.__slots.length <= 2) {
+                    this.__presentationScreen.attach(newCaller);
+                    // TODO: @adunsulag fix this when we work with 3 callers
+                    newCaller.hide();
+                }
+            }
+            this.updateParticipantDisplays();
         }
+    };
+
+    this.updateParticipantDisplays = function() {
+        // based on the mode of the conference room we will update the presentation screen and the participant list
+        let hasPresentationScreen = false;
+        for (var i = 0; i < this.__slots.length; i++) {
+            if (this.__slots[i].getRemotePartyId() == this.getCurrentCallerFocusId()) {
+                hasPresentationScreen = true;
+                this.__presentationScreen.attach(this.__slots[i]);
+                this.__slots[i].hide(); // hide the speaker from the participant list
+            } else {
+                // make sure we are showing all of our participants
+                this.__slots[i].show();
+            }
+        }
+        // if we get here we are going to just detatch
+        if (!hasPresentationScreen) {
+            this.__presentationScreen.detach();
+        }
+
+        if (this.__slots.length) {
+            this.buttonSettings.screensharingEnabled = true;
+        } else {
+            this.buttonSettings.screensharingEnabled = false;
+        }
+        this.resetConferenceVideoBar();
+    };
+
+    this.isAuthorizedParticipant = function(callerId) {
+        // TODO: @adunsulag we can check the participants here
+        return this.callerSettings.calleeUuid === callerId;
+    };
+
+    /**
+     * Returns the caller slot with the caller id that is passed in.
+     * @param id
+     * @returns {CallerSlot|undefined}
+     */
+    this.findCallerSlotWithId = function(id) {
+        return this.__slots.find(s => s.getRemotePartyId() === id);
+    };
+
+    this.getCurrentCallerFocusId = function() {
+        // if we use audio monitoring we can switch, or if the user pins a speaker we can this this
+        // however, for now we focus on the callee for now
+        return this.callerSettings.calleeUuid;
     };
 
     this.freeSlot = function(slot) {
@@ -152,6 +221,7 @@ export function ConferenceRoom(translations, scriptLocation)
     };
 
     this.startBridge = function() {
+        console.trace("startBridge is called");
         conf.__localVideoElement = document.getElementById('local-video');
         conf.__localVideoElement.muted = true;
 
@@ -212,7 +282,6 @@ export function ConferenceRoom(translations, scriptLocation)
         //
         // When the call ends we free the video slot.
         call.oncallended = (call) => {
-            conf.freeSlot(call.getUserData());
             conf.handleCallEndedEvent(call);
         };
     };
@@ -246,18 +315,24 @@ export function ConferenceRoom(translations, scriptLocation)
             console.error(e);
             conf.handleCallEndedEvent(call);
         });
+        return call;
     };
 
     this.makeScreenshareCall = function(calleeId) {
         const call = conf.__bridge.createScreenSharingCall(calleeId);
-        conf.setCallHandlers(call);
+        // conf.setCallHandlers(call);
         // for now we duplicate this as we play around to see how this works.
         call.start().catch((e) => {
             alert(translations.CALL_CONNECT_FAILED);
             console.log("call exception " + conf.callerSettings.calleeUuid);
             console.error(e);
-            conf.handleCallEndedEvent(call);
+            // conf.handleCallEndedEvent(call);
+            this.__localScreenshareCall = null;
         });
+        call.oncallended = (call) => {
+            this.__localScreenshareCall = null;
+        };
+        this.__localScreenshareCall = call;
     };
 
     this.enableMicrophone = function(flag) {
@@ -285,7 +360,7 @@ export function ConferenceRoom(translations, scriptLocation)
         // TODO: @adunsulag check to make sure we don't need to hit the server... we already have the calleeUuid which we got
         // from the server... we can double check again by hitting the server and verifying the session has started and accept
         // the call, but that seems pretty paranoid to double check that...
-        if (callerId === conf.callerSettings.calleeUuid)
+        if (this.isAuthorizedParticipant(callerId))
         {
             return Promise.resolve({call: call, canCall: true});
         }
@@ -390,6 +465,8 @@ export function ConferenceRoom(translations, scriptLocation)
 
     this.destruct = function()
     {
+        // TODO: @adunsulag remove this debug
+        console.log("conference-room.destruct() called");
         conf.inSession = false;
         conf.waitingRoomTemplate = null;
         conf.conferenceRoomTemplate = null;
@@ -411,6 +488,13 @@ export function ConferenceRoom(translations, scriptLocation)
             conf.sessionUpdateInterval = null;
         }
         let container = document.getElementById('telehealth-container');
+
+        if (conf.__localScreenshareCall && conf.__localScreenshareCall.stop) {
+            // stop the screensharing s
+            // TODO: @adunsulag if a later version of the api fixes this, let's clean this up.
+            conf.__localScreenshareCall.stop();
+        }
+
         if (conf.__bridge && conf.__bridge.shutdown)
         {
             // catch any problems from the library so we can still clean up.
@@ -619,7 +703,7 @@ export function ConferenceRoom(translations, scriptLocation)
         conf.room = conf.ROOM_TYPE_CONFERENCE;
 
         this.sessionUpdateInterval = setInterval(conf.updateConferenceRoomSession.bind(conf), conf.sessionUpdatePollingTime);
-        conf.setupRemoteCaller(); // need to make sure we allocate a slot for our remote caller.
+        this.__presentationScreen = new PresentationScreen('presentation-screen');
         conf.updateConferenceRoomSession();
     };
 
@@ -663,7 +747,7 @@ export function ConferenceRoom(translations, scriptLocation)
             ,expandCallback: noop
             ,hangup: false
             ,hangupCallback: noop
-            ,screenshare: false
+            ,screenshare: conf.buttonSettings.screensharingEnabled
             ,screenshareCallback: conf.toggleScreenSharing.bind(conf)
         };
     };
@@ -685,15 +769,12 @@ export function ConferenceRoom(translations, scriptLocation)
         return settings;
     };
 
-    this.getFullConferenceVideoBarPatientSettings = function()
-    {
-        let settings = conf.getDefaultVideoBarSettings();
-        settings.hangupCallback = conf.handleCallHangup.bind(conf);
-        settings.expand = false;
-        settings.notes = false; // patient doesn't get notes.
-        settings.hangup = true;
-        settings.screenshare = true;
-        return settings;
+    this.addSettingsForScreenshare = function(settings) {
+        if (this.__slots.length) {
+            settings.screenshare = true;
+        } else {
+            settings.screenshare = false;
+        }
     };
 
     this.getFullConferenceVideoBarSettings = function()
@@ -704,7 +785,7 @@ export function ConferenceRoom(translations, scriptLocation)
         settings.expand = false;
         settings.notes = true;
         settings.hangup = true;
-        settings.screenshare = false;
+        conf.addSettingsForScreenshare(settings);
         return settings;
     };
 
@@ -713,9 +794,58 @@ export function ConferenceRoom(translations, scriptLocation)
         conf.toggleRemoteVideo(true);
     };
 
+    this.resetConferenceVideoBar = function() {
+        if (conf.videoBar) {
+            conf.videoBar.destruct();
+        }
+        var container = document.getElementById('telehealth-container');
+        let conferenceVideoBar = container.querySelector(".telehealth-button-bar");
+        conf.videoBar = new VideoBar(conferenceVideoBar, conf.getFullConferenceVideoBarSettings());
+    };
+
+    this.removeCallFromConference = function(call) {
+        if (call.getUserData() != null) {
+            /**
+             *
+             * @type {CallerSlot|null}
+             */
+            let callerSlot = call.getUserData();
+            if (call.isScreenSharing()) {
+                callerSlot.detachScreenshare();
+            }
+            else {
+                this.removeSlotForCall(call);
+            }
+            this.updateParticipantDisplays();
+        }
+    };
+
+    // todo: look at removing this
+    this.removeSlotForCall = function(call) {
+        // if the user data is allocated then this is an existing call
+        if (call.getUserData() != null) {
+            let callerSlot = call.getUserData();
+            callerSlot.destruct(); // remove everything
+            // cleanup the slots
+            this.__slots = this.__slots.filter(s => s !== callerSlot);
+        }
+    };
+
+    this.hasRemoteParticipants = function() {
+        let hasParticipants = this.__slots.length > 0;
+        return hasParticipants;
+    }
+
+    // for the provider conference we end the call and we then show our waiting message
     this.handleCallEndedEvent = function(call)
     {
-        conf.toggleRemoteVideo(false);
+        conf.removeCallFromConference(call);
+        // if we don't have any more slots available
+        if (!conf.hasRemoteParticipants()) {
+            if (!conf.__isShutdown) {
+                conf.toggleRemoteVideo(false);
+            }
+        }
     };
 
     this.handleCallHangup = function()
@@ -734,14 +864,13 @@ export function ConferenceRoom(translations, scriptLocation)
         // grab the video and shrink it to bottom left window
         // shrink container to be the size of the video
         var container = document.getElementById('telehealth-container');
-        var localVideo = document.getElementById('remote-video');
 
         var template = document.createElement('div');
         template.id = "minimized-telehealth-video";
         template.className = "col-lg-2 col-md-3 col-sm-4 col-6 drag-action";
 
         window.document.body.appendChild(template);
-        template.appendChild(localVideo);
+        template.appendChild(this.__presentationScreen.getVideoElement());
 
         var oldButtonBar = container.querySelector('.telehealth-button-bar');
         var clonedButtonBar = oldButtonBar.cloneNode(true);
@@ -768,7 +897,7 @@ export function ConferenceRoom(translations, scriptLocation)
     {
         // remove the event listener
         var remoteVideoContainer = document.querySelector('.remote-video-container');
-        var remoteVideo = document.getElementById('remote-video');
+        var remoteVideo = this.__presentationScreen.getVideoElement();
 
         // now let's move the video and cleanup the old container here
         if (remoteVideo && remoteVideoContainer) {
@@ -866,13 +995,7 @@ export function ConferenceRoom(translations, scriptLocation)
     };
 
     this.toggleScreenSharing = function(evt) {
-
-        // need to figure out how to use the event here.
-        if (true) {
-            conf.__bridge.createScreenSharingCall(conf.callerSettings.calleeUuid);
-        } else {
-            // TODO: @adunsulag need to kill the call here.
-        }
+        this.makeScreenshareCall(conf.callerSettings.calleeUuid);
     };
 
     this.toggleRemoteScreensharing = function(display)

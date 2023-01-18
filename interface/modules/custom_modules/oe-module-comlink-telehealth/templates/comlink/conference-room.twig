@@ -1,13 +1,15 @@
 <div class="row conference-room bg-dark">
         <div class="col-12 d-flex">
-            <div id="local-video-container" class="col-lg-2 col-md-2 col-sm-3 col-4 p-0">
+            <!-- each additional remote participant will get added here using the participant-list-template-node as a clone -->
+            <video id="participant-list-template-node" lass="w-100" autoplay="true" muted="muted"
+                   playsinline="true" preload="none" class="bg-primary w-100 d-none"></video>
+            <div id="participant-list-container" class="col-lg-2 col-md-2 col-sm-3 col-4 p-0">
                 <video class="bg-primary" id="local-video"></video>
             </div>
             <div class="remote-video-container text-center w-100">
-                <video id="remote-video-0" class="remote-video d-none mw-100"></video>
-                <video id="remote-screenshare-0" class="remote-screenshare d-none mw-100"></video>
+                <video id="presentation-screen" class="remote-video d-none mw-100"></video>
                 <div class="waiting-container">
-                    <h1 class="h1-responsive text-light text-center">{{ "Waiting for the following to join"|xlt }}:&nbsp;<em>{{ calleeName|text }}</em><div class="spinner-border" role="status">
+                    <h1 class="h1-responsive text-light text-center">{{ "Waiting for participants to join"|xlt }}<div class="spinner-border" role="status">
                             <span class="sr-only">{{ "Waiting"|xlt }}...</span>
                         </div></h1>
                 </div>

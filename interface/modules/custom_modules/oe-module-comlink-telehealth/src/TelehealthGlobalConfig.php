@@ -183,15 +183,15 @@ class TelehealthGlobalConfig
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => ''
             ]
-            ,self::VERIFY_SETTINGS_BUTTON => [
-                'title' => 'Verify Comlink Installation Settings'
-                ,'description' => 'Verifies the comlink telehealth provisioning settings are correct. Requires the settings to be saved first'
-                ,'type' => GlobalSetting::DATA_TYPE_BUTTON_AJAX_DISPLAY
-                ,'default' => ''
-                ,'options' => [
-                    GlobalSetting::DATA_TYPE_OPTION_AJAX_URL => $this->publicWebPath . 'index.php?action=verify_installation_settings'
-                ]
-            ]
+//            ,self::VERIFY_SETTINGS_BUTTON => [
+//                'title' => 'Verify Comlink Installation Settings'
+//                ,'description' => 'Verifies the comlink telehealth provisioning settings are correct. Requires the settings to be saved first'
+//                ,'type' => GlobalSetting::DATA_TYPE_BUTTON_AJAX_DISPLAY
+//                ,'default' => ''
+//                ,'options' => [
+//                    GlobalSetting::DATA_TYPE_OPTION_AJAX_URL => $this->publicWebPath . 'index.php?action=verify_installation_settings'
+//                ]
+//            ]
         ];
         return $settings;
     }

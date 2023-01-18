@@ -43,8 +43,17 @@ export function PatientConferenceRoom(translations,scriptLocation) {
             });
     }
 
-    patientConferenceRoom.getFullConferenceVideoBarSettings = patientConferenceRoom.getFullConferenceVideoBarPatientSettings;
 
+    patientConferenceRoom.getFullConferenceVideoBarSettings = function()
+    {
+        let settings = patientConferenceRoom.getDefaultVideoBarSettings();
+        settings.hangupCallback = patientConferenceRoom.handleCallHangup.bind(patientConferenceRoom);
+        settings.expand = false;
+        settings.notes = false; // patient doesn't get notes.
+        settings.hangup = true;
+        patientConferenceRoom.addSettingsForScreenshare(settings);
+        return settings;
+    };
 
     patientConferenceRoom.startConferenceRoom = function()
     {
@@ -54,24 +63,53 @@ export function PatientConferenceRoom(translations,scriptLocation) {
         // patientConferenceRoom.makeScreenshareCall(patientConferenceRoom.callerSettings.calleeUuid);
     };
 
-    patientConferenceRoom.toggleScreenSharing = function(evt) {
-        patientConferenceRoom.makeScreenshareCall(patientConferenceRoom.callerSettings.calleeUuid);
-    };
-
-    patientConferenceRoom.handleIncomingCall = function(call)
-    {
-        // patient shouldn't get provider initiated call... so we will skip this for now.
+    patientConferenceRoom.canReceiveCall = function(call) {
+        let callerId = call.getRemotePartyId();
         console.log("Received call ", call);
-        // we need to hide the main video screen and show the screen share here...
+        // only allow calls from the provider for now...
+        if (!patientConferenceRoom.isAuthorizedParticipant(callerId))
+        {
+            return Promise.resolve({call: call, canCall: false});
+        }
+
+        // only allow screensharing calls
+        if (!call.isScreenSharing()) {
+            return Promise.resolve({call: call, canCall: false});
+        }
+        return Promise.resolve({call: call, canCall: true});
     };
 
     patientConferenceRoom.handleCallEndedEvent = function(call)
     {
-        alert(translations.HOST_LEFT);
-        // for patient conference if the provider leaves the call we need to send them back to the waiting room
-        patientConferenceRoom.replaceConferenceRoomWithWaitingRoom();
-        // cancel our session update sequence that happens during the conference room.
-        patientConferenceRoom.cancelUpdateConferenceRoomSession();
+        let detachedCallRemoteUserId = null;
+        // if the user data is allocated then this is an existing call
+        if (call.getUserData() != null) {
+
+            /**
+             *
+             * @type {CallerSlot|null}
+             */
+            let callerSlot = call.getUserData();
+            detachedCallRemoteUserId = callerSlot.getRemotePartyId();
+            patientConferenceRoom.removeCallFromConference(call);
+        }
+
+        // we only fall back to the waiting room if we aren't in the middle of a session destruction.
+        if (patientConferenceRoom.inSession && !patientConferenceRoom.hasProviderParticipant()) {
+
+            // we shouldn't ever have the case where there are no participants but the provider is still here...
+            // for safety reasons though we want to put this in
+            alert(translations.HOST_LEFT);
+            // for patient conference if the provider leaves the call we need to send them back to the waiting room
+            patientConferenceRoom.replaceConferenceRoomWithWaitingRoom();
+            // cancel our session update sequence that happens during the conference room.
+            patientConferenceRoom.cancelUpdateConferenceRoomSession();
+        }
+    };
+
+    patientConferenceRoom.hasProviderParticipant = function() {
+        // TODO: @adunsulag when we switch to 3rd party we can return the provider caller uuid
+        return patientConferenceRoom.findCallerSlotWithId(patientConferenceRoom.callerSettings.calleeUuid) !== undefined;
     };
 
     patientConferenceRoom.replaceConferenceRoomWithWaitingRoom = function()
