@@ -27,13 +27,18 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\{
+    AddressService,
+    InsuranceCompanyService,
+    PhoneNumberService
+};
 
 // Putting a message here will cause a popup window to display it.
 $info_msg = "";
 
 // Grab insurance type codes from service
 $insuranceCompany = new InsuranceCompanyService();
+$phoneNumber = new PhoneNumberService();
 $ins_type_code_array = $insuranceCompany->getInsuranceTypes();
 
 ?>
@@ -122,6 +127,16 @@ td {
   return true;
  }
 
+function clearForm() {
+  let f = document.forms[0];
+  f.form_id.value = '';
+  f.form_name.value = '';
+  f.form_addr1.value = '';
+  f.form_city.value = '';
+  f.form_state.value = '';
+  f.form_zip.value = ''; 
+}
+
 </script>
 
 </head>
@@ -135,7 +150,11 @@ if ($_POST['form_save'] ?? '') {
         CsrfUtils::csrfNotVerified();
     }
 
-    $ins_id = '';
+    if ($_POST['form_save'] == 'Save as New') {
+        $ins_id = '';
+    } else {
+        $ins_id = $_POST['form_id'];
+    }
     $ins_name = $_POST['form_name'];
 
     if ($ins_id) {
@@ -157,31 +176,11 @@ if ($_POST['form_save'] ?? '') {
                 'state' => $_POST['form_state'],
                 'zip' => $_POST['form_zip'],
                 'country' => $_POST['form_country'],
+                'phone' => $_POST['form_phone'],
                 'foreign_id' => $ins_id,
                 'cqm_sop' => $_POST['form_cqm_sop']
             )
         );
-
-        $phone_parts = array();
-        preg_match(
-            "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
-            $_POST['form_phone'],
-            $phone_parts
-        );
-
-        if (!empty($phone_parts)) {
-            sqlStatement("INSERT INTO phone_numbers ( " .
-            "id, country_code, area_code, prefix, number, type, foreign_id " .
-            ") VALUES ( " .
-            "'" . add_escape_custom(generate_id())   . "', " .
-            "'+1'"                . ", "  .
-            "'" . add_escape_custom($phone_parts[1] ?? '') . "', " .
-            "'" . add_escape_custom($phone_parts[2] ?? '') . "', " .
-            "'" . add_escape_custom($phone_parts[3] ?? '') . "', " .
-            "'2'"                 . ", "  .
-            "'" . add_escape_custom($ins_id)         . "' "  .
-            ")");
-        }
     }
 
   // Close this window and tell our opener to select the new company.
@@ -196,6 +195,10 @@ if ($_POST['form_save'] ?? '') {
     echo " dlgclose();\n";
     echo "</script></body></html>\n";
     exit();
+} else {
+    $ins_co = (new InsuranceCompanyService())->getOneById($_GET['ins']) ?? null;
+    $ins_co_address = (new AddressService())->getOneByForeignId($_GET['ins']) ?? null;
+    $ins_co_phone = (new AddressService())->getOneByForeignId($_GET['ins']) ?? null;
 }
 
  // Query x12_partners.
@@ -212,30 +215,41 @@ if ($_POST['form_save'] ?? '') {
 <p>
 <table class="w-100 border-0">
  <tr>
+  <td class="font-weight-bold" width='1%' nowrap><?php echo xlt('Id'); ?>:</td>
+  <td>
+   <input type='text' size='20' name='form_id' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Id of insurance company'); ?>'
+       readonly='readonly' value='<?php echo text($ins_co['id'] ?? ''); ?>' />
+  </td>
+ </tr>
+ <tr>
   <td class="font-weight-bold" width='1%' nowrap><?php echo xlt('Name'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_name' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Name of insurance company'); ?>' />
+   <input type='text' size='20' name='form_name' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Name of insurance company'); ?>'
+       value='<?php echo text($ins_co['name'] ?? ''); ?>' />
   </td>
  </tr>
 
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Attention');?>:</td>
   <td>
-   <input type='text' size='20' name='form_attn' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Contact name'); ?>' />
+   <input type='text' size='20' name='form_attn' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Contact name'); ?>' 
+       value='<?php echo text($ins_co['attn'] ?? ''); ?>' />
   </td>
  </tr>
 
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Address1'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line' />
+   <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line' 
+       value='<?php echo text($ins_co_address['line1'] ?? ''); ?>' />
   </td>
  </tr>
 
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Address2'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any' />
+   <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any' 
+       value='<?php echo text($ins_co_address['line2'] ?? ''); ?>' />
   </td>
  </tr>
 
@@ -243,10 +257,12 @@ if ($_POST['form_save'] ?? '') {
      <td class="font-weight-bold" nowrap><?php echo xlt('City/State'); ?>:</td>
      <td class="form-row">
          <div class="col">
-             <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name' />
+             <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name' 
+                 value='<?php echo text($ins_co_address['city'] ?? ''); ?>' />
          </div>
          <div class="col">
-             <input type='text' size='3' name='form_state' maxlength='35' class='form-control form-control-sm' title='State or locality' />
+             <input type='text' size='3' name='form_state' maxlength='35' class='form-control form-control-sm' title='State or locality' 
+                 value='<?php echo text($ins_co_address['state'] ?? ''); ?>' />
          </div>
      </td>
  </tr>
@@ -255,10 +271,12 @@ if ($_POST['form_save'] ?? '') {
      <td class="font-weight-bold" nowrap><?php echo xlt('Zip/Country:'); ?></td>
      <td class="form-row">
          <div class="col">
-             <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code' />
+             <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code' 
+                 value='<?php echo text(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '') ); ?>' />
          </div>
          <div class="col">
-             <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name' />
+             <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name' 
+                 value='<?php echo text($ins_co_address['country'] ?? ''); ?>' />
          </div>
      </td>
  </tr>
@@ -325,6 +343,7 @@ foreach ($cqm_sop_array as $key => $value) {
 
 <input type='button' value='<?php echo xla('Search'); ?>' class='btn btn-primary' onclick='dosearch()' />
 <input type='submit' value='<?php echo xla('Save as New'); ?>' class='btn btn-primary' name='form_save' onmousedown='save_clicked=true' />
+<input type='button' value='<?php echo xla('Clear'); ?>' class='btn btn-primary' onclick='clearForm()' />
 <input type='button' value='<?php echo xla('Cancel'); ?>' class='btn btn-primary' onclick='window.close();'/>
 
 </center>
