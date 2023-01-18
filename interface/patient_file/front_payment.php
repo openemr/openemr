@@ -1151,12 +1151,13 @@ function make_insurance() {
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
-                        <?php //ALB Showing unallocated pre-payments here
-                            if (get_unallocated_patient_balance($pid) > 0) : ?>
+                        <?php
+                            $prepayment_bal = get_unallocated_patient_balance($pid);
+                            if ($prepayment_bal > 0) : ?>
                                 <div class="col-12 oe-custom-line">
                                     <label class="control-label" for="unallocated"><?php
                                                 echo xlt('Patient has an unallocated pre-payment amount of ') .
-                                                    xlt(get_unallocated_patient_balance($pid)); ?></label><br>
+                                                    text($prepayment_bal); ?></label><br>
                                     <a href="../billing/edit_payment.php?payment_id=<?php
                                         echo attr_url(get_unallocated_payment_id($pid)); ?>"
                                        target="_self"><?php echo xlt('Apply unallocated pre-payments here') ?></a>
