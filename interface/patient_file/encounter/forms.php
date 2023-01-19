@@ -19,6 +19,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
@@ -29,6 +30,8 @@ use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\OemrAd\Caselib;
+use OpenEMR\OemrAd\FeeSheet;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -64,7 +67,8 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['common','esign','dygraphs']); ?>
+<!-- OEMRAD - Added change to header ("oemr_ad") -->
+<?php Header::setupHeader(['common','esign','dygraphs', 'oemr_ad']); ?>
 
 <?php
 $esignApi = new Api();
@@ -111,7 +115,11 @@ $(function () {
     $(".esign-button-form").esign(
         formConfig,
         {
-            afterFormSuccess : function( response ) {
+            beforeFormSubmit : async function() {
+                /* OEMRAD - Added "beforeFormSubmit" function */
+                return await handleConfimBox_feeCodeLinked('<?php echo $encounter; ?>', '<?php echo $pid; ?>');
+            },
+            afterFormSuccess : async function( response ) {
                 if ( response.locked ) {
                     var editButtonId = "form-edit-button-"+response.formDir+"-"+response.formId;
                     $("#"+editButtonId).replaceWith( response.editButtonHtml );
@@ -121,6 +129,12 @@ $(function () {
                 $.post( formConfig.logViewAction, response, function( html ) {
                     $("#"+logId).replaceWith( html );
                 });
+
+                /* OEMRAD - Care Team provider */
+                <?php if(Caselib::getCtNotificationCategories($encounter) === true) { ?>
+                    await handleCareTeamProvider('<?php echo $encounter; ?>', '<?php echo $pid; ?>');
+                <?php } ?>
+                /* End */
             }
         }
     );
@@ -128,8 +142,12 @@ $(function () {
     var encounterConfig = <?php echo $esignApi->encounterConfigToJson(); ?>;
     $(".esign-button-encounter").esign(
         encounterConfig,
-        {
-            afterFormSuccess : function( response ) {
+        {  
+            beforeFormSubmit : async function() {
+                /* OEMRAD - Added "beforeFormSubmit" function */
+                return await handleConfimBox_feeCodeLinked('<?php echo $encounter; ?>', '<?php echo $pid; ?>');
+            },
+            afterFormSuccess : async function( response ) {
                 // If the response indicates a locked encounter, replace all
                 // form edit buttons with a "disabled" button, and "disable" left
                 // nav visit form links
@@ -146,6 +164,12 @@ $(function () {
                 $.post( encounterConfig.logViewAction, response, function( html ) {
                     $("#"+logId).replaceWith( html );
                 });
+
+                /* OEMRAD - Care Team provider */
+                <?php if(Caselib::getCtNotificationCategories($encounter) === true) { ?>
+                    await handleCareTeamProvider('<?php echo $encounter; ?>', '<?php echo $pid; ?>');
+                <?php } ?>
+                /* End */
             }
         }
     );
@@ -537,6 +561,12 @@ $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (Encount
     $menuArray = $menuEvent->getMenuData();
     $reg = getFormsByCategory();
     foreach ($reg as $item) {
+        /* OEMRAD - Don't show lbf form if lbf form associated. */
+        if($item['LBF'] === true && !empty($item['grp_rto_action'])) {
+            continue;
+        }
+        /* End */
+
         $tmp = explode('|', $item['aco_spec']);
         if (!empty($tmp[1])) {
             if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
@@ -596,6 +626,17 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres, false);
 
+/* OEMRAD - Check authorized encounter. */
+$case_id = Caselib::getAuthorizedCaseId($pid, $encounter, $encounter_date);
+if($case_id !== false && !empty($case_id)) {
+?>
+<script type="text/javascript">
+    jQuery(document).ready(async function($) { await authorizedEncounter('<?php echo $encounter; ?>', '<?php echo $case_id; ?>', '<?php echo $encounter_date; ?>'); }); 
+</script>
+<?php
+}
+/* End */
+
 // Check for group encounter
 if ($attendant_type == 'pid' && is_numeric($pid)) {
     $groupEncounter = false;
@@ -617,10 +658,12 @@ $menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 $t = $twig->getTwig();
+// OEMRAD - Change
 echo $t->render('encounter/forms/navbar.html.twig', [
     'encounterDate' => oeFormatShortDate($encounter_date),
     'patientName' => $patientName,
     'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
+    'isDeletable' => AclMain::aclCheckCore("encounters", "delete"),
     'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
     'menuArray' => $menu->getMenuData(),
 ]);
@@ -956,7 +999,8 @@ if (
             "' onclick='top.restoreSession()'>" . xlt('Print') . "</a>";
         }
 
-        if (AclMain::aclCheckCore('admin', 'super')) {
+        // OEMRAD - Added acl_check.
+        if (AclMain::aclCheckCore('admin', 'super') || AclMain::aclCheckCore("encounters", "delete")) {
             if ($formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
                 // a link to delete the form from the encounter
                 echo "<a href='$rootdir/patient_file/encounter/delete_form.php?" .

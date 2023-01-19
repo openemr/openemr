@@ -42,7 +42,7 @@
             {% endif %}
             <li class="nav-item"><a href="#" onClick="$('.formrow .collapse').collapse('hide');" class="nav-link"><i class="fa fa-compress-alt"></i>&nbsp;{{ "Collapse All"|xlt }}</a></li>
             <li class="nav-item"><a href="#" onClick="$('.formrow .collapse').collapse('show');" class="nav-link"><i class="fa fa-expand-alt"></i>&nbsp;{{ "Expand All"|xlt }}</a></li>
-            {% if isAdminSuper %}
+            {% if isAdminSuper or isDeletable %}
             <li class="nav-item"><a href="#" class="nav-link text-danger btn-delete" onclick="return deleteme()">{{ "Delete"|xlt }}</a></li>
             {% endif %}
         </ul>
