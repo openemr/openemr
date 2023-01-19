@@ -343,17 +343,22 @@ function getCodeDescriptions($codes)
         }
         $arrcode = explode('|', $codestring);
         $code_type = $arrcode[0];
-        $code = $arrcode[1];
+        // OEMRAD - Change
+        //$code = $arrcode[1];
+        list($code, $modifier) = explode(':', $arrcode[1]);
+
         $selector = $arrcode[2];
         $desc = '';
         if ($code_type == 'PROD') {
             $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = ?", array($code));
             $desc = "$code:$selector " . $row['name'];
         } else {
-            $row = sqlQuery("SELECT code_text FROM codes WHERE " .
+            // OEMRAD - Query change for modifier.
+            $row = sqlQuery("SELECT code_text, modifier FROM codes WHERE " .
                 "code_type = ? AND " .
-                "code = ? ORDER BY modifier LIMIT 1", array($code_types[$code_type]['id'], $code ));
-            $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? ''));
+                "code = ? AND modifier = '$modifier' ORDER BY modifier LIMIT 1", array($code_types[$code_type]['id'], $code ));
+            // OEMRAD - Added "modifier" to text desc.
+            $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? '')) . ($row['modifier'] ? ' - [Modifier: ' . $row['modifier'] . ']' : '');
         }
         $desc = str_replace('~', ' ', $desc);
         if ($s) {
@@ -566,6 +571,8 @@ function writeFSLine($category, $option, $codes)
     ++$opt_line_no;
     $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
 
+    // OEMRAD - Added Change
+    $codes = str_replace('undefined', '', $codes);
     $descs = getCodeDescriptions($codes);
 
     echo " <tr>\n";
@@ -964,8 +971,9 @@ function writeITLine($it_array)
             dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
         }
 
+        // OEMRAD - Added "modifier" param to set_related function
         // This is for callback by the find-code popup.
-        function set_related(codetype, code, selector, codedesc) {
+        function set_related(codetype, code, selector, codedesc, modifier = 0) {
             var f = document.forms[0];
             if (current_sel_clin_term) {
                 // Coming from the Clinical Terms Code(s) edit
@@ -1006,6 +1014,13 @@ function writeITLine($it_array)
                         delem.value += '~';
                     }
                     celem.value += codetype + '|' + code + '|' + selector;
+
+                    /* OEMRAD - Changes */
+                    if(modifier) celem.value += ':' + modifier;
+                    celem.value += '|';
+                    if(selector) celem.value += selector;
+                    /* End */
+
                     if (codetype == 'PROD') {
                         delem.value += code + ':' + selector + ' ' + codedesc;
                     } else {

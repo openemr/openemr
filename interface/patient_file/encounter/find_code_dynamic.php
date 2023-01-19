@@ -124,7 +124,9 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 // this.id is of the form "CID|jsonstring".
                 var codesel = jobj['code'].split('|');
 
-                selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit);
+                // OEMRAD - Sel code change added param.
+                selcode(jobj['codetype'], codesel[0], (codesel[1] | ''), jobj['description'], jobj['modifier'], target_element, limit);
+
                 <?php } elseif ($what == 'fields') { ?>
                 selectField(jobj);
                 <?php } elseif ($what == 'lists') { ?>
@@ -158,7 +160,8 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
 
     <?php if ($what == 'codes') { ?>
     // Pass info back to the opener and close this window. Specific to billing/product codes.
-    function selcode(codetype, code, selector, codedesc, target_element, limit = 0) {
+    // OEMRAD - modified param list of selcode added "modifier".
+    function selcode(codetype, code, selector, codedesc, modifier = 0, target_element, limit = 0) {
         if (opener.closed || (!opener.set_related && !opener.set_related_target)) {
             alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
         } else {
@@ -168,7 +171,8 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 opener.promiseData = JSON.stringify({codetype, code, selector, codedesc});
                 dlgclose();
             } else {
-                var msg = opener.set_related(codetype, code, selector, codedesc);
+                // OEMRAD - added "modifier" param to param list.
+                var msg = opener.set_related(codetype, code, selector, codedesc, modifier);
             }
             if (msg) alert(msg);
             // window.close();
