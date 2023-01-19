@@ -133,9 +133,12 @@ try {
             });
         }
 
-        let formOptions = {
-            questionLayout: "vertical",
-            hideTreeLine: true
+        let formOptions = {      // check if displayScoreWithAnswerText is changed
+            "questionLayout": "vertical",
+            "hideTreeLine": true,
+            "hideRepetitionNumber": true,
+            "showCodingInstruction": false,
+            "displayScoreWithAnswerText": false
         };
 
         function saveQR() {
