@@ -529,43 +529,43 @@ function toencounter(enc, datestr, topframe) {
         grid-area: section-2;
         text-align: left;
     }
-    table,td,th { 
-        border: 1px solid black; text-align: left; 
+    table,td,th {
+        border: 1px solid black; text-align: left;
     }
-    table { 
-        border-collapse: collapse; width: 100%; 
+    table {
+        border-collapse: collapse; width: 100%;
     }
-    th,td { 
+    th,td {
         padding: 7px;
     }
-    .table td { 
+    .table td {
         padding: 7px;
     }
-    .mini_table { 
-        width: 100%; 
+    .mini_table {
+        width: 100%;
     }
-    table.mini_table>tbody>tr>th { 
-        background-color: var(--secondary); 
-        text-align: center; 
+    table.mini_table>tbody>tr>th {
+        background-color: var(--secondary);
+        text-align: center;
     }
-    body>table.mini_table>tbody>tr>td { 
-        text-align: center; 
+    body>table.mini_table>tbody>tr>td {
+        text-align: center;
     }
-    body>table.mini_table>tbody>tr>td { 
-        border: 1px solid #fff; 
+    body>table.mini_table>tbody>tr>td {
+        border: 1px solid #fff;
     }
-    body>table.mini_table>tbody>tr>th {  
+    body>table.mini_table>tbody>tr>th {
         border: 1px solid var(--secondary);
     }
-    .bg-color { 
-        background-color: var(--secondary); 
-        padding: 2px; 
-        font-weight: 600; 
-        -webkit-print-color-adjust: exact; 
+    .bg-color {
+        background-color: var(--secondary);
+        padding: 2px;
+        font-weight: 600;
+        -webkit-print-color-adjust: exact;
     }
-    .bg-color-w { 
-        background-color: var(--secondary); 
-        font-weight: 600; 
+    .bg-color-w {
+        background-color: var(--secondary);
+        font-weight: 600;
         -webkit-print-color-adjust: exact!important; }
     @media print {
         body {
@@ -1151,6 +1151,18 @@ function make_insurance() {
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
+                        <?php
+                            $prepayment_bal = get_unallocated_patient_balance($pid);
+                        if ($prepayment_bal > 0) : ?>
+                                <div class="col-12 oe-custom-line">
+                                    <label class="control-label" for="unallocated"><?php
+                                                echo xlt('Patient has an unallocated pre-payment amount of ') .
+                                                    text($prepayment_bal); ?></label><br>
+                                    <a href="../billing/edit_payment.php?payment_id=<?php
+                                        echo attr_url(get_unallocated_payment_id($pid)); ?>"
+                                       target="_self"><?php echo xlt('Apply unallocated pre-payments here') ?></a>
+                                </div><br>
+                            <?php endif;  ?>
                         <div class="col-12 oe-custom-line">
                             <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>

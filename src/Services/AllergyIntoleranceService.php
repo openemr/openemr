@@ -52,6 +52,7 @@ class AllergyIntoleranceService extends BaseService
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
         lists.title,
+        lists.comments,
         practitioners.uuid as practitioner,
         practitioners.practitioner_uuid,
         organizations.uuid as organization,

@@ -1,5 +1,8 @@
 <?php
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+
 // TODO: @adunsulag move these into src/
 class Controller extends Smarty
 {
@@ -73,6 +76,12 @@ class Controller extends Smarty
 
     public function act($qarray)
     {
+        if ((array_key_first($qarray) ?? '') == 'practice_settings') {
+            if (!AclMain::aclCheckCore('admin', 'practice')) {
+                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
+                exit;
+            }
+        }
 
         if (isset($_GET['process'])) {
             unset($_GET['process']);

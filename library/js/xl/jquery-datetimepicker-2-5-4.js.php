@@ -92,7 +92,9 @@
             <?php } ?>
         <?php } else { ?>
             <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> H:i',
+                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> g:i a',
+                formatTime:'g:i a',
+                validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
             <?php } ?>
