@@ -59,6 +59,10 @@ function calendar_arrived($form_pid)
 function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id = '', $billing_fac = '', $provider = '', $cat = '', $return_existing = true)
 {
     global $today;
+
+    // OEMRAD - Change
+    if(!$today) $today = date('Y-m-d');
+
     $encounter = todaysEncounterIf($patient_id);
     if ($encounter && (int)$GLOBALS['auto_create_new_encounters'] !== 2) {
         if ($return_existing) {
@@ -119,6 +123,10 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '', $fac_id = '', $billing_fac = '', $provider = '', $cat = '', $return_existing = true, $eid = null)
 {
     global $today;
+
+    // OEMRAD - Change
+    if(!$today) $today = date('Y-m-d');
+
     $encounter = todaysTherapyGroupEncounterIf($group_id);
     if ($encounter) {
         if ($return_existing) {
@@ -182,6 +190,10 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
 function todaysEncounterIf($patient_id)
 {
     global $today;
+
+    // OEMRAD - Change
+    if(!$today) $today = date('Y-m-d');
+
     $tmprow = sqlQuery("SELECT encounter FROM form_encounter WHERE " .
     "pid = ? AND date = ? " .
     "ORDER BY encounter DESC LIMIT 1", array($patient_id,"$today 00:00:00"));
@@ -194,6 +206,10 @@ function todaysEncounterIf($patient_id)
 function todaysTherapyGroupEncounterIf($group_id)
 {
     global $today;
+
+    // OEMRAD - Change
+    if(!$today) $today = date('Y-m-d');
+
     $tmprow = sqlQuery("SELECT encounter FROM form_groups_encounter WHERE " .
         "group_id = ? AND date = ? " .
         "ORDER BY encounter DESC LIMIT 1", array($group_id,"$today 00:00:00"));
@@ -206,6 +222,9 @@ function todaysTherapyGroupEncounterIf($group_id)
 function todaysEncounter($patient_id, $reason = '')
 {
     global $today, $userauthorized;
+
+    // OEMRAD - Change
+    if(!$today) $today = date('Y-m-d');
 
     if (empty($reason)) {
         $reason = xl('Please indicate visit reason');
@@ -351,20 +370,24 @@ function InsertEvent($args, $from = 'general')
     $form_pid = empty($args['form_pid']) ? '' : $args['form_pid'];
     $form_room = empty($args['form_room']) ? '' : $args['form_room'];
     $form_gid = empty($args['form_gid']) ? '' : $args['form_gid'];
-    ;
+
+    // OEMRAD - Change
+    $form_case = empty($args['form_case']) ? '' : $args['form_case'];
+
     if ($from == 'general') {
+        // OEMRAD - Added pc_case field
         $pc_eid = sqlInsert(
             "INSERT INTO openemr_postcalendar_events ( " .
             "pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, pc_time, pc_hometext, " .
             "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
             "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-            "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location,pc_room " .
-            ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)",
+            "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location,pc_room, pc_case " .
+            ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?,?)",
             array($args['form_category'],(isset($args['new_multiple_value']) ? $args['new_multiple_value'] : ''),$args['form_provider'],$form_pid,$form_gid,
             $args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
             fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
             $args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
-            $args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'],$form_room)
+            $args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'],$form_room, $form_case)
         );
 
             //Manage tracker status.
