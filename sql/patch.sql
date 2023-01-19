@@ -198,3 +198,11 @@ ALTER TABLE `audit_master` ADD `is_unstructured_document` BOOLEAN NULL DEFAULT F
 #IfNotColumnType ccda ccda_data LONGTEXT
 ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
 #EndIf
+
+#IfNotColumnType user user VARCHAR(255)
+ALTER TABLE `form_questionnaire_assessments` CHANGE `user` `user` VARCHAR(255) NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn module_configuration date_created
+ALTER TABLE `module_configuration` ADD COLUMN `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created';
+#EndIf
