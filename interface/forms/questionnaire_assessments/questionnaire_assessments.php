@@ -134,8 +134,11 @@ try {
         }
 
         let formOptions = {
-            questionLayout: "vertical",
-            hideTreeLine: true
+            "questionLayout": "vertical",
+            "hideTreeLine": true,
+            "hideRepetitionNumber": true,
+            "showCodingInstruction": false,
+            "displayScoreWithAnswerText": false
         };
 
         function saveQR() {
