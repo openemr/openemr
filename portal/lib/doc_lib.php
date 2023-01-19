@@ -141,7 +141,7 @@ try {
         $stylesheet = str_replace('</style>', $stylesheet, $style[0]);
     }
     $htmlin = "<!DOCTYPE html><html><head>" . $stylesheet . "</head><body>$htmlin</body></html>";
-    //$pdf->writeHtml($htmlin);
+    $pdf->writeHtml($htmlin);
 
     if ($dispose == 'download') {
         header('Content-type: application/pdf');
@@ -174,25 +174,6 @@ try {
             die(text($e->getMessage()));
         }
     }
-    /*if ($dispose == 'fetch_pdf') {
-        try {
-            //$pdf->debug = true;
-            $html = file_get_contents("../../contrib/AssessmentBatteryReport.html");
-
-            $style = file_get_contents("../../contrib/assessment_print.css");
-
-            $form_filename = 'test' . $form_filename;
-            $err = $pdf->writeHtml($style, 1);
-            //$html = '<style>' . $style . '</style>' . $html;
-            $err = $pdf->writeHtml($html, 2);
-            $file = $pdf->Output('./../../contrib/AssessmentBatteryTest.pdf', 'S');
-            //echo base64_encode($file);
-            file_put_contents('./../../contrib/AssessmentBatteryTest.pdf', $file);
-            exit();
-        } catch (Exception $e) {
-            die(text($e->getMessage()));
-        }
-    }*/
 } catch (Exception $e) {
     die(text($e->getMessage()));
 }
