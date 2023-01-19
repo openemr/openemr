@@ -133,7 +133,7 @@ try {
             });
         }
 
-        let formOptions = {      // check if displayScoreWithAnswerText is changed
+        let formOptions = {
             "questionLayout": "vertical",
             "hideTreeLine": true,
             "hideRepetitionNumber": true,
