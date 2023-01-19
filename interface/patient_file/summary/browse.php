@@ -97,7 +97,9 @@ if (isset($_GET['set_pid'])) {
 <script>
 <!--
 function auto_populate_employer_address(){
+ /* OEMRAD - Changes */
  var df = opener.document.demographics_form;
+ if(df != null) {
  df.i<?php echo attr($browsenum);?>subscriber_fname.value=<?php echo js_escape($result3['subscriber_fname']);?>;
  df.i<?php echo attr($browsenum);?>subscriber_mname.value=<?php echo js_escape($result3['subscriber_mname']);?>;
  df.i<?php echo attr($browsenum);?>subscriber_lname.value=<?php echo js_escape($result3['subscriber_lname']);?>;
@@ -112,10 +114,12 @@ function auto_populate_employer_address(){
  df.i<?php echo attr($browsenum);?>subscriber_ss.value=<?php echo js_escape($result3['subscriber_ss']);?>;
  df.form_i<?php echo attr($browsenum);?>subscriber_sex.value=<?php echo js_escape($result3['subscriber_sex']);?>;
 
- df.i<?php echo attr($browsenum);?>plan_name.value=<?php echo js_escape($result3['plan_name']);?>;
- df.i<?php echo attr($browsenum);?>policy_number.value=<?php echo js_escape($result3['policy_number']);?>;
- df.i<?php echo attr($browsenum);?>group_number.value=<?php echo js_escape($result3['group_number']);?>;
- df.i<?php echo attr($browsenum);?>provider.value=<?php echo js_escape($result3['provider']);?>;
+ /* OEMRAD - Changes */
+ // df.i<?php //echo attr($browsenum);?>plan_name.value=<?php //echo js_escape($result3['plan_name']);?>;
+ // df.i<?php //echo attr($browsenum);?>policy_number.value=<?php //echo js_escape($result3['policy_number']);?>;
+ // df.i<?php //echo attr($browsenum);?>group_number.value=<?php //echo js_escape($result3['group_number']);?>;
+ // df.i<?php //echo attr($browsenum);?>provider.value=<?php //echo js_escape($result3['provider']);?>;
+ /*End*/
 
  // One clinic comments out the subscriber employer stuff.
  if (df.i<?php echo attr($browsenum);?>subscriber_employer) {
@@ -126,6 +130,43 @@ function auto_populate_employer_address(){
   df.i<?php echo attr($browsenum);?>subscriber_employer_postal_code.value=<?php echo js_escape($result3['subscriber_employer_postal_code']);?>;
   df.form_i<?php echo attr($browsenum);?>subscriber_employer_country.value=<?php echo js_escape($result3['subscriber_employer_country']);?>;
  }
+ }
+ /*End*/
+
+ /* OEMRAD - Changes */
+ if(df == null) {
+ df = opener.document;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_fname).value=<?php echo js_escape($result3['subscriber_fname']);?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_mname).value=<?php echo js_escape($result3['subscriber_mname']);?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_lname).value=<?php echo js_escape($result3['subscriber_lname']);?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_street).value=<?php echo js_escape($result3['subscriber_street']);?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_city).value=<?php echo js_escape($result3['subscriber_city']);?>;
+ df.getElementById(form_i<?php echo attr($browsenum);?>subscriber_state).value=<?php echo js_escape($result3['subscriber_state']);?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_postal_code).value=<?php echo js_escape($result3['subscriber_postal_code']);?>;
+ if (df.getElementById(form_i<?php echo attr($browsenum);?>subscriber_country)) // in case this is commented out
+  df.getElementById(form_i<?php echo attr($browsenum);?>subscriber_country).value=<?php echo js_escape($result3['subscriber_country']);?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_phone).value=<?php echo js_escape($result3['subscriber_phone']);?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_DOB).value=<?php echo js_escape(oeFormatShortDate($result3['subscriber_DOB']));?>;
+ df.getElementById(i<?php echo attr($browsenum);?>subscriber_ss).value=<?php echo js_escape($result3['subscriber_ss']);?>;
+ df.getElementById(form_i<?php echo attr($browsenum);?>subscriber_sex).value=<?php echo js_escape($result3['subscriber_sex']);?>;
+
+ /* OEMRAD - Changes */
+ // df.getElementById(i<?php //echo attr($browsenum);?>plan_name).value=<?php //echo js_escape($result3['plan_name']);?>;
+ // df.getElementById(i<?php //echo attr($browsenum);?>policy_number).value=<?php //echo js_escape($result3['policy_number']);?>;
+ // df.getElementById(i<?php //echo attr($browsenum);?>group_number).value=<?php //echo js_escape($result3['group_number']);?>;
+ // df.getElementById(i<?php //echo attr($browsenum);?>provider).value=<?php //echo js_escape($result3['provider']);?>;
+ /*End*/
+
+ if (df.i<?php echo attr($browsenum);?>subscriber_employer) {
+  df.getElementById(i<?php echo attr($browsenum);?>subscriber_employer).value=<?php echo js_escape($result3['subscriber_employer']);?>;
+  df.getElementById(i<?php echo attr($browsenum);?>subscriber_employer_street).value=<?php echo js_escape($result3['subscriber_employer_street']);?>;
+  df.getElementById(i<?php echo attr($browsenum);?>subscriber_employer_city).value=<?php echo js_escape($result3['subscriber_employer_city']);?>;
+  df.getElementById(form_i<?php echo attr($browsenum);?>subscriber_employer_state).value=<?php echo js_escape($result3['subscriber_employer_state']);?>;
+  df.getElementById(i<?php echo attr($browsenum);?>subscriber_employer_postal_code).value=<?php echo js_escape($result3['subscriber_employer_postal_code']);?>;
+  df.getElementById(form_i<?php echo attr($browsenum);?>subscriber_employer_country).value=<?php echo js_escape($result3['subscriber_employer_country']);?>;
+ }
+ }
+ /*End*/
 }
 //-->
 </script>
