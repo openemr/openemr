@@ -299,7 +299,7 @@ class InsuranceCompanyService extends BaseService
                 $data["cms_id"],
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
-                $data["x12_default_partner_id"],
+                $data["x12_default_partner_id"] ?? null,
                 $data["alt_cms_id"],
                 $data["cqm_sop"],
                 $iid

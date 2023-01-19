@@ -37,7 +37,7 @@ class PhoneNumberService extends BaseService
     public function insert($data, $foreignId)
     {
         $freshId = $this->getFreshId("id", "phone_numbers");
-    
+
         $phone_parts = array();
         preg_match(
             "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
@@ -82,22 +82,35 @@ class PhoneNumberService extends BaseService
 
     public function update($data, $foreignId)
     {
+        $phone_parts = array();
+        preg_match(
+            "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
+            $data['phone'],
+            $phone_parts
+        );
+
+        $data['country_code'] = "+1";
+        $data['area_code'] = $phone_parts[1] ?? '';
+        $data['prefix'] = $phone_parts[2] ?? '';
+        $data['number'] = $phone_parts[3] ?? '';
+        $data['type'] = "2";
+
         $phoneNumbersSql  = " UPDATE phone_numbers SET";
         $phoneNumbersSql .= "     country_code=?,";
         $phoneNumbersSql .= "     area_code=?,";
         $phoneNumbersSql .= "     prefix=?,";
         $phoneNumbersSql .= "     number=?,";
-        $phoneNumbersSql .= "     type=?,";
+        $phoneNumbersSql .= "     type=?";
         $phoneNumbersSql .= "     WHERE foreign_id=?";
 
         $phoneNumbersSqlResults = sqlStatement(
             $phoneNumbersSql,
             array(
-                $data["country_code"],
-                $data["area_code"],
-                $data["prefix"],
-                $data["number"],
-                $data["type"],
+                $data["country_code"] ?? null,
+                $data["area_code"] ?? null,
+                $data["prefix"] ?? null,
+                $data["number"] ?? null,
+                $data["type"] ?? null,
                 $foreignId
             )
         );

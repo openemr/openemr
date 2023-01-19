@@ -104,19 +104,22 @@ td {
  // button vs. hitting the Enter key, as we prefer the "default"
  // action to be search and not save.
  var save_clicked = false;
+ let update_clicked = false;
 
  // Onsubmit handler.
  function validate(f) {
   // If save was not clicked then default to searching.
-  if (! save_clicked) return dosearch();
+  if (!(save_clicked || update_clicked)) return dosearch();
   save_clicked = false;
 
   msg = '';
+  if (update_clicked && !f.form_id.value.length) msg += 'Id is missing for Update \n';
   if (! f.form_name.value.length ) msg += 'Company name is missing. ';
   if (! f.form_addr1.value.length) msg += 'Address is missing. ';
   if (! f.form_city.value.length ) msg += 'City is missing. ';
   if (! f.form_state.value.length) msg += 'State is missing. ';
   if (! f.form_zip.value.length  ) msg += 'Zip is missing.';
+  update_clicked = false;
 
   if (msg) {
    alert(msg);
@@ -160,6 +163,27 @@ if ($_POST['form_save'] ?? '') {
     if ($ins_id) {
        // sql for updating could go here if this script is enhanced to support
        // editing of existing insurance companies.
+        $insuranceCompany->update(
+            array(
+            'name' => $ins_name,
+            'attn' => $_POST['form_attn'],
+            'cms_id' => $_POST['form_cms_id'],
+            'ins_type_code' => $_POST['form_ins_type_code'],
+            'x12_receiver_id' => $_POST['form_x12_receiver'] ?? null,
+            'x12_default_partner_id' => $_POST['form_partner'],
+            'alt_cms_id' => null,
+            'line1' => $_POST['form_addr1'],
+            'line2' => $_POST['form_addr2'],
+            'city' => $_POST['form_city'],
+            'state' => $_POST['form_state'],
+            'zip' => $_POST['form_zip'],
+            'country' => $_POST['form_country'],
+            'phone' => $_POST['form_phone'],
+            'foreign_id' => $ins_id,
+            'cqm_sop' => $_POST['form_cqm_sop']
+            ),
+            $ins_id
+        );
     } else {
         $ins_id = $insuranceCompany->insert(
             array(
@@ -167,8 +191,8 @@ if ($_POST['form_save'] ?? '') {
                 'attn' => $_POST['form_attn'],
                 'cms_id' => $_POST['form_cms_id'],
                 'ins_type_code' => $_POST['form_ins_type_code'],
-                'x12_receiver_id' => $_POST['form_partner'],
-                'x12_default_parter_id' => $_POST['form_partner'],
+                'x12_receiver_id' => $_POST['form_receiver'] ?? null,
+                'x12_default_partner_id' => $_POST['form_partner'],
                 'alt_cms_id' => null,
                 'line1' => $_POST['form_addr1'],
                 'line2' => $_POST['form_addr2'],
@@ -198,7 +222,7 @@ if ($_POST['form_save'] ?? '') {
 } else {
     $ins_co = (new InsuranceCompanyService())->getOneById($_GET['ins']) ?? null;
     $ins_co_address = (new AddressService())->getOneByForeignId($_GET['ins']) ?? null;
-    $ins_co_phone = (new AddressService())->getOneByForeignId($_GET['ins']) ?? null;
+    $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($_GET['ins']) ?? null;
 }
 
  // Query x12_partners.
@@ -272,7 +296,7 @@ if ($_POST['form_save'] ?? '') {
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code' 
-                 value='<?php echo text(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '') ); ?>' />
+                 value='<?php echo text(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '')); ?>' />
          </div>
          <div class="col">
              <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name' 
@@ -284,13 +308,20 @@ if ($_POST['form_save'] ?? '') {
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Phone'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_phone' maxlength='20' class='form-control form-control-sm' title='Telephone number' />
+   <input type='text' size='20' name='form_phone' maxlength='20' class='form-control form-control-sm' title='Telephone number'
+       value='<?php echo text((
+         ($ins_co_phone['area_code'] ?? '') .
+         ($ins_co_phone['prefix'] ?? '') .
+         ($ins_co_phone['number'] ?? '')
+       )); ?>' 
+    />
   </td>
  </tr>
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Payer ID'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_cms_id' maxlength='15' class='form-control form-control-sm' title='Identifier assigned by CMS' />
+   <input type='text' size='20' name='form_cms_id' maxlength='15' class='form-control form-control-sm' title='Identifier assigned by CMS' 
+     value='<?php echo text($ins_co['cms_id'] ?? ''); ?>' />
   </td>
  </tr>
 
@@ -301,6 +332,9 @@ if ($_POST['form_save'] ?? '') {
 <?php
 for ($i = 1; $i < count($ins_type_code_array); ++$i) {
     echo "   <option value='" . attr($i) . "'";
+    if ($i == $ins_co['ins_type_code']) {
+        echo " selected";
+    }
     echo ">" . text($ins_type_code_array[$i]) . "\n";
 }
 ?>
@@ -316,6 +350,9 @@ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
 <?php
 while ($xrow = sqlFetchArray($xres)) {
     echo "   <option value='" . attr($xrow['id']) . "'";
+    if ($xrow['id'] == $ins_co['x12_default_partner_id']) {
+        echo " selected";
+    }
     echo ">" . text($xrow['name']) . "</option>\n";
 }
 ?>
@@ -343,6 +380,7 @@ foreach ($cqm_sop_array as $key => $value) {
 
 <input type='button' value='<?php echo xla('Search'); ?>' class='btn btn-primary' onclick='dosearch()' />
 <input type='submit' value='<?php echo xla('Save as New'); ?>' class='btn btn-primary' name='form_save' onmousedown='save_clicked=true' />
+<input type='submit' value='<?php echo xla('Update'); ?>' class='btn btn-primary' name='form_save' onmousedown='update_clicked=true' />
 <input type='button' value='<?php echo xla('Clear'); ?>' class='btn btn-primary' onclick='clearForm()' />
 <input type='button' value='<?php echo xla('Cancel'); ?>' class='btn btn-primary' onclick='window.close();'/>
 

@@ -641,7 +641,7 @@ if (! $GLOBALS['simplified_demographics']) {
             </div>
             <div class="col-md-9">
               <a href="../../practice/ins_search.php?ins=" class="medium_modal btn btn-primary"
-               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
+               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add/Edit') ?></a>
               <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
