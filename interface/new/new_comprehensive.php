@@ -20,10 +20,15 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
+/* Included Email Verification File*/
+//require_once("$srcdir/OemrAD/interface/email_verification/email_verification.php");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
+
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\OemrAd\PatientVerification;
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
@@ -84,7 +89,8 @@ $fres = getLayoutRes();
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['common','datetime-picker','select2']); ?>
+<!-- OEMRAD - Added 'oemr_ad' -->
+<?php Header::setupHeader(['common','datetime-picker','select2', 'oemr_ad']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <?php require_once("$srcdir/erx_javascript.inc.php"); ?>
 <style>
@@ -396,9 +402,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         <div class="row">
             <div class="<?php echo $BS_COL_CLASS; ?>-12">
                 <div class="accordion" id="dem_according">
+                <!-- OEMRAD - OnSubmit function change. -->
                 <form action='new_comprehensive_save.php' name='demographics_form' id='DEM'
                       method='post'
-                      onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
+                      onsubmit='handleOnSubmit_NewComprehensive(submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints), this, event, "DEM")'>
                     <!--  Was: class='form-inline' -->
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
@@ -455,6 +462,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     $display_style = 'block';
                     $group_seq     = 0; // this gives the DIV blocks unique IDs
                     $condition_str = '';
+
+                    /* OEMRAD - Added Changes */
+                    $result['undeliverable_addres'] = 'NO';
+                    $result['hipaa_allowemail'] = 'YES';
+                    $result['hipaa_allowsms'] = 'YES';
+                    $result['allow_patient_portal'] = 'YES';
+                    /* End */
 
                     while ($frow = sqlFetchArray($fres)) {
                         $this_group = $frow['group_id'];
@@ -812,6 +826,12 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
     </div> <!--end of container div -->
 <!-- include support for the list-add selectbox feature -->
 <?php include($GLOBALS['fileroot'] . "/library/options_listadd.inc"); ?>
+
+<?php 
+// OEMRAD - Change
+//echo emailVerificationContent("../", $result); 
+?>
+
 <script>
 
 // hard code validation for old validation, in the new validation possible to add match rules
@@ -855,7 +875,8 @@ $(function () {
     $('#search').click(function() { searchme(); });
     $('#create').click(function() { check()});
 
-    var check = function(e) {
+    // OEMRAD - Code change added "async" to check function
+    var check = async function(e) {
         var f = document.forms[0];
         <?php if ($GLOBALS['new_validate']) {?>
             var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>, e, "DEM", constraints);
@@ -863,10 +884,24 @@ $(function () {
             top.restoreSession();
             var valid = validate(f);
         <?php }?>
+
+        /* OEMRAD - Added Changes */
+        if(valid) {
+          var response = await handleBeforeSubmit_NewComprehensive("DEM");
+          if(response == false) {
+            return false;
+          }
+        }
+        /* End */
+
         if (valid) {
             if (force_submit) {
                 // In this case dups were shown already and Save should just save.
                 top.restoreSession();
+
+                // OEMRAD - Change
+                let f = document.forms[0];
+
                 f.submit();
                 return;
             }

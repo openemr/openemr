@@ -5,7 +5,7 @@ async function isPatientExists(){
     var dob = $('#DEM #form_DOB').val();
 
     //Call webservice
-    var responce = await callPatientVerificationService(firstName, lastName, dob);
+    var responce = callPatientVerificationService(firstName, lastName, dob);
 
     if (
         responce != null &&
@@ -15,12 +15,12 @@ async function isPatientExists(){
         var isExistsResponce = responce["isExists"];
 
         if (isExistsResponce === true) {
-            //return confirm("*****WARNING****** - You are about to create a duplicate chart!!!!!! There is already a patient with the same first name, last name & birthdate.  Press CANCEL to abort..");
-            return await confirmBoxModal({
-                type: "confirm",
-                title: "Confirm",
-                html: "*****WARNING****** - You are about to create a duplicate chart!!!!!! There is already a patient with the same first name, last name & birthdate.  Press CANCEL to abort..",
-            });
+            return confirm("*****WARNING****** - You are about to create a duplicate chart!!!!!! There is already a patient with the same first name, last name & birthdate.  Press CANCEL to abort..");
+            // return await confirmBoxModal({
+            //     type: "confirm",
+            //     title: "Confirm",
+            //     html: "*****WARNING****** - You are about to create a duplicate chart!!!!!! There is already a patient with the same first name, last name & birthdate.  Press CANCEL to abort..",
+            // });
         }
     }
 
@@ -44,24 +44,24 @@ async function callPatientVerificationService(firstName, lastName, dob) {
         });
         return JSON.parse(result);
     } catch (error) {
-        //alert('Something went wrong');
-        await confirmBoxModal({
-            type: 'alert',
-            title: "Alert",
-            html: "Something went wrong."
-        });
+        alert('Something went wrong');
+        // await confirmBoxModal({
+        //     type: 'alert',
+        //     title: "Alert",
+        //     html: "Something went wrong."
+        // });
     }
 
     return null;
 }
 
 // Confirmbox for unverified email ("new_comprehensive.php")
-async function handleConfimBox_NewComprehensive() {
+function handleConfimBox_NewComprehensive() {
     var submitElement = $('#DEM').parent().parent().parent().parent().find('#create');
     $(submitElement).prop('disabled', true);
 
     //Check Is PatientExists
-    var isPatientExistsResponce = await isPatientExists();
+    var isPatientExistsResponce = isPatientExists();
 
     if(isPatientExistsResponce === false) {
       $(submitElement).prop('disabled', false);
@@ -71,12 +71,12 @@ async function handleConfimBox_NewComprehensive() {
     var statusVal = $('#DEM #form_email_direct_hidden_verification_status').val();
     var emailDirectVal = $('#DEM #form_email_direct').val();
     if(statusVal == "0" && emailDirectVal != "") {
-        //return confirm("Do you want to continue with unverified email?");
-        let verificationConfirmation = await confirmBoxModal({
-            type: 'confirm',
-            title: "Confirm",
-            html: "Do you want to continue with unverified email?"
-        });
+        return confirm("Do you want to continue with unverified email?");
+        // let verificationConfirmation = await confirmBoxModal({
+        //     type: 'confirm',
+        //     title: "Confirm",
+        //     html: "Do you want to continue with unverified email?"
+        // });
         $(submitElement).prop('disabled', false);
     
         return verificationConfirmation;
@@ -103,8 +103,8 @@ async function handleOnSubmit_NewComprehensive(validationStatus, element, event,
 }
 
 // Process logic before form submit. ("new_comprehensive.php")
-async function handleBeforeSubmit_NewComprehensive(eleId) {
-    const optionStatus = await validateOptions(eleId);
+function handleBeforeSubmit_NewComprehensive(eleId) {
+    const optionStatus = validateOptions(eleId);
     if(optionStatus === false) {
         return false;
     }
@@ -120,16 +120,16 @@ async function handleBeforeSubmit_NewComprehensive(eleId) {
 /*-------------------(Demographics Full)----------------*/
 
 // Confirmbox for demographics ("demographics_full.php")
-async function handleConfimBox_DemographicsFull() {
+function handleConfimBox_DemographicsFull() {
     var statusVal = $('#DEM #form_email_direct_hidden_verification_status').val();
   
     if(statusVal && statusVal == "0") {
-        //return confirm("Do you want to continue with unverified email?");
-        let verificationConfirmation = await confirmBoxModal({
-            type: 'confirm',
-            title: "Confirm",
-            html: "Do you want to continue with unverified email?"
-        });
+        return confirm("Do you want to continue with unverified email?");
+        // let verificationConfirmation = await confirmBoxModal({
+        //     type: 'confirm',
+        //     title: "Confirm",
+        //     html: "Do you want to continue with unverified email?"
+        // });
 
         return verificationConfirmation;
     }
@@ -184,12 +184,12 @@ function checkSecondoryPhone(element) {
 }
 
 // Handle submit for demographics ("demographics_full.php")
-async function handleOnSubmit_DemographicsFull(validationStatus, element, event, eleId) {
+function handleOnSubmit_DemographicsFull(validationStatus, element, event, eleId) {
     event.preventDefault();
 
     if(validationStatus === false) return false;
     
-    const optionStatus = await validateOptions(eleId);
+    const optionStatus = validateOptions(eleId);
     if(optionStatus === false) {
         return false;
     }
@@ -198,7 +198,7 @@ async function handleOnSubmit_DemographicsFull(validationStatus, element, event,
     checkSecondoryEmail(eleId);
     checkSecondoryPhone(eleId);
 
-    var data = await handleConfimBox_DemographicsFull();
+    var data = handleConfimBox_DemographicsFull();
     if(data == true) {
         element.submit();
         //submitme(validate, event, element, constraints);
@@ -224,13 +224,12 @@ $(function() {
     var alertEles = document.querySelectorAll("#form_alert_info");
     alertEles.forEach(function (alertElement, index) {
         var alert_val = alertElement.value;
-        document.querySelector('#form_current_alert_info').value = alert_val;
-    });
+        let alertInfoEle = document.querySelector('#form_current_alert_info');
 
-    // if(alert_ele.length > 0) {
-    //     var alert_val = alert_ele.val();
-    //     $('#form_current_alert_info').val(alert_val);
-    // }
+        if(alertInfoEle != undefined) {
+            alertInfoEle.value = alert_val;
+        }
+    });
 });
 
 /*-------------------End----------------*/
@@ -415,7 +414,7 @@ function validatePhoneNumber(ele, e) {
 }
 
 // Check Validation for Field
-async function validateOptions(form_id) {
+function validateOptions(form_id) {
   
   //Prepare Mi Values
   prepareMiValues();
@@ -455,12 +454,12 @@ async function validateOptions(form_id) {
   for(var eKey in preErrorList) {
     if(preErrorList[eKey] != "") {
       //alert(preErrorList[eKey]);
-      //returnStatus = confirm(preErrorList[eKey]);
-        returnStatus = await confirmBoxModal({
-            type: 'confirm',
-            title: "Confirm",
-            html: preErrorList[eKey]
-        });
+      returnStatus = confirm(preErrorList[eKey]);
+        // returnStatus = await confirmBoxModal({
+        //     type: 'confirm',
+        //     title: "Confirm",
+        //     html: preErrorList[eKey]
+        // });
     }
   }
 
@@ -639,16 +638,16 @@ async function handleConfimBox_feeCodeLinked(encounter, pid) {
     if(result != '') {
         var resultObj = JSON.parse(result);
         if(resultObj && resultObj['feesheet_code_status'] === false) {
-            /*if(!confirm("Warning - At least one CPT/HCPCS is not linked to an ICD in the fee sheet.  Press \"Cancel\" to back and justify all CPT/HCPCS codes or Press \"Ok\" to sign the encounter")) {
+            if(!confirm("Warning - At least one CPT/HCPCS is not linked to an ICD in the fee sheet.  Press \"Cancel\" to back and justify all CPT/HCPCS codes or Press \"Ok\" to sign the encounter")) {
                 return false;
             } else {
                 return true;
-            }*/
-            returnStatus = await confirmBoxModal({
-                type: 'confirm',
-                title: "Confirm",
-                html: "Warning - At least one CPT/HCPCS is not linked to an ICD in the fee sheet.  Press \"Cancel\" to back and justify all CPT/HCPCS codes or Press \"Ok\" to sign the encounter"
-            });
+            }
+            // returnStatus = await confirmBoxModal({
+            //     type: 'confirm',
+            //     title: "Confirm",
+            //     html: "Warning - At least one CPT/HCPCS is not linked to an ICD in the fee sheet.  Press \"Cancel\" to back and justify all CPT/HCPCS codes or Press \"Ok\" to sign the encounter"
+            // });
 
             return returnStatus;
         } else {
@@ -696,12 +695,12 @@ async function authorizedEncounter(encounter = '', case_id = '', start_date = ''
         var responceJSON = JSON.parse(responce);
 
         if(responceJSON['status'] === false) {
-            //alert(responceJSON['message'].join('\n\n'));
-            await confirmBoxModal({
-                type: 'alert',
-                title: "Alert",
-                html: responceJSON['message'].join('\n\n')
-            });
+            alert(responceJSON['message'].join('\n\n'));
+            // await confirmBoxModal({
+            //     type: 'alert',
+            //     title: "Alert",
+            //     html: responceJSON['message'].join('\n\n')
+            // });
         }
     }
 }
@@ -715,32 +714,32 @@ function MessageLib() {
 
     let props = {
         attachClassObject: null,
-        handleSelectEncounters: async function() {
+        handleSelectEncounters: function() {
             let pid = $("#reply_to").val();
 
             if(pid == "") {
-                //alert("Please select patient");
-                await confirmBoxModal({
-                    type: 'alert',
-                    title: "Alert",
-                    html: "Please select patient"
-                });
+                alert("Please select patient");
+                // await confirmBoxModal({
+                //     type: 'alert',
+                //     title: "Alert",
+                //     html: "Please select patient"
+                // });
                 return false;
             }
 
             //Handle Encounter
             this.attachClassObject.handleEncounter(pid);
         },
-        handleDocuments: async function() {
+        handleDocuments: function() {
             let pid = $("#reply_to").val();
 
             if(pid == "") {
-                //alert("Please select patient");
-                await confirmBoxModal({
-                    type: 'alert',
-                    title: "Alert",
-                    html: "Please select patient"
-                });
+                alert("Please select patient");
+                // await confirmBoxModal({
+                //     type: 'alert',
+                //     title: "Alert",
+                //     html: "Please select patient"
+                // });
                 return false;
             }
 
@@ -748,33 +747,33 @@ function MessageLib() {
             //Handle Document
             this.attachClassObject.handleDocument(pid);
         },
-        handleMessages: async function(opts = {}) {
+        handleMessages: function(opts = {}) {
             let pid = $("#reply_to").val();
             let assigned_to = opts['assigned_to'] ? opts['assigned_to'] : "";
 
             if(pid == "") {
-                //alert("Please select patient");
-                await confirmBoxModal({
-                    type: 'alert',
-                    title: "Alert",
-                    html: "Please select patient"
-                });
+                alert("Please select patient");
+                // await confirmBoxModal({
+                //     type: 'alert',
+                //     title: "Alert",
+                //     html: "Please select patient"
+                // });
                 return false;
             }
 
             //Handle Message
             this.attachClassObject.handleMessage(pid, { assigned_to: assigned_to});
         },
-        handleOrders: async function() {
+        handleOrders: function() {
             let pid = $("#reply_to").val();
 
             if(pid == "") {
-                //alert("Please select patient");
-                await confirmBoxModal({
-                    type: 'alert',
-                    title: "Alert",
-                    html: "Please select patient"
-                });
+                alert("Please select patient");
+                // await confirmBoxModal({
+                //     type: 'alert',
+                //     title: "Alert",
+                //     html: "Please select patient"
+                // });
                 return false;
             }
 
@@ -1161,12 +1160,12 @@ async function isGroupUserExists(userVal) {
         var resultObj = JSON.parse(result);
         if(resultObj && resultObj['status'] == true && resultObj['isGroup'] == true) {
             if(resultObj['data'] && Number(resultObj['data']) == 0) {
-                //alert("Selected group doesn't have a valid member.")
-                await confirmBoxModal({
-                    type: 'alert',
-                    title: "Alert",
-                    html: "Selected group doesn't have a valid member."
-                });
+                alert("Selected group doesn't have a valid member.")
+                // await confirmBoxModal({
+                //     type: 'alert',
+                //     title: "Alert",
+                //     html: "Selected group doesn't have a valid member."
+                // });
             }
         }
     }

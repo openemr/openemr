@@ -53,12 +53,16 @@ require_once("user.inc");
 require_once("patient.inc");
 require_once("lists.inc");
 require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
+require_once("OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\OemrAd\EmailVerificationLib;
+use OpenEMR\OemrAd\Demographicslib;
+use OpenEMR\OemrAd\Utility;
 
 $facilityService = new FacilityService();
 
@@ -633,6 +637,24 @@ function generate_form_field($frow, $currvalue)
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
+
+        /* OEMRAD - Email Verification changes. */
+        if (isOption($edit_options, 'EMV') !== false) {
+            global $pid;
+            $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+            $emvStatus = EmailVerificationLib::emailVerificationData($pid, $field_id_esc, $currescaped);
+            $smallform .= " emv-form-control";
+
+            echo "<div class='emv-input-group-container' data-initemail='{$currescaped}' data-initstatus='{$emvStatus}' data-id='form_{$field_id_esc}'><div class='input-group'>";
+        }
+        /* End */
+
+        /* OEMRAD - Mask phone number value. */
+        if (isOption($frow['edit_options'], 'MP') !== false) {
+            $smallform .= " maskPhone";
+        }
+        /* End */
+
         echo "<input type='text'
             class='form-control{$smallform}'
             name='form_{$field_id_esc}'
@@ -671,7 +693,26 @@ function generate_form_field($frow, $currvalue)
             echo ' disabled';
         }
 
+        /* OEMRAD - Validate phone number. */
+        if (isOption($frow['edit_options'], 'MPV') !== false) {
+            echo " data-title='".$frow['title']."' data-id='$field_id_esc' data-validate='validatePhoneNumber;'";
+        }
+        /* End */
+
         echo " />";
+
+        /* OEMRAD - Email Verification changes */
+        if (isOption($edit_options, 'EMV') !== false) {
+            if($emvStatus === 1) {
+                $statusElement = "<i class='fa fa-check-circle email-verification-icon-successful' aria-hidden='true'></i>";
+            } else {
+                $statusElement = "<i class='fa fa-times-circle email-verification-icon-failed' aria-hidden='true'></i>";
+            }
+
+            echo "<div class='input-group-append'><input type='hidden' name='form_{$field_id_esc}_hidden_verification_status' value='{$vStatusFlag}' id='form_{$field_id_esc}_hidden_verification_status' class='hidden_verification_status' /><button type='button' id='form_{$field_id_esc}_btn_verify_email' class='btn btn-primary btn-sm btn_verify_email mb-1'>Verify</button></div>";
+            echo "</div><div class='status-icon-container'>{$statusElement}</div></div>";
+        }
+        /* End */
     } elseif ($data_type == 3) { // long or multi-line text field
         $textCols = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
         $textRows = htmlspecialchars($frow['fld_rows'], ENT_QUOTES);
@@ -1701,6 +1742,28 @@ function generate_form_field($frow, $currvalue)
         echo "</select>";
     } elseif ($data_type == 54) {
         include "templates/address_list_form.php";
+    } elseif ($data_type == 101) {
+        /* OEMRAD - Added multi text input type. */
+        $explodeVal = explode(",", $currescaped);
+        $miContainerId = 'mti-container-' . $field_id_esc;
+        $btnSize = ($smallform) ? "btn-sm" : "";
+
+        echo "<div id='$miContainerId' data-id='$field_id_esc' class='mti-container'>";
+        echo "<div class='mti-inputcontainer'>";
+        
+        $i = 0;
+        foreach ($explodeVal as $ei => $eItem) {
+            echo Utility::getMultiTextInputElement($frow, $eItem, true);
+            $i++;
+        }
+
+        $cloneElement = Utility::getMultiTextInputElement($frow, '', true);
+
+        echo "</div>";
+        echo "<div><button type='button' class='btn btn-primary $btnSize mb-1' data-id='$field_id_esc' onclick='addMoreInput(this)'><i class='fa fa-plus' aria-hidden='true'></i> Add more</button></div>";
+
+            // Hidden form field exists to send updated data to the server at submit time.
+        echo "<div style='display:none;'><div id='clone-container_$field_id_esc'>" . $cloneElement . "</div><textarea class='mti-form-$field_id_esc' id='form_$field_id_esc' name='form_$field_id_esc' style='display:none;'>$currescaped</textarea></div></div>";
     }
 }
 
@@ -2909,6 +2972,10 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 54) {
         include "templates/address_list_display.php";
+    } else if ($data_type == 101) {
+        /* OEMRAD - Multiple Text Field display */
+        $ts = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
+        $s = str_replace(",",",<br/>",$ts);
     }
 
     return $s;
@@ -3938,6 +4005,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     // End nowrap
                     echo "</span> "; // space to allow wrap between spans
                 }
+
             } // end field
 
             disp_end_row();
@@ -4226,6 +4294,9 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     // End nowrap
                     echo "</span> "; // space to allow wrap between spans
                 }
+
+                // OEMRAD - Alert log.
+                Demographicslib::dem_layout_tabs($group_name_esc, $group_fields);
             } // End of fields for this group.
 
             bs_disp_end_row(); // TBD: Does this belong here?
