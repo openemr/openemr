@@ -134,10 +134,18 @@ function clearForm() {
   let f = document.forms[0];
   f.form_id.value = '';
   f.form_name.value = '';
+  f.form_attn.value = '';
   f.form_addr1.value = '';
+  f.form_addr2.value = '';
   f.form_city.value = '';
   f.form_state.value = '';
+  f.form_country.value = '';
   f.form_zip.value = ''; 
+  f.form_phone.value = '';
+  f.form_cms_id.value = '';
+  f.form_ins_type_code.value = '';
+  f.form_partner.value = '';
+  f.form_cqm_sop.value = '';
 }
 
 </script>
