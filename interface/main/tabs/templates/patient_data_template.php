@@ -131,10 +131,17 @@ switch ($search_any_type) {
                     (<span data-bind="text:encounterArray().length"></span>)<span class="caret"></span></button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
-                    <li class="d-inline-flex">
+                    <!-- OEMRAD - Change -->
+                    <li style="display: inline-flex; width: 100%;">
                         <a class="dropdown-item" href="#" data-bind="click:chooseEncounterEvent">
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
+                            <!-- OEMRAD - Display provider info. -->
+                            <!-- ko if:provider -->
+                            <span>/</span>
+                            <!-- /ko -->
+                            <span data-bind="text:provider"></span>
+                            <!-- End -->
                         </a>
                         <a href="#" class="dropdown-item" data-bind="click:reviewEncounterEvent">
                             <i class="fa fa-rotate-left"></i>&nbsp;<?php echo xlt("Review"); ?>
@@ -167,6 +174,16 @@ switch ($search_any_type) {
             <!-- /ko --><!-- with patient -->
             <!-- /ko --><!-- patient -->
         </div>
+
+        <!-- OEMRAD - Added changes. -->
+        <div class="flex-column mx-2">
+            <span class="mr-auto">
+                <a class="btn btn-secondary btn-sm" href="#" onclick="window.open('<?php echo $GLOBALS['webroot']; ?>/interface/reports/myreports/rto_monitor.php', '_blank', 'height=700, width=800, toolbar=no');" title="<?php echo xla('Orders'); ?>">
+                    <span style="display-inline;"><?php echo xla("Orders");?></span>
+              </a>
+            </span>
+        </div>
+        <!-- End -->
 
         <div class="flex-column mx-2">
             <!-- ko if: user -->

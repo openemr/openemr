@@ -28,6 +28,8 @@
                         <li class="menuLabel">
                             <span class="font-weight-bold"><span data-bind="text:fname"></span> <span data-bind="text:lname"></span></span>
                         </li>
+                        <!-- OEMRAD - Message status item. -->
+                        <li class="menuLabel" data-bind="click: msgSettings"><i class="fa fa-fw pr-2 text-muted fa-envelope"></i>&nbsp;<?php echo xlt("Message Status");?></li>
                         <li class="menuLabel" data-bind="click: editSettings"><i class="fa fa-fw pr-2 text-muted fa-cog"></i>&nbsp;<?php echo xlt("Settings");?></li>
                         <li class="menuLabel" data-bind="click: changePassword"><i class="fa fa-fw pr-2 text-muted fa-lock"></i>&nbsp;<?php echo xlt("Change Password");?></li>
                         <li class="menuLabel" data-bind="click: changeMFA"><i class="fa fa-fw pr-2 text-muted fa-key"></i>&nbsp;<?php echo xlt("MFA Management");?></li>

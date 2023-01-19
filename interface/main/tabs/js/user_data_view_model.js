@@ -79,6 +79,14 @@ function viewMessages()
     });
 }
 
+/* OEMRAD - Added Changes */
+function msgSettings()
+{
+    navigateTab(webroot_url+"/custom/msg_status_popup.php","msc")
+    activateTabByName("msc",true);
+}
+/* End */
+
 function viewPortalAudits()
 {
     navigateTab(webroot_url+"/portal/patient/onsiteactivityviews","msc", function () {

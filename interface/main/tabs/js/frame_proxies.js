@@ -79,14 +79,34 @@ left_nav.setTherapyGroup = function(group_id, group_name){
     app_view_model.attendant_template_type('therapy-group-template');
 };
 
-left_nav.setPatientEncounter = function(EncounterIdArray,EncounterDateArray,CalendarCategoryArray)
+/* OEMRAD - Changes */
+left_nav.fetchEncounterData = async function(EncounterIdArray)
 {
+    const response = await fetch(webroot_url+"/library/OemrAD/interface/main/tabs/ajax/get_encounter_details.php", {
+        method: 'post',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ "encounter": EncounterIdArray})
+    });
+
+    const enJson = await response.json();
+    return enJson;
+}
+/* End */
+
+// OEMRAD - Made function async.
+left_nav.setPatientEncounter = async function(EncounterIdArray,EncounterDateArray,CalendarCategoryArray)
+{
+    /* OEMRAD - Fetch encounter data and provider info. */
+    const enJson = await left_nav.fetchEncounterData(EncounterIdArray);
+    const ProviderArray = enJson['providers'] ? enJson['providers'] : array();
+    /* End */
 
     app_view_model.application_data[attendant_type]().encounterArray.removeAll();
     for(var encIdx=0;encIdx<EncounterIdArray.length;encIdx++)
-    {
+    {   
+        // OEMRAD - Added "ProviderArray" param.
         app_view_model.application_data[attendant_type]().encounterArray.push(
-            new encounter_data(EncounterIdArray[encIdx], EncounterDateArray[encIdx], CalendarCategoryArray[encIdx]));
+            new encounter_data(EncounterIdArray[encIdx], EncounterDateArray[encIdx], CalendarCategoryArray[encIdx], ProviderArray[encIdx]));
     }
 };
 

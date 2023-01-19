@@ -164,7 +164,8 @@ $esignApi = new Api();
             }, 10000);
 
             // auto run this function every 60 seconds
-            var repeater = setTimeout("goRepeaterServices()", 60000);
+            // OEMRAD - Change
+            var repeater = setTimeout("goRepeaterServices()", 180000);
         }
 
         function isEncounterLocked(encounterId) {

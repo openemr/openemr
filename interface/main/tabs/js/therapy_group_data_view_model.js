@@ -10,12 +10,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function encounter_data(id,date,category)
+// OEMRAD - Added "provider" param to function.
+function encounter_data(id,date,category, provider = '')
 {
     var self=this;
     self.id=ko.observable(id);
     self.date=ko.observable(date);
     self.category=ko.observable(category);
+    // OEMRAD - Provider info change.
+    self.provider=ko.observable(provider);
     return this;
 }
 
