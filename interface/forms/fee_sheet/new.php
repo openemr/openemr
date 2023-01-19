@@ -632,6 +632,7 @@ if (!$alertmsg && (!empty($_POST['bn_reopen']) || !empty($_POST['form_reopen']))
     unset($_POST['prod']);
 }
 
+/*
 if($_POST['bn_hl7']) {
     $sql = 'SELECT * FROM `billing` WHERE `pid`=? AND `encounter`=?';
     $items = sqlStatement($sql, array($fs->pid, $fs->encounter));
@@ -645,6 +646,7 @@ if($_POST['bn_hl7']) {
     // THEN GET THE OVERALL ENCOUNTER RECORD    
     sqlStatement($upd, array('form_encounter',$fs->encounter, $fs->pid));   
 }
+*/
 
 $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
@@ -1728,9 +1730,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php echo xlt('Add More Items'); ?>
                                     </button>
                                 <?php } // end billed ?>
-                                    <button type='submit' name='bn_hl7' class='btn btn-primary btn-queue' value='<?php echo xla('Queue HL7'); ?>' >
-                                        <?php echo xlt('Queue HL7'); ?>
-                                    </button>
+                                    <!-- <button type='submit' name='bn_hl7' class='btn btn-primary btn-queue' value='<?php //echo xla('Queue HL7'); ?>' >
+                                        <?php //echo xlt('Queue HL7'); ?>
+                                    </button> -->
                                     <button type='button' name='bn_justify' class='btn btn-primary btn-justify' value='<?php echo xla('Justify All'); ?>' onClick="open_justify_form('<?php echo $fs->pid ?>', '<?php echo $fs->encounter ?>')" >
                                         <?php echo xlt('Justify All'); ?>
                                     </button>
