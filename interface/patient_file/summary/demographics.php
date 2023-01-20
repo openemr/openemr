@@ -1550,6 +1550,7 @@ $oemr_ui->heading =  $oemr_ui->heading . ((isset($result['nickname33']) && !empt
                                 $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
 
+                                // OEMR - Change
                                 $row['phone_number'] = $icobj->get_phone();
                                 $insArr[] = $row;
                                 $prior_ins_type = $row['type'];

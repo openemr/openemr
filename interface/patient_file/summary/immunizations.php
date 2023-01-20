@@ -349,6 +349,13 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 tr.selected {
   background-color: white;
 }
+
+/* OEMRAD - Changes */
+.hideRow {
+  display: none;
+}
+/* End */
+
 </style>
 
 </head>
@@ -407,7 +414,8 @@ tr.selected {
                             value='<?php echo (!empty($administered_date)) ? attr($administered_date) : date('Y-m-d H:i'); ?>'
                             title='<?php echo xla('yyyy-mm-dd Hours(24):minutes'); ?>'/>
                     </div>
-                    <div class="form-group mt-3">
+                    <!-- OEMRAD - Added hideRow class -->
+                    <div class="form-group mt-3 hideRow">
                         <label><?php echo xlt('Amount Administered'); ?></label>
                         <input class='text form-control mb-2' type='text' name="immuniz_amt_adminstrd" size="25" value="<?php echo attr($immuniz_amt_adminstrd ?? ''); ?>" />
                         <?php echo generate_select_list("form_drug_units", "drug_units", ($drugunitselecteditem ?? ''), 'Select Drug Unit', ''); ?>
@@ -462,7 +470,8 @@ tr.selected {
                             value='<?php echo (!empty($education_date)) ? attr($education_date) : date('Y-m-d'); ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
-                    <div class="form-group mt-3">
+                    <!-- OEMRAD - Added hideRow class -->
+                    <div class="form-group mt-3 hideRow">
                         <label>
                             <?php echo xlt('Date of VIS Statement'); ?>
                             (<a href="https://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
@@ -483,7 +492,8 @@ tr.selected {
                         <label><?php echo xlt('Notes'); ?></label>
                         <textarea class="form-control" name="note" id="note" rows="5" cols="25"><?php echo text($note ?? ''); ?></textarea>
                     </div>
-                    <div class="form-group mt-3">
+                    <!-- OEMRAD - Added hideRow class -->
+                    <div class="form-group mt-3 hideRow">
                         <label><?php echo xlt('Information Source'); ?></label>
                         <?php echo generate_select_list('immunization_informationsource', 'immunization_informationsource', ($immuniz_information_source ?? ''), 'Select Information Source', ' ');?>
                     </div>
@@ -491,7 +501,8 @@ tr.selected {
                         <label><?php echo xlt('Completion Status'); ?></label>
                         <?php echo generate_select_list('immuniz_completion_status', 'Immunization_Completion_Status', ($immuniz_completion_status ?? ''), 'Select Completion Status', ' ');?>
                     </div>
-                    <div class="form-group mt-3">
+                    <!-- OEMRAD - Added hideRow class -->
+                    <div class="form-group mt-3 hideRow">
                         <label><?php echo xlt('Substance Refusal Reason'); ?></label>
                         <?php echo generate_select_list('immunization_refusal_reason', 'immunization_refusal_reason', ($immuniz_refusal_reason ?? ''), 'Select Refusal Reason', ' ');?>
                     </div>
@@ -835,6 +846,27 @@ tr.selected {
 
 <script>
 var tr_count = $('#tr_count').val();
+
+/* OEMRAD - Changes */
+$(document).ready(function() {
+  setVisDate();
+
+  $('#education_date').keyup(function(){
+    setVisDate();
+  });
+
+  $('#education_date').change(function(){
+    setVisDate();
+  });
+
+});
+/* End */
+
+function setVisDate() {
+  var education_date = $('#education_date').val();
+  $('#vis_date').val(education_date);
+}
+
 
 // jQuery stuff to make the page a little easier to use
 

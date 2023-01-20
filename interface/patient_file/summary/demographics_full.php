@@ -17,11 +17,14 @@ require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
+use OpenEMR\OemrAd\PatientVerification;
+use OpenEMR\OemrAd\Demographicslib;
 
 // Session pid must be right or bad things can happen when demographics are saved!
 //
@@ -74,7 +77,8 @@ if ($GLOBALS['insurance_only_one']) {
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['datetime-picker','common','select2']);
+<!-- OEMRAD - Added 'oemr_ad' -->
+<?php Header::setupHeader(['datetime-picker','common','select2', 'oemr_ad']);
     require_once("$srcdir/erx_javascript.inc.php");
 ?>
 <title><?php echo xlt('Edit Current Patient'); ?></title>
@@ -274,19 +278,31 @@ function auto_populate_employer_address<?php echo attr($i); ?>(){
   f.i<?php echo attr($i); ?>subscriber_postal_code.value=f.form_postal_code.value;
   if (f.form_country_code)
     f.form_i<?php echo attr($i); ?>subscriber_country.value=f.form_country_code.value;
+  <?php 
+  /* OEMRAD - Wrap code with if condition. */
+  if (!$GLOBALS['omit_employers']) { ?>
   f.i<?php echo attr($i); ?>subscriber_phone.value=f.form_phone_home.value;
+  <?php } 
+  /* End */
+  ?>
   f.i<?php echo attr($i); ?>subscriber_DOB.value=f.form_DOB.value;
   if(typeof f.form_ss!="undefined")
     {
         f.i<?php echo attr($i); ?>subscriber_ss.value=f.form_ss.value;
     }
   f.form_i<?php echo attr($i); ?>subscriber_sex.value = f.form_sex.value;
+  <?php 
+  /* OEMRAD - Wrap code with if condition. */
+  if (!$GLOBALS['omit_employers']) { ?>
   f.i<?php echo attr($i); ?>subscriber_employer.value=f.form_em_name.value;
   f.i<?php echo attr($i); ?>subscriber_employer_street.value=f.form_em_street.value;
   f.i<?php echo attr($i); ?>subscriber_employer_street_line_2.value=f.form_em_street_line_2.value;
   f.i<?php echo attr($i); ?>subscriber_employer_city.value=f.form_em_city.value;
   f.form_i<?php echo attr($i); ?>subscriber_employer_state.value=f.form_em_state.value;
   f.i<?php echo attr($i); ?>subscriber_employer_postal_code.value=f.form_em_postal_code.value;
+  <?php }
+  /* End */ 
+  ?>
   if (f.form_em_country)
     f.form_i<?php echo attr($i); ?>subscriber_employer_country.value=f.form_em_country.value;
  }
@@ -341,18 +357,30 @@ function InsSaveClose() {
 }
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
- var thesel = document.forms[0]['i' + insurance_index + 'provider'];
+ // OEMRAD - Replaced with "getElementById".
+ var thesel = document.getElementById['i' + insurance_index + 'provider'];
  var theopts = thesel.options; // the array of Option objects
  var i = 0;
+
+ // OEMRAD - Change
+ var found = false;
  for (; i < theopts.length; ++i) {
+  // OEMRAD - Change
+  theopts[i].selected = false;
+
   if (theopts[i].value == ins_id) {
    theopts[i].selected = true;
+
+   // OEMRAD - Change
+   found = true;
+
    return;
   }
  }
  // no matching option was found so create one, append it to the
  // end of the list, and select it.
- theopts[i] = new Option(ins_name, ins_id, false, true);
+ // OEMRAD - Change
+ if(!found) theopts[i] = new Option(ins_name, ins_id, false, true);
 }
 
 // This capitalizes the first letter of each word in the passed input
@@ -547,8 +575,9 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
+<!-- OEMRAD - onsubmit function replaced -->
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
- onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)">
+ onsubmit="handleOnSubmit_DemographicsFull(submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints), this, event, 'DEM')">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
@@ -638,7 +667,8 @@ if (! $GLOBALS['simplified_demographics']) {
             <div class="col-md-9">
               <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
                onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
-              <select name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+               <!-- OEMRAD - "id" attribute added. -->
+              <select name="i<?php echo attr($i); ?>provider" id="i<?php echo $i; ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
                 foreach ($insurancei as $iid => $iname) {
@@ -987,17 +1017,18 @@ if (! $GLOBALS['simplified_demographics']) {
             </div>
           </div><!-- end nested row -->
 
-          <div class="form-row"><!-- start nested row -->
+          <!-- OEMRAD - Commented -->
+          <!-- <div class="form-row">
             <div class="col-md-3 pb-1 label_custom">
-              <span><?php echo xlt('Subscriber Phone'); ?>:</span>
+              <span><?php //echo xlt('Subscriber Phone'); ?>:</span>
             </div>
             <div class="col-md-9">
               <input type='text' class='form-control form-control-sm mb-1' size='20'
-               name='i<?php echo attr($i); ?>subscriber_phone'
-               value='<?php echo attr($result3["subscriber_phone"] ?? ''); ?>'
+               name='i<?php //echo attr($i); ?>subscriber_phone'
+               value='<?php //echo attr($result3["subscriber_phone"] ?? ''); ?>'
                onkeyup='phonekeyup(this,mypcc)' />
             </div>
-          </div><!-- end nested row -->
+          </div>--><!-- end nested row -->
 
           <div class="form-row"><!-- start nested row -->
             <div class="col-md-3 pb-1 label_custom">
@@ -1027,14 +1058,15 @@ if (! $GLOBALS['simplified_demographics']) {
             </div>
           </div><!-- end nested row -->
 
-          <div class="form-row"><!-- start nested row -->
+          <!-- OEMRAD - Commented -->
+          <!--<div class="form-row">
             <div class="col-md-3 pb-1 label_custom">
-              <span><?php echo xlt('Secondary Medicare Type'); ?>:</span>
+              <span><?php //echo xlt('Secondary Medicare Type'); ?>:</span>
             </div>
             <div class="col-md-9">
               <select class='form-control form-control-sm mb-1 sel2' name='i<?php echo attr($i); ?>policy_type'>
                 <?php
-                if (!empty($policy_types)) {
+                /*if (!empty($policy_types)) {
                     foreach ($policy_types as $key => $value) {
                         echo "            <option value ='" . attr($key) . "'";
                         if (!empty($result3['policy_type']) && ($key == $result3['policy_type'])) {
@@ -1042,11 +1074,11 @@ if (! $GLOBALS['simplified_demographics']) {
                         }
                         echo ">" . text($value) . "</option>\n";
                     }
-                }
+                }*/
                 ?>
               </select>
             </div>
-          </div><!-- end nested row -->
+          </div> --> <!-- end nested row -->
 
         </div><!-- end right column -->
       </div>

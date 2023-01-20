@@ -13,10 +13,14 @@
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/wmt-v2/wmtstandard.inc");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
+use OpenEMR\OemrAd\Demographicslib;
+use OpenEMR\OemrAd\EmailVerificationLib;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -84,6 +88,11 @@ updatePatientData($pid, $newdata['patient_data']);
 if (!$GLOBALS['omit_employers']) {
     updateEmployerData($pid, $newdata['employer_data']);
 }
+
+/* OEMRAD - Update email verification data and alert log data. */
+EmailVerificationLib::updateEmailVerification($pid, $_POST);
+Demographicslib::dem_after_save();
+/* End */
 
 if (!empty($addressFieldsToSave)) {
     // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
