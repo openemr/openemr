@@ -156,12 +156,15 @@ function clearForm() {
 <?php
  // If we are saving, then save and close the window.
  //
-if ($_POST['form_save'] ?? '') {
+if (
+    ($_POST['form_save'] ?? '')
+    || ($_POST['form_update'] ?? '')
+ ) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    if ($_POST['form_save'] == 'Save as New') {
+    if (($_POST['form_save'] ?? '') == 'Save as New') {
         $ins_id = '';
     } else {
         $ins_id = $_POST['form_id'];
@@ -340,7 +343,7 @@ if ($_POST['form_save'] ?? '') {
 <?php
 for ($i = 1; $i < count($ins_type_code_array); ++$i) {
     echo "   <option value='" . attr($i) . "'";
-    if ($i == $ins_co['ins_type_code']) {
+    if ($i == $ins_co['ins_type_code'] ?? '') {
         echo " selected";
     }
     echo ">" . text($ins_type_code_array[$i]) . "\n";
@@ -388,7 +391,7 @@ foreach ($cqm_sop_array as $key => $value) {
 
 <input type='button' value='<?php echo xla('Search'); ?>' class='btn btn-primary' onclick='dosearch()' />
 <input type='submit' value='<?php echo xla('Save as New'); ?>' class='btn btn-primary' name='form_save' onmousedown='save_clicked=true' />
-<input type='submit' value='<?php echo xla('Update'); ?>' class='btn btn-primary' name='form_save' onmousedown='update_clicked=true' />
+<input type='submit' value='<?php echo xla('Update'); ?>' class='btn btn-primary' name='form_update' onmousedown='update_clicked=true' />
 <input type='button' value='<?php echo xla('Clear'); ?>' class='btn btn-primary' onclick='clearForm()' />
 <input type='button' value='<?php echo xla('Cancel'); ?>' class='btn btn-primary' onclick='window.close();'/>
 
