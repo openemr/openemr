@@ -1784,6 +1784,7 @@ foreach ($sorted_datatypes as $key => $value) {
 </div>
 
 <script>
+// OEMRAD - Added options ('Email Verification', 'Mask PhoneNumber', 'Validate PhoneNumber').
 /* Field modifier objects - heading towards context based.
     Used by Select2 so rtl may be enabled*/
 <?php echo "var fldOptions = [";
@@ -1819,7 +1820,10 @@ echo "{id: 'EP',text:" . xlj('Exclude in Portal') . "},
     ]},
     {id: '0',text:" . xlj('Read Only') . "},
     {id: '1',text:" . xlj('Write Once') . "},
-    {id: '2',text:" . xlj('Billing Code Descriptions') . "}];\n";
+    {id: '2',text:" . xlj('Billing Code Descriptions') . "},
+    {id: 'EMV',text:" . xlj('Email Verification') . "},
+    {id: 'MP',text:'" . xla('Mask PhoneNumber') . "'},
+    {id: 'MPV',text:'" . xla('Validate PhoneNumber') . "'}];\n";
 
 // Language direction for select2
 echo 'var langDirection = ' . js_escape($_SESSION['language_direction']) . ';';
