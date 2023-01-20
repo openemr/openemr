@@ -16,8 +16,20 @@ use Particle\Validator\Validator;
 
 class PhoneNumberService extends BaseService
 {
+    public const COUNTRY_CODE = "+1";
+    public string $area_code;
+    public string $prefix;
+    public string $number;
+    public int    $type;
+    private int   $foreignId;
+
     public function __construct()
     {
+        $this->area_code = $area_code ?? '';
+        $this->prefix = $prefix ?? '';
+        $this->number = $number ?? '';
+        $this->type = $type ?? 2;
+        $this->foreignId = $foreignId ?? 0;
     }
 
     public function validate($phoneNumber)
@@ -37,19 +49,9 @@ class PhoneNumberService extends BaseService
     public function insert($data, $foreignId)
     {
         $freshId = $this->getFreshId("id", "phone_numbers");
+        $this->foreignId = $foreignId;
 
-        $phone_parts = array();
-        preg_match(
-            "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
-            $data['phone'],
-            $phone_parts
-        );
-
-        $data['country_code'] = "+1";
-        $data['area_code'] = $phone_parts[1] ?? '';
-        $data['prefix'] = $phone_parts[2] ?? '';
-        $data['number'] = $phone_parts[3] ?? '';
-        $data['type'] = "2";
+        $this->getPhoneParts($data['phone']);
 
         $phoneNumbersSql  = " INSERT INTO phone_numbers SET";
         $phoneNumbersSql .= "     id=?,";
@@ -64,12 +66,12 @@ class PhoneNumberService extends BaseService
             $phoneNumbersSql,
             array(
                 $freshId,
-                $data["country_code"],
-                $data["area_code"],
-                $data["prefix"],
-                $data["number"],
-                $data["type"],
-                $foreignId
+                self::COUNTRY_CODE,
+                $this->area_code,
+                $this->prefix,
+                $this->number,
+                $this->type,
+                $this->foreignId
             )
         );
 
@@ -82,18 +84,8 @@ class PhoneNumberService extends BaseService
 
     public function update($data, $foreignId)
     {
-        $phone_parts = array();
-        preg_match(
-            "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
-            $data['phone'],
-            $phone_parts
-        );
-
-        $data['country_code'] = "+1";
-        $data['area_code'] = $phone_parts[1] ?? '';
-        $data['prefix'] = $phone_parts[2] ?? '';
-        $data['number'] = $phone_parts[3] ?? '';
-        $data['type'] = "2";
+        $this->foreignId = $foreignId;
+        $this->getPhoneParts($data['phone']);
 
         $phoneNumbersSql  = " UPDATE phone_numbers SET";
         $phoneNumbersSql .= "     country_code=?,";
@@ -106,12 +98,12 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSqlResults = sqlStatement(
             $phoneNumbersSql,
             array(
-                $data["country_code"] ?? null,
-                $data["area_code"] ?? null,
-                $data["prefix"] ?? null,
-                $data["number"] ?? null,
-                $data["type"] ?? null,
-                $foreignId
+                self::COUNTRY_CODE,
+                $this->area_code ,
+                $this->prefix,
+                $this->number,
+                $this->type,
+                $this->foreignId
             )
         );
 
@@ -119,9 +111,26 @@ class PhoneNumberService extends BaseService
             return false;
         }
 
-        $phoneNumbersIdSqlResults = sqlQuery("SELECT id FROM phone_numbers WHERE foreign_id=?", $foreignId);
+        $phoneNumbersIdSqlResults = sqlQuery("SELECT id FROM phone_numbers WHERE foreign_id=?", $this->foreignId);
 
-        return $phoneNumbersIdSqlResults["id"];
+        if (empty($phoneNumbersIdSqlResults)) {
+            $this->insert($data, $foreignId);
+        }
+        return $phoneNumbersIdSqlResults["id"] ?? null;
+    }
+
+    public function getPhoneParts(string $phone_number)
+    {
+        $phone_parts = array();
+        preg_match(
+            "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
+            $phone_number,
+            $phone_parts
+        );
+
+        $this->area_code = $phone_parts[1] ?? '';
+        $this->prefix = $phone_parts[2] ?? '';
+        $this->number = $phone_parts[3] ?? '';
     }
 
     public function getOneByForeignId($foreignId)
