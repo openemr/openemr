@@ -712,6 +712,7 @@ class TeleconferenceRoomController
                 'eid' => $session['pc_eid'],
                 'apptstatus' => $appt['pc_apptstatus']
             ]
+            ,'participantList' => $this->getParticipantListForAppointment($session['pc_eid'], $user, $session)
             ,'encounter' => $encounter
             ,'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
             ,'sessionId' => $session['id']
@@ -747,11 +748,9 @@ class TeleconferenceRoomController
             throw new InvalidArgumentException("appointment could not be found for pc_eid" . $apptId);
         }
 
-        // overly paranoid but we double check the pid
-        if ($appt['pid'] != $pid) {
-            $this->logger->debug("Invalid access! Appointment pid did not match.  This could be "
-                . "a security violation!", ["pid" => $pid, 'pc_eid' => $apptId]);
-            throw new InvalidArgumentException("Invalid access!");
+        $session = $this->sessionRepository->getSessionByAppointmentId($apptId);
+        if (empty($session)) {
+            throw new InvalidArgumentException("telehealth session could not be found for encounter " . $apptId);
         }
 
         $userService = new UserService();
@@ -759,6 +758,15 @@ class TeleconferenceRoomController
 
         if (empty($user)) {
             throw new RuntimeException("Could not find provider for appointment " . $apptId . " this is a data integrity issue as telehealth appts should have providers");
+        }
+
+        $isPatientDenied = true;
+        // grab our list of participants and make sure this patient pid is allowed to join the session
+        if (!$this->isPatientPidAuthorizedForSession($pid, $session)) {
+        // overly paranoid but we double check the pid
+            $this->logger->debug("Invalid access! Pid was not in appointment participant list. This could be "
+                . "a security violation!", ["pid" => $pid, 'pc_eid' => $apptId]);
+            throw new InvalidArgumentException("Invalid access!");
         }
         $patientResult = $this->getPatientForPid($pid);
 
@@ -779,13 +787,95 @@ class TeleconferenceRoomController
                 'eid' => $appt['pc_eid'],
                 'apptstatus' => $appt['pc_apptstatus']
             ]
+            ,'participantList' => $this->getParticipantListForAppointment($apptId, $user, $session)
             ,'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
         ];
         return $data;
     }
 
+    private function isPatientPidAuthorizedForSession($pid, $session) {
+        // TODO: @adunsulag for debugging we need to remove this.
+        // for adding more than 3 to the call we could hit another database table.
+        $related_session_pid = $session['pid_related'] ?? 2;
+        //$related_session_pid = $session['pid_related'] ?? null;
+        $sessionPid = $session['pid'] ?? null;
+        if (null !== $pid && ($pid == $sessionPid || $pid == $related_session_pid))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private function getParticipantListForAppointment($apptId, $user, $session) {
+        // TODO: look at the session provider, patient, and patient_related start and last seen dates so we can determine
+        // if they are still in the session
+        // not sure I like relying on the last communication date though...
+
+        /**
+         * Look at this code here:
+         *  if (!empty($session['provider_last_update'])) {
+        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session['provider_last_update']);
+        $currentDateTime = new \DateTime();
+        $this->logger->debug("checking time ", ['provider_last_update' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
+        if ($currentDateTime < $dateTime->add(new \DateInterval("PT15S"))) {
+        $result['session']['providerReady'] = true;
+        }
+         */
+        // TODO: @adunsulag this is where we will grab the 3rd party participant list
+        $appt = $this->appointmentService->getAppointment($apptId);
+        $userTelehealthSettings = $this->getOrCreateTelehealthProvider($user);
+
+        $patient1 = $this->getPatientForPid(1);
+        $patient1TelehealthSettings = $this->getOrCreateTelehealthPatient($patient1);
+        $patient2 = $this->getPatientForPid(2);
+        $patient2TelehealthSettings = $this->getOrCreateTelehealthPatient($patient2);
+        return [
+            [
+                'callerName' => $patient1['fname'] . ' ' . $patient1['lname']
+                , 'uuid' => $patient1TelehealthSettings->getUsername()
+                , 'role' => "patient"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'patient')
+            ]
+            ,[
+                'callerName' => $patient2['fname'] . ' ' . $patient2['lname']
+                , 'uuid' => $patient2TelehealthSettings->getUsername()
+                , 'role' => "patient"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'patient_related')
+            ]
+            ,[
+                'callerName' => $user['fname'] . ' ' . $user['lname']
+                , 'uuid' => $userTelehealthSettings->getUsername()
+                , 'role' => "provider"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'provider')
+            ]
+        ];
+    }
+
     /**
-     * @param $user
+     * Note because of the way we do escaping for injection into the DOM we return a string value of "Y" or "N"
+     * to represent the boolean choices here.
+     *
+     * @param $session
+     * @param $userKey
+     * @return string
+     * @throws Exception
+     */
+    private function sessionUserInRoom($session, $userKey) {
+        if (!empty($session[$userKey . '_start_time']) &&
+            !empty($session[$userKey . '_last_update'])
+        ) {
+            $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session[$userKey . '_last_update']);
+            $currentDateTime = new \DateTime();
+            // odd that this statement returns an empty string instead of false
+            if ($currentDateTime < $dateTime->add(new \DateInterval("PT15S"))) {
+                return "Y";
+            }
+        }
+        return "N";
+    }
+
+    /**
+     * @param $user - a user as returned from UserService
      * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
      * @throws TelehealthProvisioningServiceRequestException
      */

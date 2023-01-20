@@ -59,6 +59,8 @@ export function PatientConferenceRoom(translations,scriptLocation) {
     {
         patientConferenceRoom.stopProviderReadyCheck();
         patientConferenceRoom.startProviderConferenceRoom(); // not sure there is much difference here
+
+        // we need to make a call to all the other participants...
         patientConferenceRoom.makeCall(patientConferenceRoom.callerSettings.calleeUuid);
         // patientConferenceRoom.makeScreenshareCall(patientConferenceRoom.callerSettings.calleeUuid);
     };

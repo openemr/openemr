@@ -40,7 +40,6 @@ export class PresentationScreen
     }
 
     detach() {
-        console.trace("detatch called here");
         this.callerSlot = null;
         this.videoElement.srcObject = null;
     }

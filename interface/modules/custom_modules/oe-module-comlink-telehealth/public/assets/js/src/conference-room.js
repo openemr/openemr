@@ -161,8 +161,15 @@ export function ConferenceRoom(translations, scriptLocation)
     };
 
     this.isAuthorizedParticipant = function(callerId) {
-        // TODO: @adunsulag we can check the participants here
-        return this.callerSettings.calleeUuid === callerId;
+        let participantList = this.callerSettings.participantList || [];
+        let participant = participantList.find((p => p.uuid == callerId));
+        return participant !== undefined;
+    };
+
+    this.getRemoteParticipantList = function() {
+        let participantList = this.callerSettings.participantList || [];
+        let participant = participantList.find((p => p.uuid == callerId));
+        return participantList.filter(p => p.username !== conf.callerSettings.callerUuid);
     };
 
     /**
@@ -221,7 +228,6 @@ export function ConferenceRoom(translations, scriptLocation)
     };
 
     this.startBridge = function() {
-        console.trace("startBridge is called");
         conf.__localVideoElement = document.getElementById('local-video');
         conf.__localVideoElement.muted = true;
 
@@ -489,11 +495,11 @@ export function ConferenceRoom(translations, scriptLocation)
         }
         let container = document.getElementById('telehealth-container');
 
-        if (conf.__localScreenshareCall && conf.__localScreenshareCall.stop) {
-            // stop the screensharing s
-            // TODO: @adunsulag if a later version of the api fixes this, let's clean this up.
-            conf.__localScreenshareCall.stop();
-        }
+        // if (conf.__localScreenshareCall && conf.__localScreenshareCall.stop) {
+        //     // stop the screensharing s
+        //     // TODO: @adunsulag if a later version of the api fixes this, let's clean this up.
+        //     conf.__localScreenshareCall.stop();
+        // }
 
         if (conf.__bridge && conf.__bridge.shutdown)
         {
@@ -998,11 +1004,6 @@ export function ConferenceRoom(translations, scriptLocation)
         this.makeScreenshareCall(conf.callerSettings.calleeUuid);
     };
 
-    this.toggleRemoteScreensharing = function(display)
-    {
-
-
-    };
 
     // don't really need any class member variables here so we will let JS hoist this up.
     function toggleClass(node, toggle, onClass, offClass)

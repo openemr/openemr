@@ -1,6 +1,0 @@
-class SiteAdmin {
-
-    registerDom() {
-
-    }
-}
