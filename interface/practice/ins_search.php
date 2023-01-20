@@ -159,7 +159,7 @@ function clearForm() {
 if (
     ($_POST['form_save'] ?? '')
     || ($_POST['form_update'] ?? '')
- ) {
+) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
