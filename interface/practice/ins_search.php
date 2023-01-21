@@ -253,14 +253,14 @@ if (
   <td class="font-weight-bold" width='1%' nowrap><?php echo xlt('Id'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_id' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Id of insurance company'); ?>'
-       readonly='readonly' value='<?php echo text($ins_co['id'] ?? ''); ?>' />
+       readonly='readonly' value='<?php echo attr($ins_co['id'] ?? ''); ?>' />
   </td>
  </tr>
  <tr>
   <td class="font-weight-bold" width='1%' nowrap><?php echo xlt('Name'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_name' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Name of insurance company'); ?>'
-       value='<?php echo text($ins_co['name'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co['name'] ?? ''); ?>' />
   </td>
  </tr>
 
@@ -268,7 +268,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Attention');?>:</td>
   <td>
    <input type='text' size='20' name='form_attn' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Contact name'); ?>' 
-       value='<?php echo text($ins_co['attn'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co['attn'] ?? ''); ?>' />
   </td>
  </tr>
 
@@ -276,7 +276,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Address1'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line' 
-       value='<?php echo text($ins_co_address['line1'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co_address['line1'] ?? ''); ?>' />
   </td>
  </tr>
 
@@ -284,7 +284,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Address2'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any' 
-       value='<?php echo text($ins_co_address['line2'] ?? ''); ?>' />
+       value='<?php echo attr($ins_co_address['line2'] ?? ''); ?>' />
   </td>
  </tr>
 
@@ -293,11 +293,11 @@ if (
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name' 
-                 value='<?php echo text($ins_co_address['city'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address['city'] ?? ''); ?>' />
          </div>
          <div class="col">
              <input type='text' size='3' name='form_state' maxlength='35' class='form-control form-control-sm' title='State or locality' 
-                 value='<?php echo text($ins_co_address['state'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address['state'] ?? ''); ?>' />
          </div>
      </td>
  </tr>
@@ -307,11 +307,11 @@ if (
      <td class="form-row">
          <div class="col">
              <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code' 
-                 value='<?php echo text(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '')); ?>' />
+                 value='<?php echo attr(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '')); ?>' />
          </div>
          <div class="col">
              <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name' 
-                 value='<?php echo text($ins_co_address['country'] ?? ''); ?>' />
+                 value='<?php echo attr($ins_co_address['country'] ?? ''); ?>' />
          </div>
      </td>
  </tr>
@@ -320,7 +320,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Phone'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_phone' maxlength='20' class='form-control form-control-sm' title='Telephone number'
-       value='<?php echo text((
+       value='<?php echo attr((
          ($ins_co_phone['area_code'] ?? '') .
          ($ins_co_phone['prefix'] ?? '') .
          ($ins_co_phone['number'] ?? '')
@@ -332,7 +332,7 @@ if (
   <td class="font-weight-bold" nowrap><?php echo xlt('Payer ID'); ?>:</td>
   <td>
    <input type='text' size='20' name='form_cms_id' maxlength='15' class='form-control form-control-sm' title='Identifier assigned by CMS' 
-     value='<?php echo text($ins_co['cms_id'] ?? ''); ?>' />
+     value='<?php echo attr($ins_co['cms_id'] ?? ''); ?>' />
   </td>
  </tr>
 
