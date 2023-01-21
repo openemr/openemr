@@ -573,16 +573,22 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
                 " AND field_id IN (";
     $comma = "";
+    $cntr = 0;
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-        $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
-        $comma = ", ";
+        if (!isColumnReserved(tableNameFromLayout($_POST['layout_id']), $onefield)) {
+            $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
+            $comma = ", ";
+            $cntr++;
+        }
     }
     $sqlstmt .= ")";
-    sqlStatement($sqlstmt);
-    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-        addOrDeleteColumn($layout_id, $onefield, false);
+    if (!empty($cntr)) {
+        sqlStatement($sqlstmt);
+        foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+            addOrDeleteColumn($layout_id, $onefield, false);
+        }
+        setLayoutTimestamp($layout_id);
     }
-    setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
