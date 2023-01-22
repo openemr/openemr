@@ -199,7 +199,7 @@ ALTER TABLE `audit_master` ADD `is_unstructured_document` BOOLEAN NULL DEFAULT F
 ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
 #EndIf
 
-#IfNotColumnType user user VARCHAR(255)
+#IfNotColumnType form_questionnaire_assessments user VARCHAR(255)
 ALTER TABLE `form_questionnaire_assessments` CHANGE `user` `user` VARCHAR(255) NULL DEFAULT NULL;
 #EndIf
 
