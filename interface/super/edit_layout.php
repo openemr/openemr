@@ -284,7 +284,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         return;
     }
     // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '$field_id'");
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom($field_id) . "'");
     $column_exists = !empty($tmp);
 
     if ($add && !$column_exists) {
@@ -350,13 +350,13 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
         return 4;
     }
     // Make sure old column exists.
-    $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '$old_field_id'");
+    $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_custom($old_field_id) . "'");
     if (empty($colarr)) {
         // Error, old name does not exist.
         return 2;
     }
     // Make sure new column does not exist.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '$new_field_id'");
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_cutsom($new_field_id) . "'");
     if (!empty($tmp)) {
         // Error, new name already in use.
         return 3;
