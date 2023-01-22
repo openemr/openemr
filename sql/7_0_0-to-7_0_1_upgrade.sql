@@ -279,7 +279,7 @@ UPDATE `registry` SET `category` = 'Orders' WHERE `directory` = 'procedure_order
 ALTER TABLE `insurance_data` ADD `date_end` date NULL;
 #EndIf
 
-#IfNotColumnType user user VARCHAR(255)
+#IfNotColumnType form_questionnaire_assessments user VARCHAR(255)
 ALTER TABLE `form_questionnaire_assessments` CHANGE `user` `user` VARCHAR(255) NULL DEFAULT NULL;
 #EndIf
 
