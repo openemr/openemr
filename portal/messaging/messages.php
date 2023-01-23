@@ -68,11 +68,16 @@ if (IS_DASHBOARD) {
 function getAuthPortalUsers()
 {
     $resultpd = $resultusers = $resultpatients = array();
+
     if (IS_DASHBOARD) { // admin can mail anyone
         $authusers = sqlStatement("SELECT users.username as userid,
- CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE portal_user = 1");
+ CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE active = 1 AND portal_user = 1");
         while ($row = sqlFetchArray($authusers)) {
             $resultusers[] = $row;
+        }
+        if (count($resultusers ?? []) === 0) {
+            $resultusers[] = sqlQuery("SELECT users.username as userid,
+ CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE id = 1");
         }
 
         $authpatients = sqlStatement("SELECT (CONCAT(patient_data.fname, patient_data.id)) as userid,
@@ -81,13 +86,15 @@ function getAuthPortalUsers()
             $resultpatients[] = $row;
         }
 
-        $resultpd[] = array_merge($resultusers, $resultpatients);
-        return $resultpd[0];
+        $resultpd = array_merge($resultusers, $resultpatients);
     } else { // patient gets only portal users
         $resultpd = array();
-        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username FROM users WHERE portal_user = 1");
+        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username FROM users WHERE active = 1 AND portal_user = 1");
         while ($row = sqlFetchArray($authusers)) {
             $resultpd[] = $row;
+        }
+        if (count($resultpd ?? []) === 0) {
+            $resultpd[] = sqlQuery("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username FROM users WHERE id = 1");
         }
     }
 
@@ -499,7 +506,7 @@ function getAuthPortalUsers()
                             resize_maxHeight: 650
                         });
 
-                        $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose New Message"); ?>)
+                        $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose New Message"); ?>);
                         $scope.compose.task = 'add';
                         $(e.currentTarget).find('select[id="selSendto"]').prop("disabled", false);
                         $(e.currentTarget).find('input[name="title"]').prop("disabled", false);
@@ -719,19 +726,20 @@ function getAuthPortalUsers()
                                             </div>
                                             <div class="input-group col-lg-6 my-2">
                                                 <label for="title"><?php echo xlt('Subject'); ?></label>
-                                                <input type='text' list='listid' name='title' id='title' class="form-control ml-2" ng-model='compose.title'>
+                                                <input type='text' list='listid' name='title' id='title' class="form-control ml-2" ng-model='compose.title' value="<?php echo xla('General'); ?>">
                                                 <datalist id='listid'>
-                                                    <option>&nbsp;</option>
+                                                    <option label='<?php echo xlt('General'); ?>'
+                                                        value='<?php echo xla('General'); ?>'></option>
                                                     <option label='<?php echo xlt('Insurance'); ?>'
-                                                        value='<?php echo xla('Insurance'); ?>' />
+                                                        value='<?php echo xla('Insurance'); ?>'></option>
                                                     <option label='<?php echo xlt('Prior Auth'); ?>'
-                                                        value='<?php echo xla('Prior Auth'); ?>' />
+                                                        value='<?php echo xla('Prior Auth'); ?>'></option>
                                                     <option label='<?php echo xlt('Bill/Collect'); ?>'
-                                                        value='<?php echo xla('Bill/Collect'); ?>' />
+                                                        value='<?php echo xla('Bill/Collect'); ?>'></option>
                                                     <option label='<?php echo xlt('Referral'); ?>'
-                                                        value='<?php echo xla('Referral'); ?>' />
+                                                        value='<?php echo xla('Referral'); ?>'></option>
                                                     <option label='<?php echo xlt('Pharmacy'); ?>'
-                                                        value='<?php echo xla('Pharmacy'); ?>' />
+                                                        value='<?php echo xla('Pharmacy'); ?>'></option>
                                                 </datalist>
                                             </div>
                                             <div class="col-12" id="inputBody" ng-hide="compose.task == 'forward'" ng-model="compose.inputBody"></div>
