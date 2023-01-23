@@ -18,9 +18,12 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\AddressService;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\{
+    AddressService,
+    PhoneNumberService,
+    Search\FhirSearchWhereClauseBuilder,
+    Search\SearchFieldException
+};
 use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -29,6 +32,7 @@ class InsuranceCompanyService extends BaseService
     private const INSURANCE_TABLE = "insurance_companies";
     private $insuranceCompanyValidator;
     private $addressService = null;
+    private $phoneNumberService = null;
     public const TYPE_FAX = 5;
     public const TYPE_WORK = 2;
 
@@ -39,6 +43,7 @@ class InsuranceCompanyService extends BaseService
     public function __construct()
     {
         $this->addressService = new AddressService();
+        $this->phoneNumberService = new PhoneNumberService();
         UuidRegistry::createMissingUuidsForTables([self::INSURANCE_TABLE]);
         $this->insuranceCompanyValidator = new InsuranceCompanyValidator();
         parent::__construct(self::INSURANCE_TABLE);
@@ -183,7 +188,7 @@ class InsuranceCompanyService extends BaseService
     public function getOneById($id)
     {
         // TODO: this should be refactored to use getAll but its selecting all the columns and for backwards
-        // compatibility we will live this here.
+        // compatibility we will leave this here.
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
         return sqlQuery($sql, array($id));
     }
@@ -266,6 +271,10 @@ class InsuranceCompanyService extends BaseService
             $this->addressService->insert($data, $freshId);
         }
 
+        if (!empty($data["phone"] ?? null)) {
+            $this->phoneNumberService->insert($data, $freshId);
+        }
+
         return $freshId;
     }
 
@@ -290,7 +299,7 @@ class InsuranceCompanyService extends BaseService
                 $data["cms_id"],
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
-                $data["x12_default_partner_id"],
+                $data["x12_default_partner_id"] ?? null,
                 $data["alt_cms_id"],
                 $data["cqm_sop"],
                 $iid
@@ -304,6 +313,12 @@ class InsuranceCompanyService extends BaseService
         $addressesResults = $this->addressService->update($data, $iid);
 
         if (!$addressesResults) {
+            return false;
+        }
+
+        $phoneNumberResults = $this->phoneNumberService->update($data, $iid);
+
+        if (!$phoneNumberResults) {
             return false;
         }
 

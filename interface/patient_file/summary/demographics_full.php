@@ -150,6 +150,7 @@ $(function () {
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         let title = <?php echo xlj('Insurance Search/Select/Add'); ?>;
+        let ins_url = $(this).attr('href') + encodeURIComponent(sendInsToSearch(insurance_index));
         dlgopen('', '', 700, 600, '', title, {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
@@ -158,7 +159,7 @@ $(function () {
             allowDrag: true,
             dialogId: '',
             type: 'iframe',
-            url: $(this).attr('href')
+            url: ins_url
         });
     });
 
@@ -334,6 +335,13 @@ function ins_search(ins) {
     insurance_index = ins;
     return false;
 }
+
+function sendInsToSearch(ins) {
+    let thesel = $('#i' + ins + 'provider');
+    let theseldata = $(thesel).select2('data');
+    return theseldata[0]['id'];
+}
+
 function InsSaveClose() {
     top.restoreSession();
     document.location.reload();
@@ -632,8 +640,8 @@ if (! $GLOBALS['simplified_demographics']) {
               <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
             </div>
             <div class="col-md-9">
-              <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
-               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
+              <a href="../../practice/ins_search.php?ins=" class="medium_modal btn btn-primary"
+               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add/Edit') ?></a>
               <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
