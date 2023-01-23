@@ -1418,7 +1418,7 @@ class CdaTemplateImportDispose
             return;
         }
 
-        $pro_name = xlt('External DX/Lab Result');
+        $pro_name = xlt('External DX/Lab');
         if ($carecoordinationTable->is_qrda_import) {
             $pro_name = xlt('Qrda Lab');
         }
@@ -1499,7 +1499,7 @@ class CdaTemplateImportDispose
                         $appTable->zQuery($qU_update, array('proc_unit', $unit));
                     }
 
-                    $result_pt = $appTable->zQuery($query_select_pt, array($value['proc_code'], 'res', $pro_id));
+                    $result_pt = $appTable->zQuery($query_select_pt, array($res['result_code'], 'res', $pro_id));
                     if ($result_pt->count() == 0) {
                         //result_type
                         $query_insert_pt = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
