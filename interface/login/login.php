@@ -31,6 +31,7 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
+use Symfony\Component\Finder\Finder;
 
 $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
@@ -39,6 +40,59 @@ require_once("../globals.php");
 
 $twig = new TwigContainer(null, $GLOBALS["kernel"]);
 $t = $twig->getTwig();
+
+/**
+ * @var Finder
+ */
+$primaryFinder = new Finder();
+$basePrimaryLoginLogoDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/primary";
+$primaryFinder->files()->in($basePrimaryLoginLogoDir)->name("login-logo.*");
+
+if ($primaryFinder->hasResults()) {
+    foreach ($primaryFinder as $f) {
+        $primaryLoginLogoPath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/primary/" . $f->getFileName();
+    }
+} else {
+    $primaryLoginLogoPath = $GLOBALS['images_static_relative'] . "/login-logo.png";
+}
+
+$secondaryFinder = new Finder();
+$baseSecondaryLoginLogoDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/secondary";
+$secondaryFinder->files()->in($baseSecondaryLoginLogoDir)->name("login-logo.*");
+
+if ($secondaryFinder->hasResults()) {
+    foreach ($secondaryFinder as $f) {
+        $secondaryLoginLogoPath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/secondary/" . $f->getFileName();
+    }
+} else {
+    $secondaryLoginLogoPath = $GLOBALS['images_static_relative'] . "/login-logo.png";
+}
+
+$smallLogoFinder = new Finder();
+$baseSmallLogoOneDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/small_logo_1";
+$smallLogoFinder->files()->in($baseSmallLogoOneDir)->name("logo.*");
+
+if ($smallLogoFinder->hasResults()) {
+    foreach ($smallLogoFinder as $f) {
+        $smallLogoOnePath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/small_logo_1/" . $f->getFileName();
+    }
+} else {
+    $smallLogoOnePath = $GLOBALS['OE_SITE_WEBROOT'] . "images/logo_1.png";
+}
+
+$smallLogoTwoFinder = new Finder();
+$baseSmallLogoTwoDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/small_logo_2";
+$smallLogoTwoFinder->files()->in($baseSmallLogoTwoDir)->name("logo.*");
+
+if ($smallLogoTwoFinder->hasResults()) {
+    foreach ($smallLogoTwoFinder as $f) {
+        $smallLogoTwoPath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/small_logo_2/" . $f->getFileName();
+    }
+} else {
+    $smallLogoTwoPath = $GLOBALS['OE_SITE_WEBROOT'] . "images/logo_2.png";
+}
+
+$layout = $GLOBALS['login_page_layout'];
 
 // mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
 // If this script is called with app parameter, validate it without showing other apps.
@@ -95,34 +149,6 @@ if (count($emr_app)) {
     }
 }
 
-// This code allows configurable positioning in the login page
-$logoarea = "py-2 px-2 py-md-3 px-md-5 order-1 bg-primary";
-$formarea = "py-3 px-2 p-sm-5 bg-white order-2";
-$loginrow = "row login-row bg-primary shadow-lg align-items-center m-0 my-sm-5";
-
-// Apply these classes to the logo area if the login page is left or right
-$lrArr = ['left', 'right'];
-$logoarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
-$formarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
-
-// More finite control on a per-setting basis
-switch ($GLOBALS['login_page_layout']) {
-    case 'left':
-        $logoarea .= " order-md-2";
-        $formarea .= " order-md-1";
-        break;
-
-    case 'right':
-        $logoarea .= " order-md-1";
-        $formarea .= " order-md-2";
-        break;
-
-    default:
-        $logoarea .= " order-1";
-        $formarea .= " col-12";
-        $loginrow .= " login-row-center";
-        break;
-}
 
 function getDefaultLanguage(): array
 {
@@ -182,13 +208,13 @@ if ($relogin) {
 
 $t1 = $GLOBALS['tiny_logo_1'];
 $t2 = $GLOBALS['tiny_logo_2'];
-$displayTinyLogo = false;
+$displaySmallLogo = false;
 if ($t1 && !$t2) {
-    $displayTinyLogo = 1;
+    $displaySmallLogo = 1;
 } if ($t2 && !$t1) {
-    $displayTinyLogo = 2;
+    $displaySmallLogo = 2;
 } if ($t1 && $t2) {
-    $displayTinyLogo = 3;
+    $displaySmallLogo = 3;
 }
 
 $regTranslations = json_encode(array(
@@ -236,24 +262,21 @@ $viewArgs = [
     'facilitySelected' => $facilitySelected,
     'displayGoogleSignin' => (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) ? true : false,
     'googleSigninClientID' => $GLOBALS['google_signin_client_id'],
-    'logoArea' => $logoarea,
-    'displayExtraLogo' => $GLOBALS['extra_logo_login'],
-    'primaryLogoSrc' => file_get_contents($GLOBALS["images_static_absolute"] . "/login-logo.svg"),
-    'logocode' => $logocode,
-    'displayLoginLabel' => ($GLOBALS["show_label_login"]) ? true : false,
-    'displayTinyLogo' => $displayTinyLogo,
-    'tinyLogo1' => $tinylogocode1,
-    'tinyLogo2' => $tinylogocode2,
+    'displaySmallLogo' => $displaySmallLogo,
+    'smallLogoOne' => $smallLogoOnePath,
+    'smallLogoTwo' => $smallLogoTwoPath,
     'displayTagline' => $GLOBALS['show_tagline_on_login'],
     'tagline' => $GLOBALS['login_tagline_text'],
-    'displayAck' => $GLOBALS['display_acknowledgements'],
+    'displayAck' => $GLOBALS['display_acknowledgements_on_login'],
     'hasSession' => (session_name()) ? true : false,
     'cookieText' => $cookie,
     'regTranslations' => $regTranslations,
     'regConstants' => json_encode(['webroot' => $GLOBALS['webroot']]),
     'siteID' => $_SESSION['site_id'],
-    'loginRow' => $loginrow,
-    'formArea' => $formarea,
     'showLabels' => $GLOBALS['show_labels_on_login_form'],
+    'primaryLogo'   => $primaryLoginLogoPath,
+    'displaySecondaryLogo' => $GLOBALS['extra_logo_login'],
+    'secondaryLogo' => $secondaryLoginLogoPath,
+    'secondaryLogoPosition' => $GLOBALS['secondary_logo_position'],
 ];
-echo $t->render("login/login_core.html.twig", $viewArgs);
+echo $t->render($layout, $viewArgs);

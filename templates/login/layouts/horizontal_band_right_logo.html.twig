@@ -1,0 +1,18 @@
+{#
+A horizontal banded layout displaying the logo on the right side
+
+This layout creates a horizontal band layout with the logo on the right side for
+the login screen. Given the difference between the logo on the left and right
+side is 1 class reversing the flex items, this file extends the horizontal band
+template and sets the required class.
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "login/horizontal_band.html.twig" %}
+
+{% set login_box_classes = ["flex-md-row-reverse"] %}
