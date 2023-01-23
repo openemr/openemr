@@ -75,7 +75,7 @@ function getAuthPortalUsers()
             $resultusers[] = $row;
         }
 
-        $authpatients = sqlStatement("SELECT LOWER(CONCAT(patient_data.fname, patient_data.id)) as userid,
+        $authpatients = sqlStatement("SELECT (CONCAT(patient_data.fname, patient_data.id)) as userid,
  CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
         while ($row = sqlFetchArray($authpatients)) {
             $resultpatients[] = $row;
