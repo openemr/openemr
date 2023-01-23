@@ -1113,7 +1113,7 @@ var skipArray = [
 </script>
 
 <!-- include support for the list-add selectbox feature -->
-<?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+<?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
 <?php /*Include the validation script and rules for this form*/
 $form_id = "DEM";
