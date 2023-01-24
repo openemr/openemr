@@ -28,9 +28,15 @@ require_once("../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Common\Acl\AclMain;
 
 // Putting a message here will cause a popup window to display it.
 $info_msg = "";
+
+/* OEMR - Changes */
+$dlg = FALSE;
+if(isset($_GET['dlg'])) $dlg = TRUE;
+/* End */
 
 // Grab insurance type codes from service
 $insuranceCompany = new InsuranceCompanyService();
@@ -324,8 +330,15 @@ foreach ($cqm_sop_array as $key => $value) {
 </table>
 
 <input type='button' value='<?php echo xla('Search'); ?>' class='btn btn-primary' onclick='dosearch()' />
+
+<!-- OEMR - Wrap if condition -->
+<?php if(AclMain::aclCheckCore('lists', 'insurance')) { ?>
 <input type='submit' value='<?php echo xla('Save as New'); ?>' class='btn btn-primary' name='form_save' onmousedown='save_clicked=true' />
-<input type='button' value='<?php echo xla('Cancel'); ?>' class='btn btn-primary' onclick='window.close();'/>
+<?php } ?>
+<!-- End -->
+
+<!-- OEMR - Changed onclick -->
+<input type='button' value='<?php echo xla('Cancel'); ?>' class='btn btn-primary' onclick='<?php echo $dlg ? "dlgclose();" : "window.close();i"; ?>'/>
 
 </center>
 </form>

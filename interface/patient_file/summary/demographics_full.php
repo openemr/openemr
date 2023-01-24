@@ -358,7 +358,7 @@ function InsSaveClose() {
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
  // OEMRAD - Replaced with "getElementById".
- var thesel = document.getElementById['i' + insurance_index + 'provider'];
+ var thesel = document.forms[0]['i' + insurance_index + 'provider'];
  var theopts = thesel.options; // the array of Option objects
  var i = 0;
 

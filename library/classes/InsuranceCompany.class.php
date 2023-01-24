@@ -26,6 +26,7 @@ class InsuranceCompany extends ORDataObject
     var $id;
     var $name;
     var $phone_numbers;
+    // OEMR - Change
     var $fax;
     var $attn;
     var $cms_id;
@@ -81,8 +82,10 @@ class InsuranceCompany extends ORDataObject
         $this->_table = "insurance_companies";
         $phone = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
+        /* OEMR - Changes */
         $fax = new PhoneNumber();
         $fax->set_type(TYPE_FAX);
+        /* End */
         $this->address = new Address();
         $this->phone_numbers = array($phone, $fax);
         $this->InsuranceCompany = new InsuranceCompanyService();
@@ -92,6 +95,7 @@ class InsuranceCompany extends ORDataObject
             $this->populate();
         }
 
+        // OEMR - Change
         $this->fax = $fax;
 
         $this->X12Partner = new X12Partner();
@@ -359,7 +363,8 @@ class InsuranceCompany extends ORDataObject
         }
     }
 
-    function get_fax_number()
+    /* OEMR - Changes */
+    public function get_fax_number()
     {
         foreach ($this->phone_numbers as $fax) {
             if ($fax->type == TYPE_FAX) {
@@ -370,8 +375,9 @@ class InsuranceCompany extends ORDataObject
         return "";
     }
 
-    function set_fax_number($fax)
+    public function set_fax_number($fax)
     {
-        $this->_set_number($fax, TYPE_FAX);
+        $this->set_number($fax, TYPE_FAX);
     }
+    /* End */
 }
