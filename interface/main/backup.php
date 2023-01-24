@@ -825,13 +825,13 @@ if ($form_step == 102) {
                 // Beware and keep in mind that Windows requires double quotes around arguments.
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\"; >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
                     $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " &;";
+                    $cmd .= "echo DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\"; >> " . escapeshellarg($EXPORT_FILE) . " &;";
                 } else {
                     $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
@@ -860,34 +860,66 @@ if ($form_step == 102) {
                 }
             }
             // If any HIS* layouts were exported then also write SQL to add missing history_data columns.
-            if ($do_history_repair) {
-                $cmd .= "echo \"SET sql_mode = '';\"                  >> $EXPORT_FILE;";
-                $cmd .= "echo \"SET group_concat_max_len = 1000000;\" >> $EXPORT_FILE;";
-                $cmd .= "echo \"SELECT CONCAT(\"                      >> $EXPORT_FILE;";
-                $cmd .= "echo \"'ALTER TABLE history_data ',\"        >> $EXPORT_FILE;";
-                $cmd .= "echo \"COALESCE(GROUP_CONCAT(DISTINCT ' ADD \`', lo.field_id, '\` TEXT NOT NULL' ORDER BY lo.field_id), '')\" >> $EXPORT_FILE;";
-                $cmd .= "echo \")\"                                   >> $EXPORT_FILE;";
-                $cmd .= "echo \"FROM layout_options AS lo WHERE\"     >> $EXPORT_FILE;";
-                $cmd .= "echo \"(lo.form_id LIKE 'HIS%' OR lo.source = 'H') AND lo.field_id NOT IN\" >> $EXPORT_FILE;";
-                $cmd .= "echo \"(SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'history_data')\" >> $EXPORT_FILE;";
-                $cmd .= "echo \"INTO @sql;\"                          >> $EXPORT_FILE;";
-                $cmd .= "echo \"PREPARE stmt FROM @sql;\"             >> $EXPORT_FILE;";
-                $cmd .= "echo \"EXECUTE stmt;\"                       >> $EXPORT_FILE;";
-            }
-            // If the DEM layout was exported then also write SQL to add missing patient_data columns.
-            if ($do_demographics_repair) {
-                $cmd .= "echo \"SET sql_mode = '';\"                  >> $EXPORT_FILE;";
-                $cmd .= "echo \"SET group_concat_max_len = 1000000;\" >> $EXPORT_FILE;";
-                $cmd .= "echo \"SELECT CONCAT(\"                      >> $EXPORT_FILE;";
-                $cmd .= "echo \"'ALTER TABLE patient_data ',\"        >> $EXPORT_FILE;";
-                $cmd .= "echo \"COALESCE(GROUP_CONCAT(DISTINCT ' ADD \`', lo.field_id, '\` TEXT NOT NULL' ORDER BY lo.field_id), '')\" >> $EXPORT_FILE;";
-                $cmd .= "echo \")\"                                   >> $EXPORT_FILE;";
-                $cmd .= "echo \"FROM layout_options AS lo WHERE\"     >> $EXPORT_FILE;";
-                $cmd .= "echo \"(lo.form_id LIKE 'DEM%' OR lo.source = 'D') AND lo.field_id NOT IN\" >> $EXPORT_FILE;";
-                $cmd .= "echo \"(SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'patient_data')\" >> $EXPORT_FILE;";
-                $cmd .= "echo \"INTO @sql;\"                          >> $EXPORT_FILE;";
-                $cmd .= "echo \"PREPARE stmt FROM @sql;\"             >> $EXPORT_FILE;";
-                $cmd .= "echo \"EXECUTE stmt;\"                       >> $EXPORT_FILE;";
+            if (!IS_WINDOWS) {
+                if ($do_history_repair) {
+                    $cmd .= "echo \"SET sql_mode = '';\"                  >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"SET group_concat_max_len = 1000000;\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"SELECT CONCAT(\"                      >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"'ALTER TABLE history_data ',\"        >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"COALESCE(GROUP_CONCAT(DISTINCT ' ADD \`', lo.field_id, '\` TEXT NOT NULL' ORDER BY lo.field_id), '')\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \")\"                                   >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"FROM layout_options AS lo WHERE\"     >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"(lo.form_id LIKE 'HIS%' OR lo.source = 'H') AND lo.field_id NOT IN\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"(SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'history_data')\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"INTO @sql;\"                          >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"PREPARE stmt FROM @sql;\"             >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"EXECUTE stmt;\"                       >> " . escapeshellarg($EXPORT_FILE) . ";";
+                }
+                // If the DEM layout was exported then also write SQL to add missing patient_data columns.
+                if ($do_demographics_repair) {
+                    $cmd .= "echo \"SET sql_mode = '';\"                  >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"SET group_concat_max_len = 1000000;\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"SELECT CONCAT(\"                      >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"'ALTER TABLE patient_data ',\"        >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"COALESCE(GROUP_CONCAT(DISTINCT ' ADD \`', lo.field_id, '\` TEXT NOT NULL' ORDER BY lo.field_id), '')\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \")\"                                   >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"FROM layout_options AS lo WHERE\"     >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"(lo.form_id LIKE 'DEM%' OR lo.source = 'D') AND lo.field_id NOT IN\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"(SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'patient_data')\" >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"INTO @sql;\"                          >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"PREPARE stmt FROM @sql;\"             >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo \"EXECUTE stmt;\"                       >> " . escapeshellarg($EXPORT_FILE) . ";";
+                }
+            } else {
+                if ($do_history_repair) {
+                    $cmd .= "echo SET sql_mode = ''; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo SET group_concat_max_len = 1000000; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo SELECT CONCAT( >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo 'ALTER TABLE history_data ' , >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo COALESCE(GROUP_CONCAT(DISTINCT ' ADD `', lo.field_id, '` TEXT NOT NULL' ORDER BY lo.field_id), '') >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo ) >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo FROM layout_options AS lo WHERE >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo (lo.form_id LIKE 'HIS%' OR lo.source = 'H') AND lo.field_id NOT IN >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo (SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'history_data') >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo INTO @sql; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo PREPARE stmt FROM @sql; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo EXECUTE stmt; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                }
+                // If the DEM layout was exported then also write SQL to add missing patient_data columns.
+                if ($do_demographics_repair) {
+                    $cmd .= "echo SET sql_mode = '';                  >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo SET group_concat_max_len = 1000000; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo SELECT CONCAT(                      >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo 'ALTER TABLE patient_data ',        >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo COALESCE(GROUP_CONCAT(DISTINCT ' ADD `', lo.field_id, '` TEXT NOT NULL' ORDER BY lo.field_id), '') >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo )                                   >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo FROM layout_options AS lo WHERE     >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo (lo.form_id LIKE 'DEM%' OR lo.source = 'D') AND lo.field_id NOT IN >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo (SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = 'patient_data') >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo INTO @sql;                          >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo PREPARE stmt FROM @sql;             >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= "echo EXECUTE stmt;                       >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                }
             }
         }
     } else {
