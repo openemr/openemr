@@ -158,6 +158,13 @@ function fetch_reminders($pid, $appt_date)
             dlgopen('../main/calendar/add_edit_event.php?eid=' + encodeURIComponent(eventid), 'blank', 775, 500);
         }
 
+        /* OEMR - Changes */
+        function goPid(pid) {
+            top.restoreSession();
+            top.RTop.location = '<?php echo $GLOBALS['webroot']; ?>' + '/interface/patient_file/summary/demographics.php?set_pid='+pid;
+        }
+        /* End */
+
         function refreshme() {
             // location.reload();
             document.forms[0].submit();
@@ -187,6 +194,12 @@ function fetch_reminders($pid, $appt_date)
                 display: none;
             }
         }
+
+        /* OEMR - Changes */
+        .detailsLink {
+            cursor: pointer;
+        }
+        /* End */
         </style>
 </head>
 
@@ -443,10 +456,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>><?php echo text(oeFormatShortDate($appointment['pc_eventDate'])) ?>
         </td>
 
-        <td class="detail"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?>
+        <!-- OEMR - Added link -->
+        <td class="detail"><a class="detailsLink" onclick="oldEvt('<?php echo $appointment['pc_eid']; ?>')"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?></a>
         </td>
 
-        <td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
+        <!-- OEMR - Added link -->
+        <td class="detail">&nbsp;<a class="detailsLink" onclick="goPid('<?php echo $appointment['pid']; ?>')"><?php echo text($appointment['fname'] . " " . $appointment['lname']) ?></a>
         </td>
 
         <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
