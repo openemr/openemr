@@ -37,7 +37,7 @@ $result2 = getEmployerData($pid);
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UpdateEvent::EVENT_HANDLE, $updateEvent, 10);
+    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE, 10);
 
     if (
         !$updateEvent->authorized() ||
@@ -74,8 +74,7 @@ if ($GLOBALS['insurance_only_one']) {
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['datetime-picker','common','select2']);
-    require_once("$srcdir/erx_javascript.inc.php");
+<?php Header::setupHeader(['datetime-picker','common','select2', 'erx']);
 ?>
 <title><?php echo xlt('Edit Current Patient'); ?></title>
 
@@ -151,6 +150,7 @@ $(function () {
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         let title = <?php echo xlj('Insurance Search/Select/Add'); ?>;
+        let ins_url = $(this).attr('href') + encodeURIComponent(sendInsToSearch(insurance_index));
         dlgopen('', '', 700, 600, '', title, {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
@@ -159,7 +159,7 @@ $(function () {
             allowDrag: true,
             dialogId: '',
             type: 'iframe',
-            url: $(this).attr('href')
+            url: ins_url
         });
     });
 
@@ -335,24 +335,28 @@ function ins_search(ins) {
     insurance_index = ins;
     return false;
 }
+
+function sendInsToSearch(ins) {
+    let thesel = $('#i' + ins + 'provider');
+    let theseldata = $(thesel).select2('data');
+    return theseldata[0]['id'];
+}
+
 function InsSaveClose() {
     top.restoreSession();
     document.location.reload();
 }
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
- var thesel = document.forms[0]['i' + insurance_index + 'provider'];
- var theopts = thesel.options; // the array of Option objects
- var i = 0;
- for (; i < theopts.length; ++i) {
-  if (theopts[i].value == ins_id) {
-   theopts[i].selected = true;
-   return;
-  }
- }
- // no matching option was found so create one, append it to the
- // end of the list, and select it.
- theopts[i] = new Option(ins_name, ins_id, false, true);
+    thesel = $('#i' + insurance_index + 'provider');
+    if ($(thesel).find("option[value='" + ins_id  + "']").length) {
+        thesel.val(ins_id).trigger('change');
+    } else {
+        // no matching option was found so create one, append it to the
+        // end of the list, and select it.
+        let newOption = new Option(ins_name, ins_id, true, true);
+        thesel.append(newOption).trigger('change');
+    }
 }
 
 // This capitalizes the first letter of each word in the passed input
@@ -524,7 +528,7 @@ $(function () {
         }
 
         <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?> 
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
         div.label_custom {
             text-align: right !important;
         }
@@ -636,9 +640,9 @@ if (! $GLOBALS['simplified_demographics']) {
               <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
             </div>
             <div class="col-md-9">
-              <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
-               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
-              <select name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+              <a href="../../practice/ins_search.php?ins=" class="medium_modal btn btn-primary"
+               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add/Edit') ?></a>
+              <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
                 foreach ($insurancei as $iid => $iname) {
@@ -674,6 +678,18 @@ if (! $GLOBALS['simplified_demographics']) {
                id='i<?php echo attr($i); ?>effective_date'
                name='i<?php echo attr($i); ?>effective_date'
                value='<?php echo attr(oeFormatShortDate($result3['date'] ?? '')); ?>' />
+            </div>
+          </div><!-- end nested row -->
+
+          <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pb-1 label_custom ">
+              <span class='required'><?php echo xlt('Effective Date End'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type='entry' size='16' class='datepicker form-control form-control-sm mb-1'
+               id='i<?php echo attr($i); ?>effective_date_end'
+               name='i<?php echo attr($i); ?>effective_date_end'
+               value='<?php echo attr(oeFormatShortDate($result3['date_end'] ?? '')); ?>' />
             </div>
           </div><!-- end nested row -->
 
@@ -1097,7 +1113,7 @@ var skipArray = [
 </script>
 
 <!-- include support for the list-add selectbox feature -->
-<?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+<?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
 <?php /*Include the validation script and rules for this form*/
 $form_id = "DEM";
@@ -1199,7 +1215,6 @@ $use_validate_js = $GLOBALS['new_validate'];
             width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
         });
-
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
