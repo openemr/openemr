@@ -12,12 +12,29 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\AppointmentService;
 
 class TeleHealthSessionRepository
 {
     const TABLE_NAME = "comlink_telehealth_appointment_session";
+
+    public function getSessionsForRelatedPatient($pid) {
+        $pc_eid = 11;
+        // for now we are just mocking this data by returning a hard coded value
+        $appointmentService = new AppointmentService();
+
+        $session = $this->getSessionByAppointmentId($pc_eid);
+        $appt = $appointmentService->getAppointment($pc_eid);
+        $calendarCategory = CalendarUtils::getCalendarCategory($appt[0]['pc_catid']);
+        $appt[0]['pc_catname'] = $calendarCategory['pc_catname'];
+        return [
+            array_merge($session, $appt[0])
+        ];
+    }
+
     public function createSession($pc_eid, $user_id, $encounter, $pid)
     {
         $sql = "INSERT INTO " . self::TABLE_NAME . " (pc_eid, user_id, encounter, pid) VALUES (?,?,?,?)";

@@ -38,6 +38,8 @@ export class CallerSlot {
 
     __containerId = null;
 
+    __boundInternalEvent = null;
+
     constructor(containerId, index) {
         let domNode = document.getElementById(containerId);
         let templateNode = document.getElementById('participant-list-template-node');
@@ -56,12 +58,24 @@ export class CallerSlot {
         let screenshareNode = templateNode.cloneNode();
         screenshareNode.id = screenshareId;
         domNode.appendChild(screenshareNode);
+        this.__boundInternalEvent = this.handleSelectEvent.bind(this);
+        videoNode.addEventListener('click', this.__boundInternalEvent);
+        screenshareNode.addEventListener('click', this.__boundInternalEvent);
 
         this.__videoSlot = new ATSlot(videoId);
         this.__videoNode = videoNode;
         this.__screenshareSlot = new ATSlot(screenshareId);
         this.__screenshareNode = screenshareNode;
         this.__currentSlot = this.__videoSlot;
+        this.__selectCallbacks = [];
+    }
+
+    handleSelectEvent(evt) {
+        this.__selectCallbacks.forEach(cb => cb(this));
+    }
+
+    addCallerSelectListener(callback) {
+        this.__selectCallbacks.push(callback);
     }
 
     getRemotePartyId() {
@@ -160,11 +174,14 @@ export class CallerSlot {
         // do we really need a detach at this point?  We might as well just remove all of the nodes...
         // TODO: @adunsulag look at refactoring this so we only have to call destruct
         this.detach();
+        this.__selectCallbacks = [];
         if (this.__screenshareNode) {
+            this.__screenshareNode.removeEventListener('click', this.__boundInternalEvent);
             this.__screenshareNode.parentNode.removeChild(this.__screenshareNode);
             this.__screenshareNode = null;
         }
         if (this.__videoNode) {
+            this.__videoNode.removeEventListener('click', this.__boundInternalEvent);
             this.__videoNode.parentNode.removeChild(this.__videoNode);
             this.__videoNode = null;
         }

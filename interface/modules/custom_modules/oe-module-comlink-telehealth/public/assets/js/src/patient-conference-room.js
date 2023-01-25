@@ -22,15 +22,22 @@ export function PatientConferenceRoom(translations,scriptLocation) {
                 if (apptReadyData.session)
                 {
                     // provider being ready is just one test, local camera permissions also must be checked
-                    providerIsReady = apptReadyData.session.providerReady === true;
+                    providerIsReady = apptReadyData.session.providerReady === "1";
 
                     // we update the calleeUuid here in case another provider takes over the appointment session of
                     // the patient.  This occurs if a provider is out of town and the patient is currently waiting
                     // for the session to start.
-                    if (apptReadyData.session.calleeUuid)
-                    {
-                        patientConferenceRoom.callerSettings.calleeUuid = apptReadyData.session.calleeUuid;
+
+                    if (apptReadyData.session.participantList) {
+                        patientConferenceRoom.callerSettings.participantList = apptReadyData.session.participantList;
+                        let provider = patientConferenceRoom.callerSettings.participantList.find(p => p.role == 'provider');
+                        if (!provider) {
+                            throw new Error("No provider in participant list.  Provider is not ready and cannot continue");
+                        }
+                        patientConferenceRoom.callerSettings.calleeUuid = provider.uuid;
+                        patientConferenceRoom.setCurrentCallerFocusId(provider.uuid);
                     }
+
                     patientConferenceRoom.toggleJoinButton(patientConferenceRoom.shouldEnableJoinButton());
                 }
             })
@@ -50,6 +57,7 @@ export function PatientConferenceRoom(translations,scriptLocation) {
         settings.hangupCallback = patientConferenceRoom.handleCallHangup.bind(patientConferenceRoom);
         settings.expand = false;
         settings.notes = false; // patient doesn't get notes.
+        settings.configure = false; // patient doesn't get configure at least for now.
         settings.hangup = true;
         patientConferenceRoom.addSettingsForScreenshare(settings);
         return settings;
@@ -61,24 +69,29 @@ export function PatientConferenceRoom(translations,scriptLocation) {
         patientConferenceRoom.startProviderConferenceRoom(); // not sure there is much difference here
 
         // we need to make a call to all the other participants...
-        patientConferenceRoom.makeCall(patientConferenceRoom.callerSettings.calleeUuid);
+        let participantList = patientConferenceRoom.getRemoteParticipantList();
+        if (participantList) {
+            // if the participant is in the room, let's make a call to that user.
+            participantList.forEach(pl => {
+                if (pl.inRoom == 'Y') {
+                    if (pl.role == 'provider') {
+                        // TODO: here is where we say we want this person to be the focus screen.
+                    }
+                    patientConferenceRoom.makeCall(pl.uuid);
+                }
+            });
+        }
+        // patientConferenceRoom.makeCall(patientConferenceRoom.callerSettings.calleeUuid);
+
         // patientConferenceRoom.makeScreenshareCall(patientConferenceRoom.callerSettings.calleeUuid);
     };
 
     patientConferenceRoom.canReceiveCall = function(call) {
         let callerId = call.getRemotePartyId();
         console.log("Received call ", call);
-        // only allow calls from the provider for now...
-        if (!patientConferenceRoom.isAuthorizedParticipant(callerId))
-        {
-            return Promise.resolve({call: call, canCall: false});
-        }
-
-        // only allow screensharing calls
-        if (!call.isScreenSharing()) {
-            return Promise.resolve({call: call, canCall: false});
-        }
-        return Promise.resolve({call: call, canCall: true});
+        // only allow calls from one of the participants allowed in the room...
+        let canCall = patientConferenceRoom.isAuthorizedParticipant(callerId);
+        return Promise.resolve({call: call, canCall: canCall});
     };
 
     patientConferenceRoom.handleCallEndedEvent = function(call)

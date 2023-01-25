@@ -1,4 +1,5 @@
 import {ConfirmSessionCloseDialog} from "./confirm-session-close-dialog.js";
+import {ConfigureSessionCallDialog} from "./configure-session-call-dialog.js";
 import {VideoBar} from "./video-bar.js";
 import {CallerSlot} from "./caller-slot.js";
 import {TelehealthBridge} from "./telehealth-bridge.js";
@@ -108,6 +109,13 @@ export function ConferenceRoom(translations, scriptLocation)
      */
     this.__localScreenshareCall = null;
 
+    /**
+     *
+     * @type string
+     * @private
+     */
+    this.__focusCallerUuid = null;
+
     this.allocateSlot = function(call, stream) {
         // as we can get multiple events we only want to allocate on the call if we don't have any stream data setup.
         if (!call.getUserData()) {
@@ -122,6 +130,10 @@ export function ConferenceRoom(translations, scriptLocation)
             }
             if (needNewSlot && this.__slots.length <= this.__maxSlots) {
                 let newCaller = new CallerSlot('participant-list-container', this.__callerIdx++);
+                newCaller.addCallerSelectListener(function(callerSlot) {
+                    conf.setCurrentCallerFocusId(callerSlot.getRemotePartyId());
+                    conf.updateParticipantDisplays();
+                });
                 this.__slots.push(newCaller);
                 newCaller.attach(call, stream);
                 if (this.__slots.length <= 2) {
@@ -137,11 +149,16 @@ export function ConferenceRoom(translations, scriptLocation)
     this.updateParticipantDisplays = function() {
         // based on the mode of the conference room we will update the presentation screen and the participant list
         let hasPresentationScreen = false;
+        let hideLocalSpeaker = this.__slots.length <= 1;
         for (var i = 0; i < this.__slots.length; i++) {
             if (this.__slots[i].getRemotePartyId() == this.getCurrentCallerFocusId()) {
                 hasPresentationScreen = true;
                 this.__presentationScreen.attach(this.__slots[i]);
-                this.__slots[i].hide(); // hide the speaker from the participant list
+                if (hideLocalSpeaker) {
+                    this.__slots[i].hide(); // hide the speaker from the participant list
+                } else {
+                    this.__slots[i].show(); // make sure we are showing our screen
+                }
             } else {
                 // make sure we are showing all of our participants
                 this.__slots[i].show();
@@ -168,8 +185,7 @@ export function ConferenceRoom(translations, scriptLocation)
 
     this.getRemoteParticipantList = function() {
         let participantList = this.callerSettings.participantList || [];
-        let participant = participantList.find((p => p.uuid == callerId));
-        return participantList.filter(p => p.username !== conf.callerSettings.callerUuid);
+        return participantList.filter(p => p.uuid !== conf.callerSettings.callerUuid);
     };
 
     /**
@@ -181,10 +197,14 @@ export function ConferenceRoom(translations, scriptLocation)
         return this.__slots.find(s => s.getRemotePartyId() === id);
     };
 
+    this.setCurrentCallerFocusId = function(uuid) {
+        this.__focusCallerUuid = uuid;
+    };
+
     this.getCurrentCallerFocusId = function() {
         // if we use audio monitoring we can switch, or if the user pins a speaker we can this this
         // however, for now we focus on the callee for now
-        return this.callerSettings.calleeUuid;
+        return this.__focusCallerUuid;
     };
 
     this.freeSlot = function(slot) {
@@ -453,6 +473,7 @@ export function ConferenceRoom(translations, scriptLocation)
             .then(launchData => {
                 conf.inSession = true;
                 conf.callerSettings = launchData.callerSettings;
+                conf.__focusCallerUuid = launchData.callerSettings.calleeUuid;
                 conf.waitingRoomTemplate = launchData.waitingRoom;
                 conf.conferenceRoomTemplate = launchData.conferenceRoom;
                 conf.setupWaitingRoom();
@@ -788,11 +809,26 @@ export function ConferenceRoom(translations, scriptLocation)
         let settings = conf.getDefaultVideoBarSettings();
         settings.hangupCallback = conf.handleCallHangup.bind(conf);
         settings.notesCallback = conf.minimizeProviderConferenceCall.bind(conf);
+        settings.configure = true;
+        settings.configureCallback = conf.handleConfigureCall.bind(conf);
         settings.expand = false;
         settings.notes = true;
         settings.hangup = true;
         conf.addSettingsForScreenshare(settings);
         return settings;
+    };
+
+    this.handleConfigureCall = function() {
+        // need to launch the dialog here
+        /**
+         * let dialog = new ConfirmSessionCloseDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
+                conf.sessionClose();
+            });
+         dialog.show();
+         */
+        let dialog = new ConfigureSessionCallDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
+        });
+        dialog.show();
     };
 
     this.handleCallStartedEvent = function(call)
@@ -831,9 +867,16 @@ export function ConferenceRoom(translations, scriptLocation)
         // if the user data is allocated then this is an existing call
         if (call.getUserData() != null) {
             let callerSlot = call.getUserData();
+            let remotePartyId = callerSlot.getRemotePartyId();
             callerSlot.destruct(); // remove everything
             // cleanup the slots
             this.__slots = this.__slots.filter(s => s !== callerSlot);
+            if (this.__slots.length && this.getCurrentCallerFocusId() == remotePartyId) {
+                // need to set our current caller focus id
+                // for now we will just set it to the first one on the call instead of trying to figure out
+                // the last known audio chatting
+                this.setCurrentCallerFocusId(this.__slots[0].getRemotePartyId());
+            }
         }
     };
 

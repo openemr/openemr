@@ -30,9 +30,11 @@ export function VideoBar(container, options)
         setDefaultValue(options,'hangupCallback', noop);
         setDefaultValue(options,'screenshare', true);
         setDefaultValue(options,'screenshareCallback', noop);
+        setDefaultValue(options,'configure', false);
+        setDefaultValue(options,'configureCallback', noop);
 
 
-        let btns = ['notes', 'microphone', 'video', 'expand', 'hangup', 'screenshare'];
+        let btns = ['notes', 'microphone', 'video', 'expand', 'hangup', 'screenshare', 'configure'];
         btns.forEach(btn => {
             let node = bar.__container.querySelector(".telehealth-btn-" + btn);
             let callback = options[btn + 'Callback'] || noop;

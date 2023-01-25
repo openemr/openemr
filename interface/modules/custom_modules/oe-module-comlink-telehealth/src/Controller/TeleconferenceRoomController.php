@@ -22,6 +22,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -116,6 +117,7 @@ class TeleconferenceRoomController
     {
         $this->logger->debug("TeleconferenceRoomController->dispatch()", ['action' => $action, 'queryVars' => $queryVars, 'isPatient' => $this->isPatient]);
 
+        // TODO: @adunsulag need to look at each individual action and make sure we are following access permissions here...
         if ($action == 'get_telehealth_launch_data') {
             $this->getTeleHealthLaunchDataAction($queryVars);
         } else if ($action == 'set_appointment_status') {
@@ -297,19 +299,18 @@ class TeleconferenceRoomController
             'session' => [
                 'pc_eid' => $pc_eid
                 ,'providerReady' => false
-                ,'calleeUuid' => null
+                ,'participantList' => []
             ]
         ];
+
         $this->logger->debug("patientAppointmentReadyAction()", ['session' => $session]);
         try {
+
             if (!empty($session)) {
                 $result['session']['id'] = $session['id'];
                 // provider has started the session, let's verify the last update time
                 if (!empty($session['provider_last_update'])) {
-                    $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session['provider_last_update']);
-                    $currentDateTime = new \DateTime();
-                    $this->logger->debug("checking time ", ['provider_last_update' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
-                    if ($currentDateTime < $dateTime->add(new \DateInterval("PT15S"))) {
+                    if (CalendarUtils::isTelehealthSessionInActiveTimeRange($session)) {
                         $result['session']['providerReady'] = true;
                     }
                     $userRepo = new UserService();
@@ -318,15 +319,52 @@ class TeleconferenceRoomController
                         throw new InvalidArgumentException("Failed to get user with session id " . $session['id']);
                     }
 
-                    // in the event that we never change the login credentials we grab it from the session here...
-                    $telehealthCredentials = $this->telehealthUserRepo->getUser($user['uuid']);
-                    if (empty($telehealthCredentials)) {
-                        throw new InvalidArgumentException("Failed to get telehealth credentials with username " . $user['username']);
+                    $participantList = $this->getParticipantListForAppointment($pc_eid, $user, $session);
+                    // TODO: @adunsulag need to check to make sure we ONLY give permission to this action for providers with user access
+                    // and to the patients who are in the participant list
+                    if (!empty($queryVars['authUser'])) {
+                        // do an ACL check
+                        if (!AclMain::aclCheckCore("patients", "demo")) {
+                            throw new AccessDeniedException('patients', 'demo', "Invalid access to patient demographics information");
+                        }
+                    } else {
+                        // grab our patient for our pid and find the uuid
+                        $patientService = new PatientService();
+                        // the pid should always come from the session
+                        $uuidBinary = $patientService->getUuid($queryVars['pid']);
+                        if (empty($uuidBinary)) {
+                            throw new InvalidArgumentException("Invalid session pid");
+                        }
+                        $uuid = UuidRegistry::uuidToString($uuidBinary);
+                        $foundParticipant = false;
+                        foreach ($participantList as $participant) {
+                            if ($participant['role'] == 'patient' && $participant['uuid'] == $uuid) {
+                                $foundParticipant = true;
+                                break;
+                            }
+                        }
+                        // none of the patients are on the authorized participant list so we are going to deny this request
+                        if (!$foundParticipant) {
+                            throw new AccessDeniedException('patients', 'demo', "Invalid access to patient demographics information");
+                        }
                     }
-                    $result['session']['calleeUuid'] = $telehealthCredentials->getUsername();
+
+                    $result['session']['participantList'] = $participantList;
+
+//                    // in the event that we never change the login credentials we grab it from the session here...
+//                    $telehealthCredentials = $this->telehealthUserRepo->getUser($user['uuid']);
+//                    if (empty($telehealthCredentials)) {
+//                        throw new InvalidArgumentException("Failed to get telehealth credentials with username " . $user['username']);
+//                    }
+//                    $result['session']['calleeUuid'] = $telehealthCredentials->getUsername();
                 }
             }
-            echo text(json_encode($result));
+            echo json_encode(textArray($result));
+        } catch (AccessDeniedException $exception) {
+            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+                'queryVars' => $queryVars]);
+            http_response_code(401);
+            echo json_encode(['error' => 'Access Denied']);
         } catch (Exception $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);
@@ -416,6 +454,7 @@ class TeleconferenceRoomController
 
         return $appt;
     }
+    // TODO: @adunsulag need to check for access permissions here...
     public function setCurrentAppointmentEncounter($queryVars)
     {
         try {
@@ -811,16 +850,6 @@ class TeleconferenceRoomController
         // if they are still in the session
         // not sure I like relying on the last communication date though...
 
-        /**
-         * Look at this code here:
-         *  if (!empty($session['provider_last_update'])) {
-        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session['provider_last_update']);
-        $currentDateTime = new \DateTime();
-        $this->logger->debug("checking time ", ['provider_last_update' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
-        if ($currentDateTime < $dateTime->add(new \DateInterval("PT15S"))) {
-        $result['session']['providerReady'] = true;
-        }
-         */
         // TODO: @adunsulag this is where we will grab the 3rd party participant list
         $appt = $this->appointmentService->getAppointment($apptId);
         $userTelehealthSettings = $this->getOrCreateTelehealthProvider($user);

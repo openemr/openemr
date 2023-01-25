@@ -12,10 +12,14 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRepository;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Services\AppointmentService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -44,15 +48,61 @@ class TeleHealthPatientPortalController
 
     public function renderTeleHealthPatientVideo(GenericEvent $event)
     {
+        // we need to grab any sessions where the
+        if (empty($_SESSION['pid'])) {
+            return $event;
+        }
+
+        $sessionRepo = new TeleHealthSessionRepository();
+        $apptService = new AppointmentService();
+        $userService = new UserService();
+        $listService = new ListService();
+
+        $sessions = $sessionRepo->getSessionsForRelatedPatient($_SESSION['pid']);
+        // we need to check if our calendar time is here
+        $filteredSessions = [];
+        foreach ($sessions as $session) {
+            $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session['pc_eventDate']
+                . " " . $session['pc_startTime']);
+            // we want to display title, event status, provider information
+            // pc_title, pc_eventDate, pc_startTime, pc_apptstatus, pc_eid
+
+            if ($dateTime !== false
+                && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)
+                && !$apptService->isCheckOutStatus($session['pc_apptstatus'])
+            )
+            {
+                $user =  $userService->getUser($session['pc_aid']);
+                $listOption = $listService->getListOption('apptstat', $session['pc_apptstatus']);
+                $filteredSessions[] = [
+                    'appointmentDate' => $dateTime->format('l, Y-m-d H:i:s A')
+                    ,'appointmentType' => xl('Type') . ': ' . $session['pc_catname']
+                    ,'provider' => xl('Provider') . ': ' . ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')
+                    ,'status' => xl('Status') . ': ' . $listOption['title']
+                    ,'mode' => (int)$session['pc_recurrtype'] > 0 ? 'recurring' : $session['pc_recurrtype']
+                    ,'icon_type' => (int)$session['pc_recurrtype'] > 0
+                    ,'etitle' => !empty($row['pc_hometext']) ? (xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n") : ""
+                    ,'pc_eid' => $session['pc_eid']
+                    ,'active' => CalendarUtils::isTelehealthSessionInActiveTimeRange($session)
+                ];
+            }
+        }
+        $activeSessionToLaunch = null;
+        if (count($filteredSessions) == 1 && $filteredSessions[0]['active'] == true) {
+            $activeSessionToLaunch = $filteredSessions[0];
+        }
         $data = [
             'assetPath' => $this->assetPath,
-            'debug' => $this->config->isDebugModeEnabled()
+            'debug' => $this->config->isDebugModeEnabled(),
+            'thirdPartySessions' => $filteredSessions,
+            'activeSession' => $activeSessionToLaunch
         ];
         echo $this->twig->render('comlink/patient-portal.twig', $data);
     }
 
     public function filterPatientAppointment(AppointmentFilterEvent $event)
     {
+        // TODO: need to handle data element where this is a third party joining...
         $dbRecord = $event->getDbRecord();
         $appointment = $event->getAppointment();
         // 'appointmentDate' => $dayname . ', ' . $row['pc_eventDate'] . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
