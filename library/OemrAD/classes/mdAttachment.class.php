@@ -54,7 +54,7 @@ class Attachment {
         }
 
         if(!empty($formid)) {
-            //$whereStr[] = "forms.id IN ('" . implode("','", $formid) ."')";
+            $whereStr[] = "forms.id IN ('" . implode("','", $formid) ."')";
         }
         
         if(!empty($whereStr)) {
@@ -133,7 +133,10 @@ class Attachment {
         //Prepare Data
         foreach ($registry_form_name as $var) {
             if ($toprint = $child_data[$var]) {
-                $prepared_data[$current_formid]['childs'] = $toprint;
+                if(!isset($prepared_data[$current_formid]['childs'][$var])) {
+                    $prepared_data[$current_formid]['childs'][$var] = array();
+                }
+                $prepared_data[$current_formid]['childs'][$var] = $toprint;
             }
         }
 
