@@ -54,7 +54,7 @@ $form_id = trim(strip_tags($_REQUEST['id']));
 $form_pid = trim(strip_tags($_REQUEST['pid']));
 $form_mode = trim(strip_tags($_REQUEST['mode']));
 $form_message = trim(strip_tags($_REQUEST['message']));
-$form_content = trim(strip_tags($_REQUEST['content']));
+$form_content = isset($_REQUEST['content']) ? $_REQUEST['content'] : "";
 $form_subject = trim(strip_tags($_REQUEST['subject']));
 
 $form_action = trim(strip_tags($_REQUEST['action']));
@@ -312,6 +312,9 @@ if ($form_mode == 'transmit') {
 			$emailContentTEXT = $form_content;
 		}
 
+		$emailContentHTML = $form_content;
+		$emailContentTEXT = trim(strip_tags($emailContentHTML));
+
 		$eItem = array(
 			'pid' => $pid,
 			'data' => array(
@@ -325,7 +328,7 @@ if ($form_mode == 'transmit') {
 				'request_data' => $_REQUEST,
 				'files' => $_FILES,
 			));
-
+		
 		$eData = EmailMessage::TransmitEmail(
 				array($eItem['data']), 
 				array('pid' => $eItem['pid'], 'request_data' => $_REQUEST, 'files' => $_FILES, 'logMsg' => true)
