@@ -10,15 +10,15 @@ Render the small logos, if set
 @copyright Copyright (c) 2023 Providence Healthtech
 @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
-<div class="{{ small_logo_container_class_list|default(['d-flex', 'justify-content-around'])|join(' ') }}">
+<div class="{{ small_logo_container_class_list|default(['d-flex', 'justify-content-around'])|join(' ')|attr }}">
 {% if displaySmallLogo == 1 %}
-    <img src="{{ smallLogoOne }}" alt="{{ 'Small Logo 1'|xlt }}" class="img-fluid">
+    <img src="{{ smallLogoOne|attr }}" alt="{{ 'Small Logo 1'|xlt }}" class="img-fluid">
 {% endif %}
 {% if displaySmallLogo == 2 %}
-    <img src="{{ smallLogoTwo }}" alt="{{ 'Small Logo 2'|xlt }}" class="img-fluid">
+    <img src="{{ smallLogoTwo|attr }}" alt="{{ 'Small Logo 2'|xlt }}" class="img-fluid">
 {% endif %}
 {% if displaySmallLogo == 3 %}
-    <img src="{{ smallLogoOne }}" alt="{{ 'Small Logo 1'|xlt }}" class="img-fluid">
-    <img src="{{ smallLogoTwo }}" alt="{{ 'Small Logo 2'|xlt }}" class="img-fluid">
+    <img src="{{ smallLogoOne|attr }}" alt="{{ 'Small Logo 1'|xlt }}" class="img-fluid">
+    <img src="{{ smallLogoTwo|attr }}" alt="{{ 'Small Logo 2'|xlt }}" class="img-fluid">
 {% endif %}
 </div>
