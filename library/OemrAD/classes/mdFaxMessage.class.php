@@ -899,7 +899,7 @@ class FaxMessage {
 	public static function saveFax($messageId, $data) {
 		
 		if(isset($messageId) && !empty($messageId)) {
-			$faxData = self::getFaxMsg($data['jobid']);
+			$faxData = isset($data['jobid']) ? self::getFaxMsg($data['jobid']) : array();
 
 			if(isset($faxData) && count($faxData) > 0 && isset($data['jobid'])) {
 				$binds = array();
