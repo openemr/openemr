@@ -31,6 +31,7 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\LogoService;
 use Symfony\Component\Finder\Finder;
 
 $ignoreAuth = true;
@@ -41,56 +42,11 @@ require_once("../globals.php");
 $twig = new TwigContainer(null, $GLOBALS["kernel"]);
 $t = $twig->getTwig();
 
-/**
- * @var Finder
- */
-$primaryFinder = new Finder();
-$basePrimaryLoginLogoDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/primary";
-$primaryFinder->files()->in($basePrimaryLoginLogoDir)->name("login-logo.*");
-
-if ($primaryFinder->hasResults()) {
-    foreach ($primaryFinder as $f) {
-        $primaryLoginLogoPath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/primary/" . $f->getFileName();
-    }
-} else {
-    $primaryLoginLogoPath = $GLOBALS['images_static_relative'] . "/login-logo.png";
-}
-
-$secondaryFinder = new Finder();
-$baseSecondaryLoginLogoDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/secondary";
-$secondaryFinder->files()->in($baseSecondaryLoginLogoDir)->name("login-logo.*");
-
-if ($secondaryFinder->hasResults()) {
-    foreach ($secondaryFinder as $f) {
-        $secondaryLoginLogoPath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/secondary/" . $f->getFileName();
-    }
-} else {
-    $secondaryLoginLogoPath = $GLOBALS['images_static_relative'] . "/login-logo.png";
-}
-
-$smallLogoFinder = new Finder();
-$baseSmallLogoOneDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/small_logo_1";
-$smallLogoFinder->files()->in($baseSmallLogoOneDir)->name("logo.*");
-
-if ($smallLogoFinder->hasResults()) {
-    foreach ($smallLogoFinder as $f) {
-        $smallLogoOnePath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/small_logo_1/" . $f->getFileName();
-    }
-} else {
-    $smallLogoOnePath = $GLOBALS['OE_SITE_WEBROOT'] . "images/logo_1.png";
-}
-
-$smallLogoTwoFinder = new Finder();
-$baseSmallLogoTwoDir = $GLOBALS['OE_SITE_DIR'] . "/images/logos/core/login/small_logo_2";
-$smallLogoTwoFinder->files()->in($baseSmallLogoTwoDir)->name("logo.*");
-
-if ($smallLogoTwoFinder->hasResults()) {
-    foreach ($smallLogoTwoFinder as $f) {
-        $smallLogoTwoPath = $GLOBALS['OE_SITE_WEBROOT'] . "/images/logos/core/login/small_logo_2/" . $f->getFileName();
-    }
-} else {
-    $smallLogoTwoPath = $GLOBALS['OE_SITE_WEBROOT'] . "images/logo_2.png";
-}
+$logoService = new LogoService();
+$primaryLogo = $logoService->getLogo("core/login/primary");
+$secondaryLogo = $logoService->getLogo("core/login/secondary");
+$smallLogoOne = $logoService->getLogo("core/login/small_logo_1");
+$smallLogoTwo = $logoService->getLogo("core/login/small_logo_2");
 
 $layout = $GLOBALS['login_page_layout'];
 
@@ -263,8 +219,8 @@ $viewArgs = [
     'displayGoogleSignin' => (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) ? true : false,
     'googleSigninClientID' => $GLOBALS['google_signin_client_id'],
     'displaySmallLogo' => $displaySmallLogo,
-    'smallLogoOne' => $smallLogoOnePath,
-    'smallLogoTwo' => $smallLogoTwoPath,
+    'smallLogoOne' => $smallLogoOne,
+    'smallLogoTwo' => $smallLogoTwo,
     'displayTagline' => $GLOBALS['show_tagline_on_login'],
     'tagline' => $GLOBALS['login_tagline_text'],
     'displayAck' => $GLOBALS['display_acknowledgements_on_login'],
@@ -274,9 +230,9 @@ $viewArgs = [
     'regConstants' => json_encode(['webroot' => $GLOBALS['webroot']]),
     'siteID' => $_SESSION['site_id'],
     'showLabels' => $GLOBALS['show_labels_on_login_form'],
-    'primaryLogo'   => $primaryLoginLogoPath,
+    'primaryLogo'   => $primaryLogo,
     'displaySecondaryLogo' => $GLOBALS['extra_logo_login'],
-    'secondaryLogo' => $secondaryLoginLogoPath,
+    'secondaryLogo' => $secondaryLogo,
     'secondaryLogoPosition' => $GLOBALS['secondary_logo_position'],
 ];
 echo $t->render($layout, $viewArgs);

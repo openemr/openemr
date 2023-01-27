@@ -14,10 +14,10 @@ Render the primary and secondary (if set) logos.
         <img src="{{ primaryLogo }}" class="img-fluid" alt="">
     </div>
     {% if displaySecondaryLogo and secondaryLogo %}
-        <div class="{{ logo_divider_container_class_list|default(['px-3', 'flex-fill'])|join(' ') }}">
+        <div class="{{ logo_divider_container_class_list|default(['px-3', 'py-2', 'flex-fill'])|join(' ') }}">
             <i class="fas fa-plus"></i>
         </div>
-        <div class="{{ secondary_logo_container_class_list|default('flex-fill')|join(' ') }}">
+        <div class="{{ secondary_logo_container_class_list|default(['flex-fill', 'pb-4'])|join(' ') }}">
             <img src="{{ secondaryLogo }}" alt="" class="img-fluid">
         </div>
     {% endif %}
