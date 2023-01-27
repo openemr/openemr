@@ -30,9 +30,10 @@ Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\LogoService;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
@@ -235,4 +236,13 @@ $viewArgs = [
     'secondaryLogo' => $secondaryLogo,
     'secondaryLogoPosition' => $GLOBALS['secondary_logo_position'],
 ];
-echo $t->render($layout, $viewArgs);
+
+/**
+ * @var EventDispatcher;
+ */
+$ed = $GLOBALS['kernel']->getEventDispatcher();
+
+$templatePageEvent = new TemplatePageEvent('login/login.php', [], $layout, $viewArgs);
+$event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
+
+echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());
