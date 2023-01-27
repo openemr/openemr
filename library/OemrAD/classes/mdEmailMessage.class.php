@@ -2408,7 +2408,7 @@ class EmailMessage {
             $emailData['request_data'] = $request_data;
 
             try {
-                if(empty($emailData['from'])) $emailData['from'] = "PATIENT SUPPORT";
+                if(empty($emailData['from'])) $emailData['from'] = isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : "";
             		//if(empty($emailData['from'])) $emailData['from'] = "";
                 if(empty($emailData['from_name'])) $emailData['from_name'] = $GLOBALS['EMAIL_FROM_NAME'];
 

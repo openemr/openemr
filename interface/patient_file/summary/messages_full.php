@@ -1923,9 +1923,6 @@ function doShow(active) {
 }
 
 function doRefresh(paging) {
-	var group = $('.tab.current').attr('id');
-	$('#active_tab').val(group);
-
 	if(paging == "reply") {
 		setTimeout(function(){
 			$getId = $('#set_id').val();
@@ -1935,6 +1932,8 @@ function doRefresh(paging) {
 				if(confirmRes == true) {
 					$('#mode').val('makeallinactive');
 					top.restoreSession();
+					//handleAjaxOperation();
+					//top.restoreSession();
 					$('#msg_form').submit();
 
 					return true;
@@ -1943,10 +1942,12 @@ function doRefresh(paging) {
 		}, 100);
 	}
 
-	var offset = parseInt( $('#' +group+ '_offset').val() );
-	if (paging == 'next') offset = offset + 15;
-	if (paging == 'prev') offset = offset - 15;
-	$('#' +group+ '_offset').val(offset);
+	//var offset = parseInt( $('#' +group+ '_offset').val() );
+	//if (paging == 'next') offset = offset + 15;
+	//if (paging == 'prev') offset = offset - 15;
+	//$('#' +group+ '_offset').val(offset);
+	var group = $('.tab.current').attr('id');
+	$('#active_tab').val(group);
     $('#mode').val('refresh');
 
     top.restoreSession();

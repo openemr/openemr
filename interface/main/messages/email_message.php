@@ -125,7 +125,7 @@ if(!empty($pid)) {
 
 // Set TO/FROM
 $to = $pat_name;
-$from = 'PATIENT SUPPORT';
+$from = isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT';
 
 
 // Retrieve user
@@ -829,7 +829,7 @@ if($form_id) {
 		}
 
 
-		var tinymceReadOnly = '<?php echo $readonly; ?>';
+		var tinymceReadOnly = <?php echo $readonly; ?>;
     	var tinyMCE = tinymce.init({
 			entity_encoding : "raw",
 			selector: "#content",

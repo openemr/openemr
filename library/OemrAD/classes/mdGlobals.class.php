@@ -317,6 +317,13 @@ class Globals {
             xl('Sync Emails For NonExisting Email Addresses')
         );
 
+        $GLOBALS_METADATA['Notifications']['EMAIL_SEND_FROM'] = array(
+           xl('SMTP send from (Email)'),
+            'text',                           // data type
+            'PATIENT SUPPORT',                // default
+            xl('SMTP send from (Email)')
+        );
+
         $GLOBALS_METADATA['Notifications']['EMAIL_MAX_ATTACHMENT_SIZE'] = array(
            xl('Email Max Attachment Size in MB'),
             'text',                           // data type
