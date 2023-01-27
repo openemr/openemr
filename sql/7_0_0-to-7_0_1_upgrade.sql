@@ -298,7 +298,3 @@ UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_box_left_logo.html.t
 #IfRow2D globals gl_name login_page_layout gl_value right
 UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_band_right_logo.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'right';
 #EndIf
-
-#IfNotRow globals gl_name secondary_logo_position
-INSERT INTO `globals` gl_name='secondary_logo_position', gl_value='second';
-#EndIf
