@@ -32,6 +32,8 @@ class DateFormatterUtils
         if ($GLOBALS['date_display_format'] == 0) {
             return $DateValue;
         } elseif ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
+            // OEMR - Change
+            if(stripos($DateValue, '-') !== FALSE) return $DateValue;
             $DateValueArray = explode('/', $DateValue);
             if ($GLOBALS['date_display_format'] == 1) {
                 return $DateValueArray[2] . '-' . $DateValueArray[0] . '-' . $DateValueArray[1];
