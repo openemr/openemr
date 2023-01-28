@@ -30,7 +30,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
     
         <div class="esign-log-row header"><?php echo xlt('eSign Log'); ?></div>
         
-        <?php if (!$this->verified) {
+        <!-- OEMR - Cpmmented -->
+        <?php /* if (!$this->verified) {
             EventAuditLogger::instance()->newEvent(
                 "esign",
                 $_SESSION['authUser'],
@@ -39,7 +40,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
                 'Esign data integrity test failed for a form in encounter ' . $_SESSION['encounter'],
                 $_SESSION['pid']
             );
-        } ?>
+        } */ ?>
         
         <?php foreach ($this->signatures as $count => $signature) { ?>
         <div class="esign-log-row esign-log-row-container <?php echo text($signature->getClass()); ?>">
