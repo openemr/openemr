@@ -308,10 +308,30 @@ function jsLineItemValidation(f) {
  var max_contra_cyp = 0;
  var max_contra_code = '';
  var required_code_count = 0;
+
+ // OEMR - A
+ var has_fees = false;
+ var needs_justified = false;
+
  // Loop thru the services.
  for (var lino = 0; f['{$bill}['+lino+'][code_type]']; ++lino) {
   var pfx = '{$bill}[' + lino + ']';
   if (f[pfx + '[del]'] && f[pfx + '[del]'].checked) continue;
+
+  /* OEMR - Check for a CPT4 or HCPCS. */
+  if(f[pfx+'[code_type]'] != undefined) {
+    var fee = f[pfx+'[code_type]'].value;
+    if (fee == 'CPT4' || fee == 'HCPCS') {
+            has_fees = true;
+      if (f[pfx+'[justify]'] != undefined) {
+        if (f[pfx+'[justify]'].value == '') {
+                    needs_justified = true;
+        }
+      }
+    }
+  }
+  /* End */
+
   if (f[pfx + '[ndcnum]'] && f[pfx + '[ndcnum]'].value) {
    // Check NDC number format.
    var ndcok = true;
@@ -347,6 +367,18 @@ function jsLineItemValidation(f) {
     return false;
    }
   }
+
+  /* OEMR - Changes */
+  if(!has_fees && !f.bn_save_stay.clicked) {
+   alert('There Are No Billable Codes On This Fee Sheet Yet');
+   // return false;
+  }
+  if(needs_justified && !f.bn_save_stay.clicked) {
+   alert('Please Justify All Billable Codes');
+   // return false;
+  }
+  /* End */
+
   if (f[pfx+'[method]'] && f[pfx+'[method]'].value) {
    // The following applies to contraception for family planning clinics.
    var tmp_cyp = parseFloat(f[pfx+'[cyp]'].value);
