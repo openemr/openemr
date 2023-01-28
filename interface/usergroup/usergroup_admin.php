@@ -250,8 +250,12 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         $calvar = (!empty($_POST["calendar"]))   ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
+        // OEMR - Auto Confirm Appt
+        $auto_confirm_apptvar = $_POST["auto_confirm_appt"]   ? 1 : 0;
+
+        // OEMR - Added auto_confirm_appt
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
-        "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
+        "calendar = ?, auto_confirm_appt = $auto_confirm_apptvar, portal_user = ?, see_auth = ? WHERE " .
         "id = ? ", array($tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]));
       //Display message when Emergency Login user was activated
         if (is_countable($_POST['access_group'])) {
@@ -335,6 +339,9 @@ if (isset($_POST["mode"])) {
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
+        // OEMR - Auto Confirm Appt
+        $auto_confirm_apptvar = $_POST["auto_confirm_appt"]   ? 1 : 0;
+
         $res = sqlQuery("select username from users where username = ?", [trim($_POST['rumple'])]);
         $doit = true;
         if (!empty($res['username'])) {
@@ -342,6 +349,7 @@ if (isset($_POST["mode"])) {
         }
 
         if ($doit == true) {
+            // OEMR - Added auto_confirm_appt
             $insertUserSQL =
             "insert into users set " .
             "username = '"         . add_escape_custom(trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) .
@@ -353,6 +361,7 @@ if (isset($_POST["mode"])) {
             "', state_license_number = '"  . add_escape_custom(trim((isset($_POST['state_license_number']) ? $_POST['state_license_number'] : ''))) .
             "', newcrop_user_role = '"  . add_escape_custom(trim((isset($_POST['erxrole']) ? $_POST['erxrole'] : ''))) .
             "', physician_type = '"  . add_escape_custom(trim((isset($_POST['physician_type']) ? $_POST['physician_type'] : ''))) .
+            "', auto_confirm_appt = '"  . $auto_confirm_apptvar .
             "', main_menu_role = '"  . add_escape_custom(trim((isset($_POST['main_menu_role']) ? $_POST['main_menu_role'] : ''))) .
             "', patient_menu_role = '"  . add_escape_custom(trim((isset($_POST['patient_menu_role']) ? $_POST['patient_menu_role'] : ''))) .
             "', weno_prov_id = '"  . add_escape_custom(trim((isset($_POST['erxprid']) ? $_POST['erxprid'] : ''))) .

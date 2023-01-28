@@ -326,6 +326,13 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     <td>
         <?php echo generate_select_list("physician_type", "physician_type", '', '', xl('Select Type'), 'physician_type_class', '', '', ''); ?>
     </td>
+
+    <!-- OEMR - A -->
+    <td colspan="2">
+        <span class='text'><?php echo xlt('Auto Confirm Appointment'); ?>:
+        <input type="checkbox" name="auto_confirm_appt"<?php echo ($iter["auto_confirm_appt"]) ? " checked" : ""; ?>/>
+    </td>
+    <!-- End -->
 </tr>
 <tr>
   <td>

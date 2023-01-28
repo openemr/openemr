@@ -469,6 +469,13 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <tr>
   <td><span class="text"><?php echo xlt('Provider Type'); ?>: </span></td>
   <td><?php echo generate_select_list("physician_type", "physician_type", $iter['physician_type'], '', xl('Select Type'), 'physician_type_class', '', '', ''); ?></td>
+
+  <!-- OEMR - A -->
+  <td colspan="2">
+    <span class='text'><?php echo xlt('Auto Confirm Appointment'); ?>:
+    <input type="checkbox" name="auto_confirm_appt"<?php echo ($iter["auto_confirm_appt"]) ? " checked" : ""; ?>/>
+  </td>
+  <!-- End -->
 </tr>
 <tr>
   <td>
@@ -597,7 +604,9 @@ foreach ($list_acl_groups as $value) {
     <tr>
         <td><span class=text><?php echo xlt('Default Billing Facility'); ?>: </span></td><td><select name="billing_facility_id" style="width:150px;" class="form-control">
             <?php
-            $fres = $facilityService->getAllBillingLocations();
+            // OEMR - Change
+            //$fres = $facilityService->getAllBillingLocations();
+            $fres = $facilityService->getAllServiceLocations();
             if ($fres) {
                 $billResults = [];
                 for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
