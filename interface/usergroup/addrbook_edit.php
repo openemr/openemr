@@ -14,16 +14,25 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\OemrAd\HubspotSync;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
+
+// OEMR - Change
+$care_team_communication_type = array(
+    'email' => 'Email',
+    'fax' => 'Fax',
+    'postal_letter' => 'Postal Letter'
+);
 
 // Collect user id if editing entry
 $userid = $_REQUEST['userid'] ?? '';
@@ -99,6 +108,105 @@ function invalue($name)
    $(".specialtyRow").show();
   }
  }
+
+ /* OEMR - Changes */
+ function checkCommunicationType() {
+    var ct_type = $('#form_abook_type').val();
+
+    if(ct_type == "Referral Source") {
+        $('#ct_communication_container').show();
+        $('#form_care_team_communication').prop('disabled', false);
+    } else {
+        $('#ct_communication_container').hide();
+        $('#form_care_team_communication').prop('disabled', true);
+    }
+ }
+
+ function isCommunicationDataValid() {
+    var cm_type = $('#form_care_team_communication').val();
+        var form_email = $('input[name="form_email"]').val();
+        var form_phonecell = $('input[name="form_phonecell"]').val();
+        var form_fax = $('input[name="form_fax"]').val();
+
+        var form_street = $('input[name="form_street"]').val();
+        var form_city = $('input[name="form_city"]').val();
+        var form_state = $('input[name="form_state"]').val();
+        var form_zip = $('input[name="form_zip"]').val();
+
+        var errorList = [];
+
+        if(cm_type == "email") {
+            if(form_email.trim() == "") {
+               errorList.push("Please enter email."); 
+            }
+        } else if(cm_type == "sms") {
+            if(form_phonecell.trim() == "") {
+               errorList.push("Please enter mobile no."); 
+            }
+        } else if(cm_type == "fax") {
+            if(form_fax.trim() == "") {
+               errorList.push("Please enter fax number."); 
+            }
+        } else if(cm_type == "postal_letter") {
+            if(form_street.trim() == "") {
+               errorList.push("Please enter main address."); 
+            }
+
+            if(form_city.trim() == "") {
+               errorList.push("Please enter city."); 
+            }
+
+            if(form_state.trim() == "") {
+               errorList.push("Please enter state."); 
+            }
+
+            if(form_zip.trim() == "") {
+               errorList.push("Please enter zip."); 
+            }
+        }
+
+
+        if(errorList.length > 0) {
+            var errorMsg = "Corresponding delivery information must be entered for the chosen care team delivery method\n\n";
+            errorMsg = errorMsg + errorList.join("\n");
+            return errorMsg
+        }
+
+        return true;
+ }
+
+ function validateForm() {
+    let mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    let email_val = document.querySelector('input[name="form_email"]').value;
+
+    if(email_val != "" && !email_val.match(mailformat)) {
+        alert("Please enter valid email.");
+        return false;
+    }
+    return true;
+ }
+
+ $(document).ready(function(){
+
+    //Check Communication Type
+    checkCommunicationType();
+
+    $('#form_abook_type').change(function(){
+        checkCommunicationType();
+    });
+
+    $('#theform').submit(function() {
+        var cData = isCommunicationDataValid();
+
+        if(cData !== true) {
+            alert(cData);
+            return false;
+        }
+
+        return true;
+    });
+ });
+/* End */
 </script>
 
 </head>
@@ -130,6 +238,7 @@ if (!empty($_POST['form_save'])) {
     }
 
     if ($userid) {
+        // OEMR - Added ct_communication
         $query = "UPDATE users SET " .
         "abook_type = "   . invalue('form_abook_type')   . ", " .
         "title = "        . $form_title                  . ", " .
@@ -164,10 +273,15 @@ if (!empty($_POST['form_save'])) {
         "phonew2 = "      . invalue('form_phonew2')      . ", " .
         "phonecell = "    . invalue('form_phonecell')    . ", " .
         "fax = "          . invalue('form_fax')          . ", " .
-        "notes = "        . invalue('form_notes')        . " "  .
+        "notes = "        . invalue('form_notes')        . ", "  .
+        "ct_communication = " . invalue('form_care_team_communication') . " "  .
         "WHERE id = '" . add_escape_custom($userid) . "'";
         sqlStatement($query);
+
+        // OEMR - Hubspot Handle update
+        HubspotSync::handleInSyncPrepare($userid, "UPDATE");
     } else {
+        // OEMR - Added ct_communication
         $userid = sqlInsert("INSERT INTO users ( " .
         "username, password, authorized, info, source, " .
         "title, fname, lname, mname, suffix, " .
@@ -175,7 +289,7 @@ if (!empty($_POST['form_save'])) {
         "specialty, organization, valedictory, assistant, billname, email, email_direct, url, " .
         "street, streetb, city, state, zip, " .
         "street2, streetb2, city2, state2, zip2, " .
-        "phone, phonew1, phonew2, phonecell, fax, notes, abook_type "            .
+        "phone, phonew1, phonew2, phonecell, fax, notes, abook_type, ct_communication "            .
         ") VALUES ( "                        .
         "'', "                               . // username
         "'', "                               . // password
@@ -220,11 +334,18 @@ if (!empty($_POST['form_save'])) {
         invalue('form_phonecell')     . ", " .
         invalue('form_fax')           . ", " .
         invalue('form_notes')         . ", " .
-        invalue('form_abook_type')    . " "  .
+        invalue('form_abook_type')    . ", "  .
+        invalue('form_care_team_communication')    . " " .
         ")");
+
+        // OEMR - Hubspot Handle Update
+        HubspotSync::handleInSyncPrepare($userid, "INSERT");
     }
 } elseif (!empty($_POST['form_delete'])) {
     if ($userid) {
+        // OEMR - Hubspot Handle Update
+        HubspotSync::handleInSyncPrepare($userid, "DELETE");
+
        // Be careful not to delete internal users.
         sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
     }
@@ -264,7 +385,8 @@ if ($type) { // note this only happens when its new
  });
 </script>
 
-<form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
+<!-- OEMR - Added onsubmit validateForm -->
+<form method='post' name='theform' id="theform" onsubmit="return validateForm()" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php if (AclMain::aclCheckCore('admin', 'practice')) { // allow choose type option if have admin access ?>
 <div class="form-row">
@@ -375,6 +497,28 @@ if ($type) { // note this only happens when its new
     </div>
 </div>
 
+<!-- OEMR - A -->
+<div id="ct_communication_container" class="form-row my-1">
+    <div class="col-4">
+        <label for="form_valedictory" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Default Care team Communication'); ?>:</label>
+    </div>
+    <div class="col">
+        <select name="form_care_team_communication" id="form_care_team_communication" class="form-control form-control-sm">
+            <option value="">Unassigned</option>
+            <?php
+                foreach ($care_team_communication_type as $ct => $cType) {
+                    if($row['ct_communication'] == $ct) {
+                        echo '<option value="'.$ct.'" selected>'.$cType.'</option>';   
+                    } else {
+                        echo '<option value="'.$ct.'">'.$cType.'</option>';
+                    }
+                }
+            ?>
+        </select>
+    </div>
+</div>
+<!-- End -->
+
 <div class="form-row my-1">
     <div class="col-2">
         <label for="form_phone" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Home Phone'); ?>:</label>
@@ -428,7 +572,8 @@ if ($type) { // note this only happens when its new
     </div>
 </div>
 
-<div class="form-row my-1">
+<!-- OEMR - Hide -->
+<div class="form-row my-1" style="display:none;">
     <div class="col-2">
         <label for="form_email_direct" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Trusted Email'); ?>:</label>
     </div>
