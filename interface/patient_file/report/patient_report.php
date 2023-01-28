@@ -369,6 +369,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <br />
                                     <br />
 
+                                    <!-- OEMR - Change -->
+                                    <div class="encounter_data">
+                                        <input type=checkbox value="0" class="select_all_encounter" />
+                                        <span><?php xl('Select All', 'e'); ?></span>
+                                    </div>
+                                    <br/>
+                                    <!-- End -->
+
+
                                     <?php
                                     if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) { ?>
                                         (Encounters not authorized)
@@ -598,6 +607,21 @@ $(function () {
 
     // check/uncheck all Forms of an encounter
     $(".encounter").click(function() { SelectForms($(this)); });
+
+    /* OEMR - Changes */
+    $(".select_all_encounter").click(function() {
+        let self = this;
+        $(".encounter").each(function(i, obj) {
+            if ($(self).prop("checked")) {
+                $(this).prop("checked", true);
+                SelectForms($(this));
+            } else {
+                $(this).prop('checked', false);;
+                SelectForms($(this));
+            }
+        });
+    });
+    /* End */
 
     $(".generateCCR").click(function() {
         if(document.getElementById('show_date').checked == true){
