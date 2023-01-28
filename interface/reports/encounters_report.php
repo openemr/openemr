@@ -208,6 +208,48 @@ $res = sqlStatement($query, $sqlBindArray);
         }
 
     </script>
+
+    <!-- OEMR - A -->
+    <script type="text/javascript">
+        function goToEncounter(pid, pubpid, pname, enc, dobstr) {
+            top.restoreSession();
+            loadpatient(pid,enc);
+        }
+
+        // used to display the patient demographic and encounter screens
+        function loadpatient(newpid, enc) {
+            if ($('#setting_new_window').val() === 'checked') {
+                document.fnew.patientID.value = newpid;
+                document.fnew.encounterID.value = enc;
+                document.fnew.submit();
+            }
+            else {
+                if (enc > 0) {
+                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
+                }
+                else {
+                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
+                }
+            }
+        }
+
+        // used to display the patient demographic and encounter screens
+        function topatient(newpid, enc) {
+            if ($('#setting_new_window').val() === 'checked') {
+                openNewTopWindow(newpid, enc);
+            }
+            else {
+                top.restoreSession();
+                if (enc > 0) {
+                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
+                }
+                else {
+                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
+                }
+            }
+        }
+    </script>
+    <!-- End -->
 </head>
 <body class="body_top">
 <!-- Required for the popup date selectors -->
@@ -392,6 +434,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         while ($row = sqlFetchArray($res)) {
             $patient_id = $row['pid'];
 
+            /* OEMR - A */
+            if ($row['encounter'] != 0 && $$patient_id != 0) {
+                $patientData = getPatientData($patient_id, "fname, mname, lname, pubpid, billing_note, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+            }
+            $patientName = $row['fname'] . ' ' . $row['lname'];
+            /* End */
+
             $docname = '';
             if (!empty($row['ulname']) || !empty($row['ufname'])) {
                 $docname = $row['ulname'];
@@ -479,7 +528,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 <?php echo text(oeFormatShortDate(substr($row['date'], 0, 10))) ?>&nbsp;
   </td>
   <td>
-                <?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?>&nbsp;
+                <!-- OEMR - Change -->
+                <a href="#" onclick="return topatient('<?php echo attr($patient_id); ?>','<?php echo attr($row['encounter']); ?>')"><?php echo text($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']); ?></a>&nbsp
   </td>
   <td>
                 <?php echo text($row['pubpid']); ?>&nbsp;
