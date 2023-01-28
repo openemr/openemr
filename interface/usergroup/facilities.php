@@ -39,8 +39,10 @@ $alertmsg = '';
 
 /*      Inserting New facility                  */
 if (isset($_POST["mode"]) && ($_POST["mode"] == "facility") && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
+    // OEMR - Added "name1"
     $newFacility = array(
         "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
+        "name1" => trim(isset($_POST["facility1"]) ? $_POST["facility1"] : ''),
         "phone" => trim(isset($_POST["phone"]) ? $_POST["phone"] : ''),
         "fax" => trim(isset($_POST["fax"]) ? $_POST["fax"] : ''),
         "street" => trim(isset($_POST["street"]) ? $_POST["street"] : ''),
@@ -79,9 +81,11 @@ if (isset($_POST["mode"]) && ($_POST["mode"] == "facility") && (empty($_POST["ne
 
 /*      Editing existing facility                   */
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility") {
+    // OEMR - Added "name1"
     $newFacility = array(
         "id" => trim(isset($_POST["fid"]) ? $_POST["fid"] : ''),
         "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
+        "name1" => trim(isset($_POST["facility1"]) ? $_POST["facility1"] : ''),
         "phone" => trim(isset($_POST["phone"]) ? $_POST["phone"] : ''),
         "fax" => trim(isset($_POST["fax"]) ? $_POST["fax"] : ''),
         "street" => trim(isset($_POST["street"]) ? $_POST["street"] : ''),

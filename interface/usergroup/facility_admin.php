@@ -158,9 +158,22 @@ if (isset($_GET["fid"])) {
                             <label for='facility' class='col-form-label col-form-label-sm'><?php echo xlt('Name'); ?>:</label>
                         </div>
                         <div class="col">
-                            <input type='entry' class='form-control form-control-sm' name='facility' size='20' value='<?php echo attr($facility['name']); ?>' />
+                            <!-- OEMR - Changed to facility1 -->
+                            <input type="entry" class="form-control form-control-sm" name="facility1" size="20" value='<?php echo attr($facility['name1']); ?>' />
                         </div>
                     </div>
+
+                    <!-- OEMR - A -->
+                    <div class="form-row my-2">
+                        <div class="col-3">
+                            <label for='facility1' class='col-form-label col-form-label-sm'><?php echo xlt('Facility Description'); ?>:</label>
+                        </div>
+                        <div class="col">
+                            <input type="entry" class="form-control form-control-sm" name="facility" size="20" value='<?php echo attr($facility['name']); ?>' />
+                        </div>
+                    </div>
+                    <!-- End -->
+
                     <div class="form-row my-2">
                         <div class="col-2">
                             <label for='street' class='col-form-label col-form-label-sm'><?php echo xlt('Address'); ?>: </label>

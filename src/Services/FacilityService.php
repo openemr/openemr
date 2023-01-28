@@ -250,11 +250,13 @@ class FacilityService extends BaseService
      * @return array of associative arrays | one associative array.
      */
     private function get($map)
-    {
+    {   
+        // OEMR - Added name1
         try {
             $sql = " SELECT FAC.id,";
             $sql .= "        FAC.uuid,";
             $sql .= "        FAC.name,";
+            $sql .= "        FAC.name1,";
             $sql .= "        FAC.phone,";
             $sql .= "        FAC.fax,";
             $sql .= "        FAC.street,";

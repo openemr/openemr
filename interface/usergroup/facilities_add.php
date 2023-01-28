@@ -186,8 +186,17 @@ function displayAlert() {
                 <div class="col-6">
                     <div class="form-group">
                         <label for="facility"><?php echo xlt('Name'); ?>:</label>
-                        <input class="form-control" type="text" name="facility" size="20" value="" required />
+                        <!-- OEMR - Changed to facility1 -->
+                        <input class="form-control" type="text" name="facility1" size="20" value="" required />
                     </div>
+
+                    <!-- OEMR - A -->
+                    <div class="form-group">
+                        <label for="facility1"><?php echo xlt('Facility Description'); ?>:</label>
+                        <input class="form-control" type="text" name="facility" size="20" value="" />
+                    </div>
+                    <!-- End -->
+
                     <div class="form-group">
                         <label for="street"><?php echo xlt('Address'); ?>:</label>
                         <input class="form-control" type="text" size="20" name="street" value="" />
