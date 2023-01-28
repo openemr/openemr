@@ -349,13 +349,25 @@ function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id 
     $where = "";
 
     if ($provider_id) {
-        $where .= " AND e.pc_aid = ?";
-        array_push($sqlBindArray, $provider_id);
+        // OEMR - Added and wrapped changes
+        if(is_array($provider_id) && !empty($provider_id) && !in_array("ALL", $provider_id)) {
+            $tmp_provider_id = "'".implode("','", $provider_id)."'";
+            $where .= " AND e.pc_aid IN (".$tmp_provider_id.")";
+        } else if(!is_array($provider_id)) {
+            $where .= " AND e.pc_aid = ?";
+            array_push($sqlBindArray, $provider_id);
+        }
     }
 
     if ($facility_id) {
-        $where .= " AND e.pc_facility = ? AND u.facility_id = ?";
-        array_push($sqlBindArray, $facility_id, $facility_id);
+        // OEMR - Added and wrapped changes
+        if(is_array($facility_id) && !empty($facility_id) && !in_array("ALL", $facility_id)) {
+            $tmp_facility_id = "'".implode("','", $facility_id)."'";
+            $where .= " AND e.pc_facility IN (".$tmp_facility_id.") AND u.facility_id IN (".$tmp_facility_id.") ";
+        } else if(!is_array($facility_id)) {
+            $where .= " AND e.pc_facility = ? AND u.facility_id = ?";
+            array_push($sqlBindArray, $facility_id, $facility_id);
+        }
     }
 
     $appointments = fetchEvents($from_date, $to_date, $where, null, false, 0, $sqlBindArray);

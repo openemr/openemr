@@ -94,6 +94,65 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
     }
 }
 
+/* OEMR - Changes */
+function getPnotesByGroup($activity = "1", $show_all = "no", $user = '', $count = false) {
+    // Set the activity part of query
+    if ($activity=='1') {
+        $activity_query = " pnotes.message_status != 'Done' AND pnotes.activity = 1 AND ";
+    } else if ($activity=='0') {
+        $activity_query = " (pnotes.message_status = 'Done' OR pnotes.activity = 0) AND ";
+    } else { //$activity=='all'
+        $activity_query = " ";
+    }
+
+    $group_list = array();
+    if(!empty($user)) {
+        $group_sql = sqlStatement("SELECT mgl.`group_id`, usr.username FROM msg_group_link AS mgl LEFT JOIN users AS usr ON mgl.user_id = usr.id AND usr.id IS NOT NULL WHERE usr.username = ? ", array($user));
+        while ($row = sqlFetchArray($group_sql)) {
+            if(isset($row['group_id']) && !empty($row['group_id'])) {
+                $group_list[] = "GRP:".$row['group_id'];
+            }
+        }
+    }
+
+    $group_list[] = 'GRP:ghh';
+
+    if(!empty($group_list)) {
+        $grp_str = "'".implode("','", $group_list)."'";
+        $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, pnotes.activity,
+              IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
+              IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
+              patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
+              FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username)
+              LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
+              pnotes.deleted != '1' AND pnotes.assigned_to IN (".$grp_str.")";
+
+        if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
+            $sql .= " order by ".escape_sql_column_name($sortby, array('users','patient_data','pnotes'), true).
+            " ".escape_sort_order($sortorder).
+            " limit ".escape_limit($begin).", ".escape_limit($listnumber);
+        }
+
+        $result = sqlStatement($sql, array());
+
+        // return the results
+        if ($count) {
+            if (sqlNumRows($result) != 0) {
+                $total = sqlNumRows($result);
+            } else {
+                $total = 0;
+            }
+
+            return $total;
+        } else {
+            return $result;
+        }
+    }
+
+    return 0;
+}
+/* End */
+
 function getPnotesByDate(
     $date,
     $activity = "1",

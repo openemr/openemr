@@ -45,7 +45,14 @@ $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 //Collect number of active messages
 $activeMessages = getPnotesByUser("1", "no", $_SESSION['authUser'], true);
 
-$totalNumber = $dueReminders + $activeMessages;
+/* OEMR - Changes */
+$activeGroupMessages = getPnotesByGroup("1", "no", $_SESSION['authUser'], true);
+$activeGroupMessages = (!empty($activeGroupMessages) && $activeGroupMessages > 0) ? $activeGroupMessages : 0;
+/* End */
+
+// OEMR - Change
+//$totalNumber = $dueReminders + $activeMessages;
+$totalNumber = $dueReminders + $activeMessages + $activeGroupMessages;
 $portal_count['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
 
 echo json_encode($portal_count);

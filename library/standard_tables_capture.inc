@@ -52,7 +52,8 @@ function temp_unarchive($filename, $type)
         // copy zip file contents to /tmp/ICD10 due to CMS zip file
         $zip = new ZipArchive();
         $path = $GLOBALS['temporary_files_dir'] . "/" . $type;
-        if ($zip->open($filename) === true) {
+        // OEMR - Change
+        if ($zip->open($filename, ZipArchive::CREATE) === true) {
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $sub_dir_filename = $zip->getNameIndex($i);
                 $fileinfo = pathinfo($sub_dir_filename);

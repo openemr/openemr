@@ -912,6 +912,63 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
     return $returnval;
 }
 
+/* OEMR - find patient data by email */
+function getPatientEmail($email = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
+{
+    $col = $GLOBALS['wmt::use_email_direct'] ? 'email_direct' : 'email';
+    $sqlBindArray = array();
+    $where = "$col LIKE ? OR CONCAT(',',secondary_email,',') LIKE '%,$email%,'";
+    array_push($sqlBindArray, $email."%");
+    $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") {
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
+    }
+
+    $rez = sqlStatement($sql, $sqlBindArray);
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        $returnval[$iter]=$row;
+    }
+
+    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    return $returnval;
+}
+
+// OEMR - Search by phone number
+function getPatientPhones($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
+{
+    $phone = preg_replace("/[[:punct:]]/", "", $phone);
+    $phone_number = preg_replace('/^\+?1|\|1|\D/', '', ($phone));
+
+
+    $sqlBindArray = array();
+    $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ? ";
+    array_push($sqlBindArray, $phone);
+    
+    $where .= "OR TRIM(LEADING '1' FROM replace(replace(replace(replace(replace(replace(phone_cell,' ',''),'(','') ,')',''),'-',''),'/',''),'+','')) LIKE ? ";
+    array_push($sqlBindArray, $phone_number."%");
+
+    $where .= "OR CONCAT(',',replace(replace(replace(replace(replace(replace(secondary_phone_cell,' ',''),'(','') ,')',''),'-',''),'/',''),'+',''),',') LIKE ? ";
+    array_push($sqlBindArray, "%,1".$phone_number."%,");
+
+    $where .= "OR CONCAT(',',replace(replace(replace(replace(replace(replace(secondary_phone_cell,' ',''),'(','') ,')',''),'-',''),'/',''),'+',''),',') LIKE ? ";
+    array_push($sqlBindArray, "%,".$phone_number."%,");
+    
+
+    $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") {
+        $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
+    }
+
+    $rez = sqlStatement($sql, $sqlBindArray);
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        $returnval[$iter]=$row;
+    }
+
+    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    return $returnval;
+}
+/* End */
+
 //(CHEMED) Search by phone number
 // To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
