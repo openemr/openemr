@@ -143,6 +143,13 @@ class Globals {
             xl('Alert log recipient')
 		);
 
+        $GLOBALS_METADATA['Notifications']['abook_hubspot_sync'] = array(
+            xl('Addressbook Hubspot Sync'),
+            'bool',                           // data type
+            '0',                      // default
+            xl('Addressbook Hubspot Sync')
+        );
+
 		$GLOBALS_METADATA['Notifications']['hubspot_listener_sync_config'] = array(
 			xl('Hubspot Listener Sync Config'),
             'textarea',                           // data type

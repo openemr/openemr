@@ -1685,7 +1685,11 @@ class HubspotSync {
 	    return isset($data[$name]) ? $data[$name] : $default;
 	}
 
-	public function handleInSyncPrepare($userId = '', $opt = "") {
+	public static function handleInSyncPrepare($userId = '', $opt = "") {
+		if($GLOBALS['abook_hubspot_sync'] != 1) {
+			return;
+		}
+
 		if(!empty($opt) && !empty($userId)) {
 
 			$uRow = sqlQuery("SELECT * FROM users WHERE id = ?", array($userId));

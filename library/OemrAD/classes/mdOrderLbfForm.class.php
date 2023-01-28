@@ -986,6 +986,7 @@ class OrderLbfForm {
 		sqlStatement("DELETE FROM lbf_data WHERE form_id = ? ", array($id));
 	}
 
+	/*
 	function edit_layout_props() {
 		global $row;
 
@@ -1007,6 +1008,7 @@ class OrderLbfForm {
 		</tr>
 		<?php
 	}
+	*/
 
 	//Action
 	function forms_head($pid) {
