@@ -49,7 +49,7 @@ class TemplatePageEvent
      */
     private $pageName;
 
-    public function __construct(string $pageName, $context = array(), $pageID = "", $twigTemplate = "", $twigVariables = [])
+    public function __construct(string $pageName, $context = array(), $twigTemplate = "", $twigVariables = [])
     {
         $this->setContext($context);
         $this->setPageName($pageName);
