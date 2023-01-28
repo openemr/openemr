@@ -17,8 +17,8 @@ namespace OpenEMR\Services;
 
 use Symfony\Component\Finder\Finder;
 
- class LogoService
- {
+class LogoService
+{
     /**
      * Finder class
      *
