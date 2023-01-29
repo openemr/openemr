@@ -1,0 +1,22 @@
+{#
+The Acknowledgements block of the login page
+
+Including this partial will render the acknowledgements link.
+
+* Set acknowledgements_p_class_list with an array of classes to control the paragraph element
+* Set acknowledgements_a_class_list with an array of classes to control the anchor element
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% if displayAck %}
+{% block acknowledgements %}
+    <p class="{{ acknowledgements_p_class_list|default(['text-center', 'small'])|join(' ') }}">
+        <a class="{{ acknowledgements_link_class_list|default([])|join(' ') }}" href="../../acknowledge_license_cert.html" target="main">{{ 'Acknowledgments, Licensing and Certification'|xlt }}</a>
+    </p>
+{% endblock %}
+{% endif %}

@@ -1,0 +1,35 @@
+<script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr_url }}"></script>
+<script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr_url }}"></script>
+<script type="text/javascript">
+    const registrationTranslations = {{ regTranslations }};
+    const registrationConstants = {{ regConstants }};
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('authUser').focus();
+    });
+
+    $(document).ready(init());
+
+    function init() {
+        var productRegistrationController = new ProductRegistrationController();
+        productRegistrationController.getProductRegistrationStatus(function (err, data) {
+            if (err) { return; }
+
+            if (data.statusAsString === 'UNREGISTERED') {
+                productRegistrationController.showProductRegistrationModal();
+            }
+        });
+    }
+
+    function transmit_form(element) {
+        // disable submit button to insert a notification of working
+        element.disabled = true;
+        // nothing fancy. mainly for mobile.
+        element.innerHTML = '<i class="fa fa-circle-notch fa-spin mx-1"></i><span class="sr-only">' + jsText({{ "Authenticating"|xlj }}) + '</span>';
+        {% if hasSession %}
+        document.cookie = {{ cookieText }};
+        {% endif %}
+        document.forms[0].submit();
+        return true;
+    }
+</script>

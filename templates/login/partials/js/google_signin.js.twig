@@ -1,0 +1,61 @@
+{% block google_signing_script %}
+<script type="text/javascript">
+    // This variable controls whether we should login to OpenEMR
+    // so we only login if "Sign in with Google button" was clicked
+    let google_signin = false;
+
+    // Hide the google signout link unless we are signed-in
+    // This isn't really ever displayed, because once we sign-in with google,
+    // we automatically log into the app
+    $('#google-signout').hide();
+
+    // Click-handler for signin button
+    function do_google_signin() {
+       google_signin = true;
+    }
+
+    // When Google sign-in successful, sign in to the app, but only
+    // if the button was clicked (otherwise we would automatically login)
+    function onSignInSuccess(googleUser) {
+
+            const id_token = googleUser.credential;
+            $('.login-failure').hide();
+            $('#used-google-signin').val(true);
+            $('#google-signin-token').val(id_token);
+            $('#google-signout').show();
+            $('#standard-auth-username, #standard-auth-password').hide();
+            var element = document.getElementById('login-button');
+            transmit_form(element);
+
+    }
+
+    function onSignInFailure(error) {
+        $('.login-failure').show();
+    }
+
+    function renderButton() {
+        gapi.signin2.render('google-signin', {
+            'prompt': 'select_account',
+            'scope': 'profile email',
+            'width': 240,
+            'height': 50,
+            'longtitle': true,
+            'theme': 'dark',
+            'onsuccess': onSignInSuccess,
+            'onfailure': onSignInFailure
+        });
+    }
+
+    function signOut() {
+        google_signin = false;
+        const auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            $('#used-google-signin').val('');
+            $('#google-signin-token').val('');
+            $('#google-signout').hide();
+            $('#standard-auth-username, #standard-auth-password').show();
+        });
+    }
+
+</script>
+{% endblock %}
