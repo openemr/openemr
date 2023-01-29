@@ -17,6 +17,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Menu\BaseMenuItem;
+use OpenEMR\Menu\MenuItems;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
@@ -131,8 +133,12 @@ class OemrUI
     */
     public function pageHeading(bool $render = false): null|string
     {
+        /**
+         * @var PageHeadingRenderEvent
+         */
         $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent($this->page_id), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
         $vars = [
+            "primaryMenu" => $pageHeadingEvent->getPrimaryMenu(),
             "buttonList" => $pageHeadingEvent->getActions(),
             "heading" => $this->heading,
         ];
