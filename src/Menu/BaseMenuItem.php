@@ -1,9 +1,20 @@
 <?php
+
 /**
+ * A helper class that is MenuItemInterface-compliant.
  *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2023 Providence Healthtech
+ * @copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Menu;
+
+use Google\Service\CloudSearch\MenuItem;
 
 class BaseMenuItem implements MenuItemInterface
 {
@@ -21,12 +32,38 @@ class BaseMenuItem implements MenuItemInterface
 
     private $acl;
 
-    public function __construct($opts)
+    private $globalReqStrict;
+
+    private $globalReq;
+
+    private $preTextContent;
+
+    private $postTextContent;
+
+    private $linkClassList;
+
+    private $linkContainerClassList;
+
+    private $attributes;
+
+    /**
+     * Hydrate the class with your requirements.
+     *
+     * $opts is an associative array where key matches the name of a private property of this class and value is the
+     * value to be set.
+     *
+     * @param array $opts
+     */
+    public function __construct(array $opts)
     {
         foreach ($opts as $key => $value) {
             if (property_exists($this, $key)) {
                 $this->$key = $value;
             }
+        }
+
+        if (!$this->children) {
+            $this->children = new MenuItems();
         }
     }
 
@@ -75,7 +112,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getRequirements(): int
     {
-        return 0;
+        return $this->requirements ?? 0;
     }
 
     /**
@@ -83,7 +120,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getAcl(): array
     {
-        return [];
+        return $this->acl ?? [];
     }
 
     /**
@@ -91,7 +128,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getGlobalReqStrict(): array
     {
-        return [];
+        return $this->globalReqStrict ?? [];
     }
 
     /**
@@ -99,7 +136,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getGlobalReq(): array|string
     {
-        return [];
+        return $this->globalReq ?? [];
     }
 
     /**
@@ -107,7 +144,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getPreTextContent(): string
     {
-        return '';
+        return $this->preTextContent ?? '';
     }
 
     /**
@@ -115,7 +152,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getPostTextContent(): string
     {
-        return '';
+        return $this->postTextContent ?? '';
     }
 
     /**
@@ -123,7 +160,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getLinkClassList(): array
     {
-        return [];
+        return $this->linkClassList ?? [];
     }
 
     /**
@@ -131,7 +168,7 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getLinkContainerClassList(): array
     {
-        return [];
+        return $this->linkContainerClassList ?? [];
     }
 
     /**
@@ -139,6 +176,6 @@ class BaseMenuItem implements MenuItemInterface
      */
     public function getAttributes(): array
     {
-        return [];
+        return $this->attributes ?? [];
     }
 }
