@@ -1,0 +1,10 @@
+{# Convert a key/value array into a key="value" string for injection into an element tag. #}
+{% macro attributeList(attributes, excludesList) %}
+    {% set _list = [] %}
+    {% for attribute, value in attributes %}
+        {% if attribute not in excludesList %}
+            {% set _list = _list|merge([attribute|text ~ "=" ~ value|attr]) %}
+        {% endif %}
+    {% endfor %}
+    {{ _list|join(' ') }}
+{% endmacro %}

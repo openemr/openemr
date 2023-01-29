@@ -15,13 +15,8 @@ The HTML rendering a Page Heading from OemrUI->pageHeading()
 
     <div class="collapse navbar-collapse">
         {% block primaryButtons %}
-            <ul class="navbar-nav mr-auto">
-                {% for item in primaryMenu %}
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">{{ item.getDisplayText()|xlt }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+            {% import "nav/partials/navbar-nav.html.twig" as navbar %}
+            {{ navbar.navbar_nav(primaryMenu) }}
         {% endblock %}
         {% block actionButtons %}
             <div class="navbar-nav ml-auto" id="pageHeadingNav">

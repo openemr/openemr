@@ -99,14 +99,14 @@ interface MenuItemInterface
      *
      * @return string
      */
-    public function getPreTextContent(): string;
+    public function getPreTextContent(): string|bool;
 
     /**
      * Return any content to render after the Display Text
      *
      * @return string
      */
-    public function getPostTextContent(): string;
+    public function getPostTextContent(): string|bool;
 
     /**
      * Return an array of class names for the element.
