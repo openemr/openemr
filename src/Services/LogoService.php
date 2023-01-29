@@ -15,6 +15,7 @@
 
 namespace OpenEMR\Services;
 
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 class LogoService
@@ -26,10 +27,18 @@ class LogoService
      */
     private $finder;
 
+    /**
+     * Filesystem class
+     *
+     * @var Filesystem
+     */
+    private $fs;
+
     public function __construct()
     {
         // Ensure a finder object exists
         $this->resetFinder();
+        $this->fs = new Filesystem();
     }
 
     private function resetFinder()
@@ -55,11 +64,14 @@ class LogoService
      */
     public function getLogo(string $type): string
     {
-        $path = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
-        $paths = [
-            $path,
-            "{$GLOBALS['images_static_absolute']}/logos/{$type}/",
-        ];
+        $siteDir = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
+        $paths[] = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
+
+        if ($this->fs->exists($siteDir)) {
+            // Only look in sites if the sites structure exists, ensures upgrades continue to work
+            array_unshift($paths, $siteDir);
+        }
+
         $logo = $this->findLogo($paths);
 
         // This is critical, the finder must be completely reinstantiated to ensure the proper directories are searched next time.
