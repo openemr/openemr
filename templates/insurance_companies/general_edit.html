@@ -84,19 +84,22 @@
         </div>
     </div>
     <div class="form-row my-sm-2">
-        <label for="cms_id" class="col-form-label col-sm-2">{xlt t='Payer ID'}</label>
+        <!-- OEMR - Label Change -->
+        <label for="cms_id" class="col-form-label col-sm-2">{xlt t='CMS ID'}</label>
         <div class="col-sm-8">
             <input type="text" id="cms_id" name="cms_id" class="form-control" value="{$insurancecompany->get_cms_id()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
+    <!-- OEMR - Change -->
     {if $SUPPORT_ENCOUNTER_CLAIMS}
+    {/if}
         <div class="form-row my-sm-2">
-            <label for="alt_cms_id" class="col-form-label col-sm-2">{xlt t='Payer ID For Encounter Claims'}</label>
+            <label for="alt_cms_id" class="col-form-label col-sm-2">{xlt t='Eligibility ID'}</label>
             <div class="col-sm-8">
                 <input type="text" id="alt_cms_id" name="alt_cms_id" class="form-control" value="{$insurancecompany->get_alt_cms_id()|attr}" onKeyDown="PreventIt(event)">
             </div>
         </div>
-    {/if}
+    <!-- End -->
     {if $SUPPORT_ELIGIBILITY_REQUESTS}
     <div class="form-row my-sm-2">
         <label for="eligibility_id" class="col-form-label col-sm-2">{xlt t='Payer Id For Eligibility'}</label>
@@ -154,6 +157,30 @@
 {literal}
 <script>
     function submit_insurancecompany() {
+        /* OEMR - A */
+        var submitStatus = true;
+        var insTypeCode = document.insurancecompany.ins_type_code.value;
+
+        if(document.insurancecompany.name.value.length<=0) {
+            submitStatus = false;
+            document.insurancecompany.name.style.backgroundColor="red";
+            document.insurancecompany.name.focus();
+        }
+
+        if(insTypeCode == null || insTypeCode == 0) {
+            submitStatus = false;
+            document.insurancecompany.ins_type_code.style.backgroundColor="red";
+            document.insurancecompany.ins_type_code.focus();
+        }
+
+        if(submitStatus === true) {
+            top.restoreSession();
+            document.insurancecompany.submit();
+            //Z&H Removed redirection
+        }
+        /* End */
+
+        /* OEMR - Commented
         if(document.insurancecompany.name.value.length>0) {
             top.restoreSession();
             document.insurancecompany.submit();
@@ -162,6 +189,7 @@
             document.insurancecompany.name.style.backgroundColor="red";
             document.insurancecompany.name.focus();
         }
+        */
     }
 
     function jsWaitForDelay(delay) {
