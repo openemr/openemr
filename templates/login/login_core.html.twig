@@ -131,7 +131,7 @@
                 </div>
             </div>
 
-            <div class="{{ logoArea|attr }}">
+            <div class="{{ logoArea|attr }} bg-light">
                 {% if displayExtraLogo %}
                 <div class="text-center">
                     <span class="d-inline-block w-40">
@@ -144,12 +144,15 @@
                 </div>
                 {% else %}
                 <div class="mx-auto m-4 w-75">
-                    {{ primaryLogoSrc|raw }}
+                    <!-- OEMR - Change -->
+                    <!-- {{ primaryLogoSrc|raw }} -->
+                    <center><img src="{{primaryLogoSrc1}}" style="mix-blend-mode: multiply; max-width:250px;"></center>
                 </div>
                 {% endif %}
 
                 {% if displayLoginLabel %}
-                <div class="text-center login-title-label">
+                <!-- OEMR - Change -->
+                <div class="text-center login-title-label text-dark">
                         {{ title|text }}
                     </div>
                 {% endif %}
@@ -168,11 +171,13 @@
                 {% endif %}
 
                 {% if displayTagline %}
-                    <p class="text-center text-white lead">{{ tagline|xlt }}</p>
+                    <!-- OEMR - Change -->
+                    <p class="text-center text-dark lead">{{ tagline|xlt }}</p>
                 {% endif %}
 
                 {% if displayAck %}
-                    <p class="text-center small"><a href="../../acknowledge_license_cert.html" class="text-white" target="main">{{ "Acknowledgments, Licensing and Certification"|xlt }}</a></p>
+                    <!-- OEMR - Change -->
+                    <p class="text-center small"><a href="../../acknowledge_license_cert.html" class="text-dark" target="main">{{ "Acknowledgments, Licensing and Certification"|xlt }}</a></p>
                 {% endif %}
             </div>
         </div>

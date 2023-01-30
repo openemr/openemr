@@ -28,7 +28,7 @@
 // prevent UI redressing
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
-
+pathinfo(ini_get('error_log'),PATHINFO_DIRNAME);
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 
@@ -238,7 +238,8 @@ $viewArgs = [
     'googleSigninClientID' => $GLOBALS['google_signin_client_id'],
     'logoArea' => $logoarea,
     'displayExtraLogo' => $GLOBALS['extra_logo_login'],
-    'primaryLogoSrc' => file_get_contents($GLOBALS["images_static_absolute"] . "/login-logo.svg"),
+    'primaryLogoSrc' => file_get_contents($GLOBALS["images_static_absolute"] . "/login-logo.png"),
+    'primaryLogoSrc1' => $GLOBALS["images_static_relative"] . "/login-logo.png",
     'logocode' => $logocode,
     'displayLoginLabel' => ($GLOBALS["show_label_login"]) ? true : false,
     'displayTinyLogo' => $displayTinyLogo,
