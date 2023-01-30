@@ -562,10 +562,19 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 <label for='facility_id' class="text-right"><?php echo xlt('Facility'); ?>:</label>
                                 <select name='facility_id' id='facility_id' class='form-control' onChange="getPOS()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                     <?php
+                                    $care_team_facility = null;
+                                    if (!empty($GLOBALS['set_service_facility_encounter'])) {
+                                        $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", array($_SESSION['pid']));
+                                    }
                                     if ($viewmode) {
                                         $def_facility = $result['facility_id'];
                                     } elseif (!empty($default_fac_override)) {
                                         $def_facility = $default_fac_override;
+                                    } elseif (
+                                        !empty($GLOBALS['set_service_facility_encounter'])
+                                        && !empty($care_team_facility['care_team_facility'])
+                                    ) {
+                                        $def_facility = $care_team_facility['care_team_facility'];
                                     } else {
                                         $def_facility = ($user_facility['id'] ?? null);
                                     }

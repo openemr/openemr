@@ -4163,11 +4163,18 @@ $GLOBALS_METADATA = array(
         ),
 
         'set_pos_code_encounter' => [
-            xl('Set POS code in encounter'),
+            xl('Set POS code in Encounter'),
             'bool',                           // data type
             '0',                              // default = false
             xl('This feature will allow the default POS facility code to be overridden from the encounter.')
         ],
+
+        'set_service_facility_encounter' => array(
+            xl('Set Service Facility in Encounter'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This feature will allow the default service facility to be selected by the care team facility in Choices.')
+        ),
 
         'enc_service_date' => [
             xl('Show Date of Service on Encounter Form'),
