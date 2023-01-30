@@ -131,8 +131,12 @@ class OemrUI
     */
     public function pageHeading(bool $render = false): null|string
     {
+        /**
+         * @var PageHeadingRenderEvent
+         */
         $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent($this->page_id), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
         $vars = [
+            "primaryMenu" => $pageHeadingEvent->getPrimaryMenu(),
             "buttonList" => $pageHeadingEvent->getActions(),
             "heading" => $this->heading,
         ];
