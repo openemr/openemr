@@ -1,5 +1,5 @@
 
-export function ConfirmSessionCloseDialog(pc_eid, scriptLocation, closeCallback)
+export function ConfirmSessionCloseDialog(translations, pc_eid, scriptLocation, closeCallback)
 {
     let dialog = this;
     let modal = null;

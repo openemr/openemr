@@ -20,12 +20,14 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionReposit
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettingsController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -34,6 +36,7 @@ use OpenEMR\Services\AddressService;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientAccessOnsiteService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
@@ -100,7 +103,13 @@ class TeleconferenceRoomController
      */
     private $telehealthRegistrationController;
 
-    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController, $assetPath, $isPatient = false)
+    /**
+     * @var TeleHealthParticipantInvitationMailerService
+     */
+    private $mailerService;
+
+    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController
+        , TeleHealthParticipantInvitationMailerService $mailerService, $assetPath, $isPatient = false)
     {
         $this->assetPath = $assetPath;
         $this->twig = $twig;
@@ -111,6 +120,7 @@ class TeleconferenceRoomController
         $this->sessionRepository = new TeleHealthSessionRepository();
         $this->telehealthRegistrationController = $registrationController;
         $this->telehealthUserRepo = new TeleHealthUserRepository();
+        $this->mailerService = $mailerService;
     }
 
     public function dispatch($action, $queryVars)
@@ -134,10 +144,123 @@ class TeleconferenceRoomController
             return $this->getTeleHealthFrontendSettingsAction($queryVars);
         } else if ($action == 'verify_installation_settings') {
             return $this->verifyInstallationSettings($queryVars);
+        } else if ($action == 'save_session_participant') {
+            return $this->saveSessionParticipantAction($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
             return;
+        }
+    }
+
+    public function saveSessionParticipantAction($queryVars) {
+        // let's grab the json data if we have it in the post
+        try {
+            $json = file_get_contents("php://input");
+            $data = json_decode($json, true);
+
+            // TODO: @adunsulag validate data format
+            $pid = intval($data['pid'] ?? 0);
+            $pc_eid = intval($data['eid'] ?? 0);
+
+            // provider can't add additional patients if they don't have access to the patient demographics
+            if (!AclMain::aclCheckCore('patients', 'demo')) {
+                throw new AccessDeniedException("patients", "demo", "Does not have ACL permission to patient demographics");
+            }
+
+            // need to create the patient if we don't have a pid
+            $isNewPatient = false;
+            if (empty($pid)) {
+                $pid = $this->createPatientFromSessionInvitationData($data);
+                $isNewPatient = true;
+            }
+
+            $session = $this->sessionRepository->addRelatedPartyToSession($pc_eid, $pid);
+            // send out notification
+            if (!empty($session)) {
+                $this->sendSessionInvitationToRelatedParty($session, $pid, $isNewPatient);
+                $settings = $this->getProviderSettings(['pid' => $pid, 'eid' => $pc_eid, 'authUser' => $queryVars['authUser']]);
+                header("Content-type: application/json");
+                http_response_code(200);
+                echo json_encode(['callerSettings' => $settings]);
+            } else {
+                // TODO: @adunsulag need to flesh out the error checking here.
+                http_response_code(400);
+                header("Content-type: application/json");
+                echo json_encode(['error' => xlt("Participants data was invalid")]);
+            }
+        }
+        catch (\InvalidArgumentException $exception) {
+            http_response_code(400);
+            echo json_encode(['error' => xlt($exception->getMessage())]);
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        }
+        catch (Exception $exception) {
+            http_response_code(500);
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        }
+    }
+
+    private function createPatientFromSessionInvitationData($data) {
+        $patientService = new PatientService();
+        $listService = new ListService();
+        // wierd that it goes off the option title instead of the option id here
+        $option = $listService->getListOption('sex', 'UNK');
+        // the validator will scream if we are sending the wrong data
+        $insertData = [
+            'email' => $data['email'] ?? null
+            ,'fname' => $data['fname'] ?? null
+            ,'lname' => $data['lname'] ?? null
+            ,'DOB' => $data['DOB'] ?? null
+            ,'sex' => $option['title'] // we set it to unknown.  Patient can fill it in later, we do this to simplify the invitation
+            // since we are explicitly sending them an invitation with their email, the provider has gotten verbal confirmation
+            // that the patient wants to receive a message via email.
+            ,'hipaa_allowemail' => 'YES'
+        ];
+        $result = $patientService->insert($insertData);
+        if ($result->hasErrors()) {
+            // need to throw the exception
+            $message = "";
+            foreach ($result->getValidationMessages() as $key => $value) {
+                $message .= "Validation failed for key $key with messages " . implode(";", $value) . ".";
+            }
+            throw new InvalidArgumentException($message);
+        } else if ($result->hasInternalErrors()) {
+            throw new \RuntimeException(implode(". ", $result->getInternalErrors()));
+        }
+        $patientResult = $result->getData() ?? [];
+        if (empty($patientResult)) {
+            throw new \RuntimeException("Patient was not created");
+        }
+
+        $pid = $patientResult[0]['pid'];
+        $patientData = $patientService->findByPid($pid);
+
+        // now we need to create the portal credentials here
+        $patientAccessService = new PatientAccessOnsiteService();
+        $pwd = $patientAccessService->getRandomPortalPassword();
+        $uname = $patientData['fname'] . $patientData['id'];
+        $login_uname = $patientAccessService->getUniqueTrustedUsernameForPid($pid);
+        $login_uname = $login_uname ?? $uname;
+        $result = $patientAccessService->saveCredentials($pid, $pwd, $uname, $login_uname);
+
+        // TODO: @adunsulag we need to handle if the email credentials don't send, or if we want to bundle all of this
+        // into a single email
+        $patientAccessService->sendCredentialsEmail($pid, $pwd, $uname, $login_uname, $data['email']);
+
+        return $pid;
+    }
+
+    private function sendSessionInvitationToRelatedParty($session, $pid, $isNewPatient=false) {
+        // need to send out the invitation to the patient
+        // for new patients we need to send out a different invitation versus an existing patient
+        $patientService = new PatientService();
+        $patient = $patientService->findByPid($pid);
+        if (!$isNewPatient) {
+            $this->mailerService->sendInvitationToExistingPatient($patient, $session);
+        } else {
+            $this->mailerService->sendInvitationToNewPatient($patient, $session);
+            $this->logger->debug("Sending session invitation to new patient", ['session' => $session]);
         }
     }
 
@@ -695,6 +818,7 @@ class TeleconferenceRoomController
             throw new InvalidArgumentException("patient pid is missing from queryVars");
         }
 
+        // TODO: @adunsulag we should probably rename this to be pc_eid since eid can be confused with the encounter id
         $eid = $queryVars['eid'];
         if (empty($eid)) {
             throw new InvalidArgumentException("encounter eid is missing from queryVars");
@@ -833,51 +957,50 @@ class TeleconferenceRoomController
     }
 
     private function isPatientPidAuthorizedForSession($pid, $session) {
-        // TODO: @adunsulag for debugging we need to remove this.
-        // for adding more than 3 to the call we could hit another database table.
-        $related_session_pid = $session['pid_related'] ?? 2;
+        $convertedPid = intval($pid);
+        $related_session_pid = intval($session['pid_related'] ?? 0);
         //$related_session_pid = $session['pid_related'] ?? null;
-        $sessionPid = $session['pid'] ?? null;
-        if (null !== $pid && ($pid == $sessionPid || $pid == $related_session_pid))
+        $sessionPid = intval($session['pid'] ?? 0);
+        if (0 !== $convertedPid && ($convertedPid === $sessionPid || $convertedPid === $related_session_pid))
         {
             return true;
         }
         return false;
     }
 
+    // TODO: @adunsulag refactor $apptId out
     private function getParticipantListForAppointment($apptId, $user, $session) {
-        // TODO: look at the session provider, patient, and patient_related start and last seen dates so we can determine
-        // if they are still in the session
-        // not sure I like relying on the last communication date though...
-
-        // TODO: @adunsulag this is where we will grab the 3rd party participant list
-        $appt = $this->appointmentService->getAppointment($apptId);
         $userTelehealthSettings = $this->getOrCreateTelehealthProvider($user);
 
-        $patient1 = $this->getPatientForPid(1);
-        $patient1TelehealthSettings = $this->getOrCreateTelehealthPatient($patient1);
-        $patient2 = $this->getPatientForPid(2);
-        $patient2TelehealthSettings = $this->getOrCreateTelehealthPatient($patient2);
-        return [
+        $participantList = [
             [
-                'callerName' => $patient1['fname'] . ' ' . $patient1['lname']
-                , 'uuid' => $patient1TelehealthSettings->getUsername()
-                , 'role' => "patient"
-                , 'inRoom' => $this->sessionUserInRoom($session, 'patient')
-            ]
-            ,[
-                'callerName' => $patient2['fname'] . ' ' . $patient2['lname']
-                , 'uuid' => $patient2TelehealthSettings->getUsername()
-                , 'role' => "patient"
-                , 'inRoom' => $this->sessionUserInRoom($session, 'patient_related')
-            ]
-            ,[
                 'callerName' => $user['fname'] . ' ' . $user['lname']
                 , 'uuid' => $userTelehealthSettings->getUsername()
                 , 'role' => "provider"
                 , 'inRoom' => $this->sessionUserInRoom($session, 'provider')
             ]
         ];
+        if (!empty($session['pid'])) {
+            $patient = $this->getPatientForPid($session['pid']);
+            $patientTelehealthSettings = $this->getOrCreateTelehealthPatient($patient);
+            $participantList[] = [
+                'callerName' => $patient['fname'] . ' ' . $patient['lname']
+                , 'uuid' => $patientTelehealthSettings->getUsername()
+                , 'role' => "patient"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'patient')
+            ];
+        }
+        if (!empty($session['pid_related'])) {
+            $patient = $this->getPatientForPid($session['pid_related']);
+            $patientTelehealthSettings = $this->getOrCreateTelehealthPatient($patient);
+            $participantList[] = [
+                'callerName' => $patient['fname'] . ' ' . $patient['lname']
+                , 'uuid' => $patientTelehealthSettings->getUsername()
+                , 'role' => "patient"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'patient_related')
+            ];
+        }
+        return $participantList;
     }
 
     /**

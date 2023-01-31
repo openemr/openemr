@@ -58,7 +58,9 @@ class TeleHealthPatientPortalController
         $userService = new UserService();
         $listService = new ListService();
 
-        $sessions = $sessionRepo->getSessionsForRelatedPatient($_SESSION['pid']);
+        // only grab the 20 most recent sessions we've been a part of and we can do all our searching from there.
+        // we do that to avoid grabbing an entire telehealth session history for the patient.
+        $sessions = $sessionRepo->getSessionsWithAppointmentDataForRelatedPatient($_SESSION['pid'], 20);
         // we need to check if our calendar time is here
         $filteredSessions = [];
         foreach ($sessions as $session) {
@@ -73,12 +75,11 @@ class TeleHealthPatientPortalController
             )
             {
                 $user =  $userService->getUser($session['pc_aid']);
-                $listOption = $listService->getListOption('apptstat', $session['pc_apptstatus']);
                 $filteredSessions[] = [
                     'appointmentDate' => $dateTime->format('l, Y-m-d H:i:s A')
                     ,'appointmentType' => xl('Type') . ': ' . $session['pc_catname']
-                    ,'provider' => xl('Provider') . ': ' . ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')
-                    ,'status' => xl('Status') . ': ' . $listOption['title']
+                    ,'provider' => xl('Provider') . ': ' . ($user['provider_fname'] ?? '') . ' ' . ($user['provider_lname'] ?? '')
+                    ,'status' => xl('Status') . ': ' . $session['pc_apptstatus_lo_title']
                     ,'mode' => (int)$session['pc_recurrtype'] > 0 ? 'recurring' : $session['pc_recurrtype']
                     ,'icon_type' => (int)$session['pc_recurrtype'] > 0
                     ,'etitle' => !empty($row['pc_hometext']) ? (xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n") : ""

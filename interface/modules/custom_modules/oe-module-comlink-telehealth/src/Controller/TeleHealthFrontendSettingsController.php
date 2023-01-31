@@ -64,7 +64,8 @@ class TeleHealthFrontendSettingsController
                 "STATUS_SKIP_UPDATE" => xl("Skip Update"),
                 "STATUS_NO_UPDATE" => xl("No Change"),
                 "STATUS_OTHER" => xl("Other"),
-                'APPOINTMENT_STATUS_UPDATE_FAILED' => xl('There was an error in saving the telehealth appointment status.  Please contact support or update the appointment manually in the calendar')
+                'APPOINTMENT_STATUS_UPDATE_FAILED' => xl('There was an error in saving the telehealth appointment status.  Please contact support or update the appointment manually in the calendar'),
+                'OPERATION_FAILED' => xl("There was a system error in completing this operation. Please try again or contact customer support if you continue to experience problems")
         ];
         return $translations;
     }

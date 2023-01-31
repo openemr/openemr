@@ -5,6 +5,7 @@ import {CallerSlot} from "./caller-slot.js";
 import {TelehealthBridge} from "./telehealth-bridge.js";
 import {PresentationScreen} from "./presentation-screen";
 import * as cvb from "./cvb.min.js";
+import {AddPatientDialog} from "./add-patient-dialog";
 
 // TODO: @adunsulag convert this to class nomenclature
 export function ConferenceRoom(translations, scriptLocation)
@@ -641,7 +642,7 @@ export function ConferenceRoom(translations, scriptLocation)
             conf.sessionClose();
         }
         else {
-            let dialog = new ConfirmSessionCloseDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
+            let dialog = new ConfirmSessionCloseDialog(translations, conf.telehealthSessionData.pc_eid, conf.getRemoteScriptLocation(), function() {
                 conf.sessionClose();
             });
             dialog.show();
@@ -826,8 +827,14 @@ export function ConferenceRoom(translations, scriptLocation)
             });
          dialog.show();
          */
-        let dialog = new ConfigureSessionCallDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
-        });
+        // let dialog = new ConfigureSessionCallDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
+        // });
+        let dialog = new AddPatientDialog(translations, conf.telehealthSessionData.pc_eid, conf.getRemoteScriptLocation(), function(callerSettings) {
+            // make suer we update our caller settings with the newly allowed patient so the provider can receive the call
+            if (callerSettings) {
+                conf.callerSettings = callerSettings;
+            }
+            });
         dialog.show();
     };
 

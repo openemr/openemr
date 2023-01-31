@@ -23,6 +23,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthPersonSettings
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -219,6 +220,12 @@ class Bootstrap
         }
     }
 
+    private function getPublicPathFQDN() {
+        // return the public path with the fully qualified domain name in it
+        // qualified_site_addr already has the webroot in it.
+        return $GLOBALS['qualified_site_addr'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
+    }
+
     private function getPublicPath()
     {
         return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
@@ -257,6 +264,7 @@ class Bootstrap
             $this->getTwig(),
             new SystemLogger(),
             $this->getRegistrationController(),
+            $this->getMailerService(),
             $this->getAssetPath(),
             $isPatient
         );
@@ -324,5 +332,9 @@ class Bootstrap
     private function getRegistrationCodeService()
     {
         return new TelehealthRegistrationCodeService($this->globalsConfig, new TeleHealthUserRepository());
+    }
+
+    private function getMailerService() {
+        return new TeleHealthParticipantInvitationMailerService($this->getPublicPathFQDN());
     }
 }

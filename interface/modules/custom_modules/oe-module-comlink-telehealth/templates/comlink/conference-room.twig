@@ -119,3 +119,62 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="telehealth-container-invite-patient" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog mw-50 ml-auto mr-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ "Invite Related Person" | xlt }}</h5>
+                <button type="button" class="close btn-telehealth-confirm-cancel" aria-label="{{ "Close" | xla }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <input type="text" class="form-control m-2" name="pid" placeholder="{{ "External ID"|xlt }}" />
+                        <p class="m-2">{{ "Or"|xlt }}</p>
+                        <input type="text" class="form-control m-2" name="fname" placeholder="{{ "First Name"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="lname" placeholder="{{ "Last Name"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xlt }}" />
+                    </div>
+                </div>
+                <div class="row d-none duplicate-match">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>{{ "External ID"|xlt }}</th>
+                                <th>{{ "First Name"|xlt }}</th>
+                                <th>{{ "Last Name"|xlt }}</th>
+                                <th>{{ "Date of Birth"|xlt }}</th>
+                                <th>{{ "Email Address"|xlt }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- row template used for translation and for populating the grid -->
+                            <tr class="d-none duplicate-match-row-template">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <input type="button" value="{{ "Select Patient" }}" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row d-none invitation-status">
+                    {# TODO: @adunsulag Add the status for the invitations here #}
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input type="button" class="btn btn-secondary btn-telehealth-confirm-cancel" value="{{ "Cancel" |xla }}" />
+                        <input type="button" class="btn btn-primary btn-invite-search" value="{{ "Invite Participant" |xla }}" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
