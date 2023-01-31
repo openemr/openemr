@@ -65,11 +65,23 @@ class LogoService
     public function getLogo(string $type): string
     {
         $siteDir = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
-        $paths[] = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
+        $publicDir = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
+        $paths = [];
+
+        if ($this->fs->exists($publicDir)) {
+            // Only look in public directory if the structure exists
+            $paths[] = $publicDir;
+        }
 
         if ($this->fs->exists($siteDir)) {
             // Only look in sites if the sites structure exists, ensures upgrades continue to work
             array_unshift($paths, $siteDir);
+        }
+
+        if (count($paths) === 0) {
+            // The logo directory couldn't not be found, log an error, return an empty string as this should be a non-breaking error
+            error_log("No logo found in primary or backup location.");
+            return "";
         }
 
         $logo = $this->findLogo($paths);
