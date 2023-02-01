@@ -69,22 +69,19 @@ class LogoService
         $paths = [];
 
         if ($this->fs->exists($publicDir)) {
-            // Only look in public directory if the structure exists
             $paths[] = $publicDir;
         }
 
         if ($this->fs->exists($siteDir)) {
-            // Only look in sites if the sites structure exists, ensures upgrades continue to work
-            array_unshift($paths, $siteDir);
+            $paths[] = $siteDir;
         }
 
-        if (count($paths) === 0) {
-            // The logo directory couldn't not be found, log an error, return an empty string as this should be a non-breaking error
-            error_log("No logo found in primary or backup location.");
-            return "";
+        try {
+            $logo = $this->findLogo($paths);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            $logo = "";
         }
-
-        $logo = $this->findLogo($paths);
 
         // This is critical, the finder must be completely reinstantiated to ensure the proper directories are searched next time.
         $this->resetFinder();
