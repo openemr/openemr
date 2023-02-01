@@ -229,10 +229,10 @@ $data = array();
 while ($row = sqlFetchArray($values)) {
     if ($row["$name"]) {
         $x = $row['date'];
-        if ($multiplier) {
+        if ($multiplier ?? null) {
             // apply unit conversion multiplier
             $y = $row["$name"] * $multiplier;
-        } elseif ($isConvertFtoC) {
+        } elseif ($isConvertFtoC ?? null) {
             // apply temp F to C conversion
             $y = convertFtoC($row["$name"]);
         } else {
@@ -249,10 +249,10 @@ if ($isBP) {
     while ($row = sqlFetchArray($values_alt)) {
         if ($row["$name_alt"]) {
             $x = $row['date'];
-            if ($multiplier) {
+            if ($multiplier ?? null) {
                 // apply unit conversion multiplier
                 $y = $row["$name_alt"] * $multiplier;
-            } elseif ($isConvertFtoC) {
+            } elseif ($isConvertFtoC ?? null) {
                 // apply temp F to C conversion
                 $y = convertFtoC($row["$name_alt"]);
             } else {
