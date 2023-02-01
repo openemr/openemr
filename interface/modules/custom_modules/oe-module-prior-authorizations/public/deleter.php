@@ -18,7 +18,7 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
     die;
 }
 
-if (CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'])) {
+if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'])) {
     CsrfUtils::csrfNotVerified();
 }
 sqlQuery("delete from `module_prior_authorizations` where `id` = ?", [$_GET['id']]);
