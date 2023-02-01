@@ -39,9 +39,12 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\LogoService;
 
 //For redirect if the site on session does not match
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$logoService = new LogoService();
+$logoSrc = $logoService->getLogo("portal/login/primary");
 
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -335,8 +338,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
     <?php } ?>
 
 </head>
-<body class="login container mt-2">
-    <div id="wrapper" class="container-fluid text-center">
+<body class="login">
+    <div id="wrapper" class="container text-center mx-auto">
         <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
             $_SESSION['password_update'] = 1;
             ?>
@@ -439,7 +442,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <img class="img-responsive center-block login-image" src='<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png' />
+        <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>?v=<?php echo $GLOBALS['v_js_includes'];?>'>
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
             <fieldset>
                 <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
