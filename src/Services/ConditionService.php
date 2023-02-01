@@ -119,6 +119,8 @@ class ConditionService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
+        $newSearch = [];
+
         // override puuid with the token search field for binary search
         if (isset($search)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $search, true);
