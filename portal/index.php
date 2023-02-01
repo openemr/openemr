@@ -442,7 +442,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>?v=<?php echo $GLOBALS['v_js_includes'];?>'>
+        <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
             <fieldset>
                 <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
