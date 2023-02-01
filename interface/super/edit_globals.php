@@ -30,6 +30,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
@@ -111,7 +113,7 @@ function checkBackgroundServices()
 {
   //load up any necessary globals
     $bgservices = sqlStatement(
-        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN 
+        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
         (
             'phimail_enable',
             'phimail_interval',
@@ -387,396 +389,373 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12 pl-0">
-                <?php if ($userMode) { ?>
-                <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
-                <?php } else { ?>
-                <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
-                <?php } ?>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <div class="clearfix">
-                        <div class="btn-group oe-margin-b-10">
-                            <button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
-                        </div>
-                        <div class="input-group col-sm-4 oe-pull-away">
-                        <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
-                        if (!$userMode) {
-                            $placeholder = xla('Search configuration');
-                        } else {
-                            $placeholder = xla('Search user settings');
+            <div class="col-2 bg-light">
+                <ul class="nav nav-pills d-flex flex-column" id="oe-nav-ul">
+                    <?php
+                    $i = 0;
+                    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+                        if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
+                            $id = str_replace(" ", "_", $grpname);
+                            $active = ($i == 0) ? "active" : "";
+                            echo "<li class='nav-item'>";
+                            echo "<a href='#{$id}' data-toggle='pill' class='nav-link {$active}' id=''>" . xlt($grpname) . "</a>";
+                            echo "</li>\n";
+                            ++$i;
                         }
-                        ?>
-                        <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
-                        <span class="input-group-append">
-                            <button class="btn btn-secondary btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
-                        </span>
-                        </div><!-- /input-group -->
-                    </div>
-                    <br />
-                    <div id="globals-div">
-                        <ul class="tabNav tabWidthWide sticky-top" id="oe-nav-ul">
-                        <?php
-                        $i = 0;
-                        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-                            if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                                echo " <li" . ($i ? "" : " class='current'") .
-                                "><a href='#'>" .
-                                xlt($grpname) . "</a></li>\n";
+                    }
+                    ?>
+                </ul>
+            </div>
+            <div class="col-8">
+                <div class="tab-content mt-3">
+                <?php
+                $i = 0;
+                $srch_item = 0;
+                foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+                    if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
+                        $active = ($i == 0) ? "show active" : "";
+                        $id = str_replace(" ", "_", $grpname);
+                        echo " <div id='{$id}' class='tab-pane {$active}'>\n";
+
+                        echo "<div class=''>";
+                        $addendum = $grpname == 'Appearance' ? ' (*' . xl("need to logout/login after changing these settings") . ')' : '';
+                        echo "<div class='oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>" . xlt($grpname) . " &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) . "</div></div>";
+                        if ($userMode) {
+                            echo "<div class='row'>";
+                            echo "<div class='col-sm-4'>&nbsp</div>";
+                            echo "<div class='col-sm-4'>" . xlt('User Specific Setting') . "</div>";
+                            echo "<div class='col-sm-2'>" . xlt('Default Setting') . "</div>";
+                            echo "<div class='col-sm-2'>" . xlt('Default') . "</div>";
+                            echo "</div>";
+                        }
+
+                        foreach ($grparr as $fldid => $fldarr) {
+                            if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
+                                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+
+                                // if the setting defines field options for our global setting we grab it, otherwise we default empty
+                                $fldoptions = $fldarr[4] ?? [];
+
+                                // mdsupport - Check for matches
+                                $srch_cl = '';
+                                $highlight_search = false;
+
+                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
+                                    $srch_cl = ' srch';
+                                    $srch_item++;
+                                    $highlight_search = true;
+                                }
+
+                                // Most parameters will have a single value, but some will be arrays.
+                                // Here we cater to both possibilities.
+                                $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
+                                    "gl_name = ? ORDER BY gl_index", array($fldid));
+                                $glarr = array();
+                                while ($glrow = sqlFetchArray($glres)) {
+                                    $glarr[] = $glrow;
+                                }
+
+                                // $fldvalue is meaningful only for the single-value cases.
+                                $fldvalue = count($glarr) ? $glarr[0]['gl_value'] : $flddef;
+
+                                // Collect user specific setting if mode set to user
+                                $userSetting = "";
+                                $settingDefault = "checked='checked'";
+                                if ($userMode) {
+                                        $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authUserID'],"global:" . $fldid));
+                                        $userSetting = $userSettingArray['setting_value'] ?? '';
+                                        $globalValue = $fldvalue;
+                                    if (!empty($userSettingArray)) {
+                                        $fldvalue = $userSetting;
+                                        $settingDefault = "";
+                                    }
+                                }
+
+                                if ($userMode) {
+                                    echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
+                                } else {
+                                    echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
+                                }
+
+                                if (is_array($fldtype)) {
+                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                    foreach ($fldtype as $key => $value) {
+                                        if ($userMode) {
+                                            if ($globalValue == $key) {
+                                                $globalTitle = $value;
+                                            }
+                                        }
+
+                                        echo "   <option value='" . attr($key) . "'";
+
+                                        //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
+                                        //Tried to use === but it will fail in already existing variables
+                                        if ((string)$key == (string)$fldvalue) {
+                                            echo " selected";
+                                        }
+
+                                        echo ">";
+                                        echo text($value);
+                                        echo "</option>\n";
+                                    }
+                                            echo "  </select>\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_BOOL) {
+                                    if ($userMode) {
+                                        if ($globalValue == 1) {
+                                            $globalTitle = xlt('Checked');
+                                        } else {
+                                            $globalTitle = xlt('Not Checked');
+                                        }
+                                    }
+                                            echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
+                                    if ($fldvalue) {
+                                        echo " checked";
+                                    }
+                                            echo " />\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_NUMBER) {
+                                    if ($userMode) {
+                                        $globalTitle = $globalValue;
+                                    }
+                                            echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                "maxlength='15' value='" . attr($fldvalue) . "' />\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXT) {
+                                    if ($userMode) {
+                                        $globalTitle = $globalValue;
+                                    }
+                                            echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                                "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
+                                    if ($userMode) {
+                                        $globalTitle = $globalValue;
+                                    }
+                                    if (empty($fldvalue)) {
+                                        // if empty, then create a random uuid
+                                        $uuid4 = Uuid::uuid4();
+                                        $fldvalue = $uuid4->toString();
+                                    }
+                                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                                        "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                                } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
+                                    if (empty($fldvalue)) {
+                                        // empty value
+                                        $fldvalueDecrypted = '';
+                                    } elseif ($cryptoGen->cryptCheckStandard($fldvalue)) {
+                                        // normal behavior when not empty
+                                        $fldvalueDecrypted = $cryptoGen->decryptStandard($fldvalue);
+                                    } else {
+                                        // this is used when value has not yet been encrypted (only happens once when upgrading)
+                                        $fldvalueDecrypted = $fldvalue;
+                                    }
+                                    echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
+                                        "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
+                                    if ($userMode) {
+                                        if (empty($globalValue)) {
+                                            // empty value
+                                            $globalTitle = '';
+                                        } elseif ($cryptoGen->cryptCheckStandard($globalValue)) {
+                                            // normal behavior when not empty
+                                            $globalTitle = $cryptoGen->decryptStandard($globalValue);
+                                        } else {
+                                            // this is used when value has not yet been encrypted (only happens once when upgrading)
+                                            $globalTitle = $globalValue;
+                                        }
+                                    }
+                                    $fldvalueDecrypted = '';
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {
+                                    if ($userMode) {
+                                        $globalTitle = $globalValue;
+                                    }
+                                    echo "  <input type='password' class='form-control' name='form_$i' " .
+                                    "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_LANGUAGE) {
+                                    $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
+                                    echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                    while ($row = sqlFetchArray($res)) {
+                                        echo "   <option value='" . attr($row['lang_description']) . "'";
+                                        if ($row['lang_description'] == $fldvalue) {
+                                            echo " selected";
+                                        }
+
+                                        echo ">";
+                                        echo xlt($row['lang_description']);
+                                        echo "</option>\n";
+                                    }
+
+                                                echo "  </select>\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_CODE_TYPES) {
+                                    global $code_types;
+                                    echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                    foreach (array_keys($code_types) as $code_key) {
+                                        echo "   <option value='" . attr($code_key) . "'";
+                                        if ($code_key == $fldvalue) {
+                                            echo " selected";
+                                        }
+
+                                        echo ">";
+                                        echo xlt($code_types[$code_key]['label']);
+                                        echo "</option>\n";
+                                    }
+
+                                    echo "  </select>\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_LANGUAGE_SELECT) {
+                                    $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
+                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
+                                    while ($row = sqlFetchArray($res)) {
+                                        echo "   <option value='" . attr($row['lang_description']) . "'";
+                                        foreach ($glarr as $glrow) {
+                                            if ($glrow['gl_value'] == $row['lang_description']) {
+                                                echo " selected";
+                                                break;
+                                            }
+                                        }
+                                        echo ">";
+                                        echo xlt($row['lang_description']);
+                                        echo "</option>\n";
+                                    }
+                                    echo "  </select>\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_COLOR_CODE) {
+                                    if ($userMode) {
+                                        $globalTitle = $globalValue;
+                                    }
+                                    echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
+                                    "maxlength='15' value='" . attr($fldvalue) . "' />" .
+                                    "<input type='button' value='" . xla('Default') . "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_VISIT_CATEGORY) {
+                                    $sql = "SELECT pc_catid, pc_catname, pc_cattype
+                                    FROM openemr_postcalendar_categories
+                                    WHERE pc_active = 1 ORDER BY pc_seq";
+                                    $result = sqlStatement($sql);
+                                    echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
+                                    echo "<option value='_blank'>" . xlt('None{{Category}}') . "</option>";
+                                    while ($row = sqlFetchArray($result)) {
+                                        $catId = $row['pc_catid'];
+                                        $name = $row['pc_catname'];
+                                        if ($catId < 9 && $catId != "5") {
+                                            continue;
+                                        }
+
+                                        if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                                            continue;
+                                        }
+
+                                        $optionStr = '<option value="%pc_catid%"%selected%>%pc_catname%</option>';
+                                        $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
+                                        $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
+                                        $selected = ($fldvalue == $catId) ? " selected" : "";
+                                        $optionStr = str_replace("%selected%", $selected, $optionStr);
+                                        echo $optionStr;
+                                    }
+                                    echo "</select>";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_CSS || $fldtype == GlobalSetting::DATA_TYPE_TABS_CSS) {
+                                    if ($userMode) {
+                                        $globalTitle = $globalValue;
+                                    }
+                                    $themedir = "$webserver_root/public/themes";
+                                    $dh = opendir($themedir);
+                                    if ($dh) {
+                                        // Collect styles
+                                        $styleArray = array();
+                                        while (false !== ($tfname = readdir($dh))) {
+                                            // Only show files that contain tabs_style_ or style_ as options
+                                            if ($fldtype == 'tabs_css') {
+                                                $patternStyle = 'tabs_style_';
+                                            } else {
+                                                // $fldtype == 'css'
+                                                $patternStyle = 'style_';
+                                            }
+                                            if (
+                                                $tfname == 'style_blue.css' ||
+                                                $tfname == 'style_pdf.css' ||
+                                                !preg_match("/^" . $patternStyle . ".*\.css$/", $tfname)
+                                            ) {
+                                                continue;
+                                            }
+
+                                            if ($fldtype == GlobalSetting::DATA_TYPE_TABS_CSS) {
+                                                // Drop the "tabs_style_" part and any replace any underscores with spaces
+                                                $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
+                                            } else { // $fldtype == 'css'
+                                                // Drop the "style_" part and any replace any underscores with spaces
+                                                $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+                                            }
+                                            // Strip the ".css" and uppercase the first character
+                                            $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
+
+                                            $styleArray[$tfname] = $styleDisplayName;
+                                        }
+                                        // Alphabetize styles
+                                        asort($styleArray);
+                                        // Generate style selector
+                                        echo "<select class='form-control' name='form_$i' id='form_$i'>\n";
+                                        foreach ($styleArray as $styleKey => $styleValue) {
+                                            echo "<option value='" . attr($styleKey) . "'";
+                                            if ($styleKey == $fldvalue) {
+                                                echo " selected";
+                                            }
+                                            echo ">";
+                                            echo text($styleValue);
+                                            echo "</option>\n";
+                                        }
+                                        echo "</select>\n";
+                                    }
+                                    closedir($dh);
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_HOUR) {
+                                    if ($userMode) {
+                                        $globalTitle = $globalValue;
+                                    }
+
+                                    echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                    for ($h = 0; $h < 24; ++$h) {
+                                        echo "<option value='$h'";
+                                        if ($h == $fldvalue) {
+                                            echo " selected";
+                                        }
+
+                                        echo ">";
+                                        if ($h ==  0) {
+                                            echo "12 AM";
+                                        } elseif ($h <  12) {
+                                            echo "$h AM";
+                                        } elseif ($h == 12) {
+                                            echo "12 PM";
+                                        } else {
+                                            echo ($h - 12) . " PM";
+                                        }
+
+                                        echo "</option>\n";
+                                    }
+
+                                    echo "  </select>\n";
+                                } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
+                                    include 'templates/field_multi_sorted_list_selector.php';
+                                }
+
+                                if ($userMode) {
+                                    echo " </div>\n";
+                                    echo "<div class='col-sm-2 text-danger'>" . text($globalTitle) . "</div>\n";
+                                    echo "<div class='col-sm-2 '><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . $settingDefault . "/></div>\n";
+                                    if (($fldtype == 'encrypted') || ($fldtype == 'encrypted_hash')) {
+                                        echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalTitle) . "' />\n";
+                                    } else {
+                                        echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "' />\n";
+                                    }
+                                    echo "</div>\n";
+                                } else {
+                                                echo " </div></div>\n";
+                                }
                                 ++$i;
                             }
                         }
-                        ?>
-                        </ul>
-                        <div class="tabContainer">
-                            <?php
-                            $i = 0;
-                            $srch_item = 0;
-                            foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-                                if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                                    echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
 
-                                    echo "<div class=''>";
-                                    $addendum = $grpname == 'Appearance' ? ' (*' . xl("need to logout/login after changing these settings") . ')' : '';
-                                    echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>" . xlt($grpname) . " &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) . "</div></div>";
-                                    echo "<div class='clearfix'></div>";
-                                    if ($userMode) {
-                                        echo "<div class='row'>";
-                                        echo "<div class='col-sm-4'>&nbsp</div>";
-                                        echo "<div class='col-sm-4 font-weight-bold'>" . xlt('User Specific Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default') . "</div>";
-                                        echo "</div>";
-                                    }
-
-                                    foreach ($grparr as $fldid => $fldarr) {
-                                        if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                                            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-
-                                            // if the setting defines field options for our global setting we grab it, otherwise we default empty
-                                            $fldoptions = $fldarr[4] ?? [];
-
-                                            // mdsupport - Check for matches
-                                            $srch_cl = '';
-                                            $highlight_search = false;
-
-                                            if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
-                                                $srch_cl = ' srch';
-                                                $srch_item++;
-                                                $highlight_search = true;
-                                            }
-
-                                            // Most parameters will have a single value, but some will be arrays.
-                                            // Here we cater to both possibilities.
-                                            $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
-                                              "gl_name = ? ORDER BY gl_index", array($fldid));
-                                            $glarr = array();
-                                            while ($glrow = sqlFetchArray($glres)) {
-                                                $glarr[] = $glrow;
-                                            }
-
-                                            // $fldvalue is meaningful only for the single-value cases.
-                                            $fldvalue = count($glarr) ? $glarr[0]['gl_value'] : $flddef;
-
-                                            // Collect user specific setting if mode set to user
-                                            $userSetting = "";
-                                            $settingDefault = "checked='checked'";
-                                            if ($userMode) {
-                                                    $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authUserID'],"global:" . $fldid));
-                                                    $userSetting = $userSettingArray['setting_value'] ?? '';
-                                                    $globalValue = $fldvalue;
-                                                if (!empty($userSettingArray)) {
-                                                    $fldvalue = $userSetting;
-                                                    $settingDefault = "";
-                                                }
-                                            }
-
-                                            if ($userMode) {
-                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
-                                            } else {
-                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
-                                            }
-
-                                            if (is_array($fldtype)) {
-                                                          echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                                                foreach ($fldtype as $key => $value) {
-                                                    if ($userMode) {
-                                                        if ($globalValue == $key) {
-                                                            $globalTitle = $value;
-                                                        }
-                                                    }
-
-                                                    echo "   <option value='" . attr($key) . "'";
-
-                                                    //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
-                                                    //Tried to use === but it will fail in already existing variables
-                                                    if ((string)$key == (string)$fldvalue) {
-                                                        echo " selected";
-                                                    }
-
-                                                    echo ">";
-                                                    echo text($value);
-                                                    echo "</option>\n";
-                                                }
-                                                        echo "  </select>\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_BOOL) {
-                                                if ($userMode) {
-                                                    if ($globalValue == 1) {
-                                                        $globalTitle = xlt('Checked');
-                                                    } else {
-                                                        $globalTitle = xlt('Not Checked');
-                                                    }
-                                                }
-                                                        echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
-                                                if ($fldvalue) {
-                                                    echo " checked";
-                                                }
-                                                        echo " />\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_NUMBER) {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                        echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
-                                                            "maxlength='15' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXT) {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                        echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
-                                                            "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                if (empty($fldvalue)) {
-                                                    // if empty, then create a random uuid
-                                                    $uuid4 = Uuid::uuid4();
-                                                    $fldvalue = $uuid4->toString();
-                                                }
-                                                echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
-                                                    "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
-                                                if (empty($fldvalue)) {
-                                                    // empty value
-                                                    $fldvalueDecrypted = '';
-                                                } elseif ($cryptoGen->cryptCheckStandard($fldvalue)) {
-                                                    // normal behavior when not empty
-                                                    $fldvalueDecrypted = $cryptoGen->decryptStandard($fldvalue);
-                                                } else {
-                                                    // this is used when value has not yet been encrypted (only happens once when upgrading)
-                                                    $fldvalueDecrypted = $fldvalue;
-                                                }
-                                                echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
-                                                    "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
-                                                if ($userMode) {
-                                                    if (empty($globalValue)) {
-                                                        // empty value
-                                                        $globalTitle = '';
-                                                    } elseif ($cryptoGen->cryptCheckStandard($globalValue)) {
-                                                        // normal behavior when not empty
-                                                        $globalTitle = $cryptoGen->decryptStandard($globalValue);
-                                                    } else {
-                                                        // this is used when value has not yet been encrypted (only happens once when upgrading)
-                                                        $globalTitle = $globalValue;
-                                                    }
-                                                }
-                                                $fldvalueDecrypted = '';
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                echo "  <input type='password' class='form-control' name='form_$i' " .
-                                                "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_LANGUAGE) {
-                                                $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                                                while ($row = sqlFetchArray($res)) {
-                                                    echo "   <option value='" . attr($row['lang_description']) . "'";
-                                                    if ($row['lang_description'] == $fldvalue) {
-                                                        echo " selected";
-                                                    }
-
-                                                    echo ">";
-                                                    echo xlt($row['lang_description']);
-                                                    echo "</option>\n";
-                                                }
-
-                                                          echo "  </select>\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_CODE_TYPES) {
-                                                global $code_types;
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                                                foreach (array_keys($code_types) as $code_key) {
-                                                    echo "   <option value='" . attr($code_key) . "'";
-                                                    if ($code_key == $fldvalue) {
-                                                        echo " selected";
-                                                    }
-
-                                                    echo ">";
-                                                    echo xlt($code_types[$code_key]['label']);
-                                                    echo "</option>\n";
-                                                }
-
-                                                echo "  </select>\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_LANGUAGE_SELECT) {
-                                                $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
-                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
-                                                while ($row = sqlFetchArray($res)) {
-                                                    echo "   <option value='" . attr($row['lang_description']) . "'";
-                                                    foreach ($glarr as $glrow) {
-                                                        if ($glrow['gl_value'] == $row['lang_description']) {
-                                                            echo " selected";
-                                                            break;
-                                                        }
-                                                    }
-                                                    echo ">";
-                                                    echo xlt($row['lang_description']);
-                                                    echo "</option>\n";
-                                                }
-                                                echo "  </select>\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_COLOR_CODE) {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
-                                                "maxlength='15' value='" . attr($fldvalue) . "' />" .
-                                                "<input type='button' value='" . xla('Default') . "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_VISIT_CATEGORY) {
-                                                $sql = "SELECT pc_catid, pc_catname, pc_cattype
-                                                FROM openemr_postcalendar_categories
-                                                WHERE pc_active = 1 ORDER BY pc_seq";
-                                                $result = sqlStatement($sql);
-                                                echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
-                                                echo "<option value='_blank'>" . xlt('None{{Category}}') . "</option>";
-                                                while ($row = sqlFetchArray($result)) {
-                                                    $catId = $row['pc_catid'];
-                                                    $name = $row['pc_catname'];
-                                                    if ($catId < 9 && $catId != "5") {
-                                                        continue;
-                                                    }
-
-                                                    if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
-                                                        continue;
-                                                    }
-
-                                                    $optionStr = '<option value="%pc_catid%"%selected%>%pc_catname%</option>';
-                                                    $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
-                                                    $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
-                                                    $selected = ($fldvalue == $catId) ? " selected" : "";
-                                                    $optionStr = str_replace("%selected%", $selected, $optionStr);
-                                                    echo $optionStr;
-                                                }
-                                                echo "</select>";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_CSS || $fldtype == GlobalSetting::DATA_TYPE_TABS_CSS) {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-                                                $themedir = "$webserver_root/public/themes";
-                                                $dh = opendir($themedir);
-                                                if ($dh) {
-                                                    // Collect styles
-                                                    $styleArray = array();
-                                                    while (false !== ($tfname = readdir($dh))) {
-                                                        // Only show files that contain tabs_style_ or style_ as options
-                                                        if ($fldtype == 'tabs_css') {
-                                                            $patternStyle = 'tabs_style_';
-                                                        } else {
-                                                            // $fldtype == 'css'
-                                                            $patternStyle = 'style_';
-                                                        }
-                                                        if (
-                                                            $tfname == 'style_blue.css' ||
-                                                            $tfname == 'style_pdf.css' ||
-                                                            !preg_match("/^" . $patternStyle . ".*\.css$/", $tfname)
-                                                        ) {
-                                                            continue;
-                                                        }
-
-                                                        if ($fldtype == GlobalSetting::DATA_TYPE_TABS_CSS) {
-                                                            // Drop the "tabs_style_" part and any replace any underscores with spaces
-                                                            $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
-                                                        } else { // $fldtype == 'css'
-                                                            // Drop the "style_" part and any replace any underscores with spaces
-                                                            $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
-                                                        }
-                                                        // Strip the ".css" and uppercase the first character
-                                                        $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-
-                                                        $styleArray[$tfname] = $styleDisplayName;
-                                                    }
-                                                    // Alphabetize styles
-                                                    asort($styleArray);
-                                                    // Generate style selector
-                                                    echo "<select class='form-control' name='form_$i' id='form_$i'>\n";
-                                                    foreach ($styleArray as $styleKey => $styleValue) {
-                                                        echo "<option value='" . attr($styleKey) . "'";
-                                                        if ($styleKey == $fldvalue) {
-                                                            echo " selected";
-                                                        }
-                                                        echo ">";
-                                                        echo text($styleValue);
-                                                        echo "</option>\n";
-                                                    }
-                                                    echo "</select>\n";
-                                                }
-                                                closedir($dh);
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_HOUR) {
-                                                if ($userMode) {
-                                                    $globalTitle = $globalValue;
-                                                }
-
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                                                for ($h = 0; $h < 24; ++$h) {
-                                                    echo "<option value='$h'";
-                                                    if ($h == $fldvalue) {
-                                                        echo " selected";
-                                                    }
-
-                                                    echo ">";
-                                                    if ($h ==  0) {
-                                                        echo "12 AM";
-                                                    } elseif ($h <  12) {
-                                                        echo "$h AM";
-                                                    } elseif ($h == 12) {
-                                                        echo "12 PM";
-                                                    } else {
-                                                        echo ($h - 12) . " PM";
-                                                    }
-
-                                                    echo "</option>\n";
-                                                }
-
-                                                echo "  </select>\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
-                                                include 'templates/field_multi_sorted_list_selector.php';
-                                            }
-
-                                            if ($userMode) {
-                                                echo " </div>\n";
-                                                echo "<div class='col-sm-2 text-danger'>" . text($globalTitle) . "</div>\n";
-                                                echo "<div class='col-sm-2 '><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . $settingDefault . "/></div>\n";
-                                                if (($fldtype == 'encrypted') || ($fldtype == 'encrypted_hash')) {
-                                                    echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalTitle) . "' />\n";
-                                                } else {
-                                                    echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "' />\n";
-                                                }
-                                                echo "</div>\n";
-                                            } else {
-                                                          echo " </div></div>\n";
-                                            }
-                                            ++$i;
-                                        }
-                                    }
-
-                                    echo "<div class='btn-group oe-margin-b-10'>" .
-                                        "<button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save'" .
-                                        "value='" . xla('Save') . "'>" . xlt('Save') . "</button></div>";
-                                    echo "<div class='oe-pull-away oe-margin-t-10' style=''>" . xlt($grpname) . " &nbsp;<a href='#' class='text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></a></div><div class='clearfix'></div></div>";
-                                    echo " </div>\n";
-                                }
-                            }
-                            ?>
-                        </div><!--End of tabContainer div-->
-                    </div><!--End of globals-div div-->
-                </form>
+                        echo "<div class='btn-group oe-margin-b-10'>" .
+                            "<button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save'" .
+                            "value='" . xla('Save') . "'>" . xlt('Save') . "</button></div>";
+                        echo "<div class='oe-pull-away oe-margin-t-10' style=''>" . xlt($grpname) . " &nbsp;<a href='#' class='text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></a></div><div class='clearfix'></div></div>";
+                        echo " </div>\n";
+                    }
+                }
+                ?>
+                </div>
             </div>
         </div>
     </div><!--End of container div-->
@@ -822,10 +801,8 @@ $(function () {
     });
 });
 $('.scroll').click(function() {
-    if ($(window).scrollTop() == 0) {
-        alert(<?php echo xlj("Already at the top of the page"); ?>);
-    } else {
-        window.parent.scrollTo({
+    if ($(window).scrollTop() > 0) {
+         window.parent.scrollTo({
             top: 0,
             behavior: 'smooth',
         });
