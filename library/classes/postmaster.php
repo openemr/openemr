@@ -24,8 +24,11 @@ class MyMailer extends PHPMailer
     var $Port;
     var $CharSet;
 
-    function __construct()
+    function __construct($throwExceptions = false)
     {
+        // make sure we initiate our constructor here...
+        parent::__construct($throwExceptions);
+
         $this->emailMethod();
     }
 
