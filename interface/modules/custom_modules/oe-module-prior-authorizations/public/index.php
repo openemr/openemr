@@ -156,16 +156,16 @@ const TABLE_TD = "</td><td>";
                         $remaining = $iter['init_units'] - $used['count'];
                         print "<tr><td>";
                         print text($iter['auth_num']);
-                        print text(TABLE_TD) . text($iter['init_units']);
-                        print text(TABLE_TD) . text($remaining);
-                        print text(TABLE_TD) . text($iter['start_date']);
+                        print TABLE_TD . text($iter['init_units']);
+                        print TABLE_TD . text($remaining);
+                        print TABLE_TD . text($iter['start_date']);
                         if ($iter['end_date'] == '0000-00-00') {
                             print TABLE_TD;
                         } else {
-                            print text(TABLE_TD) . text($iter['end_date']);
+                            print TABLE_TD . text($iter['end_date']);
                         }
-                        print text(TABLE_TD) . text($iter['cpt']);
-                        print text(TABLE_TD) . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
+                        print TABLE_TD . text($iter['cpt']);
+                        print TABLE_TD . " <button class='btn btn-primary' onclick=getRowData(" . attr_js($iter['id']) . ")>" . xlt('Edit') . "</button>
                         <input type='hidden' id='" . attr_js($iter['id']) . "' value='" . attr($editData) . "' ></td>";
                         print "<td><a class='btn btn-danger' href='#' onclick=removeEntry(" . attr_js($iter['id']) . ")>" . xlt('Delete') . "</a></td>";
 
