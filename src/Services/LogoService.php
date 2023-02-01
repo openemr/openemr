@@ -104,7 +104,18 @@ class LogoService
         return str_replace(array_keys($paths), array_values($paths), $path);
     }
 
-    private function findLogo(array $directory, string $filename = 'logo.*'): string|null
+    /**
+     * Search in the given directories for a filename
+     *
+     * By default, will search in the directory array for any file named "logo" (extension agnostic). If found, only
+     * the last file found will be returned. By default, will append a query string for time modified to cache bust.
+     *
+     * @param array $directory Array of directories to search
+     * @param string $filename File to look for
+     * @param boolean $timestamp Will return with a query string of the last modified time
+     * @return string|null String of real path or null if no file found
+     */
+    private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string|null
     {
         $this->finder->files()->in($directory)->name($filename);
 
@@ -112,6 +123,7 @@ class LogoService
             // There is at least 1 file in the sites directory for the given logo
             foreach ($this->finder as $f) {
                 $return = $f->getRealPath();
+                $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
             }
         } else {
             $return = null;
