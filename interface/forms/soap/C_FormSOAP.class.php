@@ -21,7 +21,7 @@ class C_FormSOAP extends Controller
     private TwigContainer $twig;
     public function __construct()
     {
-        $path = self::getTemplatePath();
+        $path = $this->getTemplatePath();
         $this->twig = new TwigContainer($path);
     }
 
@@ -90,7 +90,7 @@ class C_FormSOAP extends Controller
     /**
      * @return string
      */
-    public function getTemplatePath(): string
+    private function getTemplatePath(): string
     {
         return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "soap/templates" . DIRECTORY_SEPARATOR;
     }
