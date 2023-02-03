@@ -1,7 +1,7 @@
 import {ConferenceRoom} from "./conference-room.js";
 
-export function PatientConferenceRoom(translations,scriptLocation) {
-    let patientConferenceRoom = new ConferenceRoom(translations, scriptLocation);
+export function PatientConferenceRoom(apiCSRFToken, translations,scriptLocation) {
+    let patientConferenceRoom = new ConferenceRoom(apiCSRFToken, translations, scriptLocation);
     let parentDestruct = patientConferenceRoom.destruct;
     let checkProviderReadyForPatientInterval = null;
     let providerIsReady = false;
@@ -57,7 +57,7 @@ export function PatientConferenceRoom(translations,scriptLocation) {
         settings.hangupCallback = patientConferenceRoom.handleCallHangup.bind(patientConferenceRoom);
         settings.expand = false;
         settings.notes = false; // patient doesn't get notes.
-        settings.configure = false; // patient doesn't get configure at least for now.
+        settings.invite = false; // patient doesn't get invite participant at least for now.
         settings.hangup = true;
         patientConferenceRoom.addSettingsForScreenshare(settings);
         return settings;

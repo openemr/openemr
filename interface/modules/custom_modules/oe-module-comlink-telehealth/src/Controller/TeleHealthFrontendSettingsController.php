@@ -12,6 +12,7 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use Twig\Environment;
 
 class TeleHealthFrontendSettingsController
@@ -27,18 +28,26 @@ class TeleHealthFrontendSettingsController
         $this->twig = $twig;
     }
 
-    public function renderFrontendSettings()
+    public function renderFrontendSettings($isPatient = true)
     {
         $assetPath = $this->assetPath;
         // strip off the assets, and public folder to get to the base of our module directory
         $modulePath = dirname(dirname($assetPath)) . "/"; // make sure to end with a path
-        echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", [
+        $data = [
             'settings' => [
                 'translations' => $this->getTranslationSettings()
                 ,'modulePath' => $modulePath
                 ,'assetPath' => $assetPath
+                ,'apiCSRFToken' => ''
             ]
-        ]);
+        ];
+        // we only allow the CSRF token if we are not a patient
+        // if we ever need to allow local OpenEMR api access to patients we can remove this check, but to minimize api attack surface
+        // we will prohibit it for now until a better threat analysis has been done.
+        if (!$isPatient) {
+            $data['settings']['apiCSRFToken'] = CsrfUtils::collectCsrfToken('api');
+        }
+        echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", $data);
     }
     public function getTranslationSettings()
     {
@@ -65,7 +74,11 @@ class TeleHealthFrontendSettingsController
                 "STATUS_NO_UPDATE" => xl("No Change"),
                 "STATUS_OTHER" => xl("Other"),
                 'APPOINTMENT_STATUS_UPDATE_FAILED' => xl('There was an error in saving the telehealth appointment status.  Please contact support or update the appointment manually in the calendar'),
-                'OPERATION_FAILED' => xl("There was a system error in completing this operation. Please try again or contact customer support if you continue to experience problems")
+                'OPERATION_FAILED' => xl("There was a system error in completing this operation. Please try again or contact customer support if you continue to experience problems"),
+                'SEARCH_REQUIRES_INPUT' => xl("Please enter a value to search the patient list"),
+                'SEARCH_RESULTS_NOT_FOUND' => xl("No search results were found"),
+                'PATIENT_INVITATION_PROCESSING' => xl("Sending Invitation"),
+                'PATIENT_INVITATION_SUCCESS' => xl("Invitation Sent")
         ];
         return $translations;
     }

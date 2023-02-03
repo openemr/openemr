@@ -130,49 +130,50 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
+                <div class="row screen primary-screen">
                     <div class="col">
+                        <input type="button" class="btn btn-primary btn-show-search-patient-screen" value="{{ "Add Existing Patient" |xla }}" />
+                        <input type="button" class="btn btn-primary btn-show-new-patient-screen" value="{{ "Invite New Patient" |xla }}" />
+                    </div>
+                </div>
+                <div class="row d-none screen secondary-screen create-patient">
+                    <div class="col">
+                        <input type="text" class="form-control m-2" name="fname" placeholder="{{ "First Name"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="lname" placeholder="{{ "Last Name"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth YYYY-MM-DD"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xlt }}" />
+                        <p>{{ "Confirm that this individual has provided permission to receive electronic communications via email"|xlt }}</p>
+                        <input type="button" class="btn btn-secondary btn-cancel-screen-action" value="{{ "Cancel" |xla }}" />
+                        <input type="button" class="btn btn-primary btn-create-patient" value="{{ "Create Patient" |xla }}" />
+                    </div>
+                </div>
+                <div class="row d-none screen secondary-screen search-patient mt-3">
+                    <div class="col-12">
                         <input type="text" class="form-control m-2" name="pid" placeholder="{{ "External ID"|xlt }}" />
                         <p class="m-2">{{ "Or"|xlt }}</p>
                         <input type="text" class="form-control m-2" name="fname" placeholder="{{ "First Name"|xlt }}" />
                         <input type="text" class="form-control m-2" name="lname" placeholder="{{ "Last Name"|xlt }}" />
-                        <input type="text" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth"|xlt }}" />
-                        <input type="text" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth YYYY-MM-DD"|xlt }}" />
+                        <input type="text" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xlt }} ({{ "Exact Match" }})" />
+                        <input type="button" class="btn btn-secondary btn-cancel-screen-action" value="{{ "Cancel" |xla }}" />
+                        <input type="button" class="btn btn-primary btn-invite-search" value="{{ "Search Patients" |xla }}" />
+                        <ul class="search-patient-list list-group d-none mt-3">
+                            <li class="d-none duplicate-match-row-template list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h1><i class="fa fa-user"></i></h1>
+                                    <h5 class="mb-1">
+                                        <span class="fname"></span> <span class="lname"></span>
+                                    </h5>
+                                    <small>(<span class="pid"></span>)</small>
+                                </div>
+                                <p><span class="dob"></span> <span class="email"></span></p>
+                                <input type="button" class='btn btn-secondary btn-select-patient' value="{{ "Invite Patient" }}" />
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                <div class="row d-none duplicate-match">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>{{ "External ID"|xlt }}</th>
-                                <th>{{ "First Name"|xlt }}</th>
-                                <th>{{ "Last Name"|xlt }}</th>
-                                <th>{{ "Date of Birth"|xlt }}</th>
-                                <th>{{ "Email Address"|xlt }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- row template used for translation and for populating the grid -->
-                            <tr class="d-none duplicate-match-row-template">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    <input type="button" value="{{ "Select Patient" }}" />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="row d-none invitation-status">
-                    {# TODO: @adunsulag Add the status for the invitations here #}
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <input type="button" class="btn btn-secondary btn-telehealth-confirm-cancel" value="{{ "Cancel" |xla }}" />
-                        <input type="button" class="btn btn-primary btn-invite-search" value="{{ "Invite Participant" |xla }}" />
-                    </div>
+                <div class="row alert alert-template d-none">
+                    {# alert content will go here #}
                 </div>
             </div>
         </div>

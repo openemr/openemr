@@ -8,10 +8,11 @@ import * as cvb from "./cvb.min.js";
 import {AddPatientDialog} from "./add-patient-dialog";
 
 // TODO: @adunsulag convert this to class nomenclature
-export function ConferenceRoom(translations, scriptLocation)
+export function ConferenceRoom(apiCSRFToken, translations, scriptLocation)
 {
     let conf = this;
 
+    this.apiCSRFToken = apiCSRFToken;
     this.waitingRoomTemplate = null;
     this.conferenceRoomTemplate = null;
     this.callerSettings = null;
@@ -810,8 +811,8 @@ export function ConferenceRoom(translations, scriptLocation)
         let settings = conf.getDefaultVideoBarSettings();
         settings.hangupCallback = conf.handleCallHangup.bind(conf);
         settings.notesCallback = conf.minimizeProviderConferenceCall.bind(conf);
-        settings.configure = true;
-        settings.configureCallback = conf.handleConfigureCall.bind(conf);
+        settings.invite = true;
+        settings.inviteCallback = conf.handleInviteCallback.bind(conf);
         settings.expand = false;
         settings.notes = true;
         settings.hangup = true;
@@ -819,17 +820,8 @@ export function ConferenceRoom(translations, scriptLocation)
         return settings;
     };
 
-    this.handleConfigureCall = function() {
-        // need to launch the dialog here
-        /**
-         * let dialog = new ConfirmSessionCloseDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
-                conf.sessionClose();
-            });
-         dialog.show();
-         */
-        // let dialog = new ConfigureSessionCallDialog(conf.telehealthSessionData.pc_eid, scriptLocation, function() {
-        // });
-        let dialog = new AddPatientDialog(translations, conf.telehealthSessionData.pc_eid, conf.getRemoteScriptLocation(), function(callerSettings) {
+    this.handleInviteCallback = function() {
+        let dialog = new AddPatientDialog(this.apiCSRFToken, translations, conf.telehealthSessionData.pc_eid, conf.getRemoteScriptLocation(), function(callerSettings) {
             // make suer we update our caller settings with the newly allowed patient so the provider can receive the call
             if (callerSettings) {
                 conf.callerSettings = callerSettings;

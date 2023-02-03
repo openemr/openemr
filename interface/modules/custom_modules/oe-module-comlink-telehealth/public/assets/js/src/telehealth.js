@@ -21,6 +21,9 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
      */
     let conferenceRoom = false;
 
+    // make sure we don't error out here
+    comlink.settings = comlink.settings || {};
+
     /**
      * @type {string} The path of where the module is installed at.  In a multisite we pull this from the server configuration, otherwise we default here
      */
@@ -104,7 +107,7 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
                 conferenceRoom = null;
             }
         }
-        conferenceRoom = new ConferenceRoom(translations, getTeleHealthScriptLocation(false));
+        conferenceRoom = new ConferenceRoom(comlink.settings.apiCSRFToken, translations, getTeleHealthScriptLocation(false));
         conferenceRoom.init(data);
     }
 
@@ -113,7 +116,10 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
             let telehealthSessionData = {
                 pc_eid: appointmentEventId
             };
-        conferenceRoom = new PatientConferenceRoom(translations, getTeleHealthScriptLocation(true));
+        // we don't let patients use the local OpenEMR api so this value is empty
+        // if we at some point allow the api to be used by patients we would need to populate this.
+        let csrfToken = comlink.settings.apiCSRFToken;
+        conferenceRoom = new PatientConferenceRoom(csrfToken, translations, getTeleHealthScriptLocation(true));
         conferenceRoom.init(telehealthSessionData);
     }
 

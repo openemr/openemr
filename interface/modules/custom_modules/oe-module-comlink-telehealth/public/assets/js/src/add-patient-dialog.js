@@ -31,38 +31,27 @@ export class AddPatientDialog
      */
     closeCallback = null;
 
-    /**
-     * Because javascript is asinine in treating 'this' with bound functions we have these pointers.
-     * Modern JS allows us to 'overload' the 'get' parameter to handle this better but its still dumb.
-     * Makes me almost tempted to go back to jquery's on/off functionality.
-     * @type {function}
-     * @private
-     */
-    __cancelDialog = null;
-    __searchOrAddParticipant = null;
-
     __translations = null;
 
     __idx = 0;
 
-    constructor(translations, pc_eid, scriptLocation, closeCallback) {
+    __apiCSRFToken = null;
+
+    __currentScreen = null;
+
+    __updatedCallerSettings = null;
+
+    constructor(apiCSRFToken, translations, pc_eid, scriptLocation, closeCallback) {
         this.pc_eid = pc_eid;
         this.scriptLocation = scriptLocation;
         this.closeCallback = closeCallback;
-        this.__cancelDialog = this.cancelDialog.bind(this);
-        this.__searchOrAddParticipant = this.searchOrAddParticipant.bind(this);
         this.__translations = translations;
+        this.__apiCSRFToken = apiCSRFToken;
     }
 
     cancelDialog() {
-        let modal = this.modal;
-        try {
-            modal.hide();
-        }
-        catch (error) {
-            console.error((error));
-        }
-        this.destruct();
+        // just have us call the close dialog piece.
+        this.closeDialogAndSendCallerSettings();
 
     }
 
@@ -84,7 +73,7 @@ export class AddPatientDialog
                 if (!(result.ok && result.status == 200))
                 {
                     // TODO: @adunsulag update the session title here...
-                    alert(this.__translations.OPERATION_FAILED);
+                    this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
                     throw new Error("Failed to save participant in " + this.pc_eid + " with save data");
                 } else {
                     return result.json();
@@ -92,14 +81,20 @@ export class AddPatientDialog
             })
             .then(jsonResult => {
                 let callerSettings = jsonResult.callerSettings || {};
-                this.closeDialogAndSendCallerSettings(callerSettings);
+                this.showActionAlert('success', this.__translations.PATIENT_INVITATION_SUCCESS);
+                // let's show we were successful and close things up.
+                this.__updatedCallerSettings = callerSettings;
+                setTimeout(() => {
+                    this.closeDialogAndSendCallerSettings();
+                }, 500);
             })
     }
-    closeDialogAndSendCallerSettings(callerSettings) {
+
+    closeDialogAndSendCallerSettings() {
         jQuery(this.container).on("hidden.bs.modal", () => {
             try {
                 jQuery(this.container).off("hidden.bs.modal");
-                this.closeCallback(callerSettings);
+                this.closeCallback(this.__updatedCallerSettings);
             }
             catch (error)
             {
@@ -118,8 +113,15 @@ export class AddPatientDialog
 
     sendSearchResults(inputValues) {
         // let url = '/apis/default/fhir/Patient/_search?given:contains=<fname>&family:contains=<lname>&birthDate=<dob>'
-        let url = '/apis/default/fhir/Patient/_search?given:contains=<fname>&family:contains=<lname>&birthDate=<dob>'
-        let searchParams = "";
+        // TODO: @adunsulag note the local api SKIPS the site parameter.  I don't really like that but for now we will
+        // ignore the site parameter as well
+        // TODO: @adunsulag need to make sure we get the FQDN url here.
+        let url = '/apis/fhir/Patient';
+        let searchParams = [];
+
+        if (inputValues.pid) {
+            searchParams.push("identifier=" + inputValues.pid);
+        }
         if (inputValues.fname || inputValues.lname) {
             let values = [];
             if (inputValues.fname) {
@@ -128,22 +130,99 @@ export class AddPatientDialog
             if (inputValues.lname) {
                 values.push(inputValues.lname);
             }
-            searchParams += "&name:contains=" + value.join(",");
+            searchParams.push("name:contains=" + values.join(","));
         }
 
-        if (inputValues.dob) {
+        if (inputValues.DOB) {
             // birthdate needs to be in Y-m-d prefix
-            searchParams += "birthdate=" + inputValues.dob;
+            searchParams.push("birthdate=" + inputValues.DOB);
         }
-        url += "?" + searchParams;
+
+        if (inputValues.email) {
+            searchParams.push("email:contains=" + inputValues.email);
+        }
+
+        if (!searchParams.length) {
+            alert(this.__translations.SEARCH_REQUIRES_INPUT);
+            throw new Error("Failed to perform search due to missing search operator");
+        }
+
+        url += "?" + searchParams.join("&");
+        window.top.restoreSession();
+        let headers = {
+            'apicsrftoken': this.__apiCSRFToken
+        };
+        return window.fetch(url,
+            {
+                method: 'GET'
+                ,redirect: 'manual'
+                ,headers: headers
+            })
+            .then(result => {
+                if (!(result.ok && result.status == 200))
+                {
+                    // TODO: @adunsulag update the session title here...
+                    this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
+                    throw new Error("Failed to save participant in " + this.pc_eid + " with save data");
+                } else {
+                    return result.json();
+                }
+            })
+            .then(result => {
+                if (result.total == 0) {
+                    this.showActionAlert('info', this.__translations.SEARCH_RESULTS_NOT_FOUND);
+                    return [];
+                } else {
+                    // return the array of result entries.
+                    return result.entry;
+                }
+            })
     }
 
-    searchOrAddParticipant()
-    {
-        let inputs = ['fname', 'lname', 'DOB', 'email', 'pid'];
+    showPrimaryScreen() {
+        let screens = this.container.querySelectorAll('.screen') || [];
+        screens.forEach(i => {
+            if (i.classList.contains('primary-screen')) {
+                i.classList.remove('d-none');
+            } else {
+                i.classList.add('d-none');
+            }
+        });
+        this.__currentScreen = 'primary-screen';
+    }
+
+    showNewPatientScreen() {
+        this.showSecondaryScreen('create-patient');
+    }
+
+    showSearchPatientScreen() {
+        this.showSecondaryScreen('search-patient');
+    }
+
+    showSecondaryScreen(screenName) {
+        let selector = '.' + screenName;
+        let primaryScreen = this.container.querySelector('.primary-screen');
+        if (!primaryScreen) {
+            console.error("Failed to find primary-screen selector for add-patient-dialog container");
+            return;
+        }
+
+        primaryScreen.classList.add('d-none');
+
+        let screen = this.container.querySelector(selector);
+        if (screen) {
+            screen.classList.remove('d-none');
+        } else {
+            console.error("Failed to find selector for add-patient-dialog container " + selector);
+        }
+        this.__currentScreen = screenName;
+    }
+
+
+    getInputValues(screen, inputs) {
         let inputValues = {};
         inputs.forEach((i) => {
-            let node = this.container.querySelector('input[name="' + i + '"]');
+            let node = this.container.querySelector("." + screen + ' input[name="' + i + '"]');
             if (node) {
                 inputValues[i] = node.value;
             } else {
@@ -151,27 +230,160 @@ export class AddPatientDialog
                 inputValues[i] = null;
             }
         });
-        // TODO: @adunsulag need to do form validation checking...
+        return inputValues;
+    }
 
-        // let's search for the patient and present our existing patients if we have some
-
-        this.sendSearchResults(inputValues)
-        .then(result => {
-            if (result.length) {
-                // populate our search piece
-                return Promise.resolve([]);
-            }
-            else {
-                // for now we don't do the searching but we will do the invitation here...
-                return this.sendSaveParticipant(inputValues)
-            }
-        })
+    inviteSearchResultPatient(pid) {
+        // hide the search results
+        this.displaySearchList(false);
+        this.showActionAlert('info', this.__translations.PATIENT_INVITATION_PROCESSING);
+        this.sendSaveParticipant({pid: pid})
         .catch(error => {
+            console.error(error);
+            // show the search results
+            this.displaySearchList(true);
+        })
+    }
+
+    displaySearchList(shouldDisplay) {
+        let selector = ".search-patient .search-patient-list";
+        let patientList = this.container.querySelector(selector);
+        if (!patientList) {
+            console.error("Failed to find ",selector);
+            return;
+        }
+        if (shouldDisplay) {
+            patientList.classList.remove('d-none');
+        } else {
+            patientList.classList.add('d-none');
+        }
+    }
+
+    populateSearchResults(result) {
+        console.log("populatingSearchResults with result ", result);
+        let selector = ".search-patient .search-patient-list";
+        let patientList = this.container.querySelector(selector);
+        if (!patientList) {
+            console.error("Failed to find ",selector);
+            return;
+        }
+
+        patientList.classList.remove('d-none');
+        let row = patientList.querySelector('.duplicate-match-row-template');
+
+        // clear out the table rows
+        let parentNode = row.parentNode;
+        parentNode.replaceChildren();
+        parentNode.appendChild(row);
+
+        // need to loop on the result and populate per row
+        result.forEach(r => {
+            let resource = r.resource;
+            let clonedNode = row.cloneNode(true);
+            clonedNode.classList.remove('duplicate-match-row-template');
+            parentNode.appendChild(clonedNode);
+
+            let pid = resource.identifier.find(i => i.type.coding.find(cd => cd.code == "PT") !== undefined);
+            let pidValue = pid.value || "";
+            this.setNodeInnerText(clonedNode, '.pid', pidValue);
+
+            let birthDate = resource.birthDate;
+            if (birthDate) {
+                this.setNodeInnerText(clonedNode, '.dob', birthDate);
+            }
+
+            let name = resource.name.find(n => n.use == 'official');
+            if (name) {
+                this.setNodeInnerText(clonedNode, '.fname', name.given.join(" "));
+                this.setNodeInnerText(clonedNode, '.lname', name.family);
+            }
+
+            let email = resource.telecom.find(t => t.system == 'email');
+            if (email) {
+                this.setNodeInnerText(clonedNode, '.email', email.value);
+            }
+
+            if (pidValue) {
+                clonedNode.querySelector('.btn-select-patient').addEventListener('click', () => {
+                    this.inviteSearchResultPatient(pidValue);
+                });
+            }
+            clonedNode.classList.remove('d-none');
+        });
+    }
+
+    setNodeInnerText(node, selector, value) {
+        let subNode = node.querySelector(selector);
+        if (!subNode) {
+            console.error("Failed to find node with selector " + selector);
+            return;
+        }
+        subNode.textContent = value;
+    }
+
+    searchParticipantsAction()
+    {
+        let inputs = ['fname', 'lname', 'DOB', 'email', 'pid'];
+        let inputValues = this.getInputValues('search-patient', inputs);
+        // TODO: @adunsulag need to do form validation checking...
+        this.sendSearchResults(inputValues)
+            .then(result => {
+                if (result.length) {
+                    this.populateSearchResults(result);
+                }
+                else {
+                    // TODO: @adunsulag change this.
+                    this.populateSearchResults([]);
+                    let resultMessage = this.__translations.SEARCH_RESULTS_NOT_FOUND;
+                    setTimeout(function() {
+                        alert(resultMessage);
+                    }, 0);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    createPatientAction() {
+        let inputs = ['fname', 'lname', 'DOB', 'email'];
+        let inputValues = this.getInputValues('create-patient', inputs);
+        // for now we don't do the searching but we will do the invitation here...
+        this.clearActionAlerts();
+        this.showActionAlert('info', this.__translations.PATIENT_INVITATION_PROCESSING);
+        // TODO: need to disable the save button during the save.
+        this.sendSaveParticipant(inputValues)
+        .catch(error => {
+            // TODO: @adunsulag need to handle the errors here.
             console.error(error);
         });
     }
 
+    clearActionAlerts() {
+        let alerts = this.container.querySelectorAll('.alert');
+        alerts.forEach(a => {
+            if (a.classList.contains('alert-template')) {
+                a.classList.add('d-none');
+            } else {
+                a.parentNode.removeChild(a);
+            }
+        });
+    }
+
+    showActionAlert(type, message) {
+        this.clearActionAlerts(); // for now we will just remove these, we could animate & stack if we wanted.
+        let template = this.container.querySelector('.alert.alert-template');
+        let alert = template.cloneNode(true);
+        alert.innerText = message;
+        alert.classList.remove('alert-template');
+        alert.classList.remove('d-none');
+        alert.classList.add('alert-' + type);
+        template.parentNode.insertBefore(alert, template);
+        alert.scrollIntoView();
+    }
+
     setupModal() {
+        // see templates/comlink/conference-room.twig
         let id = 'telehealth-container-invite-patient';
         // let bootstrapModalTemplate = window.document.createElement('div');
         // we use min-height 90vh until we get the bootstrap full screen modal in bootstrap 5
@@ -184,17 +396,27 @@ export class AddPatientDialog
 
         this.modal = new bootstrap.Modal(this.container, {keyboard: false, focus: true, backdrop: 'static'});
 
-        let btns = this.container.querySelectorAll('.btn-telehealth-confirm-cancel');
-        for (var i = 0; i < btns.length; i++)
-        {
-            btns[i].addEventListener('click', this.__cancelDialog);
-        }
+        this.addActionToButton('.btn-telehealth-confirm-cancel', this.cancelDialog.bind(this));
+        this.addActionToButton('.btn-show-new-patient-screen', this.showNewPatientScreen.bind(this));
+        this.addActionToButton('.btn-show-search-patient-screen', this.showSearchPatientScreen.bind(this));
+        this.addActionToButton('.btn-cancel-screen-action', this.showPrimaryScreen.bind(this));
+        this.addActionToButton('.btn-create-patient', this.createPatientAction.bind(this));
+        this.addActionToButton('.btn-invite-search', this.searchParticipantsAction.bind(this));
+
         let actionButton = this.container.querySelector('.btn-invite-search');
         if (actionButton)
         {
             actionButton.addEventListener('click', this.__searchOrAddParticipant);
         } else {
             console.error("Could not find selector with .btn-telehealth-confirm-yes");
+        }
+    }
+
+    addActionToButton(selector, action) {
+        let btns = this.container.querySelectorAll(selector);
+        for (var i = 0; i < btns.length; i++)
+        {
+            btns[i].addEventListener('click', action);
         }
     }
 

@@ -205,17 +205,19 @@ class TeleconferenceRoomController
         $patientService = new PatientService();
         $listService = new ListService();
         // wierd that it goes off the option title instead of the option id here
-        $option = $listService->getListOption('sex', 'UNK');
+        $sexOption = $listService->getListOption('sex', 'UNK');
+        $yesOption = $listService->getListOption('yesno', 'YES');
         // the validator will scream if we are sending the wrong data
         $insertData = [
             'email' => $data['email'] ?? null
             ,'fname' => $data['fname'] ?? null
             ,'lname' => $data['lname'] ?? null
             ,'DOB' => $data['DOB'] ?? null
-            ,'sex' => $option['title'] // we set it to unknown.  Patient can fill it in later, we do this to simplify the invitation
+            ,'sex' => $sexOption['title'] // we set it to unknown.  Patient can fill it in later, we do this to simplify the invitation
             // since we are explicitly sending them an invitation with their email, the provider has gotten verbal confirmation
             // that the patient wants to receive a message via email.
-            ,'hipaa_allowemail' => 'YES'
+            ,'hipaa_allowemail' => $yesOption['title']
+            ,'allow_patient_portal' => $yesOption['title']
         ];
         $result = $patientService->insert($insertData);
         if ($result->hasErrors()) {
@@ -383,7 +385,7 @@ class TeleconferenceRoomController
     public function getTeleHealthFrontendSettingsAction($queryVars)
     {
         $controller = new TeleHealthFrontendSettingsController($this->assetPath, $this->twig);
-        echo $controller->renderFrontendSettings();
+        echo $controller->renderFrontendSettings($this->isPatient);
     }
 
     public function conferenceSessionUpdateAction($queryVars)
