@@ -1,0 +1,202 @@
+{% extends "configuration/base.html" %}
+
+{% block title %}{{ "New Form Template"|xlt }}{% endblock %}
+
+{% block content %}
+<div class="container bg-light mt-3 py-4">
+    <div class="row">
+        <div class="col-12">
+            <form action="{{ mod_index }}?controller=configuration&action=fetchForm" id="formFetchPath">
+
+            </form>
+        </div>
+    </div>
+    <div class="mt-3" id="templateDetails">
+        <div class="form-group row">
+            <label for="templateName" class="col-sm-2 col-form-label sr-only">{{ "Template Name"|xlt }}</label>
+            <div class="col">
+                <input type="text" class="form-control" name="templateName" id="templateName" placeholder="{{ 'Template Name'|xlt }}">
+            </div>
+            <div class="col">
+                <select name="target_form" id="target_form" class="select2 form-control">
+                    <option value=""></option>
+                    {% set _prevType = "" %}
+                    {% for f in registered_forms %}
+                        {% if f.type != _prevType %}
+                            {% if f.index > 0 %}
+                                </optgroup>
+                            {% endif %}
+                            <optgroup label="{{ f.type|xlt }}">
+                        {% endif %}
+
+                        <option value="{{ f.id|attr }}" data-type="{{ f.type|attr }}">{{ f.name|xlt }}</option>
+                        {% set _prevType = f.type %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-12">
+                <textarea name="templateDescription" id="templateDescription" class="form-control" rows="3" placeholder="{{ 'Template description'|xlt }}"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 mt-2">
+                <button class="btn btn-primary btn-save btn-block" type="submit" form="formTemplate" id="saveTemplateData">{{ "Save Template"|xlt }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container bg-light d-none" id="loading">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h2 class="display-4 m-3"><i class="fa fa-circle-notch fa-spin"></i>&nbsp;{{ "Loading Form"|xlt }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="container bg-light d-none" id="hiddenFieldsContainer">
+    <div class="row">
+        <legend class="col-12">
+            {{ "Hidden Elements"|xlt }}
+        </legend>
+    </div>
+    <div id="hiddenFieldsList"></div>
+</div>
+
+<div class="invisible" id="formTemplateContainer"></div>
+
+<template id="hiddenFieldRendererTemplate">
+    <div class="form-group row">
+        <label for="" class="col-sm-2 col-form-label"></label>
+        <div class="col-4 mt-2">
+            <input type="text" class="form-control">
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block post_body %}
+<script>
+window.addEventListener('DOMContentLoaded', (e) => {
+    $(".select2").select2({
+        placeholder: "{{ "Select a Template Form"|xl }}",
+        theme: "bootstrap4",
+    });
+    $("#target_form").on("change", (e) => {getBaseForm();});
+});
+
+function injectFormFrame(src)
+{
+    let url = "/interface/patient_file/encounter/load_form.php?formname=" + src;
+
+    if (document.getElementById('formFrame'))
+        document.getElementById('formFrame').remove();
+
+    let f = document.createElement('iframe');
+    document.getElementById('formTemplateContainer').append(f);
+    f.id = "formFrame";
+    f.classList.add('w-100', 'border-0');
+    f.onload = function() {
+        formFrameLoaded();
+        formSubmissionListener();
+    }
+    f.src = url;
+}
+
+function formSubmissionListener()
+{
+    let elm = document.getElementById('formFrame').contentDocument.documentElement;
+    let form = elm.querySelector('form');
+
+    if (!form)
+        return;
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        processTemplate();
+    });
+}
+
+function formFrameLoaded() {
+    f = document.getElementById('formFrame');
+    f.style.height = f.contentDocument.documentElement.scrollHeight + "px";
+    parseHiddenFields();
+    document.getElementById('loading').classList.add('d-none');
+    document.getElementById('hiddenFieldsContainer').classList.remove('d-none');
+    document.getElementById('formTemplateContainer').classList.remove('invisible');
+}
+
+function parseHiddenFields()
+{
+    let fields = document.getElementById('formFrame').contentDocument.querySelectorAll('input[type="hidden"]');
+    let fieldsList = document.getElementById('hiddenFieldsList');
+    let container = document.getElementById('hiddenFieldsContainer');
+
+    if (!fields) {
+        if (!container.classList.contains('d-none'))
+            container.classList.add('d-none');
+    }
+
+    fieldsList.replaceChildren();
+    let template = document.getElementById('hiddenFieldRendererTemplate');
+    fields.forEach(field => {
+        let clone = template.content.cloneNode(true);
+        let i = clone.querySelector("input");
+        let l = clone.querySelector("label");
+        field.value = (field.name == "csrf_token_form") ? "___CSRF_TOKEN___" : field.value;
+        i.name = field.name;
+        i.value = field.value;
+        l.for = field.name;
+        l.innerHTML = field.name
+        hiddenFieldsList.append(clone);
+    });
+    container.classList.remove('d-none');
+}
+
+function getBaseForm()
+{
+    document.getElementById('loading').classList.remove('d-none');
+    document.getElementById('hiddenFieldsContainer').classList.add('d-none');
+    document.getElementById('formTemplateContainer').classList.add('invisible');
+    let _select = document.getElementById('target_form');
+    let selectedForm = _select.options[_select.selectedIndex];
+    injectFormFrame(selectedForm.value);
+}
+
+function processTemplate()
+{
+    let ft = document.getElementById('formFrame').contentDocument.documentElement.querySelector('form');
+    let elms = ft.elements;
+    let templateData = new FormData(ft);
+    let _select = document.getElementById('target_form');
+    let formAction = _select.options[_select.selectedIndex].value;
+    let templateName = document.getElementById('templateName').value;
+    templateData.append('templateAction', formAction);
+    templateData.append('templateName', templateName);
+    submitTemplateData(templateData);
+}
+
+function submitTemplateData(ft)
+{
+    let url = "{{ save_template_url }}";
+    let options = {
+        method: 'POST',
+        body: ft
+    };
+
+    fetch(url, options)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            return response.body;
+        })
+        .then((response) => {
+            console.log(response);
+        });
+}
+</script>
+{% endblock %}
