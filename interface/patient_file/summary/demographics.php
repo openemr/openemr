@@ -1124,12 +1124,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $params = array_merge($params, $insurance_array);
                         $res = sqlStatement($sql, $params);
                         $prior_ins_type = '';
-                        $prev_eff_date = 'Present';
 
                         while ($row = sqlFetchArray($res)) {
                             if ($row['provider']) {
                                 // since the query is sorted by DATE DESC can use prior ins type to identify
-                                $row['isOld'] = ($row['date_end']) ? true : false;
+                                $row['isOld'] = (!empty($row['date_end']) && $row['date_end'] <= date("Y-m-d")) ? true : false;
                                 $icobj = new InsuranceCompany($row['provider']);
                                 $adobj = $icobj->get_address();
                                 $insco_name = trim($icobj->get_name());
@@ -1148,9 +1147,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $row['dispFromDate'] = $row['date'] ? true : false;
                                 $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
-                                $row['until_date'] = ($row['isOld']) ? date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d') : xlt('Present');
+                                $row['until_date'] = $row['isOld'] ? $row['isOld'] : xlt('Present');
                                 $insArr[] = $row;
-                                $prev_eff_date = $row['date'];
                                 $prior_ins_type = $row['type'];
                             } else {
                                 $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
@@ -1169,8 +1167,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $row['policy_type'] = false;
                                 $mname = ''; //($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
                                 $row['subscriber_full_name'] = ' '; // str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
-                                $row['until_date'] = ($row['isOld']) ? date_create($prev_eff_date)->modify('-1 days')->format('Y-m-d') : xlt("Present");
-                                $prev_eff_date = $row['date'];
+                                $row['until_date'] = ($row['isOld']) ? $row['isOld'] : xlt("Present");
                                 $prior_ins_type = $row['type'];
                                 if ($row['type'] != 'primary') {
                                     continue;
