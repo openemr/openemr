@@ -1128,7 +1128,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($row = sqlFetchArray($res)) {
                             if ($row['provider']) {
                                 // since the query is sorted by DATE DESC can use prior ins type to identify
-                                $row['isOld'] = ($row['date_end']) ? true : false;
+                                $row['isOld'] = (!empty($row['date_end']) && $row['date_end'] <= date("Y-m-d")) ? true : false;
                                 $icobj = new InsuranceCompany($row['provider']);
                                 $adobj = $icobj->get_address();
                                 $insco_name = trim($icobj->get_name());
