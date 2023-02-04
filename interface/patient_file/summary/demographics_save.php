@@ -72,7 +72,7 @@ while ($frow = sqlFetchArray($fres)) {
     // have a value set on the form, it will be empty.
     if ($data_type == 54) { // address list
         $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
-    } else if (isset($_POST["form_$field_id"]) || $data_type == 21) {
+    } elseif (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }
@@ -85,7 +85,8 @@ if (!$GLOBALS['omit_employers']) {
 }
 
 if (!empty($addressFieldsToSave)) {
-    // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
+    // TODO: we would handle other types of address fields here,
+    // for now we will just go through and populate the patient
     // address information
     // TODO: how are error messages supposed to display if the save fails?
     foreach ($addressFieldsToSave as $field => $addressFieldData) {
@@ -99,9 +100,11 @@ $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 $i1date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date_end"));
 
+$swap_with_secondary = !empty($_POST['isSwapClicked']);
+$type = ($swap_with_secondary) ? 'secondary' : 'primary';
 newInsuranceData(
     $pid,
-    "primary",
+    $type,
     filter_input(INPUT_POST, "i1provider"),
     filter_input(INPUT_POST, "i1policy_number"),
     filter_input(INPUT_POST, "i1group_number"),
@@ -138,9 +141,11 @@ if (!$GLOBALS['insurance_only_one']) {
     $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
     $i2date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date_end"));
 
+    $swap_with_secondary = !empty($_POST['isSwapClicked']);
+    $type = ($swap_with_secondary) ? 'primary' : 'secondary';
     newInsuranceData(
         $pid,
-        "secondary",
+        $type,
         filter_input(INPUT_POST, "i2provider"),
         filter_input(INPUT_POST, "i2policy_number"),
         filter_input(INPUT_POST, "i2group_number"),
