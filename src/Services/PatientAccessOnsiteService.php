@@ -222,7 +222,7 @@ class PatientAccessOnsiteService
 
     public function getRandomPortalPassword()
     {
-        RandomGenUtils::generatePortalPassword();
+        return RandomGenUtils::generatePortalPassword();
     }
 
     private function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig)
