@@ -1508,6 +1508,13 @@ $GLOBALS_METADATA = array(
             xl('For automatically sending claims that are generated in EDI directory to the X12 partner using SFTP credentials X12 Partner Settings')
         ),
 
+        'enable_swap_secondary_insurance' => array(
+            xl('Enable Swap Secondary Insurance Editing Demographics'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable swap secondary insurance')
+        ),
+
     ),
 
     // E-Sign Tab

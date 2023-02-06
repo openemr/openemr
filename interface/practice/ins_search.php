@@ -343,8 +343,10 @@ if (
 <?php
 for ($i = 1; $i < count($ins_type_code_array); ++$i) {
     echo "   <option value='" . attr($i) . "'";
-    if ($i == $ins_co['ins_type_code'] ?? '') {
-        echo " selected";
+    if (!empty($ins_co)) {
+        if ($i == $ins_co['ins_type_code'] ?? '') {
+            echo " selected";
+        }
     }
     echo ">" . text($ins_type_code_array[$i]) . "\n";
 }
