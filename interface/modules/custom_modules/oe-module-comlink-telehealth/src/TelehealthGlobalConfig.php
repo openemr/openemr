@@ -26,9 +26,11 @@ class TelehealthGlobalConfig
     const COMLINK_VIDEO_TELEHEALTH_CMS_ID = 'comlink_telehealth_cms_id';
     // note patients always auto provision
     const COMLINK_AUTO_PROVISION_PROVIDER = 'comlink_autoprovision_provider';
+    const COMLINK_ENABLE_THIRDPARTY_INVITATIONS = "comlink_telehealth_thirdparty_enabled";
     const UNIQUE_INSTALLATION_ID = "unique_installation_id";
     const INSTALLATION_NAME  = "openemr_name";
     const DEBUG_MODE_FLAG = "comlink_telehealth_debug";
+
 
     // character length to generate for the unique registration code for the user
     const APP_REGISTRATION_CODE_LENGTH = 12;
@@ -47,6 +49,31 @@ class TelehealthGlobalConfig
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;
+    }
+
+    public function getOpenEMRName() {
+        return $this->getGlobalSetting('openemr_name');
+    }
+
+    public function getPatientReminderName() {
+        return $this->getGlobalSetting('patient_reminder_sender_email');
+    }
+
+    public function getQualifiedSiteAddress() {
+        return $this->getGlobalSetting('qualified_site_addr');
+    }
+
+    public function getPortalOnsiteAddress() {
+        // return the portal address to be used.
+        if ($this->getGlobalSetting('portal_onsite_two_basepath') == '1') {
+            return $this->getQualifiedSiteAddress() . '/portal/patient';
+        } else {
+            return $this->getGlobalSetting('portal_onsite_two_address');
+        }
+    }
+
+    public function isThirdPartyInvitationsEnabled() {
+        return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
     }
 
     /**
@@ -72,6 +99,30 @@ class TelehealthGlobalConfig
             $value = $this->getGlobalSetting($key);
 
             if (empty($value)) {
+                return false;
+            }
+        }
+
+        // if third party is enabled make sure the portal is configured
+        if ($this->isThirdPartyInvitationsEnabled())
+        {
+            return $this->isThirdPartyConfigurationSetup();
+        }
+        return true;
+    }
+
+    private function isThirdPartyConfigurationSetup() {
+        // check to make sure the dependent portal settings are setup correctly
+        $enabled = $this->getGlobalSetting('portal_onsite_two_enable') == '1';
+        $useBasePath = $this->getGlobalSetting('portal_onsite_two_basepath') == '1';
+        if (!$enabled) {
+            return false;
+        }
+        if (!$useBasePath) {
+            // check to make sure the portal url is not the default
+            $defaultValue = $this->getGlobalSetting('portal_onsite_two_address');
+            // TODO: @adunsulag can we pull the default onsite configuration pulled out into a constant somewhere?
+            if ($defaultValue == 'https://your_web_site.com/openemr/portal') {
                 return false;
             }
         }
@@ -183,6 +234,12 @@ class TelehealthGlobalConfig
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => ''
             ]
+            ,self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS => [
+                'title' => 'Third Party Session Invitations Allowed (Requires Portal To Be Configured)'
+                , 'description' => 'Allow an existing patient to be invited or new patient to be invited to a telehealth session'
+                ,'type' => GlobalSetting::DATA_TYPE_BOOL
+                ,'default' => ''
+            ]
 //            ,self::VERIFY_SETTINGS_BUTTON => [
 //                'title' => 'Verify Comlink Installation Settings'
 //                ,'description' => 'Verifies the comlink telehealth provisioning settings are correct. Requires the settings to be saved first'
@@ -228,6 +285,7 @@ class TelehealthGlobalConfig
 
     private function isOptionalSetting($key)
     {
-        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER || $key == self::VERIFY_SETTINGS_BUTTON;
+        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER || $key == self::VERIFY_SETTINGS_BUTTON
+            || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS;
     }
 }

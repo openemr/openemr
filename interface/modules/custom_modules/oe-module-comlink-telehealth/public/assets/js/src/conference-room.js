@@ -8,7 +8,7 @@ import * as cvb from "./cvb.min.js";
 import {AddPatientDialog} from "./add-patient-dialog";
 
 // TODO: @adunsulag convert this to class nomenclature
-export function ConferenceRoom(apiCSRFToken, translations, scriptLocation)
+export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scriptLocation)
 {
     let conf = this;
 
@@ -16,6 +16,7 @@ export function ConferenceRoom(apiCSRFToken, translations, scriptLocation)
     this.waitingRoomTemplate = null;
     this.conferenceRoomTemplate = null;
     this.callerSettings = null;
+    this.features = enabledFeatures; // the features that are enabled from the server.
     this.telehealthSessionData = null;
     this.videoBar = null;
     this.ROOM_TYPE_WAITING = 'waiting';
@@ -806,16 +807,25 @@ export function ConferenceRoom(apiCSRFToken, translations, scriptLocation)
         }
     };
 
+    this.addSettingsForThirdPartyInvitations = function(settings) {
+        if (conf.features && conf.features.thirdPartyInvitations)
+        {
+            settings.invite = true;
+            settings.inviteCallback = conf.handleInviteCallback.bind(conf);
+        } else {
+            settings.invite = false;
+        }
+    };
+
     this.getFullConferenceVideoBarSettings = function()
     {
         let settings = conf.getDefaultVideoBarSettings();
         settings.hangupCallback = conf.handleCallHangup.bind(conf);
         settings.notesCallback = conf.minimizeProviderConferenceCall.bind(conf);
-        settings.invite = true;
-        settings.inviteCallback = conf.handleInviteCallback.bind(conf);
         settings.expand = false;
         settings.notes = true;
         settings.hangup = true;
+        conf.addSettingsForThirdPartyInvitations(settings);
         conf.addSettingsForScreenshare(settings);
         return settings;
     };

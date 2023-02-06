@@ -107,7 +107,8 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
                 conferenceRoom = null;
             }
         }
-        conferenceRoom = new ConferenceRoom(comlink.settings.apiCSRFToken, translations, getTeleHealthScriptLocation(false));
+        conferenceRoom = new ConferenceRoom(comlink.settings.apiCSRFToken, comlink.settings.features
+            , translations, getTeleHealthScriptLocation(false));
         conferenceRoom.init(data);
     }
 
@@ -119,7 +120,8 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
         // we don't let patients use the local OpenEMR api so this value is empty
         // if we at some point allow the api to be used by patients we would need to populate this.
         let csrfToken = comlink.settings.apiCSRFToken;
-        conferenceRoom = new PatientConferenceRoom(csrfToken, translations, getTeleHealthScriptLocation(true));
+        conferenceRoom = new PatientConferenceRoom(csrfToken, comlink.settings.features,
+            translations, getTeleHealthScriptLocation(true));
         conferenceRoom.init(telehealthSessionData);
     }
 

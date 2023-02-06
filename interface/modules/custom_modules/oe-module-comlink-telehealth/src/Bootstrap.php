@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin\TeleHealthPatientA
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin\TeleHealthUserAdminController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleconferenceRoomController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthCalendarController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettingsController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthPatientPortalController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRepository;
@@ -265,6 +266,8 @@ class Bootstrap
             new SystemLogger(),
             $this->getRegistrationController(),
             $this->getMailerService(),
+            $this->getFrontendSettingsController(),
+            $this->globalsConfig,
             $this->getAssetPath(),
             $isPatient
         );
@@ -336,5 +339,9 @@ class Bootstrap
 
     private function getMailerService() {
         return new TeleHealthParticipantInvitationMailerService($this->getTwig(), $this->getPublicPathFQDN(), $this->globalsConfig);
+    }
+
+    private function getFrontendSettingsController() {
+        return new TeleHealthFrontendSettingsController($this->getAssetPath(), $this->getTwig(), $this->globalsConfig);
     }
 }

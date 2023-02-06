@@ -12,6 +12,7 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use Twig\Environment;
 
@@ -22,10 +23,16 @@ class TeleHealthFrontendSettingsController
      */
     private $twig;
 
-    public function __construct(string $assetPath, Environment $twig)
+    /**
+     * @var TelehealthGlobalConfig
+     */
+    private $config;
+
+    public function __construct(string $assetPath, Environment $twig, TelehealthGlobalConfig $config)
     {
         $this->assetPath = $assetPath;
         $this->twig = $twig;
+        $this->config = $config;
     }
 
     public function renderFrontendSettings($isPatient = true)
@@ -39,6 +46,9 @@ class TeleHealthFrontendSettingsController
                 ,'modulePath' => $modulePath
                 ,'assetPath' => $assetPath
                 ,'apiCSRFToken' => ''
+                ,'features' => [
+                    'thirdPartyInvitations' => $this->config->isThirdPartyInvitationsEnabled()
+                ]
             ]
         ];
         // we only allow the CSRF token if we are not a patient

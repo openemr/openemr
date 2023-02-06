@@ -13,11 +13,11 @@
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettingsController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProviderNotEnrolledException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TeleHealthProviderSuspendedException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProvisioningServiceRequestException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
-use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettingsController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
@@ -108,8 +108,21 @@ class TeleconferenceRoomController
      */
     private $mailerService;
 
+    /**
+     * @var TeleHealthFrontendSettingsController
+     */
+    private $settingsController;
+
+    /**
+     * @var TelehealthGlobalConfig
+     */
+    private $config;
+
     public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController
-        , TeleHealthParticipantInvitationMailerService $mailerService, $assetPath, $isPatient = false)
+        , TeleHealthParticipantInvitationMailerService $mailerService
+        , TeleHealthFrontendSettingsController $settingsController
+        , TelehealthGlobalConfig $config
+        , $assetPath, $isPatient = false)
     {
         $this->assetPath = $assetPath;
         $this->twig = $twig;
@@ -121,6 +134,8 @@ class TeleconferenceRoomController
         $this->telehealthRegistrationController = $registrationController;
         $this->telehealthUserRepo = new TeleHealthUserRepository();
         $this->mailerService = $mailerService;
+        $this->settingsController = $settingsController;
+        $this->config = $config;
     }
 
     public function dispatch($action, $queryVars)
@@ -153,9 +168,15 @@ class TeleconferenceRoomController
         }
     }
 
+    // TODO: @adunsulag we need to break this up into another class, however there's a lot of tight coupling here
+    // that will require some refactoring.
     public function saveSessionParticipantAction($queryVars) {
         // let's grab the json data if we have it in the post
         try {
+            if (!$this->config->isThirdPartyInvitationsEnabled()) {
+                throw new InvalidArgumentException("Third party invitations are not enabled and this function should not have been called");
+            }
+
             $json = file_get_contents("php://input");
             $data = json_decode($json, true);
 
@@ -384,8 +405,7 @@ class TeleconferenceRoomController
 
     public function getTeleHealthFrontendSettingsAction($queryVars)
     {
-        $controller = new TeleHealthFrontendSettingsController($this->assetPath, $this->twig);
-        echo $controller->renderFrontendSettings($this->isPatient);
+        echo $this->settingsController->renderFrontendSettings($this->isPatient);
     }
 
     public function conferenceSessionUpdateAction($queryVars)
