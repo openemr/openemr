@@ -4,32 +4,59 @@
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
+use http\Env;
 use MyMailer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\LogoService;
+use Twig\Environment;
 
 class TeleHealthParticipantInvitationMailerService
 {
     private $publicPathFQDN;
 
-    public function __construct($publicPathFQDN)
+    /**
+     * @var Environment
+     */
+    private $twig;
+
+    /**
+     * @var TelehealthGlobalConfig
+     */
+    private $config;
+
+    public function __construct(Environment $twig, $publicPathFQDN, TelehealthGlobalConfig $config)
     {
+        $this->twig = $twig;
         $this->publicPathFQDN = $publicPathFQDN;
+        $this->config = $config;
     }
 
     public function sendInvitationToExistingPatient($patient) {
-        $joinLink = $this->getJoinLink();
-        $htmlMsg = $plainMsg = "You've been invited to join a telehealth session";
-        $htmlMsg .= "<p>Click the link <a href='$joinLink'>$joinLink</a> to join";
-        $plainMsg .= "Paste the link $joinLink into your browser to join the session";
+        $logoService = new LogoService();
+        $logoPath = $GLOBALS['qualified_site_addr'] . $logoService->getLogo('core/login/primary');
+        $data = [
+            'url' => $this->getJoinLink()
+            ,'salutation' => ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')
+            ,'logoPath' => $logoPath
+            ,'logoAlt' => $GLOBALS['openemr_name'] ?? 'OpenEMR'
+            ,'title' => $GLOBALS['openemr_name'] ?? 'OpenEMR'
+        ];
+        $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.html.twig', $data);
+        $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.text.twig', $data);
         $this->sendMessageToPatient($htmlMsg, $plainMsg, $patient);
     }
 
     public function sendInvitationToNewPatient($patient) {
-        $joinLink = $this->getJoinLink();
-        // TODO: @adunsulag it would be best to consolidate the messages here... but this works for now.
-        $htmlMsg = $plainMsg = "You've had a new account created for you in order to join join a telehealth session. You have been sent a temporary password in a separate email.  Click the following link to join the session.";
-        $htmlMsg .= "<p>Click the link <a href='$joinLink'>$joinLink</a> to join";
-        $plainMsg .= "Paste the link $joinLink into your browser to join the session";
+        $data = [
+            'url' => $this->getJoinLink()
+            ,'salutation' => ''
+            ,'https://www.discoverandchange.com/wp-content/uploads/2020/08/LogoTransparent.png'
+            ,'logoAlt' => 'discoverandchange'
+            ,'title' => 'Discover and Change'
+        ];
+        $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-new.html.twig', $data);
+        $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-new.text.twig', $data);
         $this->sendMessageToPatient($htmlMsg, $plainMsg, $patient);
     }
 

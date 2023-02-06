@@ -335,6 +335,6 @@ class Bootstrap
     }
 
     private function getMailerService() {
-        return new TeleHealthParticipantInvitationMailerService($this->getPublicPathFQDN());
+        return new TeleHealthParticipantInvitationMailerService($this->getTwig(), $this->getPublicPathFQDN(), $this->globalsConfig);
     }
 }
