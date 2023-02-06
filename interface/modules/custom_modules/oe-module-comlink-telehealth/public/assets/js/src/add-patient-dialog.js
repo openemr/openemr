@@ -72,8 +72,6 @@ export class AddPatientDialog
             .then(result => {
                 if (!(result.ok && result.status == 200))
                 {
-                    // TODO: @adunsulag update the session title here...
-                    this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
                     throw new Error("Failed to save participant in " + this.pc_eid + " with save data");
                 } else {
                     return result.json();
@@ -240,6 +238,7 @@ export class AddPatientDialog
         this.sendSaveParticipant({pid: pid})
         .catch(error => {
             console.error(error);
+            this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
             // show the search results
             this.displaySearchList(true);
         })
@@ -354,6 +353,7 @@ export class AddPatientDialog
         // TODO: need to disable the save button during the save.
         this.sendSaveParticipant(inputValues)
         .catch(error => {
+            this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
             // TODO: @adunsulag need to handle the errors here.
             console.error(error);
         });
