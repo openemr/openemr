@@ -120,7 +120,7 @@
         ],
         "psr-4": {
             "OpenEMR\\": "src",
-            "Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\": "interface/modules/custom_modules/oe-module-prior-authorizations/src/"
+            "Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\": "interface/modules/custom_modules/oe-module-prior-authorizations/src"
         }
     },
     "autoload-dev": {
