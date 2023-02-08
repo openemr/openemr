@@ -27,7 +27,7 @@ session_regenerate_id(true);
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 //
 
-if (isset($_REQUEST['redirect'])) {
+if (!empty($_REQUEST['redirect'])) {
     // let's add the redirect back in case there are any errors or other problems.
     $landingpage .= "&redirect=" . urlencode($_REQUEST['redirect']);
 }
@@ -287,7 +287,7 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
 
 // now that we are authorized, we need to check for the redirect, sanitize it (or eliminate it if we can't), and then redirect
 
-if (isset($_REQUEST['redirect'])) {
+if (!empty($_REQUEST['redirect'])) {
     // for now we are only going to allow redirects to locations in the module directories, we can open this up more
     // in future requests once we consider the threat vectors
     $safeRedirect = \OpenEMR\Core\ModulesApplication::filterSafeLocalModuleFiles([$_REQUEST['redirect']]);
