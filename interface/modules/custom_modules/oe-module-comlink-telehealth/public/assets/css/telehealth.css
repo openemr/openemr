@@ -118,3 +118,7 @@
   filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
   transform: rotate(225deg);
 }
+
+.conference-room .remote-video-container {
+  position: relative;
+}
