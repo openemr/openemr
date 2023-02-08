@@ -406,7 +406,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       <td class="text-left align-top">
                     <?php
                     if ($SHORT_FORM) {
-                        echo "  <div class='mx-auto'>\n";
+                        echo "<div class='mx-auto'>";
                     } ?>
                     <?php
 
@@ -514,7 +514,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       // Handle starting of a new row.
                         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
                             end_row();
-                            echo "  <div class='form-group row'>";
+                            echo "<div class='form-group row'>";
                         }
 
                         if ($item_count == 0 && $titlecols == 0) {
@@ -546,8 +546,6 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // Modified 6-09 by BM - Translate if applicable
                         if ($frow['title']) {
                             echo (text(xl_layout_label($frow['title'])) . ":");
-                        } else {
-                            echo "&nbsp;";
                         }
 
                         // Handle starting of a new data cell.
