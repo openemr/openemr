@@ -1470,7 +1470,7 @@ function myChangeCheck() {
 
 <div class="fixed-top py-2 px-1 bg-light text-dark">
 <strong><?php echo xlt('Edit layout'); ?>:</strong>&nbsp;
-<select name='layout_id' id='layout_id' class='form-control form-control-sm form-control form-control-sm-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
+<select name='layout_id' id='layout_id' class='form-control form-control-sm d-inline-block' style='margin-bottom:5px; width:20%;'>
 <?php echo genLayoutOptions('-- ' . xl('Select') . ' --', $layout_id); ?>
 </select>
 
@@ -1491,7 +1491,7 @@ function myChangeCheck() {
     <?php echo xlt('With selected');?>:&nbsp;
 <input type='button' class='btn btn-secondary btn-sm' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
 <input type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
-<select id='copytolayout' class='form-control form-control-sm form-control form-control-sm-sm d-inline-block'
+<select id='copytolayout' class='form-control form-control-sm d-inline-block'
  style='width:20%;' disabled="disabled" onchange="CopyToLayout(this)">
     <?php echo genLayoutOptions(xl('Copy to Layout...')); ?>
 </select>
