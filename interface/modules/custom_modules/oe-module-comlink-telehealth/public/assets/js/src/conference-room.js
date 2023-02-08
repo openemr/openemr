@@ -6,6 +6,7 @@ import {TelehealthBridge} from "./telehealth-bridge.js";
 import {PresentationScreen} from "./presentation-screen";
 import * as cvb from "./cvb.min.js";
 import {AddPatientDialog} from "./add-patient-dialog";
+import {MinimizedConferenceRoom} from "./minimized-conference-room";
 
 // TODO: @adunsulag convert this to class nomenclature
 export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scriptLocation)
@@ -51,10 +52,11 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.inSession = false;
 
     /**
-     * Is the conference room currently  minimized
-     * @type {boolean}
+     * The minimized conference room handler
+     * @type {MinimizedConferenceRoom}
+     * @private
      */
-    this.isMinimized = false;
+    this.__minimizedConferenceRoom = null;
 
     /**
      * Tracking interval for the conference room session polling
@@ -118,6 +120,19 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
      * @private
      */
     this.__focusCallerUuid = null;
+
+
+    /**
+     * Is the conference room currently  minimized
+     * @type {boolean}
+     */
+    this.isMinimized = function() {
+        if (this.__minimizedConferenceRoom) {
+            return this.__minimizedConferenceRoom.isMinimized();
+        }
+        return false;
+    };
+
 
     this.allocateSlot = function(call, stream) {
         // as we can get multiple events we only want to allocate on the call if we don't have any stream data setup.
@@ -549,15 +564,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             container.parentNode.removeChild(container);
         }
 
-        if (conf.isMinimized)
+        if (conf.isMinimized())
         {
-            // clean up minimized elements now too
-            let minimizedContainer = document.getElementById('minimized-telehealth-video');
-            if (minimizedContainer && minimizedContainer.parentNode)
-            {
-                minimizedContainer.parentNode.removeChild(minimizedContainer);
-            }
-            conf.isMinimized = false;
+            this.__minimizedConferenceRoom.destruct();
+            this.__minimizedConferenceRoom = null;
         }
         conf.callerSettings = null;
         conf.telehealthSessionData = null;
@@ -631,7 +641,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.sessionClose = function()
     {
         let conf = this;
-        if (conf.isMinimized)
+        if (conf.isMinimized())
         {
             conf.destruct();
         }
@@ -918,7 +928,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     {
         // if we hangup the call we maximize the window since the confirm dialog is embedded inside the
         // main window.
-        if (conf.isMinimized) {
+        if (conf.isMinimized()) {
             conf.maximizeProviderConferenceCall({});
         }
         conf.confirmSessionClose();
@@ -926,6 +936,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.minimizeProviderConferenceCall = function()
     {
+        this.__minimizedConferenceRoom = new MinimizedConferenceRoom( document.getElementById('telehealth-container'));
+        this.__minimizedConferenceRoom.minimizeConferenceRoom(conf, this.__presentationScreen.getVideoElement());
+
         // grab every dom node in the waiting room that is not the patient video
         // grab the video and shrink it to bottom left window
         // shrink container to be the size of the video
@@ -955,54 +968,22 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             // let's initialize our drag action here.
             window.initDragResize();
         }
-
-        conf.isMinimized = true;
     };
 
     this.maximizeProviderConferenceCall = function(evt)
     {
-        // remove the event listener
-        var remoteVideoContainer = document.querySelector('.remote-video-container');
-        var remoteVideo = this.__presentationScreen.getVideoElement();
-
-        // now let's move the video and cleanup the old container here
-        if (remoteVideo && remoteVideoContainer) {
-
-            var oldContainer = remoteVideo.parentNode;
-            var oldButtonBar = oldContainer.querySelector('.telehealth-button-bar');
-            if (oldButtonBar) {
-                conf.videoBar.destruct();
-                oldButtonBar.parentNode.removeChild(oldButtonBar);
-            }
+        if (this.isMinimized()) {
+            this.__minimizedConferenceRoom.maximizeConferenceRoom(conf, conf.__presentationScreen.getVideoElement());
+            this.__minimizedConferenceRoom.destruct();
+            this.__minimizedConferenceRoom = null;
 
 
-            if (remoteVideoContainer) {
-                var newButtonBar = remoteVideoContainer.querySelector('.telehealth-button-bar');
-                if (newButtonBar) {
-                    conf.videoBar = new VideoBar(newButtonBar, conf.getFullConferenceVideoBarSettings());
-                } else {
-                    console.error("Failed to find #remote-video-container .telehealth-button-bar");
-                }
+            // everything's moved we can now display the larger video modal.
+            if (conf.waitingRoomModal) {
+                conf.waitingRoomModal.show();
             } else {
-                console.error("Failed to find #remote-video-container");
+                console.error("Failed to find waitingRoomModal");
             }
-            remoteVideoContainer.prepend(remoteVideo);
-
-            // need to clean up the original minimize container we created here
-            if (oldContainer && oldContainer.parentNode)
-            {
-                oldContainer.parentNode.removeChild(oldContainer);
-            }
-        } else {
-            console.error("Failed to find remote video or remote video container");
-        }
-
-        // everything's moved we can now display the larger video modal.
-        if (conf.waitingRoomModal) {
-            conf.waitingRoomModal.show();
-            conf.isMinimized = false;
-        } else {
-            console.error("Failed to find waitingRoomModal");
         }
     };
 
