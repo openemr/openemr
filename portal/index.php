@@ -353,7 +353,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <input style="display: none" type="text" name="dummyuname" />
                 <input style="display: none" type="password" name="dummypass" />
                 <?php if (isset($redirectUrl)) { ?>
-                    <input id="redirect" class="d-none" type="text" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                    <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
@@ -410,7 +410,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             <form id="resetPass" action="#" method="post">
                 <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
-                    <input id="redirect" class="d-none" type="text" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                    <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
                 <div class="text-center">
                     <fieldset>
@@ -456,7 +456,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
             <?php if (isset($redirectUrl)) { ?>
-                <input id="redirect" class="d-none" type="text" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
             <?php } ?>
             <fieldset>
                 <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
