@@ -206,9 +206,10 @@ class TeleconferenceRoomController
             $data = [
               'activeSession' => $activeSession
                 ,'assetPath' => $this->assetPath
-                ,'images_static_relative' => $this->config->getImelehealthagesStaticRelative()
+                ,'images_static_relative' => $this->config->getImagesStaticRelative()
                 ,'portalUrl' => $this->config->getPortalOnsiteAddress() . '/home.php'
                 ,'portal_timeout' => $this->config->getPortalTimeout()
+                ,'debug' => $this->config->isDebugModeEnabled()
             ];
 
             echo $this->twig->render('comlink/portal/thirdparty.html.twig', $data);
@@ -476,13 +477,23 @@ class TeleconferenceRoomController
             }
             $isProvider = !$this->isPatient;
 
-            if ($this->isPatient && empty($session['patient_start_time'])) {
-                $this->sessionRepository->updateStartTimestamp($pc_eid, $isProvider);
-            } else if ($isProvider && empty($session['provider_start_time'])) {
-                $this->sessionRepository->updateStartTimestamp($pc_eid, $isProvider);
+            // now we need to grab the third party...
+            $pid = intval($queryVars['pid'] ?? 0);
+            $role = 'provider';
+
+            if ($this->isPatient) {
+                if (!empty($session['pid'] && intval($session['pid']) == $pid)) {
+                    $role = 'patient';
+                } else if (!empty($session['pid_related']) && intval($session['pid_related']) == $pid) {
+                    $role =  'patient_related';
+                }
             }
-            $this->logger->debug("Updating lastSeenTimestamp", ['pc_eid' => $pc_eid, 'isProvider' => $isProvider]);
-            $this->sessionRepository->updateLastSeenTimestamp($pc_eid, $isProvider);
+            if (empty($session[$role . '_start_time'])) {
+                $this->logger->debug("Updating startTimestamp", ['pc_eid' => $pc_eid, 'role' => $role]);
+                $this->sessionRepository->updateStartTimestamp($pc_eid, $role);
+            }
+            $this->logger->debug("Updating lastSeenTimestamp", ['pc_eid' => $pc_eid, 'role' => $role]);
+            $this->sessionRepository->updateLastSeenTimestamp($pc_eid, $role);
             echo json_encode(['status' => 'success']);
         } catch (\Exception $exception) {
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),

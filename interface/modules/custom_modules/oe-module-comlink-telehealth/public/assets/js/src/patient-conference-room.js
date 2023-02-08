@@ -1,7 +1,7 @@
 import {ConferenceRoom} from "./conference-room.js";
 
 export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translations,scriptLocation) {
-    let patientConferenceRoom = new ConferenceRoom(apiCSRFToken, features, translations, scriptLocation);
+    let patientConferenceRoom = new ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scriptLocation);
     let parentDestruct = patientConferenceRoom.destruct;
     let checkProviderReadyForPatientInterval = null;
     let providerIsReady = false;

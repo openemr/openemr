@@ -97,16 +97,24 @@ class TeleHealthSessionRepository
         QueryUtils::sqlStatementThrowException($sql, $bind);
         return $this->getSessionByAppointmentId($pc_eid);
     }
-    public function updateStartTimestamp($pc_eid, $isProvider = true)
+    public function updateStartTimestamp($pc_eid, $role = 'provider')
     {
-        $columnPrefix = $isProvider ? "provider" : "patient";
+        $validRoles = ['provider', 'patient', 'patient_related'];
+        if (!in_array($role, $validRoles)) {
+            throw new \InvalidArgumentException("Invalid role provided of " . $role);
+        }
+        $columnPrefix = $role;
 
         $sql = "UPDATE " . self::TABLE_NAME . " SET " . $columnPrefix . "_start_time = NOW() WHERE pc_eid = ?";
         QueryUtils::sqlStatementThrowException($sql, [$pc_eid]);
     }
-    public function updateLastSeenTimestamp($pc_eid, $isProvider = true)
+    public function updateLastSeenTimestamp($pc_eid, $role)
     {
-        $columnPrefix = $isProvider ? "provider" : "patient";
+        $validRoles = ['provider', 'patient', 'patient_related'];
+        if (!in_array($role, $validRoles)) {
+            throw new \InvalidArgumentException("Invalid role provided of " . $role);
+        }
+        $columnPrefix = $role;
 
         $sql = "UPDATE " . self::TABLE_NAME . " SET " . $columnPrefix . "_last_update = NOW() WHERE pc_eid = ?";
 //        (new SystemLogger())->debug("updating last seen timestamp", ['pc_eid' => $pc_eid, 'sql' => $sql, 'isProvider' => $isProvider]);
