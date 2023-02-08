@@ -46,6 +46,11 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 
+// allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
+// actually do anything with the redirect
+// this value should already be url encoded.
+$redirectUrl = $_REQUEST['redirect'] ?? '';
+
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
@@ -347,6 +352,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             <form class="form pb-5" action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()">
                 <input style="display: none" type="text" name="dummyuname" />
                 <input style="display: none" type="password" name="dummypass" />
+                <?php if (isset($redirectUrl)) { ?>
+                    <input id="redirect" class="d-none" type="text" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                <?php } ?>
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
                     <div class="col-md">
@@ -401,6 +409,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
                 <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
+                <?php if (isset($redirectUrl)) { ?>
+                    <input id="redirect" class="d-none" type="text" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                <?php } ?>
                 <div class="text-center">
                     <fieldset>
                         <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
@@ -444,6 +455,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             ?> <!-- Main logon -->
         <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
+            <?php if (isset($redirectUrl)) { ?>
+                <input id="redirect" class="d-none" type="text" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+            <?php } ?>
             <fieldset>
                 <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
                 <div class="jumbotron jumbotron-fluid px-5 py-3">
@@ -594,7 +608,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 data: data
             }).done(function (rtn) {
                 if (action === "cleanup") {
-                    window.location.href = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let url = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let redirectUrl = $("#redirect").val();
+                    if (redirectUrl) {
+                        url += "&redirect=" + redirectUrl;
+                    }
+                    window.location.href = url;
                 } else if (action === "reset_password") {
                     if (JSON.parse(rtn) === 1) {
                         dialog.alert(<?php echo xlj("Check your email inbox (and possibly your spam folder) for further instructions to reset your password. If you have not received an email, then recommend contacting the clinic.") ?>);
