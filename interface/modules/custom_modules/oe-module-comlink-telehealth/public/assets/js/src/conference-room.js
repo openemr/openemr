@@ -145,6 +145,14 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                     newCaller.hide();
                 }
             }
+            // now we need to update our focus caller and participant list if we have it
+            if (this.__slots.length == 1) {
+                // if we only have one person on the call they need to be the focus of the video
+                this.setCurrentCallerFocusId(call.getRemotePartyId());
+                // if the call is the primary patient we want them to be the focus for the provider
+            } else if (call.getRemotePartyId() == conf.callerSettings.calleeUuid) {
+                this.setCurrentCallerFocusId(call.getRemotePartyId());
+            }
             this.updateParticipantDisplays();
         }
     };
@@ -476,7 +484,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             .then(launchData => {
                 conf.inSession = true;
                 conf.callerSettings = launchData.callerSettings;
-                conf.__focusCallerUuid = launchData.callerSettings.calleeUuid;
+                conf.setCurrentCallerFocusId(launchData.callerSettings.calleeUuid);
                 conf.waitingRoomTemplate = launchData.waitingRoom;
                 conf.conferenceRoomTemplate = launchData.conferenceRoom;
                 conf.setupWaitingRoom();
