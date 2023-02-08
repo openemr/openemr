@@ -2,7 +2,7 @@
 {% extends "portal/base.html.twig" %}
 {% block head %}
     {{ parent() }}
-    {% include "comlink/patient-portal.twig" with {assetPath: assetPath} %}
+    {% include "comlink/patient-portal.twig" with {assetPath: assetPath, debug: debug} %}
     <script>
         var inactivityTimeOut = {{ portal_timeout | js_escape }};
 
