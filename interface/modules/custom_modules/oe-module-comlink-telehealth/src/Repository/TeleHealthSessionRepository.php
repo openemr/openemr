@@ -22,7 +22,8 @@ class TeleHealthSessionRepository
 {
     const TABLE_NAME = "comlink_telehealth_appointment_session";
 
-    public function getSessionsWithAppointmentDataForRelatedPatient($pid, int $limit=0) {
+    public function getSessionsWithAppointmentDataForRelatedPatient($pid, int $limit = 0)
+    {
         $sql = "SELECT s.id
                 , s.user_id
                 , s.pc_eid
@@ -76,7 +77,8 @@ class TeleHealthSessionRepository
         return $this->getSessionByEncounter($encounter);
     }
 
-    public function addRelatedPartyToSession($pc_eid, $pid_related) {
+    public function addRelatedPartyToSession($pc_eid, $pid_related)
+    {
         $patientService = new PatientService();
         $session = $this->getSessionByAppointmentId($pc_eid);
         if (empty($session)) {

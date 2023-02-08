@@ -6,39 +6,3 @@
     <script src="{{ assetPath }}js/dist/{{ "telehealth.min.js"|addCacheParam()}}"></script>
 {% endif %}
 <script src="{{ assetPath }}js/{{ "telehealth-patient.js"|addCacheParam()}}"></script>
-<div class="card collapse overflow-auto" data-parent="#cardgroup" id="telehealth-thirdpartycard">
-    <header class="card-header bg-primary text-light">{{ 'Join Telehealth Session' | xlt }}</header>
-
-    <div id="telehealth-thirdparty" class="card-body bg-light">
-        <div class="row">
-            {% if thirdPartySessions|length %}
-                {% for session in thirdPartySessions %}
-                    {# Reuse the appointment item calendar and display those for people to launch their session #}
-                    {% include 'portal/appointment-item.html.twig' with {appt: session} %}
-                {% endfor %}
-            {% else %}
-                <div class="col">
-                    <h3 class='text-center'>
-                        {{ 'No Telehealth Sessions Found' | xlt }}
-                    </h3>
-                    <p class="text-center">
-                        {{ 'The session you attempted to join has either expired or could not be found.' | xlt }}
-                    </p>
-                    <p class="text-center">
-                        {{ 'Sessions will only be listed if you have been invited to participate in a telehealth appointment and the current time is no earlier than two hours before or later than two hours after the appointment time.'|xlt }}
-                    </p>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{% if activeSession is not empty %}
-    <script>
-        (function() {
-            console.log("launching third party");
-            window.addEventListener("load", function() {
-                window.comlink.telehealth.launchThirdPartyPortalDialog({{ activeSession.pc_eid|json_encode }})
-            });
-        })();
-    </script>
-{% endif %}

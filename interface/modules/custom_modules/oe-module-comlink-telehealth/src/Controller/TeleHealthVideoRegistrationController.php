@@ -207,7 +207,8 @@ class TeleHealthVideoRegistrationController
         }
     }
 
-    public function verifyProvisioningServiceIsValid() {
+    public function verifyProvisioningServiceIsValid()
+    {
         return $this->remoteService->verifyProvisioningServiceIsValid();
     }
 

@@ -12,7 +12,6 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Exception;
 
-
 use Throwable;
 
 class TelehealthProvisioningServiceRequestException extends \Exception

@@ -58,6 +58,8 @@ class TeleconferenceRoomController
      */
     const REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE = 402;
 
+    const THIRD_PARTY_LAUNCH_ACTION = 'launch_thirdparty_session';
+
     /**
      * @var Environment
      */
@@ -118,11 +120,7 @@ class TeleconferenceRoomController
      */
     private $config;
 
-    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController
-        , TeleHealthParticipantInvitationMailerService $mailerService
-        , TeleHealthFrontendSettingsController $settingsController
-        , TelehealthGlobalConfig $config
-        , $assetPath, $isPatient = false)
+    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController, TeleHealthParticipantInvitationMailerService $mailerService, TeleHealthFrontendSettingsController $settingsController, TelehealthGlobalConfig $config, $assetPath, $isPatient = false)
     {
         $this->assetPath = $assetPath;
         $this->twig = $twig;
@@ -161,6 +159,8 @@ class TeleconferenceRoomController
             return $this->verifyInstallationSettings($queryVars);
         } else if ($action == 'save_session_participant') {
             return $this->saveSessionParticipantAction($queryVars);
+        } else if ($action == self::THIRD_PARTY_LAUNCH_ACTION) {
+            return $this->launchThirdPartySession($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
@@ -168,9 +168,65 @@ class TeleconferenceRoomController
         }
     }
 
+    public function launchThirdPartySession($queryVars)
+    {
+        try {
+            $pc_eid = $queryVars['pc_eid'] ?? null;
+            if (empty($pc_eid)) {
+                throw new InvalidArgumentException("pc_eid was missing from request");
+            }
+            $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
+            if (empty($session)) {
+                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+            }
+            $pidRelated = intval($session['pid_related'] ?? 0);
+            $queryVarPid = intval($queryVars['pid']); // should always be populated
+            if ($pidRelated !== $queryVarPid) {
+                throw new AccessDeniedException('patient', 'demo', 'Access not allowed to this telehealth session for pid' . $queryVarPid);
+            }
+
+            $activeSession = null;
+            $apptService = new AppointmentService();
+            $appt = $apptService->getAppointment($session['pc_eid']);
+            if (empty($appt)) {
+                throw new InvalidArgumentException("appointment was not found for pc_eid of " + $pc_eid);
+            } else {
+                $appt = reset($appt); // annoying that its inside an array
+            }
+            $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $appt['pc_eventDate']
+                . " " . $appt['pc_startTime']);
+            if (
+                $dateTime !== false
+                    && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)
+                    && !$apptService->isCheckOutStatus($appt['pc_apptstatus'])
+            ) {
+                $activeSession = ['pc_eid' => $queryVars['pc_eid']];
+            }
+
+            $data = [
+              'activeSession' => $activeSession
+                ,'assetPath' => $this->assetPath
+                ,'images_static_relative' => $this->config->getImelehealthagesStaticRelative()
+                ,'portalUrl' => $this->config->getPortalOnsiteAddress() . '/home.php'
+                ,'portal_timeout' => $this->config->getPortalTimeout()
+            ];
+
+            echo $this->twig->render('comlink/portal/thirdparty.html.twig', $data);
+        } catch (InvalidArgumentException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(400);
+            echo $this->twig->render('error/400.html.twig');
+        } catch (Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(500);
+            echo $this->twig->render('error/general_http_error.html.twig');
+        }
+    }
+
     // TODO: @adunsulag we need to break this up into another class, however there's a lot of tight coupling here
     // that will require some refactoring.
-    public function saveSessionParticipantAction($queryVars) {
+    public function saveSessionParticipantAction($queryVars)
+    {
         // let's grab the json data if we have it in the post
         try {
             if (!$this->config->isThirdPartyInvitationsEnabled()) {
@@ -210,19 +266,18 @@ class TeleconferenceRoomController
                 header("Content-type: application/json");
                 echo json_encode(['error' => xlt("Participants data was invalid")]);
             }
-        }
-        catch (\InvalidArgumentException $exception) {
+        } catch (\InvalidArgumentException $exception) {
             http_response_code(400);
             echo json_encode(['error' => xlt($exception->getMessage())]);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             http_response_code(500);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         }
     }
 
-    private function createPatientFromSessionInvitationData($data) {
+    private function createPatientFromSessionInvitationData($data)
+    {
         $patientService = new PatientService();
         $listService = new ListService();
         // wierd that it goes off the option title instead of the option id here
@@ -274,20 +329,22 @@ class TeleconferenceRoomController
         return $pid;
     }
 
-    private function sendSessionInvitationToRelatedParty($session, $pid, $isNewPatient=false) {
+    private function sendSessionInvitationToRelatedParty($session, $pid, $isNewPatient = false)
+    {
         // need to send out the invitation to the patient
         // for new patients we need to send out a different invitation versus an existing patient
         $patientService = new PatientService();
         $patient = $patientService->findByPid($pid);
         if (!$isNewPatient) {
-            $this->mailerService->sendInvitationToExistingPatient($patient, $session);
+            $this->mailerService->sendInvitationToExistingPatient($patient, $session, self::THIRD_PARTY_LAUNCH_ACTION);
         } else {
-            $this->mailerService->sendInvitationToNewPatient($patient, $session);
+            $this->mailerService->sendInvitationToNewPatient($patient, $session, self::THIRD_PARTY_LAUNCH_ACTION);
             $this->logger->debug("Sending session invitation to new patient", ['session' => $session]);
         }
     }
 
-    public function verifyInstallationSettings($queryVars) {
+    public function verifyInstallationSettings($queryVars)
+    {
         $config = new TelehealthGlobalConfig($this->assetPath);
         if (!$config->isTelehealthConfigured()) {
             echo xlt("Telehealth settings must be saved to verify configuration");
@@ -450,7 +507,6 @@ class TeleconferenceRoomController
 
         $this->logger->debug("patientAppointmentReadyAction()", ['session' => $session]);
         try {
-
             if (!empty($session)) {
                 $result['session']['id'] = $session['id'];
                 // provider has started the session, let's verify the last update time
@@ -978,20 +1034,21 @@ class TeleconferenceRoomController
         return $data;
     }
 
-    private function isPatientPidAuthorizedForSession($pid, $session) {
+    private function isPatientPidAuthorizedForSession($pid, $session)
+    {
         $convertedPid = intval($pid);
         $related_session_pid = intval($session['pid_related'] ?? 0);
         //$related_session_pid = $session['pid_related'] ?? null;
         $sessionPid = intval($session['pid'] ?? 0);
-        if (0 !== $convertedPid && ($convertedPid === $sessionPid || $convertedPid === $related_session_pid))
-        {
+        if (0 !== $convertedPid && ($convertedPid === $sessionPid || $convertedPid === $related_session_pid)) {
             return true;
         }
         return false;
     }
 
     // TODO: @adunsulag refactor $apptId out
-    private function getParticipantListForAppointment($apptId, $user, $session) {
+    private function getParticipantListForAppointment($apptId, $user, $session)
+    {
         $userTelehealthSettings = $this->getOrCreateTelehealthProvider($user);
 
         $participantList = [
@@ -1034,8 +1091,10 @@ class TeleconferenceRoomController
      * @return string
      * @throws Exception
      */
-    private function sessionUserInRoom($session, $userKey) {
-        if (!empty($session[$userKey . '_start_time']) &&
+    private function sessionUserInRoom($session, $userKey)
+    {
+        if (
+            !empty($session[$userKey . '_start_time']) &&
             !empty($session[$userKey . '_last_update'])
         ) {
             $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session[$userKey . '_last_update']);

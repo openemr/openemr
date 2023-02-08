@@ -335,7 +335,8 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
-    public function verifyProvisioningServiceIsValid() {
+    public function verifyProvisioningServiceIsValid()
+    {
         $randomUuid = UuidV4::uuid4()->toString();
         $randomPassword = UuidV4::uuid4()->toString();
 

@@ -51,19 +51,28 @@ class TelehealthGlobalConfig
         $this->publicWebPath = $publicWebPath;
     }
 
-    public function getOpenEMRName() {
+    public function getPortalTimeout()
+    {
+        return $this->getGlobalSetting('portal_timeout') ?? 1800; // timeout is in seconds
+    }
+
+    public function getOpenEMRName()
+    {
         return $this->getGlobalSetting('openemr_name');
     }
 
-    public function getPatientReminderName() {
+    public function getPatientReminderName()
+    {
         return $this->getGlobalSetting('patient_reminder_sender_email');
     }
 
-    public function getQualifiedSiteAddress() {
+    public function getQualifiedSiteAddress()
+    {
         return $this->getGlobalSetting('qualified_site_addr');
     }
 
-    public function getPortalOnsiteAddress() {
+    public function getPortalOnsiteAddress()
+    {
         // return the portal address to be used.
         if ($this->getGlobalSetting('portal_onsite_two_basepath') == '1') {
             return $this->getQualifiedSiteAddress() . '/portal/patient';
@@ -72,7 +81,8 @@ class TelehealthGlobalConfig
         }
     }
 
-    public function isThirdPartyInvitationsEnabled() {
+    public function isThirdPartyInvitationsEnabled()
+    {
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
     }
 
@@ -104,14 +114,14 @@ class TelehealthGlobalConfig
         }
 
         // if third party is enabled make sure the portal is configured
-        if ($this->isThirdPartyInvitationsEnabled())
-        {
+        if ($this->isThirdPartyInvitationsEnabled()) {
             return $this->isThirdPartyConfigurationSetup();
         }
         return true;
     }
 
-    private function isThirdPartyConfigurationSetup() {
+    private function isThirdPartyConfigurationSetup()
+    {
         // check to make sure the dependent portal settings are setup correctly
         $enabled = $this->getGlobalSetting('portal_onsite_two_enable') == '1';
         $useBasePath = $this->getGlobalSetting('portal_onsite_two_basepath') == '1';
@@ -133,6 +143,11 @@ class TelehealthGlobalConfig
     {
         $setting = $this->getGlobalSetting(self::DEBUG_MODE_FLAG);
         return $setting !== "";
+    }
+
+    public function getImagesStaticRelative()
+    {
+        return $this->getGlobalSetting('images_static_relative');
     }
 
     public function getInstitutionId()

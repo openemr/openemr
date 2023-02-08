@@ -122,7 +122,7 @@ class Bootstrap
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
-        $this->globalsConfig = new TelehealthGlobalConfig($this->getPublicPath());
+        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath());
     }
 
     public function getTemplatePath()
@@ -221,20 +221,16 @@ class Bootstrap
         }
     }
 
-    private function getPublicPathFQDN() {
+    private function getPublicPathFQDN()
+    {
         // return the public path with the fully qualified domain name in it
         // qualified_site_addr already has the webroot in it.
         return $GLOBALS['qualified_site_addr'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
     }
 
-    private function getPublicPath()
-    {
-        return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
-    }
-
     private function getAssetPath()
     {
-        return $this->getPublicPath() . 'assets' . DIRECTORY_SEPARATOR;
+        return $this->getURLPath() . 'assets' . '/';
     }
 
     public function renderMainBodyTelehealthScripts()
@@ -337,11 +333,13 @@ class Bootstrap
         return new TelehealthRegistrationCodeService($this->globalsConfig, new TeleHealthUserRepository());
     }
 
-    private function getMailerService() {
+    private function getMailerService()
+    {
         return new TeleHealthParticipantInvitationMailerService($this->getTwig(), $this->getPublicPathFQDN(), $this->globalsConfig);
     }
 
-    private function getFrontendSettingsController() {
+    private function getFrontendSettingsController()
+    {
         return new TeleHealthFrontendSettingsController($this->getAssetPath(), $this->getTwig(), $this->globalsConfig);
     }
 }

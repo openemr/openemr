@@ -1,13 +1,19 @@
 <?php
 
+/**
+ * Handles participant invitation emails sent out for inviting third party patients to a telehealth session.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
-
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use http\Env;
 use MyMailer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\LogoService;
 use Twig\Environment;
 
@@ -32,46 +38,54 @@ class TeleHealthParticipantInvitationMailerService
         $this->config = $config;
     }
 
-    public function sendInvitationToExistingPatient($patient) {
-        $logoService = new LogoService();
-        $logoPath = $GLOBALS['qualified_site_addr'] . $logoService->getLogo('core/login/primary');
-        $data = [
-            'url' => $this->getJoinLink()
-            ,'salutation' => ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')
-            ,'logoPath' => $logoPath
-            ,'logoAlt' => $GLOBALS['openemr_name'] ?? 'OpenEMR'
-            ,'title' => $GLOBALS['openemr_name'] ?? 'OpenEMR'
-        ];
+    public function sendInvitationToExistingPatient($patient, $session, $thirdPartyLaunchAction)
+    {
+        $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
         $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.html.twig', $data);
         $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.text.twig', $data);
         $this->sendMessageToPatient($htmlMsg, $plainMsg, $patient);
     }
 
-    public function sendInvitationToNewPatient($patient) {
-        $data = [
-            'url' => $this->getJoinLink()
-            ,'salutation' => ''
-            ,'https://www.discoverandchange.com/wp-content/uploads/2020/08/LogoTransparent.png'
-            ,'logoAlt' => 'discoverandchange'
-            ,'title' => 'Discover and Change'
-        ];
+    public function sendInvitationToNewPatient($patient, $session, $thirdPartyLaunchAction)
+    {
+        $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
         $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-new.html.twig', $data);
         $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-new.text.twig', $data);
         $this->sendMessageToPatient($htmlMsg, $plainMsg, $patient);
     }
 
-    private function getJoinLink() {
-        return $this->publicPathFQDN . "index-thirdparty2.php";
+    private function getInvitationData($patient, $session, $thirdPartyLaunchAction)
+    {
+        $logoService = new LogoService();
+        $logoPath = $this->config->getQualifiedSiteAddress() . $logoService->getLogo('core/login/primary');
+        $name = $this->config->getOpenEMRName();
+        $data = [
+            'url' => $this->getJoinLink($session, $thirdPartyLaunchAction)
+            ,'salutation' => ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')
+            ,'logoPath' => $logoPath
+            ,'logoAlt' => $name ?? 'OpenEMR'
+            ,'title' => $name ?? 'OpenEMR'
+        ];
+        return $data;
     }
 
-    private function sendMessageToPatient($htmlMsg, $plainMsg, $patient) {
+    private function getJoinLink($session, $thirdPartyLaunchAction)
+    {
+        $moduleLink = urlencode($this->publicPathFQDN . "index-portal.php?action=" . $thirdPartyLaunchAction
+            . "&pc_eid=" . intval($session['pc_eid']));
+        $portalAddress = $this->config->getPortalOnsiteAddress() . "/index.php?redirect=" . $moduleLink;
+        return $portalAddress;
+    }
+
+    private function sendMessageToPatient($htmlMsg, $plainMsg, $patient)
+    {
 
         $throwExceptions = true;
         $mail = new MyMailer($throwExceptions);
         $pt_name = $patient['fname'] . ' ' . $patient['lname'];
         $pt_email = $patient['email'];
         $email_subject = xl('Join Telehealth Session');
-        $email_sender = $GLOBALS['patient_reminder_sender_email'];
+        $email_sender = $this->config->getPatientReminderName();
         $mail->AddReplyTo($email_sender, $email_sender);
         $mail->SetFrom($email_sender, $email_sender);
         $mail->AddAddress($pt_email, $pt_name);
