@@ -78,7 +78,7 @@ function getDeleteButton($data) {
 		if($isAlreadyInUse === false) {
 			$deleteUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/time_configuration_list.php", array('action_mode' => 'delete', 'config_id' => $data['id']));
 			?>
-			<a href="javascript:;" class="css_button actionBtn" onclick="onDelete(event, '<?php echo $deleteUrl; ?>')"><span>Delete</span></a>
+			<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="onDelete(event, '<?php echo $deleteUrl; ?>')"><span>Delete</span></a>
 			<?php
 		}
 	}
@@ -118,7 +118,7 @@ function writeConfigurationLine($data) {
 			}
 
 		if($action_type == "action_reminder") {
-			$title_text = $idempiereWebserviceObj->getApiConfigTitle($item['api_config']);
+			$title_text = IdempiereWebservice::getApiConfigTitle($item['api_config']);
 		?>
 			<tr class="selectRow <?php echo $selectedClass; ?>" data-id="<?php echo $item['id'] ?>">
 				<td><input type="checkbox" class="selectedCheck" name="selectedItem[]" value="<?php echo $item['id'] ?>" <?php echo $isChecked; ?> /></td>
@@ -135,13 +135,13 @@ function writeConfigurationLine($data) {
 				
 				<td width="150" class="actionContainer">
 					<?php
-						$editUrl = generateFullUrl($GLOBALS['webroot']."/modules/ext_reminder/ntf/save_configuration.php", array('action_mode' => 'update', 'config_id' => $item["id"]));
+						$editUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/save_configuration.php", array('action_mode' => 'update', 'config_id' => $item["id"]));
 					?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
 					<?php getDeleteButton($item); ?>
 
 					<?php if(!empty($eId) && !empty($item['id'])) { ?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
 					<?php } ?>
 				</td>
 			</tr>
@@ -166,11 +166,11 @@ function writeConfigurationLine($data) {
 					<?php
 						$editUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/add_configuration.php", array('action_mode' => 'update', 'config_id' => $item["id"]));
 					?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
 					<?php getDeleteButton($item); ?>
 
 					<?php if(!empty($eId) && !empty($item['id'])) { ?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
 					<?php } ?>
 				</td>
 			</tr>
@@ -199,11 +199,11 @@ function writeConfigurationLine($data) {
 					<?php
 						$editUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/add_configuration.php", array('action_mode' => 'update', 'config_id' => $item["id"]));
 					?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
 					<?php getDeleteButton($item); ?>
 
 					<?php if(!empty($eId) && !empty($item['id'])) { ?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
 					<?php } ?>
 				</td>
 			</tr>
@@ -234,11 +234,11 @@ function writeConfigurationLine($data) {
 					<?php
 						$editUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/add_configuration.php", array('action_mode' => 'update', 'config_id' => $item["id"]));
 					?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
 					<?php getDeleteButton($item); ?>
 
 					<?php if(!empty($eId) && !empty($item['id'])) { ?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="prepareConfigPopup('<?php echo $eId ?>', '<?php echo $item['id'] ?>')"><span>Prepare/Action</span></a>
 					<?php } ?>
 				</td>
 			</tr>
@@ -390,16 +390,16 @@ function writeConfigurationLine($data) {
 	<div style="float: left; padding-left: 12px;">
 		<?php
 			if($action_type == "action_reminder") { 
-				$addantoherUrl = generateFullUrl($GLOBALS['webroot']."/modules/ext_reminder/ntf/save_configuration.php", array('action_mode' => 'add'));
+				$addantoherUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/save_configuration.php", array('action_mode' => 'add'));
 			} else {
-				$addantoherUrl = generateFullUrl($GLOBALS['webroot']."/modules/ext_reminder/ntf/add_configuration.php", array('action_mode' => 'add'));
+				$addantoherUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/add_configuration.php", array('action_mode' => 'add'));
 			}
 			
 			$showAllUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/time_configuration_list.php", array('result' => 'all'));
 		?>
-		<a href="javascript:;" class="css_button submitBtn" onclick=""><span>Submit</span></a>
-		<a href="javascript:;" class="css_button" onclick="window.location='<?php echo $addantoherUrl; ?>';"><span>Add Another</span></a>
-		<a href="javascript:;" class="css_button" onclick="window.location='<?php echo $showAllUrl; ?>';"><span>Show All</span></a>
+		<a href="javascript:;" class="css_button submitBtn btn btn-primary" onclick=""><span>Submit</span></a>
+		<a href="javascript:;" class="css_button btn btn-primary" onclick="window.location='<?php echo $addantoherUrl; ?>';"><span>Add Another</span></a>
+		<a href="javascript:;" class="css_button btn btn-primary" onclick="window.location='<?php echo $showAllUrl; ?>';"><span>Show All</span></a>
 	</div>
 
 	<script type="text/javascript">

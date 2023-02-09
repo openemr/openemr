@@ -318,7 +318,7 @@ $test_mode_List = array(
 								<input type="text" class="form-control" name="api_config_text" value="<?php echo htmlspecialchars($title_text, ENT_QUOTES); ?>" disabled="disabled">
 							</div>
 							<div>
-								<button type="button" class="" onClick="apiConfiguration('<?php echo $action_type; ?>')">Edit</button>
+								<button type="button" class="btn btn-primary" onClick="apiConfiguration('<?php echo $action_type; ?>')">Edit</button>
 							</div>
 						</div>	
 					</td>
@@ -493,13 +493,13 @@ $test_mode_List = array(
 				<td></td>
 				<td>
 					<div class="btnContainer">
-						<button type="submit" name="formaction" value="save">Save</button>
-						<button type="submit" name="formaction" id="refresh_action" value="refresh" style="display: none;"></button>
+						<button type="submit" name="formaction" class="btn btn-primary" value="save">Save</button>
+						<button type="submit" name="formaction" class="btn btn-primary" id="refresh_action" value="refresh" style="display: none;"></button>
 				
 						<?php
 							$cancelUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/time_configuration_list.php");
 						?>
-						<button type="button" onclick="window.location='<?php echo $cancelUrl; ?>';">Cancel</button>
+						<button type="button" class="btn btn-primary" onclick="window.location='<?php echo $cancelUrl; ?>';">Cancel</button>
 					</div>
 				</td>
 			</tr>

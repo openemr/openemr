@@ -9,9 +9,9 @@ namespace OpenEMR\OemrAd;
 @include_once("./mdFaxMessage.class.php");
 @include_once("./mdPostalLetter.class.php");
 
-@require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/PHPMailer.php');
-@require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/SMTP.php');
-@require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/Exception.php');
+@require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/PHPMailer.php');
+@require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/SMTP.php');
+@require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/Exception.php');
 @require_once($GLOBALS['srcdir']."/pnotes.inc");
 
 @include_once("../configs/reminder_settings.php");
@@ -125,7 +125,7 @@ class Reminder {
 		return $isEmpty;
 	}
 
-	public function getActionEventConfiguration($id = '') {
+	public static function getActionEventConfiguration($id = '') {
 		$result_list = array();
 		$binds = array();
 
@@ -146,7 +146,7 @@ class Reminder {
 		return $result_list;
 	}
 
-	public function deleteActionEventConfiguration($id = '') {
+	public static function deleteActionEventConfiguration($id = '') {
 		$sql = "DELETE FROM `actionevent_configurations` ";
 
 		if(!empty($id)) {
@@ -156,7 +156,7 @@ class Reminder {
 		return sqlStatement($sql);
 	}
 
-	public function isActionEventConfigurationExist($id = '') {
+	public static function isActionEventConfigurationExist($id = '') {
 		$row = sqlQuery("SELECT * FROM `actionevent_configurations` WHERE id = ? ", array($id));
 		
 		if(isset($row) && !empty($row)) {
@@ -166,7 +166,7 @@ class Reminder {
 		return false;
 	}
 
-	public function saveActionEventConfiguration($data) {
+	public static function saveActionEventConfiguration($data) {
 		extract($data);
 		$isEmpty = self::isActionEventDataEmpty($data);
 
@@ -190,7 +190,7 @@ class Reminder {
 		return false;
 	}
 
-	public function updateActionEventConfiguration($id, $data) {
+	public static function updateActionEventConfiguration($id, $data) {
 		if(!empty($data) && !empty($id)) {
 			$binds = array();
 			$setColsList = array();

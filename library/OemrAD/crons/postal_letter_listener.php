@@ -6,7 +6,7 @@ $_SESSION['site'] = 'default';
 $backpic = "";
 $ignoreAuth=1;
 
-require_once("../interface/globals.php");
+require_once(dirname( __FILE__, 2 ) . "/interface/globals.php");
 require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\PostalLetter;

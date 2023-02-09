@@ -104,7 +104,7 @@ function getDeleteButton($data) {
 		if($isAlreadyInUse === false) {
 			$deleteUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/api_configuration_list.php", array('action_mode' => 'delete', 'config_id' => $data['id']));
 			?>
-			<a href="javascript:;" class="css_button actionBtn" onclick="onDelete(event, '<?php echo $deleteUrl; ?>')"><span>Delete</span></a>
+			<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="onDelete(event, '<?php echo $deleteUrl; ?>')"><span>Delete</span></a>
 			<?php
 		}
 	}
@@ -147,7 +147,7 @@ function writeConfigurationLine($data) {
 					<?php
 						$editUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/add_api_configuration.php", array('action_mode' => 'update', 'config_id' => $item["id"]));
 					?>
-					<a href="javascript:;" class="css_button actionBtn" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
+					<a href="javascript:;" class="css_button actionBtn btn btn-primary" onclick="onEdit(event, '<?php echo $editUrl; ?>')"><span>Edit</span></a>
 					<?php getDeleteButton($item); ?>
 				</td>
 			</tr>
@@ -254,9 +254,9 @@ function writeConfigurationLine($data) {
 			$addantoherUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/add_api_configuration.php", array('action_mode' => 'add'));
 			$showAllUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/api_configuration_list.php", array('result' => 'all'));
 		?>
-		<a href="javascript:;" class="css_button submitBtn" onclick=""><span>Submit</span></a>
-		<a href="javascript:;" class="css_button" onclick="window.location='<?php echo $addantoherUrl; ?>';"><span>Add Another</span></a>
-		<a href="javascript:;" class="css_button" onclick="window.location='<?php echo $showAllUrl; ?>';"><span>Show All</span></a>
+		<a href="javascript:;" class="css_button submitBtn btn btn-primary" onclick=""><span>Submit</span></a>
+		<a href="javascript:;" class="css_button btn btn-primary" onclick="window.location='<?php echo $addantoherUrl; ?>';"><span>Add Another</span></a>
+		<a href="javascript:;" class="css_button btn btn-primary" onclick="window.location='<?php echo $showAllUrl; ?>';"><span>Show All</span></a>
 	</div>
 
 	<script type="text/javascript">

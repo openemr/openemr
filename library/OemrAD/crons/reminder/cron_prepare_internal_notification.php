@@ -9,7 +9,7 @@ if(!isset($_SERVER['SERVER_NAME']) || empty($_SERVER['SERVER_NAME'])) {
 $backpic = "";
 $ignoreAuth=1;
 
-require_once("../../interface/globals.php");
+require_once(dirname( __FILE__, 3 ) . "/interface/globals.php");
 require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\Reminder;

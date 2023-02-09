@@ -6,7 +6,7 @@ ini_set('display_errors',1);
 $ignoreAuth = true; // signon not required!!
 $_GET['site'] = 'default';
 
-require_once("../../interface/globals.php");
+require_once(dirname( __FILE__, 3 ) . "/interface/globals.php");
 require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\Reminder;

@@ -2,7 +2,9 @@
 /**
  * REminder Tool for selecting/communicating with subsets of patients
  */
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 use OpenEMR\Core\Header;
 
 require_once("../globals.php");
@@ -278,7 +280,7 @@ if (isset($_POST['formaction']) && $_POST['formaction'] == 'save') {
 	}
 
 	if($actionResponce === true) {
-		$redirectUrl = generateFullUrl($GLOBALS['webroot']."/modules/ext_reminder/ntf/time_configuration_list.php");
+		$redirectUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/time_configuration_list.php");
 		?>
 		<script type="text/javascript">
 			window.location='<?php echo $redirectUrl; ?>';
@@ -595,13 +597,13 @@ $action_type_List = array(
 				<td></td>
 				<td>
 					<div class="btnContainer">
-						<button type="submit" name="formaction" value="save">Save</button>
-						<button type="submit" name="formaction" id="refresh_action" value="refresh" style="display: none;"></button>
+						<button type="submit" name="formaction" class="btn btn-primary" value="save">Save</button>
+						<button type="submit" name="formaction" id="refresh_action" class="btn btn-primary" value="refresh" style="display: none;"></button>
 				
 						<?php
-							$cancelUrl = generateFullUrl($GLOBALS['webroot']."/modules/ext_reminder/ntf/time_configuration_list.php");
+							$cancelUrl = generateFullUrl($GLOBALS['webroot']."/library/OemrAD/interface/batchcom/time_configuration_list.php");
 						?>
-						<button type="button" onclick="window.location='<?php echo $cancelUrl; ?>';">Cancel</button>
+						<button type="button" class="btn btn-primary" onclick="window.location='<?php echo $cancelUrl; ?>';">Cancel</button>
 					</div>
 				</td>
 			</tr>
@@ -614,7 +616,7 @@ $action_type_List = array(
 		function select_time(id = '') {
 			var timeData = $("#time_trigger_data").text();
 
-			var url = '<?php echo $GLOBALS['webroot']."/modules/ext_reminder/ntf/select_time.php?"; ?>&id='+id+'&data_set='+encodeURI(timeData);
+			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/batchcom/select_time.php?"; ?>&id='+id+'&data_set='+encodeURI(timeData);
 		  	let title = '<?php echo xlt('Time'); ?>';
 		  	dlgopen(url, 'timeSelection', 900, 400, '', title);
 		}
@@ -673,7 +675,7 @@ $action_type_List = array(
 			var selectedItemJson = [];
 
 			var selectedItemJson = (api_config && api_config != "") ? JSON.stringify([api_config]) : JSON.stringify([]);
-			var url = encodeURI('<?php echo $GLOBALS['webroot']."/modules/ext_reminder/ntf/api_configuration_list.php?pid=". $pid ."&api_type="; ?>'+api_type+"&selectedItem="+selectedItemJson);
+			var url = encodeURI('<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/batchcom/api_configuration_list.php?pid=". $pid ."&api_type="; ?>'+api_type+"&selectedItem="+selectedItemJson);
 		  	let title = '<?php echo xlt('Api Configuration'); ?>';
 		  	dlgopen(url, 'apiConfigurationSelection', 1200, 400, '', title);
 		}
