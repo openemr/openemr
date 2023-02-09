@@ -175,21 +175,38 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.updateParticipantDisplays = function() {
         // based on the mode of the conference room we will update the presentation screen and the participant list
         let hasPresentationScreen = false;
-        let hideLocalSpeaker = this.__slots.length <= 1;
+        // if we only have one other participant... or the screen is minimized we want to hide the local speaker.
+        let twoWayCall = this.__slots.length <= 1;
+        let isMinimized = this.isMinimized();
         for (var i = 0; i < this.__slots.length; i++) {
             if (this.__slots[i].getRemotePartyId() == this.getCurrentCallerFocusId()) {
                 hasPresentationScreen = true;
                 this.__presentationScreen.attach(this.__slots[i]);
-                if (hideLocalSpeaker) {
-                    this.__slots[i].hide(); // hide the speaker from the participant list
+                if (twoWayCall && !isMinimized) {
+                    // hide the remote caller in a two way call in the participant list ONLY if we are not minimized
+                    // as they show up in the presentation screen.
+                    this.__slots[i].hide();
                 } else {
-                    this.__slots[i].show(); // make sure we are showing our screen
+                    this.__slots[i].show();
                 }
+                // this condition never executes for now as we don't keep a local CallerSlot
+                // if we do, we will leave this in for now
+            } else if (isMinimized && this.__slots[i].getRemotePartyId() == this.getLocalPartyId()) {
+                this.__slots[i].hide(); // hide the local caller from the participant list when we are minimized
             } else {
-                // make sure we are showing all of our participants
+                // make sure we are showing everyone, including ourselves if we don't hide the local speaker
                 this.__slots[i].show();
             }
         }
+        // only hide if we are minimized
+        if (this.__localVideoElement) {
+            if (isMinimized) {
+                this.__localVideoElement.classList.add('d-none');
+            } else {
+                this.__localVideoElement.classList.remove('d-none');
+            }
+        }
+
         // if we get here we are going to just detatch
         if (!hasPresentationScreen) {
             this.__presentationScreen.detach();
@@ -212,6 +229,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.getRemoteParticipantList = function() {
         let participantList = this.callerSettings.participantList || [];
         return participantList.filter(p => p.uuid !== conf.callerSettings.callerUuid);
+    };
+
+    this.getLocalPartyId = function() {
+        return conf.callerSettings.callerUuid;
     };
 
     /**
@@ -745,8 +766,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         if (conferenceVideo && conferenceVideo.parentNode) {
             conferenceVideo.parentNode.replaceChild(video, conferenceVideo);
         }
-        let conferenceVideoBar = modalBody.querySelector(".telehealth-button-bar");
-        conf.videoBar = new VideoBar(conferenceVideoBar, conf.getFullConferenceVideoBarSettings());
+        conf.videoBar = new VideoBar(this.getVideoBarContainer(), conf.getFullConferenceVideoBarSettings());
         conf.inConferenceRoom = true;
         conf.room = conf.ROOM_TYPE_CONFERENCE;
 
@@ -813,7 +833,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         settings.expand = true;
         settings.notes = false;
         settings.hangup = true;
-        settings.screenshare = false;
+        settings.screenshare = true;
         return settings;
     };
 
@@ -867,9 +887,19 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         if (conf.videoBar) {
             conf.videoBar.destruct();
         }
+        if (conf.__isShutdown) {
+            return; // nothing to do here as we are shutting down.
+        }
+        if (this.isMinimized()) {
+            conf.videoBar = this.__minimizedConferenceRoom.resetConferenceVideoBar(conf.getMinimizedConferenceVideoBarSettings());
+        } else {
+            conf.videoBar = new VideoBar(this.getVideoBarContainer(), conf.getFullConferenceVideoBarSettings());
+        }
+    };
+
+    this.getVideoBarContainer = function() {
         var container = document.getElementById('telehealth-container');
-        let conferenceVideoBar = container.querySelector(".telehealth-button-bar");
-        conf.videoBar = new VideoBar(conferenceVideoBar, conf.getFullConferenceVideoBarSettings());
+        return container.querySelector('.conference-room .telehealth-button-bar');
     };
 
     this.removeCallFromConference = function(call) {
@@ -936,44 +966,17 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.minimizeProviderConferenceCall = function()
     {
-        this.__minimizedConferenceRoom = new MinimizedConferenceRoom( document.getElementById('telehealth-container'));
-        this.__minimizedConferenceRoom.minimizeConferenceRoom(conf, this.__presentationScreen.getVideoElement());
-
-        // grab every dom node in the waiting room that is not the patient video
-        // grab the video and shrink it to bottom left window
-        // shrink container to be the size of the video
-        var container = document.getElementById('telehealth-container');
-
-        var template = document.createElement('div');
-        template.id = "minimized-telehealth-video";
-        template.className = "col-lg-2 col-md-3 col-sm-4 col-6 drag-action";
-
-        window.document.body.appendChild(template);
-        template.appendChild(this.__presentationScreen.getVideoElement());
-
-        var oldButtonBar = container.querySelector('.telehealth-button-bar');
-        var clonedButtonBar = oldButtonBar.cloneNode(true);
-
-        template.appendChild(clonedButtonBar);
-
-        // now destruct the old button
-        conf.videoBar.destruct();
-        conf.videoBar = new VideoBar(clonedButtonBar, conf.getMinimizedConferenceVideoBarSettings());
-
+        this.__minimizedConferenceRoom = new MinimizedConferenceRoom(document.getElementById('telehealth-container'));
+        this.__minimizedConferenceRoom.minimizeConferenceRoom(this.getMinimizedConferenceVideoBarSettings());
+        this.resetConferenceVideoBar(); // make sure we reset our controls here before we continue
         conf.waitingRoomModal.hide();
-
-        // now make the video container draggable
-        if (window.initDragResize)
-        {
-            // let's initialize our drag action here.
-            window.initDragResize();
-        }
+        this.updateParticipantDisplays();
     };
 
     this.maximizeProviderConferenceCall = function(evt)
     {
         if (this.isMinimized()) {
-            this.__minimizedConferenceRoom.maximizeConferenceRoom(conf, conf.__presentationScreen.getVideoElement());
+            this.__minimizedConferenceRoom.maximizeConferenceRoom();
             this.__minimizedConferenceRoom.destruct();
             this.__minimizedConferenceRoom = null;
 
@@ -985,6 +988,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 console.error("Failed to find waitingRoomModal");
             }
         }
+        this.updateParticipantDisplays();
     };
 
 

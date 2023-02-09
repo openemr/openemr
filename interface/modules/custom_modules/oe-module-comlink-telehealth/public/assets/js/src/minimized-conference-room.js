@@ -3,6 +3,21 @@ import {VideoBar} from "./video-bar.js";
 export class MinimizedConferenceRoom {
     __isMinimized = false;
     container = null;
+
+    /**
+     *
+     * @type {HTMLElement}
+     */
+    participantList = null;
+
+    /**
+     *
+     * @type {VideoBar}
+     */
+    videoBar = null;
+
+    minimizedConferenceNode = null;
+
     constructor(container) {
         this.container = container;
     }
@@ -11,7 +26,17 @@ export class MinimizedConferenceRoom {
         return this.__isMinimized;
     }
 
-    minimizeConferenceRoom(conf, videoElement) {
+    resetConferenceVideoBar(minimizedSettings) {
+        if (this.videoBar) {
+            this.videoBar.destruct();
+            this.videoBar = null;
+        }
+        let conferenceVideoBar = this.minimizedConferenceNode.querySelector(".telehealth-button-bar");
+        this.videoBar = new VideoBar(conferenceVideoBar, minimizedSettings);
+        return this.videoBar;
+    };
+
+    minimizeConferenceRoom(minimizedVideoButtonSettings) {
 
         let className = "minimized-telehealth-video-template";
         let templateNode = this.container.querySelector("." + className);
@@ -28,18 +53,14 @@ export class MinimizedConferenceRoom {
         template.classList.remove(className);
 
         window.document.body.appendChild(template);
-        template.appendChild(videoElement);
+        this.minimizedConferenceNode = template;
 
-        var oldButtonBar = this.container.querySelector('.telehealth-button-bar');
-        var clonedButtonBar = oldButtonBar.cloneNode(true);
-
-        template.appendChild(clonedButtonBar);
-
-        // now destruct the old button
-        conf.videoBar.destruct();
-        conf.videoBar = new VideoBar(clonedButtonBar, conf.getMinimizedConferenceVideoBarSettings());
-
-        conf.waitingRoomModal.hide();
+        // let's grab the participant list and append it
+        this.participantList = this.container.querySelector('.participant-list-container');
+        template.prepend(this.participantList);
+        if (this.participantList.dataset['classMinimize']) {
+            this.participantList.className = this.participantList.dataset['classMinimize'];
+        }
 
         // now make the video container draggable
         if (window.initDragResize)
@@ -51,45 +72,39 @@ export class MinimizedConferenceRoom {
         this.__isMinimized = true;
     }
 
-    maximizeConferenceRoom(conf, videoElement) {
+    maximizeConferenceRoom() {
         // remove the event listener
-        var remoteVideoContainer = document.querySelector('.remote-video-container');
-        var remoteVideo = videoElement;
+        var remoteVideoContainer = this.container.querySelector('.remote-video-container');
 
         // now let's move the video and cleanup the old container here
-        if (remoteVideo && remoteVideoContainer) {
+        // if (remoteVideo && remoteVideoContainer) {
+        if (this.participantList && remoteVideoContainer) {
 
-            var oldContainer = remoteVideo.parentNode;
-            var oldButtonBar = oldContainer.querySelector('.telehealth-button-bar');
-            if (oldButtonBar) {
-                conf.videoBar.destruct();
-                oldButtonBar.parentNode.removeChild(oldButtonBar);
+            // var oldContainer = remoteVideo.parentNode;
+            var oldContainer = this.minimizedConferenceNode;
+            this.videoBar.destruct();
+            // remoteVideoContainer.prepend(remoteVideo);
+            remoteVideoContainer.parentNode.prepend(this.participantList);
+            if (this.participantList.dataset['classMaximize']) {
+                this.participantList.className = this.participantList.dataset['classMaximize'];
             }
-
-
-            if (remoteVideoContainer) {
-                var newButtonBar = remoteVideoContainer.querySelector('.telehealth-button-bar');
-                if (newButtonBar) {
-                    conf.videoBar = new VideoBar(newButtonBar, conf.getFullConferenceVideoBarSettings());
-                } else {
-                    console.error("Failed to find #remote-video-container .telehealth-button-bar");
-                }
-            } else {
-                console.error("Failed to find #remote-video-container");
-            }
-            remoteVideoContainer.prepend(remoteVideo);
 
             // need to clean up the original minimize container we created here
             if (oldContainer && oldContainer.parentNode)
             {
                 oldContainer.parentNode.removeChild(oldContainer);
             }
+            this.minimizedConferenceNode = null;
         } else {
             console.error("Failed to find remote video or remote video container");
         }
+        this.__isMinimized = false;
     }
 
     destruct() {
+        // clean up our node pointers
+        this.participantList = null;
+        this.container = null;
 
         // clean up minimized elements now too if we have them.
         let minimizedContainer = document.getElementById('minimized-telehealth-video');

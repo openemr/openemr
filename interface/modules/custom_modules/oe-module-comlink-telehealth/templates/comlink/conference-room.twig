@@ -1,15 +1,21 @@
 {# this template node is for the minimized view window #}
-<div class="minimized-telehealth-video-template col-lg-2 col-md-3 col-sm-4 col-6 drag-action d-none"></div>
+<div class="minimized-telehealth-video-template col-lg-2 col-md-3 col-sm-4 col-6 drag-action d-none">
+    {% include 'comlink/video-control-bar.twig' %}
+</div>
 
 <div class="row conference-room bg-dark">
         <div class="col-12 d-flex">
             <!-- each additional remote participant will get added here using the participant-list-template-node as a clone -->
             <video id="participant-list-template-node" autoplay="true" muted="muted"
                    playsinline="true" preload="none" class="bg-primary w-100 d-none"></video>
-            <div id="participant-list-container" class="col-lg-2 col-md-2 col-sm-3 col-4 p-0">
+            <div id="participant-list-container"
+                 class="participant-list-container col-lg-2 col-md-2 col-sm-3 col-4 p-0"
+                 data-class-minimize="participant-list-container p-0 d-flex flex-row"
+                 data-class-maximize="participant-list-container col-lg-2 col-md-2 col-sm-3 col-4 p-0"
+            >
                 <video class="bg-primary" id="local-video"></video>
             </div>
-            <div class="remote-video-container text-center w-100">
+            <div class="remote-video-container text-center flex-fill">
                 <video id="presentation-screen" class="remote-video d-none mw-100"></video>
                 <div class="waiting-container">
                     <h1 class="h1-responsive text-light text-center">{{ "Waiting for participants to join"|xlt }}<div class="spinner-border" role="status">
