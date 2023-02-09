@@ -123,7 +123,7 @@ class ConditionService extends BaseService
 
         // override puuid with the token search field for binary search
         if (isset($search)) {
-            $newSearch['puuid'] = new TokenSearchField('puuid', $search, true);
+            $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
         }
 
         foreach ($search as $key => $value) {
