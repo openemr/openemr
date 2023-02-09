@@ -403,7 +403,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                     </div>
                 <?php } ?>
-                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
+                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) { echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
         <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
@@ -446,7 +446,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                                 <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
                             </div>
                         </div>
-                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
+                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) { echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                         <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
                     </fieldset>
                 </div>
@@ -518,7 +518,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                             <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
                         <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Reset Credentials'); ?></button>
+                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) { echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
@@ -611,7 +611,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     let url = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
                     let redirectUrl = $("#redirect").val();
                     if (redirectUrl) {
-                        url += "&redirect=" + redirectUrl;
+                        url += "&redirect=" + encodeURIComponent(redirectUrl);
                     }
                     window.location.href = url;
                 } else if (action === "reset_password") {
