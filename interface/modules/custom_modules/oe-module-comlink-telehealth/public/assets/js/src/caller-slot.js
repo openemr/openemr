@@ -40,6 +40,12 @@ export class CallerSlot {
 
     __boundInternalEvent = null;
 
+    /**
+     * The participant data object
+     * @private
+     */
+    __participant = null;
+
     constructor(containerId, index) {
         let domNode = document.getElementById(containerId);
         let templateNode = document.getElementById('participant-list-template-node');
@@ -114,29 +120,36 @@ export class CallerSlot {
         return null;
     }
 
-    attach(call, stream) {
-        if (call == null || stream == null)
+    getParticipant() {
+        return this.__participant;
+    }
+
+    attach(call, stream, participant) {
+        if (call == null || stream == null || participant == null)
         {
-            console.error("Call or stream were null.  Cannot proceed", {call: call, stream: stream});
-            throw new Error("call and stream cannot be null");
+            console.error("Call, stream, or participant were null.  Cannot proceed", {call: call, stream: stream
+                , participant: participant});
+            throw new Error("call, stream, and participant cannot be null");
         }
+
         // let's us cleanup screensharing and video slots if we already have it allocated.
         // this only happens if the same user calls into the call
         if (call.isScreenSharing()) {
             if (!this.__screenshareSlot.isAvailable()) {
                 this.__screenshareSlot.detach();
             }
-            this.__screenshareSlot.attach(call, stream);
+            this.__screenshareSlot.attach(call, stream, participant.callerName || "");
             this.showScreenshare();
         } else {
             if (!this.__videoSlot.isAvailable()) {
                 this.__videoSlot.detach();
             }
-            this.__videoSlot.attach(call, stream);
+            this.__videoSlot.attach(call, stream, participant.callerName || "");
             this.showVideo();
         }
         // set ourselves up as the user data
         // TODO: @adunsulag I don't like how I setUserData here but clear it in the ATSlot object.
+        this.__participant = participant;
         call.setUserData(this);
     }
 
@@ -163,6 +176,7 @@ export class CallerSlot {
     detatchVideo() {
         this.__videoSlot.detach();
         this.__currentSlot = null;
+        this.__participant = null;
     }
 
     detach() {

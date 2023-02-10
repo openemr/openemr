@@ -109,10 +109,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     /**
      *
-     * @type cvb.VideoCall
+     * @type cvb.VideoCall[]
      * @private
      */
-    this.__localScreenshareCall = null;
+    this.__localScreenshareCalls = [];
 
     /**
      *
@@ -141,7 +141,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             let needNewSlot = true;
             for (var i = 0; i < this.__slots.length; i++) {
                 if (this.__slots[i].isAvailableForCall(call)) {
-                    this.__slots[i].attach(call, stream);
+                    this.__slots[i].attach(call, stream, this.getParticipantForCall(call));
                     needNewSlot = false;
                     break;
                 }
@@ -229,6 +229,19 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.getRemoteParticipantList = function() {
         let participantList = this.callerSettings.participantList || [];
         return participantList.filter(p => p.uuid !== conf.callerSettings.callerUuid);
+    };
+
+    this.getParticipantForCall = function(call) {
+        let participantList = this.callerSettings.participantList || [];
+        let participant = participantList.find((p => p.uuid == call.getRemotePartyId()));
+        return participant;
+    };
+
+    this.setParticipantInCallRoomStatus = function(callerId, status) {
+        status = status == 'Y' ? 'Y' : 'N';
+        let participantList = this.callerSettings.participantList || [];
+        let participant = participantList.find((p => p.uuid == callerId));
+        participant.inRoom = status;
     };
 
     this.getLocalPartyId = function() {
@@ -391,21 +404,37 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         return call;
     };
 
+    /**
+     * Returns true if the local caller is currently sharing the screen.
+     * @returns {boolean}
+     */
+    this.isScreensharing = function() {
+        return this.__localScreenshareCalls.length > 0;
+    };
+
+    this.removeLocalScreensharingCall = function(calleeId) {
+        let index = this.__localScreenshareCalls.findIndex(c => c.getRemotePartyId() == calleeId);
+        if (index >= 0) {
+            this.__localScreenshareCalls.splice(index, 1);
+        }
+    };
+
     this.makeScreenshareCall = function(calleeId) {
         const call = conf.__bridge.createScreenSharingCall(calleeId);
         // conf.setCallHandlers(call);
         // for now we duplicate this as we play around to see how this works.
+        this.__localScreenshareCalls.push(call);
         call.start().catch((e) => {
             alert(translations.CALL_CONNECT_FAILED);
             console.log("call exception " + conf.callerSettings.calleeUuid);
             console.error(e);
             // conf.handleCallEndedEvent(call);
-            this.__localScreenshareCall = null;
+            this.removeLocalScreensharingCall(calleeId);
+
         });
         call.oncallended = (call) => {
-            this.__localScreenshareCall = null;
+            this.removeLocalScreensharingCall(calleeId);
         };
-        this.__localScreenshareCall = call;
     };
 
     this.enableMicrophone = function(flag) {
@@ -488,6 +517,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 // NOTE that result.call.accept does NOT fire the oncallstarted event for the call stream... so we have to
                 // toggle our remote video here instead.
                 conf.toggleRemoteVideo(true);
+
+                // mark the participant as being in the room
+                conf.setParticipantInCallRoomStatus(result.call.getRemotePartyId(), 'Y');
             })
             .catch(error => {
                 call.reject();
@@ -562,12 +594,6 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             conf.sessionUpdateInterval = null;
         }
         let container = document.getElementById('telehealth-container');
-
-        // if (conf.__localScreenshareCall && conf.__localScreenshareCall.stop) {
-        //     // stop the screensharing s
-        //     // TODO: @adunsulag if a later version of the api fixes this, let's clean this up.
-        //     conf.__localScreenshareCall.stop();
-        // }
 
         if (conf.__bridge && conf.__bridge.shutdown)
         {
@@ -869,7 +895,8 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.handleInviteCallback = function() {
-        let dialog = new AddPatientDialog(this.apiCSRFToken, translations, conf.telehealthSessionData.pc_eid, conf.getRemoteScriptLocation(), function(callerSettings) {
+        let dialog = new AddPatientDialog(this.apiCSRFToken, translations, conf.telehealthSessionData.pc_eid
+            , conf.getRemoteScriptLocation(), conf.callerSettings.thirdPartyPatient, function(callerSettings) {
             // make suer we update our caller settings with the newly allowed patient so the provider can receive the call
             if (callerSettings) {
                 conf.callerSettings = callerSettings;
@@ -915,6 +942,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             else {
                 this.removeSlotForCall(call);
             }
+            conf.setParticipantInCallRoomStatus(call.getRemotePartyId(), 'N');
             this.updateParticipantDisplays();
         }
     };
@@ -1046,7 +1074,13 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.toggleScreenSharing = function(evt) {
-        this.makeScreenshareCall(conf.callerSettings.calleeUuid);
+        let participantList = this.getRemoteParticipantList();
+        participantList.forEach(p => {
+            // only call people who are in the room.
+            if (p.inRoom == 'Y') {
+                this.makeScreenshareCall(p.uuid);
+            }
+        });
     };
 
 

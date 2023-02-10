@@ -41,12 +41,15 @@ export class AddPatientDialog
 
     __updatedCallerSettings = null;
 
-    constructor(apiCSRFToken, translations, pc_eid, scriptLocation, closeCallback) {
+    __currentThirdParty = null;
+
+    constructor(apiCSRFToken, translations, pc_eid, scriptLocation, currentThirdParty, closeCallback) {
         this.pc_eid = pc_eid;
         this.scriptLocation = scriptLocation;
         this.closeCallback = closeCallback;
         this.__translations = translations;
         this.__apiCSRFToken = apiCSRFToken;
+        this.__currentThirdParty = currentThirdParty;
     }
 
     cancelDialog() {
@@ -82,9 +85,12 @@ export class AddPatientDialog
                 this.showActionAlert('success', this.__translations.PATIENT_INVITATION_SUCCESS);
                 // let's show we were successful and close things up.
                 this.__updatedCallerSettings = callerSettings;
+                this.__currentThirdParty = callerSettings.thirdPartyPatient;
+                this.updateThirdPartyControls();
+                this.showPrimaryScreen();
                 setTimeout(() => {
                     this.closeDialogAndSendCallerSettings();
-                }, 500);
+                }, 1000);
             })
     }
 
@@ -187,6 +193,29 @@ export class AddPatientDialog
             }
         });
         this.__currentScreen = 'primary-screen';
+        this.updateThirdPartyControls();
+    }
+
+    updateThirdPartyControls() {
+
+        // let's update if our pid is different
+        if (!this.__currentThirdParty) {
+            this.container.querySelector('.no-third-party-patient-row').classList.remove('d-none');
+            this.container.querySelector('.third-party-patient-row').classList.add('d-none');
+            return;
+        }
+        this.container.querySelector('.no-third-party-patient-row').classList.add('d-none');
+        this.container.querySelector('.third-party-patient-row').classList.remove('d-none');
+        // now we need to update our participant screen if the pid has changed
+        let thirdPartyRow = this.container.querySelector('.patient-thirdparty');
+        if (thirdPartyRow.dataset['pid'] && thirdPartyRow.dataset['pid'] != this.__currentThirdParty.pid) {
+            // time to do some update magic
+            thirdPartyRow.dataset['pid'] = this.__currentThirdParty.pid;
+            let name = (this.__currentThirdParty.fname || "") + " " + (this.__currentThirdParty.lname || "");
+            this.setNodeInnerText(thirdPartyRow, '.patient-name', name);
+            this.setNodeInnerText(thirdPartyRow, '.patient-dob', this.__currentThirdParty.DOB);
+            this.setNodeInnerText(thirdPartyRow, '.patient-email', this.__currentThirdParty.email);
+        }
     }
 
     showNewPatientScreen() {
@@ -410,6 +439,7 @@ export class AddPatientDialog
         } else {
             console.error("Could not find selector with .btn-telehealth-confirm-yes");
         }
+        this.updateThirdPartyControls();
     }
 
     addActionToButton(selector, action) {

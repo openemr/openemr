@@ -5,6 +5,11 @@ export class PresentationScreen
      * @type HTMLVideoElement
      */
     videoElement = null;
+
+    /**
+     *
+     * @type CallerSlot
+     */
     callerSlot = null;
 
     constructor(domNodeId)
@@ -27,10 +32,15 @@ export class PresentationScreen
     }
 
     attach(callerSlot) {
-        this.detach();
+        // if we have something let's remove it.
+        if (this.callerSlot) {
+            this.detach();
+        }
         if (callerSlot && callerSlot.getCurrentCallStream() != null) {
+            let displayTitle = callerSlot.getParticipant() ? callerSlot.getParticipant().callerName : "";
             this.videoElement.srcObject = callerSlot.getCurrentCallStream();
             this.videoElement.play();
+            this.videoElement.title = displayTitle;
             this.callerSlot = callerSlot;
         }
     }

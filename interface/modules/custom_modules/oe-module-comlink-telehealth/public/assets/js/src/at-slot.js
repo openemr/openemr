@@ -29,7 +29,7 @@ export function ATSlot(videoId) {
     };
 
 
-    this.attach = function(call, stream) {
+    this.attach = function(call, stream, displayTitle) {
         this.__call = call;
         if (call == null || stream == null)
         {
@@ -39,6 +39,9 @@ export function ATSlot(videoId) {
         // this.__call.setUserData(this);
         this.__video.srcObject = stream;
         this.__video.play();
+        // for now we will just have the hover title be the display title for now.
+        // eventually we could have this be a full DOM Node that is always displayed.
+        this.__video.title = displayTitle;
     };
 
     this.detach = function() {

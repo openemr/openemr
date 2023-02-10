@@ -949,6 +949,10 @@ class TeleconferenceRoomController
         $patientResult = $this->getPatientForPid($pid);
         $patientTelehealthSettings = $this->getOrCreateTelehealthPatient($patientResult);
         $providerTelehealthSettings = $this->getOrCreateTelehealthProvider($user);
+        $thirdPartyPatient = null;
+        if (!empty($session['pid_related'])) {
+            $thirdPartyPatient = $this->getPatientForPid($session['pid_related']);
+        }
 
         $data = [
             'calleeName' => $patientResult['fname'] . ' ' . $patientResult['lname']
@@ -968,6 +972,7 @@ class TeleconferenceRoomController
             ,'encounter' => $encounter
             ,'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
             ,'sessionId' => $session['id']
+            ,'thirdPartyPatient' => $thirdPartyPatient
         ];
         return $data;
     }
