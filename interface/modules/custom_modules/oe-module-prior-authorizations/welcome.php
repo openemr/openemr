@@ -13,6 +13,7 @@ use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
 use OpenEMR\Core\Header;
 
 require_once dirname(__FILE__, 4) . "/globals.php";
+require_once dirname(__FILE__, 2) . '/vendor/autoload.php';
 
 $clinic = AuthorizationService::registerFacility();
 AuthorizationService::registration($clinic);
