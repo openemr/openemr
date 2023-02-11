@@ -168,8 +168,7 @@ export class CallerSlot {
     detachScreenshare() {
         this.__screenshareSlot.detach();
         if (this.__videoSlot) {
-            this.__videoSlot.show();
-            this.__currentSlot = this.__videoSlot;
+            this.showVideo();
         }
     }
 

@@ -14,8 +14,15 @@
 // this should trim the following path /interface/modules/custom_modules/oe-module-comlink-telehealth/public/
 // this should get us to the main openemr directory and include the webroot path if we have it
 // we have to do this as we don't have access to the globals.php file yet.
-$basePath = dirname(dirname(dirname(dirname(dirname($_SERVER["SCRIPT_FILENAME"])))));
-$landingpage = $basePath . "/portal/index.php?site=" . urlencode($_GET['site_id'] ?? '');
+$originalPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$basePath = dirname(dirname(dirname(dirname(dirname(dirname($originalPath))))));
+$query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+$redirect = $originalPath . "?";
+if (!empty($query)) {
+    $redirect .= $query;
+}
+// need to retain the webroot if we have one
+$landingpage = $basePath . "portal/index.php?site=" . urlencode($_GET['site_id'] ?? '') . "&redirect=" . urlencode($redirect);
 
 // since we are working inside the portal we have to use the portal session verification logic here...
 require_once "../../../../../portal/verify_session.php";

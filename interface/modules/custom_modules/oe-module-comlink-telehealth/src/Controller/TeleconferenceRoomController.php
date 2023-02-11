@@ -220,7 +220,7 @@ class TeleconferenceRoomController
         } catch (Exception $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
-            echo $this->twig->render('error/general_http_error.html.twig');
+            echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
         }
     }
 
