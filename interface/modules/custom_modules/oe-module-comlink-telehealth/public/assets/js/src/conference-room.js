@@ -23,6 +23,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.ROOM_TYPE_WAITING = 'waiting';
     this.ROOM_TYPE_CONFERENCE = 'conference';
 
+    // decibel threshold that determines that there is audio activity detected by a remote party
+    this.dbThresholdSetting = -45;
+
     this.buttonSettings = {
         microphoneEnabled: true
         ,cameraEnabled: true
@@ -153,7 +156,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                     conf.updateParticipantDisplays();
                 });
                 this.__slots.push(newCaller);
-                newCaller.attach(call, stream);
+                newCaller.attach(call, stream, this.getParticipantForCall(call));
                 if (this.__slots.length <= 2) {
                     this.__presentationScreen.attach(newCaller);
                     // TODO: @adunsulag fix this when we work with 3 callers
@@ -370,6 +373,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         call.oncallended = (call) => {
             conf.handleCallEndedEvent(call);
         };
+        call.attachActivityMonitor(conf.dbThresholdSetting, (call) => {
+            conf.handleActivityEvent(call);
+        });
     };
 
     /**
@@ -978,6 +984,16 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         if (!conf.hasRemoteParticipants()) {
             if (!conf.__isShutdown) {
                 conf.toggleRemoteVideo(false);
+            }
+        }
+    };
+
+    this.handleActivityEvent = function(call) {
+        // first we only do this on a multi-party call where we have not pinned the caller
+        if (this.__slots.length > 1) {
+            let slot = call.getUserData();
+            if (slot) {
+                this.__presentationScreen.attach(slot);
             }
         }
     };

@@ -32,10 +32,18 @@ export class PresentationScreen
     }
 
     attach(callerSlot) {
+        if (this.callerSlot != null) {
+            // nothing to do here, just return
+            if (this.callerSlot === callerSlot
+                || this.callerSlot.getRemotePartyId() == callerSlot.getRemotePartyId()) {
+                return;
+            }
+        }
         // if we have something let's remove it.
         if (this.callerSlot) {
             this.detach();
         }
+
         if (callerSlot && callerSlot.getCurrentCallStream() != null) {
             let displayTitle = callerSlot.getParticipant() ? callerSlot.getParticipant().callerName : "";
             this.videoElement.srcObject = callerSlot.getCurrentCallStream();

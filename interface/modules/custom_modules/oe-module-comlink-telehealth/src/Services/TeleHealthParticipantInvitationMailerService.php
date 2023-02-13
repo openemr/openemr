@@ -72,7 +72,7 @@ class TeleHealthParticipantInvitationMailerService
     private function getJoinLink($session, $thirdPartyLaunchAction)
     {
         // the index-portal will redirect the person to login before completing the action
-        return $this->publicPathFQDN . $this->publicPathFQDN . "index-portal.php?action=" . $thirdPartyLaunchAction
+        return $this->publicPathFQDN . "index-portal.php?action=" . $thirdPartyLaunchAction
             . "&pc_eid=" . intval($session['pc_eid']);
     }
 
