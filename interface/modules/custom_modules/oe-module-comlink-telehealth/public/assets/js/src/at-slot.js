@@ -1,36 +1,58 @@
-export function ATSlot(videoId) {
-    /** @private */
-    this.__call = null;
+export class ATSlot {
 
-    /** @private */
-    this.__container = document.getElementById(videoId);
-    this.__video = this.__container.querySelector('.remote-video');
-    if (!this.__video)
-    {
-        throw new Error("Failed to find #" + videoId + " element");
+    /**
+     *
+     * @type CallerSlot
+     * @private
+     */
+    __call = null;
+
+    /**
+     *
+     * @type HTMLElement
+     * @private
+     */
+    __container = null;
+
+    /**
+     *
+     * @type HTMLMediaElement
+     * @private
+     */
+    __video = null;
+
+    constructor(videoId) {
+        this.__call = null;
+        this.__container = document.getElementById(videoId);
+        this.__video = this.__container.querySelector('.remote-video');
+        if (!this.__video)
+        {
+            throw new Error("Failed to find #" + videoId + " element");
+        }
     }
 
-    this.hasVideo = function() {
+
+    hasVideo() {
         return !this.isAvailable();
-    };
+    }
 
-    this.getVideoStream = function() {
+    getVideoStream() {
         return this.__video.srcObject;
-    };
+    }
 
-    this.isAvailable = function() {
+    isAvailable() {
         return this.__call == null;
-    };
+    }
 
-    this.getRemotePartyId = function() {
+    getRemotePartyId() {
         if (this.__call) {
             return this.__call.getRemotePartyId();
         }
         return null;
-    };
+    }
 
 
-    this.attach = function(call, stream, displayTitle) {
+    attach(call, stream, displayTitle) {
         this.__call = call;
         if (call == null || stream == null)
         {
@@ -48,28 +70,28 @@ export function ATSlot(videoId) {
         }
 
         this.__video.title = displayTitle;
-    };
+    }
 
-    this.detach = function() {
+    detach() {
         if (this.__call) {
             this.__call.setUserData(null);
         }
         this.__call = null;
         this.__video.srcObject = null;
-    };
+    }
 
-    this.hide = function() {
+    hide() {
         if (this.__container) {
             this.__container.classList.add('d-none');
         }
-    };
-    this.show = function() {
+    }
+    show() {
         if (this.__container) {
             this.__container.classList.remove('d-none');
         }
-    };
+    }
 
-    this.setPinnedStatus = function(status) {
+    setPinnedStatus(status) {
         if (this.__container) {
             if (status) {
                 this.__container.classList.add('pinned');
@@ -77,9 +99,5 @@ export function ATSlot(videoId) {
                 this.__container.classList.remove('pinned');
             }
         }
-    };
-
-    this.destruct = function() {
-        this.__container.re
     }
 }
