@@ -497,56 +497,56 @@ function prepareDataTableData($row_item = array(), $columns = array()) {
 				$fieldHtml = "";
 
 				if (empty($row_item['pid'])) {
-					$action1 = "actionType('dolink', this, '" . $row_item['id'] . "')";
+					$action1 = "actionType('dolink', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml1 = "<button type='button' data-direction='".$row_item['direction']."' data-msg_to='".$row_item['msg_to']."' data-msg_from='".$row_item['msg_from']."' id='linkinput".$row_item['id']."' onClick=\"$action1\">".xlt('Link')."</button>";
 				} else {
-					$action1 = "actionType('dounlink', this, '" . $row_item['id'] . "')";
+					$action1 = "actionType('dounlink', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml1 = "<button type='button' data-direction='".$row_item['direction']."' data-msg_to='".$row_item['msg_to']."' data-msg_from='".$row_item['msg_from']."' id='unlinkinput".$row_item['id']."' onClick=\"$action1\">".xlt('Unlink')."</button>";
 				}
 
 				if (!empty($row_item['pid'])) {
 					if (empty($row_item['assigned']) && empty($row_item['assign_group']) && ($row_item['direction'] == "in" || ($row_item['direction'] == "out" && $row_item['activity'] == "1")) && (AclMain::aclCheckCore('admin', 'super', '', 'write') || AclMain::aclCheckCore('patients', 'assignmsg', '', 'write'))) {
-						$action2 = "actionType('doassign', this, '" . $row_item['id'] . "')";
+						$action2 = "actionType('doassign', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 						$actionHtml2 = "<button type='button' data-pid='".$row_item['pid']."' onClick=\"$action2\">".xlt('Assign')."</button>";
 					} else if(($row_item['direction'] == "in" || ($row_item['direction'] == "out" && $row_item['activity'] == "1")) && (AclMain::aclCheckCore('admin', 'super', '', 'write') || AclMain::aclCheckCore('patients', 'unassignmsg', '', 'write'))) { 
-						$action2 = "actionType('dounassign', this, '" . $row_item['id'] . "')";
+						$action2 = "actionType('dounassign', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 						$actionHtml2 = "<button type='button' data-pid='".$row_item['pid']."' onClick=\"$action2\">".xlt('Unassign')."</button>";
 					}
 				}
 
 				if($row_item['type'] == 'NOTES') {
 					if ($row_item['activity'] == '1') { 
-						$action3 = "actionType('donoteinactive', this, '" . $row_item['id'] . "')";
+						$action3 = "actionType('donoteinactive', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 						$actionHtml3 = "<button type='button' onClick=\"$action3\">".xlt('Mark Inactive')."</button>";
 					} else { 
-						$action3 = "actionType('donoteactive', this, '" . $row_item['id'] . "')";
+						$action3 = "actionType('donoteactive', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 						$actionHtml3 = "<button type='button' onClick=\"$action3\">".xlt('Mark Active')."</button>";
 					}
 				} else {
 					if($row_item['activity'] == '1') {
-						$action3 = "actionType('doinactive', this, '" . $row_item['id'] . "')";
+						$action3 = "actionType('doinactive', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 						$actionHtml3 = "<button type='button' onClick=\"$action3\">".xlt('Mark Inactive')."</button>";
 					} else {
-						$action3 = "actionType('doactive', this, '" . $row_item['id'] . "')";
+						$action3 = "actionType('doactive', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 						$actionHtml3 = "<button type='button' onClick=\"$action3\">".xlt('Mark Active')."</button>";
 					}
 				}
 
 				if($row_item['type'] == "EMAIL") {
-					$action4 = "actionType('doreplyemail', this, '" . $row_item['id'] . "')";
+					$action4 = "actionType('doreplyemail', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml4 = "<button type='button' data-direction='".$row_item['direction']."' data-msg_to='".$row_item['msg_to']."' data-msg_from='".$row_item['msg_from']."' data-pid='".$row_item['pid']."' id='replyinput".$row_item['id']."' onClick=\"$action4\">".xlt('Reply')."</button>";
 				}
 				if($row_item['type'] == "SMS") {
-					$action4 = "actionType('doreplysms', this, '" . $row_item['id'] . "')";
+					$action4 = "actionType('doreplysms', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml4 = "<button type='button' data-direction='".$row_item['direction']."' data-msg_to='".$row_item['msg_to']."' data-msg_from='".$row_item['msg_from']."' data-pid='".$row_item['pid']."' id='replyinput".$row_item['id']."' onClick=\"$action4\">".xlt('Reply')."</button>";
 				}
 				if($row_item['type'] != "NOTES" && $row_item['type'] != "SMS" && !empty($row_item['pid'])) {
-					$action41 = "actionType('doopen', this, '" . $row_item['id'] . "')";
+					$action41 = "actionType('doopen', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml41 = "<button type='button' data-pid='".$row_item['pid']."' data-type='".$row_item['type']."' onClick=\"$action41\">".xlt('Open')."</button>";
 				}
 
 				if($row_item['direction'] == "out") {	
-					$action5 = "actionType('doresend', this, '" . $row_item['id'] . "')";
+					$action5 = "actionType('doresend', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml5 = "<button type='button' data-pid='".$row_item['pid']."' data-type='".$row_item['type']."' onClick=\"$action5\">".xlt('Resend')."</button>";
 				}
 
@@ -559,20 +559,20 @@ function prepareDataTableData($row_item = array(), $columns = array()) {
 				continue;
 			} else if($cItem['name'] == "msg_action") {
 				if($row_item['type'] == "EMAIL") {
-					$action4 = "actionType('doreplyemail', this, '" . $row_item['id'] . "')";
+					$action4 = "actionType('doreplyemail', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml4 = "<button type='button' class='btn btn-secondary btn-sm' data-direction='".$row_item['direction']."' data-msg_to='".$row_item['msg_to']."' data-msg_from='".$row_item['msg_from']."' data-pid='".$row_item['pid']."' id='replyinput".$row_item['id']."' onClick=\"$action4\">".xlt('Reply')."</button>";
 				}
 				if($row_item['type'] == "SMS") {
-					$action4 = "actionType('doreplysms', this, '" . $row_item['id'] . "')";
+					$action4 = "actionType('doreplysms', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml4 = "<button type='button' class='btn btn-secondary btn-sm' data-direction='".$row_item['direction']."' data-msg_to='".$row_item['msg_to']."' data-msg_from='".$row_item['msg_from']."' data-pid='".$row_item['pid']."' id='replyinput".$row_item['id']."' onClick=\"$action4\">".xlt('Reply')."</button>";
 				}
 				if($row_item['type'] != "NOTES" && $row_item['type'] != "SMS" && !empty($row_item['pid'])) {
-					$action41 = "actionType('doopen', this, '" . $row_item['id'] . "')";
+					$action41 = "actionType('doopen', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml41 = "<button type='button' class='btn btn-secondary btn-sm' data-pid='".$row_item['pid']."' data-type='".$row_item['type']."' onClick=\"$action41\">".xlt('Open')."</button>";
 				}
 
 				if($row_item['direction'] == "out") {	
-					$action5 = "actionType('doresend', this, '" . $row_item['id'] . "')";
+					$action5 = "actionType('doresend', this, '" . $row_item['id'] . "', '" . $row_item['type'] . "')";
 					$actionHtml5 = "<button type='button' class='btn btn-secondary btn-sm' data-pid='".$row_item['pid']."' data-type='".$row_item['type']."' onClick=\"$action5\">".xlt('Resend')."</button>";
 				}
 
@@ -586,7 +586,8 @@ function prepareDataTableData($row_item = array(), $columns = array()) {
 
 				ob_start();
 				?>
-				<iframe scrolling="no" data-id="<?php echo $row_item['id']; ?>" class="contentiFrame" srcdoc="<?php echo htmlentities($formatedMessage) ?>"></iframe>
+				<iframe scrolling="no" id="msgContent<?php echo $row_item['id']; ?>" data-id="<?php echo $row_item['id']; ?>" class="contentiFrame" srcdoc="<?php echo htmlentities($formatedMessage) ?>"></iframe>
+				<script>$(document).ready(function(){$("#msgContent<?php echo $row_item['id']; ?>").iframereadmoretext();});</script>
 				<?php echo MessagesLib::displayAttachment($row_item['type'], $row_item['id'], $row_item); ?>
 				<?php
 				$fieldHtml = ob_get_clean();
@@ -763,7 +764,10 @@ if(!empty($page_action)) {
 		$set_note_type 	= strip_tags($_REQUEST['set_note_type']);
 
 		$actionRes = array();
+		$msgData = array();
 
+		if(!empty($set_id)) $msgData = sqlQuery("SELECT * FROM `message_log` WHERE `id` = ?", array($set_id));
+		$mType = isset($msgData['type']) ? $msgData['type'] : "";
 
 		// Set patient link
 		if ($set_id && $set_pid && ($set_action == 'link' || $set_action == 'link_all')) {
@@ -775,7 +779,9 @@ if(!empty($page_action)) {
 				sqlStatementNoLog("UPDATE `message_log` SET `pid` = ? WHERE `id` = ?", $binds);
 			}
 
-			linkMultipleMsg($set_id, $set_pid, $set_action, $set_update_action);
+			//if($mType == "EMAIL" || $mType == "SMS") {
+				linkMultipleMsg($set_id, $set_pid, $set_action, $set_update_action);
+			//}
 		}
 
 		//Set patient link
@@ -1384,7 +1390,7 @@ function addPNoteAfterAssing($set_id, $set_assign_pid, $set_uid, $set_username, 
 		            },
 		            "drawCallback": function (settings) {
 		            	setTimeout(function(){
-				    		$(id).find('.contentiFrame').iframereadmoretext();
+				    		//$(id).find('.contentiFrame').iframereadmoretext();
 				    	}, 0);
 		            },
 			        "columns": columns,
@@ -1481,9 +1487,11 @@ function addPNoteAfterAssing($set_id, $set_assign_pid, $set_uid, $set_username, 
 	var tmp_set_ele = null;
 	var tmp_set_assign_pid = null;
 	var tmp_set_pid = null;
+	var tmp_set_mtype = null;
 
-	function actionType(type, e, id) {
+	function actionType(type, e, id, mType = '') {
 		tmp_set_ele = e;
+		tmp_set_mtype = mType;
 
 		if(type == "dolink") {
 			findPatient(id);
@@ -1696,27 +1704,35 @@ function addPNoteAfterAssing($set_id, $set_assign_pid, $set_uid, $set_username, 
 			$msg_from = $("#linkinput"+$getId).data('msg_from');
 
 			$updateAction = "0";
-			var uConfirmRes = confirm("Press \"Ok\" to PERMANENTLY add this email/phone to patient's chart; otherwise, press \"Cancel\"");
-			if(uConfirmRes == true) {
-				$updateAction = "1";
+			$actionType = "link";
+			var doUpdateAll = false;
+			var doUpdate = true;
+
+			var mStatusType = '';
+			if(tmp_set_mtype == 'EMAIL') mStatusType = 'email address';
+			if(tmp_set_mtype == 'SMS') mStatusType = 'phone number';
+			if(tmp_set_mtype == 'FAX') mStatusType = 'fax number';
+			if(tmp_set_mtype == 'P_LETTER') mStatusType = 'postal letter address';
+
+			if(tmp_set_mtype == 'EMAIL' || tmp_set_mtype == 'SMS') {
+				var uConfirmRes = confirm("Press \"Ok\" to PERMANENTLY add this "+mStatusType+" to patient's chart; otherwise, press \"Cancel\"");
+				if(uConfirmRes == true) {
+					$updateAction = "1";
+				}
 			}
 
 			$responce = await fetchLinkCount($direction, $msg_from, $msg_to, $getId, "similer_records");
-
 			if($responce && $responce['count']) {
 				$count = $responce['count'];
 			}
-			
-			$actionType = "link";
+				
 			if($count > 0) {
-				var confirmRes = confirm("Do you want to link other "+$count+" records with the similar phone number or email address?");
+				var confirmRes = confirm("Do you want to link other "+$count+" records with the similar "+mStatusType+"?");
 				if(confirmRes == true) {
 					$actionType = "link_all"
 				}
 			}
 
-			var doUpdateAll = false;
-			var doUpdate = true;
 			if($actionType == "link_all") {
 				doUpdateAll = true;
 				doUpdate = false;
