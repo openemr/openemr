@@ -244,8 +244,8 @@ class Claim
                 (
                     $drow['provider'] == $billrow['payer_id']
                     || empty($billrow['payer_id'])
-                ) &&
-                empty($this->payers[0]['data'])
+                )
+                && empty($this->payers[0]['data'])
             ) {
                 $ins = 0;
             }
