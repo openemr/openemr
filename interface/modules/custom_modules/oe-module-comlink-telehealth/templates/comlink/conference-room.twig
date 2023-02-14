@@ -1,5 +1,5 @@
 {# this template node is for the minimized view window #}
-<div class="minimized-telehealth-video-template col-lg-2 col-md-3 col-sm-4 col-6 drag-action d-none">
+<div class="minimized-telehealth-video-template col-lg-2 col-md-3 col-sm-4 col-6 p-0 m-0 drag-action d-none">
     {% include 'comlink/video-control-bar.twig' %}
 </div>
 
@@ -12,7 +12,7 @@
                  data-class-maximize="participant-list-container col-lg-2 col-md-2 col-sm-3 col-4 p-0"
             >
                 {% include 'comlink/room-participant-container.html.twig' with {template: true} %}
-                <video class="bg-primary" id="local-video"></video>
+                {% include 'comlink/local-participant-container.html.twig' with {callerName: callerName} %}
             </div>
             <div class="remote-video-container text-center flex-fill">
                 <video id="presentation-screen" class="remote-video d-none w-100"></video>

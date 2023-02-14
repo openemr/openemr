@@ -7,6 +7,7 @@ import {PresentationScreen} from "./presentation-screen";
 import * as cvb from "./cvb.min.js";
 import {AddPatientDialog} from "./add-patient-dialog";
 import {MinimizedConferenceRoom} from "./minimized-conference-room";
+import {LocalCallerSlot} from "./local-caller-slot";
 
 // TODO: @adunsulag convert this to class nomenclature
 export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scriptLocation)
@@ -71,8 +72,12 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     /** @private */
     this.__bridge = null;
 
-    /** @private */
-    this.__localVideoElement = null;
+    /**
+     *
+     * @type LocalCallerSlot
+     * @private
+     */
+    this.__localCallSlot = null;
 
     /**
      * @type CallerSlot[]
@@ -161,7 +166,6 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 let newCaller = new CallerSlot('participant-list-container', this.__callerIdx++);
                 newCaller.addCallerSelectListener(function(callerSlot) {
                     conf.togglePinnedCallerId(callerSlot.getRemotePartyId());
-                    // conf.setCurrentCallerFocusId(callerSlot.getRemotePartyId());
                     conf.updateParticipantDisplays();
                 });
                 this.__slots.push(newCaller);
@@ -178,6 +182,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.updateParticipantDisplays = function() {
+        if (this.__isShutdown) {
+            // nothing to do in the loop so let's just exit
+            return;
+        }
         // TODO: @adunsulag based on performance we may want an isDirty flag here so we don't update the display
         // unless something has changed
 
@@ -209,17 +217,22 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             }
         }
         // only hide if we are minimized
-        if (this.__localVideoElement) {
+        if (this.__localCallSlot) {
             if (isMinimized) {
-                this.__localVideoElement.classList.add('d-none');
+                this.__localCallSlot.hide();
             } else {
-                this.__localVideoElement.classList.remove('d-none');
+                this.__localCallSlot.show();
             }
         }
 
         // if we get here we are going to just detatch
         if (!hasPresentationScreen) {
-            this.__presentationScreen.detach();
+            // check to see if our pinned slot is the local caller
+            if (this.__localCallSlot.getRemotePartyId() == presentationScreenRemotePartyId) {
+                this.__presentationScreen.attach(this.__localCallSlot);
+            } else {
+                this.__presentationScreen.detach();
+            }
         }
 
         if (!this.hasRemoteParticipants()) {
@@ -247,17 +260,36 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         return participantList.filter(p => p.uuid !== conf.callerSettings.callerUuid);
     };
 
+    this.getLocalParticipant = function() {
+        return this.findParticipantForId(conf.callerSettings.callerUuid);
+    };
+
     this.getParticipantForCall = function(call) {
+        return this.findParticipantForId(call.getRemotePartyId());
+    };
+
+    this.findParticipantForId = function(callerId) {
         let participantList = this.callerSettings.participantList || [];
-        let participant = participantList.find((p => p.uuid == call.getRemotePartyId()));
+        let participant = participantList.find((p => p.uuid == callerId));
         return participant;
     };
 
     this.setParticipantInCallRoomStatus = function(callerId, status) {
+        if (this.__isShutdown) {
+            // if we are shut down no point in updating the call room status as we are just dealing
+            // with the after effects of callback triggers
+            return;
+        }
         status = status == 'Y' ? 'Y' : 'N';
-        let participantList = this.callerSettings.participantList || [];
+        // if we have been destroyed and are still processing
+        let callerSettings = this.callerSettings || {};
+        let participantList = callerSettings.participantList || [];
         let participant = participantList.find((p => p.uuid == callerId));
-        participant.inRoom = status;
+        if (participant) {
+            participant.inRoom = status;
+        } else {
+            console.error("participant was not found in participant list for callerId " + callerId);
+        }
     };
 
     this.getLocalPartyId = function() {
@@ -270,6 +302,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
      * @returns {CallerSlot|undefined}
      */
     this.findCallerSlotWithId = function(id) {
+        if (id == this.callerSettings.callerUuid) {
+            return this.__localCallSlot;
+        }
+
         return this.__slots.find(s => s.getRemotePartyId() === id);
     };
 
@@ -308,7 +344,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.restartMediaStream = function() {
-        if (conf.__localVideoElement.srcObject) {
+        if (conf.__localCallSlot.hasMediaStream()) {
             conf.__bridge.closeLocalMediaStream();
         }
 
@@ -317,8 +353,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             .catch(error => conf.handleLocalMediaStreamFailed(error));
     };
     this.handleLocalMediaStreamStarted = function(stream) {
-        conf.__localVideoElement.srcObject = stream;
-        conf.__localVideoElement.play();
+        conf.__localCallSlot.attach(stream);
         conf.__hasLocalPermisions = true;
         conf.toggleJoinButton(conf.shouldEnableJoinButton());
         conf.togglePermissionBox(false);
@@ -333,8 +368,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.startBridge = function() {
-        conf.__localVideoElement = document.getElementById('local-video');
-        conf.__localVideoElement.muted = true;
+        conf.__localCallSlot = new LocalCallerSlot(document.getElementById('local-video-container'), this.getLocalParticipant());
+        // conf.__localCallSlot = document.getElementById('local-video');
+        conf.__localCallSlot.setMuted(true);
+        // conf.__localCallSlot.muted = true;
 
         conf.__bridge = new TelehealthBridge(conf.callerSettings.callerUuid, conf.callerSettings.apiKey
             , conf.callerSettings.serviceUrl);
@@ -345,16 +382,15 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 conf.restartMediaStream();
             }
             ,onbridgeinactive: (bridge) => {
-                if (conf.__localVideoElement && conf.__localVideoElement.stop) {
-                    conf.__localVideoElement.stop();
-                    conf.__localVideoElement.srcObject = null;
+                if (conf.__localCallSlot) {
+                    conf.__localCallSlot.stop();
+                    // conf.__localCallSlot.srcObject = null;
                 }
             }
             ,onbridgefailure: (bridge) => {
-                if (conf.__localVideoElement && conf.__localVideoElement.stop) {
-                    conf.__localVideoElement.stop();
+                if (conf.__localCallSlot) {
+                    conf.__localCallSlot.stop();
                 }
-                conf.__localVideoElement.srcObject = null;
                 alert(translations.BRIDGE_FAILED);
             }
         };
@@ -362,19 +398,19 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         conf.__bridge.startBridge(bridgeHandlers);
         conf.__isShutdown = false;
     };
-
-    conf.shutdown = function()
-    {
-        if (conf.__isShutdown)
-        {
-            return;
-        }
-
-        conf.__bridge.shutdown();
-        conf.__localVideoElement.srcObject = null;
-        console.log("Shutting down " +  conf.callerSettings.callerUuid)
-        conf.__isShutdown = true;
-    };
+    //
+    // conf.shutdown = function()
+    // {
+    //     if (conf.__isShutdown)
+    //     {
+    //         return;
+    //     }
+    //
+    //     conf.__bridge.shutdown();
+    //     conf.__localCallSlot.stop();
+    //     console.log("Shutting down " +  conf.callerSettings.callerUuid)
+    //     conf.__isShutdown = true;
+    // };
 
     this.setCallHandlers = function(call) {
         // Callback: streams updated
@@ -602,6 +638,12 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.destruct = function()
     {
+        // shouldn't
+        if (this.__isShutdown) {
+            console.error("destruct called multiple times.  Ignoring");
+            return;
+        }
+
         // TODO: @adunsulag remove this debug
         console.log("conference-room.destruct() called");
         conf.inSession = false;
@@ -649,6 +691,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         }
         conf.callerSettings = null;
         conf.telehealthSessionData = null;
+        conf.__isShutdown = true;
     };
 
     this.initModalEvents = function(container)
@@ -806,7 +849,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     {
         let container = document.getElementById('telehealth-container');
         // now grab our video container in our modal
-        let video = document.getElementById("local-video");
+
+
+        // let video = document.getElementById("local-video");
 
         conf.videoBar.destruct();
 
@@ -819,10 +864,18 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         modalBody.innerHTML = conf.conferenceRoomTemplate;
 
         // now let's replace our template video container with our original video container from the waiting room.
-        let conferenceVideo = document.getElementById('local-video');
-        if (conferenceVideo && conferenceVideo.parentNode) {
-            conferenceVideo.parentNode.replaceChild(video, conferenceVideo);
-        }
+        let newLocalCallSlot = new LocalCallerSlot(container.querySelector('.local-participant'), this.getLocalParticipant());
+        newLocalCallSlot.attach(this.__localCallSlot.getCurrentCallStream());
+        newLocalCallSlot.addCallerSelectListener((callerSlot) => {
+            conf.togglePinnedCallerId(callerSlot.getRemotePartyId());
+            conf.updateParticipantDisplays();
+        })
+        this.__localCallSlot = newLocalCallSlot;
+        //
+        // let conferenceVideo = document.getElementById('local-video');
+        // if (conferenceVideo && conferenceVideo.parentNode) {
+        //     conferenceVideo.parentNode.replaceChild(video, conferenceVideo);
+        // }
         conf.videoBar = new VideoBar(this.getVideoBarContainer(), conf.getFullConferenceVideoBarSettings());
         conf.inConferenceRoom = true;
         conf.room = conf.ROOM_TYPE_CONFERENCE;

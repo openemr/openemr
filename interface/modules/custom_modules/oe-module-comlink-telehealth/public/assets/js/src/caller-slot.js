@@ -53,6 +53,13 @@ export class CallerSlot {
      */
     __isPinned = false;
 
+    /**
+     *
+     * @type {Array}
+     * @private
+     */
+    __selectCallbacks = [];
+
     constructor(containerId, index) {
         let domNode = document.getElementById(containerId);
         let templateClassName = 'participant-list-template-node';
@@ -120,7 +127,10 @@ export class CallerSlot {
     }
 
     getRemotePartyId() {
-        return this.__currentSlot.getRemotePartyId();
+        if (this.__currentSlot) {
+            return this.__currentSlot.getRemotePartyId();
+        }
+        return null;
     }
 
     hide() {

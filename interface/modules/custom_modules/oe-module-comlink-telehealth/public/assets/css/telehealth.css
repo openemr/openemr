@@ -34,11 +34,14 @@
 
 .telehealth-button-bar {
   background-color: transparent;
-  bottom: 0;
   font-size: 1.25rem;
   position: absolute;
   text-align: center;
   width: 100%;
+}
+.conference-room .telehealth-button-bar
+,#minimized-telehealth-video .telehealth-button-bar {
+  bottom: 0;
 }
 
 .telehealth-button-bar .telehealth-btn {
@@ -123,7 +126,8 @@
   position: relative;
 }
 
-.conference-room .participant-list-container {
+.conference-room .participant-list-container,
+.waiting-room .participant-container {
   position: relative;
 }
 
@@ -131,7 +135,8 @@
   left: calc(100% * -1);
 }
 
-.conference-room .participant-list-container .participant-container {
+.conference-room .participant-list-container .participant-container
+, #minimized-telehealth-video .participant-list-container .participant-container {
   position: relative;
 }
 .conference-room .participant-list-container .participant-container .video-control {
@@ -166,7 +171,9 @@
 }
 
 
-.conference-room .participant-list-container .participant-container .participant-label-bg {
+.conference-room .participant-list-container .participant-container .participant-label-bg
+, .waiting-room .local-participant .participant-label-bg
+, #minimized-telehealth-video .participant-container .participant-label-bg {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -174,7 +181,9 @@
   opacity: .3;
   height: 2rem;
 }
-.conference-room .participant-list-container .participant-container .participant-label {
+.conference-room .participant-list-container .participant-container .participant-label
+, .waiting-room .local-participant .participant-label
+, #minimized-telehealth-video .participant-container .participant-label {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -182,8 +191,18 @@
   z-index: 999;
 }
 
+#minimized-telehealth-video .participant-container .participant-label
+,#minimized-telehealth-video  .participant-container .participant-label-bg {
+  top: 0;
+  bottom: inherit;
+}
+
 .conference-room .participant-list-container .participant-container:hover .video-control {
   display: block;
+}
+
+.waiting-room .participant-container .video-control {
+  display: none;
 }
 
 .conference-room .participant-list-container .participant-container.pinned .video-control.video-control-pin {

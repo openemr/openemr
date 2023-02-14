@@ -81,9 +81,6 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
                 }
             });
         }
-        // patientConferenceRoom.makeCall(patientConferenceRoom.callerSettings.calleeUuid);
-
-        // patientConferenceRoom.makeScreenshareCall(patientConferenceRoom.callerSettings.calleeUuid);
     };
 
     patientConferenceRoom.canReceiveCall = function(call) {
@@ -96,21 +93,29 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
 
     patientConferenceRoom.handleCallEndedEvent = function(call)
     {
-        let detachedCallRemoteUserId = null;
-        // if the user data is allocated then this is an existing call
-        if (call.getUserData() != null) {
+        try {
+            let detachedCallRemoteUserId = null;
+            // if the user data is allocated then this is an existing call
+            if (call.getUserData() != null) {
 
-            /**
-             *
-             * @type {CallerSlot|null}
-             */
-            let callerSlot = call.getUserData();
-            detachedCallRemoteUserId = callerSlot.getRemotePartyId();
-            patientConferenceRoom.removeCallFromConference(call);
+                /**
+                 *
+                 * @type {CallerSlot|null}
+                 */
+                let callerSlot = call.getUserData();
+                detachedCallRemoteUserId = callerSlot.getRemotePartyId();
+                patientConferenceRoom.removeCallFromConference(call);
+            }
+        } catch (error) {
+            // if we have an error in removing the call... we want to for sure shut everything down if we can
+            console.error("Failed to remove call on call ended event", error);
         }
 
         // we only fall back to the waiting room if we aren't in the middle of a session destruction.
         if (patientConferenceRoom.inSession && !patientConferenceRoom.hasProviderParticipant()) {
+
+            // TODO: @adunsulag there must be a better spot here to reset this screenshare settings.
+            patientConferenceRoom.buttonSettings.screensharingEnabled = false;
 
             // we shouldn't ever have the case where there are no participants but the provider is still here...
             // for safety reasons though we want to put this in

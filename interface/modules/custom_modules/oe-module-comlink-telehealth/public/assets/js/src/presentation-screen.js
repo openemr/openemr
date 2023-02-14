@@ -30,7 +30,7 @@ export class PresentationScreen
             // TODO: @adunsulag test on this.
             if (this.videoElement && this.callerSlot.getCurrentCallStream() != this.videoElement.srcObject) {
                 this.videoElement.srcObject = this.callerSlot.getCurrentCallStream();
-                this.videoElement.play(); // TODO: do we need this?
+                this.videoElement.play().catch(e => console.error("presentation-screen failed to play updated call slot", e));
             }
         }
     }
