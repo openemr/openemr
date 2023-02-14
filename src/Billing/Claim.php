@@ -241,7 +241,10 @@ class Claim
 
             $ins = count($this->payers);
             if (
-                ($drow['provider'] == $billrow['payer_id'] || $billrow['payer_id'] == null) &&
+                (
+                    $drow['provider'] == $billrow['payer_id']
+                    || empty($billrow['payer_id'])
+                ) &&
                 empty($this->payers[0]['data'])
             ) {
                 $ins = 0;
