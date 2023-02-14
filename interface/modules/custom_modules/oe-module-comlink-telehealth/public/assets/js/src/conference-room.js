@@ -124,6 +124,13 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
      */
     this.__focusCallerUuid = null;
 
+    /**
+     *
+     * @type string
+     * @private
+     */
+    this.__pinnedCallerUuid = null;
+
 
     /**
      * Is the conference room currently  minimized
@@ -142,33 +149,28 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         if (!call.getUserData()) {
             // in the event of a network hiccup we go through and allocate the slot
             let needNewSlot = true;
-            for (var i = 0; i < this.__slots.length; i++) {
+            let slotsLength = this.__slots.length;
+            for (var i = 0; i < slotsLength; i++) {
                 if (this.__slots[i].isAvailableForCall(call)) {
                     this.__slots[i].attach(call, stream, this.getParticipantForCall(call));
                     needNewSlot = false;
                     break;
                 }
             }
-            if (needNewSlot && this.__slots.length <= this.__maxSlots) {
+            if (needNewSlot && slotsLength <= this.__maxSlots) {
                 let newCaller = new CallerSlot('participant-list-container', this.__callerIdx++);
                 newCaller.addCallerSelectListener(function(callerSlot) {
-                    conf.setCurrentCallerFocusId(callerSlot.getRemotePartyId());
+                    conf.togglePinnedCallerId(callerSlot.getRemotePartyId());
+                    // conf.setCurrentCallerFocusId(callerSlot.getRemotePartyId());
                     conf.updateParticipantDisplays();
                 });
                 this.__slots.push(newCaller);
+                slotsLength++;
                 newCaller.attach(call, stream, this.getParticipantForCall(call));
-                if (this.__slots.length <= 2) {
-                    this.__presentationScreen.attach(newCaller);
-                    // TODO: @adunsulag fix this when we work with 3 callers
-                    newCaller.hide();
-                }
             }
             // now we need to update our focus caller and participant list if we have it
-            if (this.__slots.length == 1) {
+            if (slotsLength == 1) {
                 // if we only have one person on the call they need to be the focus of the video
-                this.setCurrentCallerFocusId(call.getRemotePartyId());
-                // if the call is the primary patient we want them to be the focus for the provider
-            } else if (call.getRemotePartyId() == conf.callerSettings.calleeUuid) {
                 this.setCurrentCallerFocusId(call.getRemotePartyId());
             }
             this.updateParticipantDisplays();
@@ -176,13 +178,18 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.updateParticipantDisplays = function() {
+        // TODO: @adunsulag based on performance we may want an isDirty flag here so we don't update the display
+        // unless something has changed
+
         // based on the mode of the conference room we will update the presentation screen and the participant list
         let hasPresentationScreen = false;
         // if we only have one other participant... or the screen is minimized we want to hide the local speaker.
         let twoWayCall = this.__slots.length <= 1;
         let isMinimized = this.isMinimized();
+        // we override the call with the pinned caller, then our currently speaking caller, finally we just have null
+        let presentationScreenRemotePartyId = this.__pinnedCallerUuid || this.__focusCallerUuid || null;
         for (var i = 0; i < this.__slots.length; i++) {
-            if (this.__slots[i].getRemotePartyId() == this.getCurrentCallerFocusId()) {
+            if (this.__slots[i].getRemotePartyId() == presentationScreenRemotePartyId) {
                 hasPresentationScreen = true;
                 this.__presentationScreen.attach(this.__slots[i]);
                 if (twoWayCall && !isMinimized) {
@@ -213,6 +220,12 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         // if we get here we are going to just detatch
         if (!hasPresentationScreen) {
             this.__presentationScreen.detach();
+        }
+
+        if (!this.hasRemoteParticipants()) {
+            if (!this.__isShutdown) {
+                this.toggleRemoteVideo(false);
+            }
         }
 
         if (this.__slots.length) {
@@ -260,6 +273,30 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         return this.__slots.find(s => s.getRemotePartyId() === id);
     };
 
+    this.togglePinnedCallerId = function(uuid) {
+        if (this.__pinnedCallerUuid) {
+            // need to unset it if its the same
+            let callerSlot = this.findCallerSlotWithId(this.__pinnedCallerUuid);
+            // the slot may have been removed so ok if we don't find it.
+            if (callerSlot && callerSlot.isPinned()) {
+                callerSlot.setPinnedStatus(false);
+            }
+        }
+        if (uuid != this.__pinnedCallerUuid) {
+            let callerSlot = this.findCallerSlotWithId(uuid);
+            if (callerSlot) {
+                this.__pinnedCallerUuid = uuid;
+                callerSlot.setPinnedStatus(true);
+                this.setCurrentCallerFocusId(uuid);
+            } else {
+                console.error("Failed to find pinned caller slot with uuid " + uuid);
+            }
+        } else {
+            this.__pinnedCallerUuid = null;
+        }
+
+    };
+
     this.setCurrentCallerFocusId = function(uuid) {
         this.__focusCallerUuid = uuid;
     };
@@ -268,21 +305,6 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         // if we use audio monitoring we can switch, or if the user pins a speaker we can this this
         // however, for now we focus on the callee for now
         return this.__focusCallerUuid;
-    };
-
-    this.freeSlot = function(slot) {
-        if (slot !== null && !slot.isAvailable() == null)
-        {
-            console.error("freeSlot called with null slot ", {slot: slot});
-            return;
-        }
-        slot.__call.stop();
-        slot.detach();
-        // trying to leave code open in case we add more callers... but we add this in to clear our variables
-        if (slot == conf.__remoteCallSlot)
-        {
-            conf.__remoteCallSlot = null;
-        }
     };
 
     this.restartMediaStream = function() {
@@ -967,6 +989,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             callerSlot.destruct(); // remove everything
             // cleanup the slots
             this.__slots = this.__slots.filter(s => s !== callerSlot);
+            // if the caller has left then we have nothing to pin here.
+            if (remotePartyId == this.__pinnedCallerUuid) {
+                this.togglePinnedCallerId(remotePartyId);
+            }
             if (this.__slots.length && this.getCurrentCallerFocusId() == remotePartyId) {
                 // need to set our current caller focus id
                 // for now we will just set it to the first one on the call instead of trying to figure out
@@ -985,22 +1011,12 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.handleCallEndedEvent = function(call)
     {
         conf.removeCallFromConference(call);
-        // if we don't have any more slots available
-        if (!conf.hasRemoteParticipants()) {
-            if (!conf.__isShutdown) {
-                conf.toggleRemoteVideo(false);
-            }
-        }
     };
 
     this.handleActivityEvent = function(call) {
         // first we only do this on a multi-party call where we have not pinned the caller
-        if (this.__slots.length > 1) {
-            let slot = call.getUserData();
-            if (slot) {
-                this.__presentationScreen.attach(slot);
-            }
-        }
+        this.setCurrentCallerFocusId(call.getRemotePartyId());
+        this.updateParticipantDisplays();
     };
 
     this.handleCallHangup = function()

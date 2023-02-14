@@ -166,8 +166,29 @@
 }
 
 
+.conference-room .participant-list-container .participant-container .participant-label-bg {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  opacity: .3;
+  height: 2rem;
+}
+.conference-room .participant-list-container .participant-container .participant-label {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  z-index: 999;
+}
+
 .conference-room .participant-list-container .participant-container:hover .video-control {
   display: block;
+}
+
+.conference-room .participant-list-container .participant-container.pinned .video-control.video-control-pin {
+  display: block;
+  color: var(--success) !important;
 }
 
 .conference-room .participant-list-container .participant-container .video-control.video-control-pin {

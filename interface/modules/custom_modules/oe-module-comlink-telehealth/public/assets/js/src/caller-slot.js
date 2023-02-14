@@ -46,6 +46,13 @@ export class CallerSlot {
      */
     __participant = null;
 
+    /**
+     * Returns whether this caller slot has been pinned to always show on the presentation screen
+     * @type {boolean}
+     * @private
+     */
+    __isPinned = false;
+
     constructor(containerId, index) {
         let domNode = document.getElementById(containerId);
         let templateClassName = 'participant-list-template-node';
@@ -59,24 +66,49 @@ export class CallerSlot {
         }
         let videoId = 'participant-video-' + index;
         let screenshareId = 'participant-screenshare-' + index;
-        let videoNode = templateNode.cloneNode(true);
-        videoNode.classList.remove(templateClassName);
-        videoNode.id = videoId;
-        domNode.appendChild(videoNode);
-        let screenshareNode = templateNode.cloneNode(true);
-        screenshareNode.classList.remove(templateClassName);
-        screenshareNode.id = screenshareId;
-        domNode.appendChild(screenshareNode);
         this.__boundInternalEvent = this.handleSelectEvent.bind(this);
-        videoNode.addEventListener('click', this.__boundInternalEvent);
-        screenshareNode.addEventListener('click', this.__boundInternalEvent);
-
+        this.__videoNode = this.__setupParticipantContainer(containerId, videoId, this.__boundInternalEvent);
+        this.__screenshareNode = this.__setupParticipantContainer(containerId, screenshareId, this.__boundInternalEvent);
         this.__videoSlot = new ATSlot(videoId);
-        this.__videoNode = videoNode;
         this.__screenshareSlot = new ATSlot(screenshareId);
-        this.__screenshareNode = screenshareNode;
         this.__currentSlot = this.__videoSlot;
         this.__selectCallbacks = [];
+        this.__isPinned = false;
+    }
+
+    __setupParticipantContainer(containerId, id, clickEvent) {
+        // should all of this be moved to ATSlot?
+
+        let domNode = document.getElementById(containerId);
+        let templateClassName = 'participant-list-template-node';
+        let templateNode = domNode.querySelector('.' + templateClassName);
+
+        if (!domNode) {
+            throw new Error("Failed to find container id with " + containerId);
+        }
+        if (!templateNode) {
+            throw new Error("Failed to find template container with ." + templateClassName);
+        }
+        let participantNode = templateNode.cloneNode(true);
+        participantNode.classList.remove(templateClassName);
+        participantNode.id = id;
+        domNode.appendChild(participantNode);
+        participantNode.addEventListener('click', clickEvent);
+        return participantNode;
+    }
+
+    setPinnedStatus(status) {
+        this.__isPinned = status;
+        if (this.__videoSlot) {
+            this.__videoSlot.setPinnedStatus(status);
+        }
+        if (this.__screenshareSlot) {
+            this.__screenshareSlot.setPinnedStatus(status);
+        }
+    }
+
+    isPinned() {
+        return this.__isPinned;
     }
 
     handleSelectEvent(evt) {
