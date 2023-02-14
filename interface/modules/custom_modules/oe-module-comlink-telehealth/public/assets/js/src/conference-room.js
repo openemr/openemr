@@ -373,9 +373,12 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         call.oncallended = (call) => {
             conf.handleCallEndedEvent(call);
         };
-        call.attachActivityMonitor(conf.dbThresholdSetting, (call) => {
-            conf.handleActivityEvent(call);
-        });
+        // we don't have an audio stream when working with screen sharing.
+        if (!call.isScreenSharing()) {
+            call.attachActivityMonitor(conf.dbThresholdSetting, (call) => {
+                conf.handleActivityEvent(call);
+            });
+        }
     };
 
     /**
@@ -946,9 +949,11 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 callerSlot.detachScreenshare();
             }
             else {
+                // when person is removed we can remove them from the call.
                 this.removeSlotForCall(call);
+                conf.setParticipantInCallRoomStatus(call.getRemotePartyId(), 'N');
             }
-            conf.setParticipantInCallRoomStatus(call.getRemotePartyId(), 'N');
+
             this.updateParticipantDisplays();
         }
     };
@@ -1077,15 +1082,14 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     {
         var container = document.getElementById('telehealth-container');
         var waitingContainer = container.querySelector('.waiting-container');
-        var remoteVideo = container.querySelector('.remote-video');
 
         if (display)
         {
             waitingContainer.classList.add('d-none');
-            remoteVideo.classList.remove('d-none');
+            this.__presentationScreen.show();
         } else {
             waitingContainer.classList.remove('d-none');
-            remoteVideo.classList.add('d-none');
+            this.__presentationScreen.hide();
         }
     };
 

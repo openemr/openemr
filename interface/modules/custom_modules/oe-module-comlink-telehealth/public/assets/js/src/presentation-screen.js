@@ -26,8 +26,12 @@ export class PresentationScreen
 
     updateCallerSlotScreen() {
         if (this.callerSlot && this.callerSlot.getCurrentCallStream() != null) {
-            this.videoElement.srcObject = this.callerSlot.getCurrentCallStream();
-            this.videoElement.play(); // TODO: do we need this?
+            // will this be true on every video element?
+            // TODO: @adunsulag test on this.
+            if (this.videoElement && this.callerSlot.getCurrentCallStream() != this.videoElement.srcObject) {
+                this.videoElement.srcObject = this.callerSlot.getCurrentCallStream();
+                this.videoElement.play(); // TODO: do we need this?
+            }
         }
     }
 
@@ -36,6 +40,7 @@ export class PresentationScreen
             // nothing to do here, just return
             if (this.callerSlot === callerSlot
                 || this.callerSlot.getRemotePartyId() == callerSlot.getRemotePartyId()) {
+                this.updateCallerSlotScreen();
                 return;
             }
         }
@@ -50,6 +55,18 @@ export class PresentationScreen
             this.videoElement.play();
             this.videoElement.title = displayTitle;
             this.callerSlot = callerSlot;
+        }
+    }
+
+    hide() {
+        if (this.videoElement) {
+            this.videoElement.classList.add('d-none');
+        }
+    }
+
+    show() {
+        if (this.videoElement) {
+            this.videoElement.classList.remove('d-none');
         }
     }
 

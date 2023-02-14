@@ -3,7 +3,8 @@ export function ATSlot(videoId) {
     this.__call = null;
 
     /** @private */
-    this.__video = document.getElementById(videoId);
+    this.__container = document.getElementById(videoId);
+    this.__video = this.__container.querySelector('.remote-video');
     if (!this.__video)
     {
         throw new Error("Failed to find #" + videoId + " element");
@@ -53,11 +54,13 @@ export function ATSlot(videoId) {
     };
 
     this.hide = function() {
-        this.__video.classList.add('d-none');
+        if (this.__container) {
+            this.__container.classList.add('d-none');
+        }
     };
     this.show = function() {
-        if (this.__video) {
-            this.__video.classList.remove('d-none');
+        if (this.__container) {
+            this.__container.classList.remove('d-none');
         }
     };
 }

@@ -48,20 +48,23 @@ export class CallerSlot {
 
     constructor(containerId, index) {
         let domNode = document.getElementById(containerId);
-        let templateNode = document.getElementById('participant-list-template-node');
+        let templateClassName = 'participant-list-template-node';
+        let templateNode = domNode.querySelector('.' + templateClassName);
 
         if (!domNode) {
             throw new Error("Failed to find container id with " + containerId);
         }
         if (!templateNode) {
-            throw new Error("Failed to find container id with " + 'participant-list-template-node');
+            throw new Error("Failed to find template container with ." + templateClassName);
         }
         let videoId = 'participant-video-' + index;
         let screenshareId = 'participant-screenshare-' + index;
-        let videoNode = templateNode.cloneNode();
+        let videoNode = templateNode.cloneNode(true);
+        videoNode.classList.remove(templateClassName);
         videoNode.id = videoId;
         domNode.appendChild(videoNode);
-        let screenshareNode = templateNode.cloneNode();
+        let screenshareNode = templateNode.cloneNode(true);
+        screenshareNode.classList.remove(templateClassName);
         screenshareNode.id = screenshareId;
         domNode.appendChild(screenshareNode);
         this.__boundInternalEvent = this.handleSelectEvent.bind(this);

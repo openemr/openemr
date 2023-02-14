@@ -122,3 +122,67 @@
 .conference-room .remote-video-container {
   position: relative;
 }
+
+.conference-room .participant-list-container {
+  position: relative;
+}
+
+.conference-room .participant-list-container.minimized {
+  left: calc(100% * -1);
+}
+
+.conference-room .participant-list-container .participant-container {
+  position: relative;
+}
+.conference-room .participant-list-container .participant-container .video-control {
+  position: absolute;
+  display: none;
+}
+
+.conference-room .participant-list-container .list-minimize {
+  display: none;
+  position: absolute;
+  top: calc(50% - 1rem);
+  right: calc(0% - 2.5rem);
+  font-size: 2.5rem;
+}
+
+
+.conference-room .participant-list-container .list-minimize .participant-list-collapse {
+  display: none;
+}
+.conference-room .participant-list-container.minimized  .list-minimize {
+  display: block;
+}
+.conference-room .participant-list-container.minimized .list-minimize .participant-list-collapse {
+  display: block;
+}
+.conference-room .participant-list-container.minimized .list-minimize .participant-list-expand {
+  display: none;
+}
+
+.conference-room .participant-list-container:hover .list-minimize {
+  display: block;
+}
+
+
+.conference-room .participant-list-container .participant-container:hover .video-control {
+  display: block;
+}
+
+.conference-room .participant-list-container .participant-container .video-control.video-control-pin {
+  top: 2px;
+  left: 2px;
+}
+.conference-room .participant-list-container .participant-container .video-control.video-control-more {
+  top: 2px;
+  right: 2px;
+}
+
+#minimized-telehealth-video {
+  min-height: 200px;
+}
+
+#minimized-telehealth-video .participant-list-container .participant-container .video-control {
+  display: none;
+}
