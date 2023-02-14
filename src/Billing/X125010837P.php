@@ -160,7 +160,6 @@ class X125010837P
                     "*" .
                     "*" .
                     "*" .
-                    "*" .
                     "*" . "46" .
                     "*" . $claim->x12_sender_id();
                 // else use provider's group name
