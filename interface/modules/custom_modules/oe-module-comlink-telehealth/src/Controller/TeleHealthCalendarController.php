@@ -59,7 +59,7 @@ class TeleHealthCalendarController
         $this->loggedInUserId = $loggedInUserId;
         $this->calendarEventCategoryRepository = new CalendarEventCategoryRepository();
         $this->teleHealthProviderRepository = new TeleHealthProviderRepository($this->logger, $config);
-        $this->apptService = new AppointmentService();
+//        $this->apptService = new AppointmentService();
     }
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)
@@ -72,13 +72,20 @@ class TeleHealthCalendarController
         $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderAppointmentsLaunchSessionButton']);
     }
 
+    public function getAppointmentService() {
+        if (!isset($this->apptService)) {
+            $this->apptService = new AppointmentService();
+        }
+        return $this->apptService;
+    }
+
     public function filterTelehealthCalendarEvents(CalendarUserGetEventsFilter $event)
     {
         $canProviderStartTelehealth = $this->teleHealthProviderRepository->isEnabledProvider($this->loggedInUserId);
 
         $eventsByDay = $event->getEventsByDays();
         $keys = array_keys($eventsByDay);
-        $apptService = $this->apptService;
+        $apptService = $this->getAppointmentService();
         foreach ($keys as $key) {
             $eventCount = count($eventsByDay[$key]);
             for ($i = 0; $i < $eventCount; $i++) {
@@ -182,7 +189,7 @@ class TeleHealthCalendarController
             return;
         }
         // don't show the launch button for a complete status
-        if ($this->apptService->isCheckOutStatus($row['pc_apptstatus'])) {
+        if ($this->getAppointmentService()->isCheckOutStatus($row['pc_apptstatus'])) {
             return;
         }
         echo "<button data-eid='" . attr($row['pc_eid']) . "' data-pid='" . attr($row['pc_pid'])
