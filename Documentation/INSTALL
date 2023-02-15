@@ -29,7 +29,7 @@ gacl          - Contains embedded php-GACL (access controls)
 
 II. Unpacking
 
-NOTE: Most recent documentation can be found on the online documention at
+NOTE: Most recent documentation can be found on the online documentation at
 http://www.open-emr.org .
 
 The OpenEMR release archive should be named as follows:
@@ -85,7 +85,7 @@ openemr/sites/default/documents. In
 linux, if the webserver user name is "apache", then the command
 "chown -R apache:apache directory_name" will grant global write permissions
 to the directories, and we recommend making these changes permanent.
-Should the page display errors related to file or directory writing priviledges you
+Should the page display errors related to file or directory writing privileges you
 may click the 'Check Again' button to try again (after fixing permissions).
 
 In step 1, you need to tell setup whether it needs to create the database on

@@ -66,6 +66,8 @@
         "symfony/console": "5.4.16",
         "symfony/dependency-injection": "5.4.16",
         "symfony/event-dispatcher": "5.4.9",
+        "symfony/finder": "5.4.19",
+        "symfony/filesystem": "5.4.19",
         "symfony/http-client": "5.4.16",
         "symfony/http-foundation": "5.4.16",
         "symfony/yaml": "5.4.16",

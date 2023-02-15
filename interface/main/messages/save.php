@@ -128,9 +128,9 @@ if ($_REQUEST['MedEx'] == "start") {
 								MedEx_id,ME_api_key,ME_username,
 								ME_facilities,ME_providers,ME_hipaa_default_override,
 								PHONE_country_code,LABELS_local,LABELS_choice)
-							VALUES (?,?,?,?,?,?,?,?,?,?)";
+							VALUES (?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "5160"));
-            $query = "UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'";
+            $query = "UPDATE `background_services` SET `active`='1',`execute_interval`='29', `running`='0', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'";
             sqlQuery($query);
             $info = $MedEx->login('2');
 

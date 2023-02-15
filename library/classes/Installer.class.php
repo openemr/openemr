@@ -240,7 +240,15 @@ class Installer
             return $returnSql;
         } else {
             // the mysql user does not yet exist, so create the user
-            return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            if (getenv('FORCE_DATABASE_X509_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of x509 database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE X509");
+            } elseif (getenv('FORCE_DATABASE_SSL_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of ssl database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE SSL");
+            } else {
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            }
         }
     }
 

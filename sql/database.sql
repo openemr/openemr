@@ -3161,6 +3161,7 @@ CREATE TABLE `insurance_data` (
   `policy_type` varchar(25) NOT NULL default '',
   `subscriber_street_line_2` TINYTEXT,
   `subscriber_employer_street_line_2` TINYTEXT,
+  `date_end` date NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
@@ -6922,6 +6923,7 @@ CREATE TABLE `module_configuration` (
   `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the record was initially created',
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified',
+  `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created',
   PRIMARY KEY (`module_config_id`)
 ) ENGINE=InnoDB;
 
@@ -13218,7 +13220,7 @@ CREATE TABLE `form_questionnaire_assessments` (
   `date` datetime DEFAULT current_timestamp(),
   `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository',
   `pid` bigint(21) NOT NULL DEFAULT 0,
-  `user` bigint(21) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
   `authorized` tinyint(4) NOT NULL DEFAULT 0,
   `activity` tinyint(4) NOT NULL DEFAULT 1,

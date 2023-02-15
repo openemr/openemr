@@ -11,7 +11,7 @@
  * @copyright Copyright (c) 2010-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2021-2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -209,17 +209,6 @@ $GLOBALS_METADATA = array(
             'tabs_css',
             'tabs_style_full.css',
             xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
-        ),
-
-        'login_page_layout' => array(
-            xl('Login Page Layout') . '*',
-            array(
-                'center' => xl("Centered Layout"),
-                'left' => xl("Left-Form Layout"),
-                'right' => xl("Right-Form Layout"),
-            ),
-            'center',
-            xl('Changes the layout of the login page.')
         ),
 
         'css_header' => array(
@@ -538,6 +527,30 @@ $GLOBALS_METADATA = array(
             '1',
             xl('Display the Donations link on the About page'),
         ],
+    ],
+
+    // Login Page
+    'Login Page' => [
+        'login_page_layout' => array(
+            xl('Login Page Layout') . '*',
+            array(
+                'login/layouts/vertical_box.html.twig' => xl("Vertical Box"),
+                'login/layouts/horizontal_box_left_logo.html.twig' => xl("Horizontal Box, Logo on Left"),
+                'login/layouts/horizontal_box_right_logo.html.twig' => xl("Horizontal Box, Logo on Right"),
+                'login/layouts/horizontal_band_right_logo.html.twig' => xl("Horizontal Band, Logo on Right"),
+                'login/layouts/horizontal_band_left_logo.html.twig' => xl("Horizontal Band, Logo on Left"),
+                "login/layouts/vertical_band.html.twig" => xl("Vertical Band"),
+            ),
+            'login/layouts/vertical_band.html.twig',
+            xl('Changes the layout of the login page.')
+        ),
+
+        'display_acknowledgements_on_login' => [
+            xl('Display links to the acknowledgements page'),
+            'bool',
+            '1',
+            xl('Used on the login screen'),
+        ],
 
         'show_tagline_on_login' => [
             xl('Show Tagline on Login Page') . "*",
@@ -568,11 +581,21 @@ $GLOBALS_METADATA = array(
         ),
 
         'extra_logo_login' => array(
-            xl('Show Extra Logo on Login'),
+            xl('Show Secondary Logo on Login'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('Show Extra Logo on Login')
+            xl('Show Secondary Logo on Login')
         ),
+
+        'secondary_logo_position' => [
+            xl('Order of the Secondary logo'),
+            [
+                'first' => xl('First Position'),
+                'second' => xl('Second Position'),
+            ],
+            'second',
+            xl('Place the secondary logo first, or second'),
+        ],
 
         'tiny_logo_1' => array(
             xl('Show Mini Logo 1'),
@@ -1483,6 +1506,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('For automatically sending claims that are generated in EDI directory to the X12 partner using SFTP credentials X12 Partner Settings')
+        ),
+
+        'enable_swap_secondary_insurance' => array(
+            xl('Enable Swap Secondary Insurance Editing Demographics'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable swap secondary insurance')
         ),
 
     ),
@@ -4140,11 +4170,18 @@ $GLOBALS_METADATA = array(
         ),
 
         'set_pos_code_encounter' => [
-            xl('Set POS code in encounter'),
+            xl('Set POS code in Encounter'),
             'bool',                           // data type
             '0',                              // default = false
             xl('This feature will allow the default POS facility code to be overridden from the encounter.')
         ],
+
+        'set_service_facility_encounter' => array(
+            xl('Set Service Facility in Encounter'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This feature will allow the default service facility to be selected by the care team facility in Choices.')
+        ),
 
         'enc_service_date' => [
             xl('Show Date of Service on Encounter Form'),

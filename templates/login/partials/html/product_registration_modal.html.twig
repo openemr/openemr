@@ -1,0 +1,28 @@
+{#
+Product Registration modal
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="product-registration-modal modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body">
+                <p class="context">
+                    {{ "Register your installation with OpenEMR Foundation to receive important notifications, such as security fixes and new release announcements."|xlt }}
+                </p>
+                <input placeholder="{{ "email"|xla }}" type="email" class="email w-100 text-body form-control" />
+                <p class="message font-italic"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary submit">{{ "Submit"|xlt }}</button>
+                <button type="button" class="btn btn-secondary nothanks">{{ "No Thanks"|xlt }}</button>
+            </div>
+        </div>
+    </div>
+</div>

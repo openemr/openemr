@@ -1,0 +1,28 @@
+{#
+Render a navbar-nav element. menu must be a MenuItems object
+
+@package OpenEMR
+@subpackage OemrUi
+
+@author Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Robert Down
+@copyright Copyright (c) 2023 Providence Healthtech
+#}
+
+{% macro navbar_nav(menu, container = "ul", listElement = "li") %}
+{% import "html/macros/attribute_list.twig" as html %}
+{% set _containerClasses = ['navbar-nav', 'mr-auto'] %}
+<{{ container }} class="{{ _containerClasses|join(' ') }}">
+    {% for item in menu %}
+        {% set _preText = (item.getPreTextContent()) ? item.getPreTextContent() ~ " " : "" %}
+        {% set _postText = (item.getPostTextContent()) ? " " ~ item.getPostTextContent() : "" %}
+        {% set _listClassList = ["nav-item"]|merge(item.getLinkContainerClassList())|join(' ')|attr %}
+        {% set _aClassList = ["nav-link"]|merge(item.getLinkClassList())|join(' ')|attr %}
+        {% set excludesList = ["href", "class", "id"] %}
+        <{{ listElement }} class="{{ _listClassList }}">
+            <a href="{{ item.getId()|attr }}" class="{{ _aClassList }}" {{ html.attributeList(item.getAttributes(), excludesList) }}>{{ _preText|xlt }}{{ item.getDisplayText()|xlt }}{{ _postText|xlt }}</a>
+        </{{ listElement }}>
+    {% endfor %}
+</{{ container}}>
+{% endmacro %}
+

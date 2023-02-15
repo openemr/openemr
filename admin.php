@@ -68,6 +68,7 @@ function sqlQuery($statement, $link)
                             <th>Version</th>
                             <th>Is Current</th>
                             <th>Log In</th>
+                            <th>Patient Portal</th>
                         </tr>
                         <?php
                         $dh = opendir($OE_SITES_BASE);
@@ -164,7 +165,9 @@ function sqlQuery($statement, $link)
                                 }
                                 if (($v_database == $database_version) && ($v_acl <= $database_acl) && ($v_realpatch == $database_patch)) {
                                     echo "  <td><a href='interface/login/login.php?site=$sfname' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site $sfname'></i></a></td>\n";
+                                    echo "  <td><a href='portal/index.php?site=$sfname' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site $sfname'></i></a></td>\n";
                                 } else {
+                                    echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
                                     echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
                                 }
                             }

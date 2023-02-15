@@ -150,6 +150,7 @@ $(function () {
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         let title = <?php echo xlj('Insurance Search/Select/Add'); ?>;
+        let ins_url = $(this).attr('href') + encodeURIComponent(sendInsToSearch(insurance_index));
         dlgopen('', '', 700, 600, '', title, {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
@@ -158,7 +159,7 @@ $(function () {
             allowDrag: true,
             dialogId: '',
             type: 'iframe',
-            url: $(this).attr('href')
+            url: ins_url
         });
     });
 
@@ -232,6 +233,15 @@ $(function () {
   if (window.checkSkipConditions) {
     checkSkipConditions();
   }
+  // Hide swap ins button if insurance not primary
+  $('#INSURANCE .tabNav a').click(function(){
+    let text = $(this).text();
+    if ( text == 'Primary') {
+        $('.swapIns').show();
+    } else {
+        $('.swapIns').hide();
+    }
+  })
 });
 
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
@@ -334,24 +344,28 @@ function ins_search(ins) {
     insurance_index = ins;
     return false;
 }
+
+function sendInsToSearch(ins) {
+    let thesel = $('#i' + ins + 'provider');
+    let theseldata = $(thesel).select2('data');
+    return theseldata[0]['id'];
+}
+
 function InsSaveClose() {
     top.restoreSession();
     document.location.reload();
 }
 // The ins_search.php window calls this to set the selected insurance.
 function set_insurance(ins_id, ins_name) {
- var thesel = document.forms[0]['i' + insurance_index + 'provider'];
- var theopts = thesel.options; // the array of Option objects
- var i = 0;
- for (; i < theopts.length; ++i) {
-  if (theopts[i].value == ins_id) {
-   theopts[i].selected = true;
-   return;
-  }
- }
- // no matching option was found so create one, append it to the
- // end of the list, and select it.
- theopts[i] = new Option(ins_name, ins_id, false, true);
+    thesel = $('#i' + insurance_index + 'provider');
+    if ($(thesel).find("option[value='" + ins_id  + "']").length) {
+        thesel.val(ins_id).trigger('change');
+    } else {
+        // no matching option was found so create one, append it to the
+        // end of the list, and select it.
+        let newOption = new Option(ins_name, ins_id, true, true);
+        thesel.append(newOption).trigger('change');
+    }
 }
 
 // This capitalizes the first letter of each word in the passed input
@@ -551,6 +565,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
+<input type="hidden" name="isSwapClicked" value="" />
 
     <div class="container-xl">
         <div class="row">
@@ -635,9 +650,9 @@ if (! $GLOBALS['simplified_demographics']) {
               <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
             </div>
             <div class="col-md-9">
-              <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
-               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
-              <select name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+              <a class="medium_modal btn btn-primary" href="../../practice/ins_search.php?ins=" role="button"
+                onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add/Edit') ?></a>
+              <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
                 foreach ($insurancei as $iid => $iname) {
@@ -656,11 +671,15 @@ if (! $GLOBALS['simplified_demographics']) {
             <div class="col-md-3 pb-1 label_custom">
               <span class='required'><?php echo xlt('Plan Name'); ?>:</span>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-6">
               <input type='entry' class='form-control form-control-sm mb-1' size='20'
                name='i<?php echo attr($i); ?>plan_name'
                value="<?php echo attr($result3["plan_name"] ?? ''); ?>"
                onchange="capitalizeMe(this);" />
+            </div>
+            <div class="col-md-3 swapIns" <?php echo (empty($GLOBALS['enable_swap_secondary_insurance'])) ? " style='display:none'" : ""; ?>>
+                <a class="btn btn-secondary pb-1" href="#" role="button"
+                    onclick="document.forms[0].isSwapClicked.value='1'; document.forms[0].submit()"><?php echo xlt('Swap with Secondary') ?></a>
             </div>
           </div><!-- end nested row -->
 
@@ -673,6 +692,18 @@ if (! $GLOBALS['simplified_demographics']) {
                id='i<?php echo attr($i); ?>effective_date'
                name='i<?php echo attr($i); ?>effective_date'
                value='<?php echo attr(oeFormatShortDate($result3['date'] ?? '')); ?>' />
+            </div>
+          </div><!-- end nested row -->
+
+          <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pb-1 label_custom ">
+              <span class='required'><?php echo xlt('Effective Date End'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type='entry' size='16' class='datepicker form-control form-control-sm mb-1'
+               id='i<?php echo attr($i); ?>effective_date_end'
+               name='i<?php echo attr($i); ?>effective_date_end'
+               value='<?php echo attr(oeFormatShortDate($result3['date_end'] ?? '')); ?>' />
             </div>
           </div><!-- end nested row -->
 
@@ -1198,7 +1229,6 @@ $use_validate_js = $GLOBALS['new_validate'];
             width: 'resolve',
         <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
         });
-
         <?php if ($GLOBALS['usps_webtools_enable']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");

@@ -66,7 +66,7 @@ function errorLogEscape($text)
 function csvEscape($text)
 {
     // 1. Remove all the following characters:  = + " |
-    $text = preg_replace('/[=+"|]/', '', $text);
+    $text = preg_replace('/[=+"|]/', '', $text ?? '');
 
     // 2. Only remove leading - characters (since need in dates)
     // 3. Only remove leading @ characters (since need in email addresses)
@@ -92,11 +92,29 @@ function xmlEscape($text)
 }
 
 /**
- * Special function to remove the 'javascript' string (case insensitive) for when including a variable within a html link
+ * Special function to remove the 'javascript' strings (case insensitive) for when including a variable within a html link
  */
-function javascriptStringRemove($text)
+function javascriptStringRemove(?string $text): string
 {
-    return str_ireplace('javascript', '', $text ?? '');
+    $returnText = str_ireplace('javascript', '', $text ?? '');
+
+    if (javascriptStringCheck($returnText)) {
+        $returnText = javascriptStringRemove($returnText);
+    }
+
+    return $returnText;
+}
+
+/**
+ * Special function to check if 'javascript' string (case insensitive) is in a variable within a html link
+ */
+function javascriptStringCheck(?string $text): bool
+{
+    if (stripos($text ?? '', 'javascript') === false) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 /**

@@ -21,14 +21,7 @@ use OpenEMR\Billing\Claim;
 
 class X125010837P
 {
-    /**
-     * This function processes claims and outputs "TR3" format,
-     * for multiple billing providers per claim. This format is the typical
-     * format accepted by insurance companies, and allows OpenEMR to submit
-     * claims directly to insurance companies without a clearing house.
-     *
-     * @author Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
-     *
+    /*
      * @param  $pid
      * @param  $encounter
      * @param  $log
@@ -54,11 +47,15 @@ class X125010837P
         $out = '';
         $claim = new Claim($pid, $encounter);
 
-        $log .= "Generating claims directly to ins companies with tr3 function $pid" . "-" . $encounter . " for " .
-            $claim->patientFirstName() . ' ' .
-            $claim->patientMiddleName() . ' ' .
-            $claim->patientLastName() . ' on ' .
-            date('Y-m-d H:i', $today) . ".\n";
+        if ($GLOBALS['gen_x12_based_on_ins_co']) {
+            $log .= "Generating directly to insurance claim $pid" . "-" . $encounter . " for ";
+        } else {
+            $log .= "Generating claim $pid" . "-" . $encounter . " for ";
+        }
+        $log .= $claim->patientFirstName() . ' ' .
+        $claim->patientMiddleName() . ' ' .
+        $claim->patientLastName() . ' on ' .
+        date('Y-m-d H:i', $today) . ".\n";
 
         $out .= "ISA" .
             "*" . $claim->x12gsisa01() .
@@ -90,16 +87,22 @@ class X125010837P
             "*" . $claim->x12gsversionstring() .
             "~\n";
 
-        //we only want one transaction set for medi-cal
-        if ($HLcount == 1) { //***TR3 brackets close at 2000B
+        // one transaction set (ST) based on direct send to insurance companies global
+        if (
+            (
+                $HLcount == 1 // HLcount passed in to function by GeneratorX12Direct class
+                && !empty($GLOBALS['gen_x12_based_on_ins_co'])
+            )
+            || (
+                empty($GLOBALS['gen_x12_based_on_ins_co'])
+            )
+        ) {
             ++$edicount;
             $out .= "ST" .
                 "*" . "837" .
                 "*" . "0021" .
                 "*" . $claim->x12gsversionstring() .
                 "~\n";
-
-            $STFLAG = true;
 
             ++$edicount;
             $out .= "BHT" .
@@ -157,7 +160,6 @@ class X125010837P
                     "*" .
                     "*" .
                     "*" .
-                    "*" .
                     "*" . "46" .
                     "*" . $claim->x12_sender_id();
                 // else use provider's group name
@@ -179,13 +181,18 @@ class X125010837P
             $out .= "~\n";
 
             ++$edicount;
+
+            $billing_contact_name = $claim->billingContactName();
+            if (empty($billing_contact_name)) {
+                $log .= "*** billing contact name in 1000A loop is empty.\n";
+            }
             $out .= "PER" . // Loop 1000A, Submitter EDI contact information
                 "*" . "IC" .
-                "*" . $claim->billingContactName() .
-                "*" . "TE" .
-                "*" . $claim->billingContactPhone() .
-                "*" . "EM" .
-                "*" . $claim->billingContactEmail();
+                "*" . $claim->billingContactName();
+            $out .= !empty($claim->billingContactPhone()) ?
+                "*" . "TE" . "*" . $claim->billingContactPhone() : "*";
+            $out .= !empty($claim->billingContactEmail()) ?
+                "*" . "EM" . "*" . $claim->billingContactEmail() : "*";
             $out .= "~\n";
 
             ++$edicount;
@@ -201,14 +208,21 @@ class X125010837P
                 "*" . $claim->clearingHouseETIN() .
                 "~\n";
 
-            // if HL count = 1
             ++$edicount;
+            ++$HLcount;
+
             $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
             "*" . $HLcount .
             "*" .
             "*" . "20" .
             "*" . "1" . // 1 indicates there are child segments
             "~\n";
+
+            if (
+                empty($GLOBALS['gen_x12_based_on_ins_co'])
+            ) {
+                $HLBillingPayToProvider = $HLcount++;
+            }
 
             // Situational PRV segment for provider taxonomy.
             if ($claim->facilityTaxonomy()) {
@@ -280,10 +294,12 @@ class X125010837P
                 $log .= "*** Billing facility has no state.\n";
             }
             $out .= "*";
-            if ($claim->x12Zip($claim->billingFacilityZip())) {
-                $out .= $claim->x12Zip($claim->billingFacilityZip());
+
+            // X12 likes 9 a true digit zip in loop 2010AA
+            if (strlen($claim->billingFacilityZip()) == 9) {
+                $out .= $claim->billingFacilityZip();
             } else {
-                $log .= "*** Billing facility has no zip.\n";
+                $log .= "*** Billing facility zip is not 9 digits.\n";
             }
             $out .= "~\n";
 
@@ -355,21 +371,20 @@ class X125010837P
                     $log .= "*** Pay to provider has no state.\n";
                 }
                 $out .= "*";
-                if ($claim->x12Zip($claim->billingFacilityZip())) {
-                    $out .= $claim->x12Zip($claim->billingFacilityZip());
+                if (strlen($claim->billingFacilityZip()) == 9) {
+                    $out .= $claim->billingFacilityZip();
                 } else {
-                    $log .= "*** Pay to provider has no zip.\n";
+                    $log .= "*** Pay to provider zip is not 9 digits.\n";
                 }
                 $out .= "~\n";
             }
+
             // Loop 2010AC Pay-To Plan Name omitted.  Includes:
             // NM1*PE, N3, N4, REF*2U, REF*EI
-        }//***TR3
-        $PatientHL = $claim->isSelfOfInsured() ? 0 : 1;
+        }
 
-        //More changes that ensure we get one provider per loop
-        $HLcount++; //***TR3 Modify
-        $HLSubscriber = $HLcount; //***TR3 Modify
+        $PatientHL = $claim->isSelfOfInsured() ? 0 : 1;
+        $HLSubscriber = $HLcount++;
 
         ++$edicount;
         $out .= "HL" .        // Loop 2000B Subscriber HL Loop
@@ -458,10 +473,13 @@ class X125010837P
                 $log .= "*** Missing insured state.\n";
             }
             $out .= "*";
-            if ($claim->x12Zip($claim->insuredZip())) {
+            if (
+                (strlen($claim->x12Zip($claim->insuredZip())) == 5)
+                || (strlen($claim->x12Zip($claim->insuredZip())) == 9)
+            ) {
                 $out .= $claim->x12Zip($claim->insuredZip());
             } else {
-                $log .= "*** Missing insured zip.\n";
+                $log .= "*** Insured zip is not 5 or 9 digits.\n";
             }
             $out .= "~\n";
 
@@ -535,10 +553,13 @@ class X125010837P
             $log .= "*** Missing payer state.\n";
         }
         $out .= "*";
-        if ($claim->x12Zip($claim->payerZip())) {
+        if (
+            (strlen($claim->payerZip()) == 5)
+            || (strlen($claim->payerZip()) == 9)
+        ) {
             $out .= $claim->x12Zip($claim->payerZip());
         } else {
-            $log .= "*** Missing payer zip.\n";
+            $log .= "*** Payer zip is not 5 or 9 digits.\n";
         }
         $out .= "~\n";
 
@@ -606,10 +627,13 @@ class X125010837P
                 $log .= "*** Missing patient state.\n";
             }
             $out .= "*";
-            if ($claim->x12Zip($claim->patientZip())) {
-                $out .= $claim->x12Zip($claim->patientZip());
+            if (
+                (strlen($claim->patientZip()) == 5)
+                || (strlen($claim->patientZip()) == 9)
+            ) {
+                $out .= $claim->patientZip();
             } else {
-                $log .= "*** Missing patient zip.\n";
+                $log .= "*** Patient zip is not 5 or 9 digits.\n";
             }
             $out .= "~\n";
 
@@ -999,10 +1023,10 @@ class X125010837P
                 $log .= "*** Missing service facility state.\n";
             }
             $out .= "*";
-            if ($claim->x12Zip($claim->facilityZip())) {
-                $out .= $claim->x12Zip($claim->facilityZip());
+            if (strlen($claim->facilityZip()) == 9) {
+                $out .= $claim->facilityZip();
             } else {
-                $log .= "*** Missing service facility zip.\n";
+                $log .= "*** Service facility zip is not 9 digits.\n";
             }
             $out .= "~\n";
         }
@@ -1171,10 +1195,13 @@ class X125010837P
                 $log .= "*** Missing other insco insured state.\n";
             }
             $out .= "*";
-            if ($claim->x12Zip($claim->insuredZip($ins))) {
-                $out .= $claim->x12Zip($claim->insuredZip($ins));
+            if (
+                strlen($claim->insuredZip($ins)) == 5
+                || strlen($claim->insuredZip($ins)) == 9
+            ) {
+                $out .= $claim->insuredZip($ins);
             } else {
-                $log .= "*** Missing other insco insured zip.\n";
+                $log .= "*** Other insco insured zip is not 5 or 9 digits.\n";
             }
             $out .= "~\n";
 
@@ -1228,10 +1255,13 @@ class X125010837P
                 $log .= "*** Missing other payer state.\n";
             }
             $out .= "*";
-            if ($claim->x12Zip($claim->payerZip($ins))) {
+            if (
+                (strlen($claim->payerZip($ins)) == 5)
+                || (strlen($claim->payerZip() == 9))
+            ) {
                 $out .= $claim->x12Zip($claim->payerZip($ins));
             } else {
-                $log .= "*** Missing other payer zip.\n";
+                $log .= "*** Other payer zip is not 5 or 9 digits.\n";
             }
             $out .= "~\n";
 
@@ -1537,14 +1567,17 @@ class X125010837P
             } // end loop 2430
         } // end this procedure
 
-        if ($SEFLAG == true) { //***TR3 Add
-            ++$edicount; //todo: This might have to fo into the SE flag spot //***MS Modify
+        if (
+            $SEFLAG == true
+            || empty($GLOBALS['gen_x12_based_on_ins_co'])
+        ) {
+            ++$edicount; //todo: This might have to go into the SE flag spot //***MS Modify
 
             $out .= "SE" .        // SE Trailer
             "*" . $edicount .
             "*" . "0021" .
             "~\n";
-        } //***TR3 Add
+        }
 
         $out .= "GE" .        // GE Trailer
             "*" . "1" .

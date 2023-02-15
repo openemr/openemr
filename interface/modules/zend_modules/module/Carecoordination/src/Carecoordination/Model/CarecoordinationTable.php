@@ -723,7 +723,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     '82581004' => 'Quit',
                     '228274009' => 'Never'
                 );
-                $alcohol = explode("|", $newdata['social_history']['alcohol']);
+                $alcohol = explode("|", $newdata['social_history']['alcohol'] ?? '');
                 if (!empty($alcohol[2])) {
                     $alcohol_date = $this->formatDate($alcohol[2], 1);
                 } else {
@@ -739,7 +739,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
                 $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
 
-                $tobacco = explode("|", $newdata['social_history']['smoking']);
+                $tobacco = explode("|", $newdata['social_history']['smoking'] ?? '');
                 if (!empty($tobacco[2])) {
                     $smoking_date = $this->formatDate($tobacco[2], 1);
                 } else {
@@ -1377,15 +1377,15 @@ class CarecoordinationTable extends AbstractTableGateway
         $arr_functional_cognitive_status = array();
         $arr_referral = array();
 
-        $p1_arr = explode("||", $data['problem1check']);
-        $p2_arr = explode('||', $data['problem2check']);
-        $p3_arr = explode('||', $data['problem3check']);
-        $a1_arr = explode("||", $data['allergy1check']);
-        $a2_arr = explode('||', $data['allergy2check']);
-        $a3_arr = explode('||', $data['allergy3check']);
-        $m1_arr = explode("||", $data['med1check']);
-        $m2_arr = explode('||', $data['med2check']);
-        $m3_arr = explode('||', $data['med3check']);
+        $p1_arr = explode("||", $data['problem1check'] ?? '');
+        $p2_arr = explode('||', $data['problem2check'] ?? '');
+        $p3_arr = explode('||', $data['problem3check'] ?? '');
+        $a1_arr = explode("||", $data['allergy1check'] ?? '');
+        $a2_arr = explode('||', $data['allergy2check'] ?? '');
+        $a3_arr = explode('||', $data['allergy3check'] ?? '');
+        $m1_arr = explode("||", $data['med1check'] ?? '');
+        $m2_arr = explode('||', $data['med2check'] ?? '');
+        $m3_arr = explode('||', $data['med3check'] ?? '');
 
         foreach ($data as $key => $val) {
             if (substr($key, -4) == '-sel') {

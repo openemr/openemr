@@ -45,6 +45,9 @@ class PatientService extends BaseService
      */
     private $patient_picture_fallback_id = -1;
 
+    /**
+     * @var PatientValidator
+     */
     private $patientValidator;
 
     /**
@@ -595,7 +598,7 @@ class PatientService extends BaseService
      * Fetch UUID for the patient id
      *
      * @param string $id                - ID of Patient
-     * @return false if nothing found otherwise return UUID
+     * @return false if nothing found otherwise return UUID (in binary form)
      */
     public function getUuid($pid)
     {

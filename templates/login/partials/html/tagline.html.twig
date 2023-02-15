@@ -1,0 +1,17 @@
+{#
+Render the tagline, if set
+
+* Set tagline_container_p_list with an array of classes to override the default classes of the container
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% if displayTagline %}
+{% block tagline %}
+<p class="{{ tagline_p_class_list|default(['text-center', 'lead'])|join(' ') }}">{{ tagline|xlt }}</p>
+{% endblock %}
+{% endif %}

@@ -202,10 +202,10 @@ var page = {
                 } else {
                     $("#chartTemplate").show();
                 }
-                isModule ? $("#printTemplate").show() : $("#printTemplate").hide();
+                (isModule || page.isDashboard) ? $("#printTemplate").show() : $("#printTemplate").hide();
                 $("#submitTemplate").hide();
                 $("#sendTemplate").hide();
-                $("#downloadTemplate").show();
+                $("#downloadTemplate").hide();
                 isModule ? $("#dismissOnsiteDocumentButton").show() : $("#dismissOnsiteDocumentButton").hide();
                 ((isModule || page.isFrameForm) && !page.isLocked) ? $("#saveTemplate").show() : $("#saveTemplate").hide();
                 isModule ? $("#homeTemplate").show() : $("#homeTemplate").hide();
@@ -275,9 +275,9 @@ var page = {
 
                 $("#downloadTemplate").unbind().on('click', function (e) {
                     // just render the existing model and not save template.
-                    // For downloads we just want to give user a chance to dispose/view rendered
+                    // For downloads, we just want to give user a chance to dispose/view rendered
                     // document and leave template intact for further edits before charting.
-                    // I'm still unsure how useful a download is when to finish a review, charting document
+                    // I'm still unsure how useful a download is as to when to finish a review, charting document
                     // is necessary. I know eventually, I can do better:)
                     e.preventDefault();
                     if (page.isFrameForm) {
@@ -887,7 +887,6 @@ var page = {
                 if (isNew) {
                     $('#confirmDeleteOnsiteDocumentContainer').hide('fast');
                     $('#deleteOnsiteDocumentButtonContainer').show();
-                    //$("#printTemplate").show();
                     if (isPortal) {
                         $("#submitTemplate").show();
                         $("#sendTemplate").show();
@@ -940,7 +939,6 @@ var page = {
                 pageAudit.onsitePortalActivity.set('tableArgs', page.onsiteDocument.get('id'));
                 pageAudit.onsitePortalActivity.set('narrative', 'Patient deleted un-charted template');
                 pageAudit.updateModel()
-                //pageAudit.onsitePortalActivity.destroy();
 
                 if (model.reloadCollectionOnModelUpdate) {
                     // re-fetch and render the collection after the model has been updated

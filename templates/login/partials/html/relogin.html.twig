@@ -1,0 +1,19 @@
+{#
+If the user must relogin, display this message.
+
+* Set relogin_container_class_list with an array of classes to override the container
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% if relogin == 1 %}
+{% block relogin %}
+<div class="{{ relogin_container_class_list|default(['text-center', 'relogin'])|join(' ') }}">
+    <p class="text-danger font-weight-bold">{{ "password security has recently been upgraded."|xlt }} {{ "Please login again."|xlt }}</p>
+</div>
+{% endblock %}
+{% endif %}

@@ -72,7 +72,7 @@ while ($frow = sqlFetchArray($fres)) {
     // have a value set on the form, it will be empty.
     if ($data_type == 54) { // address list
         $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
-    } else if (isset($_POST["form_$field_id"]) || $data_type == 21) {
+    } elseif (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }
@@ -85,7 +85,8 @@ if (!$GLOBALS['omit_employers']) {
 }
 
 if (!empty($addressFieldsToSave)) {
-    // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
+    // TODO: we would handle other types of address fields here,
+    // for now we will just go through and populate the patient
     // address information
     // TODO: how are error messages supposed to display if the save fails?
     foreach ($addressFieldsToSave as $field => $addressFieldData) {
@@ -97,10 +98,13 @@ if (!empty($addressFieldsToSave)) {
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
+$i1date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date_end"));
 
+$swap_with_secondary = !empty($_POST['isSwapClicked']);
+$type = ($swap_with_secondary) ? 'secondary' : 'primary';
 newInsuranceData(
     $pid,
-    "primary",
+    $type,
     filter_input(INPUT_POST, "i1provider"),
     filter_input(INPUT_POST, "i1policy_number"),
     filter_input(INPUT_POST, "i1group_number"),
@@ -127,18 +131,21 @@ newInsuranceData(
     filter_input(INPUT_POST, 'form_i1subscriber_sex'),
     $i1date,
     filter_input(INPUT_POST, 'i1accept_assignment'),
-    filter_input(INPUT_POST, 'i1policy_type')
+    filter_input(INPUT_POST, 'i1policy_type'),
+    $i1date_end
 );
 
 //Dont save more than one insurance since only one is allowed / save space in DB
 if (!$GLOBALS['insurance_only_one']) {
     $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
     $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
+    $i2date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date_end"));
 
-
+    $swap_with_secondary = !empty($_POST['isSwapClicked']);
+    $type = ($swap_with_secondary) ? 'primary' : 'secondary';
     newInsuranceData(
         $pid,
-        "secondary",
+        $type,
         filter_input(INPUT_POST, "i2provider"),
         filter_input(INPUT_POST, "i2policy_number"),
         filter_input(INPUT_POST, "i2group_number"),
@@ -165,11 +172,13 @@ if (!$GLOBALS['insurance_only_one']) {
         filter_input(INPUT_POST, 'form_i2subscriber_sex'),
         $i2date,
         filter_input(INPUT_POST, 'i2accept_assignment'),
-        filter_input(INPUT_POST, 'i2policy_type')
+        filter_input(INPUT_POST, 'i2policy_type'),
+        $i2date_end
     );
 
     $i3dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
     $i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
+    $i3date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date_end"));
 
     newInsuranceData(
         $pid,
@@ -200,7 +209,8 @@ if (!$GLOBALS['insurance_only_one']) {
         filter_input(INPUT_POST, 'form_i3subscriber_sex'),
         $i3date,
         filter_input(INPUT_POST, 'i3accept_assignment'),
-        filter_input(INPUT_POST, 'i3policy_type')
+        filter_input(INPUT_POST, 'i3policy_type'),
+        $i3date_end
     );
 }
 

@@ -326,11 +326,11 @@ class CdaValidateDocuments
     {
         $errors = $this->fetchValidationLog($amid);
 
-        if (count($error ?? [])) {
+        if (count($errors ?? [])) {
             $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             $html = $twig->render("carecoordination/cda/cda-validate-results.html.twig", ['validation' => $errors]);
         } else {
-            $html = xlt("Validation service is disabled in Admin Config Connectors 'Disable All CDA Validation Reporting'.");
+            $html = xlt("No Errors or Validation service is disabled in Admin Config Connectors 'Disable All CDA Validation Reporting'.");
         }
         return $html;
     }

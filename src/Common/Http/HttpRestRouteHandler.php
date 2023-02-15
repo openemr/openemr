@@ -275,6 +275,7 @@ class HttpRestRouteHandler
             if (
                 $restRequest->getResource() == 'version'
                 || $restRequest->getResource() == 'product'
+                || $restRequest->isLocalApi() // skip security check if its a local api
             ) {
                 return;
             }
@@ -305,6 +306,12 @@ class HttpRestRouteHandler
 
     public static function fhirRestRequestSkipSecurityCheck(HttpRestRequest $restRequest): bool
     {
+        // if someone is hitting the local api and have a valid CSRF token we skip the security check.
+        // TODO: @adunsulag need to verify this assumption is correct
+        if ($restRequest->isLocalApi()) {
+            return true;
+        }
+
         $resource = $restRequest->getResource();
         // capability statement, smart well knowns, and operation definitions are skipped.
         $skippedChecks = ['metadata', '.well-known', 'OperationDefinition'];

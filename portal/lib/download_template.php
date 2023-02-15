@@ -171,17 +171,17 @@ function doSubs($s)
 
         if (keySearch($s, '{PatientSignature}')) {
             $sigfld = '<script>page.presentPatientSignature=true;</script><span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:65px !important;width:auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
             $sigfld = '<script>page.presentAdminSignature=true;</script><span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:65px !important;width:auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
             $sigfld = '<script>page.presentWitnessSignature=true;</script><span>';
-            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:65px !important;width:auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{SignaturesRequired}')) {

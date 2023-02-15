@@ -19,7 +19,7 @@
         <div class="text-primary pb-2 pt-1">
             {{ (c.isOld) ? "Old"|xlt ~ " " ~ c.type|capitalize|text : c.type|capitalize|text }} {{ "Insurance"|xlt }}
             {% if c.dispFromDate == true %}{{ "from"|xlt}} {{ c.date|shortDate|text }} {% endif %}
-            {{ "until"|xlt }} {{ "Present"|xlt }}
+            {{ "until"|xlt }} {{ (c.date_end) ? c.date_end|text : "Present"|xlt }}
         </div>
         <div class="d-flex justify-content-between">
             <div class="insurer">

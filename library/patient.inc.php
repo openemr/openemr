@@ -402,11 +402,47 @@ function getInsuranceDataByDate(
     return sqlQuery($sql, array($pid,$date,$type));
 }
 
+function get_unallocated_patient_balance($pid)
+{
+    $unallocated = 0.0;
+    $query = "SELECT a.session_id, a.pay_total, a.global_amount " .
+        "FROM ar_session AS a " .
+        "WHERE a.patient_id = ? AND " .
+        "a.adjustment_code = 'pre_payment' AND a.closed = 0";
+    $res = sqlStatement($query, array($pid));
+    while ($row = sqlFetchArray($res)) {
+        $total_amt = $row['pay_total'] - $row['global_amount'];
+        $rs = sqlQuery("SELECT sum(pay_amount) AS total_pay_amt FROM ar_activity WHERE session_id = ? AND pid = ? AND deleted IS NULL", array($row['session_id'], $pid));
+        $pay_amount = $rs['total_pay_amt'];
+        $unallocated += ($total_amt - $pay_amount);
+    }
+    return sprintf('%01.2f', $unallocated);
+}
+
+function getInsuranceNameByDate(
+    $pid,
+    $date,
+    $type,
+    $given = "ic.name as provider_name"
+) {
+ // this must take the date in the following manner: YYYY-MM-DD
+  // this function recalls the insurance value that was most recently enterred from the
+  // given date. it will call up most recent records up to and on the date given,
+  // but not records enterred after the given date
+    $sql = "select $given from insurance_data as insd " .
+    "left join insurance_companies as ic on ic.id = provider " .
+    "where pid = ? and date_format(date,'%Y-%m-%d') <= ? and " .
+    "type = ? order by date DESC limit 1";
+
+    $row = sqlQuery($sql, array($pid, $date, $type));
+    return $row['provider_name'];
+}
+
 // To prevent sql injection on this function, if a variable is used for $given parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
 function getEmployerData($pid, $given = "*")
 {
-    $sql = "select $given from employer_data where pid=? order by date DESC limit 0,1";
+    $sql = "select $given from employer_data where pid = ? order by date DESC limit 0,1";
     return sqlQuery($sql, array($pid));
 }
 
@@ -630,7 +666,7 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
 function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $layoutCols = sqlStatement(
-        "SELECT field_id FROM layout_options WHERE form_id = 'DEM' AND field_id not like ? AND uor !=0",
+        "SELECT field_id FROM layout_options WHERE form_id = 'DEM' AND field_id not like ? AND uor != 0",
         array('em\_%')
     );
 
@@ -1261,7 +1297,8 @@ function newInsuranceData(
     $subscriber_sex = "",
     $effective_date = null,
     $accept_assignment = "TRUE",
-    $policy_type = ""
+    $policy_type = "",
+    $effective_date_end = null
 ) {
 
     if (strlen($type) <= 0) {
@@ -1281,6 +1318,9 @@ function newInsuranceData(
     }
     if (empty($subscriber_DOB)) {
         $subscriber_DOB = null;
+    }
+    if (empty($effective_date_end)) {
+        $effective_date_end = null;
     }
 
     $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .
@@ -1359,6 +1399,7 @@ function newInsuranceData(
         $data['date'] = $effective_date;
         $data['accept_assignment'] = $accept_assignment;
         $data['policy_type'] = $policy_type;
+        $data['date_end'] = $effective_date_end;
         updateInsuranceData($idrow['id'], $data);
         return $idrow['id'];
     } else {
@@ -1391,7 +1432,8 @@ function newInsuranceData(
             `pid` = ?,
             `date` = ?,
             `accept_assignment` = ?,
-            `policy_type` = ?",
+            `policy_type` = ?,
+            `date_end` = ?",
             [
                 $type,
                 $provider,
@@ -1421,7 +1463,8 @@ function newInsuranceData(
                 $pid,
                 $effective_date,
                 $accept_assignment,
-                $policy_type
+                $policy_type,
+                $effective_date_end
             ]
         );
     }
@@ -1778,4 +1821,18 @@ function updateDupScore($pid)
         array($dupscore, $pid)
     );
     return $dupscore;
+}
+
+function get_unallocated_payment_id($pid)
+{
+    $query = "SELECT session_id " .
+        "FROM ar_session " .
+        "WHERE apatient_id = ? AND " .
+        "adjustment_code = 'pre_payment' AND closed = 0 ORDER BY check_date ASC LIMIT 1";
+    $res = sqlQuery($query, array($pid));
+    if ($res['session_id']) {
+        return $res['session_id'];
+    } else {
+        return '';
+    }
 }

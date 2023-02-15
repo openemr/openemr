@@ -84,8 +84,7 @@ $templateService = new DocumentTemplateService();
     // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
     echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
-
+    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
@@ -145,8 +144,9 @@ $templateService = new DocumentTemplateService();
             }, 2000);
         });
 
-        function printaDoc(divName) {
-            flattenDocument();
+        function printaDocHtml(divName) {
+            page.updateModel();
+            setTimeout("flattenDocument();", 4000);
             divName = 'templatediv';
             let printContents = document.getElementById(divName).innerHTML;
             let originalContents = document.body.innerHTML;
@@ -154,6 +154,86 @@ $templateService = new DocumentTemplateService();
             window.print();
             document.body.innerHTML = originalContents;
             location.reload();
+        }
+
+        function printaDoc(divName) {
+            // We'll return to the same editing state as before print
+            // In dashboard document is already flatten to prevent
+            // auditor from changing patient entries!
+            if (page.isQuestionnaire && !isPortal) {
+                url = webroot_url +
+                    "/interface/forms/questionnaire_assessments/patient_portal.php" +
+                    "?formid=" + encodeURIComponent(page.encounterFormId);
+                fetch(url).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network Error.');
+                    }
+                    return response.json()
+                }).then(content => {
+                    if (content) {
+                        let docid = document.getElementById('docid').value;
+                        fetchPdf(divName, docid, content);
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert(error);
+                });
+            } else {
+                let docid = document.getElementById('docid').value;
+                fetchPdf(divName, docid);
+            }
+        }
+
+        function fetchPdf(divName, docid, printContents = null) {
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('doc-lib')); ?>;
+            top.restoreSession();
+            if (document.getElementById('tempFrame')) {
+                let killFrame = document.getElementById('tempFrame');
+                killFrame.parentNode.removeChild(killFrame);
+            }
+            if (!printContents) {
+                printContents = document.getElementById(divName).innerHTML;
+            }
+            request = new FormData;
+            request.append("handler", "fetch_pdf");
+            request.append("docid", docid);
+            request.append("content", printContents);
+            request.append("csrf_token_form", csrf_token_js);
+            fetch(webroot_url + "/portal/lib/doc_lib.php", {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('Background Service start failed. Status Code: ' + response.status);
+                }
+                return response.text();
+            }).then((base64) => {
+                const binary = atob(base64.replace(/\s/g, ''));
+                const len = binary.length;
+                const buffer = new ArrayBuffer(len);
+                const view = new Uint8Array(buffer);
+                for (let i = 0; i < len; i++) {
+                    view[i] = binary.charCodeAt(i);
+                }
+                const blob = new Blob([view], {type: "application/pdf"});
+                const url = URL.createObjectURL(blob);
+                let iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.width = '0';
+                iframe.height = '0';
+                iframe.id = 'tempFrame';
+                document.body.appendChild(iframe);
+                iframe.onload = function() {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }
+                // write the content
+                iframe.src = url;
+            }).catch(function(error) {
+                console.log('PHP PDF Background Service Request failed: ', error);
+                return false;
+            });
         }
 
         function templateText(el) {
@@ -295,7 +375,7 @@ $templateService = new DocumentTemplateService();
                         <ul class="navbar-nav">
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="sendTemplate" href="#"><?php echo xlt('Submit Document'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
