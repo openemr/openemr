@@ -348,9 +348,9 @@ try {
     <div class="container-xl my-2">
         <div class="title"><h3><?php if ($mode != 'new_form' && $mode != 'update') {
                     echo xlt("Create Encounter Questionnaires");
-                } else {
-                    echo xlt("Edit Questionnaire");
-                } ?></h3></div>
+                               } else {
+                                   echo xlt("Edit Questionnaire");
+                               } ?></h3></div>
         <?php if (!$is_authorized) { ?>
             <div class="d-flex flex-column w-100 align-items-center">
                 <?php
