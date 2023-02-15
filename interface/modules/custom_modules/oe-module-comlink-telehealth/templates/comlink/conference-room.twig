@@ -113,12 +113,12 @@
             </div>
             <div class="modal-body">
                 <div class="row screen primary-screen">
-                    <div class="col-12 mb-3 third-party-patient-row {% if thirdPartyPatient %}d-none{% endif %}">
+                    <div class="col-12 mb-3 third-party-patient-row {% if not thirdPartyPatient %}d-none{% endif %}">
                         <div class="card">
                             {% include "comlink/conference-room-patient-thirdparty.html.twig" with {patient: thirdPartyPatient} %}
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12 third-party-patient-row">
                         <div class="card">
                             <div class="card-header">
                                 <div class="row">

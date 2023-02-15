@@ -201,14 +201,19 @@ export class AddPatientDialog
         // let's update if our pid is different
         if (!this.__currentThirdParty) {
             this.container.querySelector('.no-third-party-patient-row').classList.remove('d-none');
-            this.container.querySelector('.third-party-patient-row').classList.add('d-none');
+            this.container.querySelectorAll('.third-party-patient-row').forEach(n => n.classList.add('d-none'));
             return;
         }
         this.container.querySelector('.no-third-party-patient-row').classList.add('d-none');
-        this.container.querySelector('.third-party-patient-row').classList.remove('d-none');
+        this.container.querySelectorAll('.third-party-patient-row').forEach(n => n.classList.remove('d-none'));
         // now we need to update our participant screen if the pid has changed
         let thirdPartyRow = this.container.querySelector('.patient-thirdparty');
-        if (thirdPartyRow.dataset['pid'] && thirdPartyRow.dataset['pid'] != this.__currentThirdParty.pid) {
+        if (!thirdPartyRow) {
+            console.error("Failed to find dom node with selector .patient-thirdparty");
+            return;
+        }
+
+        if (thirdPartyRow.dataset['pid'] != this.__currentThirdParty.pid) {
             // time to do some update magic
             thirdPartyRow.dataset['pid'] = this.__currentThirdParty.pid;
             let name = (this.__currentThirdParty.fname || "") + " " + (this.__currentThirdParty.lname || "");
