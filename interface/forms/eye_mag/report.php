@@ -252,7 +252,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     $visit_date = oeFormatShortDate($dated);
     ?>
     
-    <?php Header::setupHeader(['no_dialog', 'no_jquery', 'fontawesome']); ?>
+    <?php if (!$PDF_OUTPUT) Header::setupHeader(['no_dialog', 'no_jquery', 'fontawesome']); ?>
     <link rel="stylesheet" href="../../forms/eye_mag/css/report.css">
     <style>
         <?php if ($PDF_OUTPUT) { ?>
