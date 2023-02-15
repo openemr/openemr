@@ -11,7 +11,7 @@
                  data-class-minimize="participant-list-container p-0 d-flex flex-row"
                  data-class-maximize="participant-list-container col-lg-2 col-md-2 col-sm-3 col-4 p-0"
             >
-                {% include 'comlink/room-participant-container.html.twig' with {template: true} %}
+                {% include 'comlink/conference-room/room-participant-container.html.twig' with {template: true} %}
                 {% include 'comlink/local-participant-container.html.twig' with {callerName: callerName} %}
             </div>
             <div class="remote-video-container text-center flex-fill">
@@ -115,7 +115,7 @@
                 <div class="row screen primary-screen">
                     <div class="col-12 mb-3 third-party-patient-row {% if not thirdPartyPatient %}d-none{% endif %}">
                         <div class="card">
-                            {% include "comlink/conference-room-patient-thirdparty.html.twig" with {patient: thirdPartyPatient} %}
+                            {% include "comlink/conference-room/conference-room-patient-thirdparty.html.twig" with {patient: thirdPartyPatient} %}
                         </div>
                     </div>
                     <div class="col-12 third-party-patient-row">

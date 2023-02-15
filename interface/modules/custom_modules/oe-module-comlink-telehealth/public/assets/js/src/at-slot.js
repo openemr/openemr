@@ -24,7 +24,7 @@ export class ATSlot {
     constructor(videoId) {
         this.__call = null;
         this.__container = document.getElementById(videoId);
-        this.__video = this.__container.querySelector('.remote-video');
+        this.__video = this.__container.querySelector('.participant-video');
         if (!this.__video)
         {
             throw new Error("Failed to find #" + videoId + " element");

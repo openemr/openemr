@@ -135,6 +135,11 @@
   left: calc(100% * -1);
 }
 
+.conference-room .participant-list-container .participant-video {
+  max-height: 15vh;
+  background-color: #000;
+}
+
 .conference-room .participant-list-container .participant-container
 , #minimized-telehealth-video .participant-list-container .participant-container {
   position: relative;
