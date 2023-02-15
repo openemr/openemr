@@ -1193,7 +1193,8 @@ class Attachment {
                 $encFormData = self::getEncounterFormDataForSelection(array('formid' => $formIds));
                 $demoHtmlContent = self::incDemographicsAttachment($pid, $encFormData['attachment_list'], $request['encform_inc_demographic']);
 
-                $bodyHtml = self::mergerHTMLContent($demoHtmlContent, $encFormData);
+                //$bodyHtml = self::mergerHTMLContent($demoHtmlContent, $encFormData);
+                $bodyHtml = $demoHtmlContent;
                 $bodyHtml = self::setHeaderFooterOfHtml('H', $bodyHtml, self::getPdfHeaderContent($pid));
                 $bodyHtml = self::setHeaderFooterOfHtml('F', $bodyHtml, '');
 
@@ -1579,11 +1580,37 @@ class Attachment {
         );
     }
 
+    public static function generateCustomReport($data = array()) {
+        global $web_root;
+        $siteUrl = sprintf(
+            "%s://%s%s",
+            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+            $_SERVER['SERVER_NAME'],
+            $web_root
+        );
+
+        $data['SESSION_DATA'] = $_SESSION;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $siteUrl . '/library/OemrAD/interface/patient_file/report/req_custom_report.php');
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_RESOLVE, [ 'localhost:80:127.0.0.1']);
+
+        $error_msg = curl_error($ch);
+        $server_output = curl_exec($ch);
+
+        curl_close($ch);
+
+        return $server_output;
+    }
+
     // Get Demographics content (Attachment)
     public static function incDemographicsAttachment($pid, $queryData, $includeDemo = false) {
         global $srcdir, $web_root, $css_header, $doNotPrintField;
 
-        $temp_pdf_output = $GLOBALS['pdf_output'];
+        //$temp_pdf_output = $GLOBALS['pdf_output'];
 
         $temp_post = $_POST;
         unset($_POST);
@@ -1607,6 +1634,11 @@ class Attachment {
             }
         }
 
+        ob_start();
+        echo self::generateCustomReport($_POST);
+        $cReportData = ob_get_clean();
+
+        /*
         $GLOBALS['pdf_output'] = "S";
 
         //Change Dir
@@ -1623,13 +1655,15 @@ class Attachment {
 
         //Set Original Dir
         chdir($currentDir);
+        */
         
         $_POST = $temp_post;
         $_GET = $temp_get;
 
-        $GLOBALS['pdf_output'] = $temp_pdf_output;
+        //$GLOBALS['pdf_output'] = $temp_pdf_output;
 
-        return $content;
+        //return $content;
+        return $cReportData;
     }
 
     // Generate order data attachment
