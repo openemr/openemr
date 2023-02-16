@@ -62,7 +62,6 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\OemrAd\EmailVerificationLib;
 use OpenEMR\OemrAd\Demographicslib;
-use OpenEMR\OemrAd\Utility;
 
 $facilityService = new FacilityService();
 
