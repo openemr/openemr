@@ -677,7 +677,7 @@ function generic_sql_select_db($database, $link = null)
  */
 function generic_sql_affected_rows()
 {
-    return mysqli_affected_rows($GLOBALS['dbh']);
+    return $GLOBALS['adodb']['db']->affected_rows();
 }
 
 /**
