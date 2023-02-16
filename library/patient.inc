@@ -78,8 +78,10 @@ function formatPhoneNumber($pat_phone) {
         return array('msg_phone' => $pat_phone, 'pat_phone' => $pat_phone);
     }
 
+    $pat_phone = preg_replace('/[^0-9]/', '', trim($pat_phone));
+
     // Get phone numbers
-    $msg_phone = preg_replace('/[^0-9]/', '', trim($pat_phone));
+    $msg_phone = $pat_phone;
     if(strlen($msg_phone) != 12) {
       if (substr($pat_phone,0,1) != '1') $msg_phone = "1" . $msg_phone;
       if (strlen($msg_phone) > 11) $msg_phone = substr($msg_phone,0,11);

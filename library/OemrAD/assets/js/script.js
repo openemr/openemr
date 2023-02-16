@@ -615,17 +615,17 @@ $(function() {
 
 
     /*On keyup check ans mask phone value ("options.inc.php")*/
-    $(document).on('keyup', 'input[type="text"].maskPhone', function() {
-        maskPhone($(this)[0]);
-    });
+    // $(document).on('keyup', 'input[type="text"].maskPhone', function() {
+    //     maskPhone($(this)[0]);
+    // });
 
-    /*On focusout check ans mask phone value ("options.inc.php")*/
-    $(document).on('focusout', 'input[type="text"].maskPhone', function() {
-        maskPhone($(this)[0], true);
-    });
+    // On focusout check ans mask phone value ("options.inc.php")
+    // $(document).on('focusout', 'input[type="text"].maskPhone', function() {
+    //     maskPhone($(this)[0], true);
+    // });
 
     /*Init phone mask when page load.*/
-    initMaskPhone();
+    //initMaskPhone();
 });
 
 /*------------------- (Encounter Form) ----------------*/
