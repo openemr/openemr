@@ -385,3 +385,134 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 });
 };
 </script>
+
+<!-- OEMR - Change -->
+<script type="text/javascript">
+
+    // Mask phone value on load
+    function maskPhoneValue(elem) {
+      var inputValue = elem.value;
+      var trimValue = inputValue.replace(/[\s\(\)\-]/g, "");
+      var curchr = trimValue.length;
+      let isnum = /^\d+$/.test(trimValue);
+
+      if(curchr === 10 && isnum === true) {
+        inputValue = String(trimValue.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3"));
+      }
+      
+      elem.value = inputValue;
+    }
+
+    function clearPhoneValue(val = '') {
+        return val.replace(/[^\d]/g, '');
+    }
+
+    function handleCleanPhoneNo(elem) {
+        if(elem) {
+            var maskField = elem;
+            if(maskField.getAttribute('id')) {
+                var maskFieldId = maskField.getAttribute('id').replace("_mfield", "");
+                document.getElementById(maskFieldId).value = clearPhoneValue(maskField.value);
+            }
+        }
+    }
+
+    // Mask phone value
+    function handleMaskPhoneValue(elem, paste = false) {
+      e = window.event;
+      
+      if(paste === false) {
+        var key = e.which || e.keyCode; // keyCode detection
+        var ctrl = e.ctrlKey || e.metaKey || key === 17; // ctrl detection
+        if (key == 86 && ctrl) { // Ctrl + V Pressed !
+
+        } else if (key == 67 && ctrl) { // Ctrl + C Pressed !
+
+        } else if (key == 88 && ctrl) { //Ctrl + x Pressed
+
+        } else if (key == 65 && ctrl) { //Ctrl + a Pressed !
+          //maskPhoneOnLoad(elem);
+        } else if (key != 9 && e.which != 8 && e.which != 0 && !(e.keyCode >= 96 && e.keyCode <= 105) && !(e.keyCode >= 48 && e.keyCode <= 57)) {
+            return false;
+        }
+
+        maskPhoneValue(elem);
+      } else {
+        maskPhoneValue(elem);
+      }
+    }
+
+    /*On keyup check ans mask phone value ("options.inc.php")*/
+    $(document).on('keyup', 'input[type="text"].mask_ph', function() {
+        handleMaskPhoneValue($(this)[0]);
+        handleCleanPhoneNo($(this)[0]);
+        prepareMiValues();
+    });
+
+    /*On focusout check ans mask phone value ("options.inc.php")*/
+    $(document).on('focusout', 'input[type="text"].mask_ph', function() {
+        handleMaskPhoneValue($(this)[0], true);
+        handleCleanPhoneNo($(this)[0]);
+        prepareMiValues();
+    });
+
+    /*Init phone mask when page load.*/
+    $(document).ready(function(){
+        const collection = document.getElementsByClassName("mask_ph");
+        for (let i = 0; i < collection.length; i++) {
+            handleMaskPhoneValue(collection[i], true);
+            handleCleanPhoneNo(collection[i]);
+            prepareMiValues();
+        }
+    });
+
+
+    /*-------------------(Multi Text Input)----------------*/
+    // Add more input
+    function addMoreInput(elem) {
+      var dataId = elem.getAttribute('data-id');
+
+      if(dataId != '') {
+        var cloneElement = document.getElementById('clone-container_'+dataId).children[0];
+        var inputContainerEle = document.querySelectorAll("#mti-container-" + dataId + " .mti-inputcontainer");
+
+        inputContainerEle[0].appendChild(cloneElement.cloneNode(true));
+
+        prepareMiValues();
+      }
+    }
+
+    // Remove more input
+    function removeMoreInput(elem) {
+        var currentInputContainer = elem.parentElement.parentElement;
+
+        if(currentInputContainer.parentElement.children.length > 1) {
+            if(currentInputContainer) {
+                currentInputContainer.remove();
+            }
+        } else {
+            currentInputContainer.querySelector('input[type="text"]').value = "";
+        }
+
+        prepareMiValues();
+    }
+
+    function prepareMiValues() {
+      var miContainer = document.querySelectorAll(".mti-container");
+
+      miContainer.forEach(function (containerElement, index) {
+        var dataId = containerElement.getAttribute('data-id');
+        var inputElements = containerElement.querySelectorAll('.mti-inputcontainer .mti-form-control[data-id="'+dataId+'"]');
+        
+        var valList = [];
+        inputElements.forEach(function (inputElement, index) {
+          var eleVal = clearPhoneValue(inputElement.value);
+          if(eleVal != "") valList.push(eleVal);
+        });
+
+        containerElement.querySelector('#form_' + dataId).value = valList.join(); 
+      });
+    }
+
+</script>
+<!-- End -->

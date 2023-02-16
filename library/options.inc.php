@@ -651,14 +651,17 @@ function generate_form_field($frow, $currvalue)
 
         /* OEMRAD - Mask phone number value. */
         if (isOption($frow['edit_options'], 'MP') !== false) {
-            $smallform .= " maskPhone";
+            $smallform .= " mask_ph";
+            $fieldPostfix = '_mfield';
+            echo "<input type='hidden' class='form-control' title='{$description}' name='form_{$field_id_esc}'
+            id='form_{$field_id_esc}' size='{$fldlength}' value='{$currescaped}' readonly />";
         }
         /* End */
 
         echo "<input type='text'
             class='form-control{$smallform}'
-            name='form_{$field_id_esc}'
-            id='form_{$field_id_esc}'
+            name='form_{$field_id_esc}{$fieldPostfix}'
+            id='form_{$field_id_esc}{$fieldPostfix}'
             size='{$fldlength}'
             {$string_maxlength}
             {$placeholder}
@@ -1753,11 +1756,11 @@ function generate_form_field($frow, $currvalue)
         
         $i = 0;
         foreach ($explodeVal as $ei => $eItem) {
-            echo Utility::getMultiTextInputElement($frow, $eItem, true);
+            echo getMultiTextInputElement($frow, $eItem, true);
             $i++;
         }
 
-        $cloneElement = Utility::getMultiTextInputElement($frow, '', true);
+        $cloneElement = getMultiTextInputElement($frow, '', true);
 
         echo "</div>";
         echo "<div><button type='button' class='btn btn-primary $btnSize mb-1' data-id='$field_id_esc' onclick='addMoreInput(this)'><i class='fa fa-plus' aria-hidden='true'></i> Add more</button></div>";
@@ -1766,6 +1769,60 @@ function generate_form_field($frow, $currvalue)
         echo "<div style='display:none;'><div id='clone-container_$field_id_esc'>" . $cloneElement . "</div><textarea class='mti-form-$field_id_esc' id='form_$field_id_esc' name='form_$field_id_esc' style='display:none;'>$currescaped</textarea></div></div>";
     }
 }
+
+/* OEMR - Changes */
+function getMultiTextInputElement($frow, $field_value = '', $rmBtn = false) {
+    global $edit_options, $lbfchange;
+
+    $field_id = $frow['field_id'];
+    $list_id  = $frow['list_id'];
+    $field_id_esc = text($field_id);
+    $smallform = isset($frow['smallform']) ? $frow['smallform'] : "";
+    $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
+    // Support using the description as a placeholder
+    $placeholder = (isOption($edit_options, 'DAP') === true) ? " placeholder='{$description}' " : '';
+    $btnSize = ($smallform) ? "btn-sm" : "";
+
+    $tmp = $lbfchange;
+    if (isOption($edit_options, 'C') !== false) {
+        $tmp .= "capitalizeMe(this);";
+    } elseif (isOption($edit_options, 'U') !== false) {
+        $tmp .= "this.value = this.value.toUpperCase();";
+    }
+
+    if (isOption($frow['edit_options'], 'MP') !== false) {
+        $smallform .= " mask_ph";
+    }
+
+    if (isOption($frow['edit_options'], 'MPV') !== false) {
+        $mpValidation = " data-validate='validatePhoneNumber;'";
+    }
+
+    $tmpOnChange = !empty($tmp) ? " onchange='$tmp'" : "";
+
+    $mIRemoveBtn = "<button type='button' data-id='$field_Id' class='btn btn-secondary $btnSize mb-1 ' onclick='removeMoreInput(this)'><i class='fa fa-times' aria-hidden='true'></i></button>";
+
+    $mIInputEle = "<input type='text'" . 
+                " class='form-control mti-form-control {$smallform}' " .
+                " data-id='$field_id_esc'" . 
+                " data-title='".$frow['title']."'" .  
+                " size='{$fldlength}'" . 
+                " {$string_maxlength}" . 
+                " {$placeholder}" .
+                " title='{$description}'" .
+                " " . $mpValidation . 
+                " " . $tmpOnChange . 
+                " value='" . trim($field_value) . "'" .
+                "/>";
+
+    $mICloneEle = "<div class='input-group'>" . $mIInputEle . "<div class='input-group-append'>" . $mIRemoveBtn . "</div></div>";
+    $mIElement = "<div class='mti-itemcontainer'>" . $mIInputEle . "</div>";
+
+    if($rmBtn === true) { $mIElement = $mICloneEle; }
+
+    return $mIElement;
+}
+/* End */
 
 function generate_print_field($frow, $currvalue, $value_allowed = true)
 {

@@ -43,6 +43,7 @@ class Exam2 {
 		return false;
 	}
 
+	/*
 	function ext_exam_script($values, $pid) {
 		global $frmdir;
 
@@ -615,7 +616,9 @@ class Exam2 {
 		</script>
 		<?php
 	}
+	*/
 
+	/*
 	function ext_process_after_fetch($pid) {
 		global $dt, $img, $surg, $hosp, $pmh, $fh, $diag, $allergies, $meds, $imm, $meds, $diag, $med_hist;
 
@@ -694,7 +697,7 @@ class Exam2 {
 				}
 			}
 		}
-	}
+	}*/
 
 	function ext_general_exam2_module($pid) {
 		global $dt;
@@ -766,7 +769,8 @@ class Exam2 {
 		return $format;
 	}
 
-	function ext_exam_process_request($pid) {
+	/*
+	public static function ext_exam_process_request($pid) {
 		//Date Pre Processing
 		$fieldList = array(
 			'img_dt',
@@ -790,7 +794,7 @@ class Exam2 {
 				}
 			}
 		}
-	}
+	}*/
 
 	function isDateTime($x) {
 		$dateFormat = self::getCurrentDateFormat();
@@ -809,6 +813,7 @@ class Exam2 {
 		}
 	}
 
+	/*
 	function ext_exam_process_form($k, $var) {
 		global $img, $data, $cp_img, $surg, $cp_surg, $hosp, $cp_pmh, $pmh, $cp_hosp, $fh, $cp_fh, $diag, $cp_diag;
 
@@ -876,7 +881,9 @@ class Exam2 {
 			unset($data[$k]);
 		}
 	}
+	*/
 
+	/*
 	function ext_exam_form_action($pid) {
 		global $img, $cp_img, $surg, $cp_surg, $hosp, $cp_hosp, $cp_pmh, $pmh, $fh, $cp_fh, $diag, $cp_diag, $dt, $encounter;
 
@@ -925,6 +932,7 @@ class Exam2 {
 			}
 		}
 	}
+	*/
 
 	public function deleteAllList($pid) {
 		$img=GetImageHistory($pid);

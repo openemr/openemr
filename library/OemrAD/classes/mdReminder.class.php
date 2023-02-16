@@ -17,12 +17,14 @@ namespace OpenEMR\OemrAd;
 @include_once("../configs/reminder_settings.php");
 @include_once("./mdZoomIntegration.class.php");
 @include_once("./mdSmslib.class.php");
+@include_once("./mdMessagesLib.class.php");
 @include_once("./reminderUtils.php");
 
 use OpenEMR\OemrAd\EmailMessage;
 use OpenEMR\OemrAd\FaxMessage;
 use OpenEMR\OemrAd\PostalLetter;
 use OpenEMR\OemrAd\ZoomIntegration;
+use OpenEMR\OemrAd\MessagesLib;
 use OpenEMR\OemrAd\Smslib;
 
 class Reminder {
@@ -1694,7 +1696,7 @@ class Reminder {
 			$isEnable = $pat_data['hipaa_allowsms'] != 'YES' || empty($pat_data['phone_cell']) ? true : false;
 			
 			if(!empty($pat_phone) && $isEnable === false) {
-				$final_pat_phone = self::getPhoneNumbers($pat_phone);
+				$final_pat_phone = MessagesLib::getPhoneNumbers($pat_phone);
 				$form_to_phone =  $final_pat_phone['msg_phone'];
 				$form_message = $data['message'];
 
@@ -1941,40 +1943,6 @@ class Reminder {
 		}
 
 		return false;
-	}
-
-	//Get phone numbers
-	public static function getPhoneNumbers($pat_phone) {
-		// Get phone numbers
-		$msg_phone = $pat_phone;
-		if(strlen($msg_phone) != 12) {
-		  $msg_phone = self::formattedPhoneNo($msg_phone);
-		  
-		  $pat_phone = self::getPhoneNoText($pat_phone);
-		  if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
-		  $pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
-		}
-		return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone);
-	}
-
-	public static function formattedPhoneNo($pat_phone) {
-		// Get phone numbers
-		$msg_phone = $pat_phone;
-		if(strlen($msg_phone) <= 10) {
-			if (substr($msg_phone,0,1) != '1') $msg_phone = "1" . $msg_phone;
-		}
-		return $msg_phone;
-	}
-
-	public static function getPhoneNoText($pat_phone) {
-		// Get phone numbers
-		$msg_phone = $pat_phone;
-		if(strlen($msg_phone) > 10 && strlen($msg_phone) == 12) {
-			$msg_phone = substr($msg_phone,2,12);
-		} else if(strlen($msg_phone) > 10 && strlen($msg_phone) == 11) {
-			$msg_phone = substr($msg_phone,1,11);
-		}
-		return $msg_phone;
 	}
 
 	public static function handleZoomMeetingCreation($data, $config) {
@@ -3079,7 +3047,7 @@ class Reminder {
 			$isEnable = $pat_data['hipaa_allowsms'] != 'YES' || empty($pat_data['phone_cell']) ? true : false;
 			
 			if(!empty($pat_phone) && $isEnable === false) {
-				$final_pat_phone = self::getPhoneNumbers($pat_phone);
+				$final_pat_phone = MessagesLib::getPhoneNumbers($pat_phone);
 				$form_to_phone =  $final_pat_phone['msg_phone'];
 				$form_message = $data['message'];
 

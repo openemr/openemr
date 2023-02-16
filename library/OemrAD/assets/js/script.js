@@ -333,6 +333,7 @@ async function handleEmailVerification(val, ele) {
 /*-------------------(Phone number validation)----------------*/
 
 // Prepare Multi Input Field values before submit
+/*
 function prepareMiValues() {
   var miContainer = document.querySelectorAll(".mti-container");
 
@@ -349,6 +350,7 @@ function prepareMiValues() {
     containerElement.querySelector('#form_' + dataId).value = valList.join(); 
   });
 }
+*/
 
 // Prepare Error Msg
 function prepareErrorMsg(errors) {
@@ -470,7 +472,7 @@ function validateOptions(form_id) {
 
 
 /*-------------------(Phone number mask)----------------*/
-
+/*
 // Mask phone value on load ("options.inc.php")
 function maskPhoneOnLoad(elem) {
   var inputValue = elem.value;
@@ -537,11 +539,12 @@ function initMaskPhone() {
     maskPhone(collection[i], true);
   }
 }
+*/
 
 /*-------------------END----------------*/
 
 /*-------------------(Multi Text Input)----------------*/
-
+/*
 // Add more input
 function addMoreInput(elem) {
   var dataId = elem.getAttribute('data-id');
@@ -566,6 +569,7 @@ function removeMoreInput(elem) {
         currentInputContainer.querySelector('input[type="text"]').value = "";
     }
 }
+*/
 
 /*-------------------End----------------*/
 

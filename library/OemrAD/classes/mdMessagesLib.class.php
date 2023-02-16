@@ -1134,6 +1134,14 @@ class MessagesLib {
 	}
 
 	public static function getPhoneNumbers($pat_phone) {
+		if(empty($pat_phone)) {
+			return array('msg_phone' => $pat_phone, 'pat_phone' => $pat_phone, 'raw_phone' => $pat_phone);
+		}
+
+		// Get phone numbers
+		$pat_phone = preg_replace('/[^0-9]/', '', trim($pat_phone));
+		$raw_phone = $pat_phone;
+
 		// Get phone numbers
 		$msg_phone = $pat_phone;
 		if(strlen($msg_phone) != 12) {
@@ -1143,7 +1151,7 @@ class MessagesLib {
 		  if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
 		  $pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
 		}
-		return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone);
+		return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone, 'raw_phone' => $raw_phone);
 	}
 
 	public static function formattedPhoneNo($pat_phone) {

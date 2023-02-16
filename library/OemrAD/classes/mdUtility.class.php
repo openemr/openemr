@@ -214,24 +214,24 @@ class Utility {
 	    return $returnval;
 	}
 
-	public static function getMultiTextInputElement($frow, $field_value = '', $rmBtn = false) {
-	    global $edit_options, $lbfchange;
+	//public static function getMultiTextInputElement($frow, $field_value = '', $rmBtn = false) {
+	    // global $edit_options, $lbfchange;
 
-	    $field_id = $frow['field_id'];
-	    $list_id  = $frow['list_id'];
-	    $field_id_esc = text($field_id);
-	    $smallform = isset($frow['smallform']) ? $frow['smallform'] : "";
-	    $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
-	    // Support using the description as a placeholder
-	    $placeholder = (isOption($edit_options, 'DAP') === true) ? " placeholder='{$description}' " : '';
-	    $btnSize = ($smallform) ? "btn-sm" : "";
+	    // $field_id = $frow['field_id'];
+	    // $list_id  = $frow['list_id'];
+	    // $field_id_esc = text($field_id);
+	    // $smallform = isset($frow['smallform']) ? $frow['smallform'] : "";
+	    // $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
+	    // // Support using the description as a placeholder
+	    // $placeholder = (isOption($edit_options, 'DAP') === true) ? " placeholder='{$description}' " : '';
+	    // $btnSize = ($smallform) ? "btn-sm" : "";
 
-	    $tmp = $lbfchange;
-	    if (isOption($edit_options, 'C') !== false) {
-	        $tmp .= "capitalizeMe(this);";
-	    } elseif (isOption($edit_options, 'U') !== false) {
-	        $tmp .= "this.value = this.value.toUpperCase();";
-	    }
+	    // $tmp = $lbfchange;
+	    // if (isOption($edit_options, 'C') !== false) {
+	    //     $tmp .= "capitalizeMe(this);";
+	    // } elseif (isOption($edit_options, 'U') !== false) {
+	    //     $tmp .= "this.value = this.value.toUpperCase();";
+	    // }
 
 	    /*
 	    Author: Hardik Khatri
@@ -249,34 +249,34 @@ class Utility {
 	    Author: Hardik Khatri
 	    Description: Mask phone number value.
 	    */
-	    if (isOption($frow['edit_options'], 'MP') !== false) {
-	        $smallform .= " maskPhone";
-	    }
+	    // if (isOption($frow['edit_options'], 'MP') !== false) {
+	    //     $smallform .= " maskPhone";
+	    // }
 
 	    /*
 	    Author: Hardik Khatri
 	    Description: Validate phone number.
 	    */
-	    if (isOption($frow['edit_options'], 'MPV') !== false) {
-	        $mpValidation = " data-validate='validatePhoneNumber;'";
-	    }
+	    // if (isOption($frow['edit_options'], 'MPV') !== false) {
+	    //     $mpValidation = " data-validate='validatePhoneNumber;'";
+	    // }
 
-	    $tmpOnChange = !empty($tmp) ? " onchange='$tmp'" : "";
+	    // $tmpOnChange = !empty($tmp) ? " onchange='$tmp'" : "";
 
-	    $mIRemoveBtn = "<button type='button' data-id='$field_Id' class='btn btn-secondary $btnSize mb-1 ' onclick='removeMoreInput(this)'><i class='fa fa-times' aria-hidden='true'></i></button>";
+	    // $mIRemoveBtn = "<button type='button' data-id='$field_Id' class='btn btn-secondary $btnSize mb-1 ' onclick='removeMoreInput(this)'><i class='fa fa-times' aria-hidden='true'></i></button>";
 
-	    $mIInputEle = "<input type='text'" . 
-	                " class='form-control mti-form-control {$smallform}' " .
-	                " data-id='$field_id_esc'" . 
-	                " data-title='".$frow['title']."'" .  
-	                " size='{$fldlength}'" . 
-	                " {$string_maxlength}" . 
-	                " {$placeholder}" .
-	                " title='{$description}'" .
-	                " " . $mpValidation . 
-	                " " . $tmpOnChange . 
-	                " value='" . trim($field_value) . "'" .
-	                "/>";
+	    // $mIInputEle = "<input type='text'" . 
+	    //             " class='form-control mti-form-control {$smallform}' " .
+	    //             " data-id='$field_id_esc'" . 
+	    //             " data-title='".$frow['title']."'" .  
+	    //             " size='{$fldlength}'" . 
+	    //             " {$string_maxlength}" . 
+	    //             " {$placeholder}" .
+	    //             " title='{$description}'" .
+	    //             " " . $mpValidation . 
+	    //             " " . $tmpOnChange . 
+	    //             " value='" . trim($field_value) . "'" .
+	    //             "/>";
 
 	    /*
 	    Author: Hardik Khatri
@@ -294,13 +294,13 @@ class Utility {
 	    }*/
 
 
-	    $mICloneEle = "<div class='input-group'>" . $mIInputEle . "<div class='input-group-append'>" . $mIRemoveBtn . "</div></div>";
-	    $mIElement = "<div class='mti-itemcontainer'>" . $mIInputEle . "</div>";
+	    // $mICloneEle = "<div class='input-group'>" . $mIInputEle . "<div class='input-group-append'>" . $mIRemoveBtn . "</div></div>";
+	    // $mIElement = "<div class='mti-itemcontainer'>" . $mIInputEle . "</div>";
 
-	    if($rmBtn === true) { $mIElement = $mICloneEle; }
+	    // if($rmBtn === true) { $mIElement = $mICloneEle; }
 
-	    return $mIElement;
-	}
+	    // return $mIElement;
+	//}
 
 	public static function getHtmlString($text) {
 		return addslashes(htmlspecialchars($text));

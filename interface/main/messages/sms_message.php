@@ -41,6 +41,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\OemrAd\Smslib;
 use OpenEMR\OemrAd\Twiliolib;
 use OpenEMR\OemrAd\EmailMessage;
+use OpenEMR\OemrAd\MessagesLib;
 
 // Set "sender" phone number
 $send_phone = preg_replace('/[^0-9]/', '', Smslib::getDefaultFromNo());
@@ -218,7 +219,7 @@ if (isset($form_id) && !empty($form_id)) {
 	$pat_phones = array();
 	foreach ($pat_phones_list as $key => $value) {
 		$tmpPhone = preg_replace('/[^0-9]/', '', $value);
-		$responce = getPhoneNumbers($tmpPhone);
+		$responce = MessagesLib::getPhoneNumbers($tmpPhone);
 		$pat_phones[] = isset($responce) ? $responce : array();
 	}
 
@@ -252,7 +253,7 @@ if (isset($form_id) && !empty($form_id)) {
 	$pat_phones = array();
 	foreach ($pat_phones_list as $key => $value) {
 		$tmpPhone = preg_replace('/[^0-9]/', '', $value);
-		$responce = getPhoneNumbers($tmpPhone);
+		$responce = MessagesLib::getPhoneNumbers($tmpPhone);
 		$pat_phones[] = isset($responce) ? $responce : array();
 	}
 
@@ -272,8 +273,7 @@ if($smsType == "send") {
 		$msg_phone = $selected_phone;
 	}
 } else if($smsType == "reply" || $smsType == "resend") {
-	//print_r(getPhoneNumbers($pat_phone));
-	$patPhoneData = getPhoneNumbers($pat_phone);
+	$patPhoneData = MessagesLib::getPhoneNumbers($pat_phone);
 	$pat_phone = $patPhoneData['pat_phone'];
 
 	if(!empty($patPhoneData) && empty($form_to_phone)) {
@@ -284,8 +284,7 @@ if($smsType == "send") {
 		$msg_phone = $selected_phone;
 	}
 } else if (isset($form_id) && !empty($form_id)) {
-	//print_r(getPhoneNumbers($pat_phone));
-	$patPhoneData = getPhoneNumbers($pat_phone);
+	$patPhoneData = MessagesLib::getPhoneNumbers($pat_phone);
 	$pat_phone = $patPhoneData['pat_phone'];
 
 	if(!empty($patPhoneData) && empty($form_to_phone)) {
@@ -295,40 +294,6 @@ if($smsType == "send") {
 	if(!empty($pat_phone)) {
 		$msg_phone = $selected_phone;
 	}
-}
-
-//Get phone numbers
-function getPhoneNumbers($pat_phone) {
-	// Get phone numbers
-	$msg_phone = $pat_phone;
-	if(strlen($msg_phone) != 12) {
-	  $msg_phone = formattedPhoneNo($msg_phone);
-	  
-	  $pat_phone = getPhoneNoText($pat_phone);
-	  if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
-	  $pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
-	}
-	return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone);
-}
-
-function formattedPhoneNo($pat_phone) {
-	// Get phone numbers
-	$msg_phone = $pat_phone;
-	if(strlen($msg_phone) <= 10) {
-		if (substr($msg_phone,0,1) != '1') $msg_phone = "1" . $msg_phone;
-	}
-	return $msg_phone;
-}
-
-function getPhoneNoText($pat_phone) {
-	// Get phone numbers
-	$msg_phone = $pat_phone;
-	if(strlen($msg_phone) > 10 && strlen($msg_phone) == 12) {
-		$msg_phone = substr($msg_phone,2,12);
-	} else if(strlen($msg_phone) > 10 && strlen($msg_phone) == 11) {
-		$msg_phone = substr($msg_phone,1,11);
-	}
-	return $msg_phone;
 }
 
 function getVals($value) {

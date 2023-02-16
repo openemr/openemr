@@ -308,6 +308,9 @@ $vitals_is_registered = $tmp['count'];
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+// OEMR - Change
+$result = getAlterPatientData('DEM',$result);
+
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData($pid, "primary", "copay, provider, DATE_FORMAT(`date`,'%Y-%m-%d') as effdate");
 $insco_name = "";

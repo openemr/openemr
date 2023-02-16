@@ -47,7 +47,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\OemrAd\EmailMessage;
 use OpenEMR\OemrAd\Attachment;
 use OpenEMR\OemrAd\MessagesLib;
+use OpenEMR\OemrAd\Smslib;
 use OpenEMR\Common\Acl\AclMain;
+
 
 $page_action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 $draw = $_POST['draw'];
@@ -863,85 +865,55 @@ function linkMultipleMsg($id, $pid, $set_action, $set_update_action = "0") {
 	}
 
 	if($set_update_action == "1") {
-		updatePatEmail($pid, $row['type'], $row[$colName]);
+		updatePatEmailPhone($pid, $row['type'], $row[$colName]);
 	}
 }
 
-function updatePatEmail($pid, $type, $value) {
+function updatePatEmailPhone($pid, $type, $value) {
 	if(!empty($pid) && !empty($type) && !empty($value)) {
-		$patData = sqlQuery("SELECT pid, secondary_email, secondary_phone_cell, email_direct, phone_cell FROM `patient_data` WHERE id = $pid");
+		$patData = sqlQuery("SELECT pid, secondary_email, secondary_phone_cell, email_direct, phone_cell FROM `patient_data` WHERE pid = $pid");
 		
 		if(!empty($patData)) {
 			if($type == "SMS") {
-				$tmpPhone = preg_replace('/[^0-9]/', '', $value);
-				$pat_phone_val = getPhoneNumbers($tmpPhone);				
-				$phoneNOObj = array_filter(explode(",",$patData['secondary_phone_cell']));
-				$phoneList = !empty($phoneNOObj) ? $phoneNOObj : array();
+				//Values 
+				$newPhoneValue = MessagesLib::getPhoneNumbers($value);
+				$phoneVal = MessagesLib::getPhoneNumbers($patData['phone_cell']);
+				$secondaryPhoneVal = !empty(trim($patData['secondary_phone_cell'])) ? array_filter(array_map('trim', explode(",",$patData['secondary_phone_cell']))) : array();
+				$secondaryPhoneVal = array_map(function($item) { return MessagesLib::getPhoneNumbers($item); }, $secondaryPhoneVal);
 
-				if(!empty($patData['phone_cell'])) {
-					$phoneNOObj[] = $patData['phone_cell'];
-				}
+				//Raw
+				$rnPhoneValue = isset($newPhoneValue['raw_phone']) ? $newPhoneValue['raw_phone'] : "";
+				$rPhoneValue = isset($phoneVal['raw_phone']) ? $phoneVal['raw_phone'] : "";
+				$rSecondaryPhoneVal =  array_filter(array_map(function($item) { return $item['raw_phone']; }, $secondaryPhoneVal));
 
-				$isExists = false;
+				//Update
+				if(!in_array($rnPhoneValue, array_merge(array_filter(array($rPhoneValue)),$rSecondaryPhoneVal))) {
+					if(empty($rPhoneValue)) {
+						sqlStatementNoLog("UPDATE `patient_data` SET `phone_cell` = ? WHERE pid = ? ", array($rnPhoneValue, $pid));
+					} else {
+						$newSecondaryPhoneVal = !empty($rSecondaryPhoneVal) ? $rSecondaryPhoneVal : array();
+						if(!empty($rnPhoneValue)) $newSecondaryPhoneVal[] = $rnPhoneValue;
 
-				foreach ($phoneNOObj as $ind => $phoneItm) {
-					$tmpphoneItm = preg_replace('/[^0-9]/', '', $phoneItm);
-					$patphoneItm = getPhoneNumbers($tmpphoneItm);
-
-					if($patphoneItm['msg_phone'] == $pat_phone_val['msg_phone']) {
-						$isExists = true;
+						sqlStatementNoLog("UPDATE `patient_data` SET `secondary_phone_cell` = ? WHERE pid = ? ", array(implode(",", $newSecondaryPhoneVal), $pid));
 					}
 				}
-
-				if($isExists === false) {
-					$phoneList[] = $pat_phone_val['pat_phone'];
-				}
-
-				$phoneListStr = implode(",", $phoneList);
-				$binds = array(
-					$phoneListStr,
-					$pid
-				);
-
-				sqlStatementNoLog("UPDATE `patient_data` SET `secondary_phone_cell` = ? WHERE pid = ? ", $binds);
-
 			} else if($type == "EMAIL") {
-				$emailObj = explode(",",$patData['secondary_email']);
-				$emailList = !empty($emailObj) ? $emailObj : array();
+				$emailDirectVal = !empty(trim($patData['email_direct'])) ? trim($patData['email_direct']) : "";
+				$secondaryEmailVal = !empty(trim($patData['secondary_email'])) ? array_filter(array_map('trim', explode(",",$patData['secondary_email']))) : array();
 
-				if(!empty($patData['email_direct'])) {
-					$emailObj[] = $patData['email_direct'];
+				if(!in_array($value, array_merge(array_filter(array($emailDirectVal)),$secondaryEmailVal))) {
+					if(empty($emailDirectVal)) {
+						sqlStatementNoLog("UPDATE `patient_data` SET `email_direct` = ? WHERE pid = ? ", array($value, $pid));
+					} else {
+						$newSecondaryEmailVal = !empty($secondaryEmailVal) ? $secondaryEmailVal : array();
+						if(!empty($value)) $newSecondaryEmailVal[] = $value;
+
+						sqlStatementNoLog("UPDATE `patient_data` SET `secondary_email` = ? WHERE pid = ? ",array(implode(",", $newSecondaryEmailVal), $pid));
+					}
 				}
-
-				if(!in_array($value, $emailObj)) {
-					$emailList[] = $value;
-				}
-
-				$emailListStr = implode(",", $emailList);
-				$binds = array(
-					$emailListStr,
-					$pid
-				);
-
-				sqlStatementNoLog("UPDATE `patient_data` SET `secondary_email` = ? WHERE pid = ? ", $binds);
 			}
 		}	
 	}
-}
-
-//Get phone numbers
-function getPhoneNumbers($pat_phone) {
-	// Get phone numbers
-	$msg_phone = $pat_phone;
-	if(strlen($msg_phone) != 12) {
-	  if (substr($pat_phone,0,1) != '1') $msg_phone = "1" . $msg_phone;
-	  if (strlen($msg_phone) > 11) $msg_phone = substr($msg_phone,0,11);
-	  
-	  if (substr($pat_phone,0,1) == '1') $pat_phone = substr($pat_phone,1,10);
-	  if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
-	  $pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
-	}
-	return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone);
 }
 
 function addPNoteAfterAssing($set_id, $set_assign_pid, $set_uid, $set_username, $set_group, $set_note_type) {
