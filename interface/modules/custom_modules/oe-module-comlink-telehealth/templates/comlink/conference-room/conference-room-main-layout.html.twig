@@ -1,0 +1,38 @@
+<div class="row conference-room bg-dark {% if testTemplateLayout %}d-none{% endif %}">
+    <div class="col-12 d-flex">
+        <!-- each additional remote participant will get added here using the participant-list-template-node as a clone -->
+        <div id="participant-list-container"
+             class="participant-list-container col-lg-2 col-md-2 col-sm-3 col-4 p-0"
+             data-class-minimize="participant-list-container p-0 d-flex flex-row"
+             data-class-maximize="participant-list-container col-lg-2 col-md-2 col-sm-3 col-4 p-0"
+        >
+            {% if not testTemplateLayout %}
+                {% include 'comlink/conference-room/room-participant-container.html.twig' with {template: true} %}
+                {% include 'comlink/local-participant-container.html.twig' with {callerName: callerName} %}
+            {% else %}
+                {% for participant in testTemplateLayout.participants %}
+                    {% include 'comlink/conference-room/room-participant-container.html.twig' with
+                        {template: false, videoSrc: participant.videoSrc, callerName: participant.callerName}
+                    %}
+                {% endfor %}
+                {% include 'comlink/local-participant-container.html.twig' with {callerName: "Test Local Caller", testVideoSrc:testTemplateLayout.mainVideoSrc} %}
+            {% endif %}
+
+        </div>
+        <div class="remote-video-container text-center flex-fill">
+            <video id="presentation-screen" class="remote-video {% if not testTemplateLayout %}d-none {% endif %}w-100"
+            {% if testTemplateLayout %}
+                    src="{{ testTemplateLayout.mainVideoSrc|attr }}"
+           {% endif %}
+            ></video>
+            {% if not testTemplateLayout %}
+            <div class="waiting-container">
+                <h1 class="h1-responsive text-light text-center">{{ "Waiting for participants to join"|xlt }}<div class="spinner-border" role="status">
+                        <span class="sr-only">{{ "Waiting"|xlt }}...</span>
+                    </div></h1>
+            </div>
+            {% endif %}
+            {% include 'comlink/video-control-bar.twig' %}
+        </div>
+    </div>
+</div>
