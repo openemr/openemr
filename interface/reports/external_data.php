@@ -108,7 +108,7 @@ $records2 = array();
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <p class="text-center">
                                         <?php echo xlt('No External Encounters'); ?>
                                     </p>
