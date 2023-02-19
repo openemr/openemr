@@ -576,7 +576,6 @@ $count = 0;
 // plot the data points
 foreach ($datapoints as $data) {
     if (!empty($data)) {
-        $tmp = explode('-', $data);
         list($date, $height, $weight, $head_circ) = explode('-', $data);
         if ($date == "") {
             continue;
