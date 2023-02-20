@@ -1,0 +1,1 @@
+C:\xampp\php\php-cgi.exe -f "C:\xampp\htdocs\openemr\interface\forms\quest\batch.php" site=default lab=2 >> c:\xampp\apache\logs\quest.txt
