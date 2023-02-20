@@ -31,7 +31,7 @@ function AddBoneDensity($thisPid,$sdate='',$result='',$comm='',$rev='')
 				if(!isset($irow{'option_id'})) $irow{'option_id'} = '';
 				if($irow{'option_id'}) {
 					$dup = sqlQuery("SELECT * FROM lists WHERE type = ? AND pid = ? ".
-						"AND injury_type = ? AND begdate = ?", 
+						"AND injury_type = ? AND date(begdate) = ?", 
 						array('wmt_img_history', $thisPid, $irow{'option_id'}, $sdate));	
 					if(!isset($dup{'id'})) $dup{'id'} = '';
 					$comm = 'Auto-Add From Bone Density to Image Link';

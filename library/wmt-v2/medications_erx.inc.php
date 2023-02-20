@@ -84,7 +84,7 @@ if(count($meds) > 0) {
 		<?php } ?>
 		</td>
 		<?php if(!$portal_mode) { ?>
-		<td class="wmtBody <?php echo (($portal_mode)?'':'wmtBorder1L wmtBorder1B'); ?>"><div class="wmtListButton"><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatemed','med_id_','Prescription');" ><span><?php xl('Update','e'); ?></span></a>
+		<td class="wmtBody <?php echo (($portal_mode)?'':'wmtBorder1L wmtBorder1B'); ?> btnActContainer"><div class="wmtListButton"><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatemed','med_id_','Prescription');" ><span><?php xl('Update','e'); ?></span></a>
 			<?php
 			if($unlink_allow) { 
 				if($prev['list_id']) {

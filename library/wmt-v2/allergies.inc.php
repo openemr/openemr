@@ -85,7 +85,7 @@ if(count($allergies) > 0) {
 		<?php } ?>
 		</td>
 
-		<td class="<?php echo (($portal_mode)?'':'wmtBorder1L wmtBorder1B'); ?>">
+		<td class="<?php echo (($portal_mode)?'':'wmtBorder1L wmtBorder1B'); ?> btnActContainer">
 		<?php if(!$portal_mode || $prev['classification'] == 9) { ?>
 			<div style="float: left; padding-left: 2px;"><a href="javascript:;" class="css_button_small" tabindex="-1" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updateall','all_id_','Allergy');" title='Update this allergy'><span><?php xl('Update','e'); ?></span></a></div>
 		<?php } ?>

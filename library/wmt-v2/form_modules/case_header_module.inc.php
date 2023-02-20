@@ -346,11 +346,9 @@ function setaddress(uid)
 </div>
 
 <script type="text/javascript">
-<?php if($v_major < 5 && (!$v_minor && !$v_patch)) { ?>
-alert('Case Calendar');
 Calendar.setup({inputField:"<?php echo $field_prefix; ?>injury_date", ifFormat:"<?php echo $date_img_fmt; ?>", daFormat:"<?php echo $date_img_fmt; ?>", button:"img_<?php echo $field_prefix; ?>injury_dt"});
 Calendar.setup({inputField:"<?php echo $field_prefix; ?>first_consult_date", ifFormat:"<?php echo $date_img_fmt; ?>", daFormat:"<?php echo $date_img_fmt; ?>", button:"img_<?php echo $field_prefix; ?>first_consult_dt"});
-<?php } ?>
+
 
 function add_policy(base, callback_func)
 {

@@ -49,7 +49,7 @@ if($med_hist && (count($med_hist) > 0)) {
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><?php echo $size; ?>&nbsp;</td>
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><?php echo $sig1; ?>&nbsp;</td>
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><input name='med_hist_comments_<?php echo $cnt; ?>' id='med_hist_comments_<?php echo $cnt; ?>' type='text' class='wmtFullInput' tabindex='-1' value="<?php echo $prev['note']; ?>" /></td>
-		<td class='wmtBody wmtBorder1L wmtBorder1B'><div class="wmtListButton"><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatemedhist','med_hist_id_','Prescription');" ><span><?php xl('Update','e'); ?></span></a></div>
+		<td class='wmtBody wmtBorder1L wmtBorder1B btnActContainer'><div class="wmtListButton"><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatemedhist','med_hist_id_','Prescription');" ><span><?php xl('Update','e'); ?></span></a></div>
 <?php
 		if($unlink_allow) {
 			if($prev['list_id']) { 

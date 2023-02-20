@@ -33,7 +33,7 @@ function AddDiagFavorite($ctype='ICD10',$code='',$title='',$seq='',
   	$sql = 'INSERT INTO `wmt_diag_fav` (`date`, `user`, `code_type`, `code`, '.
 			'`title`, `seq`, `list_user`, `global_list`, `grp`, `modifier`) '.
 			'VALUES '.
-			'(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE '.
+			'(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE '.
 			'`seq` = VALUES(`seq`)';
 		$binds = array($_SESSION['authUser'], $ctype, $code, $title, $seq, 
 				$user, $global, $grp, $mod);

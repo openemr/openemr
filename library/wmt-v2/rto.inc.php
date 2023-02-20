@@ -20,7 +20,38 @@ if($GLOBALS['date_display_format'] == 1) {
 } else $date_title_fmt = 'YYYY-MM-DD';
 $date_title_fmt = 'Please Format Date As '.$date_title_fmt;
 
-if(isset($orderLbfFormLib)) $orderLbfFormLib->rto_init($pid);
+/* OEMR - Changes */
+$dt['layout_form'] = false;
+$hideClass = $newordermode == true ? 'hideContent' : '';
+$showNewOrder = (!isset($newordermode) || $newordermode === false || ($newordermode === true && isset($rto_page_details['total_pages']) && ($rto_page_details['total_pages'] == 0 ||$rto_page_details['total_pages'] == $pageno))) ? true : false;
+
+if($newordermode === true) {
+	$order_action = isset($_REQUEST['rto_action']) ? $_REQUEST['rto_action'] : "";
+	$layoutData = getLayoutForm($order_action);
+	if(!empty($layoutData) && !empty($layoutData['grp_form_id'])) {
+		$dt['layout_form'] = true;
+	}
+
+	$fieldList = array(
+		'rto_action' => 'rto_action',
+		'date' => 'rto_date1',
+		'rto_ordered_by' => 'rto_ordered_by',
+		'id' => 'rto_id',
+		'test_target_dt' => 'rto_test_target_dt',
+		'rto_status' => 'rto_status',
+		'rto_resp_user' => 'rto_resp',
+		'rto_notes' => 'rto_notes',
+		'rto_target_date' => 'rto_target_date',
+		'rto_num' => 'rto_num',
+		'rto_frame' => 'rto_frame',
+		'rto_date' => 'rto_date',
+		'rto_repeat' => 'rto_repeat',
+		'rto_stop_date' => 'rto_stop_date'
+	);
+
+	$dateFields = array('date', 'rto_date', 'rto_target_date', 'rto_stop_date');
+}
+/* End */
 
 ?>
 <table width='100%'	border='0' cellspacing='0' cellpadding='2'>
@@ -39,7 +70,46 @@ foreach($rto_data as $rto) {
 			text($rto['rto_last_touch']);
 	}
 	
-	if(isset($orderLbfFormLib)) $orderLbfFormLib->rto_data_setup($pid);
+	/* OEMR - Changes */
+	$rto['layout_form'] = false;
+	$pagenoQtr = isset($pageno) ? '&pageno='.$pageno : '';
+
+	if($newordermode === true) {
+		$order_action_n = isset($_REQUEST['rto_action_'.$cnt]) ? $_REQUEST['rto_action_'.$cnt] : "";
+		if(empty($order_action_n)) $order_action_n = isset($rto['rto_action']) ? $rto['rto_action'] : '';
+
+		$layoutData_n = getLayoutForm($order_action_n);
+
+		if(!empty($layoutData_n) && !empty($layoutData_n['grp_form_id'])) $rto['layout_form'] = true;
+
+		if($mode == 'refresh' || $mode == 'lbf_save') {
+			$tmp_layout_form = $dt['layout_form'];
+			$dt = $_POST;
+			$dt['layout_form'] = $tmp_layout_form;
+
+			foreach ($fieldList as $key => $value) {
+				if(in_array($key, $dateFields)) {
+					if(!empty($_POST[$value.'_'.$cnt])) {
+						$rto[$key] = date("Y-m-d", strtotime($_POST[$value.'_'.$cnt]));
+					}
+				} else {
+					$rto[$key] = $_POST[$value.'_'.$cnt];
+				}
+			}
+
+			foreach ($dateFields as $key => $field) {
+				if(!empty($_POST[$field])) {
+					$dt[$field] = date("Y-m-d", strtotime($_POST[$field]));
+				}
+			}
+		}
+
+		$rto_id_n = isset($rto['id']) ? $rto['id'] : '';
+		$rtoData_n = getRtoLayoutFormData($pid, $rto['id']);
+		$form_id_n = isset($rtoData_n['form_id']) ? $rtoData_n['form_id'] : 0;
+
+	}
+	/* End */
 
 	$orderReadyOnly = ($newordermode === true) ? "readonly" : "";
 ?>
@@ -48,18 +118,18 @@ foreach($rto_data as $rto) {
 			<td colspan="5"><?php echo $rto['id']; ?></td>
 	</tr>
 	<tr height="20">
-		<td class='wmtLabel2' width="100">&nbsp;<?php xl('Order Type','e') ?>:</td>
+		<td class='wmtLabel2' width="120">&nbsp;<?php xl('Order Type','e') ?>:</td>
 		<td width="200">
 			<?php if(!$is_admin && $complete && 1 != 1) { ?>
 				<input name='rto_action_<?php echo $cnt; ?>' id='rto_action_<?php echo $cnt; ?>' class='wmtFullInput' readonly='readonly' type='hidden' value="<?php echo $rto['rto_action']; ?>" />
 				<input class='wmtFullInput disabledInput' disabled="disabled" readonly='readonly' type='text' value="<?php echo ListLook($rto['rto_action'],'RTO_Action'); ?>" />
 			<?php } else { ?>
-				<select name='rto_action_<?php echo $cnt; ?>' id='rto_action_<?php echo $cnt; ?>' class='wmtFullInput orderType' onchange="updateBorder(this);" <?php echo $orderReadyOnly; ?> >
+				<select name='rto_action_<?php echo $cnt; ?>' id='rto_action_<?php echo $cnt; ?>' class='wmtFullInput orderType wmtDisabled' onchange="updateBorder(this);" <?php echo $orderReadyOnly; ?> >
 				<?php ListSel($rto['rto_action'], 'RTO_Action'); ?></select>
 			<?php } ?>
 		</td>
 
-		<td class='wmtLabel2' width="100">&nbsp;<?php xl('Ordered By','e'); ?>:</td>
+		<td class='wmtLabel2' width="120">&nbsp;<?php xl('Ordered By','e'); ?>:</td>
 		<td width="200">
 			<?php if(!$is_admin && $complete && 1 != 1) { ?>
 				<input name='rto_ordered_by_<?php echo $cnt; ?>' id='rto_ordered_by_<?php echo $cnt; ?>' class='wmtFullInput' readonly='readonly' type='hidden' value="<?php echo $rto['rto_ordered_by']; ?>" />
@@ -72,18 +142,32 @@ foreach($rto_data as $rto) {
 
 		<td class='wmtLabel2' rowspan="5" valign="top">
 			<div class="<?php echo ($rto['layout_form'] === true) ? 'hideContent' : '' ?>">&nbsp;<?php xl('Notes','e'); ?>:</div>
-			<?php if(isset($orderLbfFormLib)) $orderLbfFormLib->lbf_form_action_btn(); ?>
+			<?php
+				/* OEMR - Changes */
+				if(!empty($layoutData_n) && !empty($layoutData_n['grp_form_id']) && empty($rtoData_n)) {
+					$lformname = $layoutData_n['grp_form_id'];
+					$url = "../../../interface/forms/LBF/order_new.php?formname=".$lformname."&visitid=".$rto_id_n."&id=".$form_id_n."&submod=true";
+					?>
+						<button type="button" class="css_button_small lbfbtn" onClick="open_ldf_form('<?php echo $pid; ?>', '<?php echo $lformname; ?>', '<?php echo $rto_id_n; ?>', '<?php echo $form_id_n; ?>','<?php echo isset($layoutData_n['grp_title']) ? $layoutData_n['grp_title'] : ''; ?>')"><?php echo xlt('Enter details'); ?></button>
+					<?php
+				}
+
+				if(!empty($layoutData_n) && !empty($layoutData_n['grp_form_id']) && !empty($rtoData_n)) {
+					echo "&nbsp;". xl('Summary','e').":";
+				}
+				/* End */
+			?>
 
 			<div class="<?php echo ($rto['layout_form'] === true) ? 'hideContent' : '' ?>" style='margin-left: 5px; margin-right: 5px;'>
 					<textarea name='rto_notes_<?php echo $cnt; ?>' id='rto_notes_<?php echo $cnt; ?>' class='wmtFullInput' <?php echo (!$is_admin && $complete && 1 != 1) ? 'readonly' : ''; ?> rows='4'><?php echo htmlspecialchars($rto['rto_notes'], ENT_QUOTES, '', FALSE); ?></textarea>
 			</div>
-			<?php if(isset($orderLbfFormLib)) $orderLbfFormLib->lbf_form_notes(); ?>
+			<?php getLBFFormData($rto_id_n, $pid, $rtoData_n, $layoutData_n); ?>
 		</td>
 		<td rowspan="5" width="98">
 			<div class="actionBtnContainer">
 				<?php if(isset($rto['id']) && !empty($rto['id'])) { ?>
 					<div>
-						<button type="button" class="css_button_small lbfbtn lbfviewlogs" onClick="open_view_logs('<?php echo $pid; ?>', '<?php echo $rto['id']; ?>')">View logs</button>
+						<button type="button" class="css_button_small lbfbtn lbfviewlogs" onClick="open_view_logs('<?php echo $pid; ?>', '<?php echo $rto['id']; ?>')"><?php echo xlt('View logs'); ?></button>
 					</div>
 				<?php } ?>
 
@@ -117,7 +201,7 @@ foreach($rto_data as $rto) {
 						<input name='rto_test_target_dt_<?php echo $cnt; ?>' id='rto_test_target_dt_<?php echo $cnt; ?>' type='hidden' value="<?php echo $rto['test_target_dt']; ?>" />
 					<?php } ?>
 					<?php if($is_admin || 1 == 1) { ?>
-					<a href="javascript:;" class='css_button_small deleteBtn' tabindex='-1' onClick="return DeleteRTO('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');"><span><?php xl('Delete','e'); ?></span></a>
+					<a href="javascript:;" class='btn btn-danger btn-sm deleteBtn' tabindex='-1' onClick="return DeleteRTO('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');"><span><?php xl('Delete','e'); ?></span></a>
 					<?php } ?>
 				</div>
 			</div>
@@ -155,9 +239,12 @@ foreach($rto_data as $rto) {
 		</td>
 	</tr>
 	<tr height="10">
-		<td class='wmtLabel2' valign="top">&nbsp;<?php xl('Date Created','e'); ?>:</td>
+		<td class='wmtLabel2'>&nbsp;<?php xl('Date Created','e'); ?>:</td>
 		<td>
-			<?php if(isset($orderLbfFormLib)) $orderLbfFormLib->lbf_form_date(); ?>
+			<!-- OEMR - Change -->
+			<?php if($newordermode === true) { ?>
+			<input name='rto_date1_<?php echo $cnt; ?>' id='rto_date1_<?php echo $cnt; ?>' class='wmtInput wmtFInput wmtDisabled' type='text' readonly value="<?php echo oeFormatShortDate($rto['date']); ?>" />
+			<?php } ?>
 		</td>
 		<td colspan="2">
 			<div class="statInputContainer">
@@ -169,16 +256,8 @@ foreach($rto_data as $rto) {
 	<?php } ?>
 	<tr class="<?php echo $hideClass; ?>">
 		<td class='wmtLabel2 <?php echo ($newordermode == true) ? 'newmodDate' : ''; ?>' <?php echo ($newordermode == true) ? 'colspan="2"' : ''; ?> ><div class="<?php echo $hideClass; ?>">&nbsp;<?php echo xlt('Due Date'); ?>:</div>
-			<?php
-				// if(isset($newordermode) && $newordermode == true) {
-				// 	echo "<span class='dateTitle'>&nbsp;".xlt('Date Created').":</span>";
-				// 	if(isset($_EXTCORE)) {
-				// 		if(isset($orderLbfFormLib)) $orderLbfFormLib->lbf_form_date();
-				// 	}
-				// } 
-			?>
 		</td>
-		<td style="vertical-align: bottom;"><div class="<?php echo $hideClass; ?>"><input name='rto_target_date_<?php echo $cnt; ?>' id='rto_target_date_<?php echo $cnt; ?>' class='wmtInput' type='text' <?php echo (!$is_admin && $complete && 1 != 1)? 'readonly' : ''; ?> style='width: 85px;' value="<?php echo oeFormatShortDate($rto['rto_target_date']); ?>" title="<?php echo $date_title_fmt; ?>" 
+		<td style="vertical-align: bottom;"><div class="<?php echo $hideClass; ?>"><input name='rto_target_date_<?php echo $cnt; ?>' id='rto_target_date_<?php echo $cnt; ?>' class='wmtInput' type='text' <?php echo (!$is_admin && $complete && 1 != 1)? 'readonly' : ''; ?> style='width: 90px;' value="<?php echo oeFormatShortDate($rto['rto_target_date']); ?>" title="<?php echo $date_title_fmt; ?>" 
 			<?php if(isset($rto['test_target_dt'])) { ?>
 				onchange="TestByAction('rto_test_target_dt_<?php echo $cnt; ?>','rto_target_date_<?php echo $cnt; ?>','rto_action_<?php echo $cnt; ?>');"	
 			<?php } ?>
@@ -202,7 +281,7 @@ foreach($rto_data as $rto) {
 			<?php ListSel($rto['rto_frame'], 'RTO_Frame'); ?></select>
 		<?php } ?>
 			<span class='wmtLabel2'>&nbsp;&nbsp;<?php xl('from','e'); ?>&nbsp;&nbsp;</span>
-			<input name='rto_date_<?php echo $cnt; ?>' id='rto_date_<?php echo $cnt; ?>' class='wmtInput' type='text' <?php echo (!$is_admin && $complete && 1 != 1) ? 'readonly ' : ''; ?> style='width: 85px' value="<?php echo oeFormatShortDate($rto['rto_date']); ?>" onchange="FutureDate('rto_date_<?php echo $cnt; ?>','rto_num_<?php echo $cnt; ?>','rto_frame_<?php echo $cnt; ?>','rto_target_date_<?php echo $cnt; ?>','<?php echo $GLOBALS['date_display_format']; ?>');" title="<?php echo $date_title_fmt; ?>" /></td>
+			<input name='rto_date_<?php echo $cnt; ?>' id='rto_date_<?php echo $cnt; ?>' class='wmtInput' type='text' <?php echo (!$is_admin && $complete && 1 != 1) ? 'readonly ' : ''; ?> style='width: 90px' value="<?php echo oeFormatShortDate($rto['rto_date']); ?>" onchange="FutureDate('rto_date_<?php echo $cnt; ?>','rto_num_<?php echo $cnt; ?>','rto_frame_<?php echo $cnt; ?>','rto_target_date_<?php echo $cnt; ?>','<?php echo $GLOBALS['date_display_format']; ?>');" title="<?php echo $date_title_fmt; ?>" /></td>
 	</tr>
 	<tr>
 		<td class="wmtLabel2"><div class="<?php echo $hideClass; ?>">&nbsp;Recurring:</div></td>
@@ -216,8 +295,8 @@ foreach($rto_data as $rto) {
 		<td colspan="7" class="wmtBody2"><i><?php echo $last_touch; ?></i></td>
 	</tr>	
 	<?php } ?>
-	<tr><td colspan='6' class="lastRow <?php echo ((count($rto_data) == $cnt)) ? 'hideContent' : ''; ?>"><div class='wmtDottedB'></div></td></tr>
-	<?php if(isset($orderLbfFormLib)) $orderLbfFormLib->lbf_form(); ?>
+	<tr><td colspan='6' class="lastRow <?php echo ((count($rto_data) == $cnt)) ? 'hideContent' : ''; ?>"><div class='wmtDottedB border-top'></div></td></tr>
+	<?php //OrderLbfForm::lbf_form(); ?>
 <?php
 	$cnt++;
 }
@@ -232,7 +311,7 @@ if($newordermode == false) {
 		<td style='width: 20%;'><select name='rto_ordered_by' id='rto_ordered_by' class='wmtFullInput' <?php echo ($frmdir == 'rto') ? "tabindex='20'" : ""; ?>><?php UserSelect($dt['rto_ordered_by']); ?>
 		</select></td>
 		<td class='wmtLabel2'><div class="<?php echo ($dt['layout_form'] === true) ? 'hideContent' : '' ?>">&nbsp;<?php xl('Notes','e'); ?>:</div>
-			<?php if(isset($orderLbfFormLib)) $orderLbfFormLib->lbf_new_form_action_btn(); ?>
+			<?php //lbf_new_form_action_btn(); ?>
 		</td>
 		<td style='width: 95px;'>&nbsp;<input name='tmp_rto_cnt' id='tmp_rto_cnt' type='hidden' tabindex='-1' value="<?php echo ($cnt - 1); ?>" /></td>
 	</tr>

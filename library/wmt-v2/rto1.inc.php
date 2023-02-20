@@ -245,9 +245,9 @@ if($newordermode == false) {
 		</select></td>
 		<td class='wmtLabel2'><div class="<?php echo ($dt['layout_form'] === true) ? 'hideContent' : '' ?>">&nbsp;<?php xl('Notes','e'); ?>:</div>
 			<?php
-				if(isset($_EXTCORE)) {
-					$_EXTCORE->OrderLbfForm->lbf_new_form_action_btn();
-				}
+				// if(isset($_EXTCORE)) {
+				// 	$_EXTCORE->OrderLbfForm->lbf_new_form_action_btn();
+				// }
 			?>
 		</td>
 		<td style='width: 95px;'>&nbsp;<input name='tmp_rto_cnt' id='tmp_rto_cnt' type='hidden' tabindex='-1' value="<?php echo ($cnt - 1); ?>" /></td>

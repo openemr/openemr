@@ -35,7 +35,7 @@ foreach($hosp as $prev) {
 			<?php if($portal_mode && ($prev['classification'] != 9)) { ?>
 				&nbsp;<?php echo htmlspecialchars($prev['begdate'],ENT_QUOTES, '', FALSE); ?>
 			<?php } else { ?>
-				<input name='hosp_dt_<?php echo $cnt; ?>' id='hosp_dt_<?php echo $cnt; ?>' class="wmtFullInput" type='text' tabindex='-1' value="<?php echo htmlspecialchars($prev['begdate'], ENT_QUOTES, '', FALSE); ?>" />
+				<input name='hosp_dt_<?php echo $cnt; ?>' id='hosp_dt_<?php echo $cnt; ?>' class="wmtFullInput dInput" type='text' tabindex='-1' value="<?php echo htmlspecialchars($prev['begdate'], ENT_QUOTES, '', FALSE); ?>" />
 			<?php } ?>
 			</td>
 
@@ -61,7 +61,7 @@ foreach($hosp as $prev) {
 				<input name='hosp_nt_<?php echo $cnt; ?>' id='hosp_nt_<?php echo $cnt; ?>' class="wmtFullInput" type='text' tabindex='-1' value="<?php echo htmlspecialchars($prev['comments'], ENT_QUOTES, '', FALSE); ?>" />
 			<?php } ?>
 			</td>
-			<td class="<?php echo ($portal_mode) ? 'wmtBody' : 'wmtBorder1L wmtBorder1B'; ?>">
+			<td class="<?php echo ($portal_mode) ? 'wmtBody' : 'wmtBorder1L wmtBorder1B'; ?> btnActContainer">
 			<?php if(!$portal_mode || ($portal_mode && ($prev['classification'] == 9))) { ?>
 				<div style="float: left; padding-left: 2px;"><a class='css_button_small' tabindex='-1' onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatehosp','hosp_id_','Admission','<?php echo $prev['num_links']; ?>');" href='javascript:;'><span>Update</span></a></div>
 			<?php } ?>

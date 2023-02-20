@@ -40,7 +40,7 @@ if(count($imm) > 0) {
 			echo htmlspecialchars($prev['note'], ENT_QUOTES, '', FALSE);
 		} ?>
 		<?php if(!$portal_mode) { ?>
-		<td class="<?php echo (($portal_mode)?'bkkBody':'BodyBorderLB'); ?>" style="padding 0px;"><div style="float: left; padding-left: 2px;"><a class="css_button_small" tabindex="-1" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updateimm','imm_id_','Immunization');" href="javascript:;"><span>Update</span></a></div>
+		<td class="<?php echo (($portal_mode)?'bkkBody':'BodyBorderLB'); ?> btnActContainer" style="padding 0px;"><div style="float: left; padding-left: 2px;"><a class="css_button_small" tabindex="-1" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updateimm','imm_id_','Immunization');" href="javascript:;"><span>Update</span></a></div>
 <?php if($unlink_allow) { ?>
 			<div style="float: left; padding-left: 2px;"><a class="css_button_small" tabindex="-1" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','unlinkimm','imm_id_','Immunization');" href="javascript:;"><span>Un-Link</span></a></div>
 <?php } ?>

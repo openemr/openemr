@@ -93,7 +93,7 @@ foreach($fh as $prev) {
 			<?php } ?>
 		</td>
 
-		<td class="<?php echo (($portal_mode)?'wmtBody':'wmtBorder1L wmtBorder1B'); ?>">
+		<td class="<?php echo (($portal_mode)?'wmtBody':'wmtBorder1L wmtBorder1B'); ?> btnActContainer">
 			<?php if((!$portal_mode || $prev['classification'] == 9)) { ?>
 			<div style="float: left; padding-left: 2px;"><a class="css_button_small" href="javascript:;" tabindex="-1" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatefh','fh_id_','Family History','<?php echo $prev['fh_num_links']; ?>');" ><span>Update</span></a></div>
 			<?php } ?>

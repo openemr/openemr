@@ -25,9 +25,9 @@ $module_title = GetListTitleByKey($module, 'Templated_Fields');
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/templates.css" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/wmt.default.css" type="text/css">
 <?php if($v_major > 4) { ?>
-		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+		<!-- <script type="text/javascript" src="<?php //echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script> -->
 <?php } else { ?>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery-ui-1.7.1.custom.min.js"></script>
+		<!-- <script type="text/javascript" src="<?php //echo $GLOBALS['webroot']; ?>/library/js/jquery-ui-1.7.1.custom.min.js"></script> -->
 <?php } ?>
 	</head>
 	<body class="body_top" style="height: 96vh">

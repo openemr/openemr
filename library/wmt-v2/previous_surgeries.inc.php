@@ -52,7 +52,7 @@ if(isset($surg)) {
 		<?php if($portal_mode && ($prev['classification'] != 9)) { ?>
 			<?php echo $prev['begdate']; ?>&nbsp;
 		<?php } else { ?>
-			<input name="ps_begdate_<?php echo $cnt; ?>" id="ps_begdate_<?php echo $cnt; ?>" class="<?php echo (($portal_mode) ? 'wmtInput':'wmtInput'); ?>" type="text" style="width: 85px;" tabindex='-1' value="<?php echo $prev['begdate']; ?>" />
+			<input name="ps_begdate_<?php echo $cnt; ?>" id="ps_begdate_<?php echo $cnt; ?>" class="<?php echo (($portal_mode) ? 'wmtInput':'wmtInput'); ?> dInput" type="text" style="width: 100px;" tabindex='-1' value="<?php echo $prev['begdate']; ?>" />
 		<?php } ?>
 		</td>
 
@@ -89,7 +89,7 @@ if(isset($surg)) {
 		<?php } ?>
 		</td>
 
-		<td class="<?php echo (($portal_mode)?'wmtBody':'wmtBorder1L wmtBorder1B'); ?>">
+		<td class="<?php echo (($portal_mode)?'wmtBody':'wmtBorder1L wmtBorder1B'); ?> btnActContainer">
 		<?php if(!$portal_mode || ($prev['classification'] == 9)) { ?>
 			<div class="wmtListButton"><a class='css_button_small' tabindex='-1' onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatesurg','ps_id_','Previous Surgery','<?php echo $prev['num_links']; ?>');" href='javascript:;'><span>Update</span></a></div>
 		<?php } ?>
@@ -116,7 +116,7 @@ if($delete_allow || ($portal_mode && ($prev['classification'] == 9))) {
 }
 ?>
 	<tr class="<?php echo ($portal_mode) ? $bg : ''; ?>">
-		<td class="<?php echo (($portal_mode)?'wmtDateCell':'wmtDateCell'); ?> wmtBorder1B" ><input name='ps_begdate' id='ps_begdate' class="<?php echo (($portal_mode)?'wmtInput':'wmtInput'); ?>" type="text" style="width: 90px;" title="YYYY-MM-DD" value="<?php echo $dt{'ps_begdate'}; ?>" /></td>
+		<td class="<?php echo (($portal_mode)?'wmtDateCell':'wmtDateCell'); ?> wmtBorder1B" ><input name='ps_begdate' id='ps_begdate' class="<?php echo (($portal_mode)?'wmtInput':'wmtInput'); ?> dInput" type="text" style="width: 90px;" title="YYYY-MM-DD" value="<?php echo $dt{'ps_begdate'}; ?>" /></td>
 		<td class="<?php echo (($portal_mode)?'':'wmtBorder1L'); ?> wmtBorder1B" ><input name='ps_title' id='ps_title' class="<?php echo (($portal_mode)?'wmtFullInput':'wmtFullInput'); ?>" type='text' value="<?php echo $dt{'ps_title'}; ?>" /></td>
 		<td class="<?php echo (($portal_mode)?'':'wmtBorder1L'); ?> wmtBorder1B" ><select name="ps_hospitalized" id="ps_hospitalized" class="<?php echo (($portal_mode)?'wmtFullInput':'wmtFullInput'); ?>">
 			<?php echo ListSel($dt['ps_hospitalized'],'YesNo'); ?></select></td>

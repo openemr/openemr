@@ -32,6 +32,8 @@ require_once("../../interface/globals.php");
 include_once("$srcdir/wmt/wmt.include.php");
 include_once("$srcdir/wmt/wmt.class.php");
 
+use OpenEMR\Core\Header;
+
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
 
@@ -100,20 +102,15 @@ while ($data = sqlFetchArray($results)) $common[] = $data;
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<?php html_header_show();?>
+		<?php //html_header_show();?>
 		<title><?php echo $form_title ?> for <?php echo $pat_data->format_name; ?> on <?php echo $form_data->date; ?></title>
 		<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 		<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/wmt/wmt.default.css" />
 
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.4.3.min.js"></script>
+		<?php Header::setupHeader(['dialog', 'jquery', 'jquery-ui', 'datetime-picker']); ?>
+
 		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/wmt/wmtstandard.js"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-		
-		<!-- pop up calendar -->
-		<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-		<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/wmt/wmtcalendar.js.php"></script>
 		
 		<script>
 
@@ -243,8 +240,8 @@ while ($data = sqlFetchArray($results)) $common[] = $data;
 		</form>
 		
 		<script language='JavaScript'>
-			 Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
-			 Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
+			Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
+			Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
 		</script>
 	</body>
 </html>

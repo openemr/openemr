@@ -58,8 +58,8 @@ function GenerateROSLine($id, $title, $chc='', $txt='', $section='', $off=true, 
   echo "				<td class='".$style."Body wmtClick' onclick=\"toggleThroughSelect('$id'); ";
 	if($off) echo "toggleROSChecksOff(document.getElementById('$id'),'$section'); ";
 	echo "AdjustFocus('$nt');\" >$title</td>\n";
-	echo "				<td style='width: 52px;' id='$td' >";
-	echo "					<select class='wmtHoverAccent' name='$id' id='$id' class='".$style."Input' ";
+	echo "				<td style='width: 90px;' id='$td' >";
+	echo "					<select class='wmtHoverAccent wmtInput' name='$id' id='$id' class='".$style."Input' ";
 	if($off) echo "onchange='toggleROSChecksOff(this,\"$section\");' ";
 	echo ">\n";
 	ListSel($chc,'Yes_No');

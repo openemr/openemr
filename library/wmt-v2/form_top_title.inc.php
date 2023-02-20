@@ -33,9 +33,7 @@ if(!isset($top_title_time)) $top_title_time = false;
 		<td><?php echo text($patient->pubpid); ?></td>
   </tr>
 </table>
-<?php if($v_major < 5 && (!$v_minor && !$v_patch)) { ?>
 <script type="text/javascript">
 Calendar.setup({inputField:"form_dt", ifFormat:"<?php echo $date_img_fmt; ?>", daFormat:"<?php echo $date_img_fmt; ?>", button:"img_form_dt"});
 </script>
-<?php } ?>
 </div>

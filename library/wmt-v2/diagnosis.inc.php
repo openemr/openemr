@@ -45,6 +45,18 @@ $module_desc = 'Diagnosis';
 $suppress_class = '';
 $suppress_class = ($suppress_plan) ? 'wmtBorder1B ' : '';
 
+if($frmdir == 'dashboard') {
+	$delete_allow = \OpenEMR\Common\Acl\AclMain::aclCheckCore('admin','super');
+	$unlink_allow = (\OpenEMR\Common\Acl\AclMain::aclCheckCore('patients','med') || $delete_allow);
+}
+
+
+if($frmdir == "ext_exam2") {
+	$diag_onclick1 = "get_diagnosis1(\"dg_code\",\"tmp_dg_desc\",\"dg_begdt\",\"dg_title\",\"dg_type\", \"\", \"ext\");";
+} else {
+	$diag_onclick1 = "get_diagnosis(\"dg_code\",\"tmp_dg_desc\",\"dg_begdt\",\"dg_title\",\"dg_type\");";
+}
+
 // BUILD THE BUTTONS HERE TO MAKE IT MORE LEGIBLE BELOW
 // echo "Encounter: $encounter  Mode:: ",$dt['tmp_diag_window_mode'],"<br>\n";
 if($diag_use_ajax) {
@@ -96,6 +108,13 @@ $cnt=1;
 
 if(count($diag) > 0) {
 	foreach($diag as $prev) {
+
+		if($frmdir == "ext_exam2") {
+			$diag_onclick = "get_diagnosis1(\"dg_code_$cnt\",\"tmp_dg_desc_$cnt\",\"dg_begdt_$cnt\",\"dg_title_$cnt\",\"dg_type_$cnt\");";
+		} else {
+			$diag_onclick = "get_diagnosis(\"dg_code_$cnt\",\"tmp_dg_desc_$cnt\",\"dg_begdt_$cnt\",\"dg_title_$cnt\",\"dg_type_$cnt\");";
+		}
+
 		// IF MULTIPLE DIAGS ARE ATTACHED IN OEMR THEY AER IN A SEMI-COLON 
 		// DELIMITED LIST. THIS IS REALLY ONLY RELEVANT FOR NON-WMT SYSTEMS.
 		// WE'LL USE THE FIRST BUT KEEP THE REMAINDER TO PUT BACK WHEN WE UPDATE.
@@ -131,13 +150,13 @@ if(count($diag) > 0) {
 		}
 		echo "		<td";
 		echo $suppress_class ? ' class="'.$suppress_class.'"' : '';
-		echo "><input name='dg_code_$cnt' id='dg_code_$cnt' class='wmtFullInput' type='text' value='".htmlspecialchars($prev['diagnosis'],ENT_QUOTES)."' onClick='get_diagnosis(\"dg_code_$cnt\",\"tmp_dg_desc_$cnt\",\"dg_begdt_$cnt\",\"dg_title_$cnt\",\"dg_type_$cnt\");' ";
+		echo "><input name='dg_code_$cnt' id='dg_code_$cnt' class='dg_code_field wmtFullInput' type='text' value='".htmlspecialchars($prev['diagnosis'],ENT_QUOTES)."' onClick='".$diag_onclick."' ";
 		echo "title='Click to select or clear a diagnosis' /></td>\n";
 		echo "		<td"; 
-		echo "><input name='dg_begdt_$cnt' id='dg_begdt_$cnt' class='wmtFullInput' type='text' value='".htmlspecialchars($prev['begdate'],ENT_QUOTES)."' /></td>\n";
+		echo "><input name='dg_begdt_$cnt' id='dg_begdt_$cnt' class='wmtFullInput dInput' type='text' value='".htmlspecialchars($prev['begdate'],ENT_QUOTES)."' /></td>\n";
 		echo "		<td";
 		echo $suppress_class ? ' class="'.$suppress_class.'"' : '';
-		echo "><input name='dg_enddt_$cnt' id='dg_enddt_$cnt' class='wmtFullInput' type='text' value='".htmlspecialchars($prev['enddate'],ENT_QUOTES)."' /></td>\n";
+		echo "><input name='dg_enddt_$cnt' id='dg_enddt_$cnt' class='wmtFullInput dInput' type='text' value='".htmlspecialchars($prev['enddate'],ENT_QUOTES)."' /></td>\n";
 		echo "		<td";
 		echo $suppress_class ? ' class="'.$suppress_class.'"' : '';
 		echo "><input name='dg_title_$cnt' id='dg_title_$cnt' class='wmtFullInput' type='text' readonly='readonly' value='".htmlspecialchars($prev['title'],ENT_QUOTES)."' /></td>\n";
@@ -251,7 +270,7 @@ if(count($diag) > 0) {
 				echo "</br></br><div style='float: right; padding-right: 5px;'><a href='javascript:;' onClick='GetPlan(\"dg_plan_$cnt\",\"dg_code_$cnt\",\"dg_type_$cnt\");' class='css_button_small' tabindex='-1' title='Select a plan for this diagnosis from Favorites'><span>Plans</span></a>";
 			}
 			echo "</td>\n";
-			echo "		<td colspan='5' class='wmtBorder1B'><textarea name='dg_plan_$cnt' id='dg_plan_$cnt' class='wmtFullInput'";
+			echo "		<td colspan='5' class='wmtBorder1B'><textarea name='dg_plan_$cnt' id='dg_plan_$cnt' class='wmtFullInput' style='min-height:75px;' ";
 			if($frmdir == 'definable_fee') echo " readonly='readonly'";
 			echo '>' . htmlspecialchars($prev['comments'],ENT_QUOTES,'',FALSE);
 			echo "</textarea></td>\n";
@@ -294,6 +313,14 @@ if(count($diag) > 0) {
 				}
 				echo "</div>";
 			}
+
+			// THIS SECTION JUST HANDLES THE 'DELETE PLAN' BUTTON
+			if($delete_allow === true && $frmdir == 'dashboard') {
+				echo "<div style='float: left; padding-top: 5px;'><a class='css_button_small' tabindex='-1' ";
+					echo "<a class='css_button_small' tabindex='-1' onclick='return SubmitLinkBuilder(\"$base_action\",\"$wrap_mode\",\"$cnt\",\"$id\",\"deldiag\",\"dg_plan_\");' href='javascript:;'><span>Delete</span></a>";
+				echo "</div>";
+			}
+
 			echo "&nbsp;</td>\n";
 			echo "	</tr>\n";
 		// IMPORTANT - PLAN IS SUPPRESSED BUT CARRY THROUGH FOR DATA INDEGRITY
@@ -306,9 +333,9 @@ if(count($diag) > 0) {
 			echo "		<td class='wmtBody wmtT wmtR wmtBorder1B'>Goals:";
 			echo "<br><br><div style='float: right; padding-right: 5px;'><a href='javascript:;' onClick='GetPlan(\"dg_goal_$cnt\",\"dg_code_$cnt\",\"dg_type_$cnt\",\"".$GLOBALS['webroot']."\",\"goal\");' class='css_button_small' tabindex='-1' title='Select goal(s) for this diagnosis from'><span>Goals</span></a>";
 			echo "</td>\n";
-			echo "		<td colspan='5' class='wmtBorder1B'><textarea name='dg_goal_$cnt' id='dg_goal_$cnt' class='wmtFullInput'>",htmlspecialchars($prev['plan'],ENT_QUOTES),"</textarea></td>\n";
+			echo "		<td colspan='5' class='wmtBorder1B'><textarea name='dg_goal_$cnt' id='dg_goal_$cnt' class='wmtFullInput' style='min-height:75px;'>",htmlspecialchars($prev['plan'],ENT_QUOTES),"</textarea></td>\n";
 		
-			echo "		<td class='wmtLabel wmtBorder1L wmtBorder1B' style='vertical-align: top'>";
+			echo "		<td class='wmtLabel wmtBorder1L wmtBorder1B btnActContainer' style='vertical-align: top'>";
 			if($show_unlink) {
 				if($diag_use_checkbox) {
 					if(!isset($dt['dg_link_'.$cnt])) {
@@ -359,7 +386,7 @@ if($use_sequence) {
 	echo "		<td class='wmtLabel $suppress_class'>&nbsp;$cnt&nbsp;).&nbsp;</td>\n";
 }
 if($suppress_class) $suppress_class = "class='wmtBorder1B'";
-echo "		<td $suppress_class><input name='dg_code' id='dg_code' class='wmtFullInput' type='text' value='",htmlspecialchars($dt{'dg_code'},ENT_QUOTES,'',FALSE),"' onClick='get_diagnosis(\"dg_code\",\"tmp_dg_desc\",\"dg_begdt\",\"dg_title\",\"dg_type\");' title='Click to select a diagnosis' /></td>\n";
+echo "		<td $suppress_class><input name='dg_code' id='dg_code' class='wmtFullInput' type='text' value='",htmlspecialchars($dt{'dg_code'},ENT_QUOTES,'',FALSE),"' onClick='".$diag_onclick1."' title='Click to select a diagnosis' /></td>\n";
 echo "		<td $suppress_class><input name='dg_begdt' id='dg_begdt' class='wmtFullInput' type='text' value='",htmlspecialchars($dt{'dg_begdt'},ENT_QUOTES,'',FALSE),"' title='YYYY-MM-DD' /></td>\n";
 echo "		<td $suppress_class><input name='dg_enddt' id='dg_enddt' class='wmtFullInput' type='text' value='",htmlspecialchars($dt{'dg_enddt'},ENT_QUOTES,'',FALSE),"' title='YYYY-MM-DD' /></td>\n";
 echo "		<td $suppress_class><input name='dg_title' id='dg_title' class='wmtFullInput' type='text' value='",htmlspecialchars($dt{'dg_title'},ENT_QUOTES,'',FALSE),"' title='Enter a brief description of the problem here'/></td>\n";
@@ -375,7 +402,7 @@ if(!$suppress_plan) {
 	echo "<br><br>";
 	if($frmdir != 'definable_fee') echo "<div style='float: right; padding-right: 5px;'><a href='javascript:;' onClick='GetPlan(\"dg_plan\",\"dg_code\",\"dg_type\",\"\",\"plan\");' class='css_button_small' tabindex='-1' title='Select a plan for this diagnosis from Favorites'><span>Plans</span></a></div>";
 	echo "</td>\n";
-	echo "		<td class='wmtBorder1B' colspan='5'><textarea name='dg_plan' id='dg_plan' class='wmtFullInput'";
+	echo "		<td class='wmtBorder1B' colspan='5'><textarea name='dg_plan' id='dg_plan' class='wmtFullInput' style='min-height:75px;'";
 	if($frmdir == 'definable_fee') echo " readonly='readonly'";
 	echo ">" . htmlspecialchars($dt{'dg_plan'},ENT_QUOTES) . "</textarea></td>\n";
 	echo "		<td class='wmtBody wmtBorder1L wmtBorder1B'>&nbsp;";
@@ -392,7 +419,7 @@ if(!$suppress_goal) {
 	echo "<br><br>";
 	if($frmdir != 'definable_fee') echo "<div style='float: right; padding-right: 5px;'><a href='javascript:;' onClick='GetGoal(\"dg_goal\",\"dg_code\",\"dg_type\",\"\",\"goal\");' class='css_button_small' tabindex='-1' title='Select a goal template for this diagnosis'><span>Goals</span></a></div>";
 	echo "</td>\n";
-	echo "		<td class='wmtBorder1B' colspan='5'><textarea name='dg_goal' id='dg_goal' class='wmtFullInput'>",htmlspecialchars($dt{'dg_goal'},ENT_QUOTES),"</textarea></td>\n";
+	echo "		<td class='wmtBorder1B' colspan='5'><textarea name='dg_goal' id='dg_goal' class='wmtFullInput' style='min-height:75px;'>",htmlspecialchars($dt{'dg_goal'},ENT_QUOTES),"</textarea></td>\n";
 	echo "		<td class='wmtBody wmtBorder1L wmtBorder1B'>&nbsp;";
 	echo "<br>";
 	if($frmdir != 'definable_fee') echo $add_new_goal_btn;

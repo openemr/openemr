@@ -31,7 +31,7 @@ foreach($img as $prev) {
 		<?php if($portal_mode && ($prev['classification'] != 9)) { ?>
 			<span class="wmtBody"><?php echo htmlspecialchars($prev['img_dt'], ENT_QUOTES, '', FALSE); ?>&nbsp;</span>
 		<?php } else { ?>
-			<input name="img_dt_<?php echo $cnt; ?>" id="img_dt_<?php echo $cnt; ?>" class="<?php echo $portal_mode ? 'wmtFullInput' : 'wmtFullInput'; ?>" type="text" value="<?php echo htmlspecialchars($prev['img_dt'], ENT_QUOTES, '', FALSE); ?>" title="YYYY-MM-DD" />
+			<input name="img_dt_<?php echo $cnt; ?>" id="img_dt_<?php echo $cnt; ?>" class="<?php echo $portal_mode ? 'wmtFullInput' : 'wmtFullInput dInput'; ?>" type="text" value="<?php echo htmlspecialchars($prev['img_dt'], ENT_QUOTES, '', FALSE); ?>" title="YYYY-MM-DD" />
 		<?php } ?>
 		</td>
 		<td class="<?php echo $portal_mode ? '' : 'wmtBorder1B wmtBorder1L'; ?>">
@@ -50,7 +50,7 @@ foreach($img as $prev) {
 			<input name="img_nt_<?php echo $cnt; ?>" id="img_nt_<?php echo $cnt; ?>" class="<?php echo $portal_mode ? 'wmtFullInput' : 'wmtFullInput'; ?>" type="text" tabindex="-1" value="<?php echo htmlspecialchars($prev['img_nt'], ENT_QUOTES, '', FALSE); ?>" />
 		<?php } ?>
 		</td>
-		<td class="<?php echo $portal_mode ? '' : 'wmtBorder1B wmtBorder1L'; ?>">
+		<td class="<?php echo $portal_mode ? '' : 'wmtBorder1B wmtBorder1L'; ?> btnActContainer">
 			
 		<?php if(!$portal_mode || ($portal_mode && ($prev['classification'] == 9))) { ?>
 			<div style="float: left; padding-left: 2px;"><a class="css_button_small" tabindex="-1" onClick="SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updateimg','img_id_','Image');" href="javascript:;"><span>Update</span></a></div>

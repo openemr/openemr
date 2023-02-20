@@ -57,7 +57,7 @@ if(count($pmh) > 0) {
 		<?php } ?>
 		<input name="pmh_hospitalized_<?php echo $cnt; ?>" id="pmh_hospitalized_<?php echo $cnt; ?>" type="hidden" value="<?php echo $prev['extrainfo']; ?>" /></td>
 
-		<td class="<?php echo (($portal_mode)?'bkkBody':'wmtBorder1L wmtBorder1B'); ?>">
+		<td class="<?php echo (($portal_mode)?'bkkBody':'wmtBorder1L wmtBorder1B'); ?> btnActContainer">
 		<?php if(!$portal_mode || ($portal_mode && $prev['classification'] == '9')) { ?>
 			<div class="wmtListButton"><a class="css_button_small" href="javascript:;" tabindex="-1" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>','updatepmh','pmh_id_','Medical History','<?php echo $prev['pmh_num_links']; ?>');" ><span>Update</span></a></div>
 		<?php } ?>
@@ -86,9 +86,9 @@ if(count($pmh) > 0) {
 		</tr>
 		<tr class="wmtColorBar">
 			<td  colspan="3" class="<?php echo ((checkSettingMode('wmt::fyi_pmh_nt') && (isset($dt['fyi_pmh_nt'])) && !$portal_mode)?'wmtBorder1B' : ''); ?><?php echo (($portal_mode)?'bkkBorder1B':''); ?>" >
-				<div style="float: left; padding-left: 10px;"><a class='css_button' href="javascript:;" style="padding-left: 8px;" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','','<?php echo $id; ?>','pmh','pmh_id_','Medical History');" ><span>Add Another</span></a></div>
+				<div style="float: left;"><a class='css_button' href="javascript:;" style="padding-left: 8px;" onClick="return SubmitLinkBuilder('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','','<?php echo $id; ?>','pmh','pmh_id_','Medical History');" ><span>Add Another</span></a></div>
 			<?php if(!$portal_mode) { ?>
-				<div style="float: left; padding-left: 15px;"><a href="javascript:;" class='css_button' onClick="return add_item('pmh_type','Medical_History_Problems');" ><span>Add An Issue Type</span></a></div>
+				<div style="float: left; padding-left: 8px;"><a href="javascript:;" class='css_button' onClick="return add_item('pmh_type','Medical_History_Problems');" ><span>Add An Issue Type</span></a></div>
 			<?php } ?>
 			<?php if(!$portal_mode) { 
 			include($GLOBALS['srcdir'].'/wmt-v2/btn_view_documents.inc.php');

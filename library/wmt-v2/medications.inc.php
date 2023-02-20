@@ -40,7 +40,7 @@ if(!isset($dt['fyi_portal_med_nt'])) { $dt['fyi_portal_med_nt'] = ''; }
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><?php echo $prev['enddate']; ?>&nbsp;</td>
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><?php echo $med_status; ?>&nbsp;</td>
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><?php echo $prev['comments']; ?>&nbsp;</td>
-		<td class='wmtBorder1L wmtBorder1B'><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return UpdateMedication('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" ><span><?php xl('Update','e'); ?></span></a>
+		<td class='wmtBorder1L wmtBorder1B btnActContainer'><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return UpdateMedication('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" ><span><?php xl('Update','e'); ?></span></a>
 			<?php if($unlink_allow) { ?>
 			<div><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return UnlinkMedication('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" ><span><?php xl('Un-Link','e'); ?></span></a></div>
 			<?php } ?>
@@ -142,7 +142,7 @@ if(!isset($dt['fyi_portal_med_nt'])) { $dt['fyi_portal_med_nt'] = ''; }
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><?php echo $size; ?>&nbsp;</td>
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><?php echo $sig1; ?>&nbsp;</td>
 		<td class='wmtBody wmtBorder1L wmtBorder1B'><input name='med_comments_<?php echo $cnt; ?>' id='med_comments_<?php echo $cnt; ?>' type='text' class='wmtFullInput' tabindex='-1' value="<?php echo $prev['note']; ?>" /></td>
-		<td class='wmtBody wmtBorder1L wmtBorder1B'><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return UpdatePrescription('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" ><span><?php xl('Update','e'); ?></span></a>
+		<td class='wmtBody wmtBorder1L wmtBorder1B btnActContainer'><a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return UpdatePrescription('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" ><span><?php xl('Update','e'); ?></span></a>
 	<?php if($unlink_allow) { 
 		if($prev['list_id']) { ?>
 			<a href="javascript:;" class='css_button_small' tabindex='-1' onClick="return UnlinkPrescription('<?php echo $base_action; ?>','<?php echo $wrap_mode; ?>','<?php echo $cnt; ?>','<?php echo $id; ?>');" ><span><?php xl('Un-Link','e'); ?></span></a>

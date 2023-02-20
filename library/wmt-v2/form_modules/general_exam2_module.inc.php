@@ -67,7 +67,8 @@ include($GLOBALS['srcdir'].'/wmt-v2/specified_text_box.inc.php');
 $module['notes'] = $notes_save;
 
 //Process After Save
-if(isset($exam2Lib)) $exam2Lib->ext_general_exam2_module($pid);
+ext_general_exam2_module($pid);
+
 
 ?>
     <table width="100%" border="0" cellspacing="0" cellpadding="0">

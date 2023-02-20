@@ -370,26 +370,26 @@ function getNextOrder($thisPid, $cols='*') {
 
 if(!function_exists('GetList')) {
 function GetList($thisPid, $type, $enc='', $dt='', $mode='show_enc') {
-  $sql = "SELECT * FROM lists WHERE pid=? AND type=? AND activity = 1 ".
+  $sql = "SELECT li.*, date(li.begdate) as begdate, date(li.enddate) as enddate FROM lists as li WHERE pid=? AND type=? AND activity = 1 ".
 		"ORDER BY begdate";
 	$list_type = $type;
 	if($type == 'allergy' || $type == 'medication') {
-  	$sql = "SELECT * FROM lists WHERE pid=? AND type=? ";
-		if($mode != 'show_all') $sql .= "AND (enddate IS NULL ".
-			"OR enddate = '0000-00-00' OR enddate = '') ";
+  	$sql = "SELECT li.*, date(li.begdate) as begdate, date(li.enddate) as enddate FROM lists as li WHERE pid=? AND type=? ";
+		if($mode != 'show_all') $sql .= "AND (date(enddate) IS NULL ".
+			"OR date(enddate) = '0000-00-00' OR date(enddate) = '') ";
 		if($type != 'allergy') $sql .= "AND activity = 1 ";
 		$sql .= "ORDER BY begdate";
 	}
 	if($type == 'med_history') {
-  	$sql = "SELECT * FROM lists WHERE pid=? AND type=? AND (enddate IS NOT ".
-			"NULL AND enddate != '0000-00-00' AND enddate != '') AND activity = 1 ".
+  	$sql = "SELECT li.*, date(li.begdate) as begdate, date(li.enddate) as enddate FROM lists as li WHERE pid=? AND type=? AND (date(enddate) IS NOT ".
+			"NULL AND date(enddate) != '0000-00-00' AND date(enddate) != '') AND activity = 1 ".
 			"ORDER BY begdate";
 		$list_type = 'medication';
 	}
 	$binds=array($thisPid, $list_type);
 	if($type == 'ultrasound' && $dt != '') {
-  	$sql = "SELECT * FROM lists WHERE pid = ? AND type = ? AND activity = 1 ".
-         "AND begdate > ? ORDER BY begdate";
+  	$sql = "SELECT li.*, date(li.begdate) as begdate, date(li.enddate) as enddate FROM lists as li WHERE pid = ? AND type = ? AND activity = 1 ".
+         "AND date(begdate) > ? ORDER BY begdate";
 		$binds=array($thisPid, $list_type, $dt);
 	}
 	if($enc != '') {
@@ -398,12 +398,12 @@ function GetList($thisPid, $type, $enc='', $dt='', $mode='show_enc') {
 		$sql .= "WHERE form_wmt_ll.pid=? ".
 				"AND form_wmt_ll.list_type=? AND form_wmt_ll.encounter_id=? ";
 		if($type == 'med_history') {
-			$sql .= "AND (enddate IS NOT NULL AND enddate != '0000-00-00' ".
-					"AND enddate != '') ";
+			$sql .= "AND (date(enddate) IS NOT NULL AND date(enddate) != '0000-00-00' ".
+					"AND date(enddate) != '') ";
 		}
 		if($type == 'allergy' || $type == 'medication') {
-			if($mode != 'show_all') $sql .= "AND (enddate IS NULL OR ".
-					"enddate='0000-00-00' OR enddate='') ";
+			if($mode != 'show_all') $sql .= "AND (date(enddate) IS NULL OR ".
+					"date(enddate)='0000-00-00' OR date(enddate)='') ";
 		}
 		$sql .= "ORDER BY begdate";
 		$binds=array($thisPid, $list_type, $enc);
@@ -433,7 +433,7 @@ if(!function_exists('GetProblemsWithDiags')) {
 function GetProblemsWithDiags($thisPid, $mode='all', $thisEnc=0, $type='ICD') {
 	// Select all here, set a flag in the row so we know if it's linked or not
 	$binds = array();
-	$sql = 'SELECT id, title, begdate, enddate, occurrence, diagnosis, '.
+	$sql = 'SELECT id, title, date(begdate) as begdate, date(enddate) as enddate, occurrence, diagnosis, '.
 			'comments, outcome, list_id, encounter, issue_encounter.seq FROM lists '.
 			'LEFT JOIN issue_encounter ON list_id=id ';
 	$sql .= 'AND encounter=? WHERE ';
@@ -464,7 +464,7 @@ function GetProblemsWithDiags($thisPid, $mode='all', $thisEnc=0, $type='ICD') {
 if(!function_exists('GetListbyTitle')) {
 function GetListbyTitle($thisPid, $type, $title) {
 	$title='%'.$title.'%';
-  $sql = "SELECT * FROM lists WHERE pid = ? AND type = ? AND activity = 1 ".
+  $sql = "SELECT li.*, date(li.begdate) as begdate, date(li.enddate) as enddate FROM lists as li WHERE pid = ? AND type = ? AND activity = 1 ".
          "AND title LIKE ? ORDER BY begdate";
 	$all=array();
   $res = sqlStatementNoLog($sql,array($thisPid, $type, $title));
@@ -1553,13 +1553,13 @@ function DeleteSupplier($thisPid,$item='',$links=0)
 if(!function_exists('GetImageHistory')) {
 function GetImageHistory($thisPid,$enc='') {
   $sql = "SELECT id, injury_type as img_type, comments as img_nt, ".
-		"begdate as img_dt, classification  FROM lists WHERE pid = ? AND ".
+		"date(begdate) as img_dt, classification  FROM lists WHERE pid = ? AND ".
 		"type = ? AND activity = 1 ORDER BY begdate";
 	$binds=array($thisPid, 'wmt_img_history');
 	// Create a new sql statement to only get those included on the linked list
 	if($enc != '') {
   	$sql = "SELECT form_wmt_ll.list_id, lists.id, injury_type as img_type, ".
-				"comments as img_nt, begdate as img_dt, classification FROM ".
+				"comments as img_nt, date(begdate) as img_dt, classification FROM ".
 				"form_wmt_ll LEFT JOIN ".
 				"lists on form_wmt_ll.list_id=lists.id WHERE form_wmt_ll.pid=? ".
 				"AND form_wmt_ll.encounter_id=? AND form_wmt_ll.list_type=? ".
@@ -1607,8 +1607,8 @@ function AddImageHistory($thisPid,$type='',$dt='',$note='', $src=1)
 				"AND option_id=?", array('Image_types',$type));
 			if(!isset($irow{'codes'})) $irow{'codes'} = '';
 			if($irow{'codes'} == 'bone_density_link') {
-				$dup = sqlQuery("SELECT * FROM lists WHERE type='bonedensity' AND ".
-					"pid = ? AND begdate = ?", array($thisPid, $dt));	
+				$dup = sqlQuery("SELECT li.*, date(li.begdate) as begdate, date(li.enddate) as enddate FROM lists as li WHERE type='bonedensity' AND ".
+					"pid = ? AND date(begdate) = ?", array($thisPid, $dt));	
 				if(!isset($dup{'id'})) $dup{'id'} = '';
 				$comm = 'Auto-Add From Image Link to Bone Density';
 				if(!$dup{'id'}) AddBoneDensity($thisPid, $dt, $note, $comm, '');
