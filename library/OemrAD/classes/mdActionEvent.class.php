@@ -4,8 +4,10 @@ namespace OpenEMR\OemrAd;
 
 @include_once("../interface/globals.php");
 @include_once("./mdReminder.class.php");
+@include_once("./mdEmailMessage.class.php");
 
 use OpenEMR\OemrAd\Reminder;
+use OpenEMR\OemrAd\EmailMessage;
 
 /**
  * ActionEvent Class
@@ -1423,7 +1425,7 @@ class ActionEvent {
 			try {
 
 				$email_direct = '';
-				$env_mode = $reminderObj->getEnvMode();
+				$env_mode = Reminder::getEnvMode();
 				
 				// if($email_direct === false) {
 				// 	return false;
@@ -1459,7 +1461,7 @@ class ActionEvent {
 
 				if(isset($data['config_item']) && isset($data['config_item']['test_mode']) && $data['config_item']['test_mode'] == 1) {
 					$data['message'] = "Message To: ". implode(',', $email_direct) ."<br/>" . $data['message'];
-					$email_direct = $reminderObj->getTestModeValue("email");
+					$email_direct = Reminder::getTestModeValue("email");
 				}
 
 				$patientValue = isset($data['email_patient']) ? $data['email_patient'] : ' ';
@@ -1485,6 +1487,26 @@ class ActionEvent {
 				$status = $e->getMessage();
 			}
 
+			if(isset($data['pid']) && !empty($data['pid'])) {
+				$isActive = EmailMessage::isActive($status);
+
+				if($isActive === false) {
+					foreach ($email_direct as $eik => $emailI) {
+						$email_data['email'] = $emailI;
+						$email_data['pid'] = $data['pid'];
+						$email_data['request'] = array(
+							'message' => $email_data['message_content'],
+							'pid' => $data['pid'],
+							'email_id' => $emailI, 
+							'subject' => $email_data['subject'],
+							'baseDocList' => array()
+						);
+
+						$msgLogId = EmailMessage::logEmailData($status, $email_data);
+					}
+					
+				}
+			}
 		}
 
 		return $status;

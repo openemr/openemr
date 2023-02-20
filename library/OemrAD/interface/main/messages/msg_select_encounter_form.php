@@ -8,7 +8,6 @@ include_once($GLOBALS['srcdir'].'/patient.inc');
 include_once($GLOBALS['srcdir'].'/forms.inc');
 include_once("$srcdir/OemrAD/oemrad.globals.php");
 
-use OpenEMR\OemrAd\Exam2;
 use OpenEMR\OemrAd\Utility;
 use OpenEMR\OemrAd\Attachment;
 

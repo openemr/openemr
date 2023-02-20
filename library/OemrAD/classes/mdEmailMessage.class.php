@@ -6,6 +6,7 @@ namespace OpenEMR\OemrAd;
 @include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtstandard.inc");
 @include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtpatient.class.php");
 
+
 class EmailMessage {
 
 	/*Constructor*/
@@ -570,8 +571,6 @@ class EmailMessage {
 
 		$rtos = self::getAllRTO($pid, $orderIds);
 
-		$orderLbfFormLib = new \oemrmd\OrderLbfForm();
-
 		ob_start();
 		?>
 		<style type="text/css">
@@ -608,8 +607,8 @@ class EmailMessage {
 			</tr> -->
 			<?php
 				foreach ($rtos as $key => $rto) {
-					$rtoData = $orderLbfFormLib->getRtoLayoutFormData($pid, $rto['id']);
-					$layoutData = $orderLbfFormLib->getLayoutForm($rto['rto_action']);
+					$rtoData = getRtoLayoutFormData($pid, $rto['id']);
+					$layoutData = getLayoutForm($rto['rto_action']);
 					?>
 					<!-- <tr class="insRow">
 						<td class="cell"><?php //echo ListLook($rto['rto_action'],'RTO_Action'); ?></td>

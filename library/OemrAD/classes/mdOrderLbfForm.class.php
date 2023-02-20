@@ -10,7 +10,8 @@ class OrderLbfForm {
 	function __construct(){
 	}
 
-	function olbf_init() {
+	/*
+	public static function olbf_init() {
 		global $rootdir, $pid, $popmode, $newordermode;
 
 		if($newordermode !== true) {
@@ -29,14 +30,16 @@ class OrderLbfForm {
 		// 	unset($_SESSION['order_tmp_request_data']);
 		// 	unset($_SESSION['order_tmp_post_data']);
 		// }
-	}
+	}*/
 
-
+	/*
 	//Action
 	function action_rto_head() {
 		self::rto_head();
 	}
+	*/
 
+	/*
 	public static function rto_head() {
 		?>
 		<script type="text/javascript">
@@ -53,7 +56,9 @@ class OrderLbfForm {
 		</script>
 		<?php
 	}
+	*/
 
+	/*
 	function rto_report_head() {
 		?>
 		<script type="text/javascript">
@@ -98,6 +103,7 @@ class OrderLbfForm {
 		</style>
 		<?php
 	}
+	*/
 
 	function imaging_order_report_head() {
 		?>
@@ -251,30 +257,7 @@ class OrderLbfForm {
 		<?php
 	}
 
-	function new_order_head() {
-		global $submod;
-
-		if(!isset($submod) || empty($submod)) {
-			return;
-		}
-
-		?>
-		<script type="text/javascript">
-			// create an Observer instance
-	        const resizeObserver = new ResizeObserver(entries => {
-	            window.parent.postMessage({
-		            'func': 'onResizeIframe'
-		        }, "*");
-	        });
-
-	        window.addEventListener('DOMContentLoaded', function(e) {
-	            // start observing a DOM node
-	            resizeObserver.observe(document.querySelector('body > .container'));
-	        });
-		</script>
-		<?php
-	}
-
+	/*
 	function new_order_init() {
 		?>
 		<script type="text/javascript">
@@ -283,8 +266,9 @@ class OrderLbfForm {
 		    }, "*");
 		</script>
 		<?php
-	}
+	}*/
 
+	/*
 	public static function set_rto_status() {
 		?>
 		<script type="text/javascript">
@@ -300,16 +284,15 @@ class OrderLbfForm {
 			});
 		</script>
 		<?php
-	}
+	}*/
 
-	function olbf_head() {
+	/*
+	public static function olbf_head() {
 		global $rootdir, $pid, $popmode, $newordermode, $pageno, $neworderid, $rtoformname, $rtoformtitle, $mode;
 
 		if($newordermode !== true) {
 			return;
 		}
-
-		self::set_rto_status();
 
 		$form_refresh_url = $rootdir.'/forms/rto1/new.php?mode=refresh&pid='.$pid.'&pop='.$popmode.'&pageno='.$pageno;
 		$form_lbf_save_url = $rootdir.'/forms/rto1/new.php?mode=lbf_save&pid='.$pid.'&pop='.$popmode;
@@ -320,6 +303,20 @@ class OrderLbfForm {
 		$base_form_url = $rootdir.'/forms/rto1/new.php';
 		$base_form_qtr = 'pid='.$pid.'&pop='.$popmode;
 		?>
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//$('#rto_action').change(function(){
+					var rto_action_val = $('#rto_action').find('option:selected').val();
+					var rto_status_val = $('#rto_status option:selected').val();
+					
+					if(rto_action_val != "" && rto_status_val == "") {
+						$("#rto_status").val("p").change();
+					} 
+				//});
+			});
+		</script>
+
 		<style type="text/css">
 			.lbf_form_iframe {
 				width: 100%;
@@ -508,11 +505,11 @@ class OrderLbfForm {
 				<?php } ?>
 
 				$('.datepicker').datetimepicker({
-					yearStart: '1900',
-				    scrollInput: false,
-				    scrollMonth: false,
-					format: '<?php echo self::getCurrentDateFormat(); ?>',
-					timepicker:false
+					<?php $datetimepicker_timepicker = false; ?>
+				  	<?php $datetimepicker_showseconds = false; ?>
+				 		<?php $datetimepicker_formatInput = true; ?>
+				  	<?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+				  	<?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
 		        });
 			});
 
@@ -649,8 +646,10 @@ class OrderLbfForm {
 		</script>
 		<?php
 	}
+	*/
 
-	function orderScript() {
+	/*
+	public static function orderScript() {
 		?>
 		<script type="text/javascript">
 			var order_cnt = "";
@@ -714,9 +713,7 @@ class OrderLbfForm {
 			            }
 			        }
 				}
-			}
-
-			//function 
+			} 
 
 			function getFormData($form){
 			    var unindexed_array = $form.serializeArray();
@@ -731,66 +728,10 @@ class OrderLbfForm {
 		</script>
 		<?php
 	}
+	*/
 
-	public static function getCurrentDateFormat() {
-		if ($GLOBALS['date_display_format'] == 1) {
-		    $format = "m/d/Y";
-		} elseif ($GLOBALS['date_display_format'] == 2) {
-		    $format = "d/m/Y";
-		} else {
-		    $format = "Y-m-d";
-		}
-
-		return $format;
-	}
-
-	function getFormatedDate($format = 'd-m-Y', $value) {
-		if($value == '0000-00-00') {
-			return $value;
-		}
-
-		return (isset($value) && !empty($value)) ? date($format, strtotime($value)) : '';
-	}
-
-	function new_order_save($pid) {
-		$visitid = isset($_REQUEST['visitid']) ? $_REQUEST['visitid'] : '';
-
-		if (!empty($_POST['bn_save']) && !empty($visitid)) {
-		    ?>
-		    <script type="text/javascript">
-		        window.parent.postMessage({
-		            'func': 'saveData',
-		            'rto_id': '<?php echo $visitid; ?>'
-		        }, "*");
-		    </script>
-		    <?php
-		}
-	}
-
-	function new_order_save1($pid) {
-		global $visitid, $formid, $formname, $formtitle;
-
-		self::updateDataAction($formtitle, $formname, $visitid, $formid, $pid);
-
-		if (!empty($_POST['bn_save']) && !empty($visitid)) {
-		    ?>
-		    <script type="text/javascript">
-		        function closePopup(pid, formname, visitid, formid) {
-					if (opener.closed || ! opener.lbfFormPopup)
-					alert("<?php echo htmlspecialchars( xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
-					else
-					opener.lbfFormPopup(pid, formname, visitid, formid);
-					window.close();
-					return false;
-				}
-
-				closePopup('<?php echo $pid; ?>', '<?php echo $formname; ?>', '<?php echo $visitid; ?>', '<?php echo $formid; ?>');
-		    </script>
-		    <?php
-		}
-	}
-
-	function rto_init() {
+	/*
+	public static function rto_init() {
 		global $fieldList, $dateFields, $newordermode, $hideClass, $dt, $rto_page_details, $pageno, $showNewOrder;
 
 		$dt['layout_form'] = false;
@@ -826,54 +767,54 @@ class OrderLbfForm {
 		);
 
 		$dateFields = array('date', 'rto_date', 'rto_target_date', 'rto_stop_date');
-	}
+	}*/
 
-	function rto_data_setup() {
+	/*
+	public static function rto_data_setup() {
 		global $dt, $rto, $cnt, $mode, $fieldList, $dateFields, $newordermode, $pageno, $pagenoQtr;
 
 		$rto['layout_form'] = false;
 		$pagenoQtr = isset($pageno) ? '&pageno='.$pageno : '';
 
+		if($newordermode === true) {
+			$order_action_n = isset($_REQUEST['rto_action_'.$cnt]) ? $_REQUEST['rto_action_'.$cnt] : "";
 
-		if($newordermode !== true) {
-			return;
-		}
-
-		$order_action = isset($_REQUEST['rto_action_'.$cnt]) ? $_REQUEST['rto_action_'.$cnt] : "";
-
-		if(empty($order_action)) {
-			$order_action = isset($rto['rto_action']) ? $rto['rto_action'] : '';
-		}
-
-		$layoutData = self::getLayoutForm($order_action);
-		if(!empty($layoutData) && !empty($layoutData['grp_form_id'])) {
-			$rto['layout_form'] = true;
-		}
-
-		if($mode == 'refresh' || $mode == 'lbf_save') {
-			$tmp_layout_form = $dt['layout_form'];
-			$dt = $_POST;
-			$dt['layout_form'] = $tmp_layout_form;
-
-			foreach ($fieldList as $key => $value) {
-				if(in_array($key, $dateFields)) {
-					if(!empty($_POST[$value.'_'.$cnt])) {
-						$rto[$key] = date("Y-m-d", strtotime($_POST[$value.'_'.$cnt]));
-					}
-				} else {
-					$rto[$key] = $_POST[$value.'_'.$cnt];
-				}
+			if(empty($order_action_n)) {
+				$order_action_n = isset($rto['rto_action']) ? $rto['rto_action'] : '';
 			}
 
-			foreach ($dateFields as $key => $field) {
-				if(!empty($_POST[$field])) {
-					$dt[$field] = date("Y-m-d", strtotime($_POST[$field]));
+			$layoutData_n = self::getLayoutForm($order_action_n);
+			if(!empty($layoutData_n) && !empty($layoutData_n['grp_form_id'])) {
+				$rto['layout_form'] = true;
+			}
+
+			if($mode == 'refresh' || $mode == 'lbf_save') {
+				$tmp_layout_form = $dt['layout_form'];
+				$dt = $_POST;
+				$dt['layout_form'] = $tmp_layout_form;
+
+				foreach ($fieldList as $key => $value) {
+					if(in_array($key, $dateFields)) {
+						if(!empty($_POST[$value.'_'.$cnt])) {
+							$rto[$key] = date("Y-m-d", strtotime($_POST[$value.'_'.$cnt]));
+						}
+					} else {
+						$rto[$key] = $_POST[$value.'_'.$cnt];
+					}
+				}
+
+				foreach ($dateFields as $key => $field) {
+					if(!empty($_POST[$field])) {
+						$dt[$field] = date("Y-m-d", strtotime($_POST[$field]));
+					}
 				}
 			}
 		}
 	}
+	*/
 
-	function before_rto_save() {
+	/*
+	public static function before_rto_save() {
 		global $dt, $cnt, $newordermode, $pid, $rto_data_bup;
 
 		if($newordermode !== true) {
@@ -892,7 +833,6 @@ class OrderLbfForm {
 			$formname = isset($layoutFormData['grp_title']) ? $layoutFormData['grp_title'] : '';
 
 			self::manageAction($pid, $rto_id, $layout_form_id);
-			//self::updateDAtaAction($formname, $formdir, $rto_id, $layout_form_id, $pid);
 		}
 
 		if(isset($dt['rto_id_'.$cnt])) {
@@ -900,7 +840,9 @@ class OrderLbfForm {
 			self::manageFormState($dt['rto_id_'.$cnt], $pid, $cnt, $dt, $rto_data_f);
 		}
 	}
+	*/
 
+	/*
 	public static function manageFormState($form_id, $pid, $cnt, $dt, $rto_data) {
 		$fieldList = array(
 			'rto_action'  => 'rto_action',
@@ -930,15 +872,18 @@ class OrderLbfForm {
 			}
 		}
 	}
+	*/
 
+	/*
 	public static function needToLog($value, $old_value) {
 		if($value !== $old_value) {
 			return true;
 		}
 
 		return false;
-	}
+	}*/
 
+	/*
 	public static function fetchAlertLogs($form_id) {
 		$result = sqlStatement("SELECT fl.*, u.username as user_name  FROM form_value_logs As fl LEFT JOIN users As u ON u.id = fl.username WHERE fl.form_name = ? AND fl.form_id = ? ", array('form_rto',$form_id));
 
@@ -947,9 +892,10 @@ class OrderLbfForm {
 			$data[] = $row;
 		}
 		return $data;
-	}
+	}*/
 
-	function olbf_setup($pid) {
+	/*
+	public static function olbf_setup($pid) {
 		global $dt, $newordermode, $mode;
 
 		if($newordermode !== true) {
@@ -965,8 +911,9 @@ class OrderLbfForm {
 
 			self::manageAction($pid, $rto_id, $form_id);
 		}
-	}
+	}*/
 
+	/*
 	function delete_rto_form($pid) {
 		$rto_id = isset($_REQUEST['rto_id']) ? $_REQUEST['rto_id'] : '';
 		$rtoData = self::getRtoLayoutFormData($pid, $rto_id);
@@ -975,42 +922,20 @@ class OrderLbfForm {
 
 		echo "Hi there";
 		exit();
-	}
+	}*/
 
+	/*
 	public static function updateDataAction($formname, $formdir, $rto_id, $id, $pid) {
 		sqlStatement("UPDATE form_order_layout SET form_name = ?, formdir = ? WHERE rto_id = ? AND 	form_id = ? AND pid = ? ", array($formname, $formdir, $rto_id, $id, $pid));
-	}
+	}*/
 
+	/*
 	public static function manageAction($pid, $rto_id, $id) {
 		sqlStatement("DELETE FROM form_order_layout WHERE pid = ? AND rto_id = ? ", array($pid, $rto_id));
 		sqlStatement("DELETE FROM lbf_data WHERE form_id = ? ", array($id));
-	}
+	}*/
 
 	/*
-	function edit_layout_props() {
-		global $row;
-
-		$formDir = isset($row['grp_form_id']) ? $row['grp_form_id'] : '';
-
-		if (substr($formDir, 0, 3) != 'LBF') {
-			return;
-		}
-
-		?>
-		<tr>
-		  <td valign='top' width='1%' nowrap>
-		    <?php echo xlt('Order'); ?>
-		  </td>
-		  <td>
-		    <select name='form_rto_action' id='form_rto_action' class='wmtFullInput' >
-				<?php ListSel($row['grp_rto_action'], 'RTO_Action'); ?></select>
-		  </td>
-		</tr>
-		<?php
-	}
-	*/
-
-	//Action
 	function forms_head($pid) {
 		global $rootdir;
 		?>
@@ -1030,9 +955,9 @@ class OrderLbfForm {
 			}
 		</script>
 		<?php
-	}
+	}*/
 
-	//Action
+	/*
 	function new_order_list($pid) {
 		global $divnos, $GLOBALS, $attendant_id, $encounter, $esign, $rootdir;
 		$layoutData = self::getAllRtoLayoutFormData($pid);
@@ -1087,8 +1012,10 @@ class OrderLbfForm {
 		$divnos=$divnos+1;
 		}
 	}
+	*/
 
-	function lbf_form_action_btn() {
+	/*
+	public static function lbf_form_action_btn() {
 		global $GLOBALS, $newordermode, $rto, $cnt, $pid;
 
 		if($newordermode !== true) {
@@ -1122,8 +1049,10 @@ class OrderLbfForm {
 			echo "&nbsp;". xl('Summary','e').":";
 		}
 	}
+	*/
 
-	function lbf_new_form_action_btn() {
+	/*
+	public static function lbf_new_form_action_btn() {
 		global $GLOBALS, $newordermode, $dt, $pid;
 
 		if($newordermode !== true) {
@@ -1140,7 +1069,9 @@ class OrderLbfForm {
 
 		self::getLBFActionBtn($order_action, $rto_id, $pid);
 	}
+	*/
 
+	/*
 	public static function getLBFActionBtn($order_action, $rto_id, $pid) {
 		$rtoData = self::getRtoLayoutFormData($pid, $rto_id);
 		$form_id = isset($rtoData['form_id']) ? $rtoData['form_id'] : 0;
@@ -1160,9 +1091,10 @@ class OrderLbfForm {
 		if(!empty($layoutData) && !empty($layoutData['grp_form_id']) && !empty($rtoData)) {
 			echo "&nbsp;". xl('Summary','e').":";
 		}
-	}
+	}*/
 
-	function lbf_form_notes() {
+	/*
+	public static function lbf_form_notes() {
 		global $GLOBALS, $newordermode, $rto, $cnt, $pid;
 
 		if($newordermode !== true) {
@@ -1178,9 +1110,10 @@ class OrderLbfForm {
 		$rto_id = isset($rto['id']) ? $rto['id'] : '';
 
 		self::getLBFFormData($order_action, $rto_id, $pid);
-	}
+	}*/
 
-	function getLBFFormData($order_action, $rto_id, $pid) {
+	/*
+	public static function getLBFFormData($order_action, $rto_id, $pid) {
 		$rtoData = self::getRtoLayoutFormData($pid, $rto_id);
 		$form_id = isset($rtoData['form_id']) ? $rtoData['form_id'] : 0;
 
@@ -1233,8 +1166,9 @@ class OrderLbfForm {
 		<button type="button" class="css_button_small lbfbtn lbfviewlogs" onClick="open_view_logs('<?php echo $pid; ?>', '<?php echo $rto_id; ?>')">View logs</button>
 		<?php
 		}
-	}
+	}*/
 
+	/*
 	function getRTOSummary($rto_id, $pid, $rto_data = array()) {
 		$rtoData = self::getRtoLayoutFormData($pid, $rto_id);
 		$form_id = isset($rtoData['form_id']) ? $rtoData['form_id'] : 0;
@@ -1267,8 +1201,9 @@ class OrderLbfForm {
 			echo htmlspecialchars($rto_data['rto_notes'],ENT_QUOTES);
 		}
 
-	}
+	}*/
 
+	/*
 	function getImagingOrdersSummary($rto_id, $pid, $rto_data = array()) {
 		$rtoData = self::getRtoLayoutFormData($pid, $rto_id);
 		$form_id = isset($rtoData['form_id']) ? $rtoData['form_id'] : 0;
@@ -1317,9 +1252,10 @@ class OrderLbfForm {
 		</div>
 		<?php
 
-	}
+	}*/
 
-	function lbf_form_date() {
+	/*
+	public static function lbf_form_date() {
 		global $GLOBALS, $newordermode, $rto, $cnt, $pid;
 
 		if($newordermode !== true) {
@@ -1329,9 +1265,10 @@ class OrderLbfForm {
 		?>
 		<input name='rto_date1_<?php echo $cnt; ?>' id='rto_date1_<?php echo $cnt; ?>' class='wmtInput wmtFInput' type='text' readonly style='width: 85px;' value="<?php echo oeFormatShortDate($rto['date']); ?>" />
 		<?php
-	}
+	}*/
 
-	function lbf_form() {
+	/*
+	public static function lbf_form() {
 		global $GLOBALS, $newordermode, $rto, $cnt, $pid;
 
 		return false;
@@ -1373,8 +1310,9 @@ class OrderLbfForm {
 				</tr> -->
 			<?php
 		}
-	}
+	}*/
 
+	/*
 	public static function getLbfFromData($form_id) {
 		$result = sqlStatement("SELECT * FROM lbf_data WHERE form_id = ? ", array($form_id));
 		$data = array();
@@ -1382,18 +1320,20 @@ class OrderLbfForm {
 			$data[] = $row;
 		}
 		return $data;
-	}
+	}*/
 
+	/*
 	public static function getLayoutForm($rto_action) {
 		$row = sqlQuery("SELECT * FROM layout_group_properties AS gp WHERE gp.grp_rto_action = ? LIMIT 1", array($rto_action));
 		return $row;
-	}
+	}*/
 
 	public static function getRtoLayoutFormData($pid, $rto_id) {
 		$row = sqlQuery("SELECT * FROM form_order_layout AS fol WHERE fol.pid = ? AND fol.rto_id = ? LIMIT 1", array($pid, $rto_id));
 		return $row;
 	}
 
+	/*
 	public static function getAllRtoLayoutFormData($pid) {
 		$result = sqlStatement("SELECT * FROM form_order_layout AS fol WHERE fol.pid = ? ", array($pid));
 
@@ -1402,8 +1342,9 @@ class OrderLbfForm {
 			$data[] = $row;
 		}
 		return $data;
-	}
+	}*/
 
+	/*
 	public static function getRtoData($field_id = '') {
 		$result = sqlStatement("SELECT fr.*, fol.form_id AS form_id, fol.formdir, fol.form_name, ld.field_id, gp.grp_rto_action AS grp_rto_action, gp.grp_title AS grp_title, gp.grp_form_id AS grp_form_id FROM form_rto AS fr LEFT JOIN form_order_layout AS fol ON fol.pid = fr.pid AND fol.rto_id = fr.id LEFT JOIN lbf_data AS ld ON ld.form_id = fol.form_id AND fol.form_id IS NOT NULL AND ld.field_id = ? LEFT JOIN layout_group_properties AS gp ON gp.grp_rto_action = fr.rto_action WHERE gp.grp_rto_action IS NOT NULL AND (fr.rto_notes != '') AND (ld.field_id IS NULL OR ( ld.field_id IS NOT NULL AND (ld.field_value = '' OR ld.field_value IS NULL )))", array($field_id));
 		$data = array();
@@ -1411,8 +1352,9 @@ class OrderLbfForm {
 			$data[] = $row;
 		}
 		return $data;
-	}
+	}*/
 
+	/*
 	public static function addRtoForm(
 	    $rto_id,
 	    $form_name,
@@ -1453,8 +1395,9 @@ class OrderLbfForm {
 	    $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	        array_push($arraySqlBind, $rto_id, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
 	    return sqlInsert($sql, $arraySqlBind);
-	}
+	}*/
 
+	/*
 	public static function saveLbfNoteValue($form_id, $form_field, $note, $update = false) {
 		if($update === false) {
 			$sql = "INSERT INTO `lbf_data`( form_id, field_id, field_value ) VALUES (?, ?, ?) ";
@@ -1466,8 +1409,9 @@ class OrderLbfForm {
 		} else {
 			return sqlStatement("UPDATE lbf_data SET field_value = ? WHERE form_id = ? AND 	field_id = ?", array($note, $form_id, $form_field));
 		}
-	}
+	}*/
 
+	/*
 	function addMessageOrderLog($pid, $type = '', $orderList = array(), $msgLogId = '', $to = '') {
 		if(!empty($orderList)) {
 			foreach ($orderList as $oi => $orderItem) {
@@ -1482,8 +1426,9 @@ class OrderLbfForm {
 				}
 			}
 		}
-	}
+	}*/
 
+	/*
 	function add_email_message_order_log($pid) {
 		global $msgLogId, $email_data;
 
@@ -1503,8 +1448,9 @@ class OrderLbfForm {
 				}
 			}
 		}
-	}
+	}*/
 
+	/*
 	function add_fax_message_order_log($pid) {
 		global $msgLogId, $fax_data;
 
@@ -1524,8 +1470,9 @@ class OrderLbfForm {
 				}
 			}
 		}
-	}
+	}*/
 
+	/*
 	function add_order_log($pid) {
 		global $noteId, $dt, $test;
 
@@ -1536,9 +1483,10 @@ class OrderLbfForm {
 		$operationType = 'Created';
 
 		self::saveOrderLog($type, $test, $relation_id, NULL, $pid, $operationType, $createdBy);
-	}
+	}*/
 
-	function add_reminder_log($pid) {
+	/*
+	public static function add_reminder_log($pid) {
 		global $dt, $cnt, $noteId;
 
 		$rto_id = isset($dt['rto_id_'.$cnt]) ? $dt['rto_id_'.$cnt] : '';
@@ -1551,8 +1499,9 @@ class OrderLbfForm {
 		$operationType = 'Reminder';
 
 		self::saveOrderLog($type, $rto_id, $relation_id, NULL, $pid, $operationType, $createdBy);
-	}
+	}*/
 
+	/*
 	function add_internal_note($pid) {
 		global $newnoteid;
 
@@ -1569,9 +1518,10 @@ class OrderLbfForm {
 				self::saveOrderLog($type, $orderId, $relation_id, NULL, $pid, $operationType, $createdBy);
 			}
 		}
-	}
+	}*/
 
-	public static function add_message_note($pid) {
+	/*
+	public static function addMessageNote($pid) {
 		global $noteid;
 
 		if(!empty($noteid)) {
@@ -1587,8 +1537,9 @@ class OrderLbfForm {
 				self::saveOrderLog($type, $orderId, $relation_id, NULL, $pid, $operationType, $createdBy);
 			}
 		}
-	}
+	}*/
 
+	/*
 	public static function saveOrderLog($type = '', $rtoId = '', $relationId = '', $sentTo = '', $pid = '', $operation = '', $createdBy = '') {
 		$sql = "INSERT INTO `rto_action_logs` ( type, rto_id, foreign_id, sent_to, pid, operation, created_by ) VALUES (?, ?, ?, ?, ?, ?, ?) ";
 		$responce = sqlInsert($sql, array(
@@ -1602,13 +1553,15 @@ class OrderLbfForm {
 		));
 
 		return $responce;
-	}
+	}*/
 
+	/*
 	public static function getInternalNote($noteId) {
 		$result = sqlQuery("SELECT * FROM `rto_action_logs` WHERE type = ? AND foreign_id = ? ORDER BY created_date DESC LIMIT 1", array("INTERNAL_NOTE", $noteId));
 		return $result;
-	}
+	}*/
 
+	/*
 	public static function fetchRtoLogs($rto_id, $pid = '') {
 		$typeList = array(
 			'INTERNAL_NOTE' => 'Internal Note',
@@ -1648,18 +1601,21 @@ class OrderLbfForm {
 		}
 
 		return false;
-	}
+	}*/
 
+	/*
 	public static function getMessageData($msgId) {
 		$result = sqlQuery("SELECT * FROM `message_log` WHERE id = ? LIMIT 1", array($msgId));
 		return $result;
-	}
+	}*/
 
+	/*
 	public static function getInternalMsgData($noteId) {
 		$result = sqlQuery("SELECT * FROM `pnotes` WHERE id = ? LIMIT 1", array($noteId));
 		return $result;
-	}
+	}*/
 
+	/*
 	function getRtoLbfData($rto_id, $pid) {
 		$rtoData = self::getRtoLayoutFormData($pid, $rto_id);
 		$form_id = isset($rtoData['form_id']) ? $rtoData['form_id'] : 0;
@@ -1670,7 +1626,7 @@ class OrderLbfForm {
 			$fieldData[$field['field_id']] = $field['field_value'];
 		}
 		return $fieldData;
-	}
+	}*/
 
 	function getLayoutFormFields($form_id) {
 		$result = sqlStatement("SELECT lo.field_id, lo.title, lo.list_id, lgp.* from layout_group_properties lgp left join layout_options lo on lo.form_id = lgp.grp_form_id WHERE lgp.grp_form_id = ? and lgp.grp_group_id = '' ", array($form_id));

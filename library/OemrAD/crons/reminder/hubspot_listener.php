@@ -87,7 +87,7 @@ function handleCreateUpdateDelete($data = array(), $objectId = '', $optType = ''
 
 	if(empty($data) && !empty($objectId)) {
 		$contactData = HubspotSync::getContactData($objectId, array(
-			'bearer_token' => $token,
+			'hapiKey' => $token,
 			'properties' => 'properties=pro_care_contact_types'
 		));
 
@@ -167,7 +167,7 @@ function syncAllData($pData = array()) {
 	}
 
 	$allContactData = HubspotSync::getAllContactData(array(
-		'bearer_token' => $token,
+		'hapiKey' => $token,
 		'properties' => $propStr
 	));
 

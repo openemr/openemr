@@ -7,56 +7,6 @@ class Demographicslib {
 	function __construct(){
 	}
 
-	function dem_full_styles() {
-		?>
-		<style type="text/css">
-			#tab_Misc {
-				width: 100% !important;
-			}
-			#tab_Misc > table {
-				display: inline-block !important;
-			}
-			.alert_log_table_container {
-			    display: inline-block;
-				vertical-align: top;
-			}
-
-			.alert_log_table_container table tr td,
-			.alert_log_table_container table tr th {
-				padding: 5px;
-			}
-
-			.alert_log_table_container table tr:nth-child(even) {
-				background: #EEEEEE !important;
-			} 
-
-			.alert_log_table {
-				margin-bottom: 5px;
-			}
-
-			#form_15000threshold, #label_id_15000threshold {
-				/*display: none;*/
-			}
-		</style>
-		<script type="text/javascript">
-			$(document).ready(function(){
-				var alert_ele = $("#form_alert_info");
-				if(alert_ele.length > 0) {
-					var alert_val = alert_ele.val();
-					$('#form_current_alert_info').val(alert_val);
-				}
-			});
-
-			// This invokes the find-addressbook popup.
-			function open_notes_log(pid) {
-				var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/patient_file/summary/dem_view_logs.php" ?>'+'?pid='+pid;
-			  	let title = '<?php echo xlt('Logs'); ?>';
-			  	dlgopen(url, 'notesLogs', 600, 400, '', title);
-			}
-		</script>
-		<?php
-	}
-
 	public static function fetchAlertLogs($pid, $limit = '') {
 		$sql = "SELECT fl.*, u.username as user_name  FROM form_value_logs As fl LEFT JOIN users As u ON u.id = fl.username WHERE fl.field_id = ? AND fl.form_name = ? AND fl.pid = ? ORDER BY date DESC ";
 

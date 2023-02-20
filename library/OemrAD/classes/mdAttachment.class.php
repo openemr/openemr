@@ -1716,8 +1716,8 @@ class Attachment {
             </tr> -->
             <?php
                 foreach ($rtos as $key => $rto) {
-                    $rtoData = OrderLbfForm::getRtoLayoutFormData($pid, $rto['id']);
-                    $layoutData = OrderLbfForm::getLayoutForm($rto['rto_action']);
+                    $rtoData = getRtoLayoutFormData($pid, $rto['id']);
+                    $layoutData = getLayoutForm($rto['rto_action']);
                     ?>
                     <!-- <tr class="insRow">
                         <td class="cell"><?php //echo ListLook($rto['rto_action'],'RTO_Action'); ?></td>

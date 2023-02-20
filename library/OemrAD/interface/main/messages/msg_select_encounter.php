@@ -8,10 +8,9 @@ include_once($GLOBALS['srcdir'].'/patient.inc');
 include_once($GLOBALS['srcdir'].'/forms.inc');
 include_once("$srcdir/OemrAD/oemrad.globals.php");
 
-use OpenEMR\OemrAd\Exam2;
 use OpenEMR\OemrAd\Attachment;
 
-$dateFormat = Exam2::getCurrentDateFormat();
+$dateFormat = DateFormatRead("jquery-datetimepicker");
 $pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : "";
 
 $encounterData = Attachment::getEncounterDataForSelection(array("pid" => $pid));

@@ -1480,4 +1480,20 @@ class MessagesLib {
 
 		return $formatedMessage;
     }
+
+    public static function addMessageOrderLog($pid, $type = '', $orderList = array(), $msgLogId = '', $to = '') {
+		if(!empty($orderList)) {
+			foreach ($orderList as $oi => $orderItem) {
+				$orderId = isset($orderItem['order_id']) ? $orderItem['order_id'] : "";
+				if(!empty($orderId)) {
+					$type = $type;
+					$createdBy = $_SESSION['authUserID'];
+					$relation_id = isset($msgLogId) && !empty($msgLogId) ? $msgLogId : NULL;
+					$operationType = 'Sent';
+
+					saveOrderLog($type, $orderId, $relation_id, $to, $pid, $operationType, $createdBy);
+				}
+			}
+		}
+	}
 }

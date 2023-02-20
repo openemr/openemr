@@ -3,7 +3,6 @@
 use OpenEMR\Core\Header;
 
 require_once("../../globals.php");
-require_once("$srcdir/OemrAD/oemrad.globals.php");
 require_once("{$GLOBALS['srcdir']}/options.inc.php");
 require_once("{$GLOBALS['srcdir']}/api.inc");
 require_once("{$GLOBALS['srcdir']}/acl.inc");
@@ -18,13 +17,62 @@ include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtpatient.class.php");
 include_once("{$GLOBALS['srcdir']}/wmt-v2/rto.class.php");
 include_once("{$GLOBALS['srcdir']}/wmt-v2/wmt.msg.inc");
 
-use OpenEMR\OemrAd\OrderLbfForm;
-
 $pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : '';
 $rto_id = isset($_REQUEST['rto_id']) ? $_REQUEST['rto_id'] : '';
 
-$logsData = OrderLbfForm::fetchRtoLogs($rto_id, $pid);
-$alertLogsData = OrderLbfForm::fetchAlertLogs($rto_id);
+function fetchRtoLogs($rto_id, $pid = '') {
+	$typeList = array(
+		'INTERNAL_NOTE' => 'Internal Note',
+		'EMAIL' => 'Email',
+		'FAX' => 'Fax'
+	); 
+
+	if(!empty($rto_id)) {
+		$result = sqlStatement("SELECT rl.*, u.username as user_name, u.fname as u_fname, u.mname as u_mname, u.lname as u_lname, pd.fname AS patient_data_fname, pd.lname AS patient_data_lname FROM rto_action_logs rl LEFT JOIN users As u ON u.id = rl.created_by LEFT JOIN patient_data as pd ON rl.pid = pd.pid WHERE rto_id = ? ", array($rto_id));
+
+		$data = array();
+		while ($row = sqlFetchArray($result)) {
+
+			$patientName = htmlspecialchars($row['patient_data_fname'] . ' ' . $row['patient_data_lname']);
+
+			$name = $row['u_lname'];
+            if ($row['u_fname']) {
+                $name .= ", " . $row['u_fname'];
+            }
+
+            $sentToTitle = '';
+
+            if($row['type'] == "INTERNAL_NOTE") {
+            	$sentToTitle = $patientName;
+            } else {
+            	$sentToTitle = $row['sent_to'];
+            }
+
+            $row['user_fullname'] = $name;
+            $row['patient_name'] = $patientName;
+            $row['sent_to_title'] = $sentToTitle;
+            $row['type_title'] = isset($typeList[$row['type']]) ? $typeList[$row['type']] : "";
+
+			$data[] = $row;
+		}
+		return $data;
+	}
+
+	return false;
+}
+
+function getMessageData($msgId) {
+	$result = sqlQuery("SELECT * FROM `message_log` WHERE id = ? LIMIT 1", array($msgId));
+	return $result;
+}
+
+function getInternalMsgData($noteId) {
+	$result = sqlQuery("SELECT * FROM `pnotes` WHERE id = ? LIMIT 1", array($noteId));
+	return $result;
+}
+
+$logsData = fetchRtoLogs($rto_id, $pid);
+$alertLogsData = fetchAlertLogs($rto_id);
 
 $fieldList = array(
 	'rto_action'  => 'Order',
@@ -84,7 +132,7 @@ $fieldList = array(
 		foreach ($logsData as $lk => $logItem) {
 			if(!empty($logItem['foreign_id'])) {
 				if($logItem['type'] == "INTERNAL_NOTE") {
-					$noteData = OrderLbfForm::getInternalMsgData($logItem['foreign_id']);
+					$noteData = getInternalMsgData($logItem['foreign_id']);
 					$linkTitle = '';
 					$linkStr = '';
 
@@ -106,7 +154,7 @@ $fieldList = array(
 						$linkStr = '<a href="javascript:void(0);" onclick="'.$onclickFun.'">'.$linkTitle.'</a>';
 					}
 				} else if($logItem['type'] == "EMAIL" || $logItem['type'] == "FAX") {
-					$msgData = OrderLbfForm::getMessageData($logItem['foreign_id']);
+					$msgData = getMessageData($logItem['foreign_id']);
 					$rawData = json_decode($msgData['raw_data'], true);
 
 					$linkTitle = '';

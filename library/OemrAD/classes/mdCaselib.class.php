@@ -2185,8 +2185,8 @@ EOF;
 				<div>
 					<input name="rto_case_<?php echo $cnt; ?>" id="rto_case_<?php echo $cnt; ?>" type="text" value="<?php echo $rto['rto_case']; ?>" style="width: auto" class="wmtInput wmtFInput" onclick="sel_case('<?php echo $pid; ?>', '<?php echo $cnt; ?>');" title="Click to select or add a case for this appointment" />
 				</div>
-				<div class="caseDescription">			
-					<span class="wmtFullInput" id="<?php echo "case_description_title_".$cnt; ?>" ><?php echo $caseTitle ?></span>
+				<div class="caseDescription" style="font-size:13px;">			
+					<span id="<?php echo "case_description_title_".$cnt; ?>" ><i><?php echo $caseTitle ?></i></span>
 				</div>
 			</div>
 			<?php
@@ -2197,8 +2197,8 @@ EOF;
 				<div>
 					<input name="rto_case_<?php echo $cnt; ?>" id="rto_case_<?php echo $cnt; ?>" type="text" value="<?php echo $rto['rto_case']; ?>" class="wmtInput wmtFInput" onclick="sel_case('<?php echo $pid; ?>', '<?php echo $cnt; ?>');" title="Click to select or add a case for this appointment" />
 				</div>
-				<div class="caseDescription">			
-					<span class="wmtFullInput" id="<?php echo "case_description_title_".$cnt; ?>" ><?php echo $caseTitle ?></span>
+				<div class="caseDescription" style="font-size:13px;">			
+					<span id="<?php echo "case_description_title_".$cnt; ?>" ><i><?php echo $caseTitle ?></i></span>
 				</div>
 			</div>
 		<?php

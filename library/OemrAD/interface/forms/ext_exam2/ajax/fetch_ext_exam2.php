@@ -24,9 +24,87 @@ include_once($GLOBALS['fileroot']."/interface/forms/$frmdir/report.php");
 include_once($GLOBALS['fileroot']."/interface/forms/$frmdir/referral.php");
 if(is_file($GLOBALS['srcdir'].'/patient_tracker.inc.php')) 
 include_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
-include_once("$srcdir/OemrAD/oemrad.globals.php");
 
-use OpenEMR\OemrAd\Exam2;
+
+function deleteList() {
+	global $encounter, $pid, $bar_id, $formData, $copy_action;
+
+	if($copy_action != 'replace') {
+		return true;
+	}
+
+	if(!isset($encounter) || $encounter == '') {
+		return true;
+	}
+
+	if(!isset($pid) || $pid == '') {
+		return true;
+	}
+
+	if($bar_id == 'img') {
+		$img=GetImageHistory($pid, $encounter);
+		foreach ($img as $k => $item) {
+			if(isset($item['id'])) {
+				//DeleteListItem($pid, $item['id'], $item['img_num_links'],'wmt_img_history');
+				UnlinkListEntry($pid,$item['id'],$encounter,'wmt_img_history');
+				$formData['img']['deleted_list']['img_id'][] = $item['id'];
+			}
+		}
+	}
+
+	if($bar_id == 'all' || $bar_id == 'global') {
+		// $allergies=GetList($pid, 'allergy', $encounter);
+		// foreach ($allergies as $k => $item) {
+		// 	DeleteListItem($pid, $item['id'], $item['num_links'],'allergy');
+		// 	$formData['all']['deleted_list']['all_id'][] = $item['id'];
+		// }
+	}
+
+	if($bar_id == 'ps') {
+		$surg=GetList($pid, 'surgery', $encounter);
+		foreach ($surg as $k => $item) {
+			//DeleteListItem($pid, $item['id'], $item['num_links'],'surgery');
+			UnlinkListEntry($pid,$item['id'],$encounter,'surgery');
+			$formData['ps']['deleted_list']['ps_id'][] = $item['id'];
+		}
+	}
+
+	if($bar_id == 'hosp') {
+		$hosp=GetList($pid, 'hospitalization', $encounter);
+		foreach ($hosp as $k => $item) {
+			//DeleteListItem($pid, $item['id'], $item['num_links'], 'hospitalization');
+			UnlinkListEntry($pid,$item['id'],$encounter,'hospitalization');
+			$formData['hosp']['deleted_list']['hosp_id'][] = $item['id'];
+		}
+	}
+
+	if($bar_id == 'pmh') {
+		$pmh=GetMedicalHistory($pid, $encounter);
+		foreach ($pmh as $k => $item) {
+			//DeleteListItem($pid,$item['id'], $item['pmh_num_links'],'wmt_med_history');
+			UnlinkListEntry($pid,$item['id'],$encounter,'wmt_med_history');
+			$formData['pmh']['deleted_list']['pmh_id'][] = $item['id'];
+		}
+	}
+
+	if($bar_id == 'fh') {
+		$fh=GetFamilyHistory($pid,$encounter);
+		foreach ($fh as $k => $item) {
+			//DeleteListItem($pid,$item['id'],$item['fh_num_links'],'wmt_family_history');
+			UnlinkListEntry($pid,$item['id'],$encounter,'wmt_family_history');
+			$formData['fh']['deleted_list']['fh_id'][] = $item['id'];
+		}
+	}
+
+	if($bar_id == 'diag' || $bar_id == 'global') {
+		$diag=GetProblemsWithDiags($pid, 'encounter', $encounter);
+		foreach ($diag as $k => $item) {
+			//DeleteListItem($pid,$item['id'],'','medical_problem');
+			UnLinkDiagnosis($pid,$item['id'],$encounter);
+			$formData['diag']['deleted_list']['dg_id'][] = $item['id'];
+		}
+	}
+}
 
 function loadROSAndChecks(&$dt, $module, $fid, $fname) {
 	global $ros_options, $wmt_ros, $rs;
@@ -65,7 +143,7 @@ $copy_action = isset($_REQUEST['c_action']) ? $_REQUEST['c_action'] : "append";
 
 $formData = array();
 
-Exam2::deleteList();
+deleteList();
 
 $row = sqlQuery("SELECT * FROM list_options WHERE list_id=? AND " .
 	"option_id LIKE '%ros%' AND seq >= 0", array($frmdir.'_modules'));
@@ -166,8 +244,8 @@ $multi_labels = array('post_api', 'neu_sense', 'orth_cerv', 'orth_lum',
 	'tnd_tri', 'tnd_rad');
 
 //Process After Save
-Exam2::ext_process_after_fetch($pid);
-Exam2::ext_general_exam2_module($pid);
+ext_process_after_fetch($pid);
+ext_general_exam2_module($pid);
 
 $fieldList = array(
 	'cc' => array(

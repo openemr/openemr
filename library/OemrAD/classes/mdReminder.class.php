@@ -1338,7 +1338,7 @@ class Reminder {
 
 			$email_data = array(
 				'patient' => "Admin",
-				'from' => 'PATIENT SUPPORT',
+				'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
 				'subject' => 'Cron - Reminder Log',
 				'email' => trim($GLOBALS['alert_log_recipient']),
 				'html' => $html_str,
@@ -1794,7 +1794,7 @@ class Reminder {
 
 						$email_data = array(
 							'patient' => $pat_name,
-							'from' => 'PATIENT SUPPORT',
+							'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
 							'subject' => $subject,
 							'email' => $email_direct,
 							'html' => $data['message'],
@@ -1874,7 +1874,7 @@ class Reminder {
 
 				$email_data = array(
 					'patient' => $email_direct,
-					'from' => 'PATIENT SUPPORT',
+					'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
 					'subject' => $subject,
 					'email' => $email_direct,
 					'html' => $data['message'],
@@ -2987,7 +2987,7 @@ class Reminder {
 
 						$email_data = array(
 							'patient' => $pat_name,
-							'from' => 'PATIENT SUPPORT',
+							'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
 							'subject' => $subject,
 							'email' => $email_direct,
 							'html' => $data['message'],

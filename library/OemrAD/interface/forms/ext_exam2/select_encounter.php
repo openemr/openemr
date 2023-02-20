@@ -4,12 +4,10 @@ require_once("../../globals.php");
 include_once($GLOBALS['srcdir'].'/api.inc');
 include_once($GLOBALS['srcdir'].'/patient.inc');
 include_once($GLOBALS['srcdir'].'/forms.inc');
-include_once($GLOBALS['srcdir'].'/OemrAD/oemrad.globals.php');
 
 use OpenEMR\Core\Header;
-use OpenEMR\OemrAd\Exam2;
 
-$dateFormat = Exam2::getCurrentDateFormat();
+$dateFormat = DateFormatRead("jquery-datetimepicker");
 
 $pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : "";
 $bar_id = isset($_REQUEST['bar_id']) ? $_REQUEST['bar_id'] : "";

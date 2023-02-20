@@ -10,6 +10,7 @@ class LbfForm {
 	function __construct(){
 	}
 
+	/*
 	public static function lbf_form_head_section() {
 		$dlTitle = xlt('Select Encounter');
 
@@ -208,6 +209,7 @@ class LbfForm {
 		</script>
 EOF;
 	}
+	*/
 
 	public static function getLayoutGroupProperties($formname) {
 		$layoutData = sqlQuery(

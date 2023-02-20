@@ -102,9 +102,4 @@ $(function() {
         var alert_val = alertElement.value;
         document.querySelector('#form_current_alert_info').value = alert_val;
     });
-
-    // if(alert_ele.length > 0) {
-    //     var alert_val = alert_ele.val();
-    //     $('#form_current_alert_info').val(alert_val);
-    // }
 });
