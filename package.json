@@ -35,7 +35,7 @@
     "colors": "1.4.0",
     "del": "6.1.1",
     "glob": "8.0.3",
-    "gulp": "4.0.2",
+    "gulp": "^4.0.2",
     "gulp-append-prepend": "1.0.9",
     "gulp-csso": "4.0.1",
     "gulp-dart-sass": "1.0.2",
@@ -63,6 +63,7 @@
     "angular-sanitize": "1.8.3",
     "backbone": "1.4.1",
     "bootstrap": "4.6.1",
+    "bootstrap-multiselect": "^1.1.0",
     "bootswatch": "4.6.1",
     "chart.js": "3.8.0",
     "checklist-model": "1.0.0",
@@ -96,9 +97,9 @@
     "purecss": "2.1.0",
     "select2": "4.0.13",
     "sortablejs": "1.15.0",
+    "tinymce": "4.5.0",
     "underscore": "1.13.4",
-    "validate.js": "0.13.1",
-    "tinymce": "4.5.0"
+    "validate.js": "0.13.1"
   },
   "napa": {
     "bootstrap-rtl": "https://github.com/PerseusTheGreat/bootstrap-4-rtl/archive/d10bd73477b879e78a4f71874af18747d285b6e8.zip",
