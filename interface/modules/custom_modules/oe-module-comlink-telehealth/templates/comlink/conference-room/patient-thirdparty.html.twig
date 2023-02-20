@@ -1,19 +1,22 @@
-<div class="card-header">
-    <div class="row">
-        <div class="col">
-            {{ "Current Third Party Invitation"|xlt }}
-        </div>
-    </div>
-</div>
-<div class="card-body patient-thirdparty" data-pid="{{ patient.pid }}">
+
+<div class="card-body patient-thirdparty" data-pid="{{ patient.id|attr }}">
     <div class="row">
         <div class="col-md-2 telehealth-user-icon h1">
             <i class="fa fa-user"></i>
         </div>
         <div class="col-md-10 p-l-0">
-            <h5 class="text-primary patient-name">{{ patient.fname|text }} {{ patient.mname|text }} {{ patient.lname|text }}</h5>
-            <h6 class="text-secondary patient-dob">{{ "DOB"|xlt }}: {{ patient.DOB|text}}</h6>
+            <h5 class="text-primary patient-name">{{ patient.callerName|text }}</h5>
+{#            <h6 class="text-secondary patient-dob">{{ "DOB"|xlt }}: {{ patient.DOB|text}}</h6>#}
             <h6 class="text-secondary patient-email">{{ "EMAIL"|xlt }}: {{ patient.email|text}}</h6>
+            <button class="btn btn-sm btn-secondary btn-link-copy" data-invite-link="{{ patient.invitation.link|default("")|attr }}">
+                <i class="fa fa-copy"></i>
+                <small>{{ "Copy Invite Link"|xlt }}</small>
+            </button>
+            <button class="btn btn-sm btn-secondary btn-invitation-copy">
+                <i class="fa fa-copy"></i>
+                <small>{{ "Copy Invitation"|xlt }}</small>
+            </button>
+            <div class="d-none thirdparty-invitation-text"><pre>{{ patient.invitation.text|default("")|text }}</pre></div>
         </div>
     </div>
 </div>

@@ -436,6 +436,8 @@ export class AddPatientDialog
         this.addActionToButton('.btn-cancel-screen-action', this.showPrimaryScreen.bind(this));
         this.addActionToButton('.btn-create-patient', this.createPatientAction.bind(this));
         this.addActionToButton('.btn-invite-search', this.searchParticipantsAction.bind(this));
+        this.addActionToButton('.btn-invitation-copy', this.copyPatientInvitationToClipboard.bind(this));
+        this.addActionToButton('.btn-link-copy', this.copyPatientLinkToClipboard.bind(this))
 
         let actionButton = this.container.querySelector('.btn-invite-search');
         if (actionButton)
@@ -445,6 +447,61 @@ export class AddPatientDialog
             console.error("Could not find selector with .btn-telehealth-confirm-yes");
         }
         this.updateThirdPartyControls();
+    }
+
+    copyPatientLinkToClipboard(evt) {
+        let target = evt.currentTarget;
+        if (!target) {
+            console.error("Failed to get a dom node cannot proceed with copy");
+            return;
+        }
+
+        let link = target.dataset['inviteLink'];
+        if (!link) {
+            // no link just ignoring
+            console.error("Failed to find link for patient");
+            this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
+            return;
+        }
+        this.copyTextToClipboard(link);
+    }
+
+    copyPatientInvitationToClipboard(evt) {
+        let target = evt.target;
+        if (!target) {
+            console.error("Failed to get a dom node cannot proceed with copy");
+            return;
+        }
+
+        let closest = target.closest(".patient-thirdparty[data-pid]");
+        if (!closest) {
+            this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
+            throw new Error("Failed to find patient to copy invitation");
+        }
+        let invitation = closest.querySelector(".thirdparty-invitation-text");
+        if (!invitation) {
+            this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
+            throw new Error("Failed to find invitation text with selector .thirdparty-invitation-text");
+        }
+        let text = invitation.textContent;
+        this.copyTextToClipboard(text);
+    }
+
+    copyTextToClipboard(text) {
+
+        // this is getting deprecated
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.showActionAlert('success', this.__translations.CLIPBOARD_COPY_SUCCESS);
+            })
+                .catch(error => {
+                    console.error(error);
+                    this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
+                })
+        } else {
+            console.error("clipboard.writeText does not exist");
+            this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
+        }
     }
 
     addActionToButton(selector, action) {

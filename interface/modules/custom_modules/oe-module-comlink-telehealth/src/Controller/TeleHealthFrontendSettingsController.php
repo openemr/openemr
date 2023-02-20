@@ -89,7 +89,9 @@ class TeleHealthFrontendSettingsController
                 'SEARCH_REQUIRES_INPUT' => xl("Please enter a value to search the patient list"),
                 'SEARCH_RESULTS_NOT_FOUND' => xl("No search results were found"),
                 'PATIENT_INVITATION_PROCESSING' => xl("Sending Invitation"),
-                'PATIENT_INVITATION_SUCCESS' => xl("Invitation Sent")
+                'PATIENT_INVITATION_SUCCESS' => xl("Invitation Sent"),
+                'CLIPBOARD_COPY_SUCCESS' => xl("Information copied to clipboard"),
+                'CLIPBOARD_COPY_FAILURE' => xl("Failed to copy information to clipboard, try again or contact support")
         ];
         return $translations;
     }

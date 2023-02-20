@@ -3,6 +3,9 @@
 /**
  * Communicates with the Comlink User provisioning api.
  *
+ * TODO: @adunsulag look at having this class utilize TeleHealthProvisioningService as there is a bit of
+ * duplication there.
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>

@@ -20,7 +20,10 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProvisioningSer
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\FormattedPatientService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\ParticipantListService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
@@ -58,7 +61,7 @@ class TeleconferenceRoomController
      */
     const REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE = 402;
 
-    const THIRD_PARTY_LAUNCH_ACTION = 'launch_thirdparty_session';
+    const LAUNCH_PATIENT_SESSION = 'launch_patient_session';
 
     /**
      * @var Environment
@@ -120,7 +123,22 @@ class TeleconferenceRoomController
      */
     private $config;
 
-    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController, TeleHealthParticipantInvitationMailerService $mailerService, TeleHealthFrontendSettingsController $settingsController, TelehealthGlobalConfig $config, $assetPath, $isPatient = false)
+    /**
+     * @var TeleHealthProvisioningService
+     */
+    private $provisioningService;
+
+    /**
+     * @var ParticipantListService
+     */
+    private $participantListService;
+
+    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController
+        , TeleHealthParticipantInvitationMailerService $mailerService, TeleHealthFrontendSettingsController $settingsController
+        , TelehealthGlobalConfig $config
+        , TeleHealthProvisioningService $provisioningService
+        , ParticipantListService $participantListService
+        , $assetPath, $isPatient = false)
     {
         $this->assetPath = $assetPath;
         $this->twig = $twig;
@@ -134,6 +152,8 @@ class TeleconferenceRoomController
         $this->mailerService = $mailerService;
         $this->settingsController = $settingsController;
         $this->config = $config;
+        $this->provisioningService = $provisioningService;
+        $this->participantListService = $participantListService;
     }
 
     public function dispatch($action, $queryVars)
@@ -159,8 +179,8 @@ class TeleconferenceRoomController
             return $this->verifyInstallationSettings($queryVars);
         } else if ($action == 'save_session_participant') {
             return $this->saveSessionParticipantAction($queryVars);
-        } else if ($action == self::THIRD_PARTY_LAUNCH_ACTION) {
-            return $this->launchThirdPartySession($queryVars);
+        } else if ($action == self::LAUNCH_PATIENT_SESSION) {
+            return $this->launchPatientSessionAction($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
@@ -168,7 +188,7 @@ class TeleconferenceRoomController
         }
     }
 
-    public function launchThirdPartySession($queryVars)
+    public function launchPatientSessionAction($queryVars)
     {
         try {
             $pc_eid = $queryVars['pc_eid'] ?? null;
@@ -179,9 +199,11 @@ class TeleconferenceRoomController
             if (empty($session)) {
                 throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
             }
+            $primaryPid = intval($session['pid'] ?? 0);
             $pidRelated = intval($session['pid_related'] ?? 0);
+            // note that this assumes that $queryVars is coming from the session
             $queryVarPid = intval($queryVars['pid']); // should always be populated
-            if ($pidRelated !== $queryVarPid) {
+            if ($pidRelated !== $queryVarPid || $primaryPid !== $queryVarPid) {
                 throw new AccessDeniedException('patient', 'demo', 'Access not allowed to this telehealth session for pid' . $queryVarPid);
             }
 
@@ -337,9 +359,9 @@ class TeleconferenceRoomController
         $patientService = new PatientService();
         $patient = $patientService->findByPid($pid);
         if (!$isNewPatient) {
-            $this->mailerService->sendInvitationToExistingPatient($patient, $session, self::THIRD_PARTY_LAUNCH_ACTION);
+            $this->mailerService->sendInvitationToExistingPatient($patient, $session, self::LAUNCH_PATIENT_SESSION);
         } else {
-            $this->mailerService->sendInvitationToNewPatient($patient, $session, self::THIRD_PARTY_LAUNCH_ACTION);
+            $this->mailerService->sendInvitationToNewPatient($patient, $session, self::LAUNCH_PATIENT_SESSION);
             $this->logger->debug("Sending session invitation to new patient", ['session' => $session]);
         }
     }
@@ -772,20 +794,8 @@ class TeleconferenceRoomController
 
     private function getPatientForPid($pid)
     {
-        $patientService = new PatientService();
-        $patientResult = $patientService->getAll(['pid' => $pid])->getData();
-        if (empty($patientResult)) {
-            throw new InvalidArgumentException("patient could not be found for pid " . $pid);
-        }
-
-        $patientResult = $patientResult[0];
-        $date = \DateTime::createFromFormat("Y-m-d", $patientResult['DOB']);
-        $dobYmd = $date->format("Ymd");
-        $patientResult['dobFormatted'] = $dobYmd;
-        $patientResult['age'] = $patientService->getPatientAgeDisplay($dobYmd);
-        $addressService = new AddressService();
-        $patientResult['addressFull'] = $addressService->getAddressFromRecordAsString($patientResult);
-        return $patientResult;
+        $formattedPatientService = new FormattedPatientService();
+        return $formattedPatientService->getPatientForPid($pid);
     }
 
 
@@ -1065,62 +1075,7 @@ class TeleconferenceRoomController
     // TODO: @adunsulag refactor $apptId out
     private function getParticipantListForAppointment($apptId, $user, $session)
     {
-        $userTelehealthSettings = $this->getOrCreateTelehealthProvider($user);
-
-        $participantList = [
-            [
-                'callerName' => $user['fname'] . ' ' . $user['lname']
-                , 'uuid' => $userTelehealthSettings->getUsername()
-                , 'role' => "provider"
-                , 'inRoom' => $this->sessionUserInRoom($session, 'provider')
-            ]
-        ];
-        if (!empty($session['pid'])) {
-            $patient = $this->getPatientForPid($session['pid']);
-            $patientTelehealthSettings = $this->getOrCreateTelehealthPatient($patient);
-            $participantList[] = [
-                'callerName' => $patient['fname'] . ' ' . $patient['lname']
-                , 'uuid' => $patientTelehealthSettings->getUsername()
-                , 'role' => "patient"
-                , 'inRoom' => $this->sessionUserInRoom($session, 'patient')
-            ];
-        }
-        if (!empty($session['pid_related'])) {
-            $patient = $this->getPatientForPid($session['pid_related']);
-            $patientTelehealthSettings = $this->getOrCreateTelehealthPatient($patient);
-            $participantList[] = [
-                'callerName' => $patient['fname'] . ' ' . $patient['lname']
-                , 'uuid' => $patientTelehealthSettings->getUsername()
-                , 'role' => "patient"
-                , 'inRoom' => $this->sessionUserInRoom($session, 'patient_related')
-            ];
-        }
-        return $participantList;
-    }
-
-    /**
-     * Note because of the way we do escaping for injection into the DOM we return a string value of "Y" or "N"
-     * to represent the boolean choices here.
-     *
-     * @param $session
-     * @param $userKey
-     * @return string
-     * @throws Exception
-     */
-    private function sessionUserInRoom($session, $userKey)
-    {
-        if (
-            !empty($session[$userKey . '_start_time']) &&
-            !empty($session[$userKey . '_last_update'])
-        ) {
-            $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session[$userKey . '_last_update']);
-            $currentDateTime = new \DateTime();
-            // odd that this statement returns an empty string instead of false
-            if ($currentDateTime < $dateTime->add(new \DateInterval("PT15S"))) {
-                return "Y";
-            }
-        }
-        return "N";
+        return $this->participantListService->getParticipantListForAppointment($user, $session);
     }
 
     /**
@@ -1130,23 +1085,7 @@ class TeleconferenceRoomController
      */
     private function getOrCreateTelehealthProvider($user)
     {
-        $providerTelehealthSettings = $this->telehealthUserRepo->getUser($user['uuid']);
-        if (empty($providerTelehealthSettings)) {
-            if ($this->telehealthRegistrationController->shouldCreateRegistrationForProvider($user['id'])) {
-                if ($this->telehealthRegistrationController->createUserRegistration($user)) {
-                    $providerTelehealthSettings = $this->telehealthUserRepo->getUser($user['uuid']);
-                } else {
-                    throw new TelehealthProvisioningServiceRequestException("Could not create telehealth registration for user " . $user['uuid']);
-                }
-            } else {
-                // we should never hit this situation as we are supposed to prevent launching of appointments on the client side of things.
-                throw new TelehealthProviderNotEnrolledException("Provider is either suspended or not enrolled in telehealth. Cannot create telehealth registration for user " . $user['uuid']);
-            }
-        } else if (!$providerTelehealthSettings->getIsActive()) {
-            // provider is disabled... can't launch settings with this provider
-            throw new TeleHealthProviderSuspendedException("Provider's telehealth subscription is suspended for user " . $user['uuid']);
-        }
-        return $providerTelehealthSettings;
+        return $this->provisioningService->getOrCreateTelehealthProvider($user);
     }
 
     /**
@@ -1156,15 +1095,7 @@ class TeleconferenceRoomController
      */
     private function getOrCreateTelehealthPatient($patient)
     {
-        $telehealthSettings = $this->telehealthUserRepo->getUser($patient['uuid']);
-        if (empty($telehealthSettings)) {
-            if ($this->telehealthRegistrationController->createPatientRegistration($patient)) {
-                $telehealthSettings = $this->telehealthUserRepo->getUser($patient['uuid']);
-            } else {
-                throw new TelehealthProvisioningServiceRequestException("Could not create video registration for patient " . $patient['uuid']);
-            }
-        }
-        return $telehealthSettings;
+        return $this->provisioningService->getOrCreateTelehealthPatient($patient);
     }
 
     private function getApiKeyForPassword($password)

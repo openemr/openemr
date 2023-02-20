@@ -150,6 +150,7 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
         launchRegistrationChecker: launchRegistrationChecker,
         // only used for debugging
         launchDebugConferenceRoomDialog: launchDebugConferenceRoomDialog,
+        getTeleHealthScriptLocation: getTeleHealthScriptLocation
     };
     // now reassign our comlink object or create it new if there are no other comlink extensions.
     window.comlink = comlink;
