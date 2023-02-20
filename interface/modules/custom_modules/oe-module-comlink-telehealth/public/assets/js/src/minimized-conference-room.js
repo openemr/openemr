@@ -74,7 +74,7 @@ export class MinimizedConferenceRoom {
 
     maximizeConferenceRoom() {
         // remove the event listener
-        var remoteVideoContainer = this.container.querySelector('.remote-video-container');
+        var remoteVideoContainer = this.container.querySelector('.sidebar');
 
         // now let's move the video and cleanup the old container here
         // if (remoteVideo && remoteVideoContainer) {
@@ -84,7 +84,7 @@ export class MinimizedConferenceRoom {
             var oldContainer = this.minimizedConferenceNode;
             this.videoBar.destruct();
             // remoteVideoContainer.prepend(remoteVideo);
-            remoteVideoContainer.parentNode.prepend(this.participantList);
+            remoteVideoContainer.appendChild(this.participantList);
             if (this.participantList.dataset['classMaximize']) {
                 this.participantList.className = this.participantList.dataset['classMaximize'];
             }

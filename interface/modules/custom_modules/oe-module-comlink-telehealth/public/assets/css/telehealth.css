@@ -61,6 +61,10 @@
   padding: 0.25rem;
 }
 
+#minimized-telehealth-video .sidebar-controls {
+  display: none !important;
+}
+
 /** stylesheet tries to shrink this all.
  */
 #telehealth-container > .modal-dialog {
