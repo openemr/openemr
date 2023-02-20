@@ -13,6 +13,7 @@
  */
 
 require_once("../globals.php");
+require_once($GLOBALS['srcdir']."/wmt-v2/wmtstandard.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -115,6 +116,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             intval($_POST['form_columns']),
         );
     } else {
+        // OEMR - Added grp_activate_copy, grp_rto_action
         $sets =
             "grp_title = ?, "      .
             "grp_subtitle = ?, "   .
@@ -131,7 +133,9 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             "grp_referrals = ?, "  .
             "grp_services = ?, "   .
             "grp_products = ?, "   .
-            "grp_diags = ?";
+            "grp_diags = ?, "      .
+            "grp_activate_copy = ?, ".
+            "grp_rto_action = ?";
         $sqlvars = array(
             $_POST['form_title'],
             $_POST['form_subtitle'],
@@ -149,6 +153,8 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
+            empty($_POST['form_activate_copy']) ? 0 : 1,
+            isset($_POST['form_rto_action']) ? $_POST['form_rto_action'] : '',
         );
     }
 
@@ -479,6 +485,29 @@ for ($cols = 2; $cols <= 12; ++$cols) {
    <input type='text' class='form-control' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
   </td>
  </tr>
+
+ <!-- OEMR - A -->
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Active Global Copy'); ?>
+  </td>
+  <td>
+   <input type='checkbox' name='form_activate_copy' <?php if ($row['grp_activate_copy']) {
+        echo "checked";} ?> />
+  </td>
+ </tr>
+ <?php if (isset($row['grp_form_id']) && substr($row['grp_form_id'], 0, 3) == 'LBF') { ?>
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Order'); ?>
+  </td>
+  <td>
+    <select name='form_rto_action' id='form_rto_action' class='form-control' >
+        <?php ListSel($row['grp_rto_action'], 'RTO_Action'); ?></select>
+  </td>
+ </tr>
+ <?php } ?>
+ <!-- End -->
 
  <tr>
   <td valign='top' width='1%' nowrap>

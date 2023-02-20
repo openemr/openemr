@@ -40,11 +40,9 @@ require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/PHPMailer.ph
 require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/SMTP.php');
 require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/Exception.php');
 
-
 //Included EXT_Message File
 include_once("$srcdir/OemrAD/oemrad.globals.php");
 
-use OpenEMR\OemrAd\OrderLbfForm;
 use OpenEMR\OemrAd\EmailMessage;
 use OpenEMR\OemrAd\MessagesLib;
 use OpenEMR\OemrAd\Attachment;
@@ -351,7 +349,7 @@ if ($form_mode == 'transmit') {
 							$orderList = (isset($_REQUEST['orders']) && !empty($_REQUEST['orders'])) ? json_decode($_REQUEST['orders'], true) : array();
 
 							if(!empty($orderList)) {
-								OrderLbfForm::addMessageOrderLog($pid, 'EMAIL', $orderList, $msgLogId, $toEmailItem);
+								MessagesLib::addMessageOrderLog($pid, 'EMAIL', $orderList, $msgLogId, $toEmailItem);
 							}
 						}
 					}
@@ -628,7 +626,7 @@ if($form_id) {
 					<input type='text' name="custom_email_id" id="custom_email_id" class="form-control" value='<?php echo (isset($default_custom_email_id) && $default_custom_email_id != 'undefined') ? $default_custom_email_id : ''; ?>' placeholder="<?php echo xlt('Enter custom email'); ?>" />
 			    </div>
 			    <div class="form-group col-md-6">
-			    	<a class='medium_modal select_abook btn btn-primary' style="max-width: 220px;" href='<?php echo $GLOBALS['webroot']. '/library/extlib/interface/view/find_user_popup.php?allow_multi_select=true'; ?>'><span> <?php echo xlt('Select from address book'); ?></span></a>
+			    	<a class='medium_modal select_abook btn btn-primary' style="max-width: 220px;" href='<?php echo $GLOBALS['webroot']. '/library/OemrAD/interface/forms/cases/find_user_popup.php?allow_multi_select=true'; ?>'><span> <?php echo xlt('Select from address book'); ?></span></a>
 				</div>
 			</div>
 		</div>

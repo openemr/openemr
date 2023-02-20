@@ -65,7 +65,6 @@ use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\OemrAd\Caselib;
 use OpenEMR\OemrAd\ZoomIntegration;
 use OpenEMR\OemrAd\Utility;
-use OpenEMR\OemrAd\Scriptlib;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {

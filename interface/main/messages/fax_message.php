@@ -14,7 +14,6 @@ if(!isset($GLOBALS['wmt::use_email_direct'])) $GLOBALS['wmt::use_email_direct'] 
 include_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Core\Header;
-use OpenEMR\OemrAd\OrderLbfForm;
 use OpenEMR\OemrAd\EmailMessage;
 use OpenEMR\OemrAd\MessagesLib;
 use OpenEMR\OemrAd\Attachment;
@@ -224,7 +223,7 @@ if ($form_mode == 'transmit') {
 								$orderList = (isset($_REQUEST['orders']) && !empty($_REQUEST['orders'])) ? json_decode($_REQUEST['orders'], true) : array();
 
 								if(!empty($orderList)) {
-									OrderLbfForm::addMessageOrderLog($pid, 'FAX', $orderList, $msgLogId, $toFaxItem);
+									MessagesLib::addMessageOrderLog($pid, 'FAX', $orderList, $msgLogId, $toFaxItem);
 								}
 							}
 						}

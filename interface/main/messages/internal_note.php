@@ -47,7 +47,24 @@ include_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\OemrAd\MessagesLib;
-use OpenEMR\OemrAd\OrderLbfForm;
+
+/* OEMR - Changes */
+function add_internal_note($pid, $newnoteid) {
+	if(!empty($newnoteid)) {
+		$internalData = getInternalNote($newnoteid);
+
+		if(!empty($internalData)) {
+			$type = "INTERNAL_NOTE";
+			$createdBy = $_SESSION['authUserID'];
+			$relation_id = isset($newnoteid) && !empty($newnoteid) ? $newnoteid : NULL;
+			$operationType = 'Forwarded';
+			$orderId = isset($internalData['rto_id']) ? $internalData['rto_id'] : NULL;
+
+			saveOrderLog($type, $orderId, $relation_id, NULL, $pid, $operationType, $createdBy);
+		}
+	}
+}
+/* End */
 
 $delete_id = array();
 $templates = array();
@@ -94,7 +111,7 @@ switch($mode) {
 					error_log("New Note ID ($noteid)");
 				}
 
-		    OrderLbfForm::add_internal_note($pid);
+		    add_internal_note($pid, $newnoteid);
 
 		//	}
 		break;
@@ -116,7 +133,7 @@ switch($mode) {
 					error_log("New Note ID ($noteid)");
 				}
 
-				OrderLbfForm::add_internal_note($pid);
+				add_internal_note($pid, $newnoteid);
 
 		//	}
 		break;	

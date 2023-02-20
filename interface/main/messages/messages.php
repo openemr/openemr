@@ -35,7 +35,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\OemrAd\MessagesLib;
-use OpenEMR\OemrAd\OrderLbfForm;
 
 // OEMRAD - Changes
 if(!isset($_REQUEST['sortby'])) $_REQUEST['sortby'] = 'pnotes.date';
@@ -376,7 +375,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                                         /* OEMRAD - Update Files List */
                                         MessagesLib::update_files_list();
-                                        OrderLbfForm::add_message_note($pid);
+                                        addMessageNote($pid, $noteid);
                                         /* End */
 
                                         $noteid = '';
@@ -446,7 +445,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 $reply_to = $_POST['reply_to'];
 
                                 // OEMRAD - Message note. 
-                                OrderLbfForm::add_message_note($pid);
+                                addMessageNote($pid, $noteid);
 
                                 break;
                             case "edit":

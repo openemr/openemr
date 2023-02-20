@@ -925,8 +925,201 @@ if (
         ?>
 
     </script>
+    
+    <!-- OEMR - Change -->
+    <style type="text/css">
+        .configLink {
+            text-transform: none!important;
+            margin-right: 10px;
+        }
+        .global_copy_container, .sub_section_copy_container {
+            display: inline-block;
+            float: right;
+            font-weight: normal;
+        }
 
-    <?php echo LbfForm::lbf_form_head_section(); ?>
+        #global_request_data, .request_data {
+            display: none;
+        }
+    </style>
+
+    <script type="text/javascript">
+        // This invokes the find-addressbook popup.
+        function add_doc_popup(section_id = '', formname = '', encounter = '', pid = '') {
+            var url = '<?php echo $GLOBALS['webroot']; ?>/library/OemrAD/interface/forms/LBF/lbf_select_encounter.php'+'?pid='+pid+'&section_id='+section_id+'&formname='+formname+'&encounter='+encounter;
+            let title = "<?php echo xlt('Select Encounter'); ?>";
+            dlgopen(url, 'selectEncounter', 600, 400, '', title);
+        }
+
+        async function globalCopy(event, pid, formname, encounter, section_id) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            add_doc_popup(section_id, formname, encounter, pid);
+        }
+
+        async function setEncounter(section_id, encounter_id, form_id, pid, c_action) {
+            await fetchExtExam(encounter_id, form_id, pid, section_id);
+        }
+
+        async function fetchExtExam(encounterId, id, pid, section_id = 'global') {
+            var msg = "Load data from selected encounter form into this form? \\n\\n Current Data in this form will be overwritten.";
+
+            var confirmBox = confirm(msg);
+
+            if(confirmBox != true) {
+                return false;
+            }
+
+            if(section_id != 'global') {
+                var inputVals = $('#'+section_id+'_request_data').val();
+            } else {
+                var inputVals = $('#global_request_data').val();
+            }
+
+            var valObj = {};
+            if(inputVals != '') {
+                valObj = JSON.parse(inputVals);
+            }
+
+            if(section_id == 'global') {
+                valObj['section_id'] = 'global';
+            }
+
+            valObj['encounter_id'] = encounterId;
+            valObj['f_id'] = id;
+
+            const result = await $.ajax({
+                type: "POST",
+                url: "<?php echo $GLOBALS['webroot']; ?>/library/OemrAD/interface/forms/LBF/ajax/fetch_lbf_form.php",
+                datatype: "json",
+                data: valObj
+            });
+
+            if(result != '' && confirmBox == true) {
+                var resultObj = JSON.parse(result);
+
+                if(section_id == 'global') {
+                    extexam[section_id](resultObj['formData'], resultObj['group_check_list']);
+                } else {
+                    extexam.global(resultObj['formData'], resultObj['group_check_list'], section_id);
+                }
+            }
+        }
+
+        var extexam = {};
+
+        extexam.global = function(data, list_data = [], sectionId = '') {
+            $.each(data, function(section, fields){
+                if(list_data['form_cb_'+section]) {
+                    if(list_data['form_cb_'+section] == 1) {
+                        $('input[name="'+'form_cb_'+section+'"]').prop('checked', true);
+                        $('#div_'+section).css("display", "block");
+                    } else {
+                        $('input[name="'+'form_cb_'+section+'"]').prop('checked', false);
+                        $('#div_'+section).css("display", "none");
+                    }
+                }
+
+                if(sectionId != '') {
+                    if(section == sectionId) {
+                        setFielValue(fields, section);
+                    }
+                } else {
+                    setFielValue(fields, section);
+                }   
+            });
+        }
+
+        var setFielValue = function(data, section) {
+            if(data && section) {
+                $.each(data, function(k, field){
+                    if(field['data_type'] == '21') {
+                        var chValues = field['currentvalue'].split('|');
+                        var eleStr = [];
+                        
+                        $('#div_'+section+' [name^="form_'+field['field_id']+'["]').prop( "checked", false );
+
+                        $.each(chValues, function(chk, chVal){
+                            eleStr.push('#div_'+section+' [name="form_'+field['field_id']+'['+chVal+']"]');
+                        });
+
+                        var eStr = eleStr.join(', ');
+                        var ele = $(eStr);
+                        setInputVal(ele, '1');
+                    } else if(field['data_type'] == '22') {
+                        var tlValues = field['currentvalue'].split('|');
+                        $.each(tlValues, function(tlk, tlVal){
+                            var tlVals = tlVal.split(':');
+
+                            var tlele = $('#div_'+section+' [name="form_'+field['field_id']+'['+tlVals[0]+']"]');
+                            setInputVal(tlele, tlVals[1]);
+                        });
+                    } else if(field['data_type'] == '25') {
+                        $('#div_'+section+' [name^="check_'+field['field_id']+'["]').prop( "checked", false );
+                        
+                        var tcheleStr = [];
+                        var tchValues = field['currentvalue'].split('|');
+                        
+                        $.each(tchValues, function(tchk, tchVal){
+                            var tchVals = tchVal.split(':');
+
+                            var chele = $('#div_'+section+' [name="check_'+field['field_id']+'['+tchVals[0]+']"]');
+                            setInputVal(chele, tchVals[1]);
+
+                            var tchele = $('#div_'+section+' [name="form_'+field['field_id']+'['+tchVals[0]+']"]');
+                            setInputVal(tchele, tchVals[2]);
+                        });
+
+                    } else if(field['data_type'] == '34') {
+                        $('#div_'+section+' #form_'+field['field_id']+'_div').html(field['currentvalue']);
+                        var ele1 = $('#div_'+section+' [name="form_'+field['field_id']+'"]');
+                        setInputVal(ele1, field['currentvalue']);
+                    } else if(field['data_type'] == '36') {
+                        var smValues = field['currentvalue'].split('|');
+                        var ele = $('#div_'+section+' [name="form_'+field['field_id']+'[]"]');
+                        setInputVal(ele, smValues);
+                    } else {
+                        var ele = $('#div_'+section+' [name="form_'+field['field_id']+'"]');
+                        setInputVal(ele, field['currentvalue']);
+                    }
+                });
+            }
+        }
+
+        var setInputVal = function(ele, value) {
+            //console.log(value);
+            if(ele.length > 0) {
+                if($(ele).is("input:text")) {
+                    ele.val(value);
+                } else if($(ele).is("select")) {
+                    $(ele).val(value);
+                    //$(ele).val(value).change();
+                } else if($(ele).is("select [multiple='multiple']")) {
+                    $(ele).val(value);
+                } else if($(ele).is("textarea")) {
+                    $(ele).val(value);
+                } else if($(ele).is("input:checkbox")) {
+                    $.each(ele, function(inx, c_ele){
+                        if($(c_ele).val() == value) {
+                            $(c_ele).prop( "checked", true );
+                        } else {
+                            $(c_ele).prop( "checked", false );
+                        }
+                    });
+                } else if($(ele).is("input:radio")) {
+                    $.each(ele, function(inx, c_ele){
+                        if($(c_ele).val() == value) {
+                            $(c_ele).prop( "checked", true );
+                        } else {
+                            $(c_ele).prop( "checked", false );
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+    <!-- End -->
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
