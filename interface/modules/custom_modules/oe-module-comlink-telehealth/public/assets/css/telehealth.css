@@ -32,20 +32,8 @@
   position: relative;
 }
 
-.telehealth-button-bar {
-  background-color: transparent;
-  font-size: 1.25rem;
-  position: absolute;
-  text-align: center;
-  width: 100%;
-}
-.conference-room .telehealth-button-bar
-,#minimized-telehealth-video .telehealth-button-bar {
-  bottom: 0;
-}
 
 .telehealth-button-bar .telehealth-btn {
-  font-size: 2rem;
   margin-left: 0.5rem;
   margin-right: 0.5rem;
 }
@@ -80,7 +68,7 @@
 }
 
 #telehealth-container > .modal-dialog > .modal-content {
-  min-height: 90vh;
+  min-height: 98vh;
 }
 
 #telehealth-container > .modal-dialog > .modal-content > .modal-body {
@@ -97,10 +85,119 @@
   background-color: #000;
   flex-grow: 1;
   position: relative;
+  z-index: 0;
+}
+
+.conference-room .sidebar {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 1;
+  left: 0;
+}
+
+/** sidebar highlight **/
+.conference-room .sidebar .conference-highlight {
+  position: absolute;
+  /** patient portal has var(--black) but OpenEMR theme does not... so we use #000 **/
+  background: #000;
+  transition: opacity 1s;
+}
+
+.conference-room.active .sidebar .conference-highlight
+,.conference-room .sidebar .conference-highlight {
+  opacity: .4;
+}
+
+.conference-room.idle .sidebar .conference-highlight {
+  opacity: 0;
+}
+
+.conference-room .sidebar .sidebar-highlight {
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.conference-room .sidebar .sidebar-controls {
+  position: absolute;
+  top: 0;
+  left: calc(100%);
+  bottom: 0;
+  width: 2rem;
+}
+
+
+.conference-room .sidebar .participant-list-container {
+  z-index: 2;
+  height: calc(100% - 3rem);
+}
+
+.conference-room .sidebar .list-minimize .participant-list-expand {
+  display: none;
+}
+
+/**
+ * Minimized Settings
+ */
+.conference-room .sidebar.minimized {
+  transform: translateX(-100%);
+  transition-duration: 1s;
+  transition-timing-function: ease;
+}
+
+.conference-room .sidebar.maximized {
+  transform: translateX(0);
+  transition-duration: 1s;
+  transition-timing-function: ease;
 }
 
 .conference-room .telehealth-button-bar {
-  bottom: 1.25rem;
+  bottom: 0;
+}
+
+.conference-room .sidebar.minimized  .list-minimize {
+  display: block;
+}
+.conference-room .sidebar.minimized .list-minimize .participant-list-collapse {
+  display: none;
+}
+.conference-room .sidebar.minimized .list-minimize .participant-list-expand {
+  display: block;
+}
+
+/**
+ * Inactive Settings
+ */
+.conference-room .sidebar.inactive .conference-highlight {
+  opacity: 0;
+}
+
+
+.telehealth-button-bar {
+  background-color: #000;
+  font-size: 1.25rem;
+  text-align: center;
+  width: 100%;
+  position:absolute;
+  z-index: 40;
+  line-height: 2.5rem;
+  max-height: 3rem;
+  transition: opacity 1s;
+}
+.conference-room.active .telehealth-button-bar
+,.conference-room.active .sidebar .list-minimize {
+  opacity: 1;
+}
+.conference-room.idle .telehealth-button-bar
+, .conference-room.idle .sidebar .list-minimize {
+  opacity: 0;
+}
+#minimized-telehealth-video .telehealth-button-bar {
+  position: absolute;
+  bottom: 0;
 }
 
 .conference-room #local-video-container {
@@ -110,7 +207,7 @@
 }
 
 .conference-room .remote-video, .conference-room .remote-screenshare {
-  max-height: 80vh;
+  max-height: 90vh;
 }
 
 .conference-room #local-video {
@@ -136,45 +233,20 @@
 }
 
 .conference-room .participant-list-container .participant-video {
-  max-height: 15vh;
+  max-height: 20vh;
   background-color: #000;
 }
 
 .conference-room .participant-list-container .participant-container
 , #minimized-telehealth-video .participant-list-container .participant-container {
   position: relative;
+  border-radius: .25rem;
+  overflow: hidden;
 }
 .conference-room .participant-list-container .participant-container .video-control {
   position: absolute;
   display: none;
 }
-
-.conference-room .participant-list-container .list-minimize {
-  display: none;
-  position: absolute;
-  top: calc(50% - 1rem);
-  right: calc(0% - 2.5rem);
-  font-size: 2.5rem;
-}
-
-
-.conference-room .participant-list-container .list-minimize .participant-list-collapse {
-  display: none;
-}
-.conference-room .participant-list-container.minimized  .list-minimize {
-  display: block;
-}
-.conference-room .participant-list-container.minimized .list-minimize .participant-list-collapse {
-  display: block;
-}
-.conference-room .participant-list-container.minimized .list-minimize .participant-list-expand {
-  display: none;
-}
-
-.conference-room .participant-list-container:hover .list-minimize {
-  display: block;
-}
-
 
 .conference-room .participant-list-container .participant-container .participant-label-bg
 , .waiting-room .local-participant .participant-label-bg

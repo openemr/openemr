@@ -123,7 +123,7 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
             // for patient conference if the provider leaves the call we need to send them back to the waiting room
             patientConferenceRoom.replaceConferenceRoomWithWaitingRoom();
             // cancel our session update sequence that happens during the conference room.
-            patientConferenceRoom.cancelUpdateConferenceRoomSession();
+            patientConferenceRoom.cancelConferenceRoomSessionUpdateInterval();
         }
     };
 

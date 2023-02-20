@@ -34,10 +34,34 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     /**
+     * The container node of the room
+     * @type {HTMLElement}
+     */
+    this.roomNode = null;
+
+    /**
      * Milliseconds to update the session information
      * @type {number}
      */
     this.sessionUpdatePollingTime = 5000;
+
+    /**
+     * Milliseconds to check if we should hide the conference room session controls or not
+     * @type {number}
+     */
+    this.sessionControlsActiveTime = 500;
+
+    /**
+     * Milliseconds that a session is determined to be idle (so controls and other stuff can be hidden)
+     * @type {number}
+     */
+    this.sessionControlsIdleTime = 5000;
+
+    /**
+     * The date timestamp that the local user was active from a visual control perspective (mouse move, click presentation screen, etc)
+     * @type {Date|null}
+     */
+    this.lastActiveDate = null;
 
     /**
      * What type of room this conference room is
@@ -67,6 +91,12 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
      * @type {number}
      */
     this.sessionUpdateInterval = null;
+
+    /**
+     * Tracking interval for the conference room user activity polling
+     * @type {number}
+     */
+    this.sessionControlsActiveInterval = null;
 
     this.__hasLocalPermisions = false;
     /** @private */
@@ -666,6 +696,15 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             clearInterval(conf.sessionUpdateInterval);
             conf.sessionUpdateInterval = null;
         }
+
+        if (conf.sessionControlsActiveInterval !== null) {
+            clearInterval(conf.sessionControlsActiveInterval);
+            conf.sessionControlsActiveInterval = null;
+        }
+        if (conf.roomNode) {
+            conf.cleanupParticipantActiveEvents();
+            conf.roomNode = null;
+        }
         let container = document.getElementById('telehealth-container');
 
         if (conf.__bridge && conf.__bridge.shutdown)
@@ -818,10 +857,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         // we use min-height 90vh until we get the bootstrap full screen modal in bootstrap 5
         // TODO: @adunsulag now that both patient & portal are using the same dialog we can probably move this server side
         // into the waiting room template.
-        bootstrapModalTemplate.innerHTML = `<div class="modal fade" id="telehealth-container" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog mw-100 ml-2 mr-2">
+        bootstrapModalTemplate.innerHTML = `<div class="modal fade pl-0" id="telehealth-container" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog mw-100 ml-2 mr-2 mt-0 mt-md-1 mt-lg-2 mb-0">
                 <div class="modal-content">
-                  <div class="modal-header">
+                  <div class="modal-header pt-2 pt-md-3 pb-2 pb-md-3">
                     <h5 class="modal-title">` + jsText(translations.TELEHEALTH_MODAL_TITLE) + `</h5>
                     <button type="button" class="close btn-telehealth-provider-close" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
@@ -862,6 +901,14 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             modalBody.removeChild(modalBody.firstChild);
         } while (modalBody.childNodes.length);
         modalBody.innerHTML = conf.conferenceRoomTemplate;
+        conf.roomNode = modalBody.querySelector('.conference-room');
+        if (!conf.roomNode) {
+            console.error("Failed to find node with selector .conference-room from received data");
+            alert(translations.SESSION_LAUNCH_FAILED);
+            conf.sessionClose();
+            return;
+        }
+        conf.roomNode.classList.add('active');
 
         // now let's replace our template video container with our original video container from the waiting room.
         let newLocalCallSlot = new LocalCallerSlot(container.querySelector('.local-participant'), this.getLocalParticipant());
@@ -882,7 +929,80 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
         this.sessionUpdateInterval = setInterval(conf.updateConferenceRoomSession.bind(conf), conf.sessionUpdatePollingTime);
         this.__presentationScreen = new PresentationScreen('presentation-screen');
+
+        this.sessionControlsActiveInterval = setInterval(conf.updateSessionControlsActive.bind(conf), conf.sessionControlsActiveTime);
+
+        // setup our minimize controls
+        conf.setupParticipantMinimizeControls(container);
+
+        conf.setupParticipantActiveEvents(container);
+
         conf.updateConferenceRoomSession();
+    };
+
+    conf.updateSessionControlsActive = function() {
+        let date = new Date();
+        let lastActive = conf.lastActiveDate;
+        if (lastActive && (date.getTime() - lastActive.getTime() > conf.sessionControlsIdleTime)) {
+            conf.roomNode.classList.remove('active');
+            conf.roomNode.classList.add('idle');
+            conf.lastActive = null;
+        }
+    };
+
+    conf.setupParticipantActiveEvents = function() {
+        conf.lastActiveDate = new Date(); // set our initial active date
+        conf.roomNode.addEventListener('mousemove', conf.updateActive);
+        let presentationScreenContainer = conf.roomNode.querySelector('.remote-video-container');
+        if (!presentationScreenContainer) {
+            console.error("Failed to find node with selector '.remote-video-container'");
+            return;
+        }
+        presentationScreenContainer.addEventListener('click', conf.updateActive);
+        // this.__presentationScreen.addSelectHandler(conf.updateActive);
+    };
+
+    conf.cleanupParticipantActiveEvents = function() {
+        if (conf.roomNode) {
+            conf.roomNode.removeEventListener('mousemove', conf.updateActive);
+        }
+    };
+
+    conf.updateActive = function() {
+        conf.lastActiveDate = new Date();
+        if (conf.roomNode) {
+            conf.roomNode.classList.remove('idle');
+            conf.roomNode.classList.add('active');
+        }
+    };
+
+    conf.toggleSidebar = function() {
+        if (conf.roomNode) {
+            let sidebar = conf.roomNode.querySelector('.sidebar')
+            if (sidebar.classList.contains('minimized')) {
+                sidebar.classList.remove('minimized');
+                sidebar.classList.add('maximized');
+            } else {
+                sidebar.classList.add('minimized');
+                sidebar.classList.remove('maximized');
+            }
+        }
+    };
+
+    conf.setupParticipantMinimizeControls = function(container) {
+        let btn = container.querySelector('.btn-list-minimize');
+        if (!btn) {
+            console.error("Failed to find minimize button with selector .btn-list-minimize");
+            return;
+        }
+        btn.addEventListener('click', conf.toggleSidebar);
+
+        // now we need to do a media query check and initially minimize if we are at the point that we only
+        // have 400px of real estate on mobile...
+        var x = window.matchMedia("(max-width: 400px)");
+        if (x.matches) {
+            conf.toggleSidebar();
+        }
     };
 
     this.updateConferenceRoomSession = function() {
@@ -902,7 +1022,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             .catch(error => console.error("Conference session update ", error));
     };
 
-    this.cancelUpdateConferenceRoomSession = function()
+    this.cancelConferenceRoomSessionUpdateInterval = function()
     {
         if (conf.sessionUpdateInterval)
         {
