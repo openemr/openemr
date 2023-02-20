@@ -86,9 +86,13 @@ function formatPhoneNumber($pat_phone) {
       if (substr($pat_phone,0,1) != '1') $msg_phone = "1" . $msg_phone;
       if (strlen($msg_phone) > 11) $msg_phone = substr($msg_phone,0,11);
       
-      if (substr($pat_phone,0,1) == '1') $pat_phone = substr($pat_phone,1,10);
-      if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
-      $pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
+      //if (substr($pat_phone,0,1) == '1') $pat_phone = substr($pat_phone,1,10);
+      //if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
+      //$pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
+      if(preg_match('/^(1|)?(\d{3})(\d{3})(\d{4})$/', $pat_phone,  $matches ) ) {
+        $intlCode = $matches[1] ? '1 ' : '';
+        $pat_phone = $intlCode.'(' . $matches[2] . ') ' .$matches[3] . '-' . $matches[4];
+      }
     }
     return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone);
 }

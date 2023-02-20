@@ -418,7 +418,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
             var maskField = elem;
             if(maskField.getAttribute('id')) {
                 var maskFieldId = maskField.getAttribute('id').replace("_mfield", "");
-                document.getElementById(maskFieldId).value = clearPhoneValue(maskField.value);
+                var nField = document.getElementById(maskFieldId);
+                if(nField && nField != undefined) nField.value = clearPhoneValue(maskField.value);
             }
         }
     }
@@ -500,7 +501,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
             currentInputContainer.querySelector('input[type="text"]').value = "";
         }
 
-        prepareMiValues();
+       prepareMiValues();
     }
 
     function prepareMiValues() {
@@ -512,7 +513,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
         
         var valList = [];
         inputElements.forEach(function (inputElement, index) {
-          var eleVal = clearPhoneValue(inputElement.value);
+          var eleVal = inputElement.value;
+          if(inputElement.classList.contains('mask_ph')) eleVal = clearPhoneValue(inputElement.value);
+          
           if(eleVal != "") valList.push(eleVal);
         });
 
