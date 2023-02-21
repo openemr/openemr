@@ -65,7 +65,7 @@ if (isset($pid) && is_numeric($pid)) {
     $name = $patient_data['fname'] . " " . $patient_data['lname'];
 }
 
-// The first data point in the DATA set is significant. It tells date
+// The first data point in the DATA set is significant. It tells the date
 // of the currently viewed vitals by the user. We will use this
 // date to define which chart is displayed on the screen
 $charttype = "2-20"; // default the chart-type to ages 2-20
