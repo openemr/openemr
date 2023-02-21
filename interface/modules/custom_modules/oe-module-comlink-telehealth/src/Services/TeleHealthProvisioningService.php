@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
-
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProviderNotEnrolledException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TeleHealthProviderSuspendedException;
@@ -28,8 +26,7 @@ class TeleHealthProvisioningService
     private $telehealthRegistration;
 
 
-    public function __construct(TeleHealthUserRepository $userRepo, TeleHealthProviderRepository $providerRepo
-    , TeleHealthRemoteRegistrationService $registrationService)
+    public function __construct(TeleHealthUserRepository $userRepo, TeleHealthProviderRepository $providerRepo, TeleHealthRemoteRegistrationService $registrationService)
     {
         $this->telehealthUserRepo = $userRepo;
         $this->providerRepository = $providerRepo;

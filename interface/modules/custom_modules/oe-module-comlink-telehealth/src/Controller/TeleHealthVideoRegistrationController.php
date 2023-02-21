@@ -76,7 +76,8 @@ class TeleHealthVideoRegistrationController
         $eventDispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, [$this, 'onUserUpdatedEvent']);
     }
 
-    public function getUserRepository() {
+    public function getUserRepository()
+    {
         if (!isset($this->userRepository)) {
             $this->userRepository = new TeleHealthUserRepository();
         }

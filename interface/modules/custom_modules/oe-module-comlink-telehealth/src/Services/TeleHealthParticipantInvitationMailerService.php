@@ -12,13 +12,19 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Events\TelehealthNotificationSendEvent;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Models\NotificationSendAddress;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use MyMailer;
 use OpenEMR\Services\LogoService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Environment;
 
 class TeleHealthParticipantInvitationMailerService
 {
+    const MESSAGE_ID_TELEHEALTH_EXISTING_PATIENT = 'comlink-telehealth-invitation-existing-patient';
+
+    const MESSAGE_ID_TELEHEALTH_NEW_PATIENT = 'comlink-telehealth-invitation-new-patient';
     private $publicPathFQDN;
 
     /**
@@ -31,8 +37,14 @@ class TeleHealthParticipantInvitationMailerService
      */
     private $config;
 
-    public function __construct(Environment $twig, $publicPathFQDN, TelehealthGlobalConfig $config)
+    /**
+     * @var EventDispatcher
+     */
+    private $dispatcher;
+
+    public function __construct(EventDispatcher $dispatcher, Environment $twig, $publicPathFQDN, TelehealthGlobalConfig $config)
     {
+        $this->dispatcher = $dispatcher;
         $this->twig = $twig;
         $this->publicPathFQDN = $publicPathFQDN;
         $this->config = $config;
@@ -43,7 +55,13 @@ class TeleHealthParticipantInvitationMailerService
         $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
         $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.html.twig', $data);
         $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.text.twig', $data);
-        $this->sendMessageToPatient($htmlMsg, $plainMsg, $patient);
+        $this->sendMessageToPatient(
+            $htmlMsg,
+            $plainMsg,
+            $patient,
+            $this->getJoinLink($session, $thirdPartyLaunchAction),
+            self::MESSAGE_ID_TELEHEALTH_EXISTING_PATIENT
+        );
     }
 
     public function sendInvitationToNewPatient($patient, $session, $thirdPartyLaunchAction)
@@ -51,7 +69,14 @@ class TeleHealthParticipantInvitationMailerService
         $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
         $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-new.html.twig', $data);
         $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-new.text.twig', $data);
-        $this->sendMessageToPatient($htmlMsg, $plainMsg, $patient);
+
+        $this->sendMessageToPatient(
+            $htmlMsg,
+            $plainMsg,
+            $patient,
+            $this->getJoinLink($session, $thirdPartyLaunchAction),
+            self::MESSAGE_ID_TELEHEALTH_NEW_PATIENT
+        );
     }
 
     private function getInvitationData($patient, $session, $thirdPartyLaunchAction)
@@ -76,22 +101,51 @@ class TeleHealthParticipantInvitationMailerService
             . "&pc_eid=" . intval($session['pc_eid']);
     }
 
-    private function sendMessageToPatient($htmlMsg, $plainMsg, $patient)
+    private function sendMessageToPatient($htmlMsg, $plainMsg, $patient, $joinLink, $messageId)
     {
+        $email_subject = xl('Join Telehealth Session');
+        $email_sender = $this->config->getPatientReminderName();
+
+        $pt_name = $patient['fname'] . ' ' . $patient['lname'];
+        $pt_email = $patient['email'];
+
+        $event = new TelehealthNotificationSendEvent();
+        $event->setMessageId($messageId);
+        $event->setPatient($patient);
+        $event->setSubject($email_subject);
+        $event->setJoinLink($joinLink);
+        $event->setFrom($email_sender, $email_sender);
+        $event->addSendToDestination($pt_email, $pt_name);
+        $event->addReplyToDestination($email_sender, $email_sender);
+        $event->setTextBody($plainMsg);
+        $event->setHTMLBody($htmlMsg);
+        $resultEvent = $this->dispatcher->dispatch($event, TelehealthNotificationSendEvent::EVENT_HANDLE);
 
         $throwExceptions = true;
         $mail = new MyMailer($throwExceptions);
-        $pt_name = $patient['fname'] . ' ' . $patient['lname'];
-        $pt_email = $patient['email'];
-        $email_subject = xl('Join Telehealth Session');
-        $email_sender = $this->config->getPatientReminderName();
-        $mail->AddReplyTo($email_sender, $email_sender);
-        $mail->SetFrom($email_sender, $email_sender);
-        $mail->AddAddress($pt_email, $pt_name);
-        $mail->Subject = $email_subject;
-        $mail->MsgHTML($htmlMsg);
-        $mail->AltBody = $plainMsg;
-        $mail->IsHTML(true);
+
+        foreach ($resultEvent->getReplyToDestinations() as $address) {
+            if ($address->getType() == NotificationSendAddress::TYPE_EMAIL) {
+                $mail->addReplyTo($address->getDestination(), $address->getName());
+            }
+        }
+
+        foreach ($resultEvent->getSendToDestinations() as $address) {
+            if ($address->getType() == NotificationSendAddress::TYPE_EMAIL) {
+                $mail->AddAddress($address->getDestination(), $address->getName());
+            }
+        }
+
+        $sender = $resultEvent->getFrom();
+        $mail->setFrom($sender->getDestination(), $sender->getName());
+
+        $mail->Subject = $resultEvent->getSubject();
+        $mail->AltBody = $resultEvent->getTextBody();
+        $htmlBody = $resultEvent->getHTMLBody();
+        if (!empty($htmlBody)) {
+            $mail->MsgHTML($htmlBody);
+            $mail->IsHTML(true);
+        }
 
         // the invitation is critical and participants can't join w/o it.  We will send any failure exceptions
         // up the chain to fail everything

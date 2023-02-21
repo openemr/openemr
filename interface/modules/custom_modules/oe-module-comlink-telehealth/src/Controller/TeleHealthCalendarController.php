@@ -72,7 +72,8 @@ class TeleHealthCalendarController
         $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderAppointmentsLaunchSessionButton']);
     }
 
-    public function getAppointmentService() {
+    public function getAppointmentService()
+    {
         if (!isset($this->apptService)) {
             $this->apptService = new AppointmentService();
         }

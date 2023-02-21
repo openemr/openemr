@@ -279,17 +279,22 @@ class Bootstrap
         );
     }
 
-    public function getProvisioningService() {
+    public function getProvisioningService()
+    {
         $service = $this->getService(TeleHealthProvisioningService::class);
         if (empty($service)) {
-            $service = new TeleHealthProvisioningService($this->getUserRepository()
-                , $this->getProviderRepository(), $this->getRemoteRegistrationService());
+            $service = new TeleHealthProvisioningService(
+                $this->getUserRepository(),
+                $this->getProviderRepository(),
+                $this->getRemoteRegistrationService()
+            );
             $this->storeService(TeleHealthProvisioningService::class, $service);
         }
         return $service;
     }
 
-    public function getParticipantListService() {
+    public function getParticipantListService()
+    {
         $service = $this->getService(ParticipantListService::class);
         if (empty($service)) {
             $service = new ParticipantListService($this->getTwig(), $this->getProvisioningService(), $this->getPublicPathFQDN());
@@ -302,7 +307,8 @@ class Bootstrap
     {
         $globalsConfig = $this->globalsConfig;
         if (empty($this->registrationController)) {
-            $this->registrationController = new TeleHealthVideoRegistrationController($this->getRemoteRegistrationService(),
+            $this->registrationController = new TeleHealthVideoRegistrationController(
+                $this->getRemoteRegistrationService(),
                 $this->getProviderRepository()
             );
         }
@@ -368,7 +374,7 @@ class Bootstrap
 
     private function getMailerService()
     {
-        return new TeleHealthParticipantInvitationMailerService($this->getTwig(), $this->getPublicPathFQDN(), $this->globalsConfig);
+        return new TeleHealthParticipantInvitationMailerService($this->eventDispatcher, $this->getTwig(), $this->getPublicPathFQDN(), $this->globalsConfig);
     }
 
     private function getFrontendSettingsController()
@@ -376,7 +382,8 @@ class Bootstrap
         return new TeleHealthFrontendSettingsController($this->getAssetPath(), $this->getTwig(), $this->globalsConfig);
     }
 
-    private function getRemoteRegistrationService() {
+    private function getRemoteRegistrationService()
+    {
         $service = $this->getService(TeleHealthRemoteRegistrationService::class);
         if (empty($service)) {
             $service = new TeleHealthRemoteRegistrationService($this->globalsConfig, $this->getRegistrationCodeService());
@@ -384,7 +391,8 @@ class Bootstrap
         }
         return $service;
     }
-    private function getUserRepository() {
+    private function getUserRepository()
+    {
         $service = $this->getService(TeleHealthUserRepository::class);
         if (empty($service)) {
             $service = new TeleHealthUserRepository();
@@ -393,11 +401,13 @@ class Bootstrap
         return $service;
     }
 
-    private function storeService($className, $obj) {
+    private function storeService($className, $obj)
+    {
         $this->serviceRegistry[$className] = $obj;
     }
 
-    private function getService($className) {
+    private function getService($className)
+    {
         if (isset($this->serviceRegistry[$className])) {
             return $this->serviceRegistry[$className];
         }

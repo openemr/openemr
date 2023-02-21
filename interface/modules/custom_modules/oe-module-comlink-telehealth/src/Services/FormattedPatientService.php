@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
-
 
 use InvalidArgumentException;
 use OpenEMR\Services\AddressService;

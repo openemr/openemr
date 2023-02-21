@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
-
 
 use Exception;
 use Twig\Environment;
@@ -28,7 +26,8 @@ class ParticipantListService
         $this->twig = $twig;
     }
 
-    public function getParticipantListWithInvitationsForAppointment($user, $session) {
+    public function getParticipantListWithInvitationsForAppointment($user, $session)
+    {
         $participants = $this->getParticipantListForAppointment($user, $session);
         $link = $this->getJoinLink($session);
         $updatedParticipants = [];
@@ -130,5 +129,4 @@ class ParticipantListService
         $formattedPatientService = new FormattedPatientService();
         return $formattedPatientService->getPatientForPid($pid);
     }
-
 }

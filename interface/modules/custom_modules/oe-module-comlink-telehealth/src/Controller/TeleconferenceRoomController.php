@@ -133,12 +133,7 @@ class TeleconferenceRoomController
      */
     private $participantListService;
 
-    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController
-        , TeleHealthParticipantInvitationMailerService $mailerService, TeleHealthFrontendSettingsController $settingsController
-        , TelehealthGlobalConfig $config
-        , TeleHealthProvisioningService $provisioningService
-        , ParticipantListService $participantListService
-        , $assetPath, $isPatient = false)
+    public function __construct(Environment $twig, LoggerInterface $logger, TeleHealthVideoRegistrationController $registrationController, TeleHealthParticipantInvitationMailerService $mailerService, TeleHealthFrontendSettingsController $settingsController, TelehealthGlobalConfig $config, TeleHealthProvisioningService $provisioningService, ParticipantListService $participantListService, $assetPath, $isPatient = false)
     {
         $this->assetPath = $assetPath;
         $this->twig = $twig;
@@ -749,6 +744,13 @@ class TeleconferenceRoomController
             if (empty($session)) {
                 $session = $this->sessionRepository->createSession($pc_eid, $userId, $encounter['eid'], $pid);
             }
+
+            // send off the notification to the patient that we are launching the session
+            $this->mailerService->sendInvitationToExistingPatient(
+                $patient,
+                $session,
+                TeleconferenceRoomController::LAUNCH_PATIENT_SESSION
+            );
 
             // now we will echo the json encoding of this
             $dobStr = oeFormatShortDate($patient['DOB']) . " " . xl('Age') . ": " . $patientService->getPatientAgeDisplay($patient['DOB']);
