@@ -3072,7 +3072,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_onsite_two_register' => array(
-            xl('Allow New Patient Registration Widget'),
+            xl('Allow New Patient Registration Widget') . ' ' . xl('This requires reCAPTCHA to be setup'),
             'bool',                           // data type
             '0',
             xl('Enable Patient Portal new patient to self register.')
@@ -3107,7 +3107,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_two_pass_reset' => array(
-            xl('Allow Patients to Reset Credentials'),
+            xl('Allow Patients to Reset Credentials') . ' ' . xl('This requires reCAPTCHA to be setup'),
             'bool',                           // data type
             '0',
             xl('Patient may change their logon from portal login dialog.')

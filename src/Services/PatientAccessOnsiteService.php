@@ -121,7 +121,8 @@ class PatientAccessOnsiteService
         // Create the message
         $fhirServerConfig = new ServerConfig();
         $data = [
-            'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
+            'portal_onsite_two_enable' => $GLOBALS['portal_onsite_two_enable']
+            ,'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
             ,'enforce_signin_email' => $GLOBALS['enforce_signin_email']
             ,'uname' => $username
             ,'login_uname' => $loginUsername

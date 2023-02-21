@@ -1,4 +1,6 @@
-{% if portal_onsite_two_enable is not empty %}{{ "Patient Portal Web Address"|xlt }}: {{ portal_onsite_two_address|text }}{% endif %}
+{% if portal_onsite_two_enable is not empty %}
+{{ "Patient Portal Web Address"|xlt }}: {{ portal_onsite_two_address|text }}
+{% endif %}
 {{ "Portal Account Name"|xlt }}: {{ uname }}
 {{ "Login User Name"|xlt }}: {{ login_uname|text }}
 {{ "Password"|xlt }}: {{ pwd|text }}
