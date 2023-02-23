@@ -179,7 +179,7 @@ switch ($search_any_type) {
             </span>
             <!-- /ko --><!-- messages -->
             <!-- ko if: portal() -->
-            <span class="btn-group dropdown mr-auto">
+            <nav class="btn-group dropdown mr-auto">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="portalMsgAlerts"
                     data-toggle="dropdown"
@@ -217,7 +217,7 @@ switch ($search_any_type) {
                         </a>
                     </li>
                 </ul>
-            </span>
+            </nav>
             <!-- /ko --><!-- portal alert -->
             <!-- ko if: servicesOther() -->
             <nav class="btn-group dropdown mr-auto">
