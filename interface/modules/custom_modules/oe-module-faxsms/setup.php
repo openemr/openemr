@@ -15,7 +15,7 @@ require_once(__DIR__ . "/../../../globals.php");
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
-$serviceType = $_REQUEST['type'] ?? $_SESSION["current_module_type"] ?? '';
+$serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? '';
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();

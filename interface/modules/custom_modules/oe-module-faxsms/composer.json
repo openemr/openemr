@@ -20,6 +20,6 @@
     "require": {
     },
     "conflict": {
-        "openemr/openemr": "<7.0.0"
+        "openemr/openemr": "<7.0.1"
     }
 }

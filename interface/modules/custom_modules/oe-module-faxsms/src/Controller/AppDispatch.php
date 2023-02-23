@@ -43,7 +43,7 @@ abstract class AppDispatch
         $this->_session = &$_SESSION;
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["current_module_type"] ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
         $this->dispatchActions();
         $this->render();
@@ -62,7 +62,7 @@ abstract class AppDispatch
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
-            $serviceType = $_REQUEST['type'] ?? $_SESSION["current_module_type"] ?? null;
+            $serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
         if (!empty($serviceType)) {
             self::setModuleType($serviceType);
@@ -169,11 +169,31 @@ abstract class AppDispatch
     {
         try {
             if (empty($type)) {
-                $type = $_REQUEST['type'] ?? $_SESSION["current_module_type"] ?? null;
+                $type = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
             }
             self::setModuleType($type);
             self::$_apiService = self::getServiceInstance($type);
             return self::$_apiService;
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+            exit;
+        }
+    }
+
+    /**
+     * This is where we decide which Api to use.
+     *
+     * @param string $type
+     * @return void
+     */
+    static function setApiService(string $type)
+    {
+        try {
+            if (empty($type)) {
+                $type = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
+            }
+            self::setModuleType($type);
+            self::$_apiService = self::getServiceInstance($type);
         } catch (\Exception $e) {
             echo $e->getMessage();
             exit;
@@ -186,7 +206,7 @@ abstract class AppDispatch
      */
     static function setModuleType($type): void
     {
-        $_SESSION['current_module_type'] = $type;
+        $_SESSION['oefax_current_module_type'] = $type;
         self::$_apiModule = $type;
     }
 
@@ -227,7 +247,7 @@ abstract class AppDispatch
     static function getServiceType(): mixed
     {
         if (empty(self::$_apiModule ?? null)) {
-            self::$_apiModule = $_SESSION['current_module_type'] ?? null;
+            self::$_apiModule = $_SESSION['oefax_current_module_type'] ?? null;
             if (empty(self::$_apiModule)) {
                 self::$_apiModule = $_REQUEST['type'];
             }
@@ -260,6 +280,11 @@ abstract class AppDispatch
      * @return mixed
      */
     abstract function sendSMS(): mixed;
+
+    /**
+     * @return string|bool
+     */
+    abstract function fetchReminderCount(): string|bool;
 
     /**
      * @param $param

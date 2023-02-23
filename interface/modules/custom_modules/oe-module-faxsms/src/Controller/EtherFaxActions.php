@@ -65,7 +65,14 @@ class EtherFaxActions extends AppDispatch
         return $credentials;
     }
 
-    /**
+    public function fetchReminderCount(): bool|string
+    {
+        $cnt = $this->client->getUnreadFaxCount();
+
+        return json_encode($cnt);
+    }
+
+        /**
      * @return string
      */
     public function faxProcessUploads(): string
@@ -292,7 +299,7 @@ class EtherFaxActions extends AppDispatch
                 $form = '';
                 $docType = null;
                 $id_esc = text($id);
-                $showFlag = null;
+                $showFlag = 0;
                 foreach ($faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults as $r) {
                     $docType = $params->Type;
                     $form = "<tr id='$id_esc' class='d-none collapse-all'><td colspan='12'>\n" .
@@ -306,10 +313,9 @@ class EtherFaxActions extends AppDispatch
                     $form .= "<tbody>\n";
                     foreach ($r->Fields as $field) {
                         if ($field->Text == 'unselected' || empty($field->Text)) {
-                            $showFlag = $showFlag == true;
                             continue;
                         }
-                        $showFlag = true;
+                        $showFlag++;
                         $form .= "<tr>\n";
                         $form .= '<td>' . text(str_replace(" - ", "-", $field->Name)) . "</td>\n";
                         $form .= '<td>' . text($field->Text) . "</td>\n";
@@ -322,14 +328,15 @@ class EtherFaxActions extends AppDispatch
                 $vLink = "<a role='button' href='javaScript:' onclick=getDocument(" . "event,'','$id_esc','false')> <span class='fa fa-file-pdf'></span></a></br>";
                 $dLink = '';
                 if ($showFlag) {
-                    $dLink = "<a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")'></a>";
+                    $showFlag = text($showFlag) . ' ' . xlt("Items");
+                    $dLink = "$showFlag<a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")'></a>";
                 }
 
                 $faxFormattedDate = date('M j, Y g:i:sa T', $faxDate);
                 $docLen = text(round($params->Length / 1000, 2)) . "KB";
                 if (strtolower($direction) == "inbound") {
                     $responseMsgs[0] .= "<tr><td>" . text($faxFormattedDate) .
-                        "</td><td>" . (text($params->Name) ?? (text($docType) ?: xlt('Unknown'))) .
+                        /*"</td><td>" . (text($params->Name) ?? (text($docType) ?: xlt('Unknown'))) .*/
                         "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($from) . "</td><td>" . text($to) .
                         "</td><td>" . text($docLen) .

@@ -275,4 +275,12 @@ class TwilioSMSClient extends AppDispatch
     {
         // TODO: Implement sendFax() method.
     }
+
+    /**
+     * @return string|bool
+     */
+    function fetchReminderCount(): string|bool
+    {
+        return 0;
+    }
 }

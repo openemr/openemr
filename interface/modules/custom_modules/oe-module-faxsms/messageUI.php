@@ -106,7 +106,9 @@ if (empty($logged_in) && $service == "1") {
             let msg = <?php echo xlj('Are you sure you wish to send all scheduled reminders now.') ?>;
             if (e === 'live') {
                 let yn = confirm(msg);
-                if (!yn) return false;
+                if (!yn) {
+                    return false
+                }
             }
             let msg1 = <?php echo xlj('Appointment Reminder Alerts') ?>;
             dlgopen(ppath, '_blank', 1240, 900, true, msg1)
@@ -497,16 +499,16 @@ if (empty($logged_in) && $service == "1") {
                                     <thead>
                                     <tr>
                                         <th><?php echo xlt("Time") ?></th>
-                                        <th class="twilio"><?php echo xlt("Type") ?></th>
-                                        <th class="ringcentral etherfax"><?php echo xlt("Type") ?></th>
+                                        <th class="twilio etherfax-hide"><?php echo xlt("Type") ?></th>
+                                        <th class="ringcentral"><?php echo xlt("Name") ?></th>
                                         <th class="etherfax-hide"><?php echo xlt("Message") ?></th>
                                         <th class="ringcentral twilio etherfax"><?php echo xlt("Pages") ?></th>
                                         <th><?php echo xlt("From") ?></th>
                                         <th><?php echo xlt("To") ?></th>
                                         <th class="etherfax-hide"><?php echo xlt("Result") ?></th>
                                         <th class="ringcentral twilio etherfax"><?php echo xlt("Length") ?></th>
-                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Params") ?><a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a></th>
-                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Retrieve") ?></th>
+                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Extracted Data") ?><a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a></th>
+                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Dispose") ?></th>
                                         <th class="ringcentral etherfax"><?php echo xlt("View") ?></th>
                                         <th class="twilio"><?php echo xlt("Reply") ?></th>
                                     </tr>
