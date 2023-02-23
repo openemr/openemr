@@ -1,4 +1,4 @@
-import * as cvb from "./cvb.min";
+import {VideoBridge, VideoCall} from "./cvb.min";
 
 export class TelehealthBridge
 {
@@ -8,9 +8,15 @@ export class TelehealthBridge
     serviceUrl = null;
     /**
      *
-     * @type cvb.VideoBridge
+     * @type VideoBridge
      */
-    bridge = null;
+    bridge;
+
+    /**
+     *
+     * @type VideoCall
+     */
+    currentLocalScreenShareCall;
 
     constructor(userId, passwordHash, serviceUrl) {
         this.userId = userId;
@@ -29,7 +35,7 @@ export class TelehealthBridge
         handlers.onbridgeinactive = handlers.onbridgeinactive || this.noop;
         handlers.onbridgefailure = handlers.onbridgefailure || this.noop;
 
-        this.bridge = new cvb.VideoBridge({
+        this.bridge = new VideoBridge({
             userId: this.userId,
             passwordHash: this.passwordHash,
             type: 'normal',
@@ -124,8 +130,43 @@ export class TelehealthBridge
         return this.bridge.enableCamera(toggle);
     }
 
-    createScreenSharingCall(calleeUuid) {
-        return this.bridge.createScreenSharingCall(calleeUuid);
+    createScreenSharingCall(calleeIds) {
+        // make the first call then execute the subsequent calls
+        let call = this.bridge.createScreenSharingCall(calleeIds[0]);
+        calleeIds.shift();
+
+        let promise = call.start();
+        if (calleeIds.length <= 0) {
+            return promise.then(() => {
+                this.currentLocalScreenShareCall = call;
+                this.setScreenShareCallHandlers(call);
+                return call;
+            })
+        }
+
+        // multiparty call so we handle this differently
+        return promise.then(() => {
+            this.currentLocalScreenShareCall = call;
+            this.setScreenShareCallHandlers(call);
+
+            return Promise.all(calleeIds.map(id => {
+                let basedOnCall = this.bridge.createScreenSharingCall(id, this.currentLocalScreenShareCall);
+                this.setScreenShareCallHandlers(basedOnCall);
+                return basedOnCall.start();
+            }))
+            .then(localCalls => {
+                // TODO: do we want to store off the local screen share calls anywhere?
+                return this.currentLocalScreenShareCall;
+            })
+            .catch(e => {
+                if (this.currentLocalScreenShareCall) {
+                    console.log("multiparty screenshare failed ")
+                    this.currentLocalScreenShareCall.stop();
+                    this.currentLocalScreenShareCall = null;
+                }
+                throw e;
+            });
+        });
     }
 
     createVideoCall(calleeUuid) {
@@ -134,5 +175,11 @@ export class TelehealthBridge
 
     setCallHandlers(call) {
         return this.bridge.setCallHandlers(call);
+    }
+
+    setScreenShareCallHandlers(call) {
+        this.currentLocalScreenShareCall.oncallended = () => {
+            this.currentLocalScreenShareCall = null;
+        };
     }
 }

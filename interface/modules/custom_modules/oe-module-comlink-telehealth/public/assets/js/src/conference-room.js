@@ -147,13 +147,6 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     /**
      *
-     * @type cvb.VideoCall[]
-     * @private
-     */
-    this.__localScreenshareCalls = [];
-
-    /**
-     *
      * @type string
      * @private
      */
@@ -501,37 +494,13 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         return call;
     };
 
-    /**
-     * Returns true if the local caller is currently sharing the screen.
-     * @returns {boolean}
-     */
-    this.isScreensharing = function() {
-        return this.__localScreenshareCalls.length > 0;
-    };
-
-    this.removeLocalScreensharingCall = function(calleeId) {
-        let index = this.__localScreenshareCalls.findIndex(c => c.getRemotePartyId() == calleeId);
-        if (index >= 0) {
-            this.__localScreenshareCalls.splice(index, 1);
-        }
-    };
-
-    this.makeScreenshareCall = function(calleeId) {
-        const call = conf.__bridge.createScreenSharingCall(calleeId);
-        // conf.setCallHandlers(call);
-        // for now we duplicate this as we play around to see how this works.
-        this.__localScreenshareCalls.push(call);
-        call.start().catch((e) => {
-            alert(translations.CALL_CONNECT_FAILED);
-            console.log("call exception " + conf.callerSettings.calleeUuid);
-            console.error(e);
-            // conf.handleCallEndedEvent(call);
-            this.removeLocalScreensharingCall(calleeId);
-
-        });
-        call.oncallended = (call) => {
-            this.removeLocalScreensharingCall(calleeId);
-        };
+    this.makeScreenshareCall = function(callees) {
+        conf.__bridge.createScreenSharingCall(callees)
+            .catch(e => {
+                alert(translations.CALL_CONNECT_FAILED);
+                console.log("call exception " + conf.callerSettings.calleeUuid);
+                console.error(e);
+            });
     };
 
     this.enableMicrophone = function(flag) {
@@ -1329,12 +1298,8 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.toggleScreenSharing = function(evt) {
         let participantList = this.getRemoteParticipantList();
-        participantList.forEach(p => {
-            // only call people who are in the room.
-            if (p.inRoom == 'Y') {
-                this.makeScreenshareCall(p.uuid);
-            }
-        });
+        let screenShareCallers = participantList.filter(p => p.inRoom == 'Y').map(p => p.uuid);
+        this.makeScreenshareCall(screenShareCallers);
     };
 
 
