@@ -4,7 +4,7 @@
       xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-    <title>{{ title }}</title>
+    <title>{{ title|text }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0 " />
@@ -63,8 +63,8 @@
                             <tr>
                                 <td align="center" valign="top"><a href="#" target="_blank"
                                                                    style="text-decoration:none;"><img
-                                                src="{{ logoPath }}"
-                                                width="208" alt="{{ logoAlt }}" border="0"
+                                                src="{{ logoPath|attr_url }}"
+                                                width="208" alt="{{ logoAlt|attr }}" border="0"
                                                 style="display:block; font-family:Arial, sans-serif; font-size:18px; line-height:25px; text-align:center; color:#1d4685; font-weight:bold; max-width:208px;"
                                                 class="em_w150" /></a></td>
                             </tr>
@@ -99,7 +99,7 @@
                                         <tr>
                                             <td class="em_blue em_center" align="left" valign="top"
                                                 style="font-family: Arial, sans-serif; font-size: 20px; line-height: 24px; color:#264780; font-weight:bold;">
-                                                {{ salutation }}!</td>
+                                                {{ salutation|text }}!</td>
                                         </tr>
                                         <tr>
                                             <td height="8" style="height:8px; font-size:0px; line-height:0px;">
@@ -132,7 +132,7 @@
                                                                     <td class="em_white" height="34" align="center"
                                                                         valign="middle"
                                                                         style="font-family: Arial, sans-serif; font-size: 13px; color:#ffffff; font-weight:bold; height:34px;">
-                                                                        <a href="{{url}}" target="_blank"
+                                                                        <a href="{{url|attr_url}}" target="_blank"
                                                                            style="text-decoration:none; color:#ffffff; line-height:34px; display:block;">
                                                                             {{ "Join Telehealth Session"|xlt }}</a></td>
                                                                 </tr>
