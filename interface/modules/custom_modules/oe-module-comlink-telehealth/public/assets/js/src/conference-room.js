@@ -1005,6 +1005,23 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         }
     };
 
+    this.updateLocalParticipantList = function() {
+        let eid = conf.telehealthSessionData.pc_eid;
+        window.top.restoreSession();
+        window.fetch(conf.getRemoteScriptLocation() + '?action=get_participant_list&pc_eid=' + encodeURIComponent(eid), {redirect: "manual"})
+            .then((request) => {
+                if (request.ok) {
+                    return request.json();
+                } else {
+                    throw new Error("Failed to receive valid server response from get_participant_list");
+                }
+            })
+            .then(result => {
+                this.callerSettings.participantList = result.participantList;0
+            })
+            .catch(error => console.error("Failed to update local participant list. Third party invitations may not be up to date", error));
+    };
+
     this.updateConferenceRoomSession = function() {
         let appt = conf.callerSettings.appointment || {};
         let eid = appt.eid || {};
@@ -1018,6 +1035,34 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 } else {
                     throw new Error("Failed to update session");
                 }
+            })
+            .then(result => {
+               if (result.status !== 'success') {
+                   throw new Error("Failed to update session");
+               } else {
+                   // grab our participant list
+                   console.log(result.participantList);
+
+                   // algorithm will be
+                   // 1. get the participant list
+                   // 2. check participant list that we have against the server participant list
+                   // 3. if participants are not the same
+                   //       at least one participant in our list of server participants is not in our local list
+                   // 4. call server for update list
+                   // 5. grab updated list and populate participants.
+                   let participants = result.participantList || [];
+                   let needsUpdate = participants.some(p => {
+                       let participant = this.callerSettings.participantList.find(cpl => {
+                           // don't think we need to update if we are in the room.
+                           return cpl.role == p.role && cpl.id == p.id; // && cpl.inRoom == p.inRoom
+                       });
+                       // server has participant that we don't have.
+                       return participant === undefined;
+                   });
+                   if (needsUpdate) {
+                       this.updateLocalParticipantList();
+                   }
+               }
             })
             .catch(error => console.error("Conference session update ", error));
     };
@@ -1100,7 +1145,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.handleInviteCallback = function() {
         let dialog = new AddPatientDialog(this.apiCSRFToken, translations, conf.telehealthSessionData.pc_eid
-            , conf.getRemoteScriptLocation(), conf.callerSettings.thirdPartyPatient, function(callerSettings) {
+            , conf.getRemoteScriptLocation(), conf.callerSettings.participantList, function(callerSettings) {
             // make suer we update our caller settings with the newly allowed patient so the provider can receive the call
             if (callerSettings) {
                 conf.callerSettings = callerSettings;

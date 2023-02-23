@@ -1,13 +1,14 @@
 
-<div class="card-body patient-thirdparty" data-pid="{{ patient.id|attr }}">
+{# rename this file to patient-participant-list-item.html.twig #}
+<div class="card-body patient-participant {% if template %}d-none template{% endif %}" data-pid="{{ patient.id|attr }}">
     <div class="row">
         <div class="col-md-2 telehealth-user-icon h1">
             <i class="fa fa-user"></i>
         </div>
         <div class="col-md-10 p-l-0">
-            <h5 class="text-primary patient-name">{{ patient.callerName|text }}</h5>
+            <h5 class="text-primary patient-name">{{ patient.callerName|default("")|text }}</h5>
 {#            <h6 class="text-secondary patient-dob">{{ "DOB"|xlt }}: {{ patient.DOB|text}}</h6>#}
-            <h6 class="text-secondary patient-email">{{ "EMAIL"|xlt }}: {{ patient.email|text}}</h6>
+            <h6 class="text-secondary patient-email">{{ "EMAIL"|xlt }}: {{ patient.email|default("")|text}}</h6>
             <button class="btn btn-sm btn-secondary btn-link-copy" data-invite-link="{{ patient.invitation.link|default("")|attr }}">
                 <i class="fa fa-copy"></i>
                 <small>{{ "Copy Invite Link"|xlt }}</small>
@@ -16,7 +17,7 @@
                 <i class="fa fa-copy"></i>
                 <small>{{ "Copy Invitation"|xlt }}</small>
             </button>
-            <div class="d-none thirdparty-invitation-text"><pre>{{ patient.invitation.text|default("")|text }}</pre></div>
+            <div class="d-none patient-invitation-text"><pre>{{ patient.invitation.text|default("")|text }}</pre></div>
         </div>
     </div>
 </div>

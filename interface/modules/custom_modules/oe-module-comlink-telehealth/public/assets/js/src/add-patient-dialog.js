@@ -41,15 +41,19 @@ export class AddPatientDialog
 
     __updatedCallerSettings = null;
 
-    __currentThirdParty = null;
+    __participantList = null;
 
-    constructor(apiCSRFToken, translations, pc_eid, scriptLocation, currentThirdParty, closeCallback) {
+    __updateParticipants = false;
+
+    constructor(apiCSRFToken, translations, pc_eid, scriptLocation, participantList, closeCallback) {
         this.pc_eid = pc_eid;
         this.scriptLocation = scriptLocation;
         this.closeCallback = closeCallback;
         this.__translations = translations;
         this.__apiCSRFToken = apiCSRFToken;
-        this.__currentThirdParty = currentThirdParty;
+
+        this.__participantList = (participantList || []).filter(pl => pl.role !== 'provider');
+        this.__updateParticipants = false;
     }
 
     cancelDialog() {
@@ -85,8 +89,10 @@ export class AddPatientDialog
                 this.showActionAlert('success', this.__translations.PATIENT_INVITATION_SUCCESS);
                 // let's show we were successful and close things up.
                 this.__updatedCallerSettings = callerSettings;
-                this.__currentThirdParty = callerSettings.thirdPartyPatient;
-                this.updateThirdPartyControls();
+                let participants = (callerSettings.participantList || []).filter(pl => pl.role != 'provider');
+                this.__participantList = participants;
+                this.__updateParticipants = true;
+                this.updateParticipantControls();
                 this.showPrimaryScreen();
                 setTimeout(() => {
                     this.closeDialogAndSendCallerSettings();
@@ -193,33 +199,51 @@ export class AddPatientDialog
             }
         });
         this.__currentScreen = 'primary-screen';
-        this.updateThirdPartyControls();
+        this.updateParticipantControls();
     }
 
-    updateThirdPartyControls() {
+    updateParticipantControls() {
 
         // let's update if our pid is different
-        if (!this.__currentThirdParty) {
+        if (this.__participantList.length <= 0) {
             this.container.querySelector('.no-third-party-patient-row').classList.remove('d-none');
             this.container.querySelectorAll('.third-party-patient-row').forEach(n => n.classList.add('d-none'));
             return;
         }
         this.container.querySelector('.no-third-party-patient-row').classList.add('d-none');
-        this.container.querySelectorAll('.third-party-patient-row').forEach(n => n.classList.remove('d-none'));
-        // now we need to update our participant screen if the pid has changed
-        let thirdPartyRow = this.container.querySelector('.patient-thirdparty');
-        if (!thirdPartyRow) {
-            console.error("Failed to find dom node with selector .patient-thirdparty");
-            return;
-        }
 
-        if (thirdPartyRow.dataset['pid'] != this.__currentThirdParty.pid) {
-            // time to do some update magic
-            thirdPartyRow.dataset['pid'] = this.__currentThirdParty.pid;
-            let name = (this.__currentThirdParty.fname || "") + " " + (this.__currentThirdParty.lname || "");
-            this.setNodeInnerText(thirdPartyRow, '.patient-name', name);
-            this.setNodeInnerText(thirdPartyRow, '.patient-dob', this.__currentThirdParty.DOB);
-            this.setNodeInnerText(thirdPartyRow, '.patient-email', this.__currentThirdParty.email);
+        this.container.querySelectorAll('.third-party-patient-row').forEach(n => n.classList.remove('d-none'));
+
+        if (this.__updateParticipants) {
+            let participantContainers = this.container.querySelectorAll('.patient-participant');
+            if (!participantContainers.length) {
+                console.error("Failed to find dom node with selector .patient-participant");
+                return;
+            }
+            let templateNode = null;
+            participantContainers.forEach(pc => {
+                if (!pc.classList.contains('template')) {
+                    pc.remove();
+                } else {
+                    templateNode = pc;
+                }
+            });
+            if (!templateNode) {
+                console.error("Failed to find dom node with selector .patient-participant.template");
+                return;
+            }
+            // now we clone for each participant we have
+            if (this.__participantList.length) {
+                this.__participantList.forEach(p => {
+                    let clonedNode = templateNode.cloneNode(true);
+                    this.setNodeInnerText(clonedNode, '.patient-name', p.callerName);
+                    this.setNodeInnerText(clonedNode, '.patient-email', p.email);
+                    clonedNode.classList.remove('template');
+                    clonedNode.classList.remove('d-none');
+                    templateNode.parentNode.appendChild(clonedNode);
+                });
+            }
+            this.__updateParticipants = false;
         }
     }
 
@@ -439,14 +463,9 @@ export class AddPatientDialog
         this.addActionToButton('.btn-invitation-copy', this.copyPatientInvitationToClipboard.bind(this));
         this.addActionToButton('.btn-link-copy', this.copyPatientLinkToClipboard.bind(this))
 
-        let actionButton = this.container.querySelector('.btn-invite-search');
-        if (actionButton)
-        {
-            actionButton.addEventListener('click', this.__searchOrAddParticipant);
-        } else {
-            console.error("Could not find selector with .btn-telehealth-confirm-yes");
-        }
-        this.updateThirdPartyControls();
+        // we update the participant list as it may have changed from when the DOM originally sent it down.
+        this.__updateParticipants = true;
+        this.updateParticipantControls();
     }
 
     copyPatientLinkToClipboard(evt) {
@@ -473,15 +492,15 @@ export class AddPatientDialog
             return;
         }
 
-        let closest = target.closest(".patient-thirdparty[data-pid]");
+        let closest = target.closest(".patient-participant[data-pid]");
         if (!closest) {
             this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
             throw new Error("Failed to find patient to copy invitation");
         }
-        let invitation = closest.querySelector(".thirdparty-invitation-text");
+        let invitation = closest.querySelector(".patient-invitation-text");
         if (!invitation) {
             this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
-            throw new Error("Failed to find invitation text with selector .thirdparty-invitation-text");
+            throw new Error("Failed to find invitation text with selector .patient-invitation-text");
         }
         let text = invitation.textContent;
         this.copyTextToClipboard(text);

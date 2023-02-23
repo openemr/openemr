@@ -56,6 +56,32 @@ class ParticipantListService
             . intval($session['pc_eid']);
     }
 
+    public function getSparseParticipantListFromSession($session)
+    {
+        $participantList = [
+            [
+                'role' => "provider"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'provider')
+                , 'id' => $session['user_id']
+            ]
+        ];
+        if (!empty($session['pid'])) {
+            $participantList[] = [
+                'role' => "patient"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'patient')
+                , 'id' => $session['pid']
+            ];
+        }
+        if (!empty($session['pid_related'])) {
+            $participantList[] = [
+                'role' => "patient"
+                , 'inRoom' => $this->sessionUserInRoom($session, 'patient_related')
+                , 'id' => $session['pid_related']
+            ];
+        }
+        return $participantList;
+    }
+
 
     public function getParticipantListForAppointment($user, $session)
     {

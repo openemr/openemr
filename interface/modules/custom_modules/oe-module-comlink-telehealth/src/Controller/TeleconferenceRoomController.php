@@ -174,12 +174,75 @@ class TeleconferenceRoomController
             return $this->verifyInstallationSettings($queryVars);
         } else if ($action == 'save_session_participant') {
             return $this->saveSessionParticipantAction($queryVars);
+        } else if ($action == 'get_participant_list') {
+            return $this->getParticipantListAction($queryVars);
         } else if ($action == self::LAUNCH_PATIENT_SESSION) {
             return $this->launchPatientSessionAction($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
             return;
+        }
+    }
+
+    public function getParticipantListAction($queryVars)
+    {
+        try {
+            $pc_eid = $queryVars['pc_eid'] ?? null;
+            if (empty($pc_eid)) {
+                throw new InvalidArgumentException("pc_eid was missing from request");
+            }
+            $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
+            if (empty($session)) {
+                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+            }
+
+            $verifiedUser = null;
+            // need to check for access denied exception on user and patient
+            if (!empty($queryVars['authUser'])) {
+                // throws exception if the user is not found
+                $verifiedUser = $this->verifyUsernameCanAccessSession($queryVars['authUser'], $session);
+            } else {
+                // make sure the patients can access the session
+                $this->verifyPidCanAccessSession($queryVars['pid'], $session);
+                $userService = new UserService();
+                $verifiedUser = $userService->getUser($session['user_id']);
+            }
+
+            $participantList = $this->participantListService->getParticipantListForAppointment($verifiedUser, $session);
+            echo json_encode([
+                'participantList' => textArray($participantList)
+            ]);
+        } catch (InvalidArgumentException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(400);
+            echo $this->twig->render('error/400.html.twig');
+        } catch (Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(500);
+            echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
+        }
+    }
+
+    private function verifyUsernameCanAccessSession($userName, $session)
+    {
+        // grab user id and make sure we can access this
+        $userService = new UserService();
+        $user = $userService->getUserByUsername($userName);
+        if (empty($user) || $user['id'] != $session['user_id']) {
+            throw new AccessDeniedException('patient', 'demo', 'Access not allowed to this telehealth session for user' . $queryVars['authUser']);
+        }
+        return $user;
+    }
+
+    private function verifyPidCanAccessSession($pid, $session)
+    {
+        $primaryPid = intval($session['pid'] ?? 0);
+        $pidRelated = intval($session['pid_related'] ?? 0);
+        // note that this assumes that $queryVars is coming from the session
+        $queryVarPid = intval($pid); // should always be populated
+        if ($pidRelated !== $queryVarPid && $primaryPid !== $queryVarPid) {
+            throw new AccessDeniedException('patient', 'demo', 'Access not allowed to this telehealth session for pid' . $queryVarPid);
         }
     }
 
@@ -198,7 +261,7 @@ class TeleconferenceRoomController
             $pidRelated = intval($session['pid_related'] ?? 0);
             // note that this assumes that $queryVars is coming from the session
             $queryVarPid = intval($queryVars['pid']); // should always be populated
-            if ($pidRelated !== $queryVarPid || $primaryPid !== $queryVarPid) {
+            if ($pidRelated !== $queryVarPid && $primaryPid !== $queryVarPid) {
                 throw new AccessDeniedException('patient', 'demo', 'Access not allowed to this telehealth session for pid' . $queryVarPid);
             }
 
@@ -511,7 +574,15 @@ class TeleconferenceRoomController
             }
             $this->logger->debug("Updating lastSeenTimestamp", ['pc_eid' => $pc_eid, 'role' => $role]);
             $this->sessionRepository->updateLastSeenTimestamp($pc_eid, $role);
-            echo json_encode(['status' => 'success']);
+            // send down the participant list here
+
+            // we need this operation to be fast.  Since we already have the session we grab the participant list
+            // JUST from what is in the session without grabbing usernames, and other data.
+            // if we need to update the participant list, the services polling can compare their local participant list
+            // with what is in the update and then hit the server to get an updated calling list
+            $participants = $this->participantListService->getSparseParticipantListFromSession($session);
+            $escapedParticipants = textArray($participants);
+            echo json_encode(['status' => 'success', 'participantList' => $escapedParticipants]);
         } catch (\Exception $exception) {
             $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
                 'queryVars' => $queryVars]);

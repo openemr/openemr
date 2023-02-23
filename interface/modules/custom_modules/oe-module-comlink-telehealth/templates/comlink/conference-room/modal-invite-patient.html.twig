@@ -10,6 +10,7 @@
             <div class="modal-body">
                 <div class="row screen primary-screen">
                     <div class="col-12 mb-3 third-party-patient-row {% if not participants %}d-none{% endif %}">
+                        {% include "comlink/conference-room/patient-thirdparty.html.twig" with {template: true} %}
                         <div class="card">
                             <div class="card-header">
                                 <div class="row">
