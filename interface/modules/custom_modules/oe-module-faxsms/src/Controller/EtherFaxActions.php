@@ -336,9 +336,8 @@ class EtherFaxActions extends AppDispatch
                 $docLen = text(round($params->Length / 1000, 2)) . "KB";
                 if (strtolower($direction) == "inbound") {
                     $responseMsgs[0] .= "<tr><td>" . text($faxFormattedDate) .
-                        /*"</td><td>" . (text($params->Name) ?? (text($docType) ?: xlt('Unknown'))) .*/
-                        "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($from) . "</td><td>" . text($to) .
+                        "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($docLen) .
                         "</td><td class='text-center'>" . $dLink .
                         "</td><td class='text-center'>" . $aLink .

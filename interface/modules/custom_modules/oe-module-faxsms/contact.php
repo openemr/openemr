@@ -36,8 +36,8 @@ if (empty($isSMS)) {
     $portal_url = $GLOBALS['portal_onsite_two_address'];
     $details = json_decode($clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone']);
-    $default_message = xlt("The following document") . ": " . text($doc_name) . " " . xlt("is available to be completed at") . " " . text($portal_url);
-    $default_message .= " " . xlt("Reply END to prevent further notifications from portal.");
+    // TODO need flag for message origin maybe later
+    // $default_message = xlt("The following document") . ": " . text($doc_name) . " " . xlt("is available to be completed at") . " " . text($portal_url);
     $pid = $interface_pid ?: $pid;
 }
 
@@ -45,7 +45,7 @@ $service = $clientApp::getServiceType();
 
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="">
 <head>
     <title><?php echo xlt('Contact') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,8 +59,6 @@ $service = $clientApp::getServiceType();
         $(function () {
             if (isSms) {
                 $(".smsExclude").addClass("d-none");
-                //$("#form_name").val();
-                //$("#form_lastname").val();
                 $("#form_phone").val(recipient);
             } else {
                 $(".faxExclude").addClass("d-none");
@@ -112,7 +110,8 @@ $service = $clientApp::getServiceType();
         });
 
         function sel_patient() {
-            dlgopen(top.webroot_url + '/interface/main/calendar/find_patient_popup.php?pflag=0&pkretrieval=1', '_blank', 'modal-md', 500);
+            const url = top.webroot_url + '/interface/main/calendar/find_patient_popup.php?pflag=0&pkretrieval=1'
+            dlgopen(url, '_blank', 'modal-md', 500);
         }
 
         function setpatient(pid, lname, fname, dob) {
@@ -208,7 +207,7 @@ $service = $clientApp::getServiceType();
                     <div>
                         <button type="button" class="btn btn-primary" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
                         <!-- patient picker ready once get patient info is added. -->
-                        <!--<button type="button" class="btn btn-primary" onclick="sel_patient()" value="Patients"><?php /*echo xlt('Patients') */ ?></button>-->
+                        <!--<button type="button" class="btn btn-primary" onclick="sel_patient()" value="Patients"><?php /*echo xlt('Patients') */?></button>-->
                         <button type="submit" class="btn btn-success float-right" value=""><?php echo empty($isSMS) ? xlt('Send Fax') : xlt('Send SMS') ?></button>
                     </div>
                 </div>

@@ -20,7 +20,7 @@ use RingCentral\SDK\SDK;
 $url = $_SESSION['url'];
 $callbackUrl = $_SESSION['redirect_uri'];
 
-function processCode()
+function processCode(): void
 {
     $vendor = '_ringcentral';
     $cacheDir = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/_cache';
@@ -59,13 +59,13 @@ if (isset($_GET['code'])) {
 }
 ?>
 <script>
-    var tokenUrl = '<?php echo $url; ?>';
-    var redirectUrl = '<?php echo $callbackUrl; ?>';
-    var config = {
+    const tokenUrl = '<?php echo $url; ?>';
+    const redirectUrl = '<?php echo $callbackUrl; ?>';
+    const config = {
         authUri: tokenUrl,
         redirectUri: redirectUrl,
     };
-    var OAuthCode = function (config) {
+    const OAuthCode = function (config) {
         this.config = config;
         this.loginPopup = function () {
             console.log("URL: " + tokenUrl);
@@ -89,7 +89,7 @@ if (isset($_GET['code'])) {
             }, 300);
         }
     };
-    var oauth = new OAuthCode(config);
+    const oauth = new OAuthCode(config);
 
     window.addEventListener("load", function () {
         if (tokenUrl) {

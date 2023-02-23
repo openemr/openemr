@@ -11,7 +11,7 @@
  */
 
 $sessionAllowWrite = true;
-require_once(__DIR__ . "/../../../globals.php");
+require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -59,7 +59,7 @@ $vendors = $boot->getVendorGlobals();
                     sizeHeight: 'full',
                     allowDrag: false,
                     type: 'iframe',
-                    url: './setup.php?type=fax&module_config=-1'
+                    url: './../setup.php?type=fax&module_config=-1'
                 }
                 return dlgopen('', '', 'modal-mlg', '', '', title, params);
             }
@@ -70,7 +70,7 @@ $vendors = $boot->getVendorGlobals();
                     sizeHeight: 'full',
                     allowDrag: false,
                     type: 'iframe',
-                    url: './setup.php?type=sms&module_config=-1'
+                    url: './../setup.php?type=sms&module_config=-1'
                 }
                 return dlgopen('', '', 'modal-lg', '', '', title, params);
             }
@@ -147,11 +147,11 @@ $vendors = $boot->getVendorGlobals();
         <!-- iframes to hold setup account scripts. Dialogs replace these if requested in UI -->
         <div id="set-fax" class="frame d-none">
             <h3 class="text-center"><?php echo xlt("Setup Fax Account"); ?></h3>
-            <iframe src="./setup.php?type=fax&module_config=1&mode=flat" style="border:none;height:100vh;width:100%;"></iframe>
+            <iframe src="./../setup.php?type=fax&module_config=1&mode=flat" style="border:none;height:100vh;width:100%;"></iframe>
         </div>
         <div id="set-sms" class="frame d-none">
             <h3 class="text-center"><?php echo xlt("Setup SMS Account"); ?></h3>
-            <iframe src="./setup.php?type=sms&module_config=1&mode=flat" style="border:none;height:100vh;width:100%;"></iframe>
+            <iframe src="./../setup.php?type=sms&module_config=1&mode=flat" style="border:none;height:100vh;width:100%;"></iframe>
         </div>
     </div>
 </body>

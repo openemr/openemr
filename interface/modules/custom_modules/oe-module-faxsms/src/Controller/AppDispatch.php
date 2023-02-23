@@ -364,6 +364,9 @@ abstract class AppDispatch
 
         $vendor = self::getModuleVendor();
         $this->authUser = (int)$this->getSession('authUserID') ?? 0;
+        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+            $this->authUser = 0;
+        }
         // encrypt for safty.
         $content = $this->crypto->encryptStandard(json_encode($setup));
         if (empty($vendor) || empty($setup)) {
@@ -416,7 +419,9 @@ abstract class AppDispatch
     {
         $vendor = self::getModuleVendor();
         $this->authUser = (int)$this->getSession('authUserID');
-
+        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+            $this->authUser = 0;
+        }
         $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor))['credentials'];
 
         if (empty($credentials)) {

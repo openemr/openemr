@@ -22,6 +22,7 @@ $service = $clientApp::getServiceType();
 $title = $service == "1" ? xlt('RingCentral Fax SMS') : xlt('Twilio SMS');
 $title = $service == "3" ? xlt('etherFAX') : $title;
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
+// RingCentral OAuth
 $logged_in = $clientApp->authenticate();
 if (empty($logged_in) && $service == "1") {
     $request_url = $clientApp->getLogIn();
@@ -122,7 +123,7 @@ if (empty($logged_in) && $service == "1") {
                 buttons: [
                     {text: 'Cancel', close: true, style: 'secondary  btn-sm'}
                 ],
-                url: "setup.php?type=" + encodeURIComponent(serviceType)
+                url: "./setup.php?type=" + encodeURIComponent(serviceType)
             });
         };
 
@@ -350,10 +351,6 @@ if (empty($logged_in) && $service == "1") {
         function logIn() {
             top.restoreSession();
             return $.post('getLogIn', {})
-            /*dlgopen('rcauth.php', '', 'modal-md', 500, true, '', {
-                type: 'ajax',
-                url: 'rcauth.php'
-            });*/
         }
 
         function messageShow(id) {
@@ -366,7 +363,7 @@ if (empty($logged_in) && $service == "1") {
             let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&recipient=' +
                 encodeURIComponent(phone);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-md', 600, '', title, {
+            dlgopen(url, '', 'modal-sm', 600, '', title, {
                 buttons: [
                     {text: btnClose, close: true, style: 'secondary btn-sm'}
                 ]
@@ -460,8 +457,8 @@ if (empty($logged_in) && $service == "1") {
                         <div class="dropdown-menu" role="menu">
                             <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                             <?php if ($serviceType == 'sms') { ?>
-                                <a class="dropdown-item" href="#" onclick="popNotify('', './rc_sms_notification.php?dryrun=1&site=<?php echo $_SESSION['site_id'] ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
-                                <a class="dropdown-item" href="#" onclick="popNotify('live', './rc_sms_notification.php?site=<?php echo $_SESSION['site_id'] ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
+                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&site=<?php echo $_SESSION['site_id'] ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
+                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?site=<?php echo $_SESSION['site_id'] ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
                             <?php } ?>
                             <a class="dropdown-item ringcentral etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                         </div>
@@ -494,23 +491,19 @@ if (empty($logged_in) && $service == "1") {
                     <!-- Tab panes -->
                     <div class="tab-content">
                         <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
+                            <?php if ($service == '3') { ?>
                             <div class="table-responsive">
                                 <table class="table table-sm" id="rcvdetails">
                                     <thead>
                                     <tr>
                                         <th><?php echo xlt("Time") ?></th>
-                                        <th class="twilio etherfax-hide"><?php echo xlt("Type") ?></th>
-                                        <th class="ringcentral"><?php echo xlt("Name") ?></th>
-                                        <th class="etherfax-hide"><?php echo xlt("Message") ?></th>
-                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Pages") ?></th>
                                         <th><?php echo xlt("From") ?></th>
                                         <th><?php echo xlt("To") ?></th>
-                                        <th class="etherfax-hide"><?php echo xlt("Result") ?></th>
-                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Length") ?></th>
-                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Extracted Data") ?><a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a></th>
-                                        <th class="ringcentral twilio etherfax"><?php echo xlt("Dispose") ?></th>
-                                        <th class="ringcentral etherfax"><?php echo xlt("View") ?></th>
-                                        <th class="twilio"><?php echo xlt("Reply") ?></th>
+                                        <th><?php echo xlt("Pages") ?></th>
+                                        <th><?php echo xlt("Length") ?></th>
+                                        <th><?php echo xlt("Extracted Data") ?><a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a></th>
+                                        <th><?php echo xlt("Dispose") ?></th>
+                                        <th><?php echo xlt("View") ?></th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -520,6 +513,31 @@ if (empty($logged_in) && $service == "1") {
                                     </tbody>
                                 </table>
                             </div>
+                            <?php } else { ?>
+                                <div class="table-responsive">
+                                    <table class="table table-sm" id="rcvdetails">
+                                        <thead>
+                                        <tr>
+                                            <th><?php echo xlt("Time") ?></th>
+                                            <th class="twilio"><?php echo xlt("Type") ?></th>
+                                            <th class="ringcentral"><?php echo xlt("Name") ?></th>
+                                            <th class=""><?php echo xlt("Message") ?></th>
+                                            <th class="ringcentral twilio"><?php echo xlt("Pages") ?></th>
+                                            <th><?php echo xlt("From") ?></th>
+                                            <th><?php echo xlt("To") ?></th>
+                                            <th class=""><?php echo xlt("Result") ?></th>
+                                            <th class="ringcentral"><?php echo xlt("View") ?></th>
+                                            <th class="twilio"><?php echo xlt("Reply") ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php } ?>
                         </div>
                         <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
                             <div class="table-responsive">

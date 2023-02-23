@@ -156,7 +156,7 @@ class RCFaxClient extends AppDispatch
         $request_url = $this->platform->authUrl(['redirectUri' => $this->redirectUrl, 'state' => 'login']);
         $this->setSession('url', $request_url);
         $this->setSession('redirect_uri', $this->redirectUrl);
-        require('rcauth.php');
+        require('../rcauth.php');
         return $request_url;
     }
 

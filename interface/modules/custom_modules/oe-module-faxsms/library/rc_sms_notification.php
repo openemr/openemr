@@ -24,7 +24,7 @@ $_SERVER['SERVER_NAME'] = 'localhost';
 $backpic = "";
 $clientApp = null;
 // for cron
-if ($argc > 1 && empty($_SESSION['site_id']) && empty($_GET['site'])) {
+if (($argc ?? null) > 1 && empty($_SESSION['site_id']) && empty($_GET['site'])) {
     $c = stripos($argv[1], 'site=');
     if ($c === false) {
         echo xlt("Missing Site Id using default") . "\n";
@@ -40,7 +40,7 @@ if (php_sapi_name() === 'cli') {
 
 // so service can set some settings if needed on init.
 $sessionAllowWrite = true;
-require_once(__DIR__ . "/../../../globals.php");
+require_once(__DIR__ . "/../../../../globals.php");
 require_once("$srcdir/appointments.inc.php");
 
 $TYPE = "SMS";
