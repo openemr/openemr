@@ -1077,15 +1077,18 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         settings.expand = true;
         settings.notes = false;
         settings.hangup = true;
-        settings.screenshare = true;
+        conf.addSettingsForScreenshare(settings);
         return settings;
     };
 
     this.addSettingsForScreenshare = function(settings) {
+        settings.screenshare = false;
         if (this.__slots.length) {
-            settings.screenshare = true;
-        } else {
-            settings.screenshare = false;
+            // only show the button if we actually support the screenshare
+            if (window && window.navigator && window.navigator.mediaDevices
+                && window.navigator.mediaDevices.getDisplayMedia) {
+                settings.screenshare = true;
+            }
         }
     };
 
