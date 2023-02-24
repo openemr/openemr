@@ -277,19 +277,32 @@ class TeleconferenceRoomController
                 . " " . $appt['pc_startTime']);
             if (
                 $dateTime !== false
-                    && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)
-                    && !$apptService->isCheckOutStatus($appt['pc_apptstatus'])
+                && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)
+                && !$apptService->isCheckOutStatus($appt['pc_apptstatus'])
             ) {
                 $activeSession = ['pc_eid' => $queryVars['pc_eid']];
             }
 
             $data = [
-              'activeSession' => $activeSession
-                ,'assetPath' => $this->assetPath
-                ,'images_static_relative' => $this->config->getImagesStaticRelative()
-                ,'portalUrl' => $this->config->getPortalOnsiteAddress() . '/home.php'
-                ,'portal_timeout' => $this->config->getPortalTimeout()
-                ,'debug' => $this->config->isDebugModeEnabled()
+                'activeSession' => $activeSession
+                , 'assetPath' => $this->assetPath
+                , 'images_static_relative' => $this->config->getImagesStaticRelative()
+                , 'portalUrl' => $this->config->getPortalOnsiteAddress() . '/home.php'
+                , 'portal_timeout' => $this->config->getPortalTimeout()
+                , 'debug' => $this->config->isDebugModeEnabled()
+            ];
+
+            echo $this->twig->render('comlink/portal/thirdparty.html.twig', $data);
+        } catch (AccessDeniedException $exception) {
+            // we treat it as a not found session as we don't want to reveal that the session exists or does not exist
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $data = [
+                'activeSession' => null
+                , 'assetPath' => $this->assetPath
+                , 'images_static_relative' => $this->config->getImagesStaticRelative()
+                , 'portalUrl' => $this->config->getPortalOnsiteAddress() . '/home.php'
+                , 'portal_timeout' => $this->config->getPortalTimeout()
+                , 'debug' => false
             ];
 
             echo $this->twig->render('comlink/portal/thirdparty.html.twig', $data);
