@@ -830,7 +830,7 @@ $none_message = xlt("Nothing to show for current actions.");
                         echo "<tr>\n" .
                             '<th>' . xlt('Category') . '</th>' .
                             '<th>' . xlt('Profile') . '</th>' .
-                            '<th>' . xlt('Template Actions') .'</th>'.
+                            '<th>' . xlt('Template Actions') . '</th>' .
                             '<th>' . xlt('Status') .
                             '</th><th>' . xlt('Last Action') . '</th>' .
                             '<th>' . xlt('Next Due') .
