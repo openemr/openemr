@@ -26,7 +26,8 @@ $interface_pid = null;
 if (empty($isSMS)) {
     $the_file = $clientApp->getRequest('file');
     $isContent = $clientApp->getRequest('isContent');
-    $isDoc = $clientApp->getRequest('isDocuments');
+    $the_docid = $clientApp->getRequest('docid');
+    $isDoc = (int)$clientApp->getRequest('isDocuments');
     $isQueue = $clientApp->getRequest('isQueue');
     $file_name = pathinfo($the_file, PATHINFO_BASENAME);
     $file_mime = $clientApp->getRequest('mime');
@@ -158,6 +159,7 @@ $service = $clientApp::getServiceType();
     <div class="container">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
             <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file) ?>'>
+            <input type="hidden" id="form_file" name="docid" value='<?php echo attr($the_docid) ?>'>
             <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent); ?>'>
             <input type="hidden" id="form_isDocuments" name="isDocuments" value='<?php echo attr($isDoc) ?>'>
             <input type="hidden" id="form_isQueue" name="isQueue" value='<?php echo attr($isQueue) ?>'>

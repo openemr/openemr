@@ -161,15 +161,13 @@ class EtherFaxClient
     {
         // create fax status
         $status = new FaxStatus();
-        if (is_file($file)) {
+        if (is_file($file) && !$isDocument) {
             $data = file_get_contents($file);
             if (empty($data)) {
                 $status->Result = FaxResult::InvalidOrMissingFile;
                 return $status;
             }
-            if (empty($isDocument)) {
-                unlink($file);
-            }
+            unlink($file);
         } else {
             // is content of document
             $data = $file;

@@ -147,8 +147,7 @@ function oe_module_faxsms_document_render_javascript_fax_dialog(Event $event)
         let btnClose = <?php echo xlj("Cancel"); ?>;
         let title = <?php echo xlj("Send To Contact"); ?>;
         let url = top.webroot_url +
-        '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=true&type=fax&file=' + encodeURIComponent(filePath) +
-        '&mime=' + encodeURIComponent(mime);
+        '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' + encodeURIComponent(filePath) + '&mime=' + encodeURIComponent(mime) + '&docid=' + encodeURIComponent(docid);
         dlgopen(url, 'faxto', 'modal-md', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'primary'}]});
         return false;
     }

@@ -372,12 +372,12 @@ class RCFaxClient extends AppDispatch
         $phone = $this->getRequest('phone');
         $name = $this->getRequest('name');
         $lastname = $this->getRequest('surname');
-        $isDocuments = $this->getRequest('isDocuments');
+        $isDocuments = (int)$this->getRequest('isDocuments');
         $comments = $this->getRequest('comments');
         $name .= ' ' . $lastname;
         $content = '';
 
-        if ($isDocuments == 'true') {
+        if (!empty($isDocuments)) {
             $file = str_replace("file://", '', $file);
             $file = str_replace("\\", "/", realpath($file)); // normalize requested path
         }

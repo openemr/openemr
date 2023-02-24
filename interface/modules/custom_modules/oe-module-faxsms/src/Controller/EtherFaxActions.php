@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+require_once(__DIR__ . "/../../../../../../controllers/C_Document.class.php");
+
 use DateTime;
 use Exception;
 use http\Exception\RuntimeException;
@@ -115,9 +117,10 @@ class EtherFaxActions extends AppDispatch
         }
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
+        $docid = $this->getRequest('docid');
         $mime = $this->getRequest('mime');
         $phone = $this->getRequest('phone');
-        $isDocuments = $this->getRequest('isDocuments');
+        $isDocuments = (int)$this->getRequest('isDocuments');
         $isQueue = $this->getRequest('isQueue');
         $comments = $this->getRequest('comments');
         $content = '';
@@ -135,14 +138,13 @@ class EtherFaxActions extends AppDispatch
         }
 
         ['basename' => $basename, 'dirname' => $dirname] = pathinfo($file);
-        if ($this->crypto->cryptCheckStandard($content)) {
-            $content = $this->crypto->decryptStandard($content, null, 'database');
-        }
         if ($isContent) {
             $content = $file;
             $file = 'report-' . $GLOBALS['pid'] . '.pdf';
         }
         if ($isDocuments) {
+            $obj = new \C_Document();
+            $file = $obj->retrieve_action("", $docid, true, true, true);
             // is it encrypted
             if ($this->crypto->cryptCheckStandard($content)) {
                 $content = $this->crypto->decryptStandard($content, null, 'database');

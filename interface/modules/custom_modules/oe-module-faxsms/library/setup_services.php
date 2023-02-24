@@ -117,7 +117,7 @@ $vendors = $boot->getVendorGlobals();
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="set-fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
+                        <label for="fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
                             <select class="form-control persist" name="fax_vendor" id="fax_vendor">
                                 <option value="0" <?php echo $vendors['oefax_enable_fax'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>

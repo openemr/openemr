@@ -86,8 +86,8 @@ if (empty($logged_in) && $service == "1") {
         const sendFax = function (filePath, from = '') {
             let btnClose = <?php echo xlj("Cancel"); ?>;
             let title = <?php echo xlj("Send To Contact"); ?>;
-            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=false&isQueue=' +
-                encodeURIComponent(from) + '&file=' + filePath; // do not encode filePath
+            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&isQueue=' +
+                encodeURIComponent(from) + '&file=' + encodeURIComponent(filePath);
             // leave dialog name param empty so send dialogs can cascade.
             dlgopen(url, '', 'modal-sm', 700, '', title, { // dialog restores session
                 buttons: [
