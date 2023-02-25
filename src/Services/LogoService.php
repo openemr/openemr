@@ -115,7 +115,7 @@ class LogoService
      * @param boolean $timestamp Will return with a query string of the last modified time
      * @return string|null String of real path or null if no file found
      */
-    private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string|null
+    private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string
     {
         $this->finder->files()->in($directory)->name($filename);
 
@@ -126,7 +126,7 @@ class LogoService
                 $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
             }
         } else {
-            $return = null;
+            $return = "";
         }
 
         return $return;
