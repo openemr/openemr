@@ -49,7 +49,7 @@ function processCode(): void
     $file = $cacheDir . DIRECTORY_SEPARATOR . 'platform.json';
     $content = json_encode($platform->auth()->data(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
     $cryptoGen = new CryptoGen();
-    $content = $cryptoGen->encryptStandard($content);
+    $content = $cryptoGen->encryptStandard($content, null, 'database');
     file_put_contents($file, $content);
 }
 

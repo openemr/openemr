@@ -371,7 +371,7 @@ abstract class AppDispatch
         if (!($GLOBALS['oerestrict_users'] ?? null)) {
             $this->authUser = 0;
         }
-        // encrypt for safty.
+        // encrypt for safety.
         $content = $this->crypto->encryptStandard(json_encode($setup));
         if (empty($vendor) || empty($setup)) {
             return xlt('Error: Missing vendor, user or credential items');

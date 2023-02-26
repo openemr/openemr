@@ -101,7 +101,7 @@ class RCFaxClient extends AppDispatch
         $file = $this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json';
         // Save authentication data
 
-        $content = $this->crypto->encryptStandard(json_encode($platform->auth()->data(), JSON_PRETTY_PRINT));
+        $content = $this->crypto->encryptStandard(json_encode($platform->auth()->data(), JSON_PRETTY_PRINT), null, 'database');
         file_put_contents($file, $content);
 
         return true;
@@ -227,7 +227,7 @@ class RCFaxClient extends AppDispatch
         // Save updated authentication data
         $this->setSession('sessionAccessToken', $this->platform->auth()->data());
         $content = json_encode($this->platform->auth()->data(), JSON_PRETTY_PRINT);
-        $content = $this->crypto->encryptStandard($content);
+        $content = $this->crypto->encryptStandard($content, null, 'database');
         file_put_contents($authback, $content);
 
         return $logged_in;

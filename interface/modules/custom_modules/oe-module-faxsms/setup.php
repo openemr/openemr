@@ -112,20 +112,20 @@ $mode = $_REQUEST['mode'] ?? null;
                         <div class="form-group">
                             <label for="form_username"><?php echo xlt("Account Username") ?></label>
                             <input id="form_username" type="text" name="username" class="form-control"
-                                value='<?php echo attr($c['username']) ?>' placeholder="<?php echo xlt('Optional if not using Account API Key') ?>" />
+                                value='<?php echo attr($c['username']) ?>' placeholder="<?php echo xla('Optional if not using Account API Key') ?>" />
                         </div>
                         <div class="form-group">
                             <label for="form_password"><?php echo xlt("Account Password") ?></label>
                             <input id="form_password" type="password" name="password" class="form-control"
-                                value='<?php echo attr($c['password']) ?>' placeholder="<?php echo xlt('Optional if not using Account API Key') ?>" /'>
+                                value='<?php echo attr($c['password']) ?>' placeholder="<?php echo xla('Optional if not using Account API Key') ?>" /'>
                         </div>
                         <div class="form-group">
                             <label for="form_extension"><?php echo xlt("Account Fax Number") ?> *</label>
-                            <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xlt('Number where you will receive faxes.') ?>" required />
+                            <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xla('Number where you will receive faxes.') ?>" required />
                         </div>
                         <div class="form-group">
                             <label for="form_key"><?php echo xlt("Account API Key - Recommended") ?></label>
-                            <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xlt('Most secure! Use only your API Key and Account Id.') ?>" />
+                            <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xla('Most secure! Use only your API Key and Account Id.') ?>" />
                         </div>
                     <?php } elseif ($service == '2') {
                         ?> <!-- Twilio -->
@@ -163,7 +163,7 @@ $mode = $_REQUEST['mode'] ?? null;
                         <div class=" form-group">
                             <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
                             <input id="form_nhours" type="text" name="smshours" class="form-control"
-                                placeholder="<?php echo xlt('Please enter number of hours before appointment') ?> *"
+                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
                                 required="required" value='<?php echo attr($c['smsHours']) ?>' />
                         </div>
                         <div class="form-group">
@@ -215,13 +215,13 @@ $mode = $_REQUEST['mode'] ?? null;
                         <div class="form-group">
                             <label class="ringcentral" for="form_redirect_url"><?php echo xlt("OAuth Redirect URI") ?></label>
                             <input id="form_redirect_url" type="text" name="redirect_url" class="form-control ringcentral"
-                                placeholder="<?php echo xlt('From RingCentral Account') ?> /"
+                                placeholder="<?php echo xla('From RingCentral Account') ?> /"
                                 value='<?php echo attr($c['redirect_url']) ?>' />
                         </div>
                         <div class=" form-group">
                             <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
                             <input id="form_nhours" type="text" name="smshours" class="form-control"
-                                placeholder="<?php echo xlt('Please enter number of hours before appointment') ?> *"
+                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
                                 required="required" value='<?php echo attr($c['smsHours']) ?>' />
                         </div>
                         <div class="form-group">
