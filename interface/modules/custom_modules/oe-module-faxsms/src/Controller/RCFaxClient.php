@@ -667,4 +667,12 @@ class RCFaxClient extends AppDispatch
 
         return null;
     }
+
+    /**
+     * @return string|bool
+     */
+    function fetchReminderCount(): string|bool
+    {
+        // TODO: Implement fetchReminderCount() method.
+    }
 }

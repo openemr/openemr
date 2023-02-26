@@ -112,13 +112,24 @@ $service = $clientApp::getServiceType();
 
         function sel_patient() {
             const url = top.webroot_url + '/interface/main/calendar/find_patient_popup.php?pflag=0&pkretrieval=1'
-            dlgopen(url, '_blank', 'modal-md', 500);
+            dlgopen(url, '_blank', 'modal-md', 500, false, '', {
+            });
         }
 
         function setpatient(pid, lname, fname, dob) {
-            $("#form_patient").val(fname + " " + lname);
-            $("#form_patient_id").val(fname + "" + pid);
-            $("#form_pid").val(pid);
+            let actionUrl = 'getPatientDetails';
+            return $.post(actionUrl, {
+                'pid': pid,
+                'type': <?php echo js_escape($serviceType); ?>
+            }, function (d, s) {
+                $("#wait").remove()
+            }, 'json').done(
+                function (data) {
+                    $(".show-detail").removeClass('d-none')
+                    $("#form_name").val(data['fname']);
+                    $("#form_lastname").val(data['lname']);
+                    $("#form_phone").val(data['phone_cell']);
+                });
         }
 
         function contactCallBack(contact) {
@@ -130,6 +141,7 @@ $service = $clientApp::getServiceType();
                 $("#wait").remove()
             }, 'json').done(
                 function (data) {
+                    $(".show-detail").removeClass('d-none')
                     $("#form_name").val(data[0]);
                     $("#form_lastname").val(data[1]);
                     $("#form_phone").val(data[2]);
@@ -143,7 +155,7 @@ $service = $clientApp::getServiceType();
                 buttons: [
                     {text: btnClose, close: true, style: 'primary  btn-sm'}
                 ],
-                url: top.webroot_url + '/interface/usergroup/addrbook_list.php?popup=2&type=' + encodeURIComponent(<?php echo js_url($serviceType); ?>),
+                url: top.webroot_url + '/interface/usergroup/addrbook_list.php?popup=2&type=' + encodeURIComponent(<?php echo js_escape($serviceType); ?>),
                 dialogId: 'fax'
             });
         };
@@ -168,21 +180,21 @@ $service = $clientApp::getServiceType();
             <div class="messages"></div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="form-group smsExclude faxExclude">
+                    <div class="form-group show-detail smsExclude faxExclude">
                         <label for="form_name"><?php echo xlt('Firstname') ?></label>
                         <input id="form_name" type="text" name="name" class="form-control"
                             placeholder="<?php echo xla('Not Required') ?>"
                             value="<?php echo attr($details['fname'] ?? '') ?>" />
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group smsExclude faxExclude">
+                    <div class="form-group show-detail smsExclude faxExclude">
                         <label for="form_lastname"><?php echo xlt('Lastname') ?></label>
                         <input id="form_lastname" type="text" name="surname" class="form-control"
                             placeholder="<?php echo xla('Not Required') ?>"
                             value="<?php echo attr($details['lname'] ?? '') ?>" />
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group smsExclude">
+                    <div class="form-group smsExclude faxExclude">
                         <label for="form_email"><?php echo xlt('Email') ?></label>
                         <input id="form_email" type="email" name="email" class="form-control"
                             placeholder="<?php echo xla('Not required for fax') ?>">
@@ -195,11 +207,11 @@ $service = $clientApp::getServiceType();
                             value="" />
                         <div class="help-block with-errors"></div>
                     </div>
-                    <?php if ($service != "2" || !empty($isSMS)) { ?>
+                    <?php if ($service == "1" || !empty($isSMS)) { ?>
                         <div class="form-group">
                             <label for="form_message"><?php echo xlt('Message') ?></label>
                             <textarea id="form_message" name="comments" class="form-control" placeholder="
-                            <?php echo empty($isSMS) ? xla('Comment for cover sheet.') : xla('SMS text message.') ?>" rows="6"><?php echo $default_message; ?></textarea>
+                            <?php echo empty($isSMS) ? xla('Not implemented for fax.') : xla('SMS text message.') ?>" rows="6"><?php echo $default_message; ?></textarea>
                             <div class="help-block with-errors"></div>
                         </div>
                     <?php } ?>
@@ -209,7 +221,7 @@ $service = $clientApp::getServiceType();
                     <div>
                         <button type="button" class="btn btn-primary" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
                         <!-- patient picker ready once get patient info is added. -->
-                        <!--<button type="button" class="btn btn-primary" onclick="sel_patient()" value="Patients"><?php /*echo xlt('Patients') */?></button>-->
+                        <button type="button" class="btn btn-primary faxExclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
                         <button type="submit" class="btn btn-success float-right" value=""><?php echo empty($isSMS) ? xlt('Send Fax') : xlt('Send SMS') ?></button>
                     </div>
                 </div>

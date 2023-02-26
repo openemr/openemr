@@ -12,7 +12,7 @@
  * @author    Robert Down
  * @copyright Unknown
  * @copyright Copyright (c) 2008 Larry Lart
- * @copyright Copyright (c) 2018-23 Jerry Padgett
+ * @copyright Copyright (c) 2018-2023 Jerry Padgett
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  */
 
@@ -93,12 +93,12 @@ $db_sms_msg['message'] = $MESSAGE;
                     echo xlt("We are in Test Mode and no reminders will be sent. This test will check what reminders will be sent in when running Live Mode.");
                 }
                 $db_patient = cron_GetAlertPatientData();
-                echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . $SMS_NOTIFICATION_HOUR . ' ' . xlt("hrs from now.");
+                echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . text($SMS_NOTIFICATION_HOUR) . ' ' . xlt("hrs from now.");
                 ob_flush();
                 flush();
                 // for every event found
                 $plast = '';
-                echo "<h3>========================" . $TYPE . " | " . text(date("Y-m-d H:i:s")) . "=========================</h3>";
+                echo "<h3>========================" . text($TYPE) . " | " . text(date("Y-m-d H:i:s")) . " =========================</h3>";
                 for ($p = 0; $p < count($db_patient); $p++) {
                     ob_flush();
                     flush();
@@ -116,10 +116,10 @@ $db_sms_msg['message'] = $MESSAGE;
                     $remain_hour = round($remaining_app_hour - $SMS_NOTIFICATION_HOUR);
 
                     if ($plast != $prow['ulname']) {
-                        echo "<h4>For Provider: " . text($prow['utitle']) . ' ' . text($prow['ufname']) . ' ' . text($prow['ulname']) . "</h4>";
+                        echo "<h4>" . xlt("For Provider") . ": " . text($prow['utitle']) . ' ' . text($prow['ufname']) . ' ' . text($prow['ulname']) . "</h4>";
                         $plast = $prow['ulname'];
                     }
-                    $strMsg = "<b>* " . xlt("SEND NOTIFICATION BEFORE:") . text($SMS_NOTIFICATION_HOUR) . " | " . xlt("CRONJOB RUNS EVERY:") . text($CRON_TIME) . " | " . xlt("APPOINTMENT DATE TIME:") . ' ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS:") . " " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER:") . ' ' . text($remain_hour) . "</b>";
+                    $strMsg = "<strong>* " . xlt("SEND NOTIFICATION BEFORE:") . text($SMS_NOTIFICATION_HOUR) . " | " . xlt("CRONJOB RUNS EVERY:") . text($CRON_TIME) . " | " . xlt("APPOINTMENT DATE TIME") . ': ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS") . ": " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER") . ': ' . text($remain_hour) . "</strong>";
 
                     // check in the interval
                     if ($remain_hour >= -($CRON_TIME) && $remain_hour <= $CRON_TIME) {
@@ -137,8 +137,8 @@ $db_sms_msg['message'] = $MESSAGE;
                             );
                         }
                         if (!$isValid) {
-                            $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . $prow['phone_cell'] . " " . xlt("SMS NOT SENT Patient:") . "</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
-                            $db_sms_msg['message'] = xlt("ERROR: INVALID Mobile Phone#") . text($prow['phone_cell']) . xlt("SMS NOT SENT For:") . " " . text($prow['fname']) . " " . text($prow['lname']);
+                            $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
+                            $db_sms_msg['message'] = xlt("ERROR: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
                             if ($bTestRun == 0) {
                                 cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
                             }
@@ -148,7 +148,7 @@ $db_sms_msg['message'] = $MESSAGE;
                         }
                         if ((int)$prow['pc_recurrtype'] > 0) {
                             $row = fetchRecurrences($prow['pid']);
-                            $strMsg .= "\n<b>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occuring") . " " . text($row[0]['pc_recurrspec']) . "</b>";
+                            $strMsg .= "\n<strong>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occuring") . " " . text($row[0]['pc_recurrspec']) . "</strong>";
                         }
                         $strMsg .= "\n" . text($db_sms_msg['message']) . "\n";
                         echo (nl2br($strMsg));
@@ -196,7 +196,7 @@ function cron_UpdateEntry($type, $pid, $pc_eid, $recur = ''): int
         return 1;
     }
 
-    $query = "UPDATE openemr_postcalendar_events SET ";
+    $query = "UPDATE openemr_postcalendar_events SET";
 
     if ($type == 'SMS') {
         $query .= " pc_sendalertsms='YES', pc_apptstatus='SMS' ";
@@ -220,7 +220,8 @@ function cron_GetAlertPatientData(): array
 {
     global $SMS_NOTIFICATION_HOUR;
     $where = " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')";
-    $check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
+    $adj_date = date("h") + $SMS_NOTIFICATION_HOUR;
+    $check_date = date("Y-m-d", mktime($adj_date, 0, 0, date("m"), date("d"), date("Y")));
     $patient_array = fetchEvents($check_date, $check_date, $where, 'u.lname,pc_startTime,p.lname');
 
     return $patient_array;
@@ -237,7 +238,7 @@ function cron_GetNotificationData($type): bool|array
     $db_sms_msg['notification_id'] = '';
     $db_sms_msg['sms_gateway_type'] = '';
 
-    $query = "select * from automatic_notification where type=?";
+    $query = "Select * From automatic_notification Where type = ?";
     $db_sms_msg = sqlFetchArray(sqlStatement($query, [$type]));
 
     return $db_sms_msg;
@@ -262,7 +263,7 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_cell'] . "|||" . $prow['email'];
     $data_info = $prow['pc_eventDate'] . "|||" . $prow['pc_endDate'] . "|||" . $prow['pc_startTime'] . "|||" . $prow['pc_endTime'];
     $sdate = date("Y-m-d H:i:s");
-    $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql_loginsert = "INSERT INTO `notification_log` (`iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     $safe = array($prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'] || '', $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate);
 

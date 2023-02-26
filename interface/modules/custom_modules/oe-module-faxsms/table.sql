@@ -9,3 +9,9 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `vendor` (`auth_user`,`vendor`)
 ) ENGINE=InnoDB COMMENT='Vendor credentials for Fax/SMS';
 
+#IfNotRow categories name FAX
+SET @max_rght = (SELECT MAX(rght) FROM categories);
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'FAX', '', 1, @max_rght, @max_rght + 1, 'patients|docs' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#Endif

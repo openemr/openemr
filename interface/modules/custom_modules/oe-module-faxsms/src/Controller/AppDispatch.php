@@ -12,6 +12,10 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+require_once(__DIR__ . "/../../../../../../controllers/C_Document.class.php");
+
+use Document;
+use MyMailer;
 use OpenEMR\Common\Session\SessionUtil;
 
 /**
@@ -460,10 +464,74 @@ abstract class AppDispatch
     }
 
     /**
+     * @return string|false
+     */
+    public function getPatientDetails(): bool|string
+    {
+        $id = $this->getRequest('pid');
+        $query = "SELECT fname, lname, phone_cell FROM Patient_data WHERE pid = ?";
+        $result = sqlQuery($query, array($id));
+
+        return json_encode($result);
+    }
+
+    public function chartDocument(): string
+    {
+        $pid = $this->getRequest('pid');
+        $docid = $this->getRequest('docid');
+        $fileName = $this->getRequest('file_name');
+        $mime = $this->getRequest('mime');
+
+        $obj = new \C_Document();
+        $content = $obj->retrieve_action("", $docid, true, true, true);
+
+        $catid = sqlQuery("SELECT id FROM `categories` WHERE `name` = 'FAX'")['id'];
+
+        $document = new Document();
+        $result = $document->createDocument(
+            $pid,
+            $catid,
+            $fileName,
+            $mime,
+            $content
+        );
+        if (!empty($result)) {
+            $err = xlt("ERROR Failed to import document for ccda. File Name") . ': ' . text($fileName);
+            error_log($err  . ' ' . $result);
+            return $err;
+        }
+        return $result;
+    }
+
+
+    public function emailDocument($email, $body, $attfile, $pname)
+    {
+        $desc = "Please check the attached patient document.\n Content:" . $body;
+        $mail = new MyMailer();
+        $from_name = $GLOBALS["practice_return_email_path"];
+        $from =  $GLOBALS["practice_return_email_path"];
+        $mail->AddReplyTo($from, $from_name);
+        $mail->SetFrom($from, $from);
+        $to = $email ;
+        $to_name = $email;
+        $mail->AddAddress($to, $to_name);
+        $subject = "Patient documents";
+        $mail->Subject = $subject;
+        $mail->Body = $desc;
+        $mail->AddAttachment($attfile);
+        if ($mail->Send()) {
+            $retstatus = "email_sent";
+        } else {
+            $retstatus =  "ERROR email_failed" . $mail->ErrorInfo;
+        }
+        return $retstatus;
+    }
+
+    /**
      * @return null
      */
     private function indexAction()
     {
-        return null;
+        {}        return null;
     }
 }

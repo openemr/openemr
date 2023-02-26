@@ -17,7 +17,7 @@
 
 /*
  This module uses an abstract class to arbitrate and dispatch
- API calls to diffrent vendor services for both the fax and sms type on a per-call basis.
+ API calls to different vendor services for both the fax and sms type on a per-call basis.
  To add new vendors, just follow and use the existing dispatching flow
  for an existing service type and vendor service.
  */
@@ -135,7 +135,9 @@ function oe_module_faxsms_patient_report_render_javascript_post_load(Event $even
 function oe_module_faxsms_document_render_action_anchors(Event $event)
 {
     ?>
-    <a class="btn btn-success btn-sm btn-send-msg" href="" onclick="return doFax(event,file,mime)"><span><?php echo xlt('Send Fax'); ?></span></a>
+    <a class="btn btn-success btn-sm btn-send-msg" href="" onclick="return doFax(event,file,mime)">
+        <span><?php echo xlt('Send Fax'); ?></span>
+    </a>
     <?php
 }
 
@@ -147,7 +149,8 @@ function oe_module_faxsms_document_render_javascript_fax_dialog(Event $event)
         let btnClose = <?php echo xlj("Cancel"); ?>;
         let title = <?php echo xlj("Send To Contact"); ?>;
         let url = top.webroot_url +
-        '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' + encodeURIComponent(filePath) + '&mime=' + encodeURIComponent(mime) + '&docid=' + encodeURIComponent(docid);
+            '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' +
+            encodeURIComponent(filePath) + '&mime=' + encodeURIComponent(mime) + '&docid=' + encodeURIComponent(docid);
         dlgopen(url, 'faxto', 'modal-md', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'primary'}]});
         return false;
     }
@@ -159,7 +162,12 @@ function oe_module_faxsms_sms_render_action_buttons(Event $event): void
         return;
     } ?>
     <button type="button" class="sendsms btn btn-success btn-sm btn-send-msg"
-        onclick="sendSMS(<?php echo attr_js($event->pid) ?>, <?php echo attr_js($event->title) ?>, <?php echo attr_js($event->getPatientDetails(null, true)) ?>);" value="true"><?php echo xlt('Notify'); ?></button>
+        onclick="sendSMS(
+        <?php echo attr_js($event->pid) ?>,
+        <?php echo attr_js($event->title) ?>,
+        <?php echo attr_js($event->getPatientDetails(null, true)) ?>
+            );"
+        value="true"><?php echo xlt('Notify'); ?></button>
     <?php
 }
 
@@ -169,10 +177,11 @@ function oe_module_faxsms_sms_render_javascript_post_load(Event $event): void
     function sendSMS(pid, docName, details) {
         let btnClose = <?php echo xlj("Cancel"); ?>;
         let title = <?php echo xlj("Send SMS Message"); ?>;
-        let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&pid=' +
-        encodeURIComponent(pid) +
-        '&title=' + encodeURIComponent(docName) +
-        '&details=' + encodeURIComponent(details);
+        let url = top.webroot_url +
+            '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&pid=' +
+            encodeURIComponent(pid) +
+            '&title=' + encodeURIComponent(docName) +
+            '&details=' + encodeURIComponent(details);
         dlgopen(url, '', 'modal-sm', 700, '', title, {
         buttons: [{text: btnClose, close: true, style: 'secondary'}]
         });
@@ -181,9 +190,10 @@ function oe_module_faxsms_sms_render_javascript_post_load(Event $event): void
 // If any more events in future will probably refactor these to BootstrapService class.
 // We also have a drop box in the user interface. Could be an event for elsewhere.
 if ($allowFax) {
+    // patient report
     $eventDispatcher->addListener(PatientReportEvent::ACTIONS_RENDER_POST, 'oe_module_faxsms_patient_report_render_action_buttons');
     $eventDispatcher->addListener(PatientReportEvent::JAVASCRIPT_READY_POST, 'oe_module_faxsms_patient_report_render_javascript_post_load');
-
+    // documents
     $eventDispatcher->addListener(PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR, 'oe_module_faxsms_document_render_action_anchors');
     $eventDispatcher->addListener(PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG, 'oe_module_faxsms_document_render_javascript_fax_dialog');
 }

@@ -97,7 +97,8 @@ $mode = $_REQUEST['mode'] ?? null;
             <div class="messages"></div>
             <div class="row">
                 <div class="col">
-                    <?php if ($service == '3') { ?>
+                    <?php if ($service == '3') {
+                        ?> <!-- etherFAX -->
                         <div class="checkbox">
                             <label>
                                 <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?> />
@@ -126,7 +127,8 @@ $mode = $_REQUEST['mode'] ?? null;
                             <label for="form_key"><?php echo xlt("Account API Key - Recommended") ?></label>
                             <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xlt('Most secure! Use only your API Key and Account Id.') ?>" />
                         </div>
-                    <?php } else { ?>
+                    <?php } elseif ($service == '2') {
+                        ?> <!-- Twilio -->
                         <div class="checkbox">
                             <label>
                                 <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
@@ -134,17 +136,12 @@ $mode = $_REQUEST['mode'] ?? null;
                             </label>
                         </div>
                         <div class="form-group">
-                            <label for="form_username"><?php echo xlt("RC Username, Phone or Twilio Account Sid") ?> *</label>
+                            <label for="form_username"><?php echo xlt("Twilio Account Sid") ?> *</label>
                             <input id="form_username" type="text" name="username" class="form-control"
                                 required="required" value='<?php echo attr($c['username']) ?>' />
                         </div>
                         <div class="form-group">
-                            <label for="form_extension"><?php echo xlt("Phone Number or Extension") ?></label>
-                            <input id="form_extension" type="text" name="extension" class="form-control"
-                                required="required" value='<?php echo attr($c['extension']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_password"><?php echo xlt("RC Password or Twilio Auth Token") ?> *</label>
+                            <label for="form_password"><?php echo xlt("Twilio Auth Token") ?> *</label>
                             <input id="form_password" type="password" name="password" class="form-control"
                                 required="required" value='<?php echo attr($c['password']) ?>' />
                         </div>
@@ -154,12 +151,64 @@ $mode = $_REQUEST['mode'] ?? null;
                                 value='<?php echo attr($c['smsNumber']) ?>' required />
                         </div>
                         <div class="form-group">
-                            <label for="form_key"><?php echo xlt("RC Client ID or Twilio Api Sid") ?> *</label>
+                            <label for="form_key"><?php echo xlt("Twilio Api Sid") ?> *</label>
                             <input id="form_key" type="text" name="key" class="form-control"
                                 required="required" value='<?php echo attr($c['appKey']) ?>' />
                         </div>
                         <div class="form-group">
-                            <label for="form_secret"><?php echo xlt("RC Client Secret or Twilio Api Secret") ?> *</label>
+                            <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
+                            <input id="form_secret" type="password" name="secret" class="form-control"
+                                required="required" value='<?php echo attr($c['appSecret']) ?>' />
+                        </div>
+                        <div class=" form-group">
+                            <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
+                            <input id="form_nhours" type="text" name="smshours" class="form-control"
+                                placeholder="<?php echo xlt('Please enter number of hours before appointment') ?> *"
+                                required="required" value='<?php echo attr($c['smsHours']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
+                            <span style="font-size:12px;font-style: italic">&nbsp;
+                                <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
+                            </span>
+                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
+                                required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                        </div>
+                    <?php } else {
+                        ?>  <!--RingCentral fax and sms-->
+                        <div class="checkbox">
+                            <label>
+                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
+                                <?php echo xlt("Production Check") ?>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_username"><?php echo xlt("Username") ?> *</label>
+                            <input id="form_username" type="text" name="username" class="form-control"
+                                required="required" value='<?php echo attr($c['username']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_password"><?php echo xlt("Password") ?> *</label>
+                            <input id="form_password" type="password" name="password" class="form-control"
+                                required="required" value='<?php echo attr($c['password']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_extension"><?php echo xlt("Phone Number or Extension") ?></label>
+                            <input id="form_extension" type="text" name="extension" class="form-control"
+                                required="required" value='<?php echo attr($c['extension']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
+                            <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
+                                value='<?php echo attr($c['smsNumber']) ?>' required />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_key"><?php echo xlt("Client ID") ?> *</label>
+                            <input id="form_key" type="text" name="key" class="form-control"
+                                required="required" value='<?php echo attr($c['appKey']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_secret"><?php echo xlt("Client Secret") ?> *</label>
                             <input id="form_secret" type="password" name="secret" class="form-control"
                                 required="required" value='<?php echo attr($c['appSecret']) ?>' />
                         </div>
@@ -178,9 +227,10 @@ $mode = $_REQUEST['mode'] ?? null;
                         <div class="form-group">
                             <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
                             <span style="font-size:12px;font-style: italic">&nbsp;
-                        <?php echo xlt("Tags") ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***</span>
+                                <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
+                            </span>
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
-                                required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo attr($c['smsMessage']) ?></textarea>
+                                required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
                         </div>
                     <?php } ?>
                     <div>

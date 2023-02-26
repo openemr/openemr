@@ -174,7 +174,6 @@ if (empty($logged_in) && $service == "1") {
             window.open(url, "_blank");
         }
 
-        // For use with window cascade popup Twilio
         function viewDocument(e = '', docuri) {
             if (e !== '') {
                 e.preventDefault();
@@ -221,12 +220,11 @@ if (empty($logged_in) && $service == "1") {
                 'download': downFlag
             }).done(function (data) {
                 $("#brand").removeClass('fa fa-spinner fa-spin');
-                if (downFlag === 'true') {
+                if (downFlag == 'true') {
                     location.href = "disposeDoc?type=fax";
                     setTimeout(retrieveMsgs, 3000);
                     return false;
                 }
-
                 viewDocument('', data);
             });
         }
@@ -250,7 +248,6 @@ if (empty($logged_in) && $service == "1") {
             $("#rcvdetails tbody").empty();
             $("#sent-details tbody").empty();
             $("#msgdetails tbody").empty();
-
             return $.post(actionUrl,
                 {
                     'type': serviceType,
@@ -276,7 +273,7 @@ if (empty($logged_in) && $service == "1") {
                     getLogs();
                 }
             }).fail(function (xhr, status, error) {
-                alertMsg(<?php echo xlj('Not Authenticated. Restart from Modules menu or ensure credentials are setup from Activity menu. Reported Error') . "\n"; ?> + jsText(error), 7000);
+                alertMsg(<?php echo xlj('Not Authenticated. Restart from Modules menu or ensure credentials are setup from Activity menu. Reported Error') . "\n"; ?> +jsText(error), 7000);
                 if (currentService === '1') {
                     $("#loginButton").removeClass("d-none");
                 }
@@ -380,13 +377,14 @@ if (empty($logged_in) && $service == "1") {
             $(event.currentTarget).toggleClass('fa-eye-slash fa-eye');
             return false;
         }
+
         // drop bucket
         const queueMsg = '' + <?php echo xlj('Fax Queue. Drop files or Click here for Fax Contact form.') ?>;
         Dropzone.autoDiscover = false;
         $(function () {
             var fileTypes = '';
             if (currentService === '3') {
-                fileTypes = "application/pdf, image/tiff";
+                fileTypes = "application/pdf, image/*";
             }
             const faxQueue = new Dropzone("#faxQueue", {
                 paramName: 'fax',
@@ -435,7 +433,7 @@ if (empty($logged_in) && $service == "1") {
                 <div class="collapse navbar-collapse" id="nav-header-collapse">
                     <form class="navbar-form navbar-left form-inline" method="GET" role="search">
                         <div class="form-group">
-                            <label class="mx-1 font-weight-bolder" for="formdate"><?php echo xlt('Activities From Date') ?>:</label>
+                            <label for="fromdate" class="mx-1 font-weight-bolder" for="formdate"><?php echo xlt('Activities From Date') ?>:</label>
                             <input type="text" id="fromdate" name="fromdate" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value=''>
                         </div>
                         <div class="form-group">
@@ -447,7 +445,7 @@ if (empty($logged_in) && $service == "1") {
                         </div>
                         <!-- manual login oauth2 RC -->
                         <div class="form-group ringcentral">
-                            <button id="loginButton" onclick="location.reload()" class="btn btn-danger d-none">Log In<i class="fa fa-sign-in-alt ml-2"></i></button>
+                            <button id="loginButton" onclick="location.reload()" class="btn btn-danger d-none"><?php echo xlt('Log In'); ?><i class="fa fa-sign-in-alt ml-2"></i></button>
                         </div>
                     </form>
                     <div class="nav-item dropdown ml-auto">
@@ -457,8 +455,8 @@ if (empty($logged_in) && $service == "1") {
                         <div class="dropdown-menu" role="menu">
                             <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                             <?php if ($serviceType == 'sms') { ?>
-                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&site=<?php echo $_SESSION['site_id'] ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
-                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?site=<?php echo $_SESSION['site_id'] ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
+                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&site=<?php echo js_url($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
+                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?site=<?php echo js_url($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
                             <?php } ?>
                             <a class="dropdown-item ringcentral etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                         </div>
@@ -492,27 +490,29 @@ if (empty($logged_in) && $service == "1") {
                     <div class="tab-content">
                         <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
                             <?php if ($service == '3') { ?>
-                            <div class="table-responsive">
-                                <table class="table table-sm" id="rcvdetails">
-                                    <thead>
-                                    <tr>
-                                        <th><?php echo xlt("Time") ?></th>
-                                        <th><?php echo xlt("From") ?></th>
-                                        <th><?php echo xlt("To") ?></th>
-                                        <th><?php echo xlt("Pages") ?></th>
-                                        <th><?php echo xlt("Length") ?></th>
-                                        <th><?php echo xlt("Extracted Data") ?><a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a></th>
-                                        <th><?php echo xlt("Dispose") ?></th>
-                                        <th><?php echo xlt("View") ?></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td><?php echo xlt("No Items Try Refresh") ?></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm" id="rcvdetails">
+                                        <thead>
+                                        <tr>
+                                            <th><?php echo xlt("Time") ?></th>
+                                            <th><?php echo xlt("From") ?></th>
+                                            <th><?php echo xlt("To") ?></th>
+                                            <th><?php echo xlt("Pages") ?></th>
+                                            <th><?php echo xlt("Length") ?></th>
+                                            <th><?php echo xlt("Extracted Data") ?>
+                                                <a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a>
+                                            </th>
+                                            <th><?php echo xlt("Dispose") ?></th>
+                                            <th><?php echo xlt("View") ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             <?php } else { ?>
                                 <div class="table-responsive">
                                     <table class="table table-sm" id="rcvdetails">

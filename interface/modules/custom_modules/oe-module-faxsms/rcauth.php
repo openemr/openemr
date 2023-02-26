@@ -59,8 +59,8 @@ if (isset($_GET['code'])) {
 }
 ?>
 <script>
-    const tokenUrl = '<?php echo $url; ?>';
-    const redirectUrl = '<?php echo $callbackUrl; ?>';
+    const tokenUrl = <?php echo js_escape('$url'); ?>;
+    const redirectUrl = <?php echo js_escape('$callbackUrl'); ?>;
     const config = {
         authUri: tokenUrl,
         redirectUri: redirectUrl,

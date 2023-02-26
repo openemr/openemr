@@ -18,8 +18,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 
 $module_config = 1;
-$_GET['module_config'] = $module_config;
-$_SESSION['module_config'] = $module_config;
 
 $boot = new BootstrapService();
 if ($_POST['form_save'] ?? null) {
@@ -47,7 +45,7 @@ $vendors = $boot->getVendorGlobals();
     <script>
         function toggleSetup(id, type = 'single') {
             let dialog = $("#dialog").is(':checked');
-            if (!dialog) {
+            if (!dialog || id === 'set-service') {
                 $(".frame").addClass("d-none");
                 $("#" + id).toggleClass("d-none");
                 return false;
@@ -90,8 +88,11 @@ $vendors = $boot->getVendorGlobals();
     <div class="w-100">
         <div class="form-group m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
+            <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
             <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS Account"); ?><span class="caret"></span></button>
+            <?php } if (!empty($vendors['oefax_enable_fax'])) { ?>
             <button class="btn btn-outline-light" onclick="toggleSetup('set-fax')"><?php echo xlt("Setup Fax Account"); ?><span class="caret"></span></button>
+            <?php } ?>
             <span class="checkbox text-light br-dark" title="Use Dialog or Panels">
                 <label for="dialog"><?php echo xlt("Render in dialog."); ?></label>
                 <input type="checkbox" class="checkbox" name="dialog" id="dialog" value="1" checked>
@@ -145,14 +146,17 @@ $vendors = $boot->getVendorGlobals();
             </form>
         </div>
         <!-- iframes to hold setup account scripts. Dialogs replace these if requested in UI -->
+        <?php if (!empty($vendors['oefax_enable_fax'])) { ?>
         <div id="set-fax" class="frame d-none">
             <h3 class="text-center"><?php echo xlt("Setup Fax Account"); ?></h3>
             <iframe src="./../setup.php?type=fax&module_config=1&mode=flat" style="border:none;height:100vh;width:100%;"></iframe>
         </div>
+        <?php } if (!empty($vendors['oefax_enable_sms'])) { ?>
         <div id="set-sms" class="frame d-none">
             <h3 class="text-center"><?php echo xlt("Setup SMS Account"); ?></h3>
             <iframe src="./../setup.php?type=sms&module_config=1&mode=flat" style="border:none;height:100vh;width:100%;"></iframe>
         </div>
+        <?php } ?>
     </div>
 </body>
 </html>

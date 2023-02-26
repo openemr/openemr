@@ -12,8 +12,6 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-require_once(__DIR__ . "/../../../../../../controllers/C_Document.class.php");
-
 use DateTime;
 use Exception;
 use http\Exception\RuntimeException;
@@ -136,7 +134,6 @@ class EtherFaxActions extends AppDispatch
                 return xlt('Error: No content');
             }
         }
-
         ['basename' => $basename, 'dirname' => $dirname] = pathinfo($file);
         if ($isContent) {
             $content = $file;
@@ -210,6 +207,7 @@ class EtherFaxActions extends AppDispatch
         } else {
             $n = '+1' . $n;
         }
+        $validate = preg_match('^\+[1-9]\d{1,14}$', $n);
         return $n;
     }
 
@@ -222,7 +220,7 @@ class EtherFaxActions extends AppDispatch
      * @param $from
      * @return string
      */
-    private function sendMessage($to, $message, $from = null)
+    private function sendMessage($to, $message, $from = null): string
     {
         $client = HttpClient::create(['verify_peer' => false, 'verify_host' => false, 'proxy' => "localhost:8888"]);
         $url = "/interface/modules/custom_modules/oe-module-faxsms/sendSMS?type=sms";
@@ -404,13 +402,10 @@ class EtherFaxActions extends AppDispatch
             $ext = 'pdf';
             $type = 'Fax';
             $doc = 'data:application/pdf;base64, ' . rawurlencode(((string)$faxImage));
-        } elseif ($c_header == 'image/tiff') {
+        } elseif ($c_header == 'image/tiff' || $c_header == 'image/tif') {
             $ext = 'tiff';
             $type = 'Fax';
             $doc = 'data:image/tiff;base64, ' . rawurlencode((string)$faxImage);
-        } elseif ($c_header == 'audio/wav' || $c_header == 'audio/x-wav') {
-            $ext = 'wav';
-            $type = 'Audio';
         } else {
             $ext = 'txt';
             $type = 'Text';

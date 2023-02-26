@@ -28,11 +28,12 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 function GetServiceOtherCounts(): array
 {
     $counts['faxCnt'] = $counts['smsCnt'] = 0;
-    if (!empty($_POST['isFax'] ?? null)) {
+    // unless main.php is reloaded Globals is most accurate.
+    if (!empty($GLOBALS['oefax_enable_fax'] ?? null)) {
         $client = AppDispatch::getApiService('fax');
         $counts['faxCnt'] = (int)$client->fetchReminderCount();
     }
-    if (!empty($_POST['isSms'] ?? null)) {
+    if (!empty($GLOBALS['oefax_enable_sms'] ?? null)) {
         $client = AppDispatch::getApiService('sms');
         $counts['smsCnt'] = (int)$client->fetchReminderCount();
     }
