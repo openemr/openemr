@@ -13,7 +13,6 @@ require_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
 include_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Core\Header;
-use OpenEMR\OemrAd\OrderLbfForm;
 use OpenEMR\OemrAd\EmailMessage;
 use OpenEMR\OemrAd\MessagesLib;
 use OpenEMR\OemrAd\Attachment;
@@ -317,7 +316,7 @@ if($form_id) {
 	</script>
   	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'fontawesome', 'oemr_ad']); ?>
 
-  	<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/tiny-mce-nwt/tinymce.min.js"></script>
+  	<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/tinymce/tinymce.min.js"></script>
 
 	<link rel="shortcut icon" href="images/favicon.ico" />
 
