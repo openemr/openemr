@@ -1355,7 +1355,7 @@
             "label": "Attorney in Case",
             "menu_id": "adm01",
             "target": "adm",
-            "url": "/library/extlib/interface/view/replace_remove_attorney.php",
+            "url": "/interface/reports/myreports/replace_remove_attorney.php",
             "children": [],
             "requirement": 0,
             "acl_req": [
@@ -1704,6 +1704,19 @@
             "global_req": "!disable_calendar"
           },
           {
+            "label": "Appointments Report (Referring Provider)",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/custom_appointments_report.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "patients",
+              "appt"
+            ],
+            "global_req": "!disable_calendar"
+          },
+          {
             "label": "Patient Flow Board",
             "menu_id": "rep0",
             "target": "rep",
@@ -1934,7 +1947,7 @@
             "label": "Fees schedule",
             "menu_id": "rep0",
             "target": "rep",
-            "url": "/interface/reports/medisoft_fees_schedule.php",
+            "url": "/interface/reports/idempiere_fees_schedule.php",
             "children": [],
             "requirement": 0,
             "acl_req": [

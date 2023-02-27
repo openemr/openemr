@@ -133,11 +133,11 @@
         "acl_req": [ ]
     },
     {
-        "label": "Medisoft Ledger",
-        "menu_id": "medisoftledger",
+        "label": "Idempiere Ledger",
+        "menu_id": "idempiereledger",
         "target": "main",
         "on_click":"top.restoreSession()",
-        "url": "interface/reports/medisoft_pat_ledger.php?form=1&patient_id=",
+        "url": "interface/reports/idempiere_pat_ledger.php?form=1&patient_id=",
         "pid":"true",
         "children": [],
         "requirement": 0,
