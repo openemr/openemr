@@ -265,7 +265,7 @@ function prepareErrorMsg(errors) {
 
 
 // Validations
-function validatePhoneNumber(ele, e) {
+function validatePhoneNumber(ele, e = '') {
   var result = {
     'error' : false,
     'message' : 'Phone numbers must have 10 numbers, example (555) 555-5555.  Please update [%s]. Press CANCEL to fix phone number.  Press OK to bypass error and save improperly formatted phone number'
@@ -318,7 +318,7 @@ function validateOptions(form_id) {
 
       eleValidations.forEach(function (eleValidation, evIndex) {
         if(eleValidation && eleValidation != '') {
-          var errorStatus = eval(eleValidation)(miInputEle, e);
+          var errorStatus = eval(eleValidation)(miInputEle);
           if(errorStatus && errorStatus['error'] === true) {
 
             if(!errorList.hasOwnProperty(eleValidation)) {
