@@ -390,6 +390,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 <script type="text/javascript">
 
     // Mask phone value on load
+    /*
     function maskPhoneValue(elem) {
       var inputValue = elem.value;
       var trimValue = inputValue.replace(/[\s\(\)\-]/g, "");
@@ -407,24 +408,10 @@ use OpenEMR\Common\Csrf\CsrfUtils;
       }
       
       elem.value = inputValue;
-    }
-
-    function clearPhoneValue(val = '') {
-        return val.replace(/[^\d]/g, '');
-    }
-
-    function handleCleanPhoneNo(elem) {
-        if(elem) {
-            var maskField = elem;
-            if(maskField.getAttribute('id')) {
-                var maskFieldId = maskField.getAttribute('id').replace("_mfield", "");
-                var nField = document.getElementById(maskFieldId);
-                if(nField && nField != undefined) nField.value = clearPhoneValue(maskField.value);
-            }
-        }
-    }
+    }*/
 
     // Mask phone value
+    /*
     function handleMaskPhoneValue(elem, paste = false) {
       e = window.event;
       
@@ -447,31 +434,43 @@ use OpenEMR\Common\Csrf\CsrfUtils;
       } else {
         maskPhoneValue(elem);
       }
+    }*/
+
+    function cleanPhoneValue(val = '') {
+        return val.replace(/[^\d]/g, '');
     }
 
-    /*On keyup check ans mask phone value ("options.inc.php")*/
-    $(document).on('keyup', 'input[type="text"].mask_ph', function() {
-        handleMaskPhoneValue($(this)[0]);
-        handleCleanPhoneNo($(this)[0]);
-        prepareMiValues();
-    });
+    function clearPhoneno(ele) {
+        if(ele) {
+            var phonefieldid = ele.getAttribute('phonemask-field');
+            if(phonefieldid != "") {
+                var phonefield = document.getElementById(phonefieldid);
+                if(phonefield && phonefield != undefined) phonefield.value = cleanPhoneValue(ele.value);
+            }
+        }
+    }
 
-    /*On focusout check ans mask phone value ("options.inc.php")*/
-    $(document).on('focusout', 'input[type="text"].mask_ph', function() {
-        handleMaskPhoneValue($(this)[0], true);
-        handleCleanPhoneNo($(this)[0]);
+    function fieldPhonekeyup(ele = '') {
+        if(ele == '') return false;
+
+        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        if(ele && ele.value != '') {
+            var clearVal = cleanPhoneValue(ele.value);
+            if(clearVal.length > 10) ele.value = "+" + ele.value;
+        }
+
+        phonekeyup(ele, mypcc);
+        clearPhoneno(ele);
         prepareMiValues();
-    });
+    }
 
     /*Init phone mask when page load.*/
-    $(document).ready(function(){
-        const collection = document.getElementsByClassName("mask_ph");
+    window.onload = function(){
+        const collection = document.getElementsByClassName("phonemask");
         for (let i = 0; i < collection.length; i++) {
-            handleMaskPhoneValue(collection[i], true);
-            handleCleanPhoneNo(collection[i]);
-            prepareMiValues();
+            fieldPhonekeyup(collection[i]);
         }
-    });
+    }
 
 
     /*-------------------(Multi Text Input)----------------*/
@@ -514,7 +513,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
         var valList = [];
         inputElements.forEach(function (inputElement, index) {
           var eleVal = inputElement.value;
-          if(inputElement.classList.contains('mask_ph')) eleVal = clearPhoneValue(inputElement.value);
+          if(inputElement.classList.contains('phonemask')) eleVal = cleanPhoneValue(inputElement.value);
           
           if(eleVal != "") valList.push(eleVal);
         });

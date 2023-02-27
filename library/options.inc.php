@@ -650,7 +650,7 @@ function generate_form_field($frow, $currvalue)
 
         /* OEMRAD - Mask phone number value. */
         if (isOption($frow['edit_options'], 'MP') !== false) {
-            $smallform .= " mask_ph";
+            $smallform .= " phonemask";
             $fieldPostfix = '_mfield';
             echo "<input type='hidden' class='form-control' title='{$description}' name='form_{$field_id_esc}'
             id='form_{$field_id_esc}' size='{$fldlength}' value='{$currescaped}' readonly />";
@@ -685,6 +685,12 @@ function generate_form_field($frow, $currvalue)
         if ($field_id == 'pubpid' && strlen($tmp) > 0) {
             echo " onkeyup='maskkeyup(this,\"$tmp\")'";
             echo " onblur='maskblur(this,\"$tmp\")'";
+        }
+
+        // phonekeyup
+        if (isOption($frow['edit_options'], 'MP') !== false) {
+            echo " phonemask-field='form_{$field_id_esc}'";
+            echo " onkeyup='fieldPhonekeyup(this)'";
         }
 
         if (isOption($edit_options, '1') !== false && strlen($currescaped) > 0) {
@@ -1789,8 +1795,10 @@ function getMultiTextInputElement($frow, $field_value = '', $rmBtn = false) {
         $tmp .= "this.value = this.value.toUpperCase();";
     }
 
+    $onkeyupfun = "";
     if (isOption($frow['edit_options'], 'MP') !== false) {
-        $smallform .= " mask_ph";
+        $smallform .= " phonemask";
+        $onkeyupfun = " onkeyup='fieldPhonekeyup(this)'";
     }
 
     if (isOption($frow['edit_options'], 'MPV') !== false) {
@@ -1800,6 +1808,8 @@ function getMultiTextInputElement($frow, $field_value = '', $rmBtn = false) {
     $tmpOnChange = !empty($tmp) ? " onchange='$tmp'" : "";
 
     $mIRemoveBtn = "<button type='button' data-id='$field_Id' class='btn btn-secondary $btnSize mb-1 ' onclick='removeMoreInput(this)'><i class='fa fa-times' aria-hidden='true'></i></button>";
+
+
 
     $mIInputEle = "<input type='text'" . 
                 " class='form-control mti-form-control {$smallform}' " .
@@ -1811,6 +1821,7 @@ function getMultiTextInputElement($frow, $field_value = '', $rmBtn = false) {
                 " title='{$description}'" .
                 " " . $mpValidation . 
                 " " . $tmpOnChange . 
+                " " . $onkeyupfun . 
                 " value='" . trim($field_value) . "'" .
                 "/>";
 
