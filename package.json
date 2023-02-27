@@ -97,7 +97,7 @@
     "purecss": "2.1.0",
     "select2": "4.0.13",
     "sortablejs": "1.15.0",
-    "tinymce": "4.5.0",
+    "tinymce": "^4.5.0",
     "underscore": "1.13.4",
     "validate.js": "0.13.1"
   },
