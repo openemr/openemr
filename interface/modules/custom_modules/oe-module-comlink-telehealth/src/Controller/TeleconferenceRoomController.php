@@ -767,10 +767,13 @@ class TeleconferenceRoomController
 
         return $appt;
     }
-    // TODO: @adunsulag need to check for access permissions here...
+
     public function setCurrentAppointmentEncounter($queryVars)
     {
         try {
+            if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
+                throw new AccessDeniedException("patients", "apt", "User does not have access to update current appointment information");
+            }
             // grab the appointment and make sure the current user has access to the calendar
             // if no access throw access denied exception
             // otherwise set current patient and current encounter for the calendar
@@ -788,6 +791,12 @@ class TeleconferenceRoomController
             $userService = new UserService();
             $user = $userService->getUserByUsername($queryVars['authUser']);
             $userId = $user['id'];
+
+            if ($this->isPendingAppointment($appt)) {
+                // the fact the provider is launching a pending appointment by its nature confirms the appointment
+                $appt = $this->removeAppointmentPendingStatus($appt, $userId);
+            }
+
 
             // if the a
             if ($this->shouldChangeProvider($appt, $userId)) {
@@ -897,6 +906,30 @@ class TeleconferenceRoomController
         return $this->twig->render('comlink/waiting-room.twig', $data);
     }
 
+    public function isPendingAppointment($appointment) {
+        return $this->appointmentService->isPendingStatus($appointment['pc_apptstatus']);
+    }
+
+    public function removeAppointmentPendingStatus($appointment, $userId) {
+        $listService = new ListService();
+        $options = $listService->getOptionsByListName('apptstat');
+        $noStatus = '-';
+        $statusSetting = ""; // if we can't fid the no status option because an installation removed it, we set status to nothing
+
+        if (!empty($options)) {
+            foreach ($options as $option) {
+                if ($option['option_id'] == $noStatus) {
+                    $statusSetting = $noStatus;
+                    break;
+                }
+            }
+        }
+
+        $this->appointmentService->updateAppointmentStatus($appointment['pc_eid'], $statusSetting, $userId);
+        $appointment['status'] = $statusSetting;
+        return $appointment;
+    }
+
     public function initalizeAppointmentForTelehealth($pc_eid)
     {
         $appointmentService = $this->appointmentService;
@@ -907,7 +940,7 @@ class TeleconferenceRoomController
             // TODO: so wierd... why is appointment returning an array list?
             $appointment = $appointment[0];
         }
-        if ($appointment['pc_apptstatus'] === '^') { // pending status
+        if ($this->isPendingAppointment($appointment)) { // pending status
             (new SystemLogger())->errorLogCaller("Telehealth appointment was launched for pending appointment.  This should not happen.", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
             throw new InvalidArgumentException("appointment status cannot be initialized as the appointment was not confirmed by the provider" . $pc_eid);
         }

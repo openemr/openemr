@@ -25,6 +25,11 @@ You can activate your module in OpenEMR by doing the following.
   4. Now go to the main menu bar in Admin -> Config and open up the Telehealth settings
   5. Fill out Telehealth settings with what you received when you subscribed.
 
+### User Permissions
+For users launching appointments from the calendar (staff, providers, etc), the user must have the patients/appt write permission (IE they can update/write to the calendar).
+
+Users must also have access to the patient demographics (patient/demo) permission.
+
 ### Service Cost
 *Notice: Pricing subject to change*
   - $16/mo. per provider unlimited sessions.
