@@ -43,12 +43,12 @@ $tomorrow   = mktime(0,0,0, date('m'),   date('d')+1, date('Y'));
 $form_from_date = date('Y-m-d', $last_year);
 $form_to_date   = date('Y-m-d', $next_year);
 if(isset($_POST['form_from_date'])) 
-		$form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
+    $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 if(isset($_POST['form_to_date']))
-		$form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
+    $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_user = $_SESSION['authUser'];
 if(isset($GLOBALS['wmt::task_monitor_user'])) 
-		$form_user = $GLOBALS['wmt::task_monitor_user'];
+    $form_user = $GLOBALS['wmt::task_monitor_user'];
 $form_status = 'p';
 $form_action= '';
 $form_ordered_by = '';
@@ -58,17 +58,17 @@ $_pass = 0;
 if(isset($_POST['pass'])) $_pass = $_POST['pass'];
 if(isset($_POST['form_date_mode'])) $form_date_mode = $_POST['form_date_mode'];
 if(!isset($_POST['form_no_date'])) {
-	$form_no_date = ($_pass) ? false : true;
+  $form_no_date = ($_pass) ? false : true;
 } else $form_no_date = true;
 if(!isset($_POST['form_show_comments'])) {
-	$form_show_comments = ($_pass) ? false : true;
+  $form_show_comments = ($_pass) ? false : true;
 } else $form_show_comments = true;
 if(isset($_POST['form_user'])) $form_user = $_POST['form_user'];
 if(isset($_POST['form_status'])) $form_status = $_POST['form_status'];
 if(isset($_POST['form_action'])) $form_action= $_POST['form_action'];
 if(isset($_POST['form_ordered_by'])) $form_ordered_by=$_POST['form_ordered_by'];
 if(!isset($GLOBALS['wmt::task_monitor_refresh'])) 
-		$GLOBALS['wmt::task_monitor_refresh'] = 120;
+    $GLOBALS['wmt::task_monitor_refresh'] = 120;
 
 $use_msg_group = FALSE;
 $tst = sqlQuery('SHOW TABLES LIKE "msg_group_link"');
@@ -76,11 +76,11 @@ if($tst) $use_msg_group = TRUE;
 
 $form_orderby = 'due';
 if(isset($_REQUEST['form_orderby'])) $form_orderby = 
-		$ORDERHASH[$_REQUEST['form_orderby']] ? $_REQUEST['form_orderby'] : 'due';
+    $ORDERHASH[$_REQUEST['form_orderby']] ? $_REQUEST['form_orderby'] : 'due';
 if($date_mode == 'rto_date') {
-	$form_orderby = 'create';
-	if(isset($_REQUEST['form_orderby'])) $form_orderby = 
-		$ORDERHASH[$_REQUEST['form_orderby']] ? $_REQUEST['form_orderby'] : 'create';
+  $form_orderby = 'create';
+  if(isset($_REQUEST['form_orderby'])) $form_orderby = 
+    $ORDERHASH[$_REQUEST['form_orderby']] ? $_REQUEST['form_orderby'] : 'create';
 }
 $orderby = $ORDERHASH[$form_orderby];
 
@@ -96,43 +96,43 @@ $query = "SELECT " .
   'WHERE rto.pid != "" ';
 if ($form_to_date) {
   $query .= "AND (($form_date_mode >= ? AND $form_date_mode <= ?) ";
-	$binds[] = $form_from_date;
-	$binds[] = $form_to_date;
+  $binds[] = $form_from_date;
+  $binds[] = $form_to_date;
 } else {
   $query .= "AND (($form_date_mode >= ? AND $form_date_mode <= ?) ";
-	$binds[] = $form_from_date;
-	$binds[] = $form_from_date;
+  $binds[] = $form_from_date;
+  $binds[] = $form_from_date;
 }
 if($form_no_date) {
-	$query .= "OR ($form_date_mode IS NULL OR $form_date_mode = '') ";
+  $query .= "OR ($form_date_mode IS NULL OR $form_date_mode = '') ";
 }
 $query .= ') ';
 if ($form_ordered_by) {
   $query .= 'AND form_rto.rto_ordered_by = ? ';
-	$binds[] = $form_ordered_by;
+  $binds[] = $form_ordered_by;
 }
 if ($form_user) {
-	$binds[] = $form_user;
+  $binds[] = $form_user;
   $query .= "AND ( rto_resp_user = ? ";
-	$sql = 'SELECT users.username, msg_group_link.* FROM users ';
-	if($use_msg_group) {
-		$sql .= 'RIGHT JOIN msg_group_link ON (users.id = msg_group_link.user_id) '.
-				'WHERE users.username=?';
-		$grps = sqlStatement($sql, array($form_user));
-		while($grp = sqlFetchArray($grps)) {
-			$query .= ' OR rto_resp_user = ?';
-			$binds[] = 'GRP:' . $grp['group_id'];
-		}
-	}
-	$query .= ') ';
+  $sql = 'SELECT users.username, msg_group_link.* FROM users ';
+  if($use_msg_group) {
+    $sql .= 'RIGHT JOIN msg_group_link ON (users.id = msg_group_link.user_id) '.
+        'WHERE users.username=?';
+    $grps = sqlStatement($sql, array($form_user));
+    while($grp = sqlFetchArray($grps)) {
+      $query .= ' OR rto_resp_user = ?';
+      $binds[] = 'GRP:' . $grp['group_id'];
+    }
+  }
+  $query .= ') ';
 }
 if ($form_status) {
   $query .= 'AND rto.rto_status= ? ';
-	$binds[] = $form_status;
+  $binds[] = $form_status;
 }
 if ($form_action) {
   $query .= 'AND rto.rto_action= ? ';
-	$binds[] = $form_action;
+  $binds[] = $form_action;
 }
 $query .= "ORDER BY $orderby";
 
@@ -193,12 +193,12 @@ if($v_major < 5 && (!$v_minor && !$v_patch)) {
 <script type="text/javascript">
 
 function DelayedReload() {
-	document.forms[0].submit();
-	return true;
+  document.forms[0].submit();
+  return true;
 }
 
 $(document).ready(function() {
-	setTimeout("DelayedReload()", <?php echo ($GLOBALS['wmt::task_monitor_refresh'] * 1000); ?>);
+  setTimeout("DelayedReload()", <?php echo ($GLOBALS['wmt::task_monitor_refresh'] * 1000); ?>);
 });
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -215,7 +215,7 @@ function refreshme() {
 }
 
 function PopRTO(pid, id) {
-	wmtOpen('<?php echo $GLOBALS['webroot']; ?>/interface/forms/rto/new.php?pop=yes&pid='+pid+'&id='+id, '_blank', 1200, 400);
+  wmtOpen('<?php echo $GLOBALS['webroot']; ?>/interface/forms/rto/new.php?pop=yes&pid='+pid+'&id='+id, '_blank', 1200, 400);
 }
 
 </script>
@@ -267,16 +267,16 @@ function PopRTO(pid, id) {
              <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>' class='datepicker form-control' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
              <!-- <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php //xl('Click here to choose a date','e'); ?>'>--></td>
          </tr>
-				 <tr>
-					 <td colspan="2">
-           	 <input type='checkbox' name='form_no_date' id="form_no_date" value='1' <?php echo $form_no_date ? "checked='checked' " : ""; ?> />
-					   <label for="form_no_date" class='label'>Include tasks with no target date?</label></td>
-						<td colspan="2">Use Date&nbsp;<input name="form_date_mode" id="rto_date" type="radio" <?php echo $form_date_mode == 'rto_date' ? 'checked' : ''; ?> value="rto_date" /><label for="rto_date">&nbsp;Created</label>&nbsp;&nbsp;or&nbsp;
-						<input name="form_date_mode" id="rto_target_date" type="radio" <?php echo $form_date_mode == 'rto_target_date' ? 'checked' : ''; ?> value="rto_target_date" /><label for="rto_target_date">&nbsp;Due</label></td>
-					 <td colspan="2">
-           	 <input type='checkbox' name='form_show_comments' id="form_show_comments" value='1' <?php echo $form_show_comments? "checked='checked' " : ""; ?> />
-					   <label for="form_show_comments" class='label'>Show comments?</label></td>
-				 </tr>
+         <tr>
+           <td colspan="2">
+             <input type='checkbox' name='form_no_date' id="form_no_date" value='1' <?php echo $form_no_date ? "checked='checked' " : ""; ?> />
+             <label for="form_no_date" class='label'>Include tasks with no target date?</label></td>
+            <td colspan="2">Use Date&nbsp;<input name="form_date_mode" id="rto_date" type="radio" <?php echo $form_date_mode == 'rto_date' ? 'checked' : ''; ?> value="rto_date" /><label for="rto_date">&nbsp;Created</label>&nbsp;&nbsp;or&nbsp;
+            <input name="form_date_mode" id="rto_target_date" type="radio" <?php echo $form_date_mode == 'rto_target_date' ? 'checked' : ''; ?> value="rto_target_date" /><label for="rto_target_date">&nbsp;Due</label></td>
+           <td colspan="2">
+             <input type='checkbox' name='form_show_comments' id="form_show_comments" value='1' <?php echo $form_show_comments? "checked='checked' " : ""; ?> />
+             <label for="form_show_comments" class='label'>Show comments?</label></td>
+         </tr>
        </table>
 
     </div>
@@ -330,48 +330,48 @@ function PopRTO(pid, id) {
  <tbody>
 <?php
 if ($res) {
-	$sql = 'SELECT * FROM form_encounter WHERE pid=? ORDER BY date DESC LIMIT 1';
+  $sql = 'SELECT * FROM form_encounter WHERE pid=? ORDER BY date DESC LIMIT 1';
   $doc_encounters = 0;
   while ($row = sqlFetchArray($res)) {
-		$action=ListLook($row['rto_action'],'RTO_Action');
-		$pubpid= $row['pid'];
-		$id= $row['id'];
+    $action=ListLook($row['rto_action'],'RTO_Action');
+    $pubpid= $row['pid'];
+    $id= $row['id'];
     $errmsg  = "";
-		$enc = sqlQuery($sql, array($row{'pid'}));
-		$dolv = '--';
-		if($enc{'date'}) $dolv = oeFormatShortDate(substr($enc{'date'},0,10));
+    $enc = sqlQuery($sql, array($row{'pid'}));
+    $dolv = '--';
+    if($enc{'date'}) $dolv = oeFormatShortDate(substr($enc{'date'},0,10));
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
   <td>
-		<a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
+    <a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
    <?php echo oeFormatShortDate(substr($row['rto_date'], 0, 10)) ?>&nbsp;</a>
   </td>
   <td>
-		<a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
+    <a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
    <?php echo oeFormatShortDate(substr($row['rto_target_date'], 0, 10)) ?>&nbsp;</a>
   </td>
   <td>
-		<a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
+    <a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
    <?php echo $row['lname']; ?>&nbsp;</a>
   </td>
   <td>
-		<a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
+    <a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
    <?php echo $row['pubpid']; ?>&nbsp;</a>
   </td>
   <td>
-		<a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
+    <a href="javascript:PopRTO('<?php echo $pubpid; ?>','<?php echo $id; ?>');">
    <?php echo $action; ?>&nbsp;</a>
   </td>
   <td>
    <?php echo $dolv; ?>&nbsp;</a>
   </td>
  </tr>
-	<?php if($form_show_comments && $row{'rto_notes'}) { ?>
+  <?php if($form_show_comments && $row{'rto_notes'}) { ?>
  <tr>
   <td>&nbsp;</td>
   <td colspan="4"><?php echo htmlspecialchars($row{'rto_notes'},ENT_QUOTES); ?></td>
  </tr>
-	<?php } ?>
+  <?php } ?>
 <?php
   }
 }
@@ -381,7 +381,7 @@ if ($res) {
 </div>
 <?php } else { ?>
 <div class='text'>
- 	<?php echo text(xl('Please input search criteria above, and click Submit to view results')); ?>
+  <?php echo text(xl('Please input search criteria above, and click Submit to view results')); ?>
 </div>
 <?php } ?>
 
