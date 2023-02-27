@@ -1,0 +1,21 @@
+<?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+include_once("../../globals.php");
+
+$clean_id=sanitizeNumber($_GET["id"]);
+
+if (substr($_GET["formname"], 0, 3) === 'LBF') {
+  // Use the List Based Forms engine for all LBFxxxxx forms.
+    include_once("$incdir/forms/LBF/order_view.php");
+} else {
+  // ensure the path variable has no illegal characters
+    check_file_dir_name($_GET["formname"]);
+
+    include_once("$incdir/forms/" . $_GET["formname"] . "/view.php");
+}
+
+$id = $clean_id;
