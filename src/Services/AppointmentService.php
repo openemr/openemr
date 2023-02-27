@@ -362,6 +362,14 @@ class AppointmentService extends BaseService
         return(true);
     }
 
+    public function isPendingStatus($option) {
+        // TODO: @adunsulag is there ANY way to track this in the database of what statii are pending?
+        if ($option == '^') {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Returns a list of appointment statuses (also used with encounters).
      * @return array
@@ -456,7 +464,7 @@ class AppointmentService extends BaseService
         $pos_code = QueryUtils::fetchSingleValue(
             "SELECT pos_code FROM facility WHERE id = ?",
             'pos_code',
-            $appointment['pc_facility']
+            [$appointment['pc_facility']]
         );
 
         $data = [

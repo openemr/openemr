@@ -72,7 +72,8 @@ class TeleHealthPatientPortalController
             $dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)
             // since this hits the database we do this one last
         ) {
-            if ($apptService->isCheckOutStatus($dbRecord['pc_apptstatus'])) {
+            if ($apptService->isCheckOutStatus($dbRecord['pc_apptstatus'])
+                || $apptService->isPendingStatus($dbRecord['pc_apptstatus'])) {
                 $appointment['showTelehealth'] = false;
             } else {
                 $appointment['showTelehealth'] = true;
