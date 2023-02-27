@@ -103,7 +103,7 @@ $validDataList = array();
 <head>
 	<title><?php echo htmlspecialchars( xl('Care Team Providers'), ENT_NOQUOTES); ?></title>
 	<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'oemr_ad']); ?>
+	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'oemr_ad']); ?>
 	<link rel="stylesheet" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css">
 	<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
 
@@ -151,7 +151,7 @@ $validDataList = array();
 	<div class="page-container">
 		<div class="px-1 inner-page-container">
 			<div class="table-responsive table-container datatable-container c-table-bordered footer-p o-overlay c-container">
-				<table id="table_results" class="table valign-middle" class="border-0 display">
+				<table id="table_results" class="table table-sm valign-middle" class="border-0 display">
 					<thead class="thead-dark">
 						<tr class="hrRow">
 							<th width="15"></th>

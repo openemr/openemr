@@ -105,6 +105,7 @@ class OrderLbfForm {
 	}
 	*/
 
+	/*
 	function imaging_order_report_head() {
 		?>
 		<script type="text/javascript">
@@ -178,13 +179,13 @@ class OrderLbfForm {
 				display: inline-block;
 			}
 			.summeryContainer table tr {
-				/*display: none;*/
+				//display: none;
 			}
 			.summeryContainer table tr:nth-child(1), 
 			.summeryContainer table tr:nth-child(2),
 			.summeryContainer table tr:nth-child(3),
 			.summeryContainer table tr:nth-child(4) {
-				/*display: table-row !important;*/
+				//display: table-row !important;
 			}
 
 			.ui-tooltip-content table {
@@ -255,7 +256,7 @@ class OrderLbfForm {
 			}
 		</style>
 		<?php
-	}
+	}*/
 
 	/*
 	function new_order_init() {
@@ -1628,6 +1629,7 @@ class OrderLbfForm {
 		return $fieldData;
 	}*/
 
+	/*
 	function getLayoutFormFields($form_id) {
 		$result = sqlStatement("SELECT lo.field_id, lo.title, lo.list_id, lgp.* from layout_group_properties lgp left join layout_options lo on lo.form_id = lgp.grp_form_id WHERE lgp.grp_form_id = ? and lgp.grp_group_id = '' ", array($form_id));
 
@@ -1637,8 +1639,9 @@ class OrderLbfForm {
 		}
 
 		return $items;
-	}
+	}*/
 
+	/*
 	function getFormFieldByTitle($fields = array(), $field_id = '') {
 		$field = array();
 
@@ -1651,5 +1654,5 @@ class OrderLbfForm {
 		}
 
 		return $field;
- 	}
+ 	}*/
 }

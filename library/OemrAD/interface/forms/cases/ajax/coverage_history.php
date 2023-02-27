@@ -374,7 +374,7 @@ if($cnt != "" && $case_id != "" && $pid != "") {
 <head>
 	<title><?php echo xlt('Covrage History'); ?></title>
 
-	<?php Header::setupHeader(['common', 'opener', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'oemr_ad']); ?>
+	<?php Header::setupHeader(['common', 'opener', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'oemr_ad']); ?>
 
     <style type="text/css">
         td.details-control::after,

@@ -1,4 +1,5 @@
 <?php
+global $GLOBALS_NTF;
 
 $GLOBALS_NTF = array();
 

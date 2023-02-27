@@ -44,11 +44,6 @@ $jdataSet = [];
 	<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'fontawesome', 'main-theme']); ?>
 	</script>
-	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
-	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
-
-	<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/modules/ext_utility/dummy.php?bootstrap.min.js"></script>
-	<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/modules/ext_utility/dummy.php?bootstrap.min.css" type="text/css">
 
 	<style type="text/css">
 		.layoutContainer {

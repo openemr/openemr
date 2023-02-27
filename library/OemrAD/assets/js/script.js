@@ -781,6 +781,15 @@ function handleSetPatientData(pid, pubpid = '', pname = '', dobstr = '') {
     top.RTop.location = top.webroot_url + "/interface/patient_file/summary/demographics.php?set_pid=" + pid;
 }
 
+async function handlegotoCase(case_id, pid) {
+    const pData = await handleSetPatient(pid);
+    if(pData !== false && pData['data']) {
+        handleSetPatientData(pid, pData['data']['pubpid'], pData['data']['pname'], pData['data']['pdob']);
+    }
+
+    parent.left_nav.loadFrame('RTop', 'RTop', '/forms/cases/view.php?id='+case_id+'&pid='+pid+'&list_mode=list&list_popup=&popup=no&caller=patient');
+}
+
 async function handlegotoReport(doc_id, pid) {
     const pData = await handleSetPatient(pid);
     if(pData !== false && pData['data']) {

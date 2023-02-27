@@ -85,7 +85,7 @@ class Caselib {
 		return self::checkIsLiableForPiCase($insIdList, $pid);
 	}
 
-	function getLiableInsData($ids, $pid) {
+	public static function getLiableInsData($ids, $pid) {
 		$types = array('20', '21', '16');
 		$insList = array();
 
@@ -104,7 +104,7 @@ class Caselib {
 		return $insList;
 	}
 
-	function getFutureAppt($case_id, $pid, $date = '') {
+	public static function getFutureAppt($case_id, $pid, $date = '') {
 		$resultItems = array();
 
 		if(empty($case_id) || empty($pid)) {
@@ -136,7 +136,7 @@ class Caselib {
 	}
 
 
-	function ListLook($thisData, $thisList) {
+	public static function ListLook($thisData, $thisList) {
 		if($thisList == 'occurrence') {
 			if(!$thisData || $thisData == '') return 'Unknown or N/A'; 
 		}
@@ -155,7 +155,7 @@ class Caselib {
   		return $dispValue;
 	}
 
-	function getPreviousCanceledAppt($case_id, $pid, $date = '') {
+	public static function getPreviousCanceledAppt($case_id, $pid, $date = '') {
 		$resultItems = array();
 
 		if(empty($case_id) || empty($pid)) {
@@ -229,7 +229,7 @@ class Caselib {
 		return $returnData;
 	}
 
-	function getRehabProgressLBFData($case_id = array()) {
+	public static function getRehabProgressLBFData($case_id = array()) {
 		$dataSet = array();
 		$case_id_str = "'".implode("','",$case_id)."'";
 
@@ -244,7 +244,7 @@ class Caselib {
 		return $dataSet;
 	}
 
-	function getMedicalDataOfCase($case_id) {
+	public static function getMedicalDataOfCase($case_id) {
 		if($case_id != "") {
 			$sql = "SELECT ope.*, u.fname as provider_fname, u.mname as provider_mname, u.lname as provider_lname, TIMESTAMP(pc_eventDate, pc_startTime) as event_date_time from openemr_postcalendar_events ope, users u where ope.pc_aid=u.id and ope.pc_apptstatus not in ('%', '?','x') and u.physician_type = 'general_physician' and ope.pc_case = $case_id"	;
 			$result_data = sqlQuery($sql, array());
@@ -281,7 +281,7 @@ class Caselib {
 		return false;
 	}
 
-	function getOrdesByCase($case_id) {
+	public static function getOrdesByCase($case_id) {
 		$dataItems = array();
 
 		if($case_id != "") {

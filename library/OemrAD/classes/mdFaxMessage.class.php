@@ -2,8 +2,8 @@
 
 namespace OpenEMR\OemrAd;
 
-@include_once("../interface/globals.php");
-@include_once('./mdEmailMessage.class.php');
+@include_once(__DIR__ . "/../interface/globals.php");
+@include_once(__DIR__ . '/mdEmailMessage.class.php');
 
 use OpenEMR\OemrAd\EmailMessage;
 use Mpdf\Mpdf;

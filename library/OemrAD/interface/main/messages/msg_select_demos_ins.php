@@ -23,7 +23,7 @@ if($pid) {
 <head>
 	<meta charset="utf-8">
 	<title>Select Demos & Insurances</title>
-	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'oemr_ad']);  ?>
+	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'oemr_ad']);  ?>
 	<link rel="stylesheet" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css">
 	<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
 
@@ -43,7 +43,7 @@ if($pid) {
 		<input type="checkbox" name="demoins_inc_demographic" class="include_demo" id="demoins_inc_demographic" /></label>
 	</div>
 	<div class="table-responsive table-container datatable-container c-table-bordered o-overlay">
-		<table id="demoins_results" class="table">
+		<table id="demoins_results" class="table table-sm">
 			<thead class="thead-dark">
 				<tr>
 					<th width="20"><input type="checkbox" id="checkall" class="checkboxes allCheck" value="all" /></th>

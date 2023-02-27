@@ -2,8 +2,8 @@
 
 namespace OpenEMR\OemrAd;
 
-@include_once("../interface/globals.php");
-@include_once("./mdReminder.class.php");
+@include_once(__DIR__ . "/../interface/globals.php");
+@include_once(__DIR__ . "/mdReminder.class.php");
 
 use OpenEMR\OemrAd\Reminder;
 

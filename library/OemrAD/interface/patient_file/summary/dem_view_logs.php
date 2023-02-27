@@ -15,7 +15,7 @@ $logsData = Demographicslib::fetchAlertLogs($pid);
 <head>
 	<title><?php echo htmlspecialchars( xl('Logs'), ENT_NOQUOTES); ?></title>
 	<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'oemr_ad']);  ?>
+	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'oemr_ad']);  ?>
 	</script>
 </head>
 <body>

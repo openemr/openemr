@@ -2,7 +2,7 @@
 
 namespace OpenEMR\OemrAd;
 
-include_once("mdCoverageCheck.class.php");
+include_once(__DIR__ . "/mdCoverageCheck.class.php");
 
 use OpenEMR\OemrAd\CoverageCheck;
 

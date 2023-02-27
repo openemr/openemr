@@ -59,16 +59,11 @@ $documentListHTML = json_encode($documentList);
 <head>
 	<meta charset="utf-8">
 	<title></title>
-	<?php Header::setupHeader(['common','esign','dygraphs', 'opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base']);  ?>
+	<?php Header::setupHeader(['common','esign','dygraphs', 'opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'datatables', 'datatables-colreorder', 'datatables-bs']);  ?>
 
-	<!-- DataTable -->
-  	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-1-3-2/js/dataTables.colReorder.min.js"></script>
     <link rel="stylesheet" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css">
     <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/tiny-mce-nwt/tinymce.min.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/tinymce/tinymce.min.js"></script>
 
 	<style type="text/css">
 		.childContainer li:last-child {

@@ -2,7 +2,7 @@
 
 namespace OpenEMR\OemrAd;
 
-include_once("../interface/globals.php");
+include_once(__DIR__ . "/../interface/globals.php");
 include_once("$srcdir/patient.inc");
 
 

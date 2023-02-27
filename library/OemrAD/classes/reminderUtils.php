@@ -1,6 +1,6 @@
 <?php
 
-require_once("../interface/globals.php");
+require_once(__DIR__ . "/../interface/globals.php");
 require_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
 
 function sqlStatementNoLogExecute($statement, $binds = false){

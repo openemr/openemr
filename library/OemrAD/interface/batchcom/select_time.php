@@ -55,9 +55,6 @@ $month_list = array(
 	<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'fontawesome', 'main-theme', 'datetime-picker']); ?>
 
-	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/batchcom/assets/js/input-values.jquery.js" ?>"></script>
 
     <script language="JavaScript">
@@ -102,12 +99,6 @@ $month_list = array(
             grid-template-columns: auto auto auto 1fr;
             grid-column-gap: 20px;
         }
-        .selectInput {
-           height: 28px;
-           border: 1px solid #000;
-           margin-right: 20px;
-           min-width: 120px;
-        }
     </style>
 </head>
 <body>
@@ -126,19 +117,19 @@ $month_list = array(
 			<div>
 				<div id="one_time_container" class="time_container hide">
 					<label for="Date & Time">Date & Time: </label>
-					<input type="text" data-name="one_time.date_time" name="one_time[date_time]" value="" class="optin datepicker">
+					<input type="text" data-name="one_time.date_time" name="one_time[date_time]" value="" class="optin datepicker form-control form-control-sm">
 				</div>
                 <div id="every_minute_container" class="time_container hide">
                     <label for="Minutes">Minutes: </label>
-                    <input type="text" data-name="every_minute.minutes" name="every_minute[minutes]" value="0" class="optin" onkeyup="this.value=this.value.replace(/[^\d]/,'')">
+                    <input type="text" data-name="every_minute.minutes" name="every_minute[minutes]" value="0" class="optin form-control form-control-sm" onkeyup="this.value=this.value.replace(/[^\d]/,'')">
                 </div>
                 <div id="daily_container" class="time_container hide">
                     <label for="Time">Time: </label>
-                    <input type="text" data-name="daily.time" name="daily[time]" value="" class="optin timepicker">
+                    <input type="text" data-name="daily.time" name="daily[time]" value="" class="optin timepicker form-control form-control-sm">
                 </div>
                 <div id="weekly_container" class="time_container hide">
                     <label for="Time">Time: </label>
-                    <input type="text" data-name="weekly.time" name="weekly[time]" value="" class="optin timepicker">
+                    <input type="text" data-name="weekly.time" name="weekly[time]" value="" class="optin timepicker form-control form-control-sm">
 
                     <div class="multiple_selection_container">
                         <?php foreach ($week_day_list as $key => $title) { ?>
@@ -151,7 +142,7 @@ $month_list = array(
                 </div>
                 <div id="monthly_container" class="time_container hide">
                     <label for="Day">Day: </label>
-                    <select data-name="monthly.day" name="monthly[day]" class="optin selectInput">
+                    <select data-name="monthly.day" name="monthly[day]" class="optin selectInput form-control form-control-sm">
                         <option value="">Select Day</option>
                         <?php
                             for ($i=1; $i <= 31 ; $i++) { 
@@ -163,7 +154,7 @@ $month_list = array(
                     </select>
 
                     <label for="Time">Time: </label>
-                    <input type="text" data-name="monthly.time" name="monthly[time]" value="" class="optin timepicker">
+                    <input type="text" data-name="monthly.time" name="monthly[time]" value="" class="optin timepicker form-control form-control-sm">
 
                     <div class="multiple_selection_container">
                         <?php foreach ($month_list as $key => $title) { ?>
@@ -177,7 +168,7 @@ $month_list = array(
 			</div>
 		</div>
 		<div class="btn_container">
-			<button type="button" onClick="timeFormSubmit()">Submit</button>
+			<button type="button" class="btn btn-primary btn-sm" onClick="timeFormSubmit()">Submit</button>
 		</div>
 	</form>
 </body>

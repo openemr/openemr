@@ -60,7 +60,7 @@ div.dataTables_wrapper .card {
 /* Color Overrides for jQuery-DT */
 table.dataTable.borderBottom thead th,
 table.dataTable thead td {
-    border-bottom: 1px solid var(--gray900) !important;
+    /*border-bottom: 1px solid var(--gray900) !important;*/
 }
 
 table.dataTable.borderTop tfoot th,
@@ -69,8 +69,8 @@ table.dataTable.borderTop tfoot td {
 }
 
 table.dataTable tbody tr {
-    background-color: var(--white) !important;
-    cursor: pointer;
+    /*background-color: var(--white) !important;
+    cursor: pointer;*/
 }
 
 table.dataTable.row-border tbody th,
@@ -182,9 +182,9 @@ table.dataTable.no-footer {
     color: var(--dark) !important;
 }
 
-div.dataTables_length select {
+/*div.dataTables_length select {
     width: 50px !important;
-}
+}*/
 
 /*.dataTables_wrapper.no-footer .dataTables_scrollBody {
     border-bottom: 1px solid var(--gray900) !important;
@@ -321,7 +321,7 @@ table.dataTable.mt-0 {
     cursor: pointer !important;
 }
 
-.dataTable tr td.dt-control:before, .dataTable tr th .dt-control:before {
+.dataTable tr td.dt-control:before, .dataTable tr th .dt-control:before, .dataTable tr th.dt-control-all:before {
     font-family: "Font Awesome 6 Free";
     content: "\f077" !important;
     display: inline-block;
@@ -340,7 +340,7 @@ table.dataTable.mt-0 {
     border: 0px;
 }
 
-.dataTable tr.shown td.dt-control:before, .dataTable tr.shown th .dt-control:before {
+.dataTable tr.shown td.dt-control:before, .dataTable tr.shown th .dt-control:before, .dataTable tr.shown th.dt-control-all:before {
     font-family: "Font Awesome 6 Free";
     content: "\f078" !important;
     display: inline-block;

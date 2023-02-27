@@ -2,23 +2,23 @@
 
 namespace OpenEMR\OemrAd;
 
-@include_once("../interface/globals.php");
+@include_once(__DIR__ . "/../interface/globals.php");
 @require_once($GLOBALS['srcdir']."/wmt-v3/wmt.globals.php");
 
-@include_once("./mdEmailMessage.class.php");
-@include_once("./mdFaxMessage.class.php");
-@include_once("./mdPostalLetter.class.php");
+@include_once(__DIR__ . "/mdEmailMessage.class.php");
+@include_once(__DIR__ . "/mdFaxMessage.class.php");
+@include_once(__DIR__ . "/mdPostalLetter.class.php");
 
 @require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/PHPMailer.php');
 @require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/SMTP.php');
 @require_once($GLOBALS['fileroot']. '/vendor/phpmailer/phpmailer/src/Exception.php');
 @require_once($GLOBALS['srcdir']."/pnotes.inc");
 
-@include_once("../configs/reminder_settings.php");
-@include_once("./mdZoomIntegration.class.php");
-@include_once("./mdSmslib.class.php");
-@include_once("./mdMessagesLib.class.php");
-@include_once("./reminderUtils.php");
+@include_once(__DIR__ . "/../configs/reminder_settings.php");
+@include_once(__DIR__ . "/mdZoomIntegration.class.php");
+@include_once(__DIR__ . "/mdSmslib.class.php");
+@include_once(__DIR__ . "/mdMessagesLib.class.php");
+@include_once(__DIR__ . "/reminderUtils.php");
 
 use OpenEMR\OemrAd\EmailMessage;
 use OpenEMR\OemrAd\FaxMessage;
