@@ -26,7 +26,7 @@ $module_title = GetListTitleByKey($module, $frmdir . '_modules');
 
 	<?php \OpenEMR\Core\Header::setupHeader(['jquery', 'jquery-ui']); ?>
 
-	<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/templates.css" type="text/css">
+	<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/templates.css" type="text/css">
 </head>
 <body class="body_top">
 	<div class="snippet_outer_wrap">

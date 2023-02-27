@@ -9,7 +9,7 @@ if($v_major > 4) $js_location = $GLOBALS['assets_static_relative'];
 <html>
 <head>
 <title><?php echo $ftitle; ?></title>
-<?php Header::setupHeader(['common', 'opener', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'oemr_ad', 'datetime-picker']); ?>
+<?php Header::setupHeader(['common', 'opener', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'oemr_ad', 'datetime-picker']); ?>
 <link rel="stylesheet" href="<?php echo $GLOBALS['css_header'];?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'];?>/library/wmt/wmt.default.css" type="text/css">
 

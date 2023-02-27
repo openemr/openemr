@@ -23,7 +23,7 @@ $module_title = GetListTitleByKey($module, $frmdir . '_modules');
 <head>
 	<title><?php xl($module_title,'e'); ?></title>
 	<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-	<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/templates.css" type="text/css">
+	<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/templates.css" type="text/css">
 <?php if($v_major > 4) { ?>
 	<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <?php } else { ?>

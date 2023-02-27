@@ -14,7 +14,7 @@ if(isset($GLOBALS['wmt::pat_entry_portal'])) $portal_enabled = $GLOBALS['wmt::pa
 $actions = LoadList($frmdir.'_actions','active','seq','','AND UPPER(notes) LIKE "%MENU%"');
 ?>
 
-<nav class="navbar navbar-expand-sm sticky-top navbar-light bg-light border-bottom border-left border-right mx-3" style="background-color: #e3f2fd;">
+<nav class="navbar navbar-expand-sm sticky-top navbar-light bg-light border-bottom border-left border-right mx-0" style="background-color: #e3f2fd;">
 	<ul class="nav justify-content-end pt-0 pb-0">
 		<?php if(!checkSettingMode('wmt::float_menu_continue_suppress','',$frmdir)) { ?>
 		<li class="nav-item">

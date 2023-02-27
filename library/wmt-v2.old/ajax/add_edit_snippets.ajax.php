@@ -137,7 +137,7 @@ if($_POST['delete_snippet']) {
 		<TITLE><?php echo xl('System Templates'); ?></TITLE>
 		<?php html_header_show();?>
 		<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-		<link rel="stylesheet" href="../../library/css/templates.css" type="text/css">
+		<link rel="stylesheet" href="../../library/wmt/templates.css" type="text/css">
 		<!-- <script type="text/javascript" src="<?php //echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script> -->
 	</head>
 	<body class="body_top">

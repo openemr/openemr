@@ -22,7 +22,7 @@ $module_title = GetListTitleByKey($module, 'Templated_Fields');
 	<head>
 		<title><?php echo xl('Snippet Manager'); ?></title>
 		<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/templates.css" type="text/css">
+		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/templates.css" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/wmt.default.css" type="text/css">
 <?php if($v_major > 4) { ?>
 		<!-- <script type="text/javascript" src="<?php //echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script> -->

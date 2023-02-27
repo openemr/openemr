@@ -30,7 +30,7 @@ $target_type = GetListNoteByKey($target, 'Templated_Fields');
 
 		<?php \OpenEMR\Core\Header::setupHeader(['jquery', 'jquery-ui']); ?>
 
-		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/templates.css" type="text/css">
+		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/templates.css" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/wmt/wmt.default.css" type="text/css">
 
 	</head>
