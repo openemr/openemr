@@ -993,11 +993,11 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.updateConferenceRoomSession = function() {
         let appt = conf.callerSettings.appointment || {};
-        let eid = appt.eid || {};
+        let pc_eid = appt.eid || {};
         // TODO: if we ever need to take action on the session update we would do that here.
         // TODO: @adunsulag change eid here to be pc_eid
         window.top.restoreSession();
-        window.fetch(conf.getRemoteScriptLocation() + '?action=conference_session_update&eid=' + encodeURIComponent(eid), {redirect: "manual"})
+        window.fetch(conf.getRemoteScriptLocation() + '?action=conference_session_update&pc_eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
             .then((request) => {
                 if (request.ok) {
                     return request.json();
@@ -1010,7 +1010,6 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                    throw new Error("Failed to update session");
                } else {
                    // grab our participant list
-                   console.log(result.participantList);
 
                    // algorithm will be
                    // 1. get the participant list

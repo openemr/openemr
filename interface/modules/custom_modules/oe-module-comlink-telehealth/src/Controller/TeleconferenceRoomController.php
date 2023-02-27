@@ -561,7 +561,7 @@ class TeleconferenceRoomController
 
     public function conferenceSessionUpdateAction($queryVars)
     {
-        $pc_eid = $queryVars['eid'];
+        $pc_eid = $queryVars['pc_eid'];
         $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
         try {
             if (empty($session)) {
