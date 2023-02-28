@@ -49,6 +49,10 @@ class TeleHealthFrontendSettingsController
                 ,'apiCSRFToken' => ''
                 ,'features' => [
                     'thirdPartyInvitations' => $this->config->isThirdPartyInvitationsEnabled()
+                    ,'minimizeWindow' => [
+                        'enabled' => true
+                        ,'defaultPosition' => $this->config->getMinimizedSessionDefaultPosition()
+                    ]
                 ]
             ]
         ];

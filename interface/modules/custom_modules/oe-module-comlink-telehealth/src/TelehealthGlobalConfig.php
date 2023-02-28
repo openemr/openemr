@@ -31,6 +31,9 @@ class TelehealthGlobalConfig
     const INSTALLATION_NAME  = "openemr_name";
     const DEBUG_MODE_FLAG = "comlink_telehealth_debug";
 
+    const COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT = "comlink_telehealth_minimized_position_default";
+    const DEFAULT_MINIMIZED_SESSION_POSITION_DEFAULT = 'bottom-left';
+
 
     // character length to generate for the unique registration code for the user
     const APP_REGISTRATION_CODE_LENGTH = 12;
@@ -175,6 +178,14 @@ class TelehealthGlobalConfig
         return $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_ID);
     }
 
+    public function getMinimizedSessionDefaultPosition() {
+        $setting = $this->getGlobalSetting(self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT);
+        if (empty($setting)) {
+            $setting = self::DEFAULT_MINIMIZED_SESSION_POSITION_DEFAULT;
+        }
+        return $setting;
+    }
+
     public function getRegistrationAPIPassword()
     {
         $encryptedValue = $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_PASSWORD);
@@ -243,15 +254,27 @@ class TelehealthGlobalConfig
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => '1'
             ]
-            ,self::DEBUG_MODE_FLAG => [
-                'title' => 'Debug Mode'
-                , 'description' => 'Turn on debug versions of javascript and other debug settings'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
-            ]
             ,self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS => [
                 'title' => 'Third Party Session Invitations Allowed (Requires Portal To Be Configured)'
                 , 'description' => 'Allow an existing patient to be invited or new patient to be invited to a telehealth session'
+                ,'type' => GlobalSetting::DATA_TYPE_BOOL
+                ,'default' => ''
+            ]
+            ,self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT => [
+                'title' => 'Default Minimized Telehealth Location'
+                ,'description' => 'Where should the minimized window appear by default on the screen'
+                ,'default' => self::DEFAULT_MINIMIZED_SESSION_POSITION_DEFAULT
+                // really don't like how the 'type' can be an array of values, but we have to work with existing architecture
+                ,'type' => [
+                    'bottom-left' => xl('Bottom Left')
+                    ,'top-left' => xl('Top Left')
+                    ,'bottom-right' => xl('Bottom Right')
+                    ,'top-right' => xl('Top Right')
+                ]
+            ]
+            ,self::DEBUG_MODE_FLAG => [
+                'title' => 'Debug Mode'
+                , 'description' => 'Turn on debug versions of javascript and other debug settings'
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => ''
             ]

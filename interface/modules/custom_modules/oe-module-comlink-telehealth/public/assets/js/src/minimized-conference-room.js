@@ -16,10 +16,26 @@ export class MinimizedConferenceRoom {
      */
     videoBar = null;
 
+    /**
+     *
+     * @type HTMLElement
+     */
     minimizedConferenceNode = null;
 
-    constructor(container) {
+    /**
+     *
+     * @type 'top-left'|'bottom-left'|'top-right'|'bottom-right'
+     */
+    defaultPosition = 'bottom-right';
+
+    initialOffset = null;
+
+    constructor(container, defaultSettings) {
         this.container = container;
+        this.defaultPosition = defaultSettings.defaultPosition || 'bottom-right';
+        if (defaultSettings.offset) {
+            this.initialOffset = defaultSettings.offset;
+        }
     }
 
     isMinimized() {
@@ -51,6 +67,7 @@ export class MinimizedConferenceRoom {
         template.id = "minimized-telehealth-video";
         template.classList.remove('d-none');
         template.classList.remove(className);
+        template.classList.add(this.defaultPosition);
 
         window.document.body.appendChild(template);
         this.minimizedConferenceNode = template;
@@ -62,6 +79,11 @@ export class MinimizedConferenceRoom {
             this.participantList.className = this.participantList.dataset['classMinimize'];
         }
 
+        if (this.initialOffset && window.setInteractorPosition) {
+            // this is what the drag drop library does...
+            window.setInteractorPosition(this.initialOffset.top, this.initialOffset.left, this.minimizedConferenceNode);
+        }
+
         // now make the video container draggable
         if (window.initDragResize)
         {
@@ -70,6 +92,17 @@ export class MinimizedConferenceRoom {
         }
 
         this.__isMinimized = true;
+    }
+
+    getCurrentOffset() {
+        let top = 0;
+        let left = 0;
+        top = this.minimizedConferenceNode.dataset.x;
+        left = this.minimizedConferenceNode.dataset.y;
+        return {
+            top: top
+            ,left: left
+        };
     }
 
     maximizeConferenceRoom() {

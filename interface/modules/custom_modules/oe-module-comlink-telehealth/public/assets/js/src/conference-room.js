@@ -1220,8 +1220,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.minimizeProviderConferenceCall = function()
     {
-        this.__minimizedConferenceRoom = new MinimizedConferenceRoom(document.getElementById('telehealth-container'));
-        this.__minimizedConferenceRoom.minimizeConferenceRoom(this.getMinimizedConferenceVideoBarSettings());
+        let container = document.getElementById('telehealth-container');
+        let defaultSettings = this.features.minimizeWindow || {enabled: true, defaultPosition: 'bottom-left'};
+        this.__minimizedConferenceRoom = new MinimizedConferenceRoom(container, defaultSettings);
+        this.__minimizedConferenceRoom.minimizeConferenceRoom(this.getMinimizedConferenceVideoBarSettings(), );
         this.resetConferenceVideoBar(); // make sure we reset our controls here before we continue
         conf.waitingRoomModal.hide();
         this.updateParticipantDisplays();
@@ -1230,6 +1232,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.maximizeProviderConferenceCall = function(evt)
     {
         if (this.isMinimized()) {
+            // save off our offset so we can restore it later
+            if (this.features.minimizeWindow) {
+                this.features.minimizeWindow.offset = this.__minimizedConferenceRoom.getCurrentOffset();
+            }
             this.__minimizedConferenceRoom.maximizeConferenceRoom();
             this.__minimizedConferenceRoom.destruct();
             this.__minimizedConferenceRoom = null;

@@ -44,10 +44,29 @@
 
 #minimized-telehealth-video {
   background-color: #000;
-  bottom: 0;
-  left: 0;
   position: absolute;
   z-index: 1050;
+}
+
+#minimized-telehealth-video.top-left {
+  top: 0;
+  left: 0;
+}
+
+#minimized-telehealth-video.top-right {
+  top: 0;
+  right: 0;
+}
+
+#minimized-telehealth-video.bottom-left
+{
+  bottom: 0;
+  left: 0;
+}
+#minimized-telehealth-video.bottom-right
+{
+  bottom: 0;
+  right: 0;
 }
 
 #minimized-telehealth-video #remote-video {
