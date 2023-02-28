@@ -57,7 +57,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem->requirement = 0;
     $menuItem->target = 'sms';
     $menuItem->menu_id = 'mod0';
-    $menuItem->label = ($allowSMS == '2' ? xlt("Manage Twilio Messaging") : xlt("RingCentral Messaging"));
+    $menuItem->label = $allowSMS == '2' ? xlt("Manage Twilio Messaging") : xlt("Manage Messaging");
     $menuItem->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=sms";
     $menuItem->children = [];
     $menuItem->acl_req = ["patients", "docs"];
@@ -67,7 +67,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->requirement = 0;
     $menuItem2->target = 'fax';
     $menuItem2->menu_id = 'mod1';
-    $menuItem2->label = ($allowFax == '3' ? xlt("Manage etherFAX") : xlt("RingCentral Fax"));
+    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : xlt("Manage FAX");
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
     $menuItem2->acl_req = ["patients", "docs"];

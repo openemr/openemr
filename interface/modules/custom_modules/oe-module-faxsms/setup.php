@@ -19,8 +19,11 @@ $serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? ''
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
+if (!$clientApp->verifyAcl()) {
+    die("<h3>" . xlt("Not Authorised!") . "</h3>");
+}
 $c = $clientApp->getCredentials();
-$title = $service == "1" ? xlt('RingCentral Fax SMS') : xlt('Twilio SMS');
+$title = $service == "2" ? xlt('Twilio SMS') : xlt('SMS');
 $title = $service == "3" ? xlt('etherFAX') : $title;
 $module_config = $_REQUEST['module_config'] ?? 0;
 $mode = $_REQUEST['mode'] ?? null;
@@ -75,14 +78,9 @@ $mode = $_REQUEST['mode'] ?? null;
             });
 
             if (currentService == '2') {
-                $(".ringcentral").hide();
-                $(".etherfax").hide();
-            } else if (currentService == '1') {
-                $(".twilio").hide();
                 $(".etherfax").hide();
             } else if (currentService == '3') {
                 $(".twilio").hide();
-                $(".ringcentral").hide();
                 $(".etherfax").show();
             }
         });
@@ -159,64 +157,6 @@ $mode = $_REQUEST['mode'] ?? null;
                             <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
                             <input id="form_secret" type="password" name="secret" class="form-control"
                                 required="required" value='<?php echo attr($c['appSecret']) ?>' />
-                        </div>
-                        <div class=" form-group">
-                            <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
-                            <input id="form_nhours" type="text" name="smshours" class="form-control"
-                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
-                                required="required" value='<?php echo attr($c['smsHours']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
-                            <span style="font-size:12px;font-style: italic">&nbsp;
-                                <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
-                            </span>
-                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
-                                required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
-                        </div>
-                    <?php } else {
-                        ?>  <!--RingCentral fax and sms-->
-                        <div class="checkbox">
-                            <label>
-                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
-                                <?php echo xlt("Production Check") ?>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_username"><?php echo xlt("Username") ?> *</label>
-                            <input id="form_username" type="text" name="username" class="form-control"
-                                required="required" value='<?php echo attr($c['username']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_password"><?php echo xlt("Password") ?> *</label>
-                            <input id="form_password" type="password" name="password" class="form-control"
-                                required="required" value='<?php echo attr($c['password']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_extension"><?php echo xlt("Phone Number or Extension") ?></label>
-                            <input id="form_extension" type="text" name="extension" class="form-control"
-                                required="required" value='<?php echo attr($c['extension']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
-                            <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
-                                value='<?php echo attr($c['smsNumber']) ?>' required />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_key"><?php echo xlt("Client ID") ?> *</label>
-                            <input id="form_key" type="text" name="key" class="form-control"
-                                required="required" value='<?php echo attr($c['appKey']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_secret"><?php echo xlt("Client Secret") ?> *</label>
-                            <input id="form_secret" type="password" name="secret" class="form-control"
-                                required="required" value='<?php echo attr($c['appSecret']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label class="ringcentral" for="form_redirect_url"><?php echo xlt("OAuth Redirect URI") ?></label>
-                            <input id="form_redirect_url" type="text" name="redirect_url" class="form-control ringcentral"
-                                placeholder="<?php echo xla('From RingCentral Account') ?> /"
-                                value='<?php echo attr($c['redirect_url']) ?>' />
                         </div>
                         <div class=" form-group">
                             <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>

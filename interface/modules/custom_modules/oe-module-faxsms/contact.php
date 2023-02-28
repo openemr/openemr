@@ -19,18 +19,23 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 $serviceType = $_REQUEST['type'] ?? '';
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
+if (!$clientApp->verifyAcl()) {
+    die("<h3>" . xlt("Not Authorised!") . "</h3>");
+}
 $logged_in = $clientApp->authenticate();
 $isSMS = $clientApp->getRequest('isSMS', 0);
 $default_message = '';
 $interface_pid = null;
 if (empty($isSMS)) {
+    $interface_pid = $clientApp->getRequest('pid');
     $the_file = $clientApp->getRequest('file');
     $isContent = $clientApp->getRequest('isContent');
     $the_docid = $clientApp->getRequest('docid');
+    $form_pid = $clientApp->getRequest('form_pid');
     $isDoc = (int)$clientApp->getRequest('isDocuments');
     $isQueue = $clientApp->getRequest('isQueue');
     $file_name = pathinfo($the_file, PATHINFO_BASENAME);
-    $file_mime = $clientApp->getRequest('mime');
+    $details = json_decode($clientApp->getRequest('details', ''), true);
 } else {
     $interface_pid = $clientApp->getRequest('pid');
     $doc_name = $clientApp->getRequest('title');
@@ -171,7 +176,7 @@ $service = $clientApp::getServiceType();
     <div class="container">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
             <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file) ?>'>
-            <input type="hidden" id="form_file" name="docid" value='<?php echo attr($the_docid) ?>'>
+            <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid) ?>'>
             <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent); ?>'>
             <input type="hidden" id="form_isDocuments" name="isDocuments" value='<?php echo attr($isDoc) ?>'>
             <input type="hidden" id="form_isQueue" name="isQueue" value='<?php echo attr($isQueue) ?>'>
@@ -180,6 +185,13 @@ $service = $clientApp::getServiceType();
             <div class="messages"></div>
             <div class="row">
                 <div class="col-md-12">
+                    <div class="form-group show-detail smsExclude faxExclude">
+                        <label for="form_pid"><?php echo xlt('MRN') ?></label>
+                        <input id="form_pid" type="text" name="$form_pid" class="form-control"
+                            placeholder="<?php echo xla('If Applicable for charting.') ?>"
+                            value="<?php echo attr($interface_pid ?? 0) ?>" />
+                        <div class="help-block with-errors"></div>
+                    </div>
                     <div class="form-group show-detail smsExclude faxExclude">
                         <label for="form_name"><?php echo xlt('Firstname') ?></label>
                         <input id="form_name" type="text" name="name" class="form-control"
@@ -194,10 +206,10 @@ $service = $clientApp::getServiceType();
                             value="<?php echo attr($details['lname'] ?? '') ?>" />
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group smsExclude faxExclude">
+                    <div class="form-group smsExclude">
                         <label for="form_email"><?php echo xlt('Email') ?></label>
                         <input id="form_email" type="email" name="email" class="form-control"
-                            placeholder="<?php echo xla('Not required for fax') ?>">
+                            placeholder="<?php echo xla('Enter Email address to forward.') ?>">
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">

@@ -37,15 +37,27 @@ class TwilioSMSClient extends AppDispatch
         parent::__construct();
     }
 
+    /**
+     * @param $dateFrom
+     * @param $dateTo
+     * @return void
+     */
     public function fetchSMSFilteredList($dateFrom, $dateTo)
     {
     }
 
+    /**
+     * @param $uiDateRangeFlag
+     * @return false|string|null
+     */
     public function fetchSMSList($uiDateRangeFlag = true)
     {
         return $this->_getPending($uiDateRangeFlag);
     }
 
+    /**
+     * @return array|mixed
+     */
     public function getCredentials()
     {
         $credentials = appDispatch::getSetup();
@@ -60,6 +72,13 @@ class TwilioSMSClient extends AppDispatch
         return $credentials;
     }
 
+    /**
+     * @param $tophone
+     * @param $subject
+     * @param $message
+     * @param $from
+     * @return mixed
+     */
     public function sendSMS($tophone = '', $subject = '', $message = '', $from = ''): mixed
     {
         $tophone = $tophone ?: $this->getRequest('phone');
@@ -92,7 +111,7 @@ class TwilioSMSClient extends AppDispatch
      * @return string
      */
 
-    public function formatPhone($number)
+    public function formatPhone($number): string
     {
         // this is u.s only. need E-164
         $n = preg_replace('/[^0-9]/', '', $number);
@@ -104,7 +123,11 @@ class TwilioSMSClient extends AppDispatch
         return $n;
     }
 
-    public function authenticate($action_flg = null): int
+    /**
+     * @param $acl
+     * @return int
+     */
+    public function authenticate($acl = ['admin', 'doc']): int
     {
         // did construct happen...
         if (empty($this->credentials)) {
@@ -113,20 +136,21 @@ class TwilioSMSClient extends AppDispatch
         if (!$this->sid || !$this->appKey || !$this->appSecret) {
             return 0;
         }
-
-        return 1;
+        list($s, $v) = $acl;
+        return $this->verifyAcl($s, $v);
     }
 
+    /**
+     * @return false|string|void
+     */
     public function _getPending()
     {
         $dateFrom = $this->getRequest('datefrom');
         $dateTo = $this->getRequest('dateto');
 
         if (!$this->authenticate()) {
-            $e = xlt('Error: Authentication Service Denies Access.');
-            $ee = array('error' => $e);
-            return json_encode($ee);
-        };
+            return $this->authErrorDefault;
+        }
         try {
             // dateFrom and dateTo
             $timeFrom = 'T00:00:01Z';
@@ -160,39 +184,26 @@ class TwilioSMSClient extends AppDispatch
                     $d2 = new DateTime(gmdate('Ymd Hi', time()));
                     $dif = $d1->diff($d2);
                     $interval = ($dif->d * 24) + $dif->h;
-                    /*if ($interval >= 12 && ($status != 'delivered' && $status != 'received')) {
-                        $f = $twilio->fax->v1->faxes($id)->delete();
-                    } elseif ($interval >= 48) {
-                        $f = $twilio->fax->v1->faxes($id)->delete();
-                    }*/
+                    /* interval for future */
                 }
                 $vreply = '';
                 if ($status != 'failed' && $this->formatPhone($this->credentials['smsNumber']) != $messageStore->from) {
-                    $details['phone'] = $messageStore->from;
-                    $details['recipient'] = $messageStore->from;
-                    $vUrl = "<a href='#' onclick=viewDocument(" . "event,'$uri','${id}','false')> <span class='fa fa-file-pdf'></span></a></br>";
                     $vreply = "<a href='javaScript:' onclick=messageReply(" . attr_js($messageStore->from) . ")>
-                            <span class='mx-1 fa fa-reply'></span>
-                            </a>";
+                            <span class='mx-1 fa fa-reply'></span></a>";
                 } else {
-                    $vUrl = "<a href='#' title='SMS failure'> <span class='fa fa-file-pdf text-danger'></span></a></br>";
+                    $vreply = "<a href='#' title='SMS failure'> <span class='fa fa-file-pdf text-danger'></span></a></br>";
                 }
-
-                //date_default_timezone_set('America/New_York'); // hope server sets tz.
-                $utc_time = strtotime($messageStore->dateCreated->format('Ymd His') . ' UTC');
-                $lastDate = date('M j Y g:i:sa T', $utc_time);
                 $utc_time = strtotime($messageStore->dateUpdated->format('Ymd His') . ' UTC');
                 $updateDate = date('M j Y g:i:sa T', $utc_time);
-                //$lastDate = $messageStore->dateCreated->format("M j Y g:i:s a");
                 if (strtolower($messageStore->direction) != "outbound-api") {
-                    $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . $from . "</td><td>" . $to . "</td><td>" . $status . "</td><<td>" . $vreply . "</td></tr>";
+                    $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . ($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><<td>" . $vreply . "</td></tr>";
                 } else {
-                    $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . $from . "</td><td>" . $to . "</td><td>" . $status . "</td><<td>" . $vreply . "</td></tr>";
+                    $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . ($status) . "</td><<td>" . $vreply . "</td></tr>";
                 }
             }
         } catch (Exception $e) {
             $message = $e->getMessage();
-            $responseMsgs = "<tr><td>" . $message . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
+            $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
             echo json_encode(array('error' => $responseMsgs));
             exit();
         }
@@ -203,7 +214,10 @@ class TwilioSMSClient extends AppDispatch
         exit();
     }
 
-    public function getUser()
+    /**
+     * @return false|string
+     */
+    public function getUser(): bool|string
     {
         $id = $this->getRequest('uid');
         $query = "SELECT * FROM users WHERE id = ?";
@@ -213,12 +227,15 @@ class TwilioSMSClient extends AppDispatch
             $u[] = $row;
         }
         $u = $u[0];
-        $r = array($u['fname'], $u['lname'], $u['fax']);
+        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility']);
 
         return json_encode($r);
     }
 
-    public function getNotificationLog()
+    /**
+     * @return string
+     */
+    public function getNotificationLog(): string
     {
         $type = $this->getRequest('type');
         $fromDate = $this->getRequest('datefrom');
@@ -233,28 +250,33 @@ class TwilioSMSClient extends AppDispatch
                 $row[] = $nrow;
                 $cnt++;
             }
+
             $responseMsgs = '';
             foreach ($row as $value) {
                 $adate = ($value['pc_eventDate'] . '::' . $value['pc_startTime']);
                 $pinfo = str_replace("|||", " ", $value['patient_info']);
-                $msg = htmlspecialchars($value["message"], ENT_QUOTES);
-
-                $responseMsgs .= "<tr><td>" . $value["pc_eid"] . "</td><td>" . $value["dSentDateTime"] .
-                    "</td><td>" . $adate . "</td><td>" . $pinfo . "</td><td>" . $msg . "</td></tr>";
+                $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
+                    "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
         } catch (Exception $e) {
             $message = $e->getMessage();
-            return 'Error: ' . $message . PHP_EOL;
+            return 'Error: ' . text($message) . PHP_EOL;
         }
 
         return $responseMsgs;
     }
 
+    /**
+     * @return string
+     */
     public function getCallLogs()
     {
         return xlt('Not Implemented');
     }
 
+    /**
+     * @return null
+     */
     protected function index()
     {
         global $pid;

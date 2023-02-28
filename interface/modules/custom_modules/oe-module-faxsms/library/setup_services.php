@@ -112,7 +112,7 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-sm-6" title="Enable SMS Support. Remember to setup credentials.">
                             <select class="form-control persist" name="sms_vendor" id="sms_vendor">
                                 <option value="0" <?php echo $vendors['oefax_enable_sms'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="1" <?php echo $vendors['oefax_enable_sms'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral SMS"); ?></option>
+                                <!-- Placeholder for RC or another service -->
                                 <option value="2" <?php echo $vendors['oefax_enable_sms'] == '2' ? 'selected' : ''; ?>><?php echo xlt("Twilio SMS"); ?></option>
                             </select>
                         </div>
@@ -122,7 +122,7 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
                             <select class="form-control persist" name="fax_vendor" id="fax_vendor">
                                 <option value="0" <?php echo $vendors['oefax_enable_fax'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="1" <?php echo $vendors['oefax_enable_fax'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral Fax"); ?></option>
+                                <!-- Placeholder for RC or another service -->
                                 <option value="3" <?php echo $vendors['oefax_enable_fax'] == '3' ? 'selected' : ''; ?>><?php echo xlt("etherFAX"); ?></option>
                             </select>
                         </div>

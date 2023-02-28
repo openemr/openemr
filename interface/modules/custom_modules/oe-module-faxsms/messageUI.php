@@ -19,15 +19,9 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
-$title = $service == "1" ? xlt('RingCentral Fax SMS') : xlt('Twilio SMS');
+$title = $service == "2" ? xlt('Twilio SMS') : '';
 $title = $service == "3" ? xlt('etherFAX') : $title;
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
-// RingCentral OAuth
-$logged_in = $clientApp->authenticate();
-if (empty($logged_in) && $service == "1") {
-    $request_url = $clientApp->getLogIn();
-}
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -35,6 +29,9 @@ if (empty($logged_in) && $service == "1") {
     <title><?php echo $tabTitle ?? ''; ?></title>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
     <?php
+    if (!$clientApp->verifyAcl()) {
+        die("<h3>" . xlt("Not Authorised!") . "</h3>");
+    }
     Header::setupHeader(['opener', 'datetime-picker']);
     echo "<script>const pid=" . js_escape($pid) . ";const portalUrl=" . js_escape($clientApp->portalUrl) .
         ";const currentService=" . js_escape($service) . ";const serviceType=" . js_escape($serviceType) . "</script>";
@@ -56,28 +53,11 @@ if (empty($logged_in) && $service == "1") {
 
             $(".other").hide();
             if (currentService === '2') {
-                $(".ringcentral").hide();
-            } else if (currentService === '1') {
-                $(".twilio").hide();
-            } else if (currentService === '3') {
-                $(".twilio").hide();
-            }
-            if (currentService === '2') {
-                $(".ringcentral").hide();
-                $(".etherfax").hide();
-            } else if (currentService === '1') {
-                $(".twilio").hide();
                 $(".etherfax").hide();
             } else if (currentService === '3') {
                 $(".twilio").hide();
-                $(".ringcentral").hide();
                 $(".etherfax-hide").hide();
                 $(".etherfax").show();
-            }
-            if (currentService === '3') {
-            }
-            // populate
-            if (serviceType === 'sms') {
             }
             retrieveMsgs();
             $('#received').tab('show');
@@ -136,6 +116,20 @@ if (empty($logged_in) && $service == "1") {
             }
             return bytes;
         }
+
+        const forwardFax = function (e, docid = '', filePath = '', to = '0') {
+            let btnClose = <?php echo xlj("Cancel"); ?>;
+            let title = <?php echo xlj("Send To Contact"); ?>;
+            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&docid=' +
+                encodeURIComponent(docid) + '&file=' + encodeURIComponent(filePath);
+            // leave dialog name param empty so send dialogs can cascade.
+            dlgopen(url, '', 'modal-sm', 700, '', title, { // dialog restores session
+                buttons: [
+                    {text: btnClose, close: true, style: 'secondary btn-sm'}
+                ]
+            });
+            return false;
+        };
 
         function showPrint(base64, _contentType = 'image/tiff') {
             const binary = atob(base64.replace(/\s/g, ''));
@@ -201,6 +195,9 @@ if (empty($logged_in) && $service == "1") {
             if (e !== '') {
                 e.preventDefault();
             }
+            if (docuri === null) {
+                docuri = '';
+            }
             if (downFlag === 'true') {
                 let yn = confirm(
                     xl("After downloading a fax it is marked as received and no longer available.") + "\n\n" +
@@ -258,9 +255,6 @@ if (empty($logged_in) && $service == "1") {
                 }, 'json').done(function (data) {
                 if (data.error) {
                     $("#brand").removeClass('fa fa-spinner fa-spin');
-                    if (currentService === '1') {
-                        $("#loginButton").removeClass("d-none");
-                    }
                     alertMsg(data.error);
                     return false;
                 }
@@ -273,10 +267,7 @@ if (empty($logged_in) && $service == "1") {
                     getLogs();
                 }
             }).fail(function (xhr, status, error) {
-                alertMsg(<?php echo xlj('Not Authenticated. Restart from Modules menu or ensure credentials are setup from Activity menu. Reported Error') . "\n"; ?> +jsText(error), 7000);
-                if (currentService === '1') {
-                    $("#loginButton").removeClass("d-none");
-                }
+                alertMsg(<?php echo xlj('Not Authenticated or not authorised. Ensure valid credentials are setup from Activity menu.'); ?>, 7000);
             }).always(function () {
                 $("#brand").removeClass('fa fa-spinner fa-spin');
             });
@@ -443,10 +434,6 @@ if (empty($logged_in) && $service == "1") {
                         <div class="form-group">
                             <button type="button" class="btn btn-primary btn-search" onclick="retrieveMsgs(event,this)" title="<?php echo xla('Click to get current history.') ?>"></button>
                         </div>
-                        <!-- manual login oauth2 RC -->
-                        <div class="form-group ringcentral">
-                            <button id="loginButton" onclick="location.reload()" class="btn btn-danger d-none"><?php echo xlt('Log In'); ?><i class="fa fa-sign-in-alt ml-2"></i></button>
-                        </div>
                     </form>
                     <div class="nav-item dropdown ml-auto">
                         <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -458,9 +445,9 @@ if (empty($logged_in) && $service == "1") {
                                 <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
                                 <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
                             <?php } ?>
-                            <a class="dropdown-item ringcentral etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
+                            <a class="dropdown-item etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                         </div>
-                        <button type="button" class="nav-item ringcentral etherfax btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
+                        <button type="button" class="nav-item etherfax btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
                         </button>
                     </div>
                 </div><!-- /.navbar-collapse -->
@@ -484,7 +471,7 @@ if (empty($logged_in) && $service == "1") {
                             <a class="nav-link" href="#alertlogs" aria-controls="alertlogs" role="tab" data-toggle="tab"><?php echo xlt("Reminder Notifications Log") ?><span class="fa fa-redo ml-1" onclick="getNotificationLog(event, this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>"></span></a>
                         </li>
-                        <li class="nav-item ringcentral etherfax" role="tab"><a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a></li>
+                        <li class="nav-item etherfax" role="tab"><a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a></li>
                     </ul>
                     <!-- Tab panes -->
                     <div class="tab-content">
@@ -502,7 +489,8 @@ if (empty($logged_in) && $service == "1") {
                                             <th><?php echo xlt("Extracted Data") ?>
                                                 <a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a>
                                             </th>
-                                            <th><?php echo xlt("Dispose") ?></th>
+                                            <th><?php echo xlt("Forward") ?></th>
+                                            <th><?php echo xlt("Download") ?></th>
                                             <th><?php echo xlt("View") ?></th>
                                         </tr>
                                         </thead>
@@ -519,15 +507,12 @@ if (empty($logged_in) && $service == "1") {
                                         <thead>
                                         <tr>
                                             <th><?php echo xlt("Time") ?></th>
-                                            <th class="twilio"><?php echo xlt("Type") ?></th>
-                                            <th class="ringcentral"><?php echo xlt("Name") ?></th>
+                                            <th><?php echo xlt("Type") ?></th>
                                             <th class=""><?php echo xlt("Message") ?></th>
-                                            <th class="ringcentral twilio"><?php echo xlt("Pages") ?></th>
                                             <th><?php echo xlt("From") ?></th>
                                             <th><?php echo xlt("To") ?></th>
-                                            <th class=""><?php echo xlt("Result") ?></th>
-                                            <th class="ringcentral"><?php echo xlt("View") ?></th>
-                                            <th class="twilio"><?php echo xlt("Reply") ?></th>
+                                            <th><?php echo xlt("Result") ?></th>
+                                            <th><?php echo xlt("Reply") ?></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -546,12 +531,12 @@ if (empty($logged_in) && $service == "1") {
                                     <tr>
                                         <th><?php echo xlt("Start Time") ?></th>
                                         <th class="twilio"><?php echo xlt("Price") ?></th>
-                                        <th class="ringcentral etherfax"><?php echo xlt("Type") ?></th>
+                                        <th class="etherfax"><?php echo xlt("Type") ?></th>
                                         <th><?php echo xlt("Message") ?></th>
                                         <th><?php echo xlt("From") ?></th>
                                         <th><?php echo xlt("To") ?></th>
                                         <th><?php echo xlt("Result") ?></th>
-                                        <th class="ringcentral etherfax"><?php echo xlt("Download") ?></th>
+                                        <th class="etherfax"><?php echo xlt("Download") ?></th>
                                         <th class="twilio"><?php echo xlt("Reply") ?></th>
                                     </tr>
                                     </thead>
@@ -574,7 +559,6 @@ if (empty($logged_in) && $service == "1") {
                                         <th><?php echo xlt("To") ?></th>
                                         <th><?php echo xlt("Result") ?></th>
                                         <th class="other"><?php echo xlt("Download") ?></th>
-                                        <th class="ringcentral"><?php echo xlt("Message") ?></th>
                                         <th><?php echo xlt("View") ?></th>
                                     </tr>
                                     </thead>

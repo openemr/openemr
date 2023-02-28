@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use DateTime;
+use Document;
 use Exception;
 use http\Exception\RuntimeException;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -111,7 +112,7 @@ class EtherFaxActions extends AppDispatch
     public function sendFax(): string|bool
     {
         if (!$this->authenticate()) {
-            return xlt('Error: Authentication Service Denies Access.');
+            return $this->authErrorDefault;
         }
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
@@ -121,13 +122,13 @@ class EtherFaxActions extends AppDispatch
         $isDocuments = (int)$this->getRequest('isDocuments');
         $isQueue = $this->getRequest('isQueue');
         $comments = $this->getRequest('comments');
-        $content = '';
         $phone = $this->formatPhone($phone);
         $from = $this->formatPhone($this->credentials['phone']);
-        $status = [];
         $user = $this::getLoggedInUser();
         $csid = $user['facility'];
-        if (!$isContent) {
+        $tag = $user['username'];
+        $status = [];
+        if (empty($isContent)) {
             $file = str_replace("file://", '', $file);
             $file = str_replace("\\", "/", realpath($file)); // normalize requested path
             if (!$file) {
@@ -136,20 +137,13 @@ class EtherFaxActions extends AppDispatch
         }
         ['basename' => $basename, 'dirname' => $dirname] = pathinfo($file);
         if ($isContent) {
-            $content = $file;
-            $file = 'report-' . $GLOBALS['pid'] . '.pdf';
+            $basename = 'content.pdf';
         }
         if ($isDocuments) {
-            $obj = new \C_Document();
-            $file = $obj->retrieve_action("", $docid, true, true, true);
-            // is it encrypted
-            if ($this->crypto->cryptCheckStandard($content)) {
-                $content = $this->crypto->decryptStandard($content, null, 'database');
-            }
-            $isContent = true;
+            $file = (new Document($docid))->get_data();
         }
         try {
-            $fax = $this->client->sendFax($phone, $file, null, $from, $csid, null, $isDocuments, $basename);
+            $fax = $this->client->sendFax($phone, $file, null, $from, $csid, $tag, $isDocuments, $basename);
             if (!$fax->FaxResult) {
                 return 'Error: ' . json_encode($fax->Message);
             }
@@ -164,9 +158,8 @@ class EtherFaxActions extends AppDispatch
             }
         } catch (Exception $e) {
             $message = $e->getMessage();
-            return 'Error: ' . $message;
+            return 'Error: ' . json_encode($message);
         }
-
         $error = FaxResult::getFaxResult($status->FaxResult);
         if ($status->FaxResult ?? null) {
             return 'Error: ' . json_encode($error);
@@ -176,10 +169,10 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $action_flg
+     * @param $acl
      * @return int
      */
-    public function authenticate($action_flg = null): int
+    public function authenticate($acl = ['admin', 'doc']): int
     {
         // did construct happen...
         if (empty($this->credentials)) {
@@ -191,7 +184,8 @@ class EtherFaxActions extends AppDispatch
         }
         self::$timeZone = $check->TimeZone ?? null;
 
-        return 1;
+        list($s, $v) = $acl;
+        return $this->verifyAcl($s, $v);
     }
 
     /**
@@ -249,9 +243,7 @@ class EtherFaxActions extends AppDispatch
         $dateTo = $this->getRequest('dateto');
 
         if (!$this->authenticate()) {
-            $e = xlt('Error: Authentication Service Denies Access.');
-            $ee = array('error' => $e);
-            return json_encode($ee);
+            return $this->authErrorDefault;
         };
         try {
             // dateFrom and dateTo
@@ -289,10 +281,8 @@ class EtherFaxActions extends AppDispatch
                 } else {
                     throw new RuntimeException(xlt("Missing fax receive date!"));
                 }
-
                 // get the raw and any fields
                 $faxDetails = $this->client->getFax($fax->JobId);
-
                 $to = $faxDetails->CalledNumber;
                 $from = $faxDetails->CallingNumber;
                 $params = $faxDetails->DocumentParams;
@@ -301,6 +291,7 @@ class EtherFaxActions extends AppDispatch
                 $id_esc = text($id);
                 $showFlag = 0;
                 foreach ($faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults as $r) {
+                    $details = null;
                     $docType = $params->Type;
                     $form = "<tr id='$id_esc' class='d-none collapse-all'><td colspan='12'>\n" .
                         "<div class='container table-responsive'>\n" .
@@ -321,15 +312,23 @@ class EtherFaxActions extends AppDispatch
                         $form .= '<td>' . text($field->Text) . "</td>\n";
                         $form .= '<td>' . text($field->Confidence * 100) . "</td>\n";
                         $form .= "</tr>\n";
+                        $details['dob'] = $field->Name == "Patient Date of Birth" ? $field->Text : $details['dob'];
+                        if (preg_match('/(Patient First Name)(Patient Last Name)/', $field->Name)) {
+                            $details['name'][$field->Name] = $field->Text;
+                        }
+                        $details['gender'] = $field->Text == "selected" && ($field->Name == "Patient Gender - Male") ? 'Male' : $details['gender'];
+                        $details['gender'] = $field->Text == "selected" && ($field->Name == "Patient Gender - Female") ? 'Female' : $details['gender'];
                     }
                     $form .= "</tbody></table></div></td></tr>\n";
                 }
-                $aLink = "<a role='button' href='javaScript:' onclick=getDocument(" . "event,'','$id_esc','true')> <span class='fa fa-download'></span></a></br>";
-                $vLink = "<a role='button' href='javaScript:' onclick=getDocument(" . "event,'','$id_esc','false')> <span class='fa fa-file-pdf'></span></a></br>";
-                $dLink = '';
+                $downloadLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <span class='fa fa-file-pdf'></span></a>";
+                $viewLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <span class='fa fa-file-pdf'></span></a>";
+                $details_esc = json_encode($details);
+                $forwardLink = "<a role='button' href='javaScript:' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <span class='fa fa-forward'></span>";
+                $detailLink = '';
                 if ($showFlag) {
                     $showFlag = text($showFlag) . ' ' . xlt("Items");
-                    $dLink = "$showFlag<a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")'></a>";
+                    $detailLink = "$showFlag<a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")'></a>";
                 }
 
                 $faxFormattedDate = date('M j, Y g:i:sa T', $faxDate);
@@ -339,9 +338,10 @@ class EtherFaxActions extends AppDispatch
                         "</td><td>" . text($from) . "</td><td>" . text($to) .
                         "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($docLen) .
-                        "</td><td class='text-center'>" . $dLink .
-                        "</td><td class='text-center'>" . $aLink .
-                        "</td><td class='text-center'>" . $vLink .
+                        "</td><td class='text-center'>" . $detailLink .
+                        "</td><td class='text-center'>" . $forwardLink .
+                        "</td><td class='text-center'>" . $downloadLink .
+                        "</td><td class='text-center'>" . $viewLink .
                         "</td></tr>";
                     $responseMsgs[0] .= $form;
                 }
@@ -373,12 +373,7 @@ class EtherFaxActions extends AppDispatch
         $isDownload = $isDownload == 'true' ? 1 : 0;
 
         if ($this->authenticate() !== 1) {
-            $e = xlt('Error: Authentication Service Denies Access. Not logged in.');
-            if ($this->authenticate() === 2) {
-                $e = xlt('Error: Application account credentials is not setup. Setup in Actions->Account Credentials.');
-            }
-            $ee = array('error' => $e);
-            return json_encode($ee);
+            return $this->authErrorDefault;
         }
 
         $faxStoreDir = $this->baseDir;
@@ -487,14 +482,12 @@ class EtherFaxActions extends AppDispatch
             foreach ($row as $value) {
                 $adate = ($value['pc_eventDate'] . '::' . $value['pc_startTime']);
                 $pinfo = str_replace("|||", " ", $value['patient_info']);
-                $msg = htmlspecialchars($value["message"], ENT_QUOTES);
-
-                $responseMsgs .= "<tr><td>" . $value["pc_eid"] . "</td><td>" . $value["dSentDateTime"] .
-                    "</td><td>" . $adate . "</td><td>" . $pinfo . "</td><td>" . $msg . "</td></tr>";
+                $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
+                    "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
         } catch (Exception $e) {
             $message = $e->getMessage();
-            return 'Error: ' . $message . PHP_EOL;
+            return 'Error: ' . text($message) . PHP_EOL;
         }
 
         return $responseMsgs;

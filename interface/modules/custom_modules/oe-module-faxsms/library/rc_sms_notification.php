@@ -49,6 +49,9 @@ $CRON_TIME = 150;
 if ($TYPE === "SMS") {
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
+    if (!$clientApp->verifyAcl()) {
+        die("<h3>" . xlt("Not Authorised!") . "</h3>");
+    }
 }
 // close writes
 session_write_close();

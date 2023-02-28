@@ -12,10 +12,9 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-require_once(__DIR__ . "/../../../../../../controllers/C_Document.class.php");
-
 use Document;
 use MyMailer;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 
 /**
@@ -26,6 +25,7 @@ use OpenEMR\Common\Session\SessionUtil;
 abstract class AppDispatch
 {
     const ACTION_DEFAULT = 'index';
+    public string $authErrorDefault;
     static $_apiService;
     static $_apiModule;
     public static $timeZone;
@@ -45,6 +45,7 @@ abstract class AppDispatch
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
         $this->_session = &$_SESSION;
+        $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
@@ -226,7 +227,8 @@ abstract class AppDispatch
                 case 0:
                     break;
                 case 1:
-                    return new RCFaxClient();
+                    // for new service in future
+                    break;
                 case 2:
                     return new TwilioSMSClient();
             }
@@ -235,7 +237,8 @@ abstract class AppDispatch
                 case 0:
                     break;
                 case 1:
-                    return new RCFaxClient();
+                    // for new service in future
+                    break;
                 case 3:
                     return new EtherFaxActions();
             }
@@ -356,11 +359,11 @@ abstract class AppDispatch
                 'password' => "$password",
                 'appKey' => "$appkey",
                 'appSecret' => "$appsecret",
-                'server' => !$production ? 'https://platform.devtest.ringcentral.com' : "https://platform.ringcentral.com",
-                'portal' => !$production ? "https://service.devtest.ringcentral.com/" : "https://service.ringcentral.com/",
+                'server' => "",
+                'portal' => "",
                 'smsNumber' => "$smsNumber",
                 'production' => $production,
-                'redirect_url' => $this->getRequest('redirect_url') ?: $_REQUEST['redirect_url'],
+                'redirect_url' => "",
                 'smsHours' => $smsHours,
                 'smsMessage' => $smsMessage
             );
@@ -404,7 +407,7 @@ abstract class AppDispatch
     {
         switch ((string)self::getServiceType()) {
             case '1':
-                return '_ringcentral';
+                break;
             case '2':
                 return '_twilio';
             case '3':
@@ -457,7 +460,7 @@ abstract class AppDispatch
     public static function getLoggedInUser(): array
     {
         $id = $_SESSION['authUserID'] ?? 1;
-        $query = "SELECT fname, lname, fax, facility FROM users WHERE id = ?";
+        $query = "SELECT fname, lname, fax, facility, username FROM users WHERE id = ?";
         $result = sqlQuery($query, array($id));
 
         return $result;
@@ -475,15 +478,15 @@ abstract class AppDispatch
         return json_encode($result);
     }
 
+    /**
+     * @return string
+     */
     public function chartDocument(): string
     {
         $pid = $this->getRequest('pid');
         $docid = $this->getRequest('docid');
         $fileName = $this->getRequest('file_name');
         $mime = $this->getRequest('mime');
-
-        $obj = new \C_Document();
-        $content = $obj->retrieve_action("", $docid, true, true, true);
 
         $catid = sqlQuery("SELECT id FROM `categories` WHERE `name` = 'FAX'")['id'];
 
@@ -496,15 +499,22 @@ abstract class AppDispatch
             $content
         );
         if (!empty($result)) {
-            $err = xlt("ERROR Failed to import document for ccda. File Name") . ': ' . text($fileName);
-            error_log($err  . ' ' . $result);
+            $err = xlt("ERROR: Failed to save document. Category Fax");
+            error_log($err  . ' ' . text($result));
             return $err;
         }
         return $result;
     }
 
 
-    public function emailDocument($email, $body, $attfile, $pname)
+    /**
+     * @param $email
+     * @param $body
+     * @param $attfile
+     * @param $pname
+     * @return string
+     */
+    public function emailDocument($email, $body, $attfile, $pname): string
     {
         $desc = "Please check the attached patient document.\n Content:" . $body;
         $mail = new MyMailer();
@@ -520,11 +530,22 @@ abstract class AppDispatch
         $mail->Body = $desc;
         $mail->AddAttachment($attfile);
         if ($mail->Send()) {
-            $retstatus = "email_sent";
+            $status = xlt("Success email sent");
         } else {
-            $retstatus =  "ERROR email_failed" . $mail->ErrorInfo;
+            $status =  xlt("ERROR: email_failed") . $mail->ErrorInfo;
         }
-        return $retstatus;
+        return $status;
+    }
+
+    /**
+     * @param $sect
+     * @param $v
+     * @param $u
+     * @return bool
+     */
+    public function verifyAcl($sect = 'admin', $v = 'docs', $u = ''): bool
+    {
+        return AclMain::aclCheckCore($sect, $v, $u);
     }
 
     /**
@@ -532,6 +553,6 @@ abstract class AppDispatch
      */
     private function indexAction()
     {
-        {}        return null;
+        return null;
     }
 }
