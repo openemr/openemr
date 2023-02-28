@@ -17,9 +17,6 @@ use Guzzle\GuzzleHttp\GuzzleException;
 use Guzzle\Http\Client;
 use http\Exception;
 
-/*
- */
-
 class EtherFaxClient
 {
     const EFAX_API_URL = 'https://na.connect.etherfax.net/rest/3.0/api';
@@ -42,6 +39,9 @@ class EtherFaxClient
         // set credentials, default timeout
         $this->setCredentials($account, $user, $password, $key);
         $this->timeout = EtherFaxClient::DEFAULT_TIMEOUT;
+        if (empty($GLOBALS['oefax_enable_fax'] ?? null)) {
+            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+        }
     }
 
     /**

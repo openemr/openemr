@@ -25,9 +25,9 @@ use OpenEMR\Common\Session\SessionUtil;
 abstract class AppDispatch
 {
     const ACTION_DEFAULT = 'index';
-    public string $authErrorDefault;
     static $_apiService;
     static $_apiModule;
+    public string $authErrorDefault;
     public static $timeZone;
     protected $crypto;
     protected $_currentAction;

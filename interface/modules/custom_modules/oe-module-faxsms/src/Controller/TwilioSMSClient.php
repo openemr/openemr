@@ -30,6 +30,9 @@ class TwilioSMSClient extends AppDispatch
 
     public function __construct()
     {
+        if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+        }
         $this->crypto = new CryptoGen();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
