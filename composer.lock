@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2bfd16bc65efc496ba29f845f1f14c2b",
+    "content-hash": "37fb7ba8f995da9fa47b9b4c0c68f2b1",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -6936,60 +6936,6 @@
             "time": "2021-10-29T13:26:27+00:00"
         },
         {
-            "name": "pubnub/pubnub",
-            "version": "4.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pubnub/php.git",
-                "reference": "3377dcf2c1e0da6ef1019bebe19a44e602019350"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pubnub/php/zipball/3377dcf2c1e0da6ef1019bebe19a44e602019350",
-                "reference": "3377dcf2c1e0da6ef1019bebe19a44e602019350",
-                "shasum": ""
-            },
-            "require": {
-                "monolog/monolog": "^1.1|^2.0",
-                "php": ">=5.6.0",
-                "rmccue/requests": "^1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^5.7"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "PubNub\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PubNub",
-                    "email": "support@pubnub.com"
-                }
-            ],
-            "description": "The Only Global Network For Real-Time Data -- PubNub!",
-            "homepage": "http://www.pubnub.com/",
-            "keywords": [
-                "ajax",
-                "api",
-                "push",
-                "real time",
-                "real-time",
-                "realtime"
-            ],
-            "support": {
-                "issues": "https://github.com/pubnub/php/issues",
-                "source": "https://github.com/pubnub/php/tree/v4.7.0"
-            },
-            "time": "2021-12-16T19:45:04+00:00"
-        },
-        {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "source": {
@@ -7203,147 +7149,6 @@
                 }
             ],
             "time": "2022-11-05T23:03:38+00:00"
-        },
-        {
-            "name": "ringcentral/ringcentral-php",
-            "version": "2.3.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ringcentral/ringcentral-php.git",
-                "reference": "ef727798c4a4bea62191a577daa1d1aa5730c1b3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ringcentral/ringcentral-php/zipball/ef727798c4a4bea62191a577daa1d1aa5730c1b3",
-                "reference": "ef727798c4a4bea62191a577daa1d1aa5730c1b3",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-json": "*",
-                "guzzlehttp/guzzle": "^6.3.3|^7.4.1",
-                "guzzlehttp/psr7": "^2.1.0",
-                "php": ">=7.2",
-                "pubnub/pubnub": "^4.7.0",
-                "symfony/event-dispatcher": "^2|^3|^4|^5|^6"
-            },
-            "require-dev": {
-                "macfja/phar-builder": "^0.2.8",
-                "php-coveralls/php-coveralls": "^2.1",
-                "phpunit/phpunit": "^7.5.12|^8.0|^9.0"
-            },
-            "suggest": {
-                "ext-openssl": "to decrypt PubNub messages"
-            },
-            "type": "library",
-            "extra": {
-                "phar-builder": {
-                    "compression": "gzip",
-                    "name": "ringcentral.phar",
-                    "output-dir": "./dist",
-                    "entry-point": "./vendor/autoload.php",
-                    "skip-shebang": true,
-                    "include": [],
-                    "excluded": [
-                        "vendor/bin"
-                    ],
-                    "include-dev": false
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "RingCentral\\SDK\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kirill Konshin",
-                    "email": "kirill.konshin@ringcentral.com"
-                },
-                {
-                    "name": "Byrne Reese",
-                    "email": "byrne.reese@ringcentral.com"
-                }
-            ],
-            "description": "RingCentral Platform PHP SDK",
-            "homepage": "http://developers.ringcentral.com",
-            "keywords": [
-                "api",
-                "connect",
-                "php",
-                "platform",
-                "ringcentral",
-                "sdk"
-            ],
-            "support": {
-                "issues": "https://github.com/ringcentral/ringcentral-php/issues",
-                "source": "https://github.com/ringcentral/ringcentral-php/tree/2.3.4"
-            },
-            "time": "2023-01-20T02:55:16+00:00"
-        },
-        {
-            "name": "rmccue/requests",
-            "version": "v1.8.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WordPress/Requests.git",
-                "reference": "82e6936366eac3af4d836c18b9d8c31028fe4cd5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/Requests/zipball/82e6936366eac3af4d836c18b9d8c31028fe4cd5",
-                "reference": "82e6936366eac3af4d836c18b9d8c31028fe4cd5",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.2"
-            },
-            "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-                "php-parallel-lint/php-console-highlighter": "^0.5.0",
-                "php-parallel-lint/php-parallel-lint": "^1.3",
-                "phpcompatibility/php-compatibility": "^9.0",
-                "phpunit/phpunit": "^4.8 || ^5.7 || ^6.5 || ^7.5",
-                "requests/test-server": "dev-master",
-                "squizlabs/php_codesniffer": "^3.5",
-                "wp-coding-standards/wpcs": "^2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Requests": "library/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "ISC"
-            ],
-            "authors": [
-                {
-                    "name": "Ryan McCue",
-                    "homepage": "http://ryanmccue.info"
-                }
-            ],
-            "description": "A HTTP library written in PHP, for human beings.",
-            "homepage": "http://github.com/WordPress/Requests",
-            "keywords": [
-                "curl",
-                "fsockopen",
-                "http",
-                "idna",
-                "ipv6",
-                "iri",
-                "sockets"
-            ],
-            "support": {
-                "issues": "https://github.com/WordPress/Requests/issues",
-                "source": "https://github.com/WordPress/Requests/tree/v1.8.1"
-            },
-            "time": "2021-06-04T09:56:25+00:00"
         },
         {
             "name": "robthree/twofactorauth",
