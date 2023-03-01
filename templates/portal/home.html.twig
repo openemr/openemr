@@ -366,18 +366,10 @@
                         $('.assessment-row').toggleClass('d-none');
                         for (var j = 0; j < data.Items[0].Elements.length; j++) {
                             if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-                                screen = screen + `<label class="font-weight-bolder mx-1">${
-                                    data.Items[0].Elements[j].Description
-                                }</label>`;
+                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
                             } else {
                                 for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${
-                                        data.Items[0].Elements[j].Map[k].Value
-                                    }" name="${
-                                        data.Items[0].Elements[j].Map[k].ItemResponseOID
-                                    }" value="${
-                                        data.Items[0].Elements[j].Map[k].Description
-                                    }" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
+                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
                                 }
                             }
                         }
