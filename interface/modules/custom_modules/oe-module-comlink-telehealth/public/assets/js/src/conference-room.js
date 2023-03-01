@@ -1131,7 +1131,8 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.handleInviteCallback = function() {
         let dialog = new AddPatientDialog(this.apiCSRFToken, translations, conf.telehealthSessionData.pc_eid
-            , conf.getRemoteScriptLocation(), conf.callerSettings.participantList, function(callerSettings) {
+            , conf.getRemoteScriptLocation(), comlink.settings.fhirPath, conf.callerSettings.participantList
+            , function(callerSettings) {
             // make suer we update our caller settings with the newly allowed patient so the provider can receive the call
             if (callerSettings) {
                 conf.callerSettings = callerSettings;

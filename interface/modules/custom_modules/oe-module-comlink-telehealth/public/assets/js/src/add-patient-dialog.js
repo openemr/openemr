@@ -26,6 +26,12 @@ export class AddPatientDialog
     scriptLocation = null;
 
     /**
+     * Address of the FHIR api endpoint
+     * @type string
+     */
+    fhirLocation = null;
+
+    /**
      *
      * @type {function}
      */
@@ -45,9 +51,10 @@ export class AddPatientDialog
 
     __updateParticipants = false;
 
-    constructor(apiCSRFToken, translations, pc_eid, scriptLocation, participantList, closeCallback) {
+    constructor(apiCSRFToken, translations, pc_eid, scriptLocation, fhirLocation, participantList, closeCallback) {
         this.pc_eid = pc_eid;
         this.scriptLocation = scriptLocation;
+        this.fhirLocation = fhirLocation;
         this.closeCallback = closeCallback;
         this.__translations = translations;
         this.__apiCSRFToken = apiCSRFToken;
@@ -126,11 +133,9 @@ export class AddPatientDialog
     }
 
     sendSearchResults(inputValues) {
+        // example FHIR request
         // let url = '/apis/default/fhir/Patient/_search?given:contains=<fname>&family:contains=<lname>&birthDate=<dob>'
-        // TODO: @adunsulag note the local api SKIPS the site parameter.  I don't really like that but for now we will
-        // ignore the site parameter as well
-        // TODO: @adunsulag need to make sure we get the FQDN url here.
-        let url = '/apis/fhir/Patient';
+        let url = this.fhirLocation + '/Patient';
         let searchParams = [];
 
         if (inputValues.pid) {
@@ -175,7 +180,6 @@ export class AddPatientDialog
             .then(result => {
                 if (!(result.ok && result.status == 200))
                 {
-                    // TODO: @adunsulag update the session title here...
                     this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
                     throw new Error("Failed to save participant in " + this.pc_eid + " with save data");
                 } else {
@@ -389,22 +393,21 @@ export class AddPatientDialog
     {
         let inputs = ['fname', 'lname', 'DOB', 'email', 'pid'];
         let inputValues = this.getInputValues('search-patient', inputs);
-        // TODO: @adunsulag need to do form validation checking...
+        // form validation happens server side.
+        this.toggleActionButton(false);
         this.sendSearchResults(inputValues)
             .then(result => {
+                this.toggleActionButton(true);
                 if (result.length) {
                     this.populateSearchResults(result);
                 }
                 else {
-                    // TODO: @adunsulag change this.
                     this.populateSearchResults([]);
                     let resultMessage = this.__translations.SEARCH_RESULTS_NOT_FOUND;
-                    setTimeout(function() {
-                        alert(resultMessage);
-                    }, 0);
                 }
             })
             .catch(error => {
+                this.toggleActionButton(true);
                 console.error(error);
             });
     }
@@ -415,12 +418,21 @@ export class AddPatientDialog
         // for now we don't do the searching but we will do the invitation here...
         this.clearActionAlerts();
         this.showActionAlert('info', this.__translations.PATIENT_INVITATION_PROCESSING);
-        // TODO: need to disable the save button during the save.
+        this.toggleActionButton(false);
         this.sendSaveParticipant(inputValues)
+        .then(() => {
+            this.toggleActionButton(true);
+        })
         .catch(error => {
+            this.toggleActionButton(true);
             console.error(error);
             this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
         });
+    }
+
+    toggleActionButton(enabled) {
+        let btns = this.container.querySelectorAll('.btn-create-patient,.btn-invite-search');
+        btns.forEach(b => b.disabled = !enabled);
     }
 
     handleSaveParticipantErrorResponse(json) {

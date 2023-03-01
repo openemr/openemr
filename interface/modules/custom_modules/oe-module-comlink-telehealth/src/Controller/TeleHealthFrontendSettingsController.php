@@ -46,6 +46,7 @@ class TeleHealthFrontendSettingsController
                 'translations' => $this->getTranslationSettings()
                 ,'modulePath' => $modulePath
                 ,'assetPath' => $assetPath
+                ,'fhirPath' => $this->config->getFHIRPath()
                 ,'apiCSRFToken' => ''
                 ,'features' => [
                     'thirdPartyInvitations' => $this->config->isThirdPartyInvitationsEnabled()
