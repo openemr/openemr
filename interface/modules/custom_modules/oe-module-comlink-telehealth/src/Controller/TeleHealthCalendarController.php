@@ -191,11 +191,20 @@ class TeleHealthCalendarController
         }
         // don't show the launch button for a complete status
         if ($this->getAppointmentService()->isCheckOutStatus($row['pc_apptstatus'])) {
+            echo "<button class='mt-2 btn btn-disabled' disabled><i class='fa fa-video m-2'></i>"
+                . xlt("TeleHealth Session Ended") . "</button>";
+            echo "<p>" . xlt("Session has been completed.") . " "
+                . xl("Change the appointment status in order to launch this session again.") . "</p>";
             return;
         }
-        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $row['eventDate']
-            . " " . $row['startTime']);
-        if ($dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)) {
+        $eventDateTimeString = $row['pc_eventDate'] . " " . $row['pc_startTime'];
+        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $eventDateTimeString);
+        if ($dateTime === false) {
+            (new SystemLogger())->errorLogCaller("appointment date time string was invalid", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
+            return;
+        }
+
+        if (CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)) {
             echo "<button data-eid='" . attr($row['pc_eid']) . "' data-pid='" . attr($row['pc_pid'])
                 . "' class='mt-2 btn btn-primary btn-add-edit-appointment-launch-telehealth'><i class='fa fa-video m-2'></i>"
                 . xlt("Launch TeleHealth Session") . "</button>";
