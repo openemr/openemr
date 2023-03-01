@@ -485,31 +485,33 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     <?php } ?>
                     <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>
-                            <div class="form-group mt-1">
-                                <label class="col-form-label-sm" for="selLanguage"><?php echo xlt('Language'); ?></label>
-                                <select class="form-control form-control-sm" id="selLanguage" name="languageChoice">
-                                    <?php
-                                    echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
-                                        text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                                    foreach ($result3 as $iter) {
-                                        if ($GLOBALS['language_menu_showall']) {
-                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                continue; // skip the dummy language
-                                            }
-                                            echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                text($iter['trans_lang_description']) . "</option>\n";
-                                        } else {
-                                            if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                            <div class="form-row mt-3">
+                                <label class="col-form-label col-md-2" for="selLanguage"><?php echo xlt('Language'); ?></label>
+                                <div class="col-md">
+                                    <select class="form-control" id="selLanguage" name="languageChoice">
+                                        <?php
+                                        echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
+                                            text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
+                                        foreach ($result3 as $iter) {
+                                            if ($GLOBALS['language_menu_showall']) {
                                                 if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                                     continue; // skip the dummy language
                                                 }
                                                 echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                                     text($iter['trans_lang_description']) . "</option>\n";
+                                            } else {
+                                                if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                        continue; // skip the dummy language
+                                                    }
+                                                    echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                                        text($iter['trans_lang_description']) . "</option>\n";
+                                                }
                                             }
                                         }
-                                    }
-                                    ?>
-                                </select>
+                                        ?>
+                                    </select>
+                                </div>
                             </div>
                         <?php }
                     } ?>
