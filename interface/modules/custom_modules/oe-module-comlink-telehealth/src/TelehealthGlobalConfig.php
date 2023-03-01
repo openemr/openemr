@@ -89,7 +89,8 @@ class TelehealthGlobalConfig
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
     }
 
-    public function getFHIRPath() {
+    public function getFHIRPath()
+    {
         // this is the internal fhir path not the one accessible from the globals config
         $webroot = $this->getGlobalSetting('webroot');
         $path = ($webroot ?? "") . '/apis/fhir/';

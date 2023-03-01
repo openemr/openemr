@@ -70,8 +70,12 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
      * @type string
      */
     this.room = null;
-    // TODO: @adunsulag rename this variable to be roomModal
-    this.waitingRoomModal = null;
+
+    /**
+     * DOM Node for the modal that is popped up on the screen holding the waiting room / conference room modal
+     * @type HTMLElement
+     */
+    this.roomModal = null;
 
     /**
      * Are we currently in the conference room session
@@ -555,8 +559,8 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         // // now we will attach all of our event listeners here onto the document content.
         let container = document.getElementById('telehealth-container');
         conf.initWaitingRoomEvents(container);
-        conf.waitingRoomModal = modal;
-        conf.waitingRoomModal.show();
+        conf.roomModal = modal;
+        conf.roomModal.show();
     };
 
     this.setupWaitingRoom = function()
@@ -792,7 +796,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 jQuery("#telehealth-container").off("hidden.bs.modal");
                 conf.destruct()
             });
-            conf.waitingRoomModal.hide();
+            conf.roomModal.hide();
         }
     };
 
@@ -855,9 +859,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             </div>`;
         window.document.body.appendChild(bootstrapModalTemplate.firstElementChild);
         var container = document.getElementById('telehealth-container');
-        conf.waitingRoomModal = new bootstrap.Modal(container, {keyboard: false, focus: true, backdrop: 'static'});
+        conf.roomModal = new bootstrap.Modal(container, {keyboard: false, focus: true, backdrop: 'static'});
         conf.initModalEvents(container);
-        return conf.waitingRoomModal;
+        return conf.roomModal;
     };
 
     this.startConferenceRoom = function()
@@ -1236,7 +1240,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         this.__minimizedConferenceRoom = new MinimizedConferenceRoom(container, defaultSettings);
         this.__minimizedConferenceRoom.minimizeConferenceRoom(this.getMinimizedConferenceVideoBarSettings(), );
         this.resetConferenceVideoBar(); // make sure we reset our controls here before we continue
-        conf.waitingRoomModal.hide();
+        conf.roomModal.hide();
         this.updateParticipantDisplays();
     };
 
@@ -1253,10 +1257,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
 
             // everything's moved we can now display the larger video modal.
-            if (conf.waitingRoomModal) {
-                conf.waitingRoomModal.show();
+            if (conf.roomModal) {
+                conf.roomModal.show();
             } else {
-                console.error("Failed to find waitingRoomModal");
+                console.error("Failed to find roomModal");
             }
         }
         this.updateParticipantDisplays();

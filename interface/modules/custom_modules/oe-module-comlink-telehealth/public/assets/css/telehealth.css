@@ -49,22 +49,21 @@
 }
 
 #minimized-telehealth-video.top-left {
-  top: 0;
   left: 0;
+  top: 0;
 }
 
 #minimized-telehealth-video.top-right {
-  top: 0;
   right: 0;
+  top: 0;
 }
 
-#minimized-telehealth-video.bottom-left
-{
+#minimized-telehealth-video.bottom-left {
   bottom: 0;
   left: 0;
 }
-#minimized-telehealth-video.bottom-right
-{
+
+#minimized-telehealth-video.bottom-right {
   bottom: 0;
   right: 0;
 }
@@ -112,26 +111,27 @@
 }
 
 .conference-room .sidebar {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  bottom: 0;
   background: transparent;
-  z-index: 1;
+  bottom: 0;
   left: 0;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  z-index: 1;
 }
 
 /** sidebar highlight **/
 .conference-room .sidebar .conference-highlight {
-  position: absolute;
   /** patient portal has var(--black) but OpenEMR theme does not... so we use #000 **/
   background: #000;
+  position: absolute;
   transition: opacity 1s;
 }
 
 .conference-room.active .sidebar .conference-highlight
-,.conference-room .sidebar .conference-highlight {
-  opacity: .4;
+,
+.conference-room .sidebar .conference-highlight {
+  opacity: 0.4;
 }
 
 .conference-room.idle .sidebar .conference-highlight {
@@ -139,23 +139,23 @@
 }
 
 .conference-room .sidebar .sidebar-highlight {
-  top: 0;
   bottom: 0;
+  top: 0;
   width: 100%;
 }
 
 .conference-room .sidebar .sidebar-controls {
+  bottom: 0;
+  left: calc(100%);
   position: absolute;
   top: 0;
-  left: calc(100%);
-  bottom: 0;
   width: 2rem;
 }
 
 
 .conference-room .sidebar .participant-list-container {
-  z-index: 2;
   height: calc(100% - 3rem);
+  z-index: 2;
 }
 
 .conference-room .sidebar .list-minimize .participant-list-expand {
@@ -184,9 +184,11 @@
 .conference-room .sidebar.minimized  .list-minimize {
   display: block;
 }
+
 .conference-room .sidebar.minimized .list-minimize .participant-list-collapse {
   display: none;
 }
+
 .conference-room .sidebar.minimized .list-minimize .participant-list-expand {
   display: block;
 }
@@ -202,25 +204,30 @@
 .telehealth-button-bar {
   background-color: #000;
   font-size: 1.25rem;
-  text-align: center;
-  width: 100%;
-  position:absolute;
-  z-index: 40;
   line-height: 2.5rem;
   max-height: 3rem;
+  position: absolute;
+  text-align: center;
   transition: opacity 1s;
+  width: 100%;
+  z-index: 40;
 }
+
 .conference-room.active .telehealth-button-bar
-,.conference-room.active .sidebar .list-minimize {
+,
+.conference-room.active .sidebar .list-minimize {
   opacity: 1;
 }
+
 .conference-room.idle .telehealth-button-bar
-, .conference-room.idle .sidebar .list-minimize {
+,
+.conference-room.idle .sidebar .list-minimize {
   opacity: 0;
 }
+
 #minimized-telehealth-video .telehealth-button-bar {
-  position: absolute;
   bottom: 0;
+  position: absolute;
 }
 
 .conference-room #local-video-container {
@@ -229,7 +236,8 @@
   top: 0;
 }
 
-.conference-room .remote-video, .conference-room .remote-screenshare {
+.conference-room .remote-video,
+.conference-room .remote-screenshare {
   max-height: 90vh;
 }
 
@@ -256,45 +264,53 @@
 }
 
 .conference-room .participant-list-container .participant-video {
-  max-height: 20vh;
   background-color: #000;
+  max-height: 20vh;
 }
 
 .conference-room .participant-list-container .participant-container
-, #minimized-telehealth-video .participant-list-container .participant-container {
-  position: relative;
-  border-radius: .25rem;
+,
+#minimized-telehealth-video .participant-list-container .participant-container {
+  border-radius: 0.25rem;
   overflow: hidden;
+  position: relative;
 }
+
 .conference-room .participant-list-container .participant-container .video-control {
-  position: absolute;
   display: none;
+  position: absolute;
 }
 
 .conference-room .participant-list-container .participant-container .participant-label-bg
-, .waiting-room .local-participant .participant-label-bg
-, #minimized-telehealth-video .participant-container .participant-label-bg {
-  position: absolute;
+,
+.waiting-room .local-participant .participant-label-bg
+,
+#minimized-telehealth-video .participant-container .participant-label-bg {
   bottom: 0;
+  height: 2rem;
+  opacity: 0.3;
+  position: absolute;
   right: 0;
   width: 100%;
-  opacity: .3;
-  height: 2rem;
 }
+
 .conference-room .participant-list-container .participant-container .participant-label
-, .waiting-room .local-participant .participant-label
-, #minimized-telehealth-video .participant-container .participant-label {
-  position: absolute;
+,
+.waiting-room .local-participant .participant-label
+,
+#minimized-telehealth-video .participant-container .participant-label {
   bottom: 0;
+  position: absolute;
   right: 0;
   width: 100%;
   z-index: 999;
 }
 
 #minimized-telehealth-video .participant-container .participant-label
-,#minimized-telehealth-video  .participant-container .participant-label-bg {
-  top: 0;
+,
+#minimized-telehealth-video  .participant-container .participant-label-bg {
   bottom: inherit;
+  top: 0;
 }
 
 .conference-room .participant-list-container .participant-container:hover .video-control {
@@ -306,17 +322,18 @@
 }
 
 .conference-room .participant-list-container .participant-container.pinned .video-control.video-control-pin {
-  display: block;
   color: var(--success) !important;
+  display: block;
 }
 
 .conference-room .participant-list-container .participant-container .video-control.video-control-pin {
-  top: 2px;
   left: 2px;
-}
-.conference-room .participant-list-container .participant-container .video-control.video-control-more {
   top: 2px;
+}
+
+.conference-room .participant-list-container .participant-container .video-control.video-control-more {
   right: 2px;
+  top: 2px;
 }
 
 #minimized-telehealth-video {
@@ -334,6 +351,7 @@
 #telehealth-container .search-patient-list .missing-email .no-email-message {
   display: block;
 }
+
 #telehealth-container .search-patient-list .missing-email .btn-select-patient {
   display: none;
 }

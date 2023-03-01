@@ -134,7 +134,7 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
         // first we have to cleanup any existing slots we have
         patientConferenceRoom.cleanupSlots();
         let telehealthSessionData = patientConferenceRoom.telehealthSessionData;
-        let modalDialog = patientConferenceRoom.waitingRoomModal;
+        let modalDialog = patientConferenceRoom.roomModal;
         var container = document.getElementById('telehealth-container');
         var body = container.querySelector('.modal-body');
         var video = document.getElementById('local-video');
@@ -173,7 +173,7 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
 
     patientConferenceRoom.setWaitingRoomModal = function(waitingRoomModal)
     {
-        patientConferenceRoom.waitingRoomModal = waitingRoomModal;
+        patientConferenceRoom.roomModal = waitingRoomModal;
     };
 
     patientConferenceRoom.setupWaitingRoom = function()
