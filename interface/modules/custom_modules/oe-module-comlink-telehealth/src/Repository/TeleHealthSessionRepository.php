@@ -73,8 +73,8 @@ class TeleHealthSessionRepository
         $sql = "INSERT INTO " . self::TABLE_NAME . " (pc_eid, user_id, encounter, pid) VALUES (?,?,?,?)";
         (new SystemLogger())->debug("Attempting to create session ", ['pc_eid' => $pc_eid, 'user_id' => $user_id, 'encounter' => $encounter, 'pid' => $pid]);
         $sessionId = QueryUtils::sqlInsert($sql, [$pc_eid, $user_id, $encounter, $pid]);
-        // now return the record
-        return $this->getSessionByEncounter($encounter);
+        // now return the record.  Should be a 1:1 relationship with appointments.  Encounters can be a m:1 relationship
+        return $this->getSessionByAppointmentId($pc_eid, $user_id);
     }
 
     public function addRelatedPartyToSession($pc_eid, $pid_related)
