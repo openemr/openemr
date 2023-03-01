@@ -17,6 +17,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettin
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProviderNotEnrolledException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TeleHealthProviderSuspendedException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProvisioningServiceRequestException;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthValidationException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
@@ -27,6 +28,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningServ
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -42,6 +44,7 @@ use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientAccessOnsiteService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Log\LoggerInterface;
 use Twig\Environment;
@@ -354,13 +357,16 @@ class TeleconferenceRoomController
                 http_response_code(200);
                 echo json_encode(['callerSettings' => $settings]);
             } else {
-                // TODO: @adunsulag need to flesh out the error checking here.
-                http_response_code(400);
-                header("Content-type: application/json");
-                echo json_encode(['error' => xlt("Participants data was invalid")]);
+                throw new InvalidArgumentException("Failed to find session for pc_eid " . $pc_eid);
             }
+        } catch (TelehealthValidationException $exception) {
+            http_response_code(400);
+            header("Content-type: application/json");
+            echo json_encode(['error' => xlt($exception->getMessage()), 'fields' => $exception->getValidationErrors()]);
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         } catch (\InvalidArgumentException $exception) {
             http_response_code(400);
+            header("Content-type: application/json");
             echo json_encode(['error' => xlt($exception->getMessage())]);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         } catch (Exception $exception) {
@@ -388,14 +394,19 @@ class TeleconferenceRoomController
             ,'hipaa_allowemail' => $yesOption['title']
             ,'allow_patient_portal' => $yesOption['title']
         ];
-        $result = $patientService->insert($insertData);
+        // do our more strict validation then pass on to the Patient Service Insert
+        $patientValidator = new TelehealthPatientValidator();
+        $result = $patientValidator->validate($insertData, TelehealthPatientValidator::TELEHEALTH_INSERT_CONTEXT);
+        if (!$result->hasErrors()) {
+            $result = $patientService->insert($insertData);
+        }
         if ($result->hasErrors()) {
             // need to throw the exception
             $message = "";
             foreach ($result->getValidationMessages() as $key => $value) {
                 $message .= "Validation failed for key $key with messages " . implode(";", $value) . ".";
             }
-            throw new InvalidArgumentException($message);
+            throw new TelehealthValidationException($result->getValidationMessages(), $message);
         } else if ($result->hasInternalErrors()) {
             throw new \RuntimeException(implode(". ", $result->getInternalErrors()));
         }
@@ -910,11 +921,13 @@ class TeleconferenceRoomController
         return $this->twig->render('comlink/waiting-room.twig', $data);
     }
 
-    public function isPendingAppointment($appointment) {
+    public function isPendingAppointment($appointment)
+    {
         return $this->appointmentService->isPendingStatus($appointment['pc_apptstatus']);
     }
 
-    public function removeAppointmentPendingStatus($appointment, $userId) {
+    public function removeAppointmentPendingStatus($appointment, $userId)
+    {
         $listService = new ListService();
         $options = $listService->getOptionsByListName('apptstat');
         $noStatus = '-';

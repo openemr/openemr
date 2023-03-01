@@ -95,7 +95,10 @@ class TeleHealthFrontendSettingsController
                 'PATIENT_INVITATION_PROCESSING' => xl("Sending Invitation"),
                 'PATIENT_INVITATION_SUCCESS' => xl("Invitation Sent"),
                 'CLIPBOARD_COPY_SUCCESS' => xl("Information copied to clipboard"),
-                'CLIPBOARD_COPY_FAILURE' => xl("Failed to copy information to clipboard, try again or contact support")
+                'CLIPBOARD_COPY_FAILURE' => xl("Failed to copy information to clipboard, try again or contact support"),
+                'PATIENT_CREATE_INVALID_DOB' => xl("Patient date of birth is missing, or invalid"),
+                'PATIENT_CREATE_INVALID_EMAIL' => xl("Patient email is missing, invalid, or cannot be processed by this system"),
+                'PATIENT_CREATE_INVALID_NAME' => xl("Patient name is missing, or invalid")
         ];
         return $translations;
     }

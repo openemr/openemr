@@ -77,14 +77,18 @@ export class AddPatientDialog
                 ,redirect: 'manual'
             })
             .then(result => {
-                if (!(result.ok && result.status == 200))
-                {
-                    throw new Error("Failed to save participant in " + this.pc_eid + " with save data");
-                } else {
+                if (result.status == 400 || (result.ok && result.status == 200)) {
                     return result.json();
+                } else {
+                    throw new Error("Failed to save participant in " + this.pc_eid + " with save data");
                 }
             })
             .then(jsonResult => {
+                if (jsonResult.error) {
+                    this.handleSaveParticipantErrorResponse(jsonResult);
+                    return;
+                }
+
                 let callerSettings = jsonResult.callerSettings || {};
                 this.showActionAlert('success', this.__translations.PATIENT_INVITATION_SUCCESS);
                 // let's show we were successful and close things up.
@@ -414,10 +418,28 @@ export class AddPatientDialog
         // TODO: need to disable the save button during the save.
         this.sendSaveParticipant(inputValues)
         .catch(error => {
-            this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
-            // TODO: @adunsulag need to handle the errors here.
             console.error(error);
+            this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
         });
+    }
+
+    handleSaveParticipantErrorResponse(json) {
+        // need to display the error message.
+        let message = [];
+        if (json.fields) {
+            if (json.fields.DOB) {
+                message.push(this.__translations.PATIENT_CREATE_INVALID_DOB);
+            }
+            if (json.fields.email) {
+                message.push(this.__translations.PATIENT_CREATE_INVALID_EMAIL);
+            }
+            if (json.fields.fname || json.fields.lname) {
+                message.push(this.__translations.PATIENT_CREATE_INVALID_NAME);
+            }
+            this.showActionAlert('danger', message.join(". "));
+        } else {
+            this.showActionAlert('danger', this.__translations.OPERATION_FAILED);
+        }
     }
 
     clearActionAlerts() {
