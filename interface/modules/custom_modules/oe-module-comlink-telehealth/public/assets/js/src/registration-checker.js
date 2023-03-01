@@ -1,4 +1,13 @@
-
+/**
+ * Javascript function for checking the registration of the logged in user and registering them for telehealth if they
+ * are not currently registered.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 export function RegistrationChecker(scriptLocation)
 {
     var checker = this;

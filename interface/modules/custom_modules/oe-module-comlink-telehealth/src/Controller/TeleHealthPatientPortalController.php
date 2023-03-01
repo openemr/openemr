@@ -58,7 +58,6 @@ class TeleHealthPatientPortalController
 
     public function filterPatientAppointment(AppointmentFilterEvent $event)
     {
-        // TODO: need to handle data element where this is a third party joining...
         $dbRecord = $event->getDbRecord();
         $appointment = $event->getAppointment();
         // 'appointmentDate' => $dayname . ', ' . $row['pc_eventDate'] . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,

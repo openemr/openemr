@@ -1,5 +1,12 @@
-
-{# rename this file to patient-participant-list-item.html.twig #}
+{#
+ # Represents a single patient displayed in the add dialog screen list.
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 <div class="card-body patient-participant {% if template %}d-none template{% endif %}" data-pid="{{ patient.id|attr }}">
     <div class="row">
         <div class="col-md-2 telehealth-user-icon h1">

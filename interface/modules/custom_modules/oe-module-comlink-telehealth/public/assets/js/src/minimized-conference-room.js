@@ -1,3 +1,13 @@
+/**
+ * Javascript Controller for the minimized session window.  It handles both minimizing and maximizing of a conference
+ * session room.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 import {VideoBar} from "./video-bar.js";
 
 export class MinimizedConferenceRoom {

@@ -642,9 +642,7 @@ class TeleconferenceRoomController
                         throw new InvalidArgumentException("Failed to get user with session id " . $session['id']);
                     }
 
-                    $participantList = $this->getParticipantListForAppointment($pc_eid, $user, $session);
-                    // TODO: @adunsulag need to check to make sure we ONLY give permission to this action for providers with user access
-                    // and to the patients who are in the participant list
+                    $participantList = $this->getParticipantListForAppointment($user, $session);
                     if (!empty($queryVars['authUser'])) {
                         // do an ACL check
                         if (!AclMain::aclCheckCore("patients", "demo")) {
@@ -1013,31 +1011,22 @@ class TeleconferenceRoomController
     }
 
     /**
-     * TODO: when this method is in core, refactor this to use the AppointmentServices method
      * Returns a list of appointment statuses (also used with encounters).
      * @return array
      */
     private function getAppointmentStatuses()
     {
-        $listService = new ListService();
-        $options = $listService->getOptionsByListName('apptstat', ['activity' => 1]);
-        return $options;
+        return $this->appointmentService->getAppointmentStatuses();
     }
 
     /**
-     * TODO: when this method is in core, refactor this to use the AppointmentServices method
      * Checks to see if the passed in status is a valid appointment status for calendar appointments.
      * @param $status_option_id The status to check if its a valid appointment status
      * @return bool True if its valid, false otherwise
      */
     private function isValidAppointmentStatus($status_option_id)
     {
-        $listService = new ListService();
-        $option = $listService->getListOption('apptstat', $status_option_id);
-        if (!empty($option)) {
-            return true;
-        }
-        return false;
+        return $this->appointmentService->isValidAppointmentStatus($status_option_id);
     }
 
     /**
@@ -1114,7 +1103,7 @@ class TeleconferenceRoomController
                 'eid' => $session['pc_eid'],
                 'apptstatus' => $appt['pc_apptstatus']
             ]
-            ,'participantList' => $this->getParticipantListForAppointment($session['pc_eid'], $user, $session)
+            ,'participantList' => $this->getParticipantListForAppointment($user, $session)
             ,'encounter' => $encounter
             ,'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
             ,'sessionId' => $session['id']
@@ -1190,7 +1179,7 @@ class TeleconferenceRoomController
                 'eid' => $appt['pc_eid'],
                 'apptstatus' => $appt['pc_apptstatus']
             ]
-            ,'participantList' => $this->getParticipantListForAppointment($apptId, $user, $session)
+            ,'participantList' => $this->getParticipantListForAppointment($user, $session)
             ,'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
         ];
         return $data;
@@ -1208,8 +1197,7 @@ class TeleconferenceRoomController
         return false;
     }
 
-    // TODO: @adunsulag refactor $apptId out
-    private function getParticipantListForAppointment($apptId, $user, $session)
+    private function getParticipantListForAppointment($user, $session)
     {
         return $this->participantListService->getParticipantListForAppointment($user, $session);
     }

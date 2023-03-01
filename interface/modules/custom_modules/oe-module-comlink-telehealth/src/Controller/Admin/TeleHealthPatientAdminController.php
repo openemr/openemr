@@ -12,7 +12,6 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin;
 
-use Comlink\OpenEMR\Modules\TeleHealthModule\Models\UserVideoRegistrationRequest;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
@@ -21,6 +20,8 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
+use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 
 class TeleHealthPatientAdminController
 {
@@ -54,18 +55,12 @@ class TeleHealthPatientAdminController
 
     public function subscribeToEvents(EventDispatcher $dispatcher)
     {
-        // TODO: @adunsulag remove these checks when we embed into core.
-        // until we embed this into core we need to check to make sure we even exist before adding in this functionality
-        if (class_exists('\OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent')) {
-            $dispatcher->addListener(\OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent::EVENT_HANDLE, [$this, 'setupRegistrationCodeField']);
-        }
+        $dispatcher->addListener(PortalCredentialsTemplateDataFilterEvent::EVENT_HANDLE, [$this, 'setupRegistrationCodeField']);
 
-        if (class_exists('\OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent')) {
-            $dispatcher->addListener(\OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent::EVENT_UPDATE_POST, [$this, 'saveRegistrationCode']);
-        }
+        $dispatcher->addListener(PortalCredentialsUpdatedEvent::EVENT_UPDATE_POST, [$this, 'saveRegistrationCode']);
     }
 
-    public function saveRegistrationCode(\OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent $event)
+    public function saveRegistrationCode(PortalCredentialsUpdatedEvent $event)
     {
         $patientService = new PatientService();
         $patient = $patientService->findByPid($event->getPid());

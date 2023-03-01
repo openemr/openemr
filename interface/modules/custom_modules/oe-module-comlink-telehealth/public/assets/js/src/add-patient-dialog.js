@@ -1,3 +1,12 @@
+/**
+ * Javascript Controller for the Add Patient Dialog window in the telehealth conference room.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 export class AddPatientDialog
 {
@@ -37,18 +46,53 @@ export class AddPatientDialog
      */
     closeCallback = null;
 
+    /**
+     * Key value dictionary of the language translations
+     * @type {array}
+     * @private
+     */
     __translations = null;
 
+    /**
+     * Used for making unique modal ids
+     * @type {number}
+     * @private
+     */
     __idx = 0;
 
+    /**
+     * Cross Site Request Forgery token used to communicate with the internal API
+     * @type {null}
+     * @private
+     */
     __apiCSRFToken = null;
 
+    /**
+     * The current screen we are displaying inside the dialog
+     * @type {string}
+     * @private
+     */
     __currentScreen = null;
 
+    /**
+     * The caller settings received from the server that should be used for the telehealth session call
+     * @type {object}
+     * @private
+     */
     __updatedCallerSettings = null;
 
+    /**
+     * The list of participants that are in the call
+     * @type {object}
+     * @private
+     */
     __participantList = null;
 
+    /**
+     * Boolean that the DOM interface needs to be updated with the participant list changes.
+     * @type {boolean}
+     * @private
+     */
     __updateParticipants = false;
 
     constructor(apiCSRFToken, translations, pc_eid, scriptLocation, fhirLocation, participantList, closeCallback) {

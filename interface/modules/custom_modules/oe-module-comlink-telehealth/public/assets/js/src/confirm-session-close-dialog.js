@@ -1,4 +1,13 @@
-
+/**
+ * Javascript Controller for the session close dialog window.  It handles the updating of the appointment status
+ * and any other final actions that need to occur when a provider ends a session.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 export function ConfirmSessionCloseDialog(translations, pc_eid, scriptLocation, closeCallback)
 {
     let dialog = this;
