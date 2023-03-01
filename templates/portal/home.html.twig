@@ -62,7 +62,11 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(
-                    {'csrf_token_form': {{ csrfUtils | js_escape }}, 'where': where, 'portal_init': portalInit}
+                    {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'where': where,
+                        'portal_init': portalInit
+                    }
                 )
             });
         }
@@ -73,7 +77,8 @@
                 time;
             if (Number(inactivityTimeOut) < 300) {
                 inactivityTimeOut = 900; // 15 minutes. < 5 minutes is too short.
-            }time = inactivityTimeOut * 1000;
+            }
+            time = inactivityTimeOut * 1000;
 
             window.onload = resetLogOutTimer;
             window.onmousemove = resetLogOutTimer;
@@ -144,11 +149,15 @@
 
             $("#allergylist").load("./get_allergies.php", {}, function () {});
 
-            $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {});{% if portal_two_payments %}
-                $("#payment").load("./portal_payment.php", {}, function () {});{% endif %}
+            $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {});
+
+            {% if portal_two_payments %}
+                $("#payment").load("./portal_payment.php", {}, function () {});
+            {% endif %}
 
             {% if isEasyPro %}
-                $("#pro").load("./get_pro.php", {}, function () {});{% endif %}
+                $("#pro").load("./get_pro.php", {}, function () {});
+            {% endif %}
 
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
@@ -323,18 +332,10 @@
                         var screen = "";
                         for (var j = 0; j < data.Items[0].Elements.length; j++) {
                             if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-                                screen = screen + `<label class="font-weight-bolder mx-1">${
-                                    data.Items[0].Elements[j].Description
-                                }</label>`
+                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
                             } else {
                                 for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${
-                                        data.Items[0].Elements[j].Map[k].Value
-                                    }" name="${
-                                        data.Items[0].Elements[j].Map[k].ItemResponseOID
-                                    }" value="${
-                                        data.Items[0].Elements[j].Map[k].Description
-                                    }" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
+                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
                                 }
                             }
                         }
