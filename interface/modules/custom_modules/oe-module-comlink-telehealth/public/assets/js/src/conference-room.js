@@ -9,7 +9,7 @@ import {AddPatientDialog} from "./add-patient-dialog";
 import {MinimizedConferenceRoom} from "./minimized-conference-room";
 import {LocalCallerSlot} from "./local-caller-slot";
 
-// TODO: @adunsulag convert this to class nomenclature
+// TODO: @adunsulag convert this to class nomenclature (big project for future)
 export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scriptLocation)
 {
     let conf = this;
@@ -525,8 +525,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.canReceiveCall = function(call)
     {
         let callerId = call.getRemotePartyId();
-        // TODO: @adunsulag check to make sure we don't need to hit the server... we already have the calleeUuid which we got
-        // from the server... we can double check again by hitting the server and verifying the session has started and accept
+        // we could double check again by hitting the server and verifying the session has started and accept
         // the call, but that seems pretty paranoid to double check that...
         if (this.isAuthorizedParticipant(callerId))
         {
@@ -655,8 +654,6 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             return;
         }
 
-        // TODO: @adunsulag remove this debug
-        console.log("conference-room.destruct() called");
         conf.inSession = false;
         conf.waitingRoomTemplate = null;
         conf.conferenceRoomTemplate = null;
@@ -1009,8 +1006,6 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     this.updateConferenceRoomSession = function() {
         let appt = conf.callerSettings.appointment || {};
         let pc_eid = appt.eid || {};
-        // TODO: if we ever need to take action on the session update we would do that here.
-        // TODO: @adunsulag change eid here to be pc_eid
         window.top.restoreSession();
         window.fetch(conf.getRemoteScriptLocation() + '?action=conference_session_update&pc_eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
             .then((request) => {
@@ -1295,7 +1290,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         }
         let toggle = !conf.buttonSettings.cameraEnabled;
         conf.buttonSettings.cameraEnabled = toggle;
-        // TODO: @adunsulag remove this reliance on the node.dataset here.
+        // TODO: @adunsulag should we remove this reliance on the node.dataset here?
         node.dataset.enabled = toggle;
         if (conf.__bridge && conf.__bridge.enableCamera) {
             conf.__bridge.enableCamera(toggle);

@@ -79,7 +79,6 @@ export class ConfigureSessionCallDialog
             .then(result => {
                 if (!(result.ok && result.status == 200))
                 {
-                    // TODO: @adunsulag update the session title here...
                     alert(translations.APPOINTMENT_STATUS_UPDATE_FAILED);
                     console.error("Failed to update session " + this.pc_eid + " with settings " + settings);
                 }

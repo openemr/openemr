@@ -230,7 +230,6 @@ export class CallerSlot {
 
     destruct() {
         // do we really need a detach at this point?  We might as well just remove all of the nodes...
-        // TODO: @adunsulag look at refactoring this so we only have to call destruct
         this.detach();
         this.__selectCallbacks = [];
         if (this.__screenshareNode) {

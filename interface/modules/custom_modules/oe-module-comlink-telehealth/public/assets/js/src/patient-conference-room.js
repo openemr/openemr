@@ -75,9 +75,6 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
             // if the participant is in the room, let's make a call to that user.
             participantList.forEach(pl => {
                 if (pl.inRoom == 'Y') {
-                    if (pl.role == 'provider') {
-                        // TODO: here is where we say we want this person to be the focus screen.
-                    }
                     patientConferenceRoom.makeCall(pl.uuid);
                 }
             });
@@ -129,7 +126,6 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
     };
 
     patientConferenceRoom.hasProviderParticipant = function() {
-        // TODO: @adunsulag when we switch to 3rd party we can return the provider caller uuid
         return patientConferenceRoom.findCallerSlotWithId(patientConferenceRoom.callerSettings.calleeUuid) !== undefined;
     };
 

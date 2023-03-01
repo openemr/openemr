@@ -85,13 +85,6 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
         }
     }
 
-    // TODO: @adunsulag eventually we can merge this into our conference room app.
-    function ATApp(conferenceRoom, params)
-    {
-
-        return this;
-    }
-
     function launchProviderVideoMessage(data)
     {
         if (conferenceRoom)
@@ -111,19 +104,6 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
             , translations, getTeleHealthScriptLocation(false));
         conferenceRoom.init(data);
     }
-
-    // TODO: @adunsulag look at removing this debug when we are done with it.
-    function launchDebugConferenceRoomDialog(content) {
-        let room = new ConferenceRoom("", {}
-            , translations, getTeleHealthScriptLocation(false));
-        // override our hangup for creating our modal
-        // again this is just for testing purposes
-        room.handleCallHangup = function() {
-            room.sessionClose();
-        };
-        return room.createModalWithContent(content);
-    }
-
 
     function showPatientPortalDialog(appointmentEventId) {
             let telehealthSessionData = {
@@ -148,8 +128,6 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
         showPatientPortalDialog: showPatientPortalDialog,
         launchProviderVideoMessage: launchProviderVideoMessage,
         launchRegistrationChecker: launchRegistrationChecker,
-        // only used for debugging
-        launchDebugConferenceRoomDialog: launchDebugConferenceRoomDialog,
         getTeleHealthScriptLocation: getTeleHealthScriptLocation
     };
     // now reassign our comlink object or create it new if there are no other comlink extensions.

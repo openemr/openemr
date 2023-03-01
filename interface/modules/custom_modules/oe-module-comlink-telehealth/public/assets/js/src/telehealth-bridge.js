@@ -155,7 +155,6 @@ export class TelehealthBridge
                 return basedOnCall.start();
             }))
             .then(localCalls => {
-                // TODO: do we want to store off the local screen share calls anywhere?
                 return this.currentLocalScreenShareCall;
             })
             .catch(e => {

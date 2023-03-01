@@ -26,8 +26,6 @@ export class PresentationScreen
 
     updateCallerSlotScreen() {
         if (this.callerSlot && this.callerSlot.getCurrentCallStream() != null) {
-            // will this be true on every video element?
-            // TODO: @adunsulag test on this.
             if (this.videoElement && this.callerSlot.getCurrentCallStream() != this.videoElement.srcObject) {
                 this.videoElement.srcObject = this.callerSlot.getCurrentCallStream();
                 this.videoElement.play().catch(e => console.error("presentation-screen failed to play updated call slot", e));
