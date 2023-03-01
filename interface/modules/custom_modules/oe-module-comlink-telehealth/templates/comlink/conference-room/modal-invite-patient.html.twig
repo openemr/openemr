@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <div class="row screen primary-screen">
                     <div class="col-12 mb-3 third-party-patient-row {% if not participants %}d-none{% endif %}">
-                        {% include "comlink/conference-room/patient-thirdparty.html.twig" with {template: true} %}
+                        {% include "comlink/conference-room/patient-participant-row.html.twig" with {template: true} %}
                         <div class="card">
                             <div class="card-header">
                                 <div class="row">
@@ -21,7 +21,7 @@
                             </div>
                             {% for participant in participants %}
                                 {% if participant.role == 'patient' %}
-                                        {% include "comlink/conference-room/patient-thirdparty.html.twig" with {patient: participant} %}
+                                        {% include "comlink/conference-room/patient-participant-row.html.twig" with {patient: participant} %}
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -80,6 +80,7 @@
                                 </div>
                                 <p><span class="dob"></span> <span class="email"></span></p>
                                 <input type="button" class='btn btn-secondary btn-select-patient' value="{{ "Invite Patient"|xla }}" />
+                                <p class="no-email-message text-danger">{{ "Cannot invite patient with missing email"|xlt }}</p>
                             </li>
                         </ul>
                     </div>

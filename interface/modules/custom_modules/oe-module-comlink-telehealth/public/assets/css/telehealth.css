@@ -326,3 +326,14 @@
 #minimized-telehealth-video .participant-list-container .participant-container .video-control {
   display: none;
 }
+
+#telehealth-container .search-patient-list .no-email-message {
+  display: none;
+}
+
+#telehealth-container .search-patient-list .missing-email .no-email-message {
+  display: block;
+}
+#telehealth-container .search-patient-list .missing-email .btn-select-patient {
+  display: none;
+}

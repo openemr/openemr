@@ -130,26 +130,26 @@ export class AddPatientDialog
         let searchParams = [];
 
         if (inputValues.pid) {
-            searchParams.push("identifier=" + inputValues.pid);
+            searchParams.push("identifier=" + encodeURIComponent(inputValues.pid));
         }
         if (inputValues.fname || inputValues.lname) {
             let values = [];
             if (inputValues.fname) {
-                values.push(inputValues.fname);
+                values.push(encodeURIComponent(inputValues.fname));
             }
             if (inputValues.lname) {
-                values.push(inputValues.lname);
+                values.push(encodeURIComponent(inputValues.lname));
             }
             searchParams.push("name:contains=" + values.join(","));
         }
 
         if (inputValues.DOB) {
             // birthdate needs to be in Y-m-d prefix
-            searchParams.push("birthdate=" + inputValues.DOB);
+            searchParams.push("birthdate=" + encodeURIComponent(inputValues.DOB));
         }
 
         if (inputValues.email) {
-            searchParams.push("email:contains=" + inputValues.email);
+            searchParams.push("email:contains=" + encodeURIComponent(inputValues.email));
         }
 
         if (!searchParams.length) {
@@ -179,10 +179,11 @@ export class AddPatientDialog
                 }
             })
             .then(result => {
-                if (result.total == 0) {
+                if (result && result.hasOwnProperty('total') && result.total <= 0) {
                     this.showActionAlert('info', this.__translations.SEARCH_RESULTS_NOT_FOUND);
                     return [];
                 } else {
+                    this.clearActionAlerts();
                     // return the array of result entries.
                     return result.entry;
                 }
@@ -340,7 +341,7 @@ export class AddPatientDialog
             clonedNode.classList.remove('duplicate-match-row-template');
             parentNode.appendChild(clonedNode);
 
-            let pid = resource.identifier.find(i => i.type.coding.find(cd => cd.code == "PT") !== undefined);
+            let pid = (resource.identifier || []).find(i => i.type.coding.find(cd => cd.code == "PT") !== undefined);
             let pidValue = pid.value || "";
             this.setNodeInnerText(clonedNode, '.pid', pidValue);
 
@@ -349,15 +350,17 @@ export class AddPatientDialog
                 this.setNodeInnerText(clonedNode, '.dob', birthDate);
             }
 
-            let name = resource.name.find(n => n.use == 'official');
+            let name = (resource.name || []).find(n => n.use == 'official');
             if (name) {
                 this.setNodeInnerText(clonedNode, '.fname', name.given.join(" "));
                 this.setNodeInnerText(clonedNode, '.lname', name.family);
             }
 
-            let email = resource.telecom.find(t => t.system == 'email');
+            let email = (resource.telecom || []).find(t => t.system == 'email');
             if (email) {
                 this.setNodeInnerText(clonedNode, '.email', email.value);
+            } else {
+                clonedNode.classList.add('missing-email');
             }
 
             if (pidValue) {
