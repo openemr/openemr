@@ -635,6 +635,18 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             });
     };
 
+    this.cleanupSlots = function() {
+        this.__slots.forEach(s => {
+            try {
+                // don't let a slot cleanup stop everything
+                s.destruct();
+            } catch (error) {
+                console.error("Failed to cleanup slot ", error);
+            }
+        });
+        this.__slots = [];
+    };
+
     this.destruct = function()
     {
         // shouldn't
@@ -675,6 +687,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             conf.roomNode = null;
         }
         let container = document.getElementById('telehealth-container');
+
+        // cleanup any outstanding slots we have.
+        conf.cleanupSlots();
 
         if (conf.__bridge && conf.__bridge.shutdown)
         {

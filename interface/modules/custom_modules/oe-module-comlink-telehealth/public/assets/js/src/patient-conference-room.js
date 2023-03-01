@@ -4,6 +4,7 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
     let patientConferenceRoom = new ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scriptLocation);
     let parentDestruct = patientConferenceRoom.destruct;
     let checkProviderReadyForPatientInterval = null;
+    let hostDelayCheckTimeout = null;
     let providerIsReady = false;
 
     function checkProviderReadyForPatient()
@@ -134,6 +135,8 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
 
     patientConferenceRoom.replaceConferenceRoomWithWaitingRoom = function()
     {
+        // first we have to cleanup any existing slots we have
+        patientConferenceRoom.cleanupSlots();
         let telehealthSessionData = patientConferenceRoom.telehealthSessionData;
         let modalDialog = patientConferenceRoom.waitingRoomModal;
         var container = document.getElementById('telehealth-container');
@@ -151,7 +154,11 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
         }
         providerIsReady = false;
         patientConferenceRoom.initWaitingRoomEvents(container);
-        patientConferenceRoom.startProviderReadyCheck();
+        // wait five seconds before we check to see if the host has left to prevent our provider host check drift
+        hostDelayCheckTimeout = setTimeout(function() {
+            patientConferenceRoom.startProviderReadyCheck();
+        }, 5000);
+
     };
 
     patientConferenceRoom.handleCallHangup = function()
@@ -179,8 +186,15 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
         patientConferenceRoom.setupProviderWaitingRoom();
         patientConferenceRoom.startProviderReadyCheck();
     };
+    patientConferenceRoom.clearHostDelayTimeout = function() {
+        if (hostDelayCheckTimeout) {
+            clearTimeout(hostDelayCheckTimeout);
+            hostDelayCheckTimeout = null;
+        }
+    };
     patientConferenceRoom.destruct = function()
     {
+        patientConferenceRoom.clearHostDelayTimeout();
         patientConferenceRoom.stopProviderReadyCheck();
         // TODO: look at merging the two dialogs from patient versus provider
         if (window.dlgclose) {
@@ -190,6 +204,8 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
     };
     patientConferenceRoom.stopProviderReadyCheck = function()
     {
+        // in case we have a pending host delay.
+        patientConferenceRoom.clearHostDelayTimeout();
         if (checkProviderReadyForPatientInterval) {
             clearInterval(checkProviderReadyForPatientInterval);
             checkProviderReadyForPatientInterval = null;
