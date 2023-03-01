@@ -798,7 +798,6 @@ class TeleconferenceRoomController
             }
 
 
-            // if the a
             if ($this->shouldChangeProvider($appt, $userId)) {
                 // we change the current appointment to the new provider in case the patient is waiting for the session to start...
                 // TODO: Could there be a problem if someone tries to launch an appointment midstream of the telehealth session of another appointment?
@@ -836,6 +835,12 @@ class TeleconferenceRoomController
             $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
             if (empty($session)) {
                 $session = $this->sessionRepository->createSession($pc_eid, $userId, $encounter['eid'], $pid);
+            } else if ($session['pid'] != $pid) {
+                // this should be REALLY rare, the provider launched a session which created the session record to a patient
+                // they then closed the session, and changed the patient assigned to the current calendar patient
+                // it should really almost never happen, but I've triggered it once before so what we will do is update the
+                // session pid
+                $this->sessionRepository->updatePatientFromAppointment($session, $appt);
             }
 
             // send off the notification to the patient that we are launching the session
