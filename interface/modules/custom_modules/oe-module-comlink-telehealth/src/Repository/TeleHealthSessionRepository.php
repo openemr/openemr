@@ -147,15 +147,16 @@ class TeleHealthSessionRepository
     public function updatePatientFromAppointment(array $session, array $appt)
     {
         // for now we only sync the patient record if its been changed
-        if ($session['pid'] != $appt['pc_pid'])
-        {
+        if ($session['pid'] != $appt['pc_pid']) {
             $sql = "UPDATE " . self::TABLE_NAME . " SET patient_start_time = NULL, patient_last_update = NULL"
             . " ,pid = ? WHERE pc_eid = ? AND pid = ? ";
             $oldPid = $session['pid'];
             $newPid = $appt['pc_pid'];
-            (new SystemLogger())->info("TelehealthSessionRepository->updatePatientFromAppointment() "
-                . "changing session patient assignment for appointment"
-                , ['pc_eid' => $appt['pc_eid'], 'pid' => $oldPid, 'pc_pid' => $newPid]);
+            (new SystemLogger())->info(
+                "TelehealthSessionRepository->updatePatientFromAppointment() "
+                . "changing session patient assignment for appointment",
+                ['pc_eid' => $appt['pc_eid'], 'pid' => $oldPid, 'pc_pid' => $newPid]
+            );
             QueryUtils::sqlStatementThrowException($sql, [$newPid, $appt['pc_eid'], $oldPid]);
         }
     }

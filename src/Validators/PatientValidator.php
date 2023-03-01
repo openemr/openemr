@@ -58,11 +58,11 @@ class PatientValidator extends BaseValidator
                 $context->required("sex", 'Gender')->lengthBetween(4, 30);
                 $context->required("DOB", 'Date of Birth')->datetime('Y-m-d');
                 // callback functions are not called for optional parameters unless allowEmpty is false
-                $context->optional("email", "Email", false)->callback(function($value) {
+                $context->optional("email", "Email", false)->callback(function ($value) {
                     // Validator->email() does not cover unicode characters in the local part so we use
                     // the OpenEMR email validator for this.
                     if (!ValidationUtils::isValidEmail($value)) {
-                        throw new InvalidValueException("Email " . $value ." is not a valid email", "email");
+                        throw new InvalidValueException("Email " . $value . " is not a valid email", "email");
                     }
                     return true;
                 });

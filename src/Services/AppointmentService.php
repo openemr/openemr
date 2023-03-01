@@ -362,7 +362,8 @@ class AppointmentService extends BaseService
         return(true);
     }
 
-    public function isPendingStatus($option) {
+    public function isPendingStatus($option)
+    {
         // TODO: @adunsulag is there ANY way to track this in the database of what statii are pending?
         if ($option == '^') {
             return true;

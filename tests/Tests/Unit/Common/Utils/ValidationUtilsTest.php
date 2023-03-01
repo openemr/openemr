@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ValidationUtils is intended for validation methods that are used in OpenEMR.
  *
@@ -16,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 
 class ValidationUtilsTest extends TestCase
 {
-
     public function testIsValidEmailAcceptsValidEmails()
     {
         // these are emails that have commonly failed in the past that we want to make sure work
