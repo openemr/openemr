@@ -41,10 +41,6 @@
   background-repeat: no-repeat;
 }
 
-input {
-  border-radius: 3px;
-}
-
 ul {
   list-style-type: none;
 }
@@ -80,18 +76,6 @@ td.menuheadtoolbar {
   position: absolute;
   top: -60px;
   margin-#{$left}: -21px;
-}
-
-#selLanguage {
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
-}
-
-@media (max-width: 1024px) {
-  #selLanguage {
-    width: 100%;
-  }
 }
 
 #wrapper {
