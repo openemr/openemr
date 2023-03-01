@@ -193,9 +193,17 @@ class TeleHealthCalendarController
         if ($this->getAppointmentService()->isCheckOutStatus($row['pc_apptstatus'])) {
             return;
         }
-        echo "<button data-eid='" . attr($row['pc_eid']) . "' data-pid='" . attr($row['pc_pid'])
-            . "' class='mt-2 btn btn-primary btn-add-edit-appointment-launch-telehealth'><i class='fa fa-video m-2'></i>"
-            . xlt("Launch TeleHealth Session") . "</button>";
+        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $row['eventDate']
+            . " " . $row['startTime']);
+        if ($dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)) {
+            echo "<button data-eid='" . attr($row['pc_eid']) . "' data-pid='" . attr($row['pc_pid'])
+                . "' class='mt-2 btn btn-primary btn-add-edit-appointment-launch-telehealth'><i class='fa fa-video m-2'></i>"
+                . xlt("Launch TeleHealth Session") . "</button>";
+        } else {
+            echo "<button class='mt-2 btn btn-disabled' disabled><i class='fa fa-video m-2'></i>"
+                . xlt("TeleHealth Session Expired") . "</button>";
+            echo "<p>" . xlt("Session can only be launched two hours before or after an appointment") . "</p>";
+        }
     }
 
     private function isAppointmentPageInclude($pageName, $scriptPath)
