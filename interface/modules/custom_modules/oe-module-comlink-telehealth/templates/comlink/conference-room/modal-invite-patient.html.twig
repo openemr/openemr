@@ -52,8 +52,8 @@
                     <div class="col">
                         <input type="text" class="form-control m-2" name="fname" placeholder="{{ "First Name"|xla }}" />
                         <input type="text" class="form-control m-2" name="lname" placeholder="{{ "Last Name"|xla }}" />
-                        <input type="text" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth YYYY-MM-DD"|xla }}" />
-                        <input type="text" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xla }}" />
+                        <input type="date" pattern="\d{4}-\d{2}-\d{2}" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth YYYY-MM-DD"|xla }}" />
+                        <input type="email" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xla }}" />
                         <p>{{ "Confirm that this individual has provided permission to receive electronic communications via email"|xla }}</p>
                         <input type="button" class="btn btn-secondary btn-cancel-screen-action" value="{{ "Cancel" |xla }}" />
                         <input type="button" class="btn btn-primary btn-create-patient" value="{{ "Create Patient" |xla }}" />
@@ -66,7 +66,7 @@
                         <input type="text" class="form-control m-2" name="fname" placeholder="{{ "First Name"|xla }}" />
                         <input type="text" class="form-control m-2" name="lname" placeholder="{{ "Last Name"|xla }}" />
                         <input type="text" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth YYYY-MM-DD"|xla }}" />
-                        <input type="text" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xla }} ({{ "Exact Match"|xla }})" />
+                        <input type="email" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xla }} ({{ "Exact Match"|xla }})" />
                         <input type="button" class="btn btn-secondary btn-cancel-screen-action" value="{{ "Cancel" |xla }}" />
                         <input type="button" class="btn btn-primary btn-invite-search" value="{{ "Search Patients" |xla }}" />
                         <ul class="search-patient-list list-group d-none mt-3">

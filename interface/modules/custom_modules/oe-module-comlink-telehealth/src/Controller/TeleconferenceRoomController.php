@@ -330,7 +330,6 @@ class TeleconferenceRoomController
             $json = file_get_contents("php://input");
             $data = json_decode($json, true);
 
-            // TODO: @adunsulag validate data format
             $pid = intval($data['pid'] ?? 0);
             $pc_eid = intval($data['eid'] ?? 0);
 
