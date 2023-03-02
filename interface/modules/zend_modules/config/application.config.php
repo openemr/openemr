@@ -21,23 +21,11 @@ $core_modules = [
     'PatientFlowBoard', // Handle any functionality needed for the patient flow board
 ];
 
-/**
- * Grabs the actively enabled modules from the database and injects them into the system.
- * For the list of active modules you can see them from the modules installer tab, or by querying the modules table
- * Otherwise the modules are found inside the modules/zend_modules folder.  The uninstalled script will dynamically find them
- * in the filesystem.
- */
-function oemr_zend_load_modules_from_db()
-{
-    // we skip the audit log as it has no bearing on user activity and is core system related...
-    $resultSet = sqlStatementNoLog($statement = "SELECT mod_name FROM modules WHERE mod_active = 1 AND type = 1 ORDER BY `mod_ui_order`, `date`");
-    $db_modules = [];
-    while ($row = sqlFetchArray($resultSet)) {
-        $db_modules[] = $row["mod_name"];
-    }
-    return $db_modules;
-}
-$plugin_modules = oemr_zend_load_modules_from_db();
+// $zendConfigurationPath is loaded using ModulesApplication.php from globals.php
+$plugin_modules = \OpenEMR\Core\ModulesApplication::oemr_zend_load_modules_from_db(
+    $webRootPath ?? '',
+    $zendConfigurationPath ?? ''
+);
 $vendor_path = !empty($GLOBALS['vendor_dir']) ? $GLOBALS['vendor_dir'] : (realpath(__DIR__) . '/../vendor');
 
 return [

@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Core;
 
+use OpenEMR\Common\Acl\AccessDeniedException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\Mvc\Application;
 use Laminas\Mvc\Service\ServiceManagerConfig;
@@ -20,6 +21,9 @@ use Laminas\ServiceManager\ServiceManager;
 
 class ModulesApplication
 {
+    const MODULE_TYPE_CUSTOM = 0;
+    const MODULE_TYPE_LAMINAS = 1;
+
     /**
      * The application reference pointer for the zend mvc modules application
      *
@@ -60,20 +64,66 @@ class ModulesApplication
 
         $this->application = $serviceManager->get('Application')->bootstrap($listeners);
 
+        // let's get our autoloader that people can tie into if they need it
+        $autoloader = new ModulesClassLoader($webRootPath);
+        $this->bootstrapCustomModules($autoloader, $kernel->getEventDispatcher(), $webRootPath, $customModulePath);
+    }
+
+    /**
+     * Checks to see if the currently called script is a module script and whether it is allowed to be executed.
+     * It relies on the $_SERVER['SCRIPT_NAME'] path which is established by the server not the calling client. It
+     * checks against both laminas and custom modules. If the script is not allowed it throws an AccessDeniedException
+     *
+     * @param $modType The type of module this is (laminas or custom)
+     * @param $webRootPath The root filepath for the directory where OpenEMR is installed
+     * @param $modulePath The path for the module folder location (laminas or custom)
+     * @throws AccessDeniedException Thrown if this is a file in a module script directory and the module is not enabled.
+     */
+    public static function checkModuleScriptPathForEnabledModule($modType, $webRootPath, $modulePath)
+    {
+        // as we do this we are going to do a security check against the current script name
+        // if we are in a module
+        $scriptName = $webRootPath . $_SERVER['SCRIPT_NAME'];
+        if (str_starts_with($scriptName, $modulePath)) {
+            // the script being called is a custom module directory.
+            $type = $modType == self::MODULE_TYPE_LAMINAS ? self::MODULE_TYPE_LAMINAS : '';
+
+            $truncatedPath = substr($scriptName, strlen($modulePath));
+            $folderName = strtok($truncatedPath, '/');
+            if ($folderName !== false) {
+                $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules "
+                . " WHERE mod_active = 1 AND type = ? AND mod_directory = ? ", [$type, $folderName]);
+                $row = sqlFetchArray($resultSet);
+                if (empty($row)) {
+                    throw new AccessDeniedException("admin", "super", "Access to module path for disabled module is denied");
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Grabs the actively enabled modules from the database and injects them into the system.
+     * For the list of active modules you can see them from the modules installer tab, or by querying the modules table
+     * Otherwise the modules are found inside the modules/zend_modules folder.  The uninstalled script will dynamically find them
+     * in the filesystem.
+     */
+    public static function oemr_zend_load_modules_from_db($webRootPath, $zendConfigurationPath)
+    {
+        $zendConfigurationPathCheck = $zendConfigurationPath . DIRECTORY_SEPARATOR . "module";
+        self::checkModuleScriptPathForEnabledModule(self::MODULE_TYPE_LAMINAS, $webRootPath, $zendConfigurationPathCheck);
         // we skip the audit log as it has no bearing on user activity and is core system related...
-        $resultSet = sqlStatementNoLog($statement = "SELECT mod_name FROM modules WHERE mod_active = 1 AND type != 1 ORDER BY `mod_ui_order`, `date`");
+        $resultSet = sqlStatementNoLog($statement = "SELECT mod_name FROM modules WHERE mod_active = 1 AND type = 1 ORDER BY `mod_ui_order`, `date`");
         $db_modules = [];
         while ($row = sqlFetchArray($resultSet)) {
             $db_modules[] = $row["mod_name"];
         }
-
-        // let's get our autoloader that people can tie into if they need it
-        $autoloader = new ModulesClassLoader($webRootPath);
-        $this->bootstrapCustomModules($autoloader, $kernel->getEventDispatcher(), $customModulePath);
+        return $db_modules;
     }
 
-    private function bootstrapCustomModules(ModulesClassLoader $classLoader, $eventDispatcher, $customModulePath)
+    private function bootstrapCustomModules(ModulesClassLoader $classLoader, $eventDispatcher, $webRootPath, $customModulePath)
     {
+        self::checkModuleScriptPathForEnabledModule(self::MODULE_TYPE_CUSTOM, $webRootPath, $customModulePath);
         // we skip the audit log as it has no bearing on user activity and is core system related...
         $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules WHERE mod_active = 1 AND type != 1 ORDER BY `mod_ui_order`, `date`");
         $db_modules = [];
