@@ -332,7 +332,9 @@ class TelehealthGlobalConfig
 
     private function isOptionalSetting($key)
     {
-        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER || $key == self::VERIFY_SETTINGS_BUTTON
-            || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS;
+        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER
+            || $key == self::VERIFY_SETTINGS_BUTTON
+            || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS
+            || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT;
     }
 }

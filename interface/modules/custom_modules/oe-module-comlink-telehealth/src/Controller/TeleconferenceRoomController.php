@@ -355,6 +355,10 @@ class TeleconferenceRoomController
                 $settings = $this->getProviderSettings(['pid' => $pid, 'eid' => $pc_eid, 'authUser' => $queryVars['authUser']]);
                 header("Content-type: application/json");
                 http_response_code(200);
+                // TODO: question for @bradymiller trying to figure out how to avoid double escaping.
+                //  I have a link embedded in the caller settings that gets corrupted if I use textArray
+                //  I'm still trying to figure out why I need to escape this JS value when I can use the escaping
+                //  features on the client side on the handful of places where I interact with the DOM.
                 echo json_encode(['callerSettings' => $settings]);
             } else {
                 throw new InvalidArgumentException("Failed to find session for pc_eid " . $pc_eid);
@@ -546,7 +550,11 @@ class TeleconferenceRoomController
             $result = [
                 // waiting room has already been escaped via twig rendering
                 'waitingRoom' => $waitingRoom
-                , 'callerSettings' => textArray($settings)
+                // TODO: question for @bradymiller trying to figure out how to avoid double escaping.
+                //  I have a link embedded in the caller settings that gets corrupted if I use textArray
+                //  I'm still trying to figure out why I need to escape this JS value when I can use the escaping
+                //  features on the client side on the handful of places where I interact with the DOM.
+                , 'callerSettings' => $settings
                 // conference room has already been escaped via twig rendering
                 , 'conferenceRoom' => $conferenceRoom
             ];
@@ -1103,7 +1111,7 @@ class TeleconferenceRoomController
                 'eid' => $session['pc_eid'],
                 'apptstatus' => $appt['pc_apptstatus']
             ]
-            ,'participantList' => $this->getParticipantListForAppointment($user, $session)
+            ,'participantList' => $this->participantListService->getParticipantListWithInvitationsForAppointment($user, $session)
             ,'encounter' => $encounter
             ,'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
             ,'sessionId' => $session['id']

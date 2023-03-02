@@ -76,10 +76,10 @@ export class ATSlot {
         // eventually we could have this be a full DOM Node that is always displayed.
         let label = this.__container.querySelector('.participant-label');
         if (label) {
-            label.textContent = displayTitle;
+            label.textContent = jsText(displayTitle);
         }
 
-        this.__video.title = displayTitle;
+        this.__video.title = jsText(displayTitle);
     }
 
     detach() {

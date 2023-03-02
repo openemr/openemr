@@ -289,10 +289,28 @@ export class AddPatientDialog
             if (this.__participantList.length) {
                 this.__participantList.forEach(p => {
                     let clonedNode = templateNode.cloneNode(true);
+                    // note setting the innerText on these nodes already handles the escaping
                     this.setNodeInnerText(clonedNode, '.patient-name', p.callerName);
                     this.setNodeInnerText(clonedNode, '.patient-email', p.email);
                     clonedNode.classList.remove('template');
                     clonedNode.classList.remove('d-none');
+
+                    let invitation = p.invitation || {};
+                    let btnInvitationCopy = clonedNode.querySelector('.btn-invitation-copy');
+                    let btnLinkCopy = clonedNode.querySelector('.btn-link-copy');
+                    if (invitation) {
+                        btnInvitationCopy.addEventListener('click', this.copyPatientInvitationToClipboard.bind(this));
+                        btnLinkCopy.addEventListener('click', this.copyPatientLinkToClipboard.bind(this));
+                        btnLinkCopy.dataset['inviteId'] = p.id;
+
+                        // invitation text is escaped from innerText
+                        this.setNodeInnerText(clonedNode, '.patient-invitation-text', invitation.text || "")
+                    } else {
+                        console.error("Failed to find invitation data for patient ", p);
+                        btnInvitationCopy.classList.add('d-none');
+                        btnLinkCopy.classList.add('d-none');
+                    }
+
                     templateNode.parentNode.appendChild(clonedNode);
                 });
             }
@@ -541,8 +559,6 @@ export class AddPatientDialog
         this.addActionToButton('.btn-cancel-screen-action', this.showPrimaryScreen.bind(this));
         this.addActionToButton('.btn-create-patient', this.createPatientAction.bind(this));
         this.addActionToButton('.btn-invite-search', this.searchParticipantsAction.bind(this));
-        this.addActionToButton('.btn-invitation-copy', this.copyPatientInvitationToClipboard.bind(this));
-        this.addActionToButton('.btn-link-copy', this.copyPatientLinkToClipboard.bind(this))
 
         // we update the participant list as it may have changed from when the DOM originally sent it down.
         this.__updateParticipants = true;
@@ -556,14 +572,20 @@ export class AddPatientDialog
             return;
         }
 
-        let link = target.dataset['inviteLink'];
-        if (!link) {
+        let id = target.dataset['inviteId'];
+        if (!id) {
             // no link just ignoring
-            console.error("Failed to find link for patient");
+            console.error("Failed to find patient id to copy link for patient");
             this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
             return;
         }
-        this.copyTextToClipboard(link);
+        let participant = this.__participantList.find(pl => pl.id == id);
+        if (participant) {
+            let invitation = participant.invitation || {};
+            this.copyTextToClipboard(invitation.link || "");
+        } else {
+            this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
+        }
     }
 
     copyPatientInvitationToClipboard(evt) {
