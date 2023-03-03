@@ -94,7 +94,6 @@ function getDefinedFacility()
     global $viewmode;
     global $default_fac_override;
     global $care_team_facility;
-    global $GLOBALS;
     global $user_facility;
     $care_team_facility = null;
     if (!empty($GLOBALS['set_service_facility_encounter'])) {
