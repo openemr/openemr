@@ -671,10 +671,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         }
     } else {
         if (!$form_facility) {
-            $form_facility = '3';
+            $facility = $facilityService->getPrimaryBusinessEntity();
+        } else {
+            $facility = $facilityService->getById($form_facility);
         }
 
-        $facility = $facilityService->getById($form_facility);
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
         $pat_dob = $patient['DOB'] ?? null;
         $pat_name = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
@@ -832,7 +833,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             $print .= "</td>";
             $print .= "<td class='detail' colspan='2'>" . text($code_desc) . "</td>";
             $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
-            $bill = substr($erow['bill_date'], 0, 10);
+            $bill = substr($erow['bill_date'] ?? '', 0, 10);
             if ($bill == '') {
                 $bill = 'unbilled';
             }
