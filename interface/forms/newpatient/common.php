@@ -42,6 +42,9 @@ $years = array($thisyear - 1, $thisyear, $thisyear + 1, $thisyear + 2);
 $mode = (!empty($_GET['mode'])) ? $_GET['mode'] : null;
 
 $viewmode = false;
+if (!empty($_GET['id'])) {
+    $viewmode = true;
+}
 
 // "followup" mode is relevant when enable follow up encounters global is enabled
 // it allows the user to duplicate past encounter and connect between the two
@@ -403,6 +406,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
                                     while ($row = sqlFetchArray($visitResult)) {
                                         $catId = $row['pc_catid'];
+                                        if ($catId == '14') {
+                                            echo "using this to debug";
+                                        }
                                         $name = $row['pc_catname'];
 
                                         if ($row['pc_cattype'] == 3) {
