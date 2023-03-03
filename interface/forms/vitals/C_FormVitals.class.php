@@ -321,6 +321,7 @@ class C_FormVitals
             ,'patient_age' => $patient_age
             ,'patient_dob' => $patient_dob
             ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', $patient_age)))
+            ,'has_id' => $form_id
         ];
         $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
 
