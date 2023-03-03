@@ -3,8 +3,7 @@
         <div class='wrapper'>
             {% if portal_onsite_two_enable is not empty %}
                 {{ "Patient Portal Web Address"|xlt }}:<br />
-                <a href='{{ portal_onsite_two_address|attr }}' target='_blank'>{{ portal_onsite_two_address|text }}</a>
-                <br /><br />
+                <a href='{{ portal_onsite_two_address|attr }}' target='_blank'>{{ portal_onsite_two_address|text }}</a><br /><br />
             {% endif %}
             <strong>{{ "Portal Account Name"|xlt }}</strong>: {{ uname }}<br /><br />
             <strong>{{ "Login User Name"|xlt }}:</strong> {{ login_uname|text }}
