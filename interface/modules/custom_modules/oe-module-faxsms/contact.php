@@ -93,7 +93,12 @@ $service = $clientApp::getServiceType();
                         url: url,
                         data: $(this).serialize(),
                         success: function (data) {
-                            data = JSON.parse(data);
+                            try {
+                                let t_data = JSON.parse(data);
+                                data = t_data;
+                            } catch (e) {
+
+                            }
                             let err = (data.search(/Exception/) !== -1 ? 1 : 0);
                             if (!err) {
                                 err = (data.search(/Error:/) !== -1) ? 1 : 0;
