@@ -24,8 +24,10 @@ if (!$clientApp->verifyAcl()) {
 }
 $logged_in = $clientApp->authenticate();
 $isSMS = $clientApp->getRequest('isSMS', 0);
+$isForward = ($clientApp->getRequest('mode', null) == 'forward') ? 1 : 0;
 $default_message = '';
 $interface_pid = null;
+$file_mime = '';
 if (empty($isSMS)) {
     $interface_pid = $clientApp->getRequest('pid');
     $the_file = $clientApp->getRequest('file');
@@ -56,7 +58,7 @@ $service = $clientApp::getServiceType();
     <title><?php echo xlt('Contact') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
-    echo "<script>var pid=" . js_escape($pid) . ";var isSms=" . js_escape($isSMS) . ";var recipient=" . js_escape($recipient_phone) . ";</script>";
+    echo "<script>var pid=" . js_escape($pid) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";</script>";
     ?>
     <?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
         <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
@@ -69,13 +71,20 @@ $service = $clientApp::getServiceType();
             } else {
                 $(".faxExclude").addClass("d-none");
             }
-            // when the form is submitted
+            if (isForward) {
+                $(".forwardExclude").addClass("d-none");
+                $(".show-detail").removeClass("d-none");
+            }
+                // when the form is submitted
             $('#contact-form').on('submit', function (e) {
                 if (!e.isDefaultPrevented()) {
                     let wait = '<div class="text-center wait"><i class="fa fa-cog fa-spin fa-2x"></i></div>';
                     let url = 'sendFax?type=fax';
                     if (isSms) {
                         url = 'sendSMS?type=sms';
+                    }
+                    if (isForward) {
+                        url = 'forwardFax?type=fax';
                     }
                     $('#contact-form').find('.messages').html(wait);
                     // POST values in the background the script URL
@@ -84,6 +93,7 @@ $service = $clientApp::getServiceType();
                         url: url,
                         data: $(this).serialize(),
                         success: function (data) {
+                            data = JSON.parse(data);
                             let err = (data.search(/Exception/) !== -1 ? 1 : 0);
                             if (!err) {
                                 err = (data.search(/Error:/) !== -1) ? 1 : 0;
@@ -106,7 +116,7 @@ $service = $clientApp::getServiceType();
                                         dlgclose();
                                     }
                                     // if error let user close dialog for time to read error message.
-                                }, 3000);
+                                }, 4000);
                             }
                         }
                     });
@@ -117,7 +127,7 @@ $service = $clientApp::getServiceType();
 
         function sel_patient() {
             const url = top.webroot_url + '/interface/main/calendar/find_patient_popup.php?pflag=0&pkretrieval=1'
-            dlgopen(url, '_blank', 'modal-md', 500, false, '', {
+            dlgopen(url, '_blank', 'modal-md', 550, false, '', {
             });
         }
 
@@ -150,6 +160,7 @@ $service = $clientApp::getServiceType();
                     $("#form_name").val(data[0]);
                     $("#form_lastname").val(data[1]);
                     $("#form_phone").val(data[2]);
+                    $("#form_email").val(data[4]);
                 });
         }
 
@@ -185,7 +196,7 @@ $service = $clientApp::getServiceType();
             <div class="messages"></div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="form-group show-detail smsExclude faxExclude">
+                    <div class="form-group forwardExclude smsExclude faxExclude">
                         <label for="form_pid"><?php echo xlt('MRN') ?></label>
                         <input id="form_pid" type="text" name="$form_pid" class="form-control"
                             placeholder="<?php echo xla('If Applicable for charting.') ?>"
@@ -206,32 +217,34 @@ $service = $clientApp::getServiceType();
                             value="<?php echo attr($details['lname'] ?? '') ?>" />
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group smsExclude">
+                    <div class="form-group faxExclude smsExclude show-detail">
                         <label for="form_email"><?php echo xlt('Email') ?></label>
                         <input id="form_email" type="email" name="email" class="form-control"
-                            placeholder="<?php echo xla('Enter Email address to forward.') ?>">
+                            placeholder="<?php echo xla('Email address if forwarding to Email.') ?>"
+                            title="<?php echo xla('Forward to an email address.') ?>" />
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
-                        <label for="form_phone"><?php echo xlt('Recipient Phone') ?> *</label>
-                        <input id="form_phone" type="tel" name="phone" class="form-control" required="required"
+                        <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>
+                        <input id="form_phone" type="tel" name="phone" class="form-control"
                             placeholder="<?php echo xla('Phone number of recipient') ?>"
-                            value="" />
+                            title="<?php echo xla('You may also forward to a new fax number.') ?>"
+                            value="" <?php echo (!$isForward ? 'required' : ''); ?> />
                         <div class="help-block with-errors"></div>
                     </div>
-                    <?php if ($service == "1" || !empty($isSMS)) { ?>
+                    <?php if ($service == "1" || !empty($isSMS) || $isForward) { ?>
                         <div class="form-group">
                             <label for="form_message"><?php echo xlt('Message') ?></label>
                             <textarea id="form_message" name="comments" class="form-control" placeholder="
-                            <?php echo empty($isSMS) ? xla('Not implemented for fax.') : xla('SMS text message.') ?>" rows="6"><?php echo $default_message; ?></textarea>
+                            <?php echo empty($isSMS) ? xla('Message for fax forward to Email.') : xla('SMS text message.') ?>" rows="6"><?php echo $default_message; ?></textarea>
                             <div class="help-block with-errors"></div>
                         </div>
                     <?php } ?>
                     <div>
-                        <span class="text-center smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
+                        <span class="text-center forwardExclude smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
                     </div>
-                    <div>
-                        <button type="button" class="btn btn-primary" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-primary smsExclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
                         <!-- patient picker ready once get patient info is added. -->
                         <button type="button" class="btn btn-primary faxExclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
                         <button type="submit" class="btn btn-success float-right" value=""><?php echo empty($isSMS) ? xlt('Send Fax') : xlt('Send SMS') ?></button>

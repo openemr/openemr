@@ -508,31 +508,32 @@ abstract class AppDispatch
 
 
     /**
-     * @param $email
-     * @param $body
-     * @param $attfile
-     * @param $pname
+     * @param       $email
+     * @param       $body
+     * @param       $file
+     * @param array $user
      * @return string
      */
-    public function emailDocument($email, $body, $attfile, $pname): string
+    public function emailDocument($email, $body, $file, $user = []): string
     {
-        $desc = "Please check the attached patient document.\n Content:" . $body;
+        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
+        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
         $mail = new MyMailer();
-        $from_name = $GLOBALS["practice_return_email_path"];
+        $from_name = text($from_name);
         $from =  $GLOBALS["practice_return_email_path"];
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $to = $email ;
         $to_name = $email;
         $mail->AddAddress($to, $to_name);
-        $subject = "Patient documents";
+        $subject = xlt("Forwarded Fax Document");
         $mail->Subject = $subject;
         $mail->Body = $desc;
-        $mail->AddAttachment($attfile);
+        $mail->AddAttachment($file);
         if ($mail->Send()) {
-            $status = xlt("Success email sent");
+            $status = xlt("Email successfully sent.");
         } else {
-            $status =  xlt("ERROR: email_failed") . $mail->ErrorInfo;
+            $status =  xlt("Error: Email failed") . text($mail->ErrorInfo);
         }
         return $status;
     }

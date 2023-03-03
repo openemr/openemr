@@ -16,10 +16,11 @@ use DateTime;
 use Document;
 use Exception;
 use http\Exception\RuntimeException;
+use JetBrains\PhpStorm\NoReturn;
 use OpenEMR\Common\Crypto\CryptoGen;
-use Symfony\Component\HttpClient\HttpClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use Symfony\Component\HttpClient\HttpClient;
 
 class EtherFaxActions extends AppDispatch
 {
@@ -69,14 +70,30 @@ class EtherFaxActions extends AppDispatch
         return $credentials;
     }
 
+    /**
+     * @return bool|string
+     */
     public function fetchReminderCount(): bool|string
     {
-        $cnt = $this->client->getUnreadFaxCount();
+        $c = 0;
+        while (1) {
+            $fax = $this->client->getNextUnreadFax(true);
+            if (empty($fax)) {
+                break;
+            }
+            $c++;
+            // insert to queue
+            $this->insertFaxQueue($fax);
+            // mark fax received. as good as delete.
+            $this->client->setFaxReceived($fax->JobId);
+        }
+
+        $cnt = $this->fetchQueueCount();
 
         return json_encode($cnt);
     }
 
-        /**
+    /**
      * @return string
      */
     public function faxProcessUploads(): string
@@ -86,7 +103,7 @@ class EtherFaxActions extends AppDispatch
             $ext = $_FILES['fax']['ext'];
             $tmp_name = $_FILES['fax']['tmp_name'];
         } else {
-            return 'Error';
+            return 'Error:';
         }
         if (!file_exists($this->baseDir . '/send')) {
             mkdir($this->baseDir . '/send', 0777, true);
@@ -197,54 +214,124 @@ class EtherFaxActions extends AppDispatch
      */
     public function formatPhone($number): string
     {
-        // this is u.s only. need E-164
         $n = preg_replace('/[^0-9]/', '', $number);
         if (stripos($n, '1') === 0) {
             $n = '+' . $n;
-        } else {
+        } elseif (!empty($n)) {
             $n = '+1' . $n;
         }
-        $validate = preg_match('^\+[1-9]\d{1,14}$', $n);
+        if (!$this->validatePhone($n)) {
+            $n = '';
+        }
         return $n;
     }
 
     /**
-     * I do not like Sympony http client.
-     * Very similar to the one I wrote except mine can handle relative url.
-     * on hold for now!
-     * @param $to
-     * @param $message
-     * @param $from
-     * @return string
+     * @param $n
+     * @return bool|int
      */
-    private function sendMessage($to, $message, $from = null): string
+    public function validatePhone($n): bool|int
     {
-        $client = HttpClient::create(['verify_peer' => false, 'verify_host' => false, 'proxy' => "localhost:8888"]);
-        $url = "/interface/modules/custom_modules/oe-module-faxsms/sendSMS?type=sms";
-
-        try {
-            $response = $client->request('POST', $url, [
-                'body' => [
-                    'phone' => $to,
-                    'comment' => $message
-                ]
-            ]);
-        } catch (\RuntimeException $e) {
-            return $e->getMessage();
-        }
-        $statusCode = $response->getStatusCode();
-
-        return $statusCode;
+        $regEx = "/^\+[1-9]\d{10,14}$/";
+        return preg_match($regEx, $n);
     }
 
     /**
-     * @return false|string|void
+     * Credit to Stephen Neilson
+     *
+     * @param $email
+     * @return bool
+     */
+    private function validEmail($email): bool
+    {
+        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function forwardFax(): string
+    {
+        $fax = $content = $filepath = null;
+        $statusMsg = xlt("Forward Requests Result") . "<br />";
+        $comment = $this->getRequest('comments');
+        $jobId = $this->getRequest('docid');
+        $email = $this->getRequest('email');
+        $faxNumber = $this->formatPhone($this->getRequest('phone'));
+        $hasEmail = $this->validEmail($email);
+        $from = $this->formatPhone($this->credentials['phone']);
+        $user = $this::getLoggedInUser();
+        $csid = $user['facility'];
+        $tag = xlt("Forwarded");
+        try {
+            if (!$hasEmail || empty($faxNumber)) {
+                return js_escape(xlt("Error: Nothing to forward. Try again."));
+            }
+            if ($hasEmail || !empty($faxNumber)) {
+                $fax = $this->fetchFaxFromQueue($jobId);
+                if (empty($fax)) {
+                    $statusMsg .= 'Error: ' . xlt("Fax fetch failed.");
+                    return js_escape($statusMsg);
+                }
+                $content = $fax->FaxImage;
+                if (!file_exists($this->baseDir . '/send')) {
+                    mkdir($this->baseDir . '/send', 0777, true);
+                }
+                $filepath = $this->baseDir . "/send/" . ($jobId . '.pdf');
+                file_put_contents($filepath, base64_decode($content));
+            }
+            if ($hasEmail) {
+                $statusMsg .= $this->emailDocument($email, $comment, $filepath, $user) . "<br />";
+            }
+            // forward to new fax number.
+            if ($faxNumber) {
+                $fax = $this->client->sendFax($faxNumber, $filepath, null, $from, $csid, $tag, false);
+                if (!$fax->FaxResult) {
+                    $statusMsg .= 'Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result);
+                    // give up
+                    return js_escape($statusMsg);
+                }
+                if ($fax->FaxResult == FaxResult::InProgress) {
+                    while (true) {
+                        $status = $this->client->getFaxStatus($fax->JobId);
+                        if ($status == null || $status->FaxResult != FaxResult::InProgress) {
+                            break;
+                        }
+                        sleep(5);
+                    }
+                }
+                $error = FaxResult::getFaxResult($status->FaxResult);
+                if ($status->FaxResult ?? null) {
+                    $statusMsg .= 'Error: ' . $error;
+                } else {
+                    $statusMsg .= xlt("Forwarded fax actions successful and removed from queue.");
+                    $this->setFaxDeleted($jobId);
+                }
+            }
+            if ($filepath) {
+                unlink($filepath);
+            }
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $statusMsg = 'Error: ' . $message;
+        }
+
+        return js_escape($statusMsg);
+    }
+
+    /**
+     * @return string|void
      */
     public function getPending()
     {
-        $dateFrom = $this->getRequest('datefrom');
-        $dateTo = $this->getRequest('dateto');
+        $dateFrom = trim($this->getRequest('datefrom'));
+        $dateTo = trim($this->getRequest('dateto'));
 
+        $pull = $this->fetchReminderCount();
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
         };
@@ -252,40 +339,17 @@ class EtherFaxActions extends AppDispatch
             // dateFrom and dateTo
             $timeFrom = 'T00:00:01';
             $timeTo = 'T23:59:59';
-            $dateFrom = trim($dateFrom) . $timeFrom;
-            $dateTo = trim($dateTo) . $timeTo;
-            $faxStore = $this->client->getUnreadFaxList();
+            $dateFrom = date("Y-m-d H:i:s", strtotime(($dateFrom . $timeFrom)));
+            $dateTo = date("Y-m-d H:i:s", strtotime(($dateTo . $timeTo)));
+            ;
+            $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo);
             $responseMsgs = [];
-            //$responseMsgs[2] = xlt('Not Implemented');
+            $responseMsgs[2] = xlt('Not Implemented');
             $direction = 'inbound';
-            foreach ($faxStore as $fax) {
-                $id = $fax->JobId;
-                $ReceivedOn = $fax->ReceivedOn;
-                // purge failed. a day is enough time to report.
-                if ($ReceivedOn) {
-                    $fromDate = strtotime($dateFrom . ' UTC');
-                    $toDate = strtotime($dateTo . ' UTC');
-                    $faxDate = strtotime($ReceivedOn . ' UTC');
-                    // only process faxes in date range
-                    if ($faxDate < $fromDate || $faxDate > $toDate) {
-                        continue;
-                    }
-                    $date_received = new DateTime(date('Ymd Hi', $faxDate));
-                    $date_today = new DateTime(date('Ymd Hi', time()));
-                    $dif = $date_received->diff($date_today);
-                    $interval = ($dif->d * 24) + $dif->h;
-                    // todo mark received if out of date
-                    if ($interval >= 24 && $interval <= 48) {
-                        // send message
-                    } elseif ($interval >= 48) {
-                        $this->client->setFaxReceived($id);
-                        continue;
-                    }
-                } else {
-                    throw new RuntimeException(xlt("Missing fax receive date!"));
-                }
-                // get the raw and any fields
-                $faxDetails = $this->client->getFax($fax->JobId);
+            foreach ($faxStore as $faxDetails) {
+                $id = $faxDetails->JobId;
+                $ReceivedOn = $faxDetails->ReceivedOn;
+                $faxDate = strtotime($ReceivedOn . ' UTC');
                 $to = $faxDetails->CalledNumber;
                 $from = $faxDetails->CallingNumber;
                 $params = $faxDetails->DocumentParams;
@@ -295,7 +359,6 @@ class EtherFaxActions extends AppDispatch
                 $showFlag = 0;
                 foreach ($faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults as $r) {
                     $details = null;
-                    $docType = $params->Type;
                     $form = "<tr id='$id_esc' class='d-none collapse-all'><td colspan='12'>\n" .
                         "<div class='container table-responsive'>\n" .
                         "<table class='table table-sm table-bordered table-dark'>\n";
@@ -386,7 +449,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         try {
-            $apiResponse = $this->client->getFax($docid);
+            $apiResponse = $this->fetchFaxFromQueue($docid);
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $r = "Error: Retrieving Fax:\n" . $message;
@@ -414,7 +477,7 @@ class EtherFaxActions extends AppDispatch
         file_put_contents($fname, $raw);
         if ($isDownload) {
             $this->setSession('where', $fname);
-            $this->client->setFaxReceived($apiResponse->JobId);
+            $this->setFaxDeleted($apiResponse->JobId);
             return $fname;
         }
 
@@ -425,7 +488,7 @@ class EtherFaxActions extends AppDispatch
      * @param $content
      * @return void
      */
-    public function disposeDoc($content = ''): void
+    #[NoReturn] public function disposeDoc($content = ''): void
     {
         $where = $this->getSession('where');
         if (file_exists($where)) {
@@ -458,7 +521,7 @@ class EtherFaxActions extends AppDispatch
             $u[] = $row;
         }
         $u = $u[0];
-        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility']);
+        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility'], $u['email']);
 
         return json_encode($r);
     }
@@ -466,7 +529,7 @@ class EtherFaxActions extends AppDispatch
     /**
      * @return string
      */
-    public function getNotificationLog()
+    public function getNotificationLog(): string
     {
         $type = $this->getRequest('type');
         $fromDate = $this->getRequest('datefrom');
@@ -502,6 +565,53 @@ class EtherFaxActions extends AppDispatch
     public function getCallLogs()
     {
         return xlt('Not Implemented');
+    }
+
+    public function insertFaxQueue($faxDetails): int
+    {
+        $account = $this->credentials['account'];
+        $uid = $_SESSION['authUserID'];
+        $jobId = $faxDetails->JobId;
+        $to = $faxDetails->CalledNumber;
+        $from = $faxDetails->CallingNumber;
+        $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
+        $docType = $faxDetails->DocumentParams->Type;
+        $details_encoded = json_encode($faxDetails); // is object
+        $binds = array($uid, $account, $jobId, $received, $from, $to, $docType, $details_encoded);
+
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, ?)";
+
+        return sqlInsert($sql, $binds);
+    }
+
+    public function fetchFaxQueue($start, $end): array
+    {
+        $rows = [];
+        $res = sqlStatement("SELECT `details_json` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
+        while ($row = sqlFetchArray($res)) {
+            $detail = json_decode($row['details_json']);
+            $rows[] = $detail;
+        }
+
+        return $rows;
+    }
+
+    public function fetchFaxFromQueue($jobId, $id = null)
+    {
+        $row = sqlQuery("SELECT `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]);
+        $detail = json_decode($row['details_json']);
+
+        return $detail;
+    }
+
+    public function fetchQueueCount(): int
+    {
+        return  (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
+    }
+
+    public function setFaxDeleted($jobId): bool|array|null
+    {
+        return sqlQuery("UPDATE `oe_faxsms_queue` SET `deleted` = '1' WHERE `job_id` = ?", [$jobId]);
     }
 
     /**

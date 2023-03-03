@@ -117,16 +117,15 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             return bytes;
         }
 
-        const forwardFax = function (e, docid = '', filePath = '', to = '0') {
+        const forwardFax = function (e, docid = '', filePath = '', details = []) {
             let btnClose = <?php echo xlj("Cancel"); ?>;
-            let title = <?php echo xlj("Send To Contact"); ?>;
-            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&docid=' +
-                encodeURIComponent(docid) + '&file=' + encodeURIComponent(filePath);
+            let title = <?php echo xlj("Forward Fax to email, new recipient or both."); ?>;
+            let url = top.webroot_url +
+                '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&mode=forward&isDocuments=0&docid=' +
+                encodeURIComponent(docid);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-sm', 700, '', title, { // dialog restores session
-                buttons: [
-                    {text: btnClose, close: true, style: 'secondary btn-sm'}
-                ]
+            dlgopen(url, '', 'modal-md', 800, '', title, { // dialog restores session
+                buttons: [{text: btnClose, close: true, style: 'secondary btn-sm'}]
             });
             return false;
         };
@@ -233,7 +232,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 e.preventDefault();
                 e.stopPropagation();
             }
-            let actionUrl = 'sms/fetchSMSList';
+            let actionUrl = 'fetchSMSList?type=sms';
             if (serviceType === 'fax') {
                 actionUrl = 'fax/getPending?type=fax';
             }
@@ -334,11 +333,6 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
 
         function getSelResource() {
             return $('#resource option:selected').val();
-        }
-
-        function logIn() {
-            top.restoreSession();
-            return $.post('getLogIn', {})
         }
 
         function messageShow(id) {
