@@ -406,9 +406,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
                                     while ($row = sqlFetchArray($visitResult)) {
                                         $catId = $row['pc_catid'];
-                                        if ($catId == '14') {
-                                            echo "using this to debug";
-                                        }
                                         $name = $row['pc_catname'];
 
                                         if ($row['pc_cattype'] == 3) {
