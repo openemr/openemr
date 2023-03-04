@@ -87,7 +87,8 @@ class TelehealthGlobalConfig
         }
     }
 
-    public function getPublicWebPath() {
+    public function getPublicWebPath()
+    {
         return $this->publicWebPath;
     }
 
@@ -142,7 +143,8 @@ class TelehealthGlobalConfig
      * Checks to determine if the mail server email notifications is setup properly
      * @return bool
      */
-    public function isEmailNotificationsConfigured() {
+    public function isEmailNotificationsConfigured()
+    {
         $myMailerSetup = MyMailer::isConfigured();
         if ($myMailerSetup & !empty($this->getPatientReminderName())) {
             return true;
