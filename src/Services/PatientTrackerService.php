@@ -286,7 +286,7 @@ class PatientTrackerService extends BaseService
     {
         $color_settings = array();
         $row = sqlQuery("SELECT notes FROM list_options WHERE " .
-            "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
+            "list_id = 'apptstat' AND option_id = ? ", array($option));
         if (empty($row['notes'])) {
             return $option;
         }
