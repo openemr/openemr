@@ -1109,7 +1109,8 @@ class TeleconferenceRoomController
             ,'patient' => $patientResult
             ,'appointment' => [
                 'eid' => $session['pc_eid'],
-                'apptstatus' => $appt['pc_apptstatus']
+                'apptstatus' => $appt['pc_apptstatus'],
+                'notes' => $appt['pc_hometext']
             ]
             ,'participantList' => $this->participantListService->getParticipantListWithInvitationsForAppointment($user, $session)
             ,'encounter' => $encounter

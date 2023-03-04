@@ -247,6 +247,7 @@ class AppointmentService extends BaseService
                        pce.pc_catid,
                        pce.pc_room,
                        pce.pc_pid,
+                       pce.pc_hometext,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
