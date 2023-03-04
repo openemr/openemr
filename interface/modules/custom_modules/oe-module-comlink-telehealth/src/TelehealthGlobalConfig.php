@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
+use MyMailer;
 
 class TelehealthGlobalConfig
 {
@@ -129,6 +130,18 @@ class TelehealthGlobalConfig
             return $this->isThirdPartyConfigurationSetup();
         }
         return true;
+    }
+
+    /**
+     * Checks to determine if the mail server email notifications is setup properly
+     * @return bool
+     */
+    public function isEmailNotificationsConfigured() {
+        $myMailerSetup = MyMailer::isConfigured();
+        if ($myMailerSetup & !empty($this->getPatientReminderName())) {
+            return true;
+        }
+        return false;
     }
 
     private function isThirdPartyConfigurationSetup()

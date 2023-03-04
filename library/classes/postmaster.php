@@ -32,6 +32,33 @@ class MyMailer extends PHPMailer
         $this->emailMethod();
     }
 
+    /**
+     * Checks if the MyMailer service is configured for mail with all of the host parameters defined
+     * @return bool
+     */
+    public static function isConfigured()
+    {
+        switch ($GLOBALS['EMAIL_METHOD']) {
+            case "SMTP":
+                $requiredKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'];
+                if ($GLOBALS['SMTP_AUTH']) {
+                    $requiredKeys[] = 'SMTP_USER';
+                    $requiredKeys[] = 'SMTP_PASS';
+                }
+                break;
+            default:
+                $requiredKeys = [];
+                break;
+        }
+
+        foreach ($requiredKeys as $key) {
+            if (empty($GLOBALS[$key])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     function emailMethod()
     {
         global $HTML_CHARSET;

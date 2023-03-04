@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Events\TelehealthNotificationSendEv
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\NotificationSendAddress;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use MyMailer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Environment;
@@ -103,6 +104,16 @@ class TeleHealthParticipantInvitationMailerService
 
     private function sendMessageToPatient($htmlMsg, $plainMsg, $patient, $joinLink, $messageId)
     {
+        // TODO: @adunsulag need to check to see if the SMTP notifications are configured.  If they are not we need to
+        // skip over the email notifications.
+        if (!$this->config->isEmailNotificationsConfigured()) {
+            (new SystemLogger())->info(
+                self::class
+                . "->sendMessageToPatient() skipping email notification as email notifications are not configured",
+                ['pid' => $patient['pid'], 'messageId' => $messageId]
+            );
+            return;
+        }
         $email_subject = xl('Join Telehealth Session');
         $email_sender = $this->config->getPatientReminderName();
 
