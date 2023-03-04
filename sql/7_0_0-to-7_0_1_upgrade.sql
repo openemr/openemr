@@ -279,10 +279,22 @@ UPDATE `registry` SET `category` = 'Orders' WHERE `directory` = 'procedure_order
 ALTER TABLE `insurance_data` ADD `date_end` date NULL;
 #EndIf
 
-#IfNotColumnType user user VARCHAR(255)
+#IfNotColumnType form_questionnaire_assessments user VARCHAR(255)
 ALTER TABLE `form_questionnaire_assessments` CHANGE `user` `user` VARCHAR(255) NULL DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn module_configuration date_created
 ALTER TABLE `module_configuration` ADD COLUMN `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created';
+#EndIf
+
+#IfRow2D globals gl_name login_page_layout gl_value center
+UPDATE `globals` SET `gl_value` = 'login/layouts/vertical_box.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'center';
+#EndIf
+
+#IfRow2D globals gl_name login_page_layout gl_value left
+UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_box_left_logo.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'left';
+#EndIf
+
+#IfRow2D globals gl_name login_page_layout gl_value right
+UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_band_right_logo.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'right';
 #EndIf

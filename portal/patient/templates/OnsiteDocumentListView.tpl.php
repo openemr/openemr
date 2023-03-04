@@ -160,14 +160,40 @@ $templateService = new DocumentTemplateService();
             // We'll return to the same editing state as before print
             // In dashboard document is already flatten to prevent
             // auditor from changing patient entries!
-            let docid = document.getElementById('docid').value;
-            fetchPdf(divName, docid);
+            if (page.isQuestionnaire && !isPortal) {
+                url = webroot_url +
+                    "/interface/forms/questionnaire_assessments/patient_portal.php" +
+                    "?formid=" + encodeURIComponent(page.encounterFormId);
+                fetch(url).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network Error.');
+                    }
+                    return response.json()
+                }).then(content => {
+                    if (content) {
+                        let docid = document.getElementById('docid').value;
+                        fetchPdf(divName, docid, content);
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert(error);
+                });
+            } else {
+                let docid = document.getElementById('docid').value;
+                fetchPdf(divName, docid);
+            }
         }
 
-        function fetchPdf(divName, docid) {
+        function fetchPdf(divName, docid, printContents = null) {
             let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('doc-lib')); ?>;
             top.restoreSession();
-            let printContents = document.getElementById(divName).innerHTML;
+            if (document.getElementById('tempFrame')) {
+                let killFrame = document.getElementById('tempFrame');
+                killFrame.parentNode.removeChild(killFrame);
+            }
+            if (!printContents) {
+                printContents = document.getElementById(divName).innerHTML;
+            }
             request = new FormData;
             request.append("handler", "fetch_pdf");
             request.append("docid", docid);
@@ -192,13 +218,21 @@ $templateService = new DocumentTemplateService();
                 }
                 const blob = new Blob([view], {type: "application/pdf"});
                 const url = URL.createObjectURL(blob);
-                const iframe = document.createElement('iframe');
+                let iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
-                iframe.src = url;
+                iframe.width = '0';
+                iframe.height = '0';
+                iframe.id = 'tempFrame';
                 document.body.appendChild(iframe);
-                iframe.contentWindow.print();
+                iframe.onload = function() {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }
+                // write the content
+                iframe.src = url;
             }).catch(function(error) {
                 console.log('PHP PDF Background Service Request failed: ', error);
+                return false;
             });
         }
 

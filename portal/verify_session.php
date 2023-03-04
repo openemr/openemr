@@ -26,7 +26,11 @@ require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+// if this script is included somewhere else we want to support them changing up the landingpage url such as adding
+// parameters, or even setting what the landing page should be for the portal verify session.
+if (!isset($landingpage)) {
+    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+}
 //
 
 // kick out if patient not authenticated

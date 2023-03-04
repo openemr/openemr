@@ -265,7 +265,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
                 }
 
-                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo);?>
+                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo); ?>
 
             <?php } else { // not printable
                 ?>
@@ -720,10 +720,10 @@ function zip_content($source, $destination, $content = '', $create = true)
                         preg_match('/^(.*)_(\d+)$/', $key, $res);
                         $rowid = $res[2];
                         $irow = sqlQuery("SELECT lists.type, lists.title, lists.comments, lists.diagnosis, " .
-                        "lists.udi_data, medications.drug_dosage_instructions FROM lists LEFT JOIN " .
-                        "( SELECT id AS lists_medication_id, list_id, drug_dosage_instructions " .
-                        "FROM lists_medication ) medications ON medications.list_id = id " .
-                        "WHERE id = ?", array($rowid));
+                            "lists.udi_data, medications.drug_dosage_instructions FROM lists LEFT JOIN " .
+                            "( SELECT id AS lists_medication_id, list_id, drug_dosage_instructions " .
+                            "FROM lists_medication ) medications ON medications.list_id = id " .
+                            "WHERE id = ?", array($rowid));
                         $diagnosis = $irow['diagnosis'];
                         if ($prevIssueType != $irow['type']) {
                             // output a header for each Issue Type we encounter
@@ -807,24 +807,26 @@ function zip_content($source, $destination, $content = '', $create = true)
                             ?>
                             <div name="search_div" id="search_div_<?php echo attr($form_id) ?>_<?php echo attr($res[1]) ?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                                 <?php
-                                $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
-                                if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
-                                    if (substr($res[1], 0, 3) == 'LBF') {
-                                        call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
+                                if (!empty($res[1])) {
+                                    $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
+                                    if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
+                                        if (substr($res[1], 0, 3) == 'LBF') {
+                                            call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
+                                        } else {
+                                            call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                                        }
+                                    } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
+                                        if (substr($res[1], 0, 3) == 'LBF') {
+                                            call_user_func('lbf_report', $pid, $form_encounter, $N, $form_id, $res[1]);
+                                        } else {
+                                            call_user_func($res[1] . '_report', $pid, $form_encounter, $N, $form_id);
+                                        }
                                     } else {
-                                        call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                                        echo "<h6>" . xlt("Not signed.") . "</h6>";
                                     }
-                                } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
-                                    if (substr($res[1], 0, 3) == 'LBF') {
-                                        call_user_func('lbf_report', $pid, $form_encounter, $N, $form_id, $res[1]);
-                                    } else {
-                                        call_user_func($res[1] . '_report', $pid, $form_encounter, $N, $form_id);
+                                    if ($esign->isLogViewable("report")) {
+                                        $esign->renderLog();
                                     }
-                                } else {
-                                    echo "<h6>" . xlt("Not signed.") . "</h6>";
-                                }
-                                if ($esign->isLogViewable("report")) {
-                                    $esign->renderLog();
                                 }
                                 ?>
 

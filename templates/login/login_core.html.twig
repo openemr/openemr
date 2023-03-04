@@ -109,8 +109,8 @@
                 </div>
                 {% endif %}
 
-                <div class="form-group d-flex " style="justify-content: space-between !important;"  >
-                {% if displayGoogleSignin %}  <div class="g_id_signin" data-type="standard"  ></div> {% endif %}
+                <div class="form-group d-flex justify-content-between">
+                {% if displayGoogleSignin %}  <div class="g_id_signin" data-type="standard"></div> {% endif %}
                     <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
                 </div>
 

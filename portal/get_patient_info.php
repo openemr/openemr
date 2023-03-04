@@ -27,6 +27,11 @@ session_regenerate_id(true);
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 //
 
+if (!empty($_REQUEST['redirect'])) {
+    // let's add the redirect back in case there are any errors or other problems.
+    $landingpage .= "&redirect=" . urlencode($_REQUEST['redirect']);
+}
+
 // checking whether the request comes from index.php
 if (!isset($_SESSION['itsme'])) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -278,6 +283,18 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
+}
+
+// now that we are authorized, we need to check for the redirect, sanitize it (or eliminate it if we can't), and then redirect
+
+if (!empty($_REQUEST['redirect'])) {
+    // for now we are only going to allow redirects to locations in the module directories, we can open this up more
+    // in future requests once we consider the threat vectors
+    $safeRedirect = \OpenEMR\Core\ModulesApplication::filterSafeLocalModuleFiles([$_REQUEST['redirect']]);
+    if (!empty($safeRedirect)) {
+        header('Location: ' . $safeRedirect[0]);
+        exit();
+    }
 }
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Cache-Control: no-cache");

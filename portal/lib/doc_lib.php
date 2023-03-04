@@ -29,7 +29,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     // only support download handler from patient portal
-    if ($_POST['handler'] != 'download') {
+    if ($_POST['handler'] != 'download' && $_POST['handler'] != 'fetch_pdf') {
         echo xlt("Not authorized");
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         exit;

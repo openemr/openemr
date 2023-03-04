@@ -129,4 +129,10 @@ class AddressService extends BaseService
 
         return $addressIdSqlResults["id"];
     }
+
+    public function getOneByForeignId($foreignId)
+    {
+        $sql = "SELECT * FROM addresses WHERE foreign_id=?";
+        return sqlQuery($sql, array($foreignId));
+    }
 }

@@ -1,0 +1,19 @@
+{#
+A block to render if the login attempt failed
+
+* Set login_failure_container_class_list with an array of classes to control the container
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% if loginFail == 1 %}
+{% block login_failure %}
+<div class="{{ login_failure_container_class_list|default(['text-center', 'login-failure'])|join(' ') }}">
+    <p class="text-danger font-weight-bold">{{ "Invalid username or password"|xlt }}</p>
+</div>
+{% endblock %}
+{% endif %}

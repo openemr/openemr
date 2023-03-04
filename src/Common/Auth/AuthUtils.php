@@ -642,6 +642,7 @@ class AuthUtils
             $updateParams = array();
             $updateSQL = "UPDATE `users_secure`";
             $updateSQL .= " SET `last_update_password` = NOW()";
+            $updateSQL .= ", `login_fail_counter` = 0";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
             if ($GLOBALS['password_history'] != 0) {

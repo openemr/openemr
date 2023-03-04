@@ -28,18 +28,8 @@ body {
   width: 50%;
 }
 
-#selLanguage {
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
-}
-
 @media (max-width: 1024px) {
   .reg-email {
-    width: 100%;
-  }
-
-  #selLanguage {
     width: 100%;
   }
 }

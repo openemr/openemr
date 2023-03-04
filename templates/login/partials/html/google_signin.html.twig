@@ -1,0 +1,18 @@
+{#
+The Google Signin block
+
+Include the google signing requirements
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% block google_signin %}
+<meta name="google-signin-client_id" content="{{ googleSigninClientID|attr }}">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<div id="g_id_onload" data-client_id="{{ googleSigninClientID|attr }}" data-callback="onSignInSuccess" data-auto_prompt="false">
+</div>
+{% endblock %}

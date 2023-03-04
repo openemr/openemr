@@ -261,8 +261,10 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
-            if ($lines) {
+            if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
+                $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
+            }
+            if (!empty($lines)) {
                 $name = $lines[0];
             } else {
                 $name = $directory;
@@ -1094,7 +1096,7 @@ class InstModuleTable
     private function existsModuleConfigFile($moduleDirectory)
     {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
-        return file_exists($filePath);
+        return file_exists($filePath ?? '');
     }
 
     /**

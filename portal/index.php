@@ -39,9 +39,17 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\LogoService;
 
 //For redirect if the site on session does not match
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$logoService = new LogoService();
+$logoSrc = $logoService->getLogo("portal/login/primary");
+
+// allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
+// actually do anything with the redirect
+// this value should already be url encoded.
+$redirectUrl = $_REQUEST['redirect'] ?? '';
 
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -335,8 +343,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
     <?php } ?>
 
 </head>
-<body class="login container mt-2">
-    <div id="wrapper" class="container-fluid text-center">
+<body class="login">
+    <div id="wrapper" class="container text-center mx-auto">
         <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
             $_SESSION['password_update'] = 1;
             ?>
@@ -344,6 +352,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             <form class="form pb-5" action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()">
                 <input style="display: none" type="text" name="dummyuname" />
                 <input style="display: none" type="password" name="dummypass" />
+                <?php if (isset($redirectUrl)) { ?>
+                    <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                <?php } ?>
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
                     <div class="col-md">
@@ -392,12 +403,16 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                     </div>
                 <?php } ?>
-                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
+                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                    echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
         <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
                 <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
+                <?php if (isset($redirectUrl)) { ?>
+                    <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                <?php } ?>
                 <div class="text-center">
                     <fieldset>
                         <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
@@ -432,15 +447,19 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                                 <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
                             </div>
                         </div>
-                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
+                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                            echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                         <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
                     </fieldset>
                 </div>
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <img class="img-responsive center-block login-image" src='<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png' />
+        <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
+            <?php if (isset($redirectUrl)) { ?>
+                <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+            <?php } ?>
             <fieldset>
                 <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
                 <div class="jumbotron jumbotron-fluid px-5 py-3">
@@ -466,31 +485,33 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     <?php } ?>
                     <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>
-                            <div class="form-group mt-1">
-                                <label class="col-form-label-sm" for="selLanguage"><?php echo xlt('Language'); ?></label>
-                                <select class="form-control form-control-sm" id="selLanguage" name="languageChoice">
-                                    <?php
-                                    echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
-                                        text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                                    foreach ($result3 as $iter) {
-                                        if ($GLOBALS['language_menu_showall']) {
-                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                continue; // skip the dummy language
-                                            }
-                                            echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                text($iter['trans_lang_description']) . "</option>\n";
-                                        } else {
-                                            if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                            <div class="form-row mt-3">
+                                <label class="col-form-label col-md-2" for="selLanguage"><?php echo xlt('Language'); ?></label>
+                                <div class="col-md">
+                                    <select class="form-control" id="selLanguage" name="languageChoice">
+                                        <?php
+                                        echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
+                                            text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
+                                        foreach ($result3 as $iter) {
+                                            if ($GLOBALS['language_menu_showall']) {
                                                 if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                                     continue; // skip the dummy language
                                                 }
                                                 echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                                     text($iter['trans_lang_description']) . "</option>\n";
+                                            } else {
+                                                if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                        continue; // skip the dummy language
+                                                    }
+                                                    echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                                        text($iter['trans_lang_description']) . "</option>\n";
+                                                }
                                             }
                                         }
-                                    }
-                                    ?>
-                                </select>
+                                        ?>
+                                    </select>
+                                </div>
                             </div>
                         <?php }
                     } ?>
@@ -501,7 +522,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                             <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
                         <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Reset Credentials'); ?></button>
+                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                                echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
@@ -591,7 +613,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 data: data
             }).done(function (rtn) {
                 if (action === "cleanup") {
-                    window.location.href = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let url = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let redirectUrl = $("#redirect").val();
+                    if (redirectUrl) {
+                        url += "&redirect=" + encodeURIComponent(redirectUrl);
+                    }
+                    window.location.href = url;
                 } else if (action === "reset_password") {
                     if (JSON.parse(rtn) === 1) {
                         dialog.alert(<?php echo xlj("Check your email inbox (and possibly your spam folder) for further instructions to reset your password. If you have not received an email, then recommend contacting the clinic.") ?>);

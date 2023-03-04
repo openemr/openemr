@@ -47,6 +47,7 @@ class Claim
     public $facilityService;   // via matthew.vita orm work :)
     public $pay_to_provider;   // to be implemented in facility ui
     private $encounterService;
+    public $billing_prov_id;
 
     public function __construct($pid, $encounter_id)
     {
@@ -192,17 +193,10 @@ class Claim
         return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?=@ ]/', '', strtoupper($str));
     }
 
-    // X12 likes 9 digit zip codes also moving this from X125010837P to pursue PSR-0 and PSR-4
     public function x12Zip($zip)
     {
-        $zip = $this->x12Clean($zip);
-        // this will take out dashes and pad with trailing 9s if not 9 digits
-        return str_pad(
-            preg_replace('/[^0-9]/', '', $zip),
-            9,
-            9,
-            STR_PAD_RIGHT
-        );
+        // this will take out anything non-numeric
+        return preg_replace('/[^0-9]/', '', $zip);
     }
 
     // Make sure dates have no formatting and zero filled becomes blank
@@ -247,8 +241,11 @@ class Claim
 
             $ins = count($this->payers);
             if (
-                ($drow['provider'] == $billrow['payer_id'] || $billrow['payer_id'] == null) &&
-                empty($this->payers[0]['data'])
+                (
+                    $drow['provider'] == $billrow['payer_id']
+                    || empty($billrow['payer_id'])
+                )
+                && empty($this->payers[0]['data'])
             ) {
                 $ins = 0;
             }
@@ -617,7 +614,7 @@ class Claim
             return false;
         }
 
-        $tmp = $this->x12Clean(trim($this->x12_partner['x12_submitter_name'])) ?? false;
+        $tmp = $this->x12Clean(trim($this->x12_partner['x12_submitter_name'] ?? ''));
         return $tmp;
     }
 
@@ -712,7 +709,7 @@ class Claim
 
     public function billingFacilityZip()
     {
-        return $this->x12Clean(trim($this->billing_facility['postal_code']));
+        return $this->x12Zip($this->billing_facility['postal_code']);
     }
 
     public function billingFacilityETIN()
@@ -812,7 +809,7 @@ class Claim
 
     public function facilityZip()
     {
-        return $this->x12Clean(trim($this->facility['postal_code']));
+        return $this->x12Zip($this->facility['postal_code']);
     }
 
     public function facilityETIN()
@@ -1017,7 +1014,7 @@ class Claim
 
     public function insuredZip($ins = 0)
     {
-        return $this->x12Clean(trim($this->payers[$ins]['data']['subscriber_postal_code'] ?? ''));
+        return $this->x12Zip($this->payers[$ins]['data']['subscriber_postal_code'] ?? '');
     }
 
     public function insuredPhone($ins = 0)
@@ -1096,7 +1093,7 @@ class Claim
 
         $tmp = $this->payers[$ins]['object'];
         $tmp = $tmp->get_address();
-        return $this->x12Clean(trim($tmp->get_zip()));
+        return $this->x12Zip($tmp->get_zip());
     }
 
     public function payerID($ins = 0)
@@ -1141,7 +1138,7 @@ class Claim
 
     public function patientZip()
     {
-        return $this->x12Clean(trim($this->patient_data['postal_code']));
+        return $this->x12Zip($this->patient_data['postal_code']);
     }
 
     public function patientPhone()
@@ -1566,7 +1563,7 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
-        return $this->x12Clean(trim($tmp['mname']));
+        return $this->x12Clean(trim($tmp['mname'] ?? ''));
     }
 
     public function providerSuffixName($prockey = -1)
@@ -1778,6 +1775,6 @@ class Claim
 
     public function billingProviderZip()
     {
-        return $this->x12Clean(trim($this->billing_prov_id['zip']));
+        return $this->x12Zip($this->billing_prov_id['zip']);
     }
 }

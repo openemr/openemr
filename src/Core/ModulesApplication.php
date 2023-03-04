@@ -140,8 +140,10 @@ class ModulesApplication
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 $realPath = realpath($GLOBALS['fileroot'] . $scriptSrcPath);
+                $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+
                 // make sure we haven't left our root path ie interface folder
-                if (strpos($realPath, $GLOBALS['fileroot'] . '/interface/modules/') === 0 && file_exists($realPath)) {
+                if (strpos($realPath, $moduleRootLocation) === 0 && file_exists($realPath)) {
                     return $scriptSrc;
                 }
                 return null;

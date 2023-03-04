@@ -41,6 +41,11 @@ $years = array($thisyear - 1, $thisyear, $thisyear + 1, $thisyear + 2);
 
 $mode = (!empty($_GET['mode'])) ? $_GET['mode'] : null;
 
+$viewmode = false;
+if (!empty($_GET['id'])) {
+    $viewmode = true;
+}
+
 // "followup" mode is relevant when enable follow up encounters global is enabled
 // it allows the user to duplicate past encounter and connect between the two
 // under this mode the facility and the visit category will be same as the origin and in readonly
@@ -83,6 +88,51 @@ if ($viewmode) {
 }
 
 $displayMode = ($viewmode && $mode !== "followup") ? "edit" : "new";
+
+function getDefinedFacility()
+{
+    global $viewmode;
+    global $default_fac_override;
+    global $care_team_facility;
+    global $user_facility;
+    $care_team_facility = null;
+    if (!empty($GLOBALS['set_service_facility_encounter'])) {
+        $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", array($_SESSION['pid']));
+    }
+    if ($viewmode) {
+        global $result;
+        $def_facility = $result['facility_id'];
+    } elseif (!empty($default_fac_override)) {
+        $def_facility = $default_fac_override;
+    } elseif (!empty($GLOBALS['set_service_facility_encounter']) && !empty($care_team_facility['care_team_facility'])) {
+        $def_facility = $care_team_facility['care_team_facility'];
+    } else {
+        $def_facility = $user_facility['id'] ?? null;
+    }
+    return $def_facility;
+}
+
+$posCode = '';
+
+function getFacilityList()
+{
+    global $viewmode;
+    global $facilityService;
+    global $posCode;
+    $def_facility = getDefinedFacility();
+    $facilities = $facilityService->getAllServiceLocations();
+    $results = [];
+    foreach ($facilities as $iter) {
+        $posCode = (($def_facility === $iter['id']) && !$viewmode) ? $iter['pos_code'] : $posCode;
+
+        $results[] = [
+            'id' => $iter['id'],
+            'selected' => ($def_facility == $iter['id']) ? true : false,
+            'name' => $iter['name'],
+        ];
+    }
+    return $results;
+}
 
 /**
  * Helper function to show or hide a field based on the configuration setting.
@@ -318,9 +368,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             </div>
         </div>
         <form class="mt-3" id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
-            <?php if ($mode === "followup") { ?>
-                <input type="hidden" name="facility_id" value="<?php echo attr($result['facility_id']); ?>" />
-            <?php } ?>
+            <input type="hidden" id="facility_id" name="facility_id" value="<?php echo attr(getDefinedFacility()); ?>" />
             <?php if ($viewmode && $mode !== "followup") { ?>
                 <input type='hidden' name='mode' value='update' />
                 <input type='hidden' name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
@@ -559,28 +607,13 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         </div>
                         <div class="col-sm <?php displayOption('enc_enable_facility'); ?>">
                             <div class="form-group">
-                                <label for='facility_id' class="text-right"><?php echo xlt('Facility'); ?>:</label>
-                                <select name='facility_id' id='facility_id' class='form-control' onChange="getPOS()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
+                                <label for='facility_id_sel' class="text-right"><?php echo xlt('Facility'); ?>:</label>
+                                <select name='facility_id_sel' id='facility_id_sel' class='form-control' <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                     <?php
-                                    if ($viewmode) {
-                                        $def_facility = $result['facility_id'];
-                                    } elseif (!empty($default_fac_override)) {
-                                        $def_facility = $default_fac_override;
-                                    } else {
-                                        $def_facility = ($user_facility['id'] ?? null);
-                                    }
-                                    $posCode = '';
-                                    $facilities = $facilityService->getAllServiceLocations();
-                                    foreach ($facilities as $iter) {
-                                        $selected_fac = '';
-                                        if ($def_facility === $iter['id']) {
-                                            $selected_fac = " selected";
-                                            if (!$viewmode) {
-                                                $posCode = $iter['pos_code'];
-                                            }
-                                        } ?>
-                                    <option value="<?php echo attr($iter['id']); ?>"<?php echo $selected_fac; ?>><?php echo text($iter['name']); ?></option>
-                                    <?php } ?>
+                                    $fac = getFacilityList();
+                                    foreach ($fac as $f) : ?>
+                                        <option value="<?php echo attr($f['id']); ?>" <?php echo ($f['selected'] == true) ? 'selected' : '';?>><?php echo text($f['name']); ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
@@ -720,6 +753,13 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     </div><!--End of container div-->
     <?php $oemr_ui->oeBelowContainerDiv(); ?>
 <script>
+    const fac_id_sel = document.getElementById("facility_id_sel");
+    fac_id_sel.addEventListener("change", () => {
+        let fac_id = document.getElementById("facility_id");
+        fac_id.value = fac_id_sel[fac_id_sel.selectedIndex].value;
+        getPOS();
+    });
+
     <?php
     if (!$viewmode) { ?>
     function duplicateVisit(enc, datestr) {
