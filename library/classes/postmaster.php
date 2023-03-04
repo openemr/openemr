@@ -41,7 +41,7 @@ class MyMailer extends PHPMailer
         switch ($GLOBALS['EMAIL_METHOD']) {
             case "SMTP":
                 $requiredKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'];
-                if ($GLOBALS['SMTP_AUTH']) {
+                if ($GLOBALS['SMTP_Auth']) {
                     $requiredKeys[] = 'SMTP_USER';
                     $requiredKeys[] = 'SMTP_PASS';
                 }
