@@ -257,7 +257,7 @@ class EtherFaxActions extends AppDispatch
     public function forwardFax(): string
     {
         $fax = $content = $filepath = null;
-        $statusMsg = xlt("Forward Requests Result") . "<br />";
+        $statusMsg = xlt("Forwarding Requests") . "<br />";
         $comment = $this->getRequest('comments');
         $jobId = $this->getRequest('docid');
         $email = $this->getRequest('email');
@@ -307,14 +307,16 @@ class EtherFaxActions extends AppDispatch
                 $error = FaxResult::getFaxResult($status->FaxResult);
                 if ($status->FaxResult ?? null) {
                     $statusMsg .= 'Error: ' . $error;
+                    return js_escape($statusMsg);
                 } else {
-                    $statusMsg .= xlt("Forwarded fax actions successful and removed from queue.");
-                    $this->setFaxDeleted($jobId);
+                    $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
                 }
             }
             if ($filepath) {
                 unlink($filepath);
             }
+            $this->setFaxDeleted($jobId);
+            $statusMsg .= xlt("Fax Deleted.");
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $statusMsg = 'Error: ' . $message;

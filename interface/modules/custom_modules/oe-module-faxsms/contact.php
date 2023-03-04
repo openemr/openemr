@@ -96,9 +96,7 @@ $service = $clientApp::getServiceType();
                             try {
                                 let t_data = JSON.parse(data);
                                 data = t_data;
-                            } catch (e) {
-
-                            }
+                            } catch (e) {}
                             let err = (data.search(/Exception/) !== -1 ? 1 : 0);
                             if (!err) {
                                 err = (data.search(/Error:/) !== -1) ? 1 : 0;

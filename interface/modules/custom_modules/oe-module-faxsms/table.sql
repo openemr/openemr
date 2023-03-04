@@ -11,9 +11,9 @@ UNIQUE KEY `vendor` (`auth_user`,`vendor`)
 
 CREATE TABLE IF NOT EXISTS `oe_faxsms_queue` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
-`account` tinytext DEFAULT NULL,
+`account` tinytext,
 `uid` int(11) DEFAULT NULL,
-`job_id` text DEFAULT NULL COMMENT 'Guid of fax',
+`job_id` text COMMENT 'Guid of fax',
 `date` datetime DEFAULT current_timestamp(),
 `receive_date` datetime DEFAULT NULL,
 `deleted` int(1) NOT NULL DEFAULT 0,

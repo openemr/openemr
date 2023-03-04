@@ -200,7 +200,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             if (downFlag === 'true') {
                 let yn = confirm(
                     xl("After downloading a fax it is marked as received and no longer available.") + "\n\n" +
-                    xl("Do you want to continue with download? Be sure to dispose of the fax document.")
+                    xl("Do you want to continue with download?")
                 );
                 if (!yn) {
                     return false;
