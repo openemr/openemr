@@ -23,6 +23,7 @@ if (!empty($query)) {
 }
 // need to retain the webroot if we have one
 $landingpage = $basePath . "portal/index.php?site=" . urlencode($_GET['site_id'] ?? '') . "&redirect=" . urlencode($redirect);
+$skipLandingPageError = true;
 
 // since we are working inside the portal we have to use the portal session verification logic here...
 require_once "../../../../../portal/verify_session.php";
