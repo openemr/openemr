@@ -86,7 +86,9 @@ class TeleHealthParticipantInvitationMailerService
         $logoPath = $this->config->getQualifiedSiteAddress() . $logoService->getLogo('core/login/primary');
         $name = $this->config->getOpenEMRName();
         $data = [
-            'url' => $this->getJoinLink($session, $thirdPartyLaunchAction)
+            'url' => $this->getJoinLink()
+            ,'pc_eid' => $session['pc_eid']
+            ,'launchAction' => $thirdPartyLaunchAction
             ,'salutation' => ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')
             ,'logoPath' => $logoPath
             ,'logoAlt' => $name ?? 'OpenEMR'
@@ -95,11 +97,10 @@ class TeleHealthParticipantInvitationMailerService
         return $data;
     }
 
-    private function getJoinLink($session, $thirdPartyLaunchAction)
+    private function getJoinLink()
     {
         // the index-portal will redirect the person to login before completing the action
-        return $this->publicPathFQDN . "index-portal.php?action=" . urlencode($thirdPartyLaunchAction)
-            . "&pc_eid=" . urlencode($session['pc_eid']);
+        return $this->publicPathFQDN . "index-portal.php";
     }
 
     private function sendMessageToPatient($htmlMsg, $plainMsg, $patient, $joinLink, $messageId)

@@ -20,6 +20,8 @@ use MyMailer;
 
 class TelehealthGlobalConfig
 {
+    const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
+
     const COMLINK_VIDEO_TELEHEALTH_API = 'comlink_telehealth_video_uri';
     const COMLINK_VIDEO_REGISTRATION_API = 'comlink_telehealth_registration_uri';
     const COMLINK_VIDEO_API_USER_ID = 'comlink_telehealth_user_id';
@@ -83,6 +85,10 @@ class TelehealthGlobalConfig
         } else {
             return $this->getGlobalSetting('portal_onsite_two_address');
         }
+    }
+
+    public function getPublicWebPath() {
+        return $this->publicWebPath;
     }
 
     public function isThirdPartyInvitationsEnabled()
@@ -159,6 +165,10 @@ class TelehealthGlobalConfig
             if ($defaultValue == 'https://your_web_site.com/openemr/portal') {
                 return false;
             }
+        }
+        // have to have the qualified site address for our full email link
+        if (empty($this->getQualifiedSiteAddress())) {
+            return false;
         }
         return true;
     }

@@ -453,7 +453,7 @@ class TeleconferenceRoomController
 
     public function verifyInstallationSettings($queryVars)
     {
-        $config = new TelehealthGlobalConfig($this->assetPath);
+        $config = $this->config;
         if (!$config->isTelehealthConfigured()) {
             echo xlt("Telehealth settings must be saved to verify configuration");
         } else {

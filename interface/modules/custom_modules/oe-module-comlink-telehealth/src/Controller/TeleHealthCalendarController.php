@@ -194,7 +194,7 @@ class TeleHealthCalendarController
             echo "<button class='mt-2 btn btn-disabled' disabled><i class='fa fa-video m-2'></i>"
                 . xlt("TeleHealth Session Ended") . "</button>";
             echo "<p>" . xlt("Session has been completed.") . " "
-                . xl("Change the appointment status in order to launch this session again.") . "</p>";
+                . xlt("Change the appointment status in order to launch this session again.") . "</p>";
             return;
         }
         $eventDateTimeString = $row['pc_eventDate'] . " " . $row['pc_startTime'];

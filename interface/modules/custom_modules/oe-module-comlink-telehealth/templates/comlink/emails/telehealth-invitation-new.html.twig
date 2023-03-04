@@ -72,7 +72,7 @@
                             <tr>
                                 <td align="center" valign="top"><a href="#" target="_blank"
                                                                    style="text-decoration:none;"><img
-                                                src="{{ logoPath|attr_url }}"
+                                                src="{{ logoPath|attr }}"
                                                 width="208" alt="{{ logoAlt|attr }}" border="0"
                                                 style="display:block; font-family:Arial, sans-serif; font-size:18px; line-height:25px; text-align:center; color:#1d4685; font-weight:bold; max-width:208px;"
                                                 class="em_w150" /></a></td>
@@ -141,8 +141,7 @@
                                                                     <td class="em_white" height="34" align="center"
                                                                         valign="middle"
                                                                         style="font-family: Arial, sans-serif; font-size: 13px; color:#ffffff; font-weight:bold; height:34px;">
-                                                                        {# TODO: @brady.miller - using attr_url here breaks on MailGun and Thunderbird, any suggestions here? #}
-                                                                        <a href="{{url}}" target="_blank"
+                                                                        <a href="{{url|attr }}?action={{ launchAction|attr_url }}&pc_eid={{ pc_eid|attr_url }}" target="_blank"
                                                                            style="text-decoration:none; color:#ffffff; line-height:34px; display:block;">
                                                                             {{ "Join Telehealth Session"|xlt }}</a></td>
                                                                 </tr>
