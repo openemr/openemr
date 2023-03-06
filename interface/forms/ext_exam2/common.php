@@ -1736,7 +1736,7 @@ function cancelClicked() {
 	// This invokes the find-addressbook popup.
 	function add_doc_popup(bar_id = '', tmp_barId = '', frmdir = '', encounter = '') {
 
-		var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/forms/ext_exam2/select_encounter.php?pid=". $pid; ?>'+'&bar_id='+bar_id+'&tmp_barId='+tmp_barId+'&frmdir='+frmdir+'&encounter='+encounter;
+		var url = '<?php echo $GLOBALS['webroot']."/interface/forms/ext_exam2/select_encounter.php?pid=". $pid; ?>'+'&bar_id='+bar_id+'&tmp_barId='+tmp_barId+'&frmdir='+frmdir+'&encounter='+encounter;
 	  	let title = '<?php echo xlt('Select Encounter'); ?>';
 	  	dlgopen(url, 'selectEncounter', 600, 400, '', title);
 	}
@@ -1805,7 +1805,7 @@ function cancelClicked() {
 
 		const result = await $.ajax({
 			type: "POST",
-			url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/forms/ext_exam2/ajax/fetch_ext_exam2.php'; ?>",
+			url: "<?php echo $GLOBALS['webroot'].'/interface/forms/ext_exam2/ajax/fetch_ext_exam2.php'; ?>",
 			datatype: "json",
 			data: valObj
 		});

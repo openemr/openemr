@@ -1274,7 +1274,7 @@ if ($groupid) {
 
     // This invokes popup to send zoom details.
     function sel_communication_type(eid, pid) {
-        var url = "<?php echo $GLOBALS['webroot'] . '/library/OemrAD/interface/main/calendar/zoom_popup.php?eid='; ?>"+ eid + "&pid=" + pid;
+        var url = "<?php echo $GLOBALS['webroot'] . '/interface/main/calendar/php/zoom_popup.php?eid='; ?>"+ eid + "&pid=" + pid;
 
         let title = '<?php echo xlt('Select'); ?>';
         dlgopen(url, 'selectCommunicationType', 400, 200, '', title);
@@ -1305,7 +1305,7 @@ if ($groupid) {
 
         const result = await $.ajax({
             type: "POST",
-            url: "<?php echo $GLOBALS['webroot'] .'/library/OemrAD/interface/main/calendar/ajax/send_zoom_details.php'; ?>",
+            url: "<?php echo $GLOBALS['webroot'] .'/interface/main/calendar/ajax/send_zoom_details.php'; ?>",
             datatype: "json",
             data: data
         });
@@ -1348,7 +1348,7 @@ if ($groupid) {
 
         const result = await $.ajax({
             type: "POST",
-            url: "<?php echo $GLOBALS['webroot'] . '/library/OemrAD/interface/main/calendar/ajax/ajax_check_zoom_meeting.php?mode=recreate'; ?>",
+            url: "<?php echo $GLOBALS['webroot'] . '/interface/main/calendar/ajax/ajax_check_zoom_meeting.php?mode=recreate'; ?>",
             datatype: "json",
             data: data
         });
@@ -1381,7 +1381,7 @@ if ($groupid) {
 
         const result = await $.ajax({
             type: "POST",
-            url: "<?php echo $GLOBALS['webroot'] . '/library/OemrAD/interface/main/calendar/ajax/ajax_check_zoom_meeting.php?mode=delete'; ?>",
+            url: "<?php echo $GLOBALS['webroot'] . '/interface/main/calendar/ajax/ajax_check_zoom_meeting.php?mode=delete'; ?>",
             datatype: "json",
             data: data
         });
@@ -1414,7 +1414,7 @@ if ($groupid) {
 
         const result = await $.ajax({
             type: "POST",
-            url: "<?php echo $GLOBALS['webroot'] . '/library/OemrAD/interface/main/calendar/ajax/ajax_check_zoom_meeting.php?mode=check'; ?>",
+            url: "<?php echo $GLOBALS['webroot'] . '/interface/main/calendar/ajax/ajax_check_zoom_meeting.php?mode=check'; ?>",
             datatype: "json",
             data: data
         });
@@ -1435,7 +1435,7 @@ if ($groupid) {
     async function todaysEncounterIf() {
         var f = document.forms[0];
         var responce = await $.ajax({
-            url: '<?php echo $GLOBALS['webroot'] . "/library/OemrAD/interface/main/calendar/ajax/add_edit_event_ajax.php?type=check&eid=$eid"; ?>',
+            url: '<?php echo $GLOBALS['webroot'] . "/interface/main/calendar/ajax/add_edit_event_ajax.php?type=check&eid=$eid"; ?>',
             type: 'POST',
             data: $(f).serialize()
         });
@@ -1462,7 +1462,7 @@ if ($groupid) {
     async function getTotalCancelledPatientAppt(pid = '', caseId = '', totalCount = 1, futureAppt = 1, rehabProgress = 1) {
         if(pid && pid != '') {
             var responce = await $.ajax({
-                url: '<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/calendar/ajax/total_cancelled_patient_appt.php'; ?>?pid=' + pid + '&caseId=' + caseId + '&totalCount=' + totalCount + '&futureAppt=' + futureAppt + '&rehabProgress=' + rehabProgress,
+                url: '<?php echo $GLOBALS['webroot'].'/interface/main/calendar/ajax/total_cancelled_patient_appt.php'; ?>?pid=' + pid + '&caseId=' + caseId + '&totalCount=' + totalCount + '&futureAppt=' + futureAppt + '&rehabProgress=' + rehabProgress,
                 type: 'GET'
             });
 
@@ -1553,7 +1553,7 @@ if ($groupid) {
         if(appt_case_id != '') {
             var responce = await $.ajax({
                 type: "POST",
-                url: "<?php echo $GLOBALS['webroot'] . '/library/OemrAD/interface/main/calendar/ajax/authorized_case.php'; ?>",
+                url: "<?php echo $GLOBALS['webroot'] . '/interface/forms/cases/ajax/authorized_case.php'; ?>",
                 datatype: "json",
                 data: { "type" : "appt", "case_id" : appt_case_id, "start_date" : appt_start_date, "pid" : appt_pid, "provider" : appt_provider }
             });
@@ -1596,7 +1596,7 @@ if ($groupid) {
 
     function openAlertInfoPopup(message) {
           top.restoreSession()
-          dlgopen('<?php echo $GLOBALS['webroot'] . '/library/OemrAD/interface/main/calendar/alert_popup.php'; ?>?message='+encodeURIComponent(message), 'alert_info_popup_add_edit_event', 500, 250, '', '', {
+          dlgopen('<?php echo $GLOBALS['webroot'] . '/interface/main/calendar/php/alert_popup.php'; ?>?message='+encodeURIComponent(message), 'alert_info_popup_add_edit_event', 500, 250, '', '', {
               buttons: [
                   {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
               ],

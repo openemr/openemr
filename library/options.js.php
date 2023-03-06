@@ -568,7 +568,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
     // Email Verification Service ("options.inc.php")
     async function callEmailVerificationService(val) {
         let result;
-        let ajaxurl = top.webroot_url + '/library/OemrAD/interface/email_verification/ajax_email_verification.php?email='+val;
+        let ajaxurl = top.webroot_url + '/interface/email_verification/ajax_email_verification.php?email='+val;
 
         if(val && val != "") {
             try {

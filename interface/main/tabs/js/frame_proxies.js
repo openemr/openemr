@@ -82,7 +82,7 @@ left_nav.setTherapyGroup = function(group_id, group_name){
 /* OEMRAD - Changes */
 left_nav.fetchEncounterData = async function(EncounterIdArray)
 {
-    const response = await fetch(webroot_url+"/library/OemrAD/interface/main/tabs/ajax/get_encounter_details.php", {
+    const response = await fetch(webroot_url+"/interface/main/tabs/ajax/get_encounter_details.php", {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ "encounter": EncounterIdArray})

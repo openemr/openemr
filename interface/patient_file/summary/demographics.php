@@ -1183,7 +1183,7 @@ $oemr_ui->heading =  $oemr_ui->heading . ((isset($result['nickname33']) && !empt
             /* OEMRAD - Changes */
             function openAlertInfoPopup() {
                 top.restoreSession()
-                dlgopen('<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/patient_file/summary/alert_popup.php?pid=$pid"; ?>', 'alert_info_popup', 500, 250, '', '', {
+                dlgopen('<?php echo $GLOBALS['webroot']."/interface/patient_file/summary/php/alert_popup.php?pid=$pid"; ?>', 'alert_info_popup', 500, 250, '', '', {
                   buttons: [
                       {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
                   ],

@@ -423,7 +423,7 @@ if($form_act_val != "") {
 					  	<div class="fieldContainer">
 					  		<input type="text" name="form_replace_field" class="form_input filterInput" value="<?php echo $form_replace_field_val ?>" <?php echo $isReadOnly === true ? "readonly" : ""; ?> />
 					  		<?php if($isReadOnly === false) { ?>
-				  				<a class='medium_modal css_button search_user_btn' href='<?php echo $GLOBALS['webroot']. '/library/OemrAD/interface/forms/cases/find_user_popup.php?abook_type=Attorney'; ?>'><span> <?php echo xlt('Search'); ?></span></a>
+				  				<a class='medium_modal css_button search_user_btn' href='<?php echo $GLOBALS['webroot']. '/interface/forms/cases/php/find_user_popup.php?abook_type=Attorney'; ?>'><span> <?php echo xlt('Search'); ?></span></a>
 				  			<?php } ?>
 				  		</div>
 				  	</td>
@@ -432,7 +432,7 @@ if($form_act_val != "") {
 					  	<div class="fieldContainer">
 						  	<input type="text" name="form_replace_with_field" class="form_input filterInput" value="<?php echo $form_replace_with_field_val ?>" <?php echo $isReadOnly === true ? "readonly" : ""; ?> />
 						  	<?php if($isReadOnly === false) { ?>
-						  		<a class='medium_modal css_button search_user_btn' href='<?php echo $GLOBALS['webroot']. '/library/OemrAD/interface/forms/cases/find_user_popup.php?abook_type=Attorney'; ?>'><span> <?php echo xlt('Search'); ?></span></a>
+						  		<a class='medium_modal css_button search_user_btn' href='<?php echo $GLOBALS['webroot']. '/interface/forms/cases/php/find_user_popup.php?abook_type=Attorney'; ?>'><span> <?php echo xlt('Search'); ?></span></a>
 						  	<?php } ?>
 					  	</div>
 				  	</td>

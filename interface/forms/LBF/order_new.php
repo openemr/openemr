@@ -31,13 +31,12 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
+require_once("php/lbf_functions.php");
 require_once("$srcdir/wmt-v2/wmtstandard.inc");
-require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\OemrAd\LbfForm;
 
 $CPR = 4; // cells per row
 
@@ -1093,7 +1092,7 @@ if (
     <script type="text/javascript">
         // This invokes the find-addressbook popup.
         function add_doc_popup(section_id = '', formname = '', encounter = '', pid = '') {
-            var url = '<?php echo $GLOBALS['webroot']; ?>/library/OemrAD/interface/forms/LBF/lbf_select_encounter.php'+'?pid='+pid+'&section_id='+section_id+'&formname='+formname+'&encounter='+encounter;
+            var url = '<?php echo $GLOBALS['webroot']; ?>/interface/forms/LBF/php/lbf_select_encounter.php'+'?pid='+pid+'&section_id='+section_id+'&formname='+formname+'&encounter='+encounter;
             let title = "<?php echo xlt('Select Encounter'); ?>";
             dlgopen(url, 'selectEncounter', 600, 400, '', title);
         }
@@ -1138,7 +1137,7 @@ if (
 
             const result = await $.ajax({
                 type: "POST",
-                url: "<?php echo $GLOBALS['webroot']; ?>/library/OemrAD/interface/forms/LBF/ajax/fetch_lbf_form.php",
+                url: "<?php echo $GLOBALS['webroot']; ?>/interface/forms/LBF/ajax/fetch_lbf_form.php",
                 datatype: "json",
                 data: valObj
             });
@@ -1395,7 +1394,7 @@ if (
                 $condition_str = '';
 
                 //Process Before Save
-                LbfForm::ext_lbf_before_process($pid);
+                preProcessData($pid);
 
                 while ($frow = sqlFetchArray($fres)) {
                     $this_group = $frow['group_id'];

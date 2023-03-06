@@ -31,7 +31,6 @@ use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\OemrAd\Caselib;
-use OpenEMR\OemrAd\FeeSheet;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -108,6 +107,81 @@ if (!empty($_GET['attachid'])) {
     }
 }
 ?>
+
+<!-- OEMR - Change -->
+<script>
+$(function () {
+    async function handleConfimBox_feeCodeLinked(encounter, pid) {
+        var bodyObj = { encounter :  encounter, pid : pid };
+        const result = await $.ajax({
+            type: "POST",
+            url:  top.webroot_url + '/interface/forms/fee_sheet/ajax/get_feesheet_code_status.php',
+            datatype: "json",
+            data: bodyObj
+        });
+
+        if(result != '') {
+            var resultObj = JSON.parse(result);
+            if(resultObj && resultObj['feesheet_code_status'] === false) {
+                if(!confirm("Warning - At least one CPT/HCPCS is not linked to an ICD in the fee sheet.  Press \"Cancel\" to back and justify all CPT/HCPCS codes or Press \"Ok\" to sign the encounter")) {
+                    return false;
+                } else {
+                    return true;
+                }
+
+                return returnStatus;
+            } else {
+                return true;
+            }
+        }
+
+        return true;
+    }
+}
+
+// Handle care team provider.
+async function handleCareTeamProvider(encounter, pid) {
+    var bodyObj = { encounter :  encounter, pid : pid};
+    const cs_result = await $.ajax({
+        type: "POST",
+        url:  top.webroot_url + '/interface/patient_file/encounter/ajax/check_cs_rp.php',
+        datatype: "json",
+        data: bodyObj
+    });
+
+    if(cs_result != '') {
+        var csResultObj = JSON.parse(cs_result);
+        if(csResultObj && csResultObj['status'] !== false) {
+            var rp_url = top.webroot_url + '/interface/patient_file/encounter/php/case_rp_view.php?pid=' + pid + '&encounter=' + encounter;
+            let rp_title = 'Care Team Providers';
+            let dialogObj = await dlgopen(rp_url, 'case_rp_view', 'modal-mlg', '', '', rp_title, {
+                sizeHeight: 'full'
+            });
+            
+            dialogLoader(dialogObj.modalwin);
+        }
+    }
+}
+
+// Check is encounter authorizedEncounter.
+async function authorizedEncounter(encounter = '', case_id = '', start_date = '') {
+    if(case_id != '') {
+        var responce = await $.post({
+            type: "POST",
+            url: top.webroot_url + '/interface/forms/cases/ajax/authorized_case.php',
+            datatype: "json",
+            data: { "type" : "encounter", "case_id" : case_id, "start_date" : start_date, "encounter" : encounter }
+        });
+
+        var responceJSON = JSON.parse(responce);
+
+        if(responceJSON['status'] === false) {
+            alert(responceJSON['message'].join('\n\n'));
+        }
+    }
+}
+</script>
+<!-- End -->
 
 <script>
 $(function () {

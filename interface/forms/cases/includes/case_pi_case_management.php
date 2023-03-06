@@ -160,7 +160,7 @@ $lp_contact_val = isset($dt['tmp_'.$field_prefix.'lp_contact']) ? $dt['tmp_'.$fi
                                                 <?php wmtCase::referringSelect($lpItem, '', '', array('Attorney'), '', true, true); ?>
                                           </select>
                                           <div class="input-group-append">
-                                            <button type="button" class="btn btn-primary search_user_btn" href='<?php echo $GLOBALS['webroot']. '/library/OemrAD/interface/forms/cases/find_user_popup.php?abook_type=Attorney'; ?>'><i class="fa fa-search" aria-hidden="true"></i></button>
+                                            <button type="button" class="btn btn-primary search_user_btn" href='<?php echo $GLOBALS['webroot']. '/interface/forms/cases/php/find_user_popup.php?abook_type=Attorney'; ?>'><i class="fa fa-search" aria-hidden="true"></i></button>
                                             </div>
                                         </div>
                                         <span class="field-text-info c-font-size-sm ipc_info_container c-text-info"></span>

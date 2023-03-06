@@ -87,7 +87,7 @@ function writeOptionLine(
 			<input type="text" class="form-control" name="opt[<?php echo $opt_line_no; ?>][id]" value="<?php echo htmlspecialchars($id, ENT_QUOTES); ?>" class="optin" />
 		</td>
 		<td>
-			<select id="<?php echo "trigger_type_".$opt_line_no; ?>" data-id="<?php echo $opt_line_no; ?>" name="opt[<?php echo $opt_line_no; ?>][trigger_type]" class="optin trigger_type form-control">
+			<select id="<?php echo "trigger_type_".$opt_line_no; ?>" data-id="<?php echo $opt_line_no; ?>" name="opt[<?php echo $opt_line_no; ?>][trigger_type]" class="optin trigger_type form-control" style="width: 120px;">
 				<?php
 				foreach ($trigger_type_List as $key => $desc) {
 		            ?>
@@ -98,7 +98,7 @@ function writeOptionLine(
 			</select>
 		</td>
 		<td>
-			<select id="<?php echo "action_type_".$opt_line_no; ?>" name="opt[<?php echo $opt_line_no; ?>][action_type]" class="optin form-control">
+			<select id="<?php echo "action_type_".$opt_line_no; ?>" name="opt[<?php echo $opt_line_no; ?>][action_type]" class="optin form-control" style="width: 220px;">
 				<?php
 				foreach ($action_type_List as $key => $desc) {
 		            ?>
@@ -161,7 +161,7 @@ function writeOptionLine(
 </style>
 
 </head>
-<body class="body_top container">
+<body class="body_top">
 <header class="row">
     <h1 class="col-md-12 text-left">
         <?php echo xlt('Action Events')?>
@@ -169,13 +169,13 @@ function writeOptionLine(
 </header>
 <div>
 	<form method='post' name='theform' id='theform' action='extsettings.php'>
-		<table class="table table-striped table-condensed" style="margin-top:15px; width: 100%!important; max-width: 1100px;">
-			<thead>
+		<table class="table" style="margin-top:15px; width: 100%!important; max-width: 1200px;">
+			<thead class="table-light">
     			<tr>
-    				<th><b><?php xl('Event Name', 'e'); ?></b></th>
-    				<th><b><?php xl('Trigger Type', 'e'); ?></b></th>
-    				<th><b><?php xl('Action Type', 'e'); ?></b></th>
-    				<th style="width: 80px!important;"><b><?php xl('Configuration', 'e'); ?></b></th>
+    				<th><?php xl('Event Name', 'e'); ?></th>
+    				<th><?php xl('Trigger Type', 'e'); ?></th>
+    				<th><?php xl('Action Type', 'e'); ?></th>
+    				<th style="width: 80px!important;"><?php xl('Configuration', 'e'); ?></th>
     				<th></th>
     			</tr>
     		</thead>
@@ -225,20 +225,20 @@ function writeOptionLine(
 	}
 
 	function timeConfiguration(cValue = '', triggerType, actionType, event_id) {
-		var url = encodeURI('<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/batchcom/time_configuration_list.php?pid=". $pid ."&trigger_type="; ?>'+triggerType+'&action_type='+actionType+'&selectedItem='+cValue+'&eId='+event_id);
+		var url = encodeURI('<?php echo $GLOBALS['webroot']."/interface/batchcom/php/time_configuration_list.php?pid=". $pid ."&trigger_type="; ?>'+triggerType+'&action_type='+actionType+'&selectedItem='+cValue+'&eId='+event_id);
 	  	let title = '<?php echo xlt('Time Configuration'); ?>';
 	  	dlgopen(url, 'timeConfigurationSelection', 1200, 400, '', title);
 	}
 
 	function eventConfiguration(cValue = '', triggerType, actionType, event_id) {
-		var url = encodeURI('<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/batchcom/time_configuration_list.php?pid=". $pid ."&trigger_type="; ?>'+triggerType+'&action_type='+actionType+'&selectedItem='+cValue+'&eId='+event_id);
+		var url = encodeURI('<?php echo $GLOBALS['webroot']."/interface/batchcom/php/time_configuration_list.php?pid=". $pid ."&trigger_type="; ?>'+triggerType+'&action_type='+actionType+'&selectedItem='+cValue+'&eId='+event_id);
 	  	let title = '<?php echo xlt('Trigger Configuration'); ?>';
 	  	dlgopen(url, 'eventConfigurationSelection', 1200, 400, '', title);
 	}
 
 	function prepareConfigPopup(event_id = '') {
 		if(event_id != '') {
-			var url = encodeURI('<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/batchcom/action_event_log.php?pid=". $pid ; ?>&event_id='+event_id);
+			var url = encodeURI('<?php echo $GLOBALS['webroot']."/interface/batchcom/php/action_event_log.php?pid=". $pid ; ?>&event_id='+event_id);
 		  	let title = '<?php echo xlt('Prepare/Action'); ?>';
 		  	dlgopen(url, 'prepareConfigPopup', 900, 400, '', title);
 	  	}

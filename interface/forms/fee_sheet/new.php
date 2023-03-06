@@ -24,7 +24,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\OemrAd\FeeSheet;
 
 //acl check
 if (!AclMain::aclCheckForm('fee_sheet')) {
@@ -962,7 +961,29 @@ $arrOeUiSettings = array(
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
-<?php echo FeeSheet::feesheet_head() ?>
+<!-- OEMR - Change -->
+<script type="text/javascript">
+    function open_justify_form(pid, encounter) {
+        var url = '<?php echo $GLOBALS['webroot']; ?>/interface/forms/fee_sheet/php/justify_form.php?pid='+pid+'&encounter='+encounter;
+        dlgopen(url, 'justify_form', 500, 200, '', 'Justify');
+    }
+
+    function setJustifyVal(value) {
+        if(value != "") {
+            var eleJustify = document.getElementsByClassName("selJustify");
+            if(eleJustify.length > 0) {
+                for (i = 0; i < eleJustify.length; i++) {
+                    eleJustify[i].selectedIndex = "0";
+                    eleJustify[i].options["0"].value = value; 
+                    eleJustify[i].options["0"].text = value; 
+                }
+            }
+
+        }
+    }
+</script>
+<!-- End -->
+
 </head>
 
 

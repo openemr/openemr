@@ -258,7 +258,6 @@ function getInternalMsg($pid, $draw, $row, $rowperpage, $searchValue, $columnNam
 		ob_start();
 		?>
 		<div class="iframe_message_content">
-		<!-- <iframe scrolling="no" data-id="<?php //echo $note_data['id']; ?>" src="<?php //echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/load_message.php?type=notes&id='.$note_data['id']; ?>" class="contentiFrame"></iframe> -->
 		<iframe scrolling="no" data-id="<?php echo $note_data['id']; ?>" class="contentiFrame" srcdoc="<?php echo htmlentities($formatedMessage) ?>"></iframe>
 		</div>
 		<?php
@@ -403,7 +402,6 @@ function getEmailMsg($pid, $draw, $row, $rowperpage, $searchValue, $columnName, 
 		ob_start();
 		?>
 		<?php //MessagesLib::filterMsg($email_data); ?>
-		<!-- <iframe scrolling="no" data-id="<?php //echo $email_data['id']; ?>" src="<?php //echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/load_message.php?type=email&id='.$email_data['id']; ?>" class="contentiFrame"></iframe> -->
 		<iframe scrolling="no" data-id="<?php echo $email_data['id']; ?>" class="contentiFrame" srcdoc="<?php echo htmlentities($formatedMessage) ?>"></iframe>
 		<?php echo MessagesLib::displayAttachment($email_data['type'], $email_data['id'], $email_data); ?>
 		<?php

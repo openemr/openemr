@@ -626,7 +626,7 @@ if($form_id) {
 					<input type='text' name="custom_email_id" id="custom_email_id" class="form-control" value='<?php echo (isset($default_custom_email_id) && $default_custom_email_id != 'undefined') ? $default_custom_email_id : ''; ?>' placeholder="<?php echo xlt('Enter custom email'); ?>" />
 			    </div>
 			    <div class="form-group col-md-6">
-			    	<a class='medium_modal select_abook btn btn-primary' style="max-width: 220px;" href='<?php echo $GLOBALS['webroot']. '/library/OemrAD/interface/forms/cases/find_user_popup.php?allow_multi_select=true'; ?>'><span> <?php echo xlt('Select from address book'); ?></span></a>
+			    	<a class='medium_modal select_abook btn btn-primary' style="max-width: 220px;" href='<?php echo $GLOBALS['webroot']. '/interface/forms/cases/php/find_user_popup.php?allow_multi_select=true'; ?>'><span> <?php echo xlt('Select from address book'); ?></span></a>
 				</div>
 			</div>
 		</div>

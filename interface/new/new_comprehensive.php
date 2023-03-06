@@ -20,8 +20,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
-/* Included Email Verification File*/
-//require_once("$srcdir/OemrAD/interface/email_verification/email_verification.php");
+/* Included Email Verification File */
 require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -826,11 +825,6 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
     </div> <!--end of container div -->
 <!-- include support for the list-add selectbox feature -->
 <?php include($GLOBALS['fileroot'] . "/library/options_listadd.inc"); ?>
-
-<?php 
-// OEMRAD - Change
-//echo emailVerificationContent("../", $result); 
-?>
 
 <script>
 

@@ -608,7 +608,7 @@ function ct_dropdown_facility(
 
             const result = await $.ajax({
                 type: "POST",
-                url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/reports/ajax/ajax_custom_notifications.php'; ?>",
+                url: "<?php echo $GLOBALS['webroot'].'/interface/reports/ajax/ajax_custom_notifications.php'; ?>",
                 datatype: "json",
                 data: data
             });
