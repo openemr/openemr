@@ -721,7 +721,7 @@ class ActionEvent {
 
 					if($eventData['msg_type'] == "email") {
 						$itemStatus = self::sendEmail($eventData);
-						if($itemStatus !== '') {
+						if($itemStatus !== true) {
 							throw new \Exception($itemStatus);
 						}
 					} else if($eventData['msg_type'] == "sms") {
@@ -1407,6 +1407,7 @@ class ActionEvent {
 		return $testModeItems;
 	}
 
+	/*
 	public static function setTimeZone() {
 		$glres = sqlQuery(
         "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name = 'gbl_time_zone'" .
@@ -1416,10 +1417,10 @@ class ActionEvent {
 	    if (!empty($glres['gl_value'])) {
             date_default_timezone_set($glres['gl_value']);
         }
-	}
+	}*/
 
 	public static function sendEmail($data) {
-		$status = false;
+		$status = true;
 
 		if(!empty($data)) {
 			try {
@@ -1466,47 +1467,75 @@ class ActionEvent {
 
 				$patientValue = isset($data['email_patient']) ? $data['email_patient'] : ' ';
 
-				$email_data = array(
-					'patient' => $patientValue,
+				$eItem = array(
+				'pid' => $data['pid'],
+				'data' => array(
 					'from' => $fromValue,
-					'subject' => $subject,
 					'email' => $email_direct,
+					'template' => $data['template_id'],
+					'subject' => $subject,
+					'patient' => $patientValue,
 					'html' => $data['message'],
 					'text' => $data['message'],
-					'message_content' => $data['message']
+					'request_data' => array(),
+					'files' => array(),
+				));
+
+				$eData = EmailMessage::TransmitEmail(
+					array($eItem['data']), 
+					array('pid' => $eItem['pid'], 'logMsg' => true)
 				);
 
-				$emailObj = new \wmt\Email(TRUE);
-				$emailObj->FromName = $GLOBALS['EMAIL_FROM_NAME'];
+				if(is_array($eData) && count($eData) >= 1) {
+					$responce = $eData[0];
+					if(isset($responce) && isset($responce['errors']) && !empty($responce['errors'])) {
+						throw new \Exception(implode(",",$responce['errors']));
+					}
+				} else {
+					throw new \Exception("Something went wrong.");
+				}
 
-				// Send email
-				$status = @$emailObj->TransmitEmail($email_data);
-				self::setTimeZone();
+				// $email_data = array(
+				// 	'patient' => $patientValue,
+				// 	'from' => $fromValue,
+				// 	'subject' => $subject,
+				// 	'email' => $email_direct,
+				// 	'html' => $data['message'],
+				// 	'text' => $data['message'],
+				// 	'message_content' => $data['message']
+				// );
+
+				// $emailObj = new \wmt\Email(TRUE);
+				// $emailObj->FromName = $GLOBALS['EMAIL_FROM_NAME'];
+
+				// // Send email
+				// $status = @$emailObj->TransmitEmail($email_data);
+				// self::setTimeZone();
 
 			} catch (Exception $e) {
 				$status = $e->getMessage();
 			}
 
-			if(isset($data['pid']) && !empty($data['pid'])) {
-				$isActive = EmailMessage::isActive($status);
+			// if(isset($data['pid']) && !empty($data['pid'])) {
+			// 	$isActive = EmailMessage::isActive($status);
 
-				if($isActive === false) {
-					foreach ($email_direct as $eik => $emailI) {
-						$email_data['email'] = $emailI;
-						$email_data['pid'] = $data['pid'];
-						$email_data['request'] = array(
-							'message' => $email_data['message_content'],
-							'pid' => $data['pid'],
-							'email_id' => $emailI, 
-							'subject' => $email_data['subject'],
-							'baseDocList' => array()
-						);
+			// 	if($isActive === false) {
+			// 		foreach ($email_direct as $eik => $emailI) {
+			// 			$email_data['email'] = $emailI;
+			// 			$email_data['pid'] = $data['pid'];
+			// 			$email_data['request'] = array(
+			// 				'message' => $email_data['message_content'],
+			// 				'pid' => $data['pid'],
+			// 				'email_id' => $emailI, 
+			// 				'subject' => $email_data['subject'],
+			// 				'baseDocList' => array()
+			// 			);
 
-						$msgLogId = EmailMessage::logEmailData($status, $email_data);
-					}
+			// 			$msgLogId = EmailMessage::logEmailData($status, $email_data);
+			// 		}
 					
-				}
-			}
+			// 	}
+			// }
 		}
 
 		return $status;

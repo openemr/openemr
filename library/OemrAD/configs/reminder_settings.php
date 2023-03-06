@@ -22,7 +22,7 @@ $GLOBALS_NTF['fax_number'] = "112233";
 /*Set postal address*/
 $GLOBALS_NTF['postal_address'] = array(
 			    'street' => "1310 Scenic Knl",
-			    'street1' => "",
+			    'street1' => "nr.",
 			    'city' => "San Antonio",
 			    'state' => "Texas",
 			    'postal_code' => "78258",

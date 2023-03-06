@@ -1805,7 +1805,7 @@ class HubspotSync {
 		return sqlQuery("SELECT * FROM vh_hubspot_state_mapping $whereStr ", $binds);
 	}
 
-	public function formatePhoneNumber($value = '', $isNeededToAdd = false) {
+	public static function formatePhoneNumber($value = '', $isNeededToAdd = false) {
 		if(!empty($value)) {
 			if($isNeededToAdd === false) {
 				$value = preg_replace("/^\+?1/", '',$value);
@@ -1823,7 +1823,7 @@ class HubspotSync {
 		return $value;
 	}
 
-	public function getStateVal($value = '', $mapType = '') {
+	public static function getStateVal($value = '', $mapType = '') {
 		if(!empty($value)) {
 			$tValue = '';
 			$filterVals = array();

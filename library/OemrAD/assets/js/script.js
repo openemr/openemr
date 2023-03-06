@@ -30,7 +30,7 @@ async function isPatientExists(){
 // Call Patient Verification Service ("new_comprehensive.php")
 async function callPatientVerificationService(firstName, lastName, dob) {
     let result;
-    let ajaxurl = top.webroot_url + '/library/OemrAD/interface/new/ajax/ajax_patient_verification.php';
+    let ajaxurl = top.webroot_url + '/interface/new/ajax/ajax_patient_verification.php';
 
     if(firstName == "" && lastName == "" && dob == "") {
         return null;
@@ -209,7 +209,7 @@ function handleOnSubmit_DemographicsFull(validationStatus, element, event, eleId
 
 // This invokes the find-addressbook popup.
 async function open_notes_log(pid) {
-    var url = top.webroot_url + '/library/OemrAD/interface/patient_file/summary/dem_view_logs.php'+'?pid='+pid;
+    var url = top.webroot_url + '/interface/patient_file/summary/ajax/dem_view_logs.php'+'?pid='+pid;
     let title = 'Logs';
     let dialogObj = await dlgopen(url, 'dem-alert-log', 'modal-mlg', '', '', title, {
         allowDrag: false,
@@ -268,7 +268,7 @@ function prepareErrorMsg(errors) {
 function validatePhoneNumber(ele, e = '') {
   var result = {
     'error' : false,
-    'message' : 'Phone numbers must have 10 numbers, example (555) 555-5555.  Please update [%s]. Press CANCEL to fix phone number.  Press OK to bypass error and save improperly formatted phone number'
+    'message' : 'Phone numbers must have 10 numbers, example 555-555-5555.  Please update [%s]. Press CANCEL to fix phone number.  Press OK to bypass error and save improperly formatted phone number'
   };
 
   if(ele) {
@@ -355,11 +355,12 @@ function validateOptions(form_id) {
 
 /*------------------- (Encounter Form) ----------------*/
 
+/*
 async function handleConfimBox_feeCodeLinked(encounter, pid) {
     var bodyObj = { encounter :  encounter, pid : pid };
     const result = await $.ajax({
         type: "POST",
-        url:  top.webroot_url + '/library/OemrAD/interface/forms/fee_sheet/ajax/get_feesheet_code_status.php',
+        url:  top.webroot_url + '/interface/forms/fee_sheet/ajax/get_feesheet_code_status.php',
         datatype: "json",
         data: bodyObj
     });
@@ -385,8 +386,9 @@ async function handleConfimBox_feeCodeLinked(encounter, pid) {
     }
 
     return true;
-}
+}*/
 
+/*
 // Handle care team provider.
 async function handleCareTeamProvider(encounter, pid) {
     var bodyObj = { encounter :  encounter, pid : pid};
@@ -409,8 +411,9 @@ async function handleCareTeamProvider(encounter, pid) {
             dialogLoader(dialogObj.modalwin);
         }
     }
-}
+}*/
 
+/*
 // Check is encounter authorizedEncounter.
 async function authorizedEncounter(encounter = '', case_id = '', start_date = '') {
     if(case_id != '') {
@@ -432,7 +435,7 @@ async function authorizedEncounter(encounter = '', case_id = '', start_date = ''
             // });
         }
     }
-}
+}*/
 
 /*-------------------End----------------*/
 
@@ -764,7 +767,7 @@ async function handleSetPatient(pid) {
     var bodyObj = { set_pid : pid};
     const result = await $.ajax({
         type: "GET",
-        url: top.webroot_url + "/library/OemrAD/interface/new/ajax/set_patient.php",
+        url: top.webroot_url + "/interface/new/ajax/set_patient.php",
         datatype: "json",
         data: bodyObj
     });
@@ -923,7 +926,7 @@ async function checkRecentInactive(pid = '', case_id = '') {
     var bodyObj = { pid : pid, case_id : case_id };
     const result = await $.ajax({
         type: "GET",
-        url: top.webroot_url + "/library/OemrAD/interface/forms/rto1/ajax/check_recent_case.php",
+        url: top.webroot_url + "/interface/forms/cases/ajax/check_recent_case.php",
         datatype: "json",
         data: bodyObj
     });
@@ -942,7 +945,7 @@ async function activateCase(pid = '', case_id = '') {
     var bodyObj = { pid : pid, case_id : case_id };
     const result = await $.ajax({
         type: "GET",
-        url: top.webroot_url + "/library/OemrAD/interface/forms/rto1/ajax/activate_case.php",
+        url: top.webroot_url + "/interface/forms/cases/ajax/activate_case.php",
         datatype: "json",
         data: bodyObj
     });
@@ -963,7 +966,7 @@ async function caseCount(pid = '') {
 
     const result = await $.ajax({
         type: "GET",
-        url: top.webroot_url + "/library/OemrAD/interface/forms/rto1/ajax/get_case_count.php",
+        url: top.webroot_url + "/interface/forms/cases/ajax/get_case_count.php",
         datatype: "json",
         data: bodyObj
     });

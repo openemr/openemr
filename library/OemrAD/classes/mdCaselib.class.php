@@ -1408,7 +1408,7 @@ class Caselib {
 												    	<?php self::referringSelect($lpItem, '', '', array('Attorney'), '', true, true); ?>
 												  </select>
 												  <div class="input-group-append">
-												  	<button type="button" class="btn btn-primary search_user_btn" href='<?php echo $GLOBALS['webroot']. '/library/OemrAD/interface/forms/cases/find_user_popup.php?abook_type=Attorney'; ?>'><i class="fa fa-search" aria-hidden="true"></i></button>
+												  	<button type="button" class="btn btn-primary search_user_btn" href='<?php echo $GLOBALS['webroot']. '/interface/forms/cases/php/find_user_popup.php?abook_type=Attorney'; ?>'><i class="fa fa-search" aria-hidden="true"></i></button>
 													</div>
 												</div>
 												<span class="field-text-info c-font-size-sm ipc_info_container c-text-info"></span>
@@ -1619,7 +1619,7 @@ class Caselib {
 				var bodyObj = { pid : pid, case_id : case_id };
 				const result = await $.ajax({
 					type: "GET",
-					url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/forms/rto1/ajax/check_recent_case.php'; ?>",
+					url: "<?php echo $GLOBALS['webroot'].'/interface/forms/cases/ajax/check_recent_case.php'; ?>",
 					datatype: "json",
 					data: bodyObj
 				});
@@ -1638,7 +1638,7 @@ class Caselib {
 				var bodyObj = { pid : pid, case_id : case_id };
 				const result = await $.ajax({
 					type: "GET",
-					url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/forms/rto1/ajax/activate_case.php'; ?>",
+					url: "<?php echo $GLOBALS['webroot'].'/interface/forms/cases/ajax/activate_case.php'; ?>",
 					datatype: "json",
 					data: bodyObj
 				});
@@ -1659,7 +1659,7 @@ class Caselib {
 
 				const result = await $.ajax({
 					type: "GET",
-					url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/forms/rto1/ajax/get_case_count.php'; ?>",
+					url: "<?php echo $GLOBALS['webroot'].'/interface/forms/cases/ajax/get_case_count.php'; ?>",
 					datatype: "json",
 					data: bodyObj
 				});
@@ -1689,7 +1689,7 @@ class Caselib {
 					var bodyObj = { pid : pid, case_id : case_id };
 					const result = await $.ajax({
 						type: "GET",
-						url: "{$GLOBALS['webroot']}/library/OemrAD/interface/forms/rto1/ajax/check_recent_case.php",
+						url: "{$GLOBALS['webroot']}/interface/forms/cases/ajax/check_recent_case.php",
 						datatype: "json",
 						data: bodyObj
 					});
@@ -1711,7 +1711,7 @@ class Caselib {
 					var bodyObj = { pid : pid, case_id : case_id };
 					const result = await $.ajax({
 						type: "GET",
-						url: "{$GLOBALS['webroot']}/library/OemrAD/interface/forms/rto1/ajax/check_recent_case.php",
+						url: "{$GLOBALS['webroot']}/interface/forms/cases/ajax/check_recent_case.php",
 						datatype: "json",
 						data: bodyObj
 					});
@@ -1733,7 +1733,7 @@ class Caselib {
 					var bodyObj = { pid : pid, case_id : case_id };
 					const result = await $.ajax({
 						type: "GET",
-						url: "{$GLOBALS['webroot']}/library/OemrAD/interface/forms/rto1/ajax/activate_case.php",
+						url: "{$GLOBALS['webroot']}/interface/forms/cases/ajax/activate_case.php",
 						datatype: "json",
 						data: bodyObj
 					});
@@ -1761,7 +1761,7 @@ class Caselib {
 
 					const result = await $.ajax({
 						type: "GET",
-						url: "{$GLOBALS['webroot']}/library/OemrAD/interface/forms/rto1/ajax/get_case_count.php",
+						url: "{$GLOBALS['webroot']}/interface/forms/cases/ajax/get_case_count.php",
 						datatype: "json",
 						data: bodyObj
 					});

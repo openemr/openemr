@@ -73,7 +73,7 @@ class OrderLbfForm {
 				var bodyObj = { set_pid : pid};
 				const result = await $.ajax({
 					type: "GET",
-					url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/new/ajax/set_patient.php'; ?>",
+					url: "<?php echo $GLOBALS['webroot'].'/interface/new/ajax/set_patient.php'; ?>",
 					datatype: "json",
 					data: bodyObj
 				});
@@ -145,7 +145,7 @@ class OrderLbfForm {
 				var bodyObj = { set_pid : pid};
 				const result = await $.ajax({
 					type: "GET",
-					url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/new/ajax/set_patient.php'; ?>",
+					url: "<?php echo $GLOBALS['webroot'].'/interface/new/ajax/set_patient.php'; ?>",
 					datatype: "json",
 					data: bodyObj
 				});

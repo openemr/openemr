@@ -4,12 +4,11 @@ require_once("../../globals.php");
 require_once($GLOBALS['srcdir'].'/OemrAD/oemrad.globals.php');
 
 use OpenEMR\OemrAd\MessagesLib;
-use OpenEMR\OemrAd\EmailMessage;
 
 $msgId = isset($_REQUEST['id']) ? $_REQUEST['id'] : "";
 
 if(!empty($msgId)) {
-	$messageData = EmailMessage::getMessageByIds(array($msgId));
+	$messageData = MessagesLib::getMessageByIds(array($msgId));
 	$message = (is_array($messageData) && count($messageData) > 0)  ? $messageData[0]['message'] : "";
 
 	$formatedMessage = MessagesLib::formateMessageContent($message);	

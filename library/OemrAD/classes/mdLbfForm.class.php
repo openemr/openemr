@@ -211,6 +211,7 @@ EOF;
 	}
 	*/
 
+	/*
 	public static function getLayoutGroupProperties($formname) {
 		$layoutData = sqlQuery(
             "SELECT * FROM layout_group_properties WHERE " .
@@ -222,8 +223,9 @@ EOF;
         	return $layoutData;
         }
         return false;
-	}
+	}*/
 
+	/*
 	public static function getCurrentVal($formid, $frow, $formname, $pid, $from_trend_form, $currvalue, $edit_options, $source, $field_id) {
 		if (!$from_trend_form && empty($currvalue) && isOption($edit_options, 'P') !== false) {
             if ($source == 'F' && !$formid) {
@@ -260,8 +262,9 @@ EOF;
         } // End "P" option logic.
 
         return $currvalue;
-	}
+	}*/
 
+	/*
 	public static function ext_lbf_before_process($pid) {
 		global $formname, $formid, $encounter, $group_check_list, $from_trend_form, $visitid;
 
@@ -303,8 +306,9 @@ EOF;
 			$group_check_list['form_cb_'.$gk] = $checked;
 		}
 
-	}
+	}*/
 
+	/*
 	public static function lbf_form_top_section($pid) {
 		global $formname, $encounter, $formid;
 
@@ -331,8 +335,9 @@ EOF;
 		}
 
 		return $htmlOut;
-	}
+	}*/
 
+	/*
 	public static function lbf_form_sub_section($pid) {
 		global $formname, $encounter, $formid, $group_name, $group_seq;
 
@@ -360,5 +365,5 @@ EOF;
 		}
 
 		return $htmlOut;
-	}
+	}*/
 }

@@ -2161,6 +2161,7 @@ class EmailMessage {
 		return $requestList;
 	}
 
+	/*
 	public static function logEmailData($status, $data, $form_action = '', $form_msgId = '') {
 		
 		//Store email attachment
@@ -2194,12 +2195,12 @@ class EmailMessage {
 			
 		$msgLogId = sqlInsert($sql, $binds);
 
-		/*Assign User to Msg*/
+		//Assign User to Msg
 		if($isActive === true) {
 			self::assignUserToMSG($msgLogId);
 		}
 
-		/*Write log and file*/
+		//Write log and file
 		if(!empty($msgLogId) && !empty($attchFiles)) {
 			foreach ($attchFiles as $key => $attachItem) {
 				$attachId = isset($attachItem['id']) ? $attachItem['id'] : '';
@@ -2212,7 +2213,7 @@ class EmailMessage {
 		}
 		
 		return $msgLogId;
-	}
+	}*/
 
 	/*Get message by ids log*/
 	public static function getMessageByIds($msgIds = array()) {

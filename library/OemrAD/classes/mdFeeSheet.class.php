@@ -10,6 +10,7 @@ class FeeSheet{
 	function __construct(){
 	}
 
+	/*
 	public static function feesheet_head() {
 		return <<<EOF
 		<script type="text/javascript">
@@ -33,7 +34,7 @@ class FeeSheet{
 			}
 		</script>
 EOF;
-	}
+	}*/
 
 	/*public static function feesheet_btn() {
 		global $fs;
@@ -43,6 +44,7 @@ EOF;
 		<?php
 	}*/
 
+	/*
 	public static function getCodeTypes() {
 		$code_types = array();
 		$ctres = sqlStatement("SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
@@ -74,8 +76,9 @@ EOF;
 		}
 
 		return $code_types;
-	}
+	}*/
 
+	/*
 	public static function getBillingInfo($encounter) {
 		$results = array();
 
@@ -85,8 +88,9 @@ EOF;
 		}
 
 		return $results;
-	}
+	}*/
 
+	/*
 	public static function validateCPTCode($encounter, $pid) {
 		//print_r($encounter);
 
@@ -124,8 +128,9 @@ EOF;
 		}
 
 		return $validationStatus;
-	}
+	}*/
 
+	/*
 	public static function isCodeExists($type, $code, $items = array()) {
 		$status = false;
 		foreach ($items as $key => $item) {
@@ -135,8 +140,9 @@ EOF;
 		}
 
 		return $status;
-	}
+	}*/
 
+	/*
 	public static function decodeCode($codeStr) {
 		$codes = array();
 
@@ -154,5 +160,5 @@ EOF;
 		}
 
 		return $codes;
-	}
+	}*/
 }

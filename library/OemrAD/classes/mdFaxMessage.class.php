@@ -4,8 +4,10 @@ namespace OpenEMR\OemrAd;
 
 @include_once(__DIR__ . "/../interface/globals.php");
 @include_once(__DIR__ . '/mdEmailMessage.class.php');
+@include_once(__DIR__ . "/mdAttachment.class.php");
 
 use OpenEMR\OemrAd\EmailMessage;
+use OpenEMR\OemrAd\Attachment;
 use Mpdf\Mpdf;
 
 class FaxMessage {
@@ -198,6 +200,7 @@ class FaxMessage {
 		<?php
 	}
 
+	/*
 	public static function AddAttachmentToFax($pid, &$fax_data, $request, $files = array()) {
 		$attachmentList = array();
 		$fax_data['message_content'] = $fax_data['html'];
@@ -438,6 +441,7 @@ class FaxMessage {
 
 		return $attchFiles;
 	}
+	*/
 
 	public static function gePDF($path) {
 		$pdftext = file_get_contents($path);
@@ -483,6 +487,7 @@ class FaxMessage {
 	}
 
 	/*Help you to get base64content*/
+	/*
 	public static function getFilesContent($fax_data) {
 		$faxDataCount = 1;
 		$faxDataList = array();
@@ -494,7 +499,7 @@ class FaxMessage {
 		}
 
 		return $faxDataList;
-	}
+	}*/
 
 	public function getAndSaveEncounterPDF($pid, $queryData, $filename = 'fax_encounters_and_forms') {
 		global $srcdir, $web_root, $css_header;
@@ -1177,6 +1182,7 @@ class FaxMessage {
 		}
 	}
 
+	/*
 	public static function logFaxData($responce, $data, $assignStatus = true) {
 		if(isset($responce) && isset($responce['status']) && $responce['status'] == true) {
 			// Store message record
@@ -1213,7 +1219,7 @@ class FaxMessage {
 			$msgLogId = sqlInsert($sql, $binds);
 			$responce['msg_log_id'] = isset($msgLogId) ? $msgLogId : "";
 
-			/*Assign User to Msg*/
+			//Assign User to Msg
 			if($isActive === true && $assignStatus === true) {
 				EmailMessage::assignUserToMSG($msgLogId);
 			}
@@ -1223,7 +1229,7 @@ class FaxMessage {
 				self::saveFax($msgLogId, $responce['data']);
 			}
 
-			/*Write log and file*/
+			//Write log and file
 			if(!empty($msgLogId) && !empty($data['attchFiles'])) {
 				foreach ($data['attchFiles'] as $key => $attachItem) {
 					$attachId = isset($attachItem['id']) ? $attachItem['id'] : '';
@@ -1241,7 +1247,7 @@ class FaxMessage {
 		}
 
 		return $responData;
-	}
+	}*/
 
 	// TransmitFax - Send fax.
 	public static function TransmitFax($fData = array(), $opts = array()) {

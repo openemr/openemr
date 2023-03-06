@@ -1404,6 +1404,7 @@ class PostalLetter {
 		return isset($errorList['e'.$errorCode]) ? $errorList['e'.$errorCode] : "Failed";
 	}
 
+	/*
 	public static function logPostalLetterData($responce, $data) {
 		if(isset($responce) && isset($responce['status']) && $responce['status'] == true) {
 			$activity = self::checkIsError($responce['data']);
@@ -1442,7 +1443,7 @@ class PostalLetter {
 			$msgLogId = sqlInsert($sql, $binds);
 			$responce['msg_log_id'] = isset($msgLogId) ? $msgLogId : "";
 
-			/*Assign User to Msg*/
+			//Assign User to Msg
 			if($activity == "1") {
 				EmailMessage::assignUserToMSG($msgLogId);
 			}
@@ -1451,7 +1452,7 @@ class PostalLetter {
 				self::savePostalLetter($msgLogId, $responce['data']);
 			}
 
-			/*Write log and file*/
+			//Write log and file
 			if(!empty($msgLogId) && !empty($attchFiles)) {
 				foreach ($data['attchFiles'] as $key => $attachItem) {
 					$attachId = isset($attachItem['id']) ? $attachItem['id'] : '';
@@ -1469,7 +1470,7 @@ class PostalLetter {
 		}
 
 		return $responData;
-	}
+	}*/
 
 	// TransmitPostalLetter - Send Postal letter.
 	public static function TransmitPostalLetter($pData = array(), $opts = array()) {

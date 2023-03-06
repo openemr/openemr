@@ -1208,71 +1208,6 @@ class Reminder {
 		return array('total_items' => $totalItem, 'total_sent_item' => $totalsentItem, 'exceptionList' => $exceptionList);
 	}
 
-	public function sendNotificationOld() {
-		$totalItem = 0;
-		$totalsentItem = 0;
-
-		$notificationLog = array(
-			'sent' => array(),
-			'failed' => array()
-		);
-
-		//prepare trigger data for send reminder
-		self::prepareNotificationData('event');
-
-		//Run Pre processing query
-		$ids = self::preProcessingQuery();
-
-		$dataItems = self::getDataForSend($ids);
-		
-		foreach ($dataItems as $key => $item) {
-			if(!empty($item['trigger_time'])) {
-				$trigger_time = $item['trigger_time'];
-
-				//Unix time
-				$current_unix_time = strtotime('now');
-				$trigger_unix_time = strtotime($item['trigger_time']);
-
-				if($item['sent'] == 0 && $trigger_unix_time <= $current_unix_time) {
-
-					if(empty($item['template_id']) || empty($item['message'])) {
-						continue;
-					}
-					
-					if(!empty($item['time_delay']) && $item['time_delay'] != 0) {
-						sleep($item['time_delay']);
-					}
-
-					if($item['msg_type'] == "email") {
-						$itemStatus = self::sendEmail($item);
-					} else if($item['msg_type'] == "sms") {
-						$itemStatus = self::sendSMS($item);
-					} else if($item['msg_type'] == "fax") {
-						$itemStatus = self::sendFAX($item);
-					} else if($item['msg_type'] == "postalmethod") {
-						$itemStatus = self::sendPostalLetter($item);
-					} else if($item['msg_type'] == "internalmessage") {
-						$itemStatus = self::sendInternalMessage($item);
-					}
-
-					if(isset($itemStatus) && $itemStatus === true) {
-						$totalsentItem++;
-						$notificationLog['sent'][] = $item;
-					} else {
-						$notificationLog['failed'][] = $item;
-					}
-					$totalItem++;
-				}
-			}
-		}
-
-		if($totalItem > 0) {
-			self::sendNotificationLog($notificationLog);
-		}
-
-		return array('total_items' => $totalItem, 'total_sent_item' => $totalsentItem);
-	}
-
 	public static function sendNotificationLog($data, $testItems = array()) {
 		ob_start();
 		if(!empty($data['sent']) || !empty($data['failed'])) {
@@ -1351,7 +1286,7 @@ class Reminder {
 
 			// Send email
 			$status = @$emailObj->TransmitEmail($email_data);
-			EmailMessage::setTimeZone();
+			//EmailMessage::setTimeZone();
 		}
 	}
 
@@ -1496,6 +1431,8 @@ class Reminder {
 	}
 
 	public static function sendPostalLetter($data) {
+		$rStatus = false;
+
 		if(!empty($data['pid'])) {
 			$pat_data = @\wmt\Patient::getPidPatient($data['pid']);
 
@@ -1521,17 +1458,45 @@ class Reminder {
 			if($fullAddress['status'] == true) {
 				$message_list = new \wmt\Options('Reminder_Postal_Letters');
 
-				$form_reply_address = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS'] : "";
-				$form_reply_address_json = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON'] : "";
+				$from_reply_address = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS'] : "";
+				$from_reply_address_json = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON'] : "";
 
-				$form_address = isset($pat_data->format_name) ? $pat_data->format_name."\n" : '';
-				$form_address .= trim($fullAddress['address']);
+				$from_address = isset($pat_data->format_name) ? $pat_data->format_name."\n" : '';
+				$from_address .= trim($fullAddress['address']);
 				$base_address = trim($fullAddress['address']);
-
-				$form_address_json = isset($fullAddress['address_json']) ? $fullAddress['address_json'] : array();
+				$from_address_json = isset($fullAddress['address_json']) ? $fullAddress['address_json'] : array();
 
 				try {
-				
+
+					$pItem = array(
+					'pid' => $data['pid'],
+					'data' => array(
+						'template' => $data['template_id'],
+						'html' => $data['message'],
+						'text' => $data['message'],
+						'address' => $from_address,
+						'address_json' => json_encode($from_address_json),
+						'reply_address' => $from_reply_address,
+						'reply_address_json' => $from_reply_address_json,
+						'receiver_name' => $pat_data->format_name,
+						'address_from_type' => "custom",
+						'base_address' => $base_address,
+						'request_data' => array(),
+						'files' => array(),
+					));
+
+					$pData = PostalLetter::TransmitPostalLetter(
+						array($pItem['data']), 
+						array('pid' => $pItem['pid'], 'logMsg' => true, 'calculate_cost' => false)
+					);
+					
+					if(is_array($pData) && count($pData) == 1) {
+						$responce = $pData[0];
+					} else {
+						throw new \Exception("Something went wrong.");
+					}
+					
+					/*
 					// Prepare postal letter data
 					$postal_letter_data = array();
 					$postal_letter_data['dec'] = !empty($data['template_id']) ? $message_list->getItem($data['template_id']) : 'General Postal Letter';
@@ -1549,36 +1514,42 @@ class Reminder {
 
 					// Send postal letter
 					$responce = @PostalLetter::Transmit($postal_letter_data);
-					EmailMessage::setTimeZone();
-
+					//EmailMessage::setTimeZone();
+					*/
 				} catch (Exception $e) {
 					$status = $e->getMessage();
 					$responData = array(
 						'status' => false,
 						'error' => $status
 					);
+					$rStatus = $status;
 				}
 
 				if(isset($responce) && isset($responce['status']) && $responce['status'] == true) {
 
-					$postal_letter_data['pid'] = $data['pid'];
-					$postal_letter_data['request'] = array(
-						'message' => $postal_letter_data['message_content'],
-						'pid' => $postal_letter_data['pid'],
-						'address' => $postal_letter_data['base_address'],
-						'address_json' => $postal_letter_data['address_json'],
-						'rec_name' => $postal_letter_data['receiver_name'], 
-						'reply_address' => $postal_letter_data['reply_address'],
-						'reply_address_json' => $postal_letter_data['reply_address_json'],
-						'address_from' => "patient",
-						'address_book' => "",
-						'insurance_companies' => ""
-					);
+					// $postal_letter_data['pid'] = $data['pid'];
+					// $postal_letter_data['request'] = array(
+					// 	'message' => $postal_letter_data['message_content'],
+					// 	'pid' => $postal_letter_data['pid'],
+					// 	'address' => $postal_letter_data['base_address'],
+					// 	'address_json' => $postal_letter_data['address_json'],
+					// 	'rec_name' => $postal_letter_data['receiver_name'], 
+					// 	'reply_address' => $postal_letter_data['reply_address'],
+					// 	'reply_address_json' => $postal_letter_data['reply_address_json'],
+					// 	'address_from' => "patient",
+					// 	'address_book' => "",
+					// 	'insurance_companies' => ""
+					// );
 
-					$responceData = @PostalLetter::logPostalLetterData($responce, $postal_letter_data);
+					// $responceData = @PostalLetter::logPostalLetterData($responce, $postal_letter_data);
+
+					$msgId = "";
+					if(is_array($responce['data']) && count($responce['data']) == 1) {
+						$msgId = isset($responce['data'][0]['msgid']) ? $responce['data'][0]['msgid'] : "";
+					}
 
 					self::updatePreparedData($data['id'], array(
-							'msg_id' => isset($responceData['msg_log_id']) ? $responceData['msg_log_id'] : "",
+							'msg_id' => isset($msgId) ? $msgId : "",
 							'sent' => 1,
 							'sent_time' => date('Y-m-d H:i:s')
 						));
@@ -1588,6 +1559,7 @@ class Reminder {
 					self::updatePreparedData($data['id'], array(
 						'sent' => 3
 					));
+					$rStatus = $responce['error'];
 				}
 
 			} else {
@@ -1598,10 +1570,12 @@ class Reminder {
 			}
 		}
 
-		return false;
+		return $rStatus;
 	}
 
 	public static function sendFAX($data) {
+		$rStatus = false;
+
 		if(!empty($data['pid'])) {
 
 			$pat_data = @\wmt\Patient::getPidPatient($data['pid']);
@@ -1618,6 +1592,31 @@ class Reminder {
 			if(!empty($pat_data->fax_number)) {
 				try {
 
+					$fItem = array(
+					'pid' => $data['pid'],
+					'data' => array(
+						'template' => $data['template_id'],
+						'fax_number' => $pat_data->fax_number,
+						'receiver_name' => $pat_data->format_name,
+						'html' => $data['message'],
+						'text' => $data['message'],
+						'fax_from_type' => 'custom',
+						'request_data' => array(),
+						'files' => array(),
+					));
+
+					$fData = FaxMessage::TransmitFax(
+						array($fItem['data']), 
+						array('pid' => $fItem['pid'], 'logMsg' => true, 'calculate_cost' => false)
+					);
+
+					if(is_array($fData) && count($fData) == 1) {
+						$responce = $fData[0];
+					} else {
+						throw new \Exception("Something went wrong.");
+					}
+
+					/*
 					// Prepare fax data
 					$fax_data = array(
 						'fax_number' => $pat_data->fax_number,
@@ -1633,7 +1632,8 @@ class Reminder {
 
 					// Send fax
 					$responce = @FaxMessage::Transmit($fax_data);
-					EmailMessage::setTimeZone();
+					//EmailMessage::setTimeZone();
+					*/
 
 				} catch (Exception $e) {
 					$status = $e->getMessage();
@@ -1641,25 +1641,31 @@ class Reminder {
 						'status' => false,
 						'error' => $status
 					);
+					$rStatus = $status;
 				}
 
 				if(isset($responce) && isset($responce['status']) && $responce['status'] == true){
 
-						$fax_data['pid'] = $data['pid'];
-						$fax_data['request'] = array(
-							'message' => $fax_data['message_content'],
-							'pid' => $fax_data['pid'],
-							'rec_name' => $fax_data['receiver_name'], 
-							'fax_number' => $fax_data['fax_number'],
-							'fax_from' => "patient",
-							'address_book' => "",
-							'insurance_companies' => ""
-						);
+						// $fax_data['pid'] = $data['pid'];
+						// $fax_data['request'] = array(
+						// 	'message' => $fax_data['message_content'],
+						// 	'pid' => $fax_data['pid'],
+						// 	'rec_name' => $fax_data['receiver_name'], 
+						// 	'fax_number' => $fax_data['fax_number'],
+						// 	'fax_from' => "patient",
+						// 	'address_book' => "",
+						// 	'insurance_companies' => ""
+						// );
 
-						$responceData = @FaxMessage::logFaxData($responce, $fax_data, false);
+						// $responceData = @FaxMessage::logFaxData($responce, $fax_data, false);
+					
+						$msgId = "";
+						if(is_array($responce['data']) && count($responce['data']) == 1) {
+							$msgId = isset($responce['data'][0]['msgid']) ? $responce['data'][0]['msgid'] : "";
+						}
 
 						self::updatePreparedData($data['id'], array(
-							'msg_id' => isset($responceData['msg_log_id']) ? $responceData['msg_log_id'] : "",
+							'msg_id' => isset($msgId) ? $msgId : "",
 							'sent' => 1,
 							'sent_time' => date('Y-m-d H:i:s')
 						));
@@ -1669,6 +1675,7 @@ class Reminder {
 					self::updatePreparedData($data['id'], array(
 						'sent' => 3
 					));
+					$rStatus = $responce['error'];
 				}
 			} else {
 				self::updatePreparedData($data['id'], array(
@@ -1678,12 +1685,13 @@ class Reminder {
 			}
 		}
 
-		return false;
+		return $rStatus;
 	}
 
 	public static function sendSMS($data) {
-		$configList = self::getConfigVars();
+		$rStatus = false;
 
+		$configList = self::getConfigVars();
 		$smsObj = Smslib::getSmsObj($configList->send_phone);
 
 		//$smsObj = @new \wmt\Nexmo($configList->send_phone);
@@ -1745,6 +1753,7 @@ class Reminder {
 						self::updatePreparedData($data['id'], array(
 							'sent' => 3
 						));
+						$rStatus = $result['error'];
 					}
 				}
 			} else {
@@ -1755,10 +1764,12 @@ class Reminder {
 			}
 		}
 
-		return false;
+		return $rStatus;
 	}
 
 	public static function sendEmail($data) {
+		$rStatus = false;
+
 		if(!empty($data['pid'])) {
 			$pat_data = self::getPatientData($data['pid']);
 
@@ -1779,57 +1790,87 @@ class Reminder {
 				}
 				
 				if($email_direct === false) {
-					return false;
+					return 'Messaging disable or email is empty';
 				}
 
 				if($messaging_enabled === false) {
 					try {
 
 						$message_list = new \wmt\Options('Reminder_Email_Messages');
-						//$subject = $message_list->getItem($data['template_id']);
 						
 						$appid = @self::getDataAppId($data);
 						$event_datetime = @self::getDataAppDate($data);
 						$subject = @self::getSubject($data['pid'], $message_list, $data['template_id'], $event_datetime, $appid);
 
-						$email_data = array(
-							'patient' => $pat_name,
+						$eItem = array(
+						'pid' => $data['pid'],
+						'data' => array(
 							'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
-							'subject' => $subject,
 							'email' => $email_direct,
+							'template' => $data['template_id'],
+							'subject' => $subject,
+							'patient' => $pat_name,
 							'html' => $data['message'],
 							'text' => $data['message'],
-							'message_content' => $data['message']
+							'request_data' => array(),
+							'files' => array(),
+						));
+
+						$eData = EmailMessage::TransmitEmail(
+							array($eItem['data']), 
+							array('pid' => $eItem['pid'], 'logMsg' => true)
 						);
 
-						$emailObj = new \wmt\Email(TRUE);
-						$emailObj->FromName = $GLOBALS['EMAIL_FROM_NAME'];
+						if(is_array($eData) && count($eData) == 1) {
+							$responce = $eData[0];
+						} else {
+							throw new \Exception("Something went wrong.");
+						}
 
-						// Send email
-						$status = @$emailObj->TransmitEmail($email_data);
-						EmailMessage::setTimeZone();
+						// $email_data = array(
+						// 	'patient' => $pat_name,
+						// 	'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
+						// 	'subject' => $subject,
+						// 	'email' => $email_direct,
+						// 	'html' => $data['message'],
+						// 	'text' => $data['message'],
+						// 	'message_content' => $data['message']
+						// );
+
+						// $emailObj = new \wmt\Email(TRUE);
+						// $emailObj->FromName = $GLOBALS['EMAIL_FROM_NAME'];
+
+						// // Send email
+						// $status = @$emailObj->TransmitEmail($email_data);
+						// //EmailMessage::setTimeZone();
 
 					} catch (Exception $e) {
 						$status = $e->getMessage();
+						$rStatus = $status;
 					}
 
-					$isActive = EmailMessage::isActive($status);
+					//$isActive = EmailMessage::isActive($status);
 
-					if($isActive === false) {
+					if(isset($responce) && isset($responce['status']) && $responce['status'] == true){
 
-						$email_data['pid'] = $data['pid'];
-						$email_data['request'] = array(
-							'message' => $email_data['message_content'],
-							'pid' => $email_data['pid'],
-							'email_id' => $email_data['email'], 
-							'subject' => $email_data['subject'],
-							'baseDocList' => array()
-						);
+						// $email_data['pid'] = $data['pid'];
+						// $email_data['request'] = array(
+						// 	'message' => $email_data['message_content'],
+						// 	'pid' => $email_data['pid'],
+						// 	'email_id' => $email_data['email'], 
+						// 	'subject' => $email_data['subject'],
+						// 	'baseDocList' => array()
+						// );
 
-						$msgLogId = EmailMessage::logEmailData($status, $email_data);
+						// $msgLogId = EmailMessage::logEmailData($status, $email_data);
+
+						$msgId = "";
+						if(is_array($responce['data']) && count($responce['data']) == 1) {
+							$msgId = isset($responce['data'][0]['msgid']) ? $responce['data'][0]['msgid'] : "";
+						}
 
 						self::updatePreparedData($data['id'], array(
-							'msg_id' => !empty($msgLogId) ? $msgLogId : "",
+							'msg_id' => !empty($msgId) ? $msgId : "",
 							'sent' => 1,
 							'sent_time' => date('Y-m-d H:i:s')
 						));
@@ -1839,6 +1880,7 @@ class Reminder {
 						self::updatePreparedData($data['id'], array(
 							'sent' => 3
 						));
+						$rStatus = $responce['error'];
 					}
 
 				} else {
@@ -1850,7 +1892,7 @@ class Reminder {
 			}
 		}
 
-		return false;
+		return $rStatus;
 	}
 
 	public static function sendEmailMsg($data) {
@@ -1891,7 +1933,7 @@ class Reminder {
 
 				// Send email
 				$status = @$emailObj->TransmitEmail($email_data);
-				EmailMessage::setTimeZone();
+				//EmailMessage::setTimeZone();
 
 			} catch (Exception $e) {
 				$status = $e->getMessage();
@@ -2985,41 +3027,66 @@ class Reminder {
 						$event_datetime = isset($data['event_datetime']) && !empty($data['event_datetime']) ? $data['event_datetime'] : false;
 						$subject = @self::getSubject($data['pid'], $message_list, $data['template_id'], $event_datetime, $appid);
 
-						$email_data = array(
-							'patient' => $pat_name,
+						$eItem = array(
+						'pid' => $data['pid'],
+						'data' => array(
 							'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
-							'subject' => $subject,
 							'email' => $email_direct,
+							'template' => $data['template_id'],
+							'subject' => $subject,
+							'patient' => $pat_name,
 							'html' => $data['message'],
 							'text' => $data['message'],
-							'message_content' => $data['message']
+							'request_data' => array(),
+							'files' => array(),
+						));
+
+						$eData = EmailMessage::TransmitEmail(
+							array($eItem['data']), 
+							array('pid' => $eItem['pid'], 'logMsg' => true)
 						);
 
-						$emailObj = new \wmt\Email(TRUE);
-						$emailObj->FromName = $GLOBALS['EMAIL_FROM_NAME'];
+						if(is_array($eData) && count($eData) == 1) {
+							$responce = $eData[0];
+						} else {
+							throw new \Exception("Something went wrong.");
+						}
 
-						// Send email
-						$status = @$emailObj->TransmitEmail($email_data);
-						EmailMessage::setTimeZone();
+						// $email_data = array(
+						// 	'patient' => $pat_name,
+						// 	'from' => isset($GLOBALS['EMAIL_SEND_FROM']) ? $GLOBALS['EMAIL_SEND_FROM'] : 'PATIENT SUPPORT',
+						// 	'subject' => $subject,
+						// 	'email' => $email_direct,
+						// 	'html' => $data['message'],
+						// 	'text' => $data['message'],
+						// 	'message_content' => $data['message']
+						// );
+
+						// $emailObj = new \wmt\Email(TRUE);
+						// $emailObj->FromName = $GLOBALS['EMAIL_FROM_NAME'];
+
+						// // Send email
+						// $status = @$emailObj->TransmitEmail($email_data);
+						// //EmailMessage::setTimeZone();
 
 					} catch (Exception $e) {
 						$status = $e->getMessage();
 					}
 
-					$isActive = EmailMessage::isActive($status);
+					//$isActive = EmailMessage::isActive($status);
 
-					if($isActive === false) {
+					if(isset($responce) && isset($responce['status']) && $responce['status'] == true){
 
-						$email_data['pid'] = $data['pid'];
-						$email_data['request'] = array(
-							'message' => $email_data['message_content'],
-							'pid' => $email_data['pid'],
-							'email_id' => $email_data['email'], 
-							'subject' => $email_data['subject'],
-							'baseDocList' => array()
-						);
+						// $email_data['pid'] = $data['pid'];
+						// $email_data['request'] = array(
+						// 	'message' => $email_data['message_content'],
+						// 	'pid' => $email_data['pid'],
+						// 	'email_id' => $email_data['email'], 
+						// 	'subject' => $email_data['subject'],
+						// 	'baseDocList' => array()
+						// );
 
-						EmailMessage::logEmailData($status, $email_data);
+						// EmailMessage::logEmailData($status, $email_data);
 
 						return true;
 					}
@@ -3110,6 +3177,31 @@ class Reminder {
 			if(!empty($pat_data->fax_number)) {
 				try {
 
+					$fItem = array(
+					'pid' => $data['pid'],
+					'data' => array(
+						'template' => $data['template_id'],
+						'fax_number' => $pat_data->fax_number,
+						'receiver_name' => $pat_data->format_name,
+						'html' => $data['message'],
+						'text' => $data['message'],
+						'fax_from_type' => 'custom',
+						'request_data' => array(),
+						'files' => array(),
+					));
+
+					$fData = FaxMessage::TransmitFax(
+						array($fItem['data']), 
+						array('pid' => $fItem['pid'], 'logMsg' => true, 'calculate_cost' => false)
+					);
+
+					if(is_array($fData) && count($fData) == 1) {
+						$responce = $fData[0];
+					} else {
+						throw new \Exception("Something went wrong.");
+					}
+
+					/*
 					// Prepare fax data
 					$fax_data = array(
 						'fax_number' => $pat_data->fax_number,
@@ -3125,7 +3217,8 @@ class Reminder {
 
 					// Send fax
 					$responce = @FaxMessage::Transmit($fax_data);
-					EmailMessage::setTimeZone();
+					//EmailMessage::setTimeZone();
+					*/
 
 				} catch (Exception $e) {
 					$status = $e->getMessage();
@@ -3137,18 +3230,18 @@ class Reminder {
 
 				if(isset($responce) && isset($responce['status']) && $responce['status'] == true){
 
-						$fax_data['pid'] = $data['pid'];
-						$fax_data['request'] = array(
-							'message' => $fax_data['message_content'],
-							'pid' => $fax_data['pid'],
-							'rec_name' => $fax_data['receiver_name'], 
-							'fax_number' => $fax_data['fax_number'],
-							'fax_from' => "patient",
-							'address_book' => "",
-							'insurance_companies' => ""
-						);
+						// $fax_data['pid'] = $data['pid'];
+						// $fax_data['request'] = array(
+						// 	'message' => $fax_data['message_content'],
+						// 	'pid' => $fax_data['pid'],
+						// 	'rec_name' => $fax_data['receiver_name'], 
+						// 	'fax_number' => $fax_data['fax_number'],
+						// 	'fax_from' => "patient",
+						// 	'address_book' => "",
+						// 	'insurance_companies' => ""
+						// );
 
-						$responceData = @FaxMessage::logFaxData($responce, $fax_data, false);
+						//$responceData = @FaxMessage::logFaxData($responce, $fax_data, false);
 
 						return true;
 				}
@@ -3185,17 +3278,46 @@ class Reminder {
 			if($fullAddress['status'] == true) {
 				$message_list = new \wmt\Options('Postal_Letters');
 
-				$form_reply_address = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS'] : "";
-				$form_reply_address_json = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON'] : "";
+				$from_reply_address = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS'] : "";
+				$from_reply_address_json = isset($GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON']) ? $GLOBALS['POSTAL_LETTER_REPlY_ADDRESS_JSON'] : "";
 
-				$form_address = isset($pat_data->format_name) ? $pat_data->format_name."\n" : '';
-				$form_address .= trim($fullAddress['address']);
+				$from_address = isset($pat_data->format_name) ? $pat_data->format_name."\n" : '';
+				$from_address .= trim($fullAddress['address']);
 				$base_address = trim($fullAddress['address']);
 
-				$form_address_json = isset($fullAddress['address_json']) ? $fullAddress['address_json'] : array();
+				$from_address_json = isset($fullAddress['address_json']) ? $fullAddress['address_json'] : array();
 
 				try {
-				
+
+					$pItem = array(
+					'pid' => $data['pid'],
+					'data' => array(
+						'template' => $data['template_id'],
+						'html' => $data['message'],
+						'text' => $data['message'],
+						'address' => $from_address,
+						'address_json' => json_encode($from_address_json),
+						'reply_address' => $from_reply_address,
+						'reply_address_json' => $from_reply_address_json,
+						'receiver_name' => $pat_data->format_name,
+						'address_from_type' => "custom",
+						'base_address' => $base_address,
+						'request_data' => array(),
+						'files' => array(),
+					));
+
+					$pData = PostalLetter::TransmitPostalLetter(
+						array($pItem['data']), 
+						array('pid' => $pItem['pid'], 'logMsg' => true, 'calculate_cost' => false)
+					);
+					
+					if(is_array($pData) && count($pData) == 1) {
+						$responce = $pData[0];
+					} else {
+						throw new \Exception("Something went wrong.");
+					}
+					
+					/*
 					// Prepare postal letter data
 					$postal_letter_data = array();
 					$postal_letter_data['dec'] = !empty($data['template_id']) ? $message_list->getItem($data['template_id']) : 'General Postal Letter';
@@ -3213,7 +3335,8 @@ class Reminder {
 
 					// Send postal letter
 					$responce = @PostalLetter::Transmit($postal_letter_data);
-					EmailMessage::setTimeZone();
+					//EmailMessage::setTimeZone();
+					*/
 
 				} catch (Exception $e) {
 					$status = $e->getMessage();
@@ -3225,21 +3348,21 @@ class Reminder {
 
 				if(isset($responce) && isset($responce['status']) && $responce['status'] == true) {
 
-					$postal_letter_data['pid'] = $data['pid'];
-					$postal_letter_data['request'] = array(
-						'message' => $postal_letter_data['message_content'],
-						'pid' => $postal_letter_data['pid'],
-						'address' => $postal_letter_data['base_address'],
-						'address_json' => $postal_letter_data['address_json'],
-						'rec_name' => $postal_letter_data['receiver_name'], 
-						'reply_address' => $postal_letter_data['reply_address'],
-						'reply_address_json' => $postal_letter_data['reply_address_json'],
-						'address_from' => "patient",
-						'address_book' => "",
-						'insurance_companies' => ""
-					);
+					// $postal_letter_data['pid'] = $data['pid'];
+					// $postal_letter_data['request'] = array(
+					// 	'message' => $postal_letter_data['message_content'],
+					// 	'pid' => $postal_letter_data['pid'],
+					// 	'address' => $postal_letter_data['base_address'],
+					// 	'address_json' => $postal_letter_data['address_json'],
+					// 	'rec_name' => $postal_letter_data['receiver_name'], 
+					// 	'reply_address' => $postal_letter_data['reply_address'],
+					// 	'reply_address_json' => $postal_letter_data['reply_address_json'],
+					// 	'address_from' => "patient",
+					// 	'address_book' => "",
+					// 	'insurance_companies' => ""
+					// );
 
-					$responceData = @PostalLetter::logPostalLetterData($responce, $postal_letter_data);
+					// $responceData = @PostalLetter::logPostalLetterData($responce, $postal_letter_data);
 
 					return true;
 				}

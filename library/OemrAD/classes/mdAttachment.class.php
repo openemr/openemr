@@ -1592,7 +1592,7 @@ class Attachment {
         $data['SESSION_DATA'] = $_SESSION;
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $siteUrl . '/library/OemrAD/interface/patient_file/report/req_custom_report.php');
+        curl_setopt($ch, CURLOPT_URL, $siteUrl . '/interface/main/messages/ajax/req_custom_report.php');
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));

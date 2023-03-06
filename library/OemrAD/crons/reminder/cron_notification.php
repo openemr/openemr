@@ -86,7 +86,7 @@ if($type_param == 'both') {
 			//$sync_info_responce = @$idempiereWebserviceObj->syncInfoToIdempiereByEvent($event_type, $eventid_param, $configid_param);
 		} else {
 			$notification_responce = @Reminder::sendNotification($event_type);
-			$int_message_responce = @Reminder::sendIntMsgNotification($event_type);
+			//$int_message_responce = @Reminder::sendIntMsgNotification($event_type);
 			$api_responce = @Reminder::sendApiData($event_type);
 			//$sync_info_responce = @$idempiereWebserviceObj->syncInfoToIdempiere($event_type);
 		}
