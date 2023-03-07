@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "37fb7ba8f995da9fa47b9b4c0c68f2b1",
+    "content-hash": "e09afa6a463093b7f864d780d0e2a3aa",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -639,16 +639,16 @@
         },
         {
             "name": "dompdf/dompdf",
-            "version": "v2.0.1",
+            "version": "v2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dompdf/dompdf.git",
-                "reference": "c5310df0e22c758c85ea5288175fc6cd777bc085"
+                "reference": "e8d2d5e37e8b0b30f0732a011295ab80680d7e85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/c5310df0e22c758c85ea5288175fc6cd777bc085",
-                "reference": "c5310df0e22c758c85ea5288175fc6cd777bc085",
+                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/e8d2d5e37e8b0b30f0732a011295ab80680d7e85",
+                "reference": "e8d2d5e37e8b0b30f0732a011295ab80680d7e85",
                 "shasum": ""
             },
             "require": {
@@ -695,9 +695,9 @@
             "homepage": "https://github.com/dompdf/dompdf",
             "support": {
                 "issues": "https://github.com/dompdf/dompdf/issues",
-                "source": "https://github.com/dompdf/dompdf/tree/v2.0.1"
+                "source": "https://github.com/dompdf/dompdf/tree/v2.0.3"
             },
-            "time": "2022-09-22T13:43:41+00:00"
+            "time": "2023-02-07T12:51:48+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",

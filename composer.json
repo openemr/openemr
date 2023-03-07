@@ -17,7 +17,7 @@
         "aranyasen/hl7": "2.1.7",
         "bacon/bacon-qr-code": "2.0.7",
         "digitickets/lalit": "3.3.0",
-        "dompdf/dompdf": "2.0.1",
+        "dompdf/dompdf": "2.0.3",
         "ezyang/htmlpurifier": "4.16.0",
         "google/apiclient": "2.12.6",
         "guzzlehttp/guzzle": "7.5.0",
