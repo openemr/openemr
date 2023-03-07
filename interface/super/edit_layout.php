@@ -284,7 +284,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         return;
     }
     // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", array($field_id));
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom($field_id) . "'");
     $column_exists = !empty($tmp);
 
     if ($add && !$column_exists) {
@@ -350,13 +350,13 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
         return 4;
     }
     // Make sure old column exists.
-    $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", array($old_field_id));
+    $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_custom($old_field_id) . "'");
     if (empty($colarr)) {
         // Error, old name does not exist.
         return 2;
     }
     // Make sure new column does not exist.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE ?", array($new_field_id));
+    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_custom($new_field_id) . "'");
     if (!empty($tmp)) {
         // Error, new name already in use.
         return 3;
@@ -573,16 +573,22 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
                 " AND field_id IN (";
     $comma = "";
+    $cntr = 0;
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-        $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
-        $comma = ", ";
+        if (!isColumnReserved(tableNameFromLayout($_POST['layout_id']), $onefield)) {
+            $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
+            $comma = ", ";
+            $cntr++;
+        }
     }
     $sqlstmt .= ")";
-    sqlStatement($sqlstmt);
-    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-        addOrDeleteColumn($layout_id, $onefield, false);
+    if (!empty($cntr)) {
+        sqlStatement($sqlstmt);
+        foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+            addOrDeleteColumn($layout_id, $onefield, false);
+        }
+        setLayoutTimestamp($layout_id);
     }
-    setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
