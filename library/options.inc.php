@@ -637,7 +637,7 @@ function generate_form_field($frow, $currvalue)
         }
 
 
-        /* OEMRAD - Email Verification changes. */
+        /* OEMR - Email Verification changes. */
         if (isOption($edit_options, 'EMV') !== false) {
             global $pid;
             $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
@@ -648,7 +648,7 @@ function generate_form_field($frow, $currvalue)
         }
         /* End */
 
-        /* OEMRAD - Mask phone number value. */
+        /* OEMR - Mask phone number value. */
         if (isOption($frow['edit_options'], 'MP') !== false) {
             $smallform .= " phonemask";
             $fieldPostfix = '_mfield';
@@ -691,6 +691,7 @@ function generate_form_field($frow, $currvalue)
         if (isOption($frow['edit_options'], 'MP') !== false) {
             echo " phonemask-field='form_{$field_id_esc}'";
             echo " onkeyup='fieldPhonekeyup(this)'";
+            echo " onfocusout='fieldPhonekeyup(this, true)'";
         }
 
         if (isOption($edit_options, '1') !== false && strlen($currescaped) > 0) {
@@ -701,7 +702,7 @@ function generate_form_field($frow, $currvalue)
             echo ' disabled';
         }
 
-        /* OEMRAD - Validate phone number. */
+        /* OEMR - Validate phone number. */
         if (isOption($frow['edit_options'], 'MPV') !== false) {
             echo " data-title='".$frow['title']."' data-id='$field_id_esc' data-validate='validatePhoneNumber;'";
         }
@@ -709,7 +710,7 @@ function generate_form_field($frow, $currvalue)
 
         echo " />";
 
-        /* OEMRAD - Email Verification changes */
+        /* OEMR - Email Verification changes */
         if (isOption($edit_options, 'EMV') !== false) {
             if($emvStatus === 1) {
                 $statusElement = "<i class='fa fa-check-circle email-verification-icon-successful' aria-hidden='true'></i>";
@@ -1751,7 +1752,7 @@ function generate_form_field($frow, $currvalue)
     } elseif ($data_type == 54) {
         include "templates/address_list_form.php";
     } elseif ($data_type == 101) {
-        /* OEMRAD - Added multi text input type. */
+        /* OEMR - Added multi text input type. */
         $explodeVal = explode(",", $currescaped);
         $miContainerId = 'mti-container-' . $field_id_esc;
         $btnSize = ($smallform) ? "btn-sm" : "";
@@ -4362,7 +4363,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     echo "</span> "; // space to allow wrap between spans
                 }
 
-                // OEMRAD - Alert log.
+                // OEMR - Alert log.
                 Demographicslib::dem_layout_tabs($group_name_esc, $group_fields);
             } // End of fields for this group.
 

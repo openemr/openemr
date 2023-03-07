@@ -72,62 +72,6 @@ function getPatientData($pid, $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS
     return sqlQuery($sql, array($pid));
 }
 
-/* OEMR - Change */
-function formatPhoneNumber($pat_phone) {
-    if(empty($pat_phone)) {
-        return array('msg_phone' => $pat_phone, 'pat_phone' => $pat_phone);
-    }
-
-    $pat_phone = preg_replace('/[^0-9]/', '', trim($pat_phone));
-
-    // Get phone numbers
-    $msg_phone = $pat_phone;
-    if(strlen($msg_phone) != 12) {
-      if (substr($pat_phone,0,1) != '1') $msg_phone = "1" . $msg_phone;
-      if (strlen($msg_phone) > 11) $msg_phone = substr($msg_phone,0,11);
-      
-      //if (substr($pat_phone,0,1) == '1') $pat_phone = substr($pat_phone,1,10);
-      //if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
-      //$pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
-      if(preg_match('/^(1|)?(\d{3})(\d{3})(\d{4})$/', $pat_phone,  $matches ) ) {
-        $intlCode = $matches[1] ? '+1-' : '';
-        $pat_phone = $intlCode.'' . $matches[2] . '-' .$matches[3] . '-' . $matches[4];
-      }
-    }
-    return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone);
-}
-
-
-function getAlterPatientData($formtype = '', $data = array()) {
-    $fres = sqlStatement("SELECT distinct group_id FROM layout_options " .
-            "WHERE form_id = ? AND uor > 0 " .
-            "ORDER BY group_id", array($formtype));
-
-    // This loops once per group within a given layout.
-    while ($frow = sqlFetchArray($fres)) {
-        $this_group = $frow['group_id'];
-
-        $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-                "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
-                "ORDER BY seq", array($formtype, $this_group));
-
-        // This loops once per field within a given group.
-        while ($group_fields = sqlFetchArray($group_fields_query)) {
-            if (isOption($group_fields['edit_options'], 'MP') !== false) {
-                //$tValue = formatPhoneNumber($data[$group_fields['field_id']]);
-
-                $tValue = !empty(trim($data[$group_fields['field_id']])) ? array_filter(array_map('trim', explode(",",$data[$group_fields['field_id']]))) : array();
-                $tValue = array_map(function($item) { $tfValue = formatPhoneNumber($item); return $tfValue['pat_phone']; }, $tValue);
-
-                if(isset($data[$group_fields['field_id']])) $data[$group_fields['field_id']] = implode(",",$tValue);
-            }
-        }
-    }
-
-    return $data;
-}
-/* End */
-
 function getInsuranceProvider($ins_id)
 {
 
@@ -1892,3 +1836,58 @@ function updateDupScore($pid)
     );
     return $dupscore;
 }
+
+/* OEMR - Change */
+function formatPhoneNumber($pat_phone) {
+    if(empty($pat_phone)) {
+        return array('msg_phone' => $pat_phone, 'pat_phone' => $pat_phone);
+    }
+
+    $pat_phone = preg_replace('/[^0-9]/', '', trim($pat_phone));
+
+    // Get phone numbers
+    $msg_phone = $pat_phone;
+    if(strlen($msg_phone) != 12) {
+      if (substr($pat_phone,0,1) != '1') $msg_phone = "1" . $msg_phone;
+      if (strlen($msg_phone) > 11) $msg_phone = substr($msg_phone,0,11);
+      
+      //if (substr($pat_phone,0,1) == '1') $pat_phone = substr($pat_phone,1,10);
+      //if (strlen($pat_phone) > 10) $pat_phone = substr($pat_phone,0,10);
+      //$pat_phone = substr($pat_phone,0,3) ."-". substr($pat_phone,3,3) ."-". substr($pat_phone,6,4);
+      if(preg_match('/^(1|)?(\d{3})(\d{3})(\d{4})$/', $pat_phone,  $matches ) ) {
+        $intlCode = $matches[1] ? '+1-' : '';
+        $pat_phone = $intlCode.'' . $matches[2] . '-' .$matches[3] . '-' . $matches[4];
+      }
+    }
+    return array('msg_phone' => $msg_phone, 'pat_phone' => $pat_phone);
+}
+
+function getAlterPatientData($formtype = '', $data = array()) {
+    $fres = sqlStatement("SELECT distinct group_id FROM layout_options " .
+            "WHERE form_id = ? AND uor > 0 " .
+            "ORDER BY group_id", array($formtype));
+
+    // This loops once per group within a given layout.
+    while ($frow = sqlFetchArray($fres)) {
+        $this_group = $frow['group_id'];
+
+        $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
+                "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
+                "ORDER BY seq", array($formtype, $this_group));
+
+        // This loops once per field within a given group.
+        while ($group_fields = sqlFetchArray($group_fields_query)) {
+            if (isOption($group_fields['edit_options'], 'MP') !== false) {
+                //$tValue = formatPhoneNumber($data[$group_fields['field_id']]);
+
+                $tValue = !empty(trim($data[$group_fields['field_id']])) ? array_filter(array_map('trim', explode(",",$data[$group_fields['field_id']]))) : array();
+                $tValue = array_map(function($item) { $tfValue = formatPhoneNumber($item); return $tfValue['pat_phone']; }, $tValue);
+
+                if(isset($data[$group_fields['field_id']])) $data[$group_fields['field_id']] = implode(",",$tValue);
+            }
+        }
+    }
+
+    return $data;
+}
+/* End */

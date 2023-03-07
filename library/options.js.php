@@ -389,53 +389,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 <!-- OEMR - Change -->
 <script type="text/javascript">
 
-    // Mask phone value on load
-    /*
-    function maskPhoneValue(elem) {
-      var inputValue = elem.value;
-      var trimValue = inputValue.replace(/[\s\(\)\-]/g, "");
-      var curchr = trimValue.length;
-      let isnum = /^\d+$/.test(trimValue);
-
-      if(curchr >= 10 && isnum === true) {
-        //inputValue = String(trimValue.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3"));
-        var cleaned = ('' + trimValue).replace(/\D/g, '');
-        var match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
-        if (match) {
-            var intlCode = (match[1] ? '1 ' : '');
-            inputValue = [intlCode, '(', match[2], ') ', match[3], '-', match[4]].join('');
-        }
-      }
-      
-      elem.value = inputValue;
-    }*/
-
-    // Mask phone value
-    /*
-    function handleMaskPhoneValue(elem, paste = false) {
-      e = window.event;
-      
-      if(paste === false) {
-        var key = e.which || e.keyCode; // keyCode detection
-        var ctrl = e.ctrlKey || e.metaKey || key === 17; // ctrl detection
-        if (key == 86 && ctrl) { // Ctrl + V Pressed !
-
-        } else if (key == 67 && ctrl) { // Ctrl + C Pressed !
-
-        } else if (key == 88 && ctrl) { //Ctrl + x Pressed
-
-        } else if (key == 65 && ctrl) { //Ctrl + a Pressed !
-          //maskPhoneOnLoad(elem);
-        } else if (key != 9 && e.which != 8 && e.which != 0 && !(e.keyCode >= 96 && e.keyCode <= 105) && !(e.keyCode >= 48 && e.keyCode <= 57)) {
-            return false;
-        }
-
-        maskPhoneValue(elem);
-      } else {
-        maskPhoneValue(elem);
-      }
-    }*/
-
     function cleanPhoneValue(val = '') {
         return val.replace(/[^\d]/g, '');
     }
@@ -450,7 +403,10 @@ use OpenEMR\Common\Csrf\CsrfUtils;
         }
     }
 
-    function fieldPhonekeyup(ele = '') {
+    function fieldPhonekeyup(ele = '', format = false) {
+        var oldVal = ele.getAttribute("oldvalue");
+        oldVal = oldVal != null ? oldVal : "";
+        
         if(ele == '') return false;
 
         var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
@@ -459,9 +415,14 @@ use OpenEMR\Common\Csrf\CsrfUtils;
             if(clearVal.length > 10) ele.value = "+" + ele.value;
         }
 
-        phonekeyup(ele, mypcc);
+        if(format == true || (oldVal.length < ele.value.length) ) {
+            phonekeyup(ele, mypcc);
+        }
         clearPhoneno(ele);
+
         prepareMiValues();
+
+        ele.setAttribute('oldvalue', ele.value);
     }
 
     /*Init phone mask when page load.*/
