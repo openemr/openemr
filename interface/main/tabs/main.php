@@ -86,13 +86,15 @@ $esignApi = new Api();
         var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
         var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
-        var jsGlobals = {};
+        var jsGlobals = {}; // this should go away and replace with just global_enable_group_therapy
         // used in tabs_view_model.js.
         jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
 
         var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
         var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
-
+        const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
+        const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
+        const isServicesOther = (isSms || isFax);
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR.
@@ -105,6 +107,9 @@ $esignApi = new Api();
             let request = new FormData;
             request.append("skip_timeout_reset", "1");
             request.append("isPortal", isPortalEnabled);
+            request.append("isServicesOther", isServicesOther);
+            request.append("isSms", isSms);
+            request.append("isFax", isFax);
             request.append("csrf_token_form", csrf_token_js);
             fetch(webroot_url + "/library/ajax/dated_reminders_counter.php", {
                 method: 'POST',
@@ -137,6 +142,19 @@ $esignApi = new Api();
                         app_view_model.application_data.user().portalMail(mail);
                         app_view_model.application_data.user().portalChats(chats);
                         app_view_model.application_data.user().portalPayments(payments);
+                    }
+                }
+                if (isServicesOther) {
+                    let sms = data.smsCnt;
+                    let fax = data.faxCnt;
+                    let total = data.serviceTotal;
+                    let enable = ((1 * sms) + (1 * fax));
+                    // Will turn off button display if no notification!
+                    app_view_model.application_data.user().servicesOther(enable);
+                    if (enable > 0) {
+                        app_view_model.application_data.user().serviceAlerts(total);
+                        app_view_model.application_data.user().smsAlerts(sms);
+                        app_view_model.application_data.user().faxAlerts(fax);
                     }
                 }
                 // Always send reminder count text to model
