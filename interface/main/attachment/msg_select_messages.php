@@ -6,20 +6,22 @@ include_once("../../globals.php");
 include_once($GLOBALS['srcdir'].'/api.inc');
 include_once($GLOBALS['srcdir'].'/patient.inc');
 include_once($GLOBALS['srcdir'].'/forms.inc');
-include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtstandard.inc");
-include_once("{$GLOBALS['srcdir']}/wmt-v2/wmtpatient.class.php");
-include_once($GLOBALS['srcdir']."/wmt-v2/rto.inc");
-include_once($GLOBALS['srcdir']."/wmt-v2/rto.class.php");
+include_once($GLOBALS['fileroot'].'/modules/ext_message/message/EmailMessage.php');
 
 if(!isset($_REQUEST['pid'])) $_REQUEST['pid'] = '';
+if(!isset($_REQUEST['assigned_to'])) $_REQUEST['assigned_to'] = '';
+
 $pid = strip_tags($_REQUEST['pid']);
+$assigned_to = strip_tags($_REQUEST['assigned_to']);
 
 if($pid) {
+	$pid = explode(";", $pid);
+
 	?>
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Select Orders</title>
+	<title>Select Messages</title>
 
 	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'oemr_ad']);  ?>
 
@@ -30,25 +32,23 @@ if($pid) {
 	<div class="table-responsive table-container datatable-container c-table-bordered o-overlay">
 		<table id="document_results" class="table table-sm">
 			<thead class="thead-dark">
-				<tr class="hrRow">
+				<tr>
 					<th></th>
-					<th><?php echo xl('Order Id'); ?></th>
-					<th><?php echo xl('Order Type'); ?></th>
-					<th><?php echo xl('Ordered By'); ?></th>
+					<th><?php echo xl('From'); ?></th>
+					<th><?php echo xl('To'); ?></th>
+					<th><?php echo xl('Patient'); ?></th>
+					<th><?php echo xl('Type'); ?></th>
+					<th><?php echo xl('Date'); ?></th>
 					<th><?php echo xl('Status'); ?></th>
-					<th><?php echo xl('Assigned To'); ?></th>
-					<th><?php echo xl('Date Created'); ?></th>
 				</tr>
 			</thead>
-			<tbody>
-			</tbody>
 		</table>
 	</div>
 	<script type="text/javascript">
-		var prefix = 'order_';
+		var prefix = 'msg_';
 		var table = null;
-		//var selectedOrders = opener.selectedOrders ? opener.selectedOrders : {};
-		var selectedOrders = window.items ? prepareIntialData(window.items) : {};
+		//var selectedMessages = opener.selectedMessages ? opener.selectedMessages : {};
+		var selectedMessages = window.items ? prepareIntialData(window.items) : {};
 
 		//Prepare intial data
 		function prepareIntialData(items) {
@@ -57,23 +57,22 @@ if($pid) {
 				pItems[item.id] = item;
 			});
 
-			console.log(pItems);
-
 			return pItems;
 		}
 
 		//Prepare json
 		function prepareJsonObject(item) {
 			// return {
-			// 	"order_id": item['id'] ? item['id'] : "",
+			// 	"message_id": item['id'] ? item['id'] : "",
 			// 	"pid": item['pid'] ? item['pid'] : "",
-			// 	"text_title": item['title'] ? item['title'] : ""
+			// 	"text_title": item['link_title'] ? item['link_title'] : ""
 			// }
-			return item ? item : {};
+			return item;
 		}
 
-		function getSelectedOrderList() {
-			return Object.values(selectedOrders);
+		function getSelectedMessageList() {
+			console.log(selectedMessages);
+			return Object.values(selectedMessages);
 		}
 
 		document.addEventListener("close-dialog", function(e) {
@@ -89,30 +88,30 @@ if($pid) {
 					let api = this.api();
 					api.cells(api.rows(function(idx, data, node){
 						let row_data = data['row_data'] ? data['row_data'] : {};
-						return (selectedOrders[row_data['id']]) ? true : false;
+						return (selectedMessages[row_data['id']]) ? true : false;
 					}).indexes(), 0).checkboxes.select();
 			    },
 				'processing': true,
 				'serverSide': true,
 				'serverMethod': 'post',
 				'ajax': {
-				  'url':'<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/ajax/msg_select_order.php?pid=".$_REQUEST['pid']."&type=ajax"; ?>'
+				  'url':'<?php echo $GLOBALS['webroot']."/interface/main/attachment/ajax/msg_select_messages.php?pid=".$_REQUEST['pid']."&assigned_to=".$_REQUEST['assigned_to']."&type=ajax"; ?>'
 		      	},
 		      	"drawCallback": function(settings) {
-				    let api = this.api();
-					api.cells(api.rows(function(idx, data, node) {
+					let api = this.api();
+					api.cells(api.rows(function(idx, data, node){
 						let row_data = data['row_data'] ? data['row_data'] : {};
-						return (selectedOrders[row_data['id']]) ? true : false;
+						return (selectedMessages[row_data['id']]) ? true : false;
 					}).indexes(), 0).checkboxes.select();
 				},
 				'columns': [
 					 { data: 'row_select' },
-					 { data: 'id' },
-					 { data: 'rto_action' },
-					 { data: 'rto_ordered_by' },
-					 { data: 'rto_status' },
-					 { data: 'rto_resp_user' },
-					 { data: 'date' }
+					 { data: 'user_fullname' },
+					 { data: 'msg_to' },
+					 { data: 'patient_fullname' },
+					 { data: 'title' },
+					 { data: 'date' },
+					 { data: 'message_status' }
 				],
 				'columnDefs': [ 
 					{
@@ -120,30 +119,30 @@ if($pid) {
 						'orderable': false, /* true or false */
 					},
 					{
-							'targets': 0,
-				            'checkboxes': {
-				               'selectRow': true,
-				               'selectCallback': function(nodes, selected){
-				               		$.each(nodes, function(nodeIndex, node) {
-			               				let rowData = table.row($(node).closest('tr')).data();
-			               				let row_data = rowData['row_data'];
-			               				let msg_id = row_data['id'] ? row_data['id'] : '';
-					               		
-					               		if(selected === true) {
-					               			selectedOrders[msg_id] = prepareJsonObject(row_data);
-					               		} else if(selected === false) {
-					               			delete selectedOrders[msg_id];
-					               		}
-				               		});
-				               		     
-				               }
-				            }
+						'targets': 0,
+			            'checkboxes': {
+			               'selectRow': true,
+			               'selectCallback': function(nodes, selected){
+			               		$.each(nodes, function(nodeIndex, node) {
+		               				let rowData = table.row($(node).closest('tr')).data();
+		               				let row_data = rowData['row_data'];
+		               				let msg_id = row_data['id'] ? row_data['id'] : '';
+				               		
+				               		if(selected === true) {
+				               			selectedMessages[msg_id] = prepareJsonObject(row_data);
+				               		} else if(selected === false) {
+				               			delete selectedMessages[msg_id];
+				               		}
+			               		});
+			               		     
+			               }
+			            }
 					}
 				],
 				'pageLength': 10,
 				'bLengthChange': true,
-				'searching': true,
-				'order': [[ 6, "desc" ]],
+				'searching': false,
+				'order': [[ 5, "desc" ]],
 				'scrollY': '100vh',
         		'scrollCollapse': true,
         		'responsive': {
@@ -155,4 +154,6 @@ if($pid) {
 </body>
 </html>
 	<?php
+
 }
+?>

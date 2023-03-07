@@ -663,7 +663,7 @@ if($form_id) {
 
 		// This invokes the find-addressbook popup.
 		function sel_addressbook_fax() {
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_addressbook_popup.php?pid=". $pid; ?>&pagetype=fax';
+			var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_addressbook_popup.php?pid=". $pid; ?>&pagetype=fax';
 		  	let title = '<?php echo xlt('Address Book Search'); ?>';
 		  	dlgopen(url, 'findAddressbook', 1100, 500, '', title);
 		}
@@ -677,7 +677,7 @@ if($form_id) {
 
 		// This invokes the find-insurance_companies popup.
 		function sel_insurancecompanies_fax() {
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_insurancecompanies_popup.php?pid=". $pid; ?>&pagetype=fax';
+			var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_insurancecompanies_popup.php?pid=". $pid; ?>&pagetype=fax';
 		  	let title = '<?php echo xlt('Insurance Companies Search'); ?>';
 		  	dlgopen(url, 'findInsurancecompanies', 1100, 500, '', title);
 		}

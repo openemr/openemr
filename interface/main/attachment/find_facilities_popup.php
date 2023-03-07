@@ -234,7 +234,7 @@ if(isset($_REQUEST['ajax'])) {
 		      'serverSide': true,
 		      'pageLength': 8,
 		      'bLengthChange': false,
-		      'sAjaxSource': '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_facilities_popup.php?pid=". $pid; ?>&ajax=1<?php echo $pageTypeStr; ?>',
+		      'sAjaxSource': '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_facilities_popup.php?pid=". $pid; ?>&ajax=1<?php echo $pageTypeStr; ?>',
 		      'columns': [
 		         { sName: 'name' },
 		         { sName: 'street' },

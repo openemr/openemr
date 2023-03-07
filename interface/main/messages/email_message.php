@@ -790,7 +790,7 @@ if($form_id) {
 				var bodyObj = { pid : pid };
 				const result = await $.ajax({
 					type: "GET",
-					url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/ajax/get_pitype_insurance.php'; ?>",
+					url: "<?php echo $GLOBALS['webroot'].'/interface/main/attachment/ajax/get_pitype_insurance.php'; ?>",
 					datatype: "json",
 					data: bodyObj
 				});
@@ -807,7 +807,7 @@ if($form_id) {
 			            allowDrag: true,
 			            dialogId: '',
 			            type: 'iframe',
-			            url: '<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/select_pitype_insurance.php?pid='; ?>'+pid
+			            url: '<?php echo $GLOBALS['webroot'].'/interface/main/attachment/select_pitype_insurance.php?pid='; ?>'+pid
 			        });
 						}
 					}

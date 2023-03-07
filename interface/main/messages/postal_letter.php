@@ -754,7 +754,7 @@ if($form_id) {
 
 		// This invokes the find-addressbook popup.
 		function sel_addressbook_address() {
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_addressbook_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
+			var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_addressbook_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
 		  	let title = '<?php echo xlt('Address Book Search'); ?>';
 		  	dlgopen(url, 'findAddressbook', 1100, 500, '', title);
 		}
@@ -774,7 +774,7 @@ if($form_id) {
 
 		// This invokes the find-insurance_companies popup.
 		function sel_insurancecompanies_fax() {
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_insurancecompanies_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
+			var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_insurancecompanies_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
 		  	let title = '<?php echo xlt('Insurance Companies Search'); ?>';
 		  	dlgopen(url, 'findInsurancecompanies', 1100, 500, '', title);
 		}
@@ -792,7 +792,7 @@ if($form_id) {
 
 		// This invokes the find-facilities popup.
 		function sel_facilities_address() {
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_facilities_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
+			var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_facilities_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
 		  	let title = '<?php echo xlt('Facilities Search'); ?>';
 		  	dlgopen(url, 'findFacilities', 1100, '', '', title);
 		}
@@ -807,7 +807,7 @@ if($form_id) {
 				address_json = objectToQueryString(address_json_str);
 			}
 
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/custom_address.php?pid=". $pid; ?>&'+address_json;
+			var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/custom_address.php?pid=". $pid; ?>&'+address_json;
 		  	let title = '<?php echo xlt('Edit Address'); ?>';
 		  	dlgopen(url, 'customAddress', 600, 300, '', title);
 		}

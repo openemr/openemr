@@ -1,12 +1,13 @@
-<?php
+<?php 
+
 
 include_once("../../globals.php");
 include_once("$srcdir/OemrAD/oemrad.globals.php");
+include_once($GLOBALS['srcdir']."/classes/InsuranceCompany.class.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\OemrAd\FaxMessage;
 use OpenEMR\OemrAd\PostalLetter;
-
 
 if(!isset($_REQUEST['pid'])) $_REQUEST['pid'] = '';
 if(!isset($_REQUEST['pagetype'])) $_REQUEST['pagetype'] = '';
@@ -14,30 +15,6 @@ if(!isset($_REQUEST['pagetype'])) $_REQUEST['pagetype'] = '';
 $pid = strip_tags($_REQUEST['pid']);
 $pagetype = $_REQUEST['pagetype'];
 $pageTypeStr = !empty($pagetype) ? '&pagetype='.$pagetype : '';
-
-function checkName($row) {
-	$name = '';
-
-	if(!empty($row['lname']) && !empty($row['fname'])) {
-		$name = $row['lname'].', '.$row['fname'].' '.$row['mname'];
-	} else if(!empty($row['organization'])) {
-		$name = $row['organization'];
-	}
-
-	return $name;
-}
-
-function addressName($row) {
-	$name = '';
-
-	if(!empty($row['lname']) && !empty($row['fname'])) {
-		$name = $row['fname'].' '.$row['lname'];
-	} else if(!empty($row['organization'])) {
-		$name = $row['organization'];
-	}
-
-	return $name;
-}
 
 if(isset($_REQUEST['ajax'])) {
 	$aColumns = explode(',', $_REQUEST['sColumns']);
@@ -62,23 +39,25 @@ if(isset($_REQUEST['ajax'])) {
 	      		// We are to sort on column # $iSortCol in direction $sSortDir.
 	            $orderby .= $orderby ? ', ' : 'ORDER BY ';
 	      		//
-	            if ($aColumns[$iSortCol] == 'name') {
-	                    $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
-	            } else if ($aColumns[$iSortCol] == 'street') {
-	        		$orderby .= "street $sSortDir, streetb2 $sSortDir";
+	            if ($aColumns[$iSortCol] == 'address') {
+	        		$orderby .= "line1 $sSortDir, line2 $sSortDir";
 		        } else if ($aColumns[$iSortCol] == 'city_state') {
 		            $orderby .= "city $sSortDir, state $sSortDir";
-		        } else {
-	                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('users')) . "` $sSortDir";
+		        } else if ($aColumns[$iSortCol] == 'phone') {
+	                $orderby .= "ph.area_code $sSortDir, ph.prefix $sSortDir, ph.number $sSortDir";
+	            } else if ($aColumns[$iSortCol] == 'fax') {
+	                $orderby .= "fx.area_code $sSortDir, fx.prefix $sSortDir, fx.number $sSortDir";
+	            } else {
+	                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('insurance_companies')) . "` $sSortDir";
 	            }
 	        }
 	    }
 	}
 
 	if($pagetype == "fax") {
-		$typeWhere = "NOT (u.fax = '') ";
+		$typeWhere = "NOT (fx.area_code = '' OR fx.prefix = '' OR fx.number = '') ";
 	} else if($pagetype == "postal_letter") {
-		$typeWhere = "NOT (u.zip = '') ";
+		$typeWhere = "NOT (a.zip = '') ";
 	}
 
 	if(isset($typeWhere)) {
@@ -87,28 +66,28 @@ if(isset($_REQUEST['ajax'])) {
 
 	// Global filtering.
 	//
-	$tmp_where = "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) " . $typeWhereTmp;
+	$tmp_where = "WHERE p.inactive = 0 "  . $typeWhereTmp;
 	$where = "";
 	if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
 	    $sSearch = add_escape_custom(trim($_GET['sSearch']));
 	    foreach ($aColumns as $colname) {
 	        $where .= $where ? "OR " : " ( ";
-	        if ($colname == 'name') {
-	            $where .=
-	            "lname LIKE '$sSearch%' OR " .
-	            "fname LIKE '$sSearch%' OR " .
-	            "mname LIKE '$sSearch%' OR ";
-	            $where .= "CONCAT( lname,  ', ', fname, ' ',  mname) LIKE '$sSearch%' ";
-	        } else if ($colname == 'street') {
+	        if ($colname == 'address') {
 	        	$where .= "" .
-	            "street LIKE '$sSearch%' OR " .
-	            "streetb2 LIKE '$sSearch%' ";
+	            "line1 LIKE '$sSearch%' OR " .
+	            "line2 LIKE '$sSearch%' ";
 	        } else if ($colname == 'city_state') {
 	            $where .= "" .
 	            "city LIKE '$sSearch%' OR " .
 	            "state LIKE '$sSearch%' ";
+	        } else if ($colname == 'zip') {
+	            $where .= "a.zip LIKE '$sSearch%' ";
+	        } else if ($colname == 'phone') {
+	            $where .= "CONCAT( ph.area_code,  '-', ph.prefix, '-',  ph.number) LIKE '$sSearch%' ";
+	        } else if ($colname == 'fax') {
+	            $where .= "CONCAT( fx.area_code,  '-', fx.prefix, '-',  fx.number) LIKE '$sSearch%' ";
 	        } else {
-	            $where .= "`" . escape_sql_column_name($colname, array('users')) . "` LIKE '$sSearch%' ";
+	            $where .= "`" . escape_sql_column_name($colname, array('insurance_companies')) . "` LIKE '$sSearch%' ";
 	        }
 	    }
 
@@ -124,22 +103,22 @@ if(isset($_REQUEST['ajax'])) {
 	    if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
 	        $where .= $where ? ' AND' : "";
 	        $sSearch = add_escape_custom($_GET["sSearch_$i"]);
-	        if ($colname == 'name') {
-	            $where .= " ( " .
-	            "lname LIKE '$sSearch%' OR " .
-	            "fname LIKE '$sSearch%' OR " .
-	            "mname LIKE '$sSearch%' ) OR";
-	            $where .= " ( CONCAT( lname,  ', ', fname, ' ',  mname) LIKE '$sSearch%' ) ";
-	        } else if ($colname == 'street') {
+	        if ($colname == 'address') {
 	        	$where .= " ( " .
-	            "street LIKE '$sSearch%' OR " .
-	            "streetb2 LIKE '$sSearch%' ) ";
+	            "line1 LIKE '$sSearch%' OR " .
+	            "line2 LIKE '$sSearch%' ) ";
 	        } else if ($colname == 'city_state') {
 	            $where .= " ( " .
 	            "city LIKE '$sSearch%' OR " .
 	            "state LIKE '$sSearch%' ) ";
+	        } else if ($colname == 'zip') {
+	            $where .= "a.zip LIKE '$sSearch%' ";
+	        } else if ($colname == 'phone') {
+	            $where .= " ( CONCAT( ph.area_code,  '-', ph.prefix, '-',  ph.number) LIKE '$sSearch%' ) ";
+	        } else if ($colname == 'fax') {
+	            $where .= " ( CONCAT( fx.area_code,  '-', fx.prefix, '-',  fx.number) LIKE '$sSearch%' ) ";
 	        } else {
-	            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'";
+	            $where .= " `" . escape_sql_column_name($colname, array('insurance_companies')) . "` LIKE '$sSearch%'";
 	        }
 	    }
 	}
@@ -149,18 +128,20 @@ if(isset($_REQUEST['ajax'])) {
 
 	// Get total number of rows in the table.
 	//
-	$iTotalsqlQtr = "SELECT COUNT(u.id) AS count FROM users AS u " .
-	  "LEFT JOIN list_options AS lo ON " .
-	  "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 " .
-	  "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) " . $typeWhereTmp;
+	$iTotalsqlQtr = "SELECT COUNT(p.id) AS count FROM insurance_companies as p ". 
+		 "INNER JOIN addresses as a on p.id = a.foreign_id ".
+		 "LEFT JOIN phone_numbers as ph on p.id = ph.foreign_id AND ph.type = 2 ".
+		 "LEFT JOIN phone_numbers as fx on p.id = fx.foreign_id AND fx.type = 5 WHERE p.inactive = 0 ";
+
 	$row = sqlQuery($iTotalsqlQtr);
 	$iTotal = $row['count'];
 
 	// Get total number of rows in the table after filtering.
 	//
-	$iFilteredTotalsqlQtr = "SELECT COUNT(u.id) AS count FROM users AS u " .
-	  "LEFT JOIN list_options AS lo ON " .
-	  "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 ";
+	$iFilteredTotalsqlQtr = "SELECT COUNT(p.id) AS count FROM insurance_companies as p ". 
+		 "INNER JOIN addresses as a on p.id = a.foreign_id ".
+		 "LEFT JOIN phone_numbers as ph on p.id = ph.foreign_id AND ph.type = 2 ".
+		 "LEFT JOIN phone_numbers as fx on p.id = fx.foreign_id AND fx.type = 5 ";
 	$row = sqlQuery($iFilteredTotalsqlQtr . $where);
 	$iFilteredTotal = $row['count'];
 
@@ -171,53 +152,44 @@ if(isset($_REQUEST['ajax'])) {
 	  "aaData"               => array()
 	);
 
-	$sellist = "u.id, u.organization, u.fname, u.mname, u.lname, u.abook_type, u.specialty, u.phonew1, u.fax, u.street, u.streetb2, u.city, u.state, u.zip";
-	$query = "SELECT $sellist FROM users AS u " .
-	  "LEFT JOIN list_options AS lo ON " .
-	  "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 $where $orderby $limit";
+
+	$sellist = "p.id, p.name, a.line1, a.line2, a.city, a.state, a.zip, ph.area_code AS phone_area_code, ph.prefix AS phone_prefix, ph.number AS phone_number, fx.area_code AS fax_area_code, fx.prefix AS fax_prefix, fx.number AS fax_number";
+	
+	$query = "SELECT $sellist FROM insurance_companies AS p ". 
+		 "INNER JOIN addresses as a on p.id = a.foreign_id ".
+		 "LEFT JOIN phone_numbers as ph on p.id = ph.foreign_id AND ph.type = 2 ".
+		 "LEFT JOIN phone_numbers as fx on p.id = fx.foreign_id AND fx.type = 5 $where $orderby $limit";
+	
 	$res = sqlStatement($query);
 	while ($row = sqlFetchArray($res)) {
-
 		$lastStr = '';
 		$nameStr = '';
 		if($pagetype == "postal_letter") {
 			$pl = PostalLetter::generatePostalAddress(array(
-				'street' => $row['street'],
-				'street1' => $row['streetb2'],
+				'street' => $row['line1'],
+				'street1' => $row['line2'],
 				'city' => $row['city'],
 				'state' => $row['state'],
 				'postal_code' => $row['zip']
 			), "\n");
 			$lastStr = base64_encode(json_encode($pl));
-			$nameStr = addressName($row);
+			$nameStr = $row['name'];
 		} else {
-			$lastStr = $row['fax'];
-			$nameStr = checkName($row);
+			$lastStr =  attr(trim($row['fax_area_code'] . "-" . $row['fax_prefix'] . "-" . $row['fax_number'],"-"));
+			$nameStr = $row['name'];
 		}
-
-		$arow = array('DT_RowId' => $row['id'].'~'.$nameStr.'~'.$lastStr);
+		$arow = array('DT_RowId' => $row['id'] .'~'. $nameStr .'~'. $lastStr);
 
 		foreach ($aColumns as $colname) {
-        	if ($colname == 'name') {
-	            $name = $row['lname'];
-	            if ($name && $row['fname']) {
-	                $name .= ', ';
-	            }
-
-	            if ($row['fname']) {
-	                $name .= $row['fname'];
-	            }
-
-	            if ($row['mname']) {
-	                $name .= ' ' . $row['mname'];
-	            }
-
-	            $arow[] = attr($name);
-	        } else if($colname == 'street') {
-        		$arow[] = attr(trim($row['street'] . ", " . $row['streetb2'], ", "));
+        	if($colname == 'address') {
+        		$arow[] = attr(trim($row['line1'] . ", " . $row['line2'], ", "));
         	} else if($colname == 'city_state') { 
         		$arow[] = attr(trim($row['city'] . " " . $row['state'], ", "));
-        	} else {
+        	} else if ($colname == 'phone') {
+        		$arow[] = attr(trim($row['phone_area_code'] . "-" . $row['phone_prefix'] . "-" . $row['phone_number'],"-"));
+	        } else if ($colname == 'fax') {
+        		$arow[] = attr(trim($row['fax_area_code'] . "-" . $row['fax_prefix'] . "-" . $row['fax_number'],"-"));
+	        } else {
 	            $arow[] = isset($row[$colname]) ? $row[$colname] : '';
 	        }
 	    }
@@ -228,11 +200,10 @@ if(isset($_REQUEST['ajax'])) {
 	echo json_encode($out, 15);
 
 } else {
-
 ?>
 <html>
 <head>
-	<title><?php echo htmlspecialchars( xl('AddressBook Finder'), ENT_NOQUOTES); ?></title>
+	<title><?php echo htmlspecialchars( xl('Insurance Companies Finder'), ENT_NOQUOTES); ?></title>
 	<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-bs', 'fontawesome', 'oemr_ad']); ?>
 
@@ -240,19 +211,19 @@ if(isset($_REQUEST['ajax'])) {
 	<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
 
     <style type="text/css">
-		/*table#addressDataTable thead th, table#addressDataTable thead td {
+		/*table#insDataTable thead th, table#insDataTable thead td {
 			border-bottom: 0px solid black;
 		}
-		table#addressDataTable thead th, table#addressDataTable thead td,
-		table#addressDataTable tr th, table#addressDataTable tr td {
+		table#insDataTable thead th, table#insDataTable thead td,
+		table#insDataTable tr th, table#insDataTable tr td {
 			padding: 4px!important;
 		}
 
-		table#addressDataTable tr td {
+		table#insDataTable tr td {
 			border-top: 1px solid black;
 			vertical-align: text-top;
 		}
-		table#addressDataTable tr:hover td {
+		table#insDataTable tr:hover td {
 			background-color: #bbb!important;
 			cursor: pointer;
 		}
@@ -273,13 +244,13 @@ if(isset($_REQUEST['ajax'])) {
 			background: #2672ec!important;
 			color: #FFF!important;
 		}
-		#addressDataTable_wrapper {
+		#insDataTable_wrapper {
 			margin-top: 20px;
 		}
-		#addressDataTable_wrapper {
+		#insDataTable_wrapper {
 			
 		}
-		#addressDataTable_wrapper input{
+		#insDataTable_wrapper input{
 			padding: 5px 12px;
 		    font-size: 14px;
 		    line-height: 1.42857143;
@@ -289,7 +260,7 @@ if(isset($_REQUEST['ajax'])) {
 		    border: 1px solid #444444;
 		    border-radius: 4px;
 		}
-		#addressDataTable_filter {
+		#insDataTable_filter {
 			margin-right: 10px;
 			margin-bottom: 20px;
 		}*/
@@ -299,7 +270,7 @@ if(isset($_REQUEST['ajax'])) {
 		}
 	</style>
     <style type="text/css">
-    	.addressDataTable {
+    	.insDataTable {
     		width: 100%!important;
     	}
     </style>
@@ -309,7 +280,7 @@ if(isset($_REQUEST['ajax'])) {
 		if (opener.closed || ! opener.setAddressBook)
 		alert("<?php echo htmlspecialchars( xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
 		else
-		opener.setAddressBook(id, name, data);
+		opener.setInsurancecompanies(id, name, data);
 		window.close();
 		return false;
 	 }
@@ -321,53 +292,50 @@ if(isset($_REQUEST['ajax'])) {
 		<b>Disclaimer:</b> <span>Result will contain only active entries</span>
 	</div>
 	<div class="table-responsive table-container">
-		<table id='addressDataTable' class='table table-sm addressDataTable'>
+		<table id='insDataTable' class='table table-sm addressDataTable'>
 		  <thead class="thead-dark">
 		    <tr>
-		      <th>Organization</th>
 		      <th>Name</th>
 		      <th width="120">Fax</th>
-		      <th>Specialty</th>
-			  <th>Street</th>
-			  <th>City, State</th>
+		      <th>Address</th>
+		      <th>City, State</th>
 			  <th>Zip</th>
+		      <th>Phone</th>
 		    </tr>
 		  </thead>
 		</table>
 	</div>
 	<script type="text/javascript">
 		$(document).ready(function(){
-		   $('#addressDataTable').dataTable({
+		   $('#insDataTable').DataTable({
 		      'processing': true,
 		      'serverSide': true,
 		      'pageLength': 8,
 		      'bLengthChange': false,
-		      'sAjaxSource': '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_addressbook_popup.php?pid=". $pid; ?>&ajax=1<?php echo $pageTypeStr; ?>',
+		      'sAjaxSource': '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_insurancecompanies_popup.php?pid=". $pid; ?>&ajax=1<?php echo $pageTypeStr; ?>',
 		      'columns': [
-		      	 { sName: 'organization' },
 		         { sName: 'name' },
 		         { sName: 'fax' },
-		         { sName: 'specialty' },
-				 { sName: 'street' },
-				 { sName: 'city_state' },
-				 { sName: 'zip' }
+		         { sName: 'address' },
+		         { sName: 'city_state' },
+				 { sName: 'zip' },
+		         { sName: 'phone' },
 		      ],
 		      <?php // Bring in the translations ?>
     			<?php $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) ; ?>
     		 <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
 		   });
 
-		    $("#addressDataTable").on('click', 'tbody > tr', function() { SelectAddressBook(this); });
+		    $("#insDataTable").on('click', 'tbody > tr', function() { SelectIns(this); });
 
-		    var SelectAddressBook = function (eObj) {
+		    var SelectIns = function (eObj) {
 			    objID = eObj.id;
 			    var parts = objID.split("~");
 			    return selfax(parts[0], parts[1], parts[2]);
 			}
-
 		});
 	</script>
 </body>
 </html>
-<?php	
+<?php
 }

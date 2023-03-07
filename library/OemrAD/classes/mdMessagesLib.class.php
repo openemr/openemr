@@ -966,14 +966,14 @@ class MessagesLib {
 					if(pid == "") {
 						return false;
 					}
-					var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/encouter.php"; ?>?pid='+pid+'&list='+list+'&mid='+this.objname;
+					var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/encouter.php"; ?>?pid='+pid+'&list='+list+'&mid='+this.objname;
 					dlgopen(url,this.objname+'-selectEncountersPop', 800, 300, '', 'Encounters & Forms');
 				},
 				handleSelectDocuments : function(pid, list = '',) {
 					if(pid == "") {
 						return false;
 					}
-					var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/documents.php"; ?>?pid='+pid+'&list='+list+'&mid='+this.objname;
+					var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/documents.php"; ?>?pid='+pid+'&list='+list+'&mid='+this.objname;
 					dlgopen(url,this.objname+'-selectDocumentsPop', 800, 400, '', 'Documents');
 				},
 				handleEncountersCallBack : function(selectedlist = [], list = '') {
@@ -1377,7 +1377,7 @@ class MessagesLib {
 		}
 
 		$docsList = self::getMsgDocs($id);
-		$downloadLink = $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/downloadDoc.php";
+		$downloadLink = $GLOBALS['webroot']."/interface/main/attachment/downloadDoc.php";
 
 		if((!empty($docsList) && is_array($docsList) && count($docsList) > 0) || !empty($data['url'])) {
 			?>

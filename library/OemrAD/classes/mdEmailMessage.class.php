@@ -231,11 +231,6 @@ class EmailMessage {
 			  openPopUp(h);
 			}
 
-			function downloadDoc($url, $name) {
-				h = '<?php echo $GLOBALS['webroot']; ?>/downloadDoc.php?path=<?php echo $url; ?>&name=<?php echo $name; ?>';
-			  	openPopUp(h);
-			}
-
 			function openPopUp(url) {
 				// in a popup so load the opener window if it still exists
 				if ( (window.opener) && (window.opener.setPatient) ) {
@@ -1089,7 +1084,7 @@ class EmailMessage {
 		}
 
 		$docsList = self::getMsgDocs($id);
-		$downloadLink = $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/downloadDoc.php";
+		$downloadLink = $GLOBALS['webroot']."/interface/main/attachment/downloadDoc.php";
 
 		if((!empty($docsList) && is_array($docsList) && count($docsList) > 0) || !empty($data['url'])) {
 			?>
@@ -2057,7 +2052,7 @@ class EmailMessage {
 	public static function htmlDocFileList($docList = array(), $docsData = array(), $msgData = array()) {
 		global $webserver_root;
 
-		$downloadLink = $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/downloadDoc.php";
+		$downloadLink = $GLOBALS['webroot']."/interface/main/attachment/downloadDoc.php";
 
 		?>
 			<div class="containerFile">

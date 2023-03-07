@@ -209,7 +209,7 @@ function handleOnSubmit_DemographicsFull(validationStatus, element, event, eleId
 
 // This invokes the find-addressbook popup.
 async function open_notes_log(pid) {
-    var url = top.webroot_url + '/interface/patient_file/summary/ajax/dem_view_logs.php'+'?pid='+pid;
+    var url = top.webroot_url + '/interface/patient_file/summary/php/dem_view_logs.php'+'?pid='+pid;
     let title = 'Logs';
     let dialogObj = await dlgopen(url, 'dem-alert-log', 'modal-mlg', '', '', title, {
         allowDrag: false,
@@ -866,7 +866,7 @@ function handleDataTable(tableEle = null, noFooter = false) {
 async function fetchLinkCount(direction, msg_from, msg_to, id, action) {
     const result = await $.ajax({
         type: "POST",
-        url: top.webroot_url + "/library/OemrAD/interface/main/messages/fetch_message_count.php",
+        url: top.webroot_url + "/interface/main/attachment/fetch_message_count.php",
         datatype: "json",
         data: {
             direction: direction,
@@ -893,7 +893,7 @@ async function isGroupUserExists(userVal) {
 
     const result = await $.ajax({
         type: "GET",
-        url: (top.webroot_url + "/library/OemrAD/interface/main/messages/ajax/check_group_user_exists.php?user="+select_val),
+        url: (top.webroot_url + "/interface/main/attachment/ajax/check_group_user_exists.php?user="+select_val),
         datatype: "json",
     });
 

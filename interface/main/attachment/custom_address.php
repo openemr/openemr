@@ -125,7 +125,7 @@ if($mode == "ajax") {
 			async function validateForm(address) {
 				const result = await $.ajax({
 					type: "POST",
-					url: "<?php echo $GLOBALS['webroot'].'/library/OemrAD/interface/main/messages/custom_address.php?mode=ajax'; ?>",
+					url: "<?php echo $GLOBALS['webroot'].'/interface/main/attachment/custom_address.php?mode=ajax'; ?>",
 					datatype: "json",
 					data: address
 				});

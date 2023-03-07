@@ -321,7 +321,7 @@ $.fn.attachment = function (opts = {}) {
     };
 
     this.handleDocument = async function(pid) {
-        let url = top.webroot_url + "/library/OemrAD/interface/main/messages/msg_select_document.php?pid="+pid;
+        let url = top.webroot_url + "/interface/main/attachment/msg_select_document.php?pid="+pid;
         let dialogObj = "";
 
         dialogObj = await dlgopen(url,'selectDocPop', 'modal-mlg', '', '', 'Documents', {
@@ -384,7 +384,7 @@ $.fn.attachment = function (opts = {}) {
     }
 
     this.handleEncounter = async function(pid) {
-        let url = top.webroot_url + "/library/OemrAD/interface/main/messages/msg_select_encounter.php?pid="+pid;
+        let url = top.webroot_url + "/interface/main/attachment/msg_select_encounter.php?pid="+pid;
         let dialogObj = "";
 
         dialogObj = await dlgopen(url,'selectEncounterPop', 'modal-mlg', '', '', 'Encounter', {
@@ -447,7 +447,7 @@ $.fn.attachment = function (opts = {}) {
     }
 
     this.handleMessage = async function(pid, opts = {}) {
-        let url = top.webroot_url + "/library/OemrAD/interface/main/messages/msg_select_messages.php?pid="+pid+"&assigned_to="+opts?.assigned_to;
+        let url = top.webroot_url + "/interface/main/attachment/msg_select_messages.php?pid="+pid+"&assigned_to="+opts?.assigned_to;
         let dialogObj = "";
 
         dialogObj = await dlgopen(url,'selectMsgPop', 'modal-mlg', '', '', 'Message', {
@@ -510,7 +510,7 @@ $.fn.attachment = function (opts = {}) {
     }
 
     this.handleOrder = async function(pid) {
-        let url = top.webroot_url + "/library/OemrAD/interface/main/messages/msg_select_order.php?pid="+pid;
+        let url = top.webroot_url + "/interface/main/attachment/msg_select_order.php?pid="+pid;
         let dialogObj = "";
 
         dialogObj = await dlgopen(url,'selectOrderPop', 'modal-mlg', '', '', 'Order', {
@@ -573,7 +573,7 @@ $.fn.attachment = function (opts = {}) {
     }
 
     this.handleEncounterForm = async function(pid) {
-        let url = top.webroot_url + "/library/OemrAD/interface/main/messages/msg_select_encounter_form.php?pid="+pid;
+        let url = top.webroot_url + "/interface/main/attachment/msg_select_encounter_form.php?pid="+pid;
         let dialogObj = "";
 
         dialogObj = await dlgopen(url,'selectEncounterFormPop', 'modal-mlg', '', '', 'Encounters & Forms', {
@@ -656,7 +656,7 @@ $.fn.attachment = function (opts = {}) {
     }
 
     this.handleDemosIns = async function(pid) {
-        let url = top.webroot_url + "/library/OemrAD/interface/main/messages/msg_select_demos_ins.php?pid="+pid;
+        let url = top.webroot_url + "/interface/main/attachment/msg_select_demos_ins.php?pid="+pid;
         let dialogObj = "";
 
         dialogObj = await dlgopen(url,'selectDemosInsPop', 'modal-mlg', '', '', 'Demos & Insurances', {

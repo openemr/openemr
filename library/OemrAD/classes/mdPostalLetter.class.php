@@ -1192,7 +1192,7 @@ class PostalLetter {
 				var address_json_str = JSON.parse($("div[title|='REPlY_ADDRESS_JSON'] textarea").val());
 				var address_json = objectToQueryString(address_json_str);
 
-				var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/custom_address.php?reply=true&pid=". $pid; ?>&'+address_json;
+				var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/custom_address.php?reply=true&pid=". $pid; ?>&'+address_json;
 			  	let title = '<?php echo xlt('Edit Address'); ?>';
 			  	dlgopen(url, 'customAddress', 600, 300, '', title);
 			}
@@ -1232,7 +1232,7 @@ class PostalLetter {
 
 			// This invokes the find-facilities popup.
 			function sel_facilities_address() {
-				var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/main/messages/find_facilities_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
+				var url = '<?php echo $GLOBALS['webroot']."/interface/main/attachment/find_facilities_popup.php?pid=". $pid; ?>&pagetype=postal_letter';
 			  	let title = '<?php echo xlt('Facilities Search'); ?>';
 			  	dlgopen(url, 'findFacilities', 1100, 500, '', title);
 			}
