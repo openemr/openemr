@@ -294,13 +294,11 @@ class X125010837P
                 $log .= "*** Billing facility has no state.\n";
             }
             $out .= "*";
-
-            // X12 likes 9 a true digit zip in loop 2010AA
-            if (strlen($claim->billingFacilityZip()) == 9) {
-                $out .= $claim->billingFacilityZip();
-            } else {
+            // X12 requires a 9 digit zip in loop 2010AA but we output it anyways
+            if (strlen($claim->billingFacilityZip()) != 9) {
                 $log .= "*** Billing facility zip is not 9 digits.\n";
             }
+            $out .= $claim->billingFacilityZip();
             $out .= "~\n";
 
             if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
@@ -371,11 +369,11 @@ class X125010837P
                     $log .= "*** Pay to provider has no state.\n";
                 }
                 $out .= "*";
-                if (strlen($claim->billingFacilityZip()) == 9) {
-                    $out .= $claim->billingFacilityZip();
-                } else {
+                // X12 requires a 9 digit zip but we output it anyways
+                if (strlen($claim->billingFacilityZip()) != 9) {
                     $log .= "*** Pay to provider zip is not 9 digits.\n";
                 }
+                $out .= $claim->billingFacilityZip();
                 $out .= "~\n";
             }
 
@@ -474,13 +472,14 @@ class X125010837P
             }
             $out .= "*";
             if (
-                (strlen($claim->x12Zip($claim->insuredZip())) == 5)
-                || (strlen($claim->x12Zip($claim->insuredZip())) == 9)
+                !(
+                    (strlen($claim->x12Zip($claim->insuredZip())) == 5)
+                    || (strlen($claim->x12Zip($claim->insuredZip())) == 9)
+                )
             ) {
-                $out .= $claim->x12Zip($claim->insuredZip());
-            } else {
                 $log .= "*** Insured zip is not 5 or 9 digits.\n";
             }
+            $out .= $claim->x12Zip($claim->insuredZip());
             $out .= "~\n";
 
             ++$edicount;
