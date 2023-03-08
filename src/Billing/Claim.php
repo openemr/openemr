@@ -48,7 +48,7 @@ class Claim
     public $pay_to_provider;   // to be implemented in facility ui
     private $encounterService;
     public $billing_prov_id;
-    public $claim_adj;         // adjustment array with key of [group code][reason code] needed for secondary claims
+    public $line_item_adjs;    // adjustment array with key of [group code][reason code] needed for secondary claims
 
     public function __construct($pid, $encounter_id)
     {
@@ -1790,21 +1790,21 @@ class Claim
      */
     public function getLineItemAdjustments($aarr)
     {
-        $this->claim_adj = [];
+        $this->line_item_adjs = [];
         foreach ($aarr as $a) {
-            if (!array_key_exists($a[1], $this->claim_adj)) {
-                $this->claim_adj[$a[1]] = [];
+            if (!array_key_exists($a[1], $this->line_item_adjs)) {
+                $this->line_item_adjs[$a[1]] = [];
             }
 
-            if (!array_key_exists($a[2] ?? null, $this->claim_adj[$a[1]])) {
-                $this->claim_adj[$a[1]][$a[2]] = $a[3];
+            if (!array_key_exists($a[2] ?? null, $this->line_item_adjs[$a[1]])) {
+                $this->line_item_adjs[$a[1]][$a[2]] = $a[3];
             } else {
-                $this->claim_adj[$a[1]][$a[2]] += $a[3];
-                $this->claim_adj[$a[1]][$a[2]] = number_format($this->claim_adj[$a[1]][$a[2]], 2, '.', '');
+                $this->line_item_adjs[$a[1]][$a[2]] += $a[3];
+                $this->line_item_adjs[$a[1]][$a[2]] = number_format($this->line_item_adjs[$a[1]][$a[2]], 2, '.', '');
             }
-            $this->claim_adj['payer_paid_date'] = $a[0];
+            $this->line_item_adjs['payer_paid_date'] = $a[0];
         }
 
-        return $this->claim_adj;
+        return $this->line_item_adjs;
     }
 }
