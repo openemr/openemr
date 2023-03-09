@@ -21,6 +21,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class TeleHealthRemoteRegistrationService
 {
@@ -334,6 +335,16 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
+    public function verifyProvisioningServiceIsValid()
+    {
+        $randomUuid = UuidV4::uuid4()->toString();
+        $randomPassword = UuidV4::uuid4()->toString();
+
+        // if we are not authorized we will get a 401 response from this.
+        $response = $this->sendAPIRequest($this->getEndpointUrl('usersuspend'), ['userName' => $randomUuid, 'passwordString' => $randomPassword]);
+        return ['status' => $response['internalStatus'], 'message' => $response['internalError']];
+    }
+
     private function sendAPIRequest($endpointUrl, array $body)
     {
         if (empty($this->httpClient)) {
@@ -346,6 +357,7 @@ class TeleHealthRemoteRegistrationService
         $internalErrorResponse = null;
         $bodyResponse = null;
         $statusCode = 500;
+        $internalStatusCode = 200;
 
         try {
             $httpRequestOptions = [
@@ -365,9 +377,13 @@ class TeleHealthRemoteRegistrationService
                 "Failed to send registration request Exception: " . $exception->getMessage(),
                 ['trace' => $exception->getTraceAsString(), 'endUrl' => $endpointUrl]
             );
+            if ($exception->getCode() == 401) { // unauthorized exception meaning the credentials are incorrect
+                $statusCode = 401;
+            }
             $internalErrorResponse = $exception->getMessage();
+            $internalStatusCode = $exception->getCode();
         }
 
-        return ['status' => $statusCode, 'bodyResponse' => $bodyResponse, 'internalError' => $internalErrorResponse];
+        return ['status' => $statusCode, 'internalStatus' => $internalStatusCode, 'bodyResponse' => $bodyResponse, 'internalError' => $internalErrorResponse];
     }
 }

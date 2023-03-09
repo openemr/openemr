@@ -123,6 +123,20 @@ function initDragResize(dragContext, resizeContext = document) {
     }
 }
 
+function setInteractorPosition(x, y, target) {
+    if ('webkitTransform' in target.style || 'transform' in target.style) {
+        target.style.webkitTransform =
+            target.style.transform =
+                'translate(' + x + 'px, ' + y + 'px)';
+    } else {
+        target.style.left = x + 'px';
+        target.style.top = y + 'px';
+    }
+
+    target.setAttribute('data-x', x);
+    target.setAttribute('data-y', y);
+}
+
 /* function to init all page drag/resize elements. */
 function initInteractors(dragContext = document, resizeContext = '') {
     resizeContext = resizeContext ? resizeContext : dragContext;
@@ -132,17 +146,7 @@ function initInteractors(dragContext = document, resizeContext = '') {
         let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-        if ('webkitTransform' in target.style || 'transform' in target.style) {
-            target.style.webkitTransform =
-                target.style.transform =
-                    'translate(' + x + 'px, ' + y + 'px)';
-        } else {
-            target.style.left = x + 'px';
-            target.style.top = y + 'px';
-        }
-
-        target.setAttribute('data-x', x);
-        target.setAttribute('data-y', y);
+        setInteractorPosition(x, y, target);
     }
 
     /* Draggable */
@@ -210,6 +214,8 @@ function initInteractors(dragContext = document, resizeContext = '') {
         x += event.deltaRect.left;
         y += event.deltaRect.top;
 
+        // TODO: @adunsulag not sure why this only does webkitTransform, seems like it should do the same
+        // as our other move here: setInteractorPosition(x, y, target);
         target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px,' + y + 'px)';
         target.setAttribute('data-x', x);
         target.setAttribute('data-y', y);

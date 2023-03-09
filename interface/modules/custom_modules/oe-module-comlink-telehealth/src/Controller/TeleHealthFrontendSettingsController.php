@@ -12,6 +12,8 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use Twig\Environment;
 
 class TeleHealthFrontendSettingsController
@@ -21,29 +23,53 @@ class TeleHealthFrontendSettingsController
      */
     private $twig;
 
-    public function __construct(string $assetPath, Environment $twig)
+    /**
+     * @var TelehealthGlobalConfig
+     */
+    private $config;
+
+    public function __construct(string $assetPath, Environment $twig, TelehealthGlobalConfig $config)
     {
         $this->assetPath = $assetPath;
         $this->twig = $twig;
+        $this->config = $config;
     }
 
-    public function renderFrontendSettings()
+    public function renderFrontendSettings($isPatient = true)
     {
         $assetPath = $this->assetPath;
         // strip off the assets, and public folder to get to the base of our module directory
+        // assetPath is a url path but dirname still operates fine on both / and \ characters so we are fine here.
         $modulePath = dirname(dirname($assetPath)) . "/"; // make sure to end with a path
-        echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", [
+        $data = [
             'settings' => [
                 'translations' => $this->getTranslationSettings()
                 ,'modulePath' => $modulePath
                 ,'assetPath' => $assetPath
+                ,'fhirPath' => $this->config->getFHIRPath()
+                ,'apiCSRFToken' => ''
+                ,'features' => [
+                    'thirdPartyInvitations' => $this->config->isThirdPartyInvitationsEnabled()
+                    ,'minimizeWindow' => [
+                        'enabled' => true
+                        ,'defaultPosition' => $this->config->getMinimizedSessionDefaultPosition()
+                    ]
+                ]
             ]
-        ]);
+        ];
+        // we only allow the CSRF token if we are not a patient
+        // if we ever need to allow local OpenEMR api access to patients we can remove this check, but to minimize api attack surface
+        // we will prohibit it for now until a better threat analysis has been done.
+        if (!$isPatient) {
+            $data['settings']['apiCSRFToken'] = CsrfUtils::collectCsrfToken('api');
+        }
+        echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", $data);
     }
     public function getTranslationSettings()
     {
         $translations = [
                 'CALL_CONNECT_FAILED' => xl("Failed to connect the call."),
+                'BRIDGE_FAILED' => xl("Failed to establish a connection with the telehealth service provider.  Check your internet connection or contact support to verify the service is setup correctly."),
                 'SESSION_LAUNCH_FAILED' => xl("There was an error in launching your telehealth session.  Please try again or contact support"),
                 'DUPLICATE_SESSION' => xl("You are already in a conference session.  Please hangup the current call to start a new telehealth session"),
                 'HOST_LEFT' => xl("Host left the call"),
@@ -63,7 +89,17 @@ class TeleHealthFrontendSettingsController
                 "STATUS_SKIP_UPDATE" => xl("Skip Update"),
                 "STATUS_NO_UPDATE" => xl("No Change"),
                 "STATUS_OTHER" => xl("Other"),
-                'APPOINTMENT_STATUS_UPDATE_FAILED' => xl('There was an error in saving the telehealth appointment status.  Please contact support or update the appointment manually in the calendar')
+                'APPOINTMENT_STATUS_UPDATE_FAILED' => xl('There was an error in saving the telehealth appointment status.  Please contact support or update the appointment manually in the calendar'),
+                'OPERATION_FAILED' => xl("There was a system error in completing this operation. Please try again or contact customer support if you continue to experience problems"),
+                'SEARCH_REQUIRES_INPUT' => xl("Please enter a value to search the patient list"),
+                'SEARCH_RESULTS_NOT_FOUND' => xl("No search results were found"),
+                'PATIENT_INVITATION_PROCESSING' => xl("Sending Invitation"),
+                'PATIENT_INVITATION_SUCCESS' => xl("Invitation Sent"),
+                'CLIPBOARD_COPY_SUCCESS' => xl("Information copied to clipboard"),
+                'CLIPBOARD_COPY_FAILURE' => xl("Failed to copy information to clipboard, try again or contact support"),
+                'PATIENT_CREATE_INVALID_DOB' => xl("Patient date of birth is missing, or invalid"),
+                'PATIENT_CREATE_INVALID_EMAIL' => xl("Patient email is missing, invalid, or cannot be processed by this system"),
+                'PATIENT_CREATE_INVALID_NAME' => xl("Patient name is missing, or invalid")
         ];
         return $translations;
     }

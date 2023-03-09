@@ -1,0 +1,103 @@
+{#
+ # Modal for the invite patient dialog screen in the conference room.
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="modal fade" id="telehealth-container-invite-patient" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog mw-50 ml-auto mr-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ "Invite Third Party Related Person" | xlt }}</h5>
+                <button type="button" class="close btn-telehealth-confirm-cancel" aria-label="{{ "Close" | xla }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row screen primary-screen">
+                    <div class="col-12 mb-3 third-party-patient-row {% if not participants %}d-none{% endif %}">
+                        {% include "comlink/conference-room/patient-participant-row.html.twig" with {template: true} %}
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col">
+                                        {{ "Participants"|xlt }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% for participant in participants %}
+                                {% if participant.role == 'patient' %}
+                                        {% include "comlink/conference-room/patient-participant-row.html.twig" with {patient: participant} %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-12 third-party-patient-row">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col">
+                                        {{ "Change Third Party Invitation"|xlt }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="col-12 text-center">
+                                    <input type="button" class="btn btn-primary btn-show-search-patient-screen mr-5" value="{{ "Add Existing Patient" |xla }}" />
+                                    <input type="button" class="btn btn-primary btn-show-new-patient-screen" value="{{ "Invite New Patient" |xla }}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-5 mb-5 text-center no-third-party-patient-row {% if not thirdPartyPatient %}d-none{% endif %}">
+                        <input type="button" class="btn btn-primary btn-show-search-patient-screen mr-5" value="{{ "Add Existing Patient" |xla }}" />
+                        <input type="button" class="btn btn-primary btn-show-new-patient-screen" value="{{ "Invite New Patient" |xla }}" />
+                    </div>
+                </div>
+                <div class="row d-none screen secondary-screen create-patient">
+                    <div class="col">
+                        <input type="text" class="form-control m-2" name="fname" placeholder="{{ "First Name"|xla }}" />
+                        <input type="text" class="form-control m-2" name="lname" placeholder="{{ "Last Name"|xla }}" />
+                        <input type="date" pattern="\d{4}-\d{2}-\d{2}" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth YYYY-MM-DD"|xla }}" />
+                        <input type="email" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xla }}" />
+                        <p>{{ "Confirm that this individual has provided permission to receive electronic communications via email"|xla }}</p>
+                        <input type="button" class="btn btn-secondary btn-cancel-screen-action" value="{{ "Cancel" |xla }}" />
+                        <input type="button" class="btn btn-primary btn-create-patient" value="{{ "Create Patient" |xla }}" />
+                    </div>
+                </div>
+                <div class="row d-none screen secondary-screen search-patient mt-3">
+                    <div class="col-12">
+                        <input type="text" class="form-control m-2" name="pid" placeholder="{{ "External ID"|xla }}" />
+                        <p class="m-2">{{ "Or"|xlt }}</p>
+                        <input type="text" class="form-control m-2" name="fname" placeholder="{{ "First Name"|xla }}" />
+                        <input type="text" class="form-control m-2" name="lname" placeholder="{{ "Last Name"|xla }}" />
+                        <input type="text" class="form-control m-2" name="DOB" placeholder="{{ "Date of Birth YYYY-MM-DD"|xla }}" />
+                        <input type="email" class="form-control m-2" name="email" placeholder="{{ "Email Address"|xla }} ({{ "Exact Match"|xla }})" />
+                        <input type="button" class="btn btn-secondary btn-cancel-screen-action" value="{{ "Cancel" |xla }}" />
+                        <input type="button" class="btn btn-primary btn-invite-search" value="{{ "Search Patients" |xla }}" />
+                        <ul class="search-patient-list list-group d-none mt-3">
+                            <li class="d-none duplicate-match-row-template list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h1><i class="fa fa-user"></i></h1>
+                                    <h5 class="mb-1">
+                                        <span class="fname"></span> <span class="lname"></span>
+                                    </h5>
+                                    <small>(<span class="pid"></span>)</small>
+                                </div>
+                                <p><span class="dob"></span> <span class="email"></span></p>
+                                <input type="button" class='btn btn-secondary btn-select-patient' value="{{ "Invite Patient"|xla }}" />
+                                <p class="no-email-message text-danger">{{ "Cannot invite patient with missing email"|xlt }}</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row alert alert-template d-none">
+                    {# alert content will go here #}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

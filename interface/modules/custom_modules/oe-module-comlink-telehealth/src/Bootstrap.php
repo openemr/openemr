@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin\TeleHealthPatientA
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin\TeleHealthUserAdminController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleconferenceRoomController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthCalendarController;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthFrontendSettingsController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthPatientPortalController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRepository;
@@ -23,8 +24,12 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthPersonSettings
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\ParticipantListService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
+use Laminas\Form\Element\Tel;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
@@ -106,6 +111,11 @@ class Bootstrap
      */
     private $calendarController;
 
+    /**
+     * @var array Hashmap of Service classname => Service used for dependency injection
+     */
+    private $serviceRegistry = [];
+
     public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
     {
         global $GLOBALS;
@@ -118,9 +128,9 @@ class Bootstrap
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
 
-        $this->globalsConfig = new TelehealthGlobalConfig($GLOBALS);
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
+        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName);
     }
 
     public function getTemplatePath()
@@ -219,22 +229,25 @@ class Bootstrap
         }
     }
 
-    private function getPublicPath()
+    private function getPublicPathFQDN()
     {
-        return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
+        // return the public path with the fully qualified domain name in it
+        // qualified_site_addr already has the webroot in it.
+        return $GLOBALS['qualified_site_addr'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
     }
 
     private function getAssetPath()
     {
-        return $this->getPublicPath() . 'assets' . DIRECTORY_SEPARATOR;
+        return $this->getURLPath() . 'assets' . '/';
     }
 
     public function renderMainBodyTelehealthScripts()
     {
+        $scriptMinExtension = $this->globalsConfig->isDebugModeEnabled() ? ".js" : ".min.js";
         ?>
         <script src="<?php echo $this->getAssetPath();?>../<?php echo CacheUtils::addAssetCacheParamToPath("index.php"); ?>&action=get_telehealth_settings"></script>
         <link rel="stylesheet" href="<?php echo $this->getAssetPath();?>css/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth.css"); ?>">
-        <script src="<?php echo $this->getAssetPath();?>js/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth.js"); ?>"></script>
+        <script src="<?php echo $this->getAssetPath();?>js/dist/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth" . $scriptMinExtension); ?>"></script>
         <script src="<?php echo $this->getAssetPath();?>js/<?php echo CacheUtils::addAssetCacheParamToPath("telehealth-provider.js"); ?>"></script>
         <?php
     }
@@ -246,28 +259,8 @@ class Bootstrap
 
     public function addGlobalTeleHealthSettings(GlobalsInitializedEvent $event)
     {
-        global $GLOBALS;
-
         $service = $event->getGlobalsService();
-        $section = xlt("TeleHealth");
-        $service->createSection($section, 'Portal');
-
-        $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
-
-        foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
-            $service->appendToSection(
-                $section,
-                $key,
-                new GlobalSetting(
-                    xlt($config['title']),
-                    $config['type'],
-                    $value,
-                    xlt($config['description']),
-                    true
-                )
-            );
-        }
+        $this->globalsConfig->setupConfiguration($service);
     }
 
     public function getTeleconferenceRoomController($isPatient): TeleconferenceRoomController
@@ -276,9 +269,38 @@ class Bootstrap
             $this->getTwig(),
             new SystemLogger(),
             $this->getRegistrationController(),
+            $this->getMailerService(),
+            $this->getFrontendSettingsController(),
+            $this->globalsConfig,
+            $this->getProvisioningService(),
+            $this->getParticipantListService(),
             $this->getAssetPath(),
             $isPatient
         );
+    }
+
+    public function getProvisioningService()
+    {
+        $service = $this->getService(TeleHealthProvisioningService::class);
+        if (empty($service)) {
+            $service = new TeleHealthProvisioningService(
+                $this->getUserRepository(),
+                $this->getProviderRepository(),
+                $this->getRemoteRegistrationService()
+            );
+            $this->storeService(TeleHealthProvisioningService::class, $service);
+        }
+        return $service;
+    }
+
+    public function getParticipantListService()
+    {
+        $service = $this->getService(ParticipantListService::class);
+        if (empty($service)) {
+            $service = new ParticipantListService($this->getTwig(), $this->getProvisioningService(), $this->getPublicPathFQDN());
+            $this->storeService(ParticipantListService::class, $service);
+        }
+        return $service;
     }
 
     public function getRegistrationController(): TeleHealthVideoRegistrationController
@@ -286,7 +308,7 @@ class Bootstrap
         $globalsConfig = $this->globalsConfig;
         if (empty($this->registrationController)) {
             $this->registrationController = new TeleHealthVideoRegistrationController(
-                new TeleHealthRemoteRegistrationService($globalsConfig, $this->getRegistrationCodeService()),
+                $this->getRemoteRegistrationService(),
                 $this->getProviderRepository()
             );
         }
@@ -295,7 +317,7 @@ class Bootstrap
     public function getPatientPortalController(): TeleHealthPatientPortalController
     {
         if (empty($this->patientPortalController)) {
-            $this->patientPortalController = new TeleHealthPatientPortalController($this->twig, $this->getAssetPath());
+            $this->patientPortalController = new TeleHealthPatientPortalController($this->twig, $this->getAssetPath(), $this->globalsConfig);
         }
         return $this->patientPortalController;
     }
@@ -305,8 +327,8 @@ class Bootstrap
         if (empty($this->patientAdminSettingsController)) {
             $this->patientAdminSettingsController = new TeleHealthPatientAdminController(
                 $this->globalsConfig,
-                new TeleHealthUserRepository(),
-                new TeleHealthRemoteRegistrationService($this->globalsConfig, $this->getRegistrationCodeService())
+                $this->getUserRepository(),
+                $this->getRemoteRegistrationService()
             );
         }
         return $this->patientAdminSettingsController;
@@ -342,6 +364,53 @@ class Bootstrap
 
     private function getRegistrationCodeService()
     {
-        return new TelehealthRegistrationCodeService($this->globalsConfig, new TeleHealthUserRepository());
+        $service = $this->getService(TelehealthRegistrationCodeService::class);
+        if (empty($service)) {
+            $service = new TelehealthRegistrationCodeService($this->globalsConfig, $this->getUserRepository());
+            $this->storeService(TelehealthRegistrationCodeService::class, $service);
+        }
+        return $service;
+    }
+
+    private function getMailerService()
+    {
+        return new TeleHealthParticipantInvitationMailerService($this->eventDispatcher, $this->getTwig(), $this->getPublicPathFQDN(), $this->globalsConfig);
+    }
+
+    private function getFrontendSettingsController()
+    {
+        return new TeleHealthFrontendSettingsController($this->getAssetPath(), $this->getTwig(), $this->globalsConfig);
+    }
+
+    private function getRemoteRegistrationService()
+    {
+        $service = $this->getService(TeleHealthRemoteRegistrationService::class);
+        if (empty($service)) {
+            $service = new TeleHealthRemoteRegistrationService($this->globalsConfig, $this->getRegistrationCodeService());
+            $this->storeService(TeleHealthRemoteRegistrationService::class, $service);
+        }
+        return $service;
+    }
+    private function getUserRepository()
+    {
+        $service = $this->getService(TeleHealthUserRepository::class);
+        if (empty($service)) {
+            $service = new TeleHealthUserRepository();
+            $this->storeService(TeleHealthUserRepository::class, $service);
+        }
+        return $service;
+    }
+
+    private function storeService($className, $obj)
+    {
+        $this->serviceRegistry[$className] = $obj;
+    }
+
+    private function getService($className)
+    {
+        if (isset($this->serviceRegistry[$className])) {
+            return $this->serviceRegistry[$className];
+        }
+        return null;
     }
 }

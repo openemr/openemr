@@ -87,6 +87,7 @@
             return setCurrentEncounterForAppointment(pid, pc_eid)
                 .then(encounterData => {
                     loadEncounterFromEncounterData(encounterData, pid, pc_eid);
+                    // the ChangeProviders function comes from the internal OpenEMR calendar view
                     if (window.ChangeProviders && encounterData.user && encounterData.user.username)
                     {
                         // set our encounter
