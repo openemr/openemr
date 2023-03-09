@@ -4,7 +4,7 @@
  * PasswordVerifyTest.
  *
  * Test to ensure works with following hashes
- *   - pre OpenEMR 5.0.0 $2a$05 hashes
+ *   - pre OpenEMR 5.0.0 $2a$05 hashes (removed these tests on 3/9/23 since no longer work in modern operating systems)
  *   - at and post OpenEMR 5.0.0 $2a$05 hashes
  *   - standard OpenEMR PASSWORD_BCRYPT hashes (at and post OpenEMR 6.0.0)
  *   - standard OpenEMR PASSWORD_ARGON2I hashes (at and post OpenEMR 6.0.0)
@@ -25,18 +25,6 @@ use PHPUnit\Framework\TestCase;
 
 class PasswordVerifyTest extends TestCase
 {
-    private function checkSupportShortBlowfishSalt(): bool
-    {
-        $pass = 'notempty';
-        $salt = '$2a$05$DFlv44ByJMa7NgZTdztaH$';
-        $result = crypt($pass, $salt);
-        if ($result === '*') {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
     public function testBlankPassword()
     {
         $pass = '';
@@ -73,86 +61,9 @@ class PasswordVerifyTest extends TestCase
         $this->assertTrue($result === $expected);
     }
 
-    // Old Legacy are hashes created prior to OpenEMR 5.0.0
-    public function testOldLegacyBcryptCorrectPasswordOne()
-    {
-        if (!$this->checkSupportShortBlowfishSalt()) {
-            $this->markTestSkipped("Skipping this test since this operating system does not support 21 character blowfish salt!");
-        }
-
-        $pass = 'pass';
-        $hash = '$2a$05$DFlv44ByJMa7NgZTdztaH.nJ.vk48Wh7aMb7WPcDu10tbLSIJCtDG';
-        $result = AuthHash::passwordVerify($pass, $hash);
-        $expected = true;
-        $this->assertTrue($result === $expected);
-    }
-
-    public function testOldLegacyBcryptIncorrectPasswordOne()
-    {
-        if (!$this->checkSupportShortBlowfishSalt()) {
-            $this->markTestSkipped("Skipping this test since this operating system does not support 21 character blowfish salt!");
-        }
-
-        $pass = 'wrongpass';
-        $hash = '$2a$05$DFlv44ByJMa7NgZTdztaH.nJ.vk48Wh7aMb7WPcDu10tbLSIJCtDG';
-        $result = AuthHash::passwordVerify($pass, $hash);
-        $expected = false;
-        $this->assertTrue($result === $expected);
-    }
-
-    public function testOldLegacyBcryptCorrectPasswordTwo()
-    {
-        if (!$this->checkSupportShortBlowfishSalt()) {
-            $this->markTestSkipped("Skipping this test since this operating system does not support 21 character blowfish salt!");
-        }
-
-        $pass = '1234';
-        $hash = '$2a$05$AB5w1h20i4vyQXLHR6y3G.826pG7pn7kSaMW6boLYf7pHnmn1SQ5S';
-        $result = AuthHash::passwordVerify($pass, $hash);
-        $expected = true;
-        $this->assertTrue($result === $expected);
-    }
-
-    public function testOldLegacyBcryptIncorrectPasswordTwo()
-    {
-        if (!$this->checkSupportShortBlowfishSalt()) {
-            $this->markTestSkipped("Skipping this test since this operating system does not support 21 character blowfish salt!");
-        }
-
-        $pass = 'wrongpass';
-        $hash = '$2a$05$AB5w1h20i4vyQXLHR6y3G.826pG7pn7kSaMW6boLYf7pHnmn1SQ5S';
-        $result = AuthHash::passwordVerify($pass, $hash);
-        $expected = false;
-        $this->assertTrue($result === $expected);
-    }
-
-    public function testOldLegacyBcryptCorrectPasswordThree()
-    {
-        if (!$this->checkSupportShortBlowfishSalt()) {
-            $this->markTestSkipped("Skipping this test since this operating system does not support 21 character blowfish salt!");
-        }
-
-        $pass = 'password';
-        $hash = '$2a$05$JEMklMtoLkBWy5A3BFjNs.Hryelvg3K7fenyfLlyUXqasnnUHnWqi';
-        $result = AuthHash::passwordVerify($pass, $hash);
-        $expected = true;
-        $this->assertTrue($result === $expected);
-    }
-
-    public function testOldLegacyBcryptIncorrectPasswordThree()
-    {
-        if (!$this->checkSupportShortBlowfishSalt()) {
-            $this->markTestSkipped("Skipping this test since this operating system does not support 21 character blowfish salt!");
-        }
-
-        $pass = 'wrongpass';
-        $hash = '$2a$05$JEMklMtoLkBWy5A3BFjNs.Hryelvg3K7fenyfLlyUXqasnnUHnWqi';
-        $result = AuthHash::passwordVerify($pass, $hash);
-        $expected = false;
-        $this->assertTrue($result === $expected);
-    }
-
     // Legacy are hashes created at and after OpenEMR 5.0.0 (and prior to 6.0.0)
+    //  (note that 'Old Legacy' hashes prior to OpenEMR 5.0.0 do not work in modern
+    //   OpenEMR versions)
     public function testLegacyBcryptCorrectPasswordOne()
     {
         $pass = 'pass';

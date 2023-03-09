@@ -105,7 +105,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_apache_82_1011:
-    name: PHP 8.2 - Apache - MariaDB 10.11 (skipping unit testing for now, keep retrying in future)
+    name: PHP 8.2 - Apache - MariaDB 10.11
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: apache_82_1011
@@ -149,11 +149,11 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
-#      - name: Unit testing
-#        run: |
-#          source ci/ciLibrary.source
-#          build_test_unit
-#        if: ${{ success() || failure() }}
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
