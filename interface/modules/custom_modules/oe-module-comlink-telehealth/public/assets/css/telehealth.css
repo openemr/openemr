@@ -15,6 +15,7 @@
    */
   --telehealth-full-vh: 100vh;
 }
+
 .event_telehealth .telehealth-launch-btn {
   content: "\f03d";
   display: inline-block;
