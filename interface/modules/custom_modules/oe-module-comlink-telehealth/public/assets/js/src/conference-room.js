@@ -614,6 +614,10 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             return;
         }
 
+        // add our vh resize calculator so we can make sure our viewpoint is constant.
+        conf.updateTelehealthFullVH(); // first set our values here
+        window.addEventListener('resize', conf.updateTelehealthFullVH);
+
         conf.telehealthSessionData = data;
         // we grab everything up front as anything dealing with video playback needs to be triggered by a button on iOS devices
         // so we have to make sure we grab everything here.
@@ -724,9 +728,20 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             this.__minimizedConferenceRoom.destruct();
             this.__minimizedConferenceRoom = null;
         }
+
+        // we are going to remove our resize calculator for our vh unit
+        window.removeEventListener('resize', conf.updateTelehealthFullVH);
         conf.callerSettings = null;
         conf.telehealthSessionData = null;
         conf.__isShutdown = true;
+    };
+
+    this.updateTelehealthFullVH = function() {
+        // this functionality comes from https://stackoverflow.com/a/53883824 by manuel-84
+        // adapted from the answer on March 9th 2022 at 15:30.
+
+        let vh = window.innerHeight - 1;
+        document.documentElement.style.setProperty('--telehealth-full-vh', `${vh}px`);
     };
 
     this.initModalEvents = function(container)

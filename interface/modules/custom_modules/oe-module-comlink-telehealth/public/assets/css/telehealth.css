@@ -7,7 +7,14 @@
  * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
+:root {
+  /**
+   * We setup this variable as a fallback as we calculate this in Javascript
+   * We have to handle the fact that the browser vh unit includes the browser search bar (unless you are scrolling)
+   * Which messes up all of our calculations for our bottom conference room controls.
+   */
+  --telehealth-full-vh: 100vh;
+}
 .event_telehealth .telehealth-launch-btn {
   content: "\f03d";
   display: inline-block;
@@ -100,7 +107,8 @@
 }
 
 #telehealth-container > .modal-dialog > .modal-content {
-  min-height: 98vh;
+  /** we set our height to be about 98vh **/
+  min-height: calc(var(--telehealth-full-vh, 100vh) - 2vh);
 }
 
 #telehealth-container > .modal-dialog > .modal-content > .modal-body {
@@ -248,7 +256,7 @@
 
 .conference-room .remote-video,
 .conference-room .remote-screenshare {
-  max-height: 90vh;
+  max-height: calc(var(--telehealth-full-vh, 100vh) - 10vh);
 }
 
 .conference-room #local-video {
@@ -275,7 +283,8 @@
 
 .conference-room .participant-list-container .participant-video {
   background-color: #000;
-  max-height: 20vh;
+  /** should be 20vh **/
+  max-height: calc(var(--telehealth-full-vh, 100vh) - 80vh);
 }
 
 .conference-room .participant-list-container .participant-container
