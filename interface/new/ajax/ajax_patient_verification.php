@@ -1,14 +1,17 @@
 <?php
 
 require_once("../../globals.php");
-require_once("$srcdir/OemrAD/oemrad.globals.php");
 require_once("$srcdir/patient.inc");
-
-use OpenEMR\OemrAd\PatientVerification;
 
 if(!isset($_GET{'firstName'})) $_GET['firstName'] = '';
 if(!isset($_GET{'lastName'})) $_GET['lastName'] = '';
 if(!isset($_GET{'dob'})) $_GET['dob'] = '';
+
+function isPatientExists($firstName = "", $lastName = "", $dob = "") {
+	$sql = "select * from patient_data where fname= ? AND lname = ? AND DOB = ?";
+	$row = sqlQuery($sql, array($firstName, $lastName, $dob));
+	return $row;
+}
 
 /* Set Request data */
 $firstName = strip_tags($_GET['firstName']);
@@ -27,7 +30,7 @@ try {
 	}
 
 	//Get Patient Data
-	$verificationResponce = PatientVerification::isPatientExists($firstName, $lastName, $newDate);
+	$verificationResponce = isPatientExists($firstName, $lastName, $newDate);
 
 	$isExists = false;
 	if(isset($verificationResponce) && $verificationResponce != null && !empty($verificationResponce)) {

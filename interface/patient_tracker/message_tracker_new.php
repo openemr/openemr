@@ -959,6 +959,8 @@ function addPNoteAfterAssing($set_id, $set_assign_pid, $set_uid, $set_username, 
     <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 	<?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'datetime-picker', 'oemr_ad']); ?>
 
+	<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/js/messages.js"></script>
+
 	<style type="text/css">
 		table.table td.no-padding {
 			padding: 0px !important;

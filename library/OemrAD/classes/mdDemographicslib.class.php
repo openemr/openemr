@@ -35,6 +35,32 @@ class Demographicslib {
 		if($tab_id == "Misc" && isset($pid) && !empty($pid)) {
 			$logsData = self::fetchAlertLogs($pid, 5);
 		?>
+			<script type="text/javascript">
+				async function open_notes_log(pid) {
+				    var url = top.webroot_url + '/interface/patient_file/summary/php/dem_view_logs.php'+'?pid='+pid;
+				    let title = 'Logs';
+				    let dialogObj = await dlgopen(url, 'dem-alert-log', 'modal-mlg', '', '', title, {
+				        allowDrag: false,
+				        allowResize: false,
+				        sizeHeight: 'full'
+				    });
+
+				    dialogLoader(dialogObj.modalwin);
+				}
+
+				$(function() {
+				    var alertEles = document.querySelectorAll("#form_alert_info");
+				    alertEles.forEach(function (alertElement, index) {
+				        var alert_val = alertElement.value;
+				        let alertInfoEle = document.querySelector('#form_current_alert_info');
+
+				        if(alertInfoEle != undefined) {
+				            alertInfoEle.value = alert_val;
+				        }
+				    });
+				});
+			</script>
+			
 			<div class="alert_log_table_container">
 				<input type="hidden" name="form_current_alert_info" id="form_current_alert_info"/>
 				<?php if(!empty($logsData)) { ?>

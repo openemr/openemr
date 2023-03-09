@@ -94,7 +94,7 @@ class Coveragelib {
 	async fetchEligibilityVerification(cnt, pid, case_id, ins_id, provider_id) {
 		const result = await $.ajax({
 			type: "POST",
-			url: top.webroot_url + '/interface/forms/cases/ajax/coverage_verification.php',
+			url: top.webroot_url + '/interface/coverage/coverage_verification.php',
 			datatype: "json",
 			data: {
 				case_id: case_id,
@@ -108,7 +108,7 @@ class Coveragelib {
 	}
 
 	handleHistory(pid, case_id, cnt) {
-		var url = top.webroot_url + '/interface/forms/cases/ajax/coverage_history.php?pid='+pid+'&case_id='+case_id+'&cnt='+cnt;
+		var url = top.webroot_url + '/interface/coverage/coverage_history.php?pid='+pid+'&case_id='+case_id+'&cnt='+cnt;
 		dlgopen(url,'_blank', 'modal-xl', '', '', '', {
 			sizeHeight: 'full'
 		});
@@ -118,7 +118,7 @@ class Coveragelib {
 	async fetchEligibilityContent(cnt, pid, case_id, ins_id, provider_id) {
 		const result = await $.ajax({
 			type: "POST",
-			url: top.webroot_url + '/interface/forms/cases/ajax/coverage_view.php',
+			url: top.webroot_url + '/interface/coverage/coverage_view.php',
 			datatype: "json",
 			data: {
 				case_id: case_id,

@@ -342,6 +342,7 @@ $oemr_ui->heading =  $oemr_ui->heading . ((isset($result['nickname33']) && !empt
 
     ?>
     <link rel="stylesheet" href="../../public/assets/jquery-ui/jquery-ui.css">
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/js/messages.js"></script>
     <?php
 
     require_once("$srcdir/options.js.php");

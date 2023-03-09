@@ -20,14 +20,10 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
-/* Included Email Verification File */
-require_once("$srcdir/OemrAD/oemrad.globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\OemrAd\PatientVerification;
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {

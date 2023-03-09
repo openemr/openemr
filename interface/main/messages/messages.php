@@ -141,6 +141,8 @@ if (
     <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2', 'oemr_ad']); ?>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
 
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/attachment/js/attachment.js"></script>
+
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
@@ -170,6 +172,111 @@ if (
         }
     </style>
     <script type="text/javascript">
+        function MessageLib() {
+            'use strict';
+
+            let props = {
+                attachClassObject: null,
+                handleSelectEncounters: function() {
+                    let pid = $("#reply_to").val();
+
+                    if(pid == "") {
+                        alert("Please select patient");
+                        return false;
+                    }
+
+                    //Handle Encounter
+                    this.attachClassObject.handleEncounter(pid);
+                },
+                handleDocuments: function() {
+                    let pid = $("#reply_to").val();
+
+                    if(pid == "") {
+                        alert("Please select patient");
+                        return false;
+                    }
+
+                    //Handle Document
+                    this.attachClassObject.handleDocument(pid);
+                },
+                handleMessages: function(opts = {}) {
+                    let pid = $("#reply_to").val();
+                    let assigned_to = opts['assigned_to'] ? opts['assigned_to'] : "";
+
+                    if(pid == "") {
+                        alert("Please select patient");
+                        return false;
+                    }
+
+                    //Handle Message
+                    this.attachClassObject.handleMessage(pid, { assigned_to: assigned_to});
+                },
+                handleOrders: function() {
+                    let pid = $("#reply_to").val();
+
+                    if(pid == "") {
+                        alert("Please select patient");
+                        return false;
+                    }
+
+                    //Handle Order
+                    this.attachClassObject.handleOrder(pid);
+                },
+                onPrepareFiles: function(items) {
+                    let finalList = {
+                        encounters : items['encounters'] ? items['encounters'] : {},
+                        documents : items['documents'] ? items['documents'] : {},
+                        messages : items['messages'] ? items['messages'] : {},
+                        orders : items['orders'] ? items['orders'] : {},
+                    };
+                    let newFinalList = {};
+                    let mappingList = {
+                        "encounters" : "encounter_id",
+                        "documents" : "doc_id",
+                        "messages" : "message_id",
+                        "orders" : "order_id"
+                    };
+
+                    $.each(finalList, function(iType, items) {
+                        if(Array.isArray(items)) {
+                            let preparedData = [];
+                            items.forEach(function (itemData, itemIndex) {
+                                let mappingField = mappingList[iType] ? mappingList[iType] : "";
+                                if(mappingField != "") {
+                                    preparedData.push({
+                                        "id" : itemData[mappingField] ? itemData[mappingField] : ""
+                                    })
+                                }
+                            });
+
+                            newFinalList[iType] = preparedData;
+                        }
+                    });
+
+                    let finalListJSONStr = JSON.stringify(newFinalList);
+
+                    $('#filesDocList').val(finalListJSONStr);
+                },
+                init: function() {
+                }
+            }
+
+            // On page load
+            $(document).ready(function(){
+                props.attachClassObject = $('#itemsContainer').attachment({
+                    empty_title: "No items",
+                    onPrepareFiles: props.onPrepareFiles,
+                    clickable_link: true
+                });
+
+                $('.usersSelectList').on("change", function (e) {
+                    let select_val = $(this).val();
+                    isGroupUserExists(select_val);             
+                });
+            });
+
+            return props;
+        }
         let messagelib = MessageLib();
     </script>
     <!-- End -->

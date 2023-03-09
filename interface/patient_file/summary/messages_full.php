@@ -541,6 +541,8 @@ $portalMsgCount = sqlQuery($sqlCount , array($pid));
 		<?php include_once($GLOBALS['srcdir']."/restoreSession.php"); ?>
 	</script>
 
+	<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/js/messages.js"></script>
+
 	<style type="text/css">
 		table.table td.no-padding {
 			padding: 0px !important;
@@ -1966,11 +1968,6 @@ function doRefresh(paging) {
 	function todocument(docid) {
 	  h = '/controller.php?document&view&patient_id=<?php echo $pid ?>&doc_id=' + docid;
 	  openPopUp(h);
-	}
-
-	function downloadDoc($url, $name) {
-		h = '<?php echo $GLOBALS['webroot']; ?>/downloadDoc.php?path=<?php echo $url; ?>&name=<?php echo $name; ?>';
-	  	openPopUp(h);
 	}
 
 	function openPopUp(url) {

@@ -330,7 +330,7 @@ class Caselib {
 	public static function case_form_head($pid) {
 		?>
 		<style type="text/css">
-			.trHide {
+			/*.trHide {
 				display: none;
 			}
 			.hideElement {
@@ -349,7 +349,7 @@ class Caselib {
 
 			.alert_log_table_container table tr:nth-child(even) {
 				background: #EEEEEE !important;
-			}
+			}*/
 			/*.brDiv {
 				border-top: 1px solid #000;
 				width: 100%;
@@ -357,11 +357,11 @@ class Caselib {
 				margin-top: 15px;
     			margin-bottom: 15px;
 			}*/
-			.logContainer {
+			/*.logContainer {
 				display: grid;
     			grid-template-columns: 1fr auto;
     			padding-left: 10px;
-			}
+			}*/
 			/*.cs_rp_inputcontainer, 
 			.u_inputcontainer {
 				display: grid;
@@ -1926,13 +1926,15 @@ EOF;
 	}
 	*/
 
+	/*
 	function case_header_authorization_elements($dt, $field_prefix) {
 		?>
 		<script type="text/javascript">let checked_mode = "";let unchecked_mode = "";</script>
 		<label><input name="<?php echo $field_prefix; ?>auth_req" id="<?php echo $field_prefix; ?>auth_req" type="checkbox" class="auth_req" value="1" <?php echo $dt[$field_prefix . 'auth_req'] ? 'checked' : ''; ?> onchange="ToggleDivDisplay('case_header_auth_req_container', '<?php echo $field_prefix; ?>auth_req');" />&nbsp;&nbsp;<?php echo xl('Authorization Required'); ?></label>
 		<?php
-	}
+	}*/
 
+	/*
 	function authorizationRequestElements($pid, $field_prefix, $dt) {
 		global $date_title_fmt;
 		$showStyle = $dt[$field_prefix . 'auth_req'] ? "display:block;" : "display:none;";
@@ -1982,7 +1984,7 @@ EOF;
 		    </div>
 		</div>
 		<?php
-	}
+	}*/
 
 	public static function mostRecentCase($pid, $case_id = '') {
 		if(!$pid) return false;
@@ -2205,6 +2207,7 @@ EOF;
 		}
 	}
 
+	/*
 	public static function afterFormSuccess_js($pid, $encounter) {
 		$isNotificationEnable = self::getCtNotificationCategories($encounter);
 
@@ -2230,7 +2233,7 @@ EOF;
 
 		<?php
 		}
-	}
+	}*/
 
 	function getAuthorizedCaseId($pid, $encounter, $encounter_date) {
 		if(!empty($encounter)) {
@@ -2249,6 +2252,7 @@ EOF;
 		return false;
 	}
 
+	/*
 	public static function init_case_rp_Js() {
 		global $pid;
 		?>
@@ -2261,7 +2265,7 @@ EOF;
 			//});
 		</script>
 		<?php
-	}
+	}*/
 
 	/*public static function generateRehabFields($dt = array(), $field_prefix = '') {
 		if(!empty($dt)) {

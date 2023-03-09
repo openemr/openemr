@@ -208,29 +208,29 @@ function handleOnSubmit_DemographicsFull(validationStatus, element, event, eleId
 }
 
 // This invokes the find-addressbook popup.
-async function open_notes_log(pid) {
-    var url = top.webroot_url + '/interface/patient_file/summary/php/dem_view_logs.php'+'?pid='+pid;
-    let title = 'Logs';
-    let dialogObj = await dlgopen(url, 'dem-alert-log', 'modal-mlg', '', '', title, {
-        allowDrag: false,
-        allowResize: false,
-        sizeHeight: 'full'
-    });
+// async function open_notes_log(pid) {
+//     var url = top.webroot_url + '/interface/patient_file/summary/php/dem_view_logs.php'+'?pid='+pid;
+//     let title = 'Logs';
+//     let dialogObj = await dlgopen(url, 'dem-alert-log', 'modal-mlg', '', '', title, {
+//         allowDrag: false,
+//         allowResize: false,
+//         sizeHeight: 'full'
+//     });
 
-    dialogLoader(dialogObj.modalwin);
-}
+//     dialogLoader(dialogObj.modalwin);
+// }
 
-$(function() {
-    var alertEles = document.querySelectorAll("#form_alert_info");
-    alertEles.forEach(function (alertElement, index) {
-        var alert_val = alertElement.value;
-        let alertInfoEle = document.querySelector('#form_current_alert_info');
+// $(function() {
+//     var alertEles = document.querySelectorAll("#form_alert_info");
+//     alertEles.forEach(function (alertElement, index) {
+//         var alert_val = alertElement.value;
+//         let alertInfoEle = document.querySelector('#form_current_alert_info');
 
-        if(alertInfoEle != undefined) {
-            alertInfoEle.value = alert_val;
-        }
-    });
-});
+//         if(alertInfoEle != undefined) {
+//             alertInfoEle.value = alert_val;
+//         }
+//     });
+// });
 
 /*-------------------End----------------*/
 
@@ -265,38 +265,38 @@ function prepareErrorMsg(errors) {
 
 
 // Validations
-function validatePhoneNumber(ele, e = '') {
-  var result = {
-    'error' : false,
-    'message' : 'Phone numbers must have 10 numbers, example 555-555-5555.  Please update [%s]. Press CANCEL to fix phone number.  Press OK to bypass error and save improperly formatted phone number'
-  };
+// function validatePhoneNumber(ele, e = '') {
+//   var result = {
+//     'error' : false,
+//     'message' : 'Phone numbers must have 10 numbers, example 555-555-5555.  Please update [%s]. Press CANCEL to fix phone number.  Press OK to bypass error and save improperly formatted phone number'
+//   };
 
-  if(ele) {
-    var eleVal = ele.value;
-    var eleId = ele.getAttribute('data-id');
-    var eleTitle = ele.getAttribute('data-title');
+//   if(ele) {
+//     var eleVal = ele.value;
+//     var eleId = ele.getAttribute('data-id');
+//     var eleTitle = ele.getAttribute('data-title');
 
-    result['field_id'] = eleId ? eleId : '';
-    result['field_title'] = eleTitle ? eleTitle : '';
+//     result['field_id'] = eleId ? eleId : '';
+//     result['field_title'] = eleTitle ? eleTitle : '';
 
-    if(eleVal != '') {
-      //"\([0-9][0-9][0-9]\)\s[0-9][0-9][0-9][-][0-9][0-9][0-9][0-9]\b";
-      //let pattern = /\(\d{3}\)\s\d{3}[-]\d{4}\b/;
-      //result['error'] = eleVal.match(pattern) ? false : true;
-      var trimValue = eleVal.replace(/[\s\(\)\-]/g, "");
-      let isnum = /^\d+$/.test(trimValue);
+//     if(eleVal != '') {
+//       //"\([0-9][0-9][0-9]\)\s[0-9][0-9][0-9][-][0-9][0-9][0-9][0-9]\b";
+//       //let pattern = /\(\d{3}\)\s\d{3}[-]\d{4}\b/;
+//       //result['error'] = eleVal.match(pattern) ? false : true;
+//       var trimValue = eleVal.replace(/[\s\(\)\-]/g, "");
+//       let isnum = /^\d+$/.test(trimValue);
 
-      if(trimValue.length === 10 && isnum === true) {
-        result['error'] = false;
-      } else {
-        result['error'] = true;
-      }
+//       if(trimValue.length === 10 && isnum === true) {
+//         result['error'] = false;
+//       } else {
+//         result['error'] = true;
+//       }
       
-    }
-  }
+//     }
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
 // Check Validation for Field
 function validateOptions(form_id) {
@@ -441,132 +441,132 @@ async function authorizedEncounter(encounter = '', case_id = '', start_date = ''
 
 /*------------------- (messages.php) ----------------*/
 
-function MessageLib() {
-    'use strict';
+// function MessageLib() {
+//     'use strict';
 
-    let props = {
-        attachClassObject: null,
-        handleSelectEncounters: function() {
-            let pid = $("#reply_to").val();
+//     let props = {
+//         attachClassObject: null,
+//         handleSelectEncounters: function() {
+//             let pid = $("#reply_to").val();
 
-            if(pid == "") {
-                alert("Please select patient");
-                // await confirmBoxModal({
-                //     type: 'alert',
-                //     title: "Alert",
-                //     html: "Please select patient"
-                // });
-                return false;
-            }
+//             if(pid == "") {
+//                 alert("Please select patient");
+//                 // await confirmBoxModal({
+//                 //     type: 'alert',
+//                 //     title: "Alert",
+//                 //     html: "Please select patient"
+//                 // });
+//                 return false;
+//             }
 
-            //Handle Encounter
-            this.attachClassObject.handleEncounter(pid);
-        },
-        handleDocuments: function() {
-            let pid = $("#reply_to").val();
+//             //Handle Encounter
+//             this.attachClassObject.handleEncounter(pid);
+//         },
+//         handleDocuments: function() {
+//             let pid = $("#reply_to").val();
 
-            if(pid == "") {
-                alert("Please select patient");
-                // await confirmBoxModal({
-                //     type: 'alert',
-                //     title: "Alert",
-                //     html: "Please select patient"
-                // });
-                return false;
-            }
+//             if(pid == "") {
+//                 alert("Please select patient");
+//                 // await confirmBoxModal({
+//                 //     type: 'alert',
+//                 //     title: "Alert",
+//                 //     html: "Please select patient"
+//                 // });
+//                 return false;
+//             }
 
 
-            //Handle Document
-            this.attachClassObject.handleDocument(pid);
-        },
-        handleMessages: function(opts = {}) {
-            let pid = $("#reply_to").val();
-            let assigned_to = opts['assigned_to'] ? opts['assigned_to'] : "";
+//             //Handle Document
+//             this.attachClassObject.handleDocument(pid);
+//         },
+//         handleMessages: function(opts = {}) {
+//             let pid = $("#reply_to").val();
+//             let assigned_to = opts['assigned_to'] ? opts['assigned_to'] : "";
 
-            if(pid == "") {
-                alert("Please select patient");
-                // await confirmBoxModal({
-                //     type: 'alert',
-                //     title: "Alert",
-                //     html: "Please select patient"
-                // });
-                return false;
-            }
+//             if(pid == "") {
+//                 alert("Please select patient");
+//                 // await confirmBoxModal({
+//                 //     type: 'alert',
+//                 //     title: "Alert",
+//                 //     html: "Please select patient"
+//                 // });
+//                 return false;
+//             }
 
-            //Handle Message
-            this.attachClassObject.handleMessage(pid, { assigned_to: assigned_to});
-        },
-        handleOrders: function() {
-            let pid = $("#reply_to").val();
+//             //Handle Message
+//             this.attachClassObject.handleMessage(pid, { assigned_to: assigned_to});
+//         },
+//         handleOrders: function() {
+//             let pid = $("#reply_to").val();
 
-            if(pid == "") {
-                alert("Please select patient");
-                // await confirmBoxModal({
-                //     type: 'alert',
-                //     title: "Alert",
-                //     html: "Please select patient"
-                // });
-                return false;
-            }
+//             if(pid == "") {
+//                 alert("Please select patient");
+//                 // await confirmBoxModal({
+//                 //     type: 'alert',
+//                 //     title: "Alert",
+//                 //     html: "Please select patient"
+//                 // });
+//                 return false;
+//             }
 
-            //Handle Order
-            this.attachClassObject.handleOrder(pid);
-        },
-        onPrepareFiles: function(items) {
-            let finalList = {
-                encounters : items['encounters'] ? items['encounters'] : {},
-                documents : items['documents'] ? items['documents'] : {},
-                messages : items['messages'] ? items['messages'] : {},
-                orders : items['orders'] ? items['orders'] : {},
-            };
-            let newFinalList = {};
-            let mappingList = {
-                "encounters" : "encounter_id",
-                "documents" : "doc_id",
-                "messages" : "message_id",
-                "orders" : "order_id"
-            };
+//             //Handle Order
+//             this.attachClassObject.handleOrder(pid);
+//         },
+//         onPrepareFiles: function(items) {
+//             let finalList = {
+//                 encounters : items['encounters'] ? items['encounters'] : {},
+//                 documents : items['documents'] ? items['documents'] : {},
+//                 messages : items['messages'] ? items['messages'] : {},
+//                 orders : items['orders'] ? items['orders'] : {},
+//             };
+//             let newFinalList = {};
+//             let mappingList = {
+//                 "encounters" : "encounter_id",
+//                 "documents" : "doc_id",
+//                 "messages" : "message_id",
+//                 "orders" : "order_id"
+//             };
 
-            $.each(finalList, function(iType, items) {
-                if(Array.isArray(items)) {
-                    let preparedData = [];
-                    items.forEach(function (itemData, itemIndex) {
-                        let mappingField = mappingList[iType] ? mappingList[iType] : "";
-                        if(mappingField != "") {
-                            preparedData.push({
-                                "id" : itemData[mappingField] ? itemData[mappingField] : ""
-                            })
-                        }
-                    });
+//             $.each(finalList, function(iType, items) {
+//                 if(Array.isArray(items)) {
+//                     let preparedData = [];
+//                     items.forEach(function (itemData, itemIndex) {
+//                         let mappingField = mappingList[iType] ? mappingList[iType] : "";
+//                         if(mappingField != "") {
+//                             preparedData.push({
+//                                 "id" : itemData[mappingField] ? itemData[mappingField] : ""
+//                             })
+//                         }
+//                     });
 
-                    newFinalList[iType] = preparedData;
-                }
-            });
+//                     newFinalList[iType] = preparedData;
+//                 }
+//             });
 
-            let finalListJSONStr = JSON.stringify(newFinalList);
+//             let finalListJSONStr = JSON.stringify(newFinalList);
 
-            $('#filesDocList').val(finalListJSONStr);
-        },
-        init: function() {
-        }
-    }
+//             $('#filesDocList').val(finalListJSONStr);
+//         },
+//         init: function() {
+//         }
+//     }
 
-    // On page load
-    $(document).ready(function(){
-        props.attachClassObject = $('#itemsContainer').attachment({
-            empty_title: "No items",
-            onPrepareFiles: props.onPrepareFiles,
-            clickable_link: true
-        });
+//     // On page load
+//     $(document).ready(function(){
+//         props.attachClassObject = $('#itemsContainer').attachment({
+//             empty_title: "No items",
+//             onPrepareFiles: props.onPrepareFiles,
+//             clickable_link: true
+//         });
 
-        $('.usersSelectList').on("change", function (e) {
-            let select_val = $(this).val();
-            isGroupUserExists(select_val);             
-        });
-    });
+//         $('.usersSelectList').on("change", function (e) {
+//             let select_val = $(this).val();
+//             isGroupUserExists(select_val);             
+//         });
+//     });
 
-    return props;
-}
+//     return props;
+// }
 
 /*------------ End -----------------*/
 

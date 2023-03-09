@@ -17,13 +17,11 @@ require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
-use OpenEMR\OemrAd\PatientVerification;
 
 // Session pid must be right or bad things can happen when demographics are saved!
 //

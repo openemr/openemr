@@ -1,6 +1,6 @@
 <?php
 
-require_once("../../../globals.php");
+require_once("../globals.php");
 require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\CoverageCheck;
