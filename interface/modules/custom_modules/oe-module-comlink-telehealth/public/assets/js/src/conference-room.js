@@ -784,10 +784,14 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 if (enabled) {
                     btnJoin[i].addEventListener('click', conf.startConferenceRoom);
                     btnJoin[i].classList.remove('disabled');
+                    btnJoin[i].classList.remove('btn-primary');
+                    btnJoin[i].classList.add('btn-success');
                     btnJoin[i].disabled = false;
                 } else {
                     btnJoin[i].removeEventListener('click', conf.startConferenceRoom);
                     btnJoin[i].classList.add('disabled');
+                    btnJoin[i].classList.remove('btn-success');
+                    btnJoin[i].classList.add('btn-primary');
                     btnJoin[i].disabled = true;
                 }
             }
