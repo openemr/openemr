@@ -6,7 +6,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2023 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -48,6 +48,7 @@ class Claim
     public $pay_to_provider;   // to be implemented in facility ui
     private $encounterService;
     public $billing_prov_id;
+    public $line_item_adjs;    // adjustment array with key of [group code][reason code] needed for secondary claims
 
     public function __construct($pid, $encounter_id)
     {
@@ -365,33 +366,33 @@ class Claim
                     $date = $tmp;
                 }
 
-                if ($tmp && $value['pmt'] == 0) { // not original charge and not a payment
+                if ($tmp && (($value['pmt'] ?? null) == 0)) { // not original charge and not a payment
                     $rsn = $value['rsn'];
                     $chg = 0 - $value['chg']; // adjustments are negative charges
 
                     $gcode = 'CO'; // default group code = contractual obligation
                     $rcode = '45'; // default reason code = max fee exceeded (code 42 is obsolete)
 
-                    if (preg_match("/Ins adjust $inslabel/i", $rsn, $tmp)) {
+                    if (preg_match("/Ins adjust/i", $rsn, $tmp)) {
                         // From manual post. Take the defaults.
-                    } elseif (preg_match("/To copay $inslabel/i", $rsn, $tmp) && !$chg) {
+                    } elseif (preg_match("/To copay/i", $rsn, $tmp) && !$chg) {
                         $coinsurance = $ptresp; // from manual post
                         continue;
-                    } elseif (preg_match("/To ded'ble $inslabel/i", $rsn, $tmp) && !$chg) {
+                    } elseif (preg_match("/To ded'ble/i", $rsn, $tmp) && !$chg) {
                         $deductible = $ptresp; // from manual post
                         continue;
-                    } elseif (preg_match("/$inslabel copay: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } elseif (preg_match("/copay: (\S+)/i", $rsn, $tmp) && !$chg) {
                         $coinsurance = $tmp[1]; // from 835 as of 6/2007
                         continue;
-                    } elseif (preg_match("/$inslabel coins: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } elseif (preg_match("/coins: (\S+)/i", $rsn, $tmp) && !$chg) {
                         $coinsurance = $tmp[1]; // from 835 and manual post as of 6/2007
                         continue;
-                    } elseif (preg_match("/$inslabel dedbl: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } elseif (preg_match("/dedbl: (\S+)/i", $rsn, $tmp) && !$chg) {
                         $deductible = $tmp[1]; // from 835 and manual post as of 6/2007
                         continue;
-                    } elseif (preg_match("/$inslabel ptresp: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } elseif (preg_match("/ptresp: (\S+)/i", $rsn, $tmp) && !$chg) {
                         continue; // from 835 as of 6/2007
-                    } elseif (preg_match("/$inslabel adjust code (\S+)/i", $rsn, $tmp)) {
+                    } elseif (preg_match("/adjust code (\S+)/i", $rsn, $tmp)) {
                         $rcode = $tmp[1]; // from 835
                     } elseif (preg_match("/$inslabel/i", $rsn, $tmp)) {
                         // Take the defaults.
@@ -404,7 +405,7 @@ class Claim
                             // Other adjustments default to Ins1.
                         } elseif (
                             preg_match("/Co-pay: (\S+)/i", $rsn, $tmp) ||
-                            preg_match("/Coinsurance: (\S+)/i", $rsn, $tmp)
+                            preg_match("/Coins: (\S+)/i", $rsn, $tmp)
                         ) {
                             $coinsurance = 0 + $tmp[1]; // from 835 before 6/2007
                             continue;
@@ -1776,5 +1777,34 @@ class Claim
     public function billingProviderZip()
     {
         return $this->x12Zip($this->billing_prov_id['zip']);
+    }
+
+    /**
+     * Group an array of adjustment group codes into a new array with the keys based on
+     * the group code $a[1] and the adjustment reason code $a[2].
+     * If there are multiple for the same group and reason combine and add
+     * the amount $a[3] and return the date of the payment $a[0].
+     *
+     * @param  array $aarr Payer adjustment array from the X12837 script with payer adjustments
+     * @return array       Returns a grouped array to the 837 for output in the CAS segment
+     */
+    public function getLineItemAdjustments($aarr)
+    {
+        $this->line_item_adjs = [];
+        foreach ($aarr as $a) {
+            if (!array_key_exists($a[1], $this->line_item_adjs)) {
+                $this->line_item_adjs[$a[1]] = [];
+            }
+
+            if (!array_key_exists($a[2] ?? null, $this->line_item_adjs[$a[1]])) {
+                $this->line_item_adjs[$a[1]][$a[2]] = $a[3];
+            } else {
+                $this->line_item_adjs[$a[1]][$a[2]] += $a[3];
+                $this->line_item_adjs[$a[1]][$a[2]] = number_format($this->line_item_adjs[$a[1]][$a[2]], 2, '.', '');
+            }
+            $this->line_item_adjs['payer_paid_date'] = $a[0];
+        }
+
+        return $this->line_item_adjs;
     }
 }

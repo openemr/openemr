@@ -294,13 +294,11 @@ class X125010837P
                 $log .= "*** Billing facility has no state.\n";
             }
             $out .= "*";
-
-            // X12 likes 9 a true digit zip in loop 2010AA
-            if (strlen($claim->billingFacilityZip()) == 9) {
-                $out .= $claim->billingFacilityZip();
-            } else {
+            // X12 requires a 9 digit zip in loop 2010AA but we output it anyways
+            if (strlen($claim->billingFacilityZip()) != 9) {
                 $log .= "*** Billing facility zip is not 9 digits.\n";
             }
+            $out .= $claim->billingFacilityZip();
             $out .= "~\n";
 
             if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
@@ -371,11 +369,11 @@ class X125010837P
                     $log .= "*** Pay to provider has no state.\n";
                 }
                 $out .= "*";
-                if (strlen($claim->billingFacilityZip()) == 9) {
-                    $out .= $claim->billingFacilityZip();
-                } else {
+                // X12 requires a 9 digit zip but we output it anyways
+                if (strlen($claim->billingFacilityZip()) != 9) {
                     $log .= "*** Pay to provider zip is not 9 digits.\n";
                 }
+                $out .= $claim->billingFacilityZip();
                 $out .= "~\n";
             }
 
@@ -474,13 +472,14 @@ class X125010837P
             }
             $out .= "*";
             if (
-                (strlen($claim->x12Zip($claim->insuredZip())) == 5)
-                || (strlen($claim->x12Zip($claim->insuredZip())) == 9)
+                !(
+                    (strlen($claim->x12Zip($claim->insuredZip())) == 5)
+                    || (strlen($claim->x12Zip($claim->insuredZip())) == 9)
+                )
             ) {
-                $out .= $claim->x12Zip($claim->insuredZip());
-            } else {
                 $log .= "*** Insured zip is not 5 or 9 digits.\n";
             }
+            $out .= $claim->x12Zip($claim->insuredZip());
             $out .= "~\n";
 
             ++$edicount;
@@ -1513,43 +1512,36 @@ class X125010837P
                     "~\n";
 
                 $tmpdate = $payerpaid[0];
-                // new logic for putting same adjustment group codes
-                // on the same line
-                $adj_group_code[0] = '';
-                $adj_count = 0;
-                $aarr_count = count($aarr);
-                foreach ($aarr as $a) {
-                    ++$adj_count;
-                    $adj_group_code[$adj_count] = $a[1];
-                    // when the adj group code changes increment edi
-                    // counter and add line ending
-                    if ($adj_group_code[$adj_count] !== $adj_group_code[($adj_count - 1)]) {
-                        // increment when there was a prior segment with the
-                        // same adj group code
-                        if ($adj_count !== 1) {
-                            ++$edicount;
-                            $out .= "~\n";
+                $cas = $claim->getLineItemAdjustments($aarr);
+
+                // $key is the group code or payer_paid_date
+                foreach ($cas as $key => $value) {
+                    if ($key == 'payer_paid_date') {
+                        if (!$tmpdate) {
+                            $tmpdate = $value;
                         }
-                        $out .= "CAS" . // Previous payer's line level adjustments. Page 558.
-                            "*" . $a[1] .
-                            "*" . $a[2] .
-                            "*" . $a[3];
-                        if (($aarr_count == 1) || ($adj_count !== 1)) {
-                            ++$edicount;
-                            $out .= "~\n";
-                        }
-                    } else {
-                        $out .= "*" . // since it's the same adj group code don't include it
-                            "*" . $a[2] .
-                            "*" . $a[3];
-                        if ($adj_count == $aarr_count) {
-                            ++$edicount;
-                            $out .= "~\n";
+                        continue;
+                    }
+
+                    $out .= "CAS" .
+                        "*" .
+                        $key . "*";
+                    $size = count($value);
+                    $cntr = 0;
+                    // $k is the reason code
+                    // $v is the amount
+                    foreach ($value as $k => $v) {
+                        $cntr++;
+                        $out .= $k .
+                            "*" .
+                            $v;
+                        if ($cntr < $size) {
+                            $out .= "*" .
+                                "*";
                         }
                     }
-                    if (!$tmpdate) {
-                        $tmpdate = $a[0];
-                    }
+                    $out .= "~\n";
+                    ++$edicount;
                 }
 
                 if ($tmpdate) {
