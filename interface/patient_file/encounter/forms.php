@@ -110,34 +110,34 @@ if (!empty($_GET['attachid'])) {
 
 <!-- OEMR - Change -->
 <script>
-$(function () {
-    async function handleConfimBox_feeCodeLinked(encounter, pid) {
-        var bodyObj = { encounter :  encounter, pid : pid };
-        const result = await $.ajax({
-            type: "POST",
-            url:  top.webroot_url + '/interface/forms/fee_sheet/ajax/get_feesheet_code_status.php',
-            datatype: "json",
-            data: bodyObj
-        });
 
-        if(result != '') {
-            var resultObj = JSON.parse(result);
-            if(resultObj && resultObj['feesheet_code_status'] === false) {
-                if(!confirm("Warning - At least one CPT/HCPCS is not linked to an ICD in the fee sheet.  Press \"Cancel\" to back and justify all CPT/HCPCS codes or Press \"Ok\" to sign the encounter")) {
-                    return false;
-                } else {
-                    return true;
-                }
+async function handleConfimBox_feeCodeLinked(encounter, pid) {
+    var bodyObj = { encounter :  encounter, pid : pid };
+    const result = await $.ajax({
+        type: "POST",
+        url:  top.webroot_url + '/interface/forms/fee_sheet/ajax/get_feesheet_code_status.php',
+        datatype: "json",
+        data: bodyObj
+    });
 
-                return returnStatus;
+    if(result != '') {
+        var resultObj = JSON.parse(result);
+        if(resultObj && resultObj['feesheet_code_status'] === false) {
+            if(!confirm("Warning - At least one CPT/HCPCS is not linked to an ICD in the fee sheet.  Press \"Cancel\" to back and justify all CPT/HCPCS codes or Press \"Ok\" to sign the encounter")) {
+                return false;
             } else {
                 return true;
             }
-        }
 
-        return true;
+            return returnStatus;
+        } else {
+            return true;
+        }
     }
-});
+
+    return true;
+}
+
 
 // Handle care team provider.
 async function handleCareTeamProvider(encounter, pid) {
