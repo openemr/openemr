@@ -35,7 +35,8 @@ if(!empty($eid)) {
 		if(!empty($resData['message'])) {
 			$responce['message'] = $resData['message'];
 		} else {
-			$responce['message'] = "Sent: ". $resData['total_sent_item'] . " Failed: " . $resData['total_failed_item'];
+			$errorMsg = !empty($resData['status_msg']) ? "\n\n" . implode("\n", $resData['status_msg']) : "";
+			$responce['message'] = "Sent: ". $resData['total_sent_item'] . " Failed: " . $resData['total_failed_item'] . $errorMsg;
 		}
 	}
 }

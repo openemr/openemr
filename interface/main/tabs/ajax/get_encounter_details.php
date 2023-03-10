@@ -28,8 +28,10 @@ if(!empty($encounterData)) {
 		}
 	}
 
+	if(!empty($encounterData)) {
+		$whereStr .= ' AND forms.encounter IN ('. implode(",", $encounterData) . ') ';
+	}
 
-	//$sql = ' AND forms.encounter IN ('. implode(",", $encounterData) . ') ';
 	$res = sqlStatement("SELECT forms.encounter, form_encounter.date, u.lname, u.fname FROM forms, form_encounter LEFT JOIN users AS u ON (form_encounter.provider_id = u.id) WHERE form_encounter.encounter = forms.encounter " . $whereStr );
 
 	while ($result = sqlFetchArray($res)) {

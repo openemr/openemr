@@ -495,6 +495,7 @@ class ZoomIntegration {
 		 	if(!empty($notifIdList)) {
 				//Send Zoom notification
 				$dataItems = self::getNotifyDataById($notifIdList, 2);
+				$statusMsg = array();
 
 				foreach ($dataItems as $key => $item) {
 					if(isset($extraData['selectedType']) && in_array($item['msg_type'], $extraData['selectedType'])) {
@@ -512,14 +513,19 @@ class ZoomIntegration {
 
 							if($item['msg_type'] == "email") {
 								$itemStatus = Reminder::sendEmail($item);
+								if($itemStatus !== true) $statusMsg[] = 'EMAIL - ' . ($itemStatus === false ? 'Something went wrong' : $itemStatus);
 							} else if($item['msg_type'] == "sms") {
 								$itemStatus = Reminder::sendSMS($item);
+								if($itemStatus !== true) $statusMsg[] = 'SMS - ' . ($itemStatus === false ? 'Something went wrong' : $itemStatus);
 							} else if($item['msg_type'] == "fax") {
 								$itemStatus = Reminder::sendFAX($item);
+								if($itemStatus !== true) $statusMsg[] = 'FAX - ' . ($itemStatus === false ? 'Something went wrong' : $itemStatus);
 							} else if($item['msg_type'] == "postalmethod") {
 								$itemStatus = Reminder::sendPostalLetter($item);
+								if($itemStatus !== true) $statusMsg[] = 'POSTAL LETTER - ' . ($itemStatus === false ? 'Something went wrong' : $itemStatus);
 							} else if($item['msg_type'] == "internalmessage") {
 								$itemStatus = Reminder::sendInternalMessage($item);
+								if($itemStatus !== true) $statusMsg[] = 'INTERNAL MSG - ' . ($itemStatus === false ? 'Something went wrong' : $itemStatus);
 							}
 
 							if(isset($itemStatus) && $itemStatus === true) {
@@ -535,7 +541,7 @@ class ZoomIntegration {
 		 	}
 		}
 
-		return array('status' => $sendStatus, 'total_sent_item' => $totalsentItem, 'total_failed_item' => $totalFailedItem);
+		return array('status' => $sendStatus, 'total_sent_item' => $totalsentItem, 'total_failed_item' => $totalFailedItem, 'status_msg' => $statusMsg);
 	}
 
 	/*Handle to send zoom details*/
