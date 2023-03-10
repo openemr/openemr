@@ -298,3 +298,7 @@ UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_box_left_logo.html.t
 #IfRow2D globals gl_name login_page_layout gl_value right
 UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_band_right_logo.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'right';
 #EndIf
+
+#IfMissingColumn ar_activity payer_claim_number
+ALTER TABLE `ar_activity` ADD `payer_claim_number` VARCHAR(30) DEFAULT NULL
+#EndIf

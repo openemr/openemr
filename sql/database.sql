@@ -9182,6 +9182,7 @@ CREATE TABLE ar_activity (
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
   deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
   post_date      date DEFAULT NULL COMMENT 'Posting date if specified at payment time',
+  payer_claim_number varchar(30) DEFAULT NULL,
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;

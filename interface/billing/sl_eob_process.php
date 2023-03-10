@@ -469,7 +469,9 @@ function era_callback(&$out)
                         $out['check_number'],
                         $debug,
                         '',
-                        $codetype
+                        $codetype,
+                        $date ?? null,
+                        $out['payer_claim_id']
                     );
                     $invoice_total -= $svc['paid'];
                 }
@@ -537,7 +539,8 @@ function era_callback(&$out)
                             $reason,
                             $debug,
                             '',
-                            $codetype
+                            $codetype,
+                            $out['payer_claim_id']
                         );
                     }
 
@@ -555,7 +558,8 @@ function era_callback(&$out)
                             "Adjust code " . $adj['reason_code'],
                             $debug,
                             '',
-                            $codetype ?? ''
+                            $codetype ?? '',
+                            $out['payer_claim_id']
                         );
                         $invoice_total -= $adj['amount'];
                     }
