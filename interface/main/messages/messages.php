@@ -142,6 +142,7 @@ if (
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
 
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/attachment/js/attachment.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/js/messages.js"></script>
 
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
