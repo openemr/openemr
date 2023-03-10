@@ -137,7 +137,7 @@ $(function () {
 
         return true;
     }
-}
+});
 
 // Handle care team provider.
 async function handleCareTeamProvider(encounter, pid) {
