@@ -241,38 +241,38 @@ function prepareErrorMsg(errors) {
 
 
 // Validations
-// function validatePhoneNumber(ele, e = '') {
-//   var result = {
-//     'error' : false,
-//     'message' : 'Phone numbers must have 10 numbers, example 555-555-5555.  Please update [%s]. Press CANCEL to fix phone number.  Press OK to bypass error and save improperly formatted phone number'
-//   };
+function validatePhoneNumber(ele, e = '') {
+  var result = {
+    'error' : false,
+    'message' : 'Phone numbers must have 10 numbers, example 555-555-5555.  Please update [%s]. Press CANCEL to fix phone number.  Press OK to bypass error and save improperly formatted phone number'
+  };
 
-//   if(ele) {
-//     var eleVal = ele.value;
-//     var eleId = ele.getAttribute('data-id');
-//     var eleTitle = ele.getAttribute('data-title');
+  if(ele) {
+    var eleVal = ele.value;
+    var eleId = ele.getAttribute('data-id');
+    var eleTitle = ele.getAttribute('data-title');
 
-//     result['field_id'] = eleId ? eleId : '';
-//     result['field_title'] = eleTitle ? eleTitle : '';
+    result['field_id'] = eleId ? eleId : '';
+    result['field_title'] = eleTitle ? eleTitle : '';
 
-//     if(eleVal != '') {
-//       //"\([0-9][0-9][0-9]\)\s[0-9][0-9][0-9][-][0-9][0-9][0-9][0-9]\b";
-//       //let pattern = /\(\d{3}\)\s\d{3}[-]\d{4}\b/;
-//       //result['error'] = eleVal.match(pattern) ? false : true;
-//       var trimValue = eleVal.replace(/[\s\(\)\-]/g, "");
-//       let isnum = /^\d+$/.test(trimValue);
+    if(eleVal != '') {
+      //"\([0-9][0-9][0-9]\)\s[0-9][0-9][0-9][-][0-9][0-9][0-9][0-9]\b";
+      //let pattern = /\(\d{3}\)\s\d{3}[-]\d{4}\b/;
+      //result['error'] = eleVal.match(pattern) ? false : true;
+      var trimValue = eleVal.replace(/[\s\(\)\-]/g, "");
+      let isnum = /^\d+$/.test(trimValue);
 
-//       if(trimValue.length === 10 && isnum === true) {
-//         result['error'] = false;
-//       } else {
-//         result['error'] = true;
-//       }
+      if(trimValue.length === 10 && isnum === true) {
+        result['error'] = false;
+      } else {
+        result['error'] = true;
+      }
       
-//     }
-//   }
+    }
+  }
 
-//   return result;
-// }
+  return result;
+}
 
 // Check Validation for Field
 function validateOptions(form_id) {
