@@ -514,22 +514,22 @@ if($form_csvexport) {
 						?>
           </select></td>
            <td class='label'><?php echo xl('From'); ?>: </td>
-           <td>
+           <td style="width: 190px;">
              <input type='text' name='form_from_date' class="wmtInput" id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Enter As <?php echo $date_title_fmt; ?>' style='width: 150px;'>
              <img src='<?php echo $GLOBALS['rootdir']; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xl('Click here to choose a date'); ?>'></td>
            <td class='label'><?php echo xl('To'); ?>: </td>
-           <td>
+           <td style="width: 190px;">
              <input type='text' name='form_to_date' id="form_to_date" class="wmtInput" size='10' value='<?php echo oeFormatShortDate($form_to_date); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Enter As <?php echo $date_title_fmt; ?>' style='width: 150px;'>
              <img src='<?php echo $GLOBALS['rootdir']; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xl('Click here to choose a date'); ?>'></td>
 
             <?php if(!empty($sched_date_field)) { ?>
             <td class='label'><?php echo xl('From Schedule Date'); ?>: </td>
-            <td>
+            <td style="width: 190px;">
                <input type='text' name='form_from_lbf_sched_date' class="wmtInput" id="form_from_lbf_sched_date" size='10' value='<?php echo oeFormatShortDate($form_from_lbf_sched_date); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Enter As <?php echo $date_title_fmt; ?>' style='width: 150px;'>
                <img src='<?php echo $GLOBALS['rootdir']; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_lbf_sched_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xl('Click here to choose a date'); ?>'>
             </td>
             <td class='label'><?php echo xl('To Schedule Date'); ?>: </td>
-            <td width="200">
+            <td style="width: 190px;">
              <input type='text' name='form_to_lbf_sched_date' class="wmtInput" id="form_to_lbf_sched_date" size='10' value='<?php echo oeFormatShortDate($form_to_lbf_sched_date); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Enter As <?php echo $date_title_fmt; ?>' style='width: 150px;'>
              <img src='<?php echo $GLOBALS['rootdir']; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_lbf_sched_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xl('Click here to choose a date'); ?>'>
             </td>
