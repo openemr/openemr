@@ -529,8 +529,8 @@ if($newordermode == false) {
 
 		<?php Header::setupHeader(['opener', 'common', 'jquery-ui', 'jquery-ui-base', 'datetime-picker', 'oemr_ad']); ?>
 
-		<?php include('./rto1.js.php'); ?>
-		<?php include('./rto.js.php'); ?>
+		<?php include('rto1.js.php'); ?>
+		<?php include('rto.js.php'); ?>
 
 		<script>
 		var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
@@ -918,7 +918,7 @@ function filterSubmit(page = '', section = '') {
 
 function addOrderBtn() {
 	//changePage('<?php //echo $rto_page_details['total_pages'] ?>', 'addOrderSection');
-	var url = 'new_order.php?&pid='+'<?php echo $pid; ?>'+'&frmdir='+'<?php echo $frmdir; ?>'+'&newordermode=true&pop='+'<?php echo $popmode; ?>';
+	var url = '<?php echo $GLOBALS['webroot']."/interface/forms/rto1/new_order.php" ?>?&pid='+'<?php echo $pid; ?>'+'&frmdir='+'<?php echo $frmdir; ?>'+'&newordermode=true&pop='+'<?php echo $popmode; ?>';
 	dlgopen(url,'addOrderPop', 700, 300, '', 'New Order');
 }
 

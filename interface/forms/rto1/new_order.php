@@ -228,7 +228,7 @@ if(!empty($rto_id)) {
 		}
 	</style>
 
-	<?php include('./rto1.js.php'); ?>
+	<?php include('rto1.js.php'); ?>
 
 	<script type="text/javascript">
 		var formData = {};
