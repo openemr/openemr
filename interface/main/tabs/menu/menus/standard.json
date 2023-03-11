@@ -1947,7 +1947,7 @@
             "label": "Fees schedule",
             "menu_id": "rep0",
             "target": "rep",
-            "url": "/interface/reports/idempiere_fees_schedule.php",
+            "url": "/interface/reports/myreports/idempiere_fees_schedule.php",
             "children": [],
             "requirement": 0,
             "acl_req": [
