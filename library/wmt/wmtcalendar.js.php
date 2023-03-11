@@ -28,6 +28,6 @@ Calendar.setup = function (params) {
 	$('#'+params.inputField).datetimepicker(param);
 	
   	$('#'+params.button).click(function() {
-  		$('#'+params.inputField).focus();
+  		$('#'+params.inputField).datetimepicker('show');;
   	});
 }

@@ -128,6 +128,12 @@ function dateblur(e, defcc, withtime) {
  }
 
  if ((!withtime && ix != 2) || (withtime && ix < 2) || arr[0] != 4 || arr[1] != 2 || arr[2] < 1) {
+  /* OEMR - Changes */
+  if (arr[0] >= 1 && arr[1] == 2 && arr[2] == 4) {
+    return;
+  }
+  /* End */
+
   if (confirm('Date entry is incomplete! Try again?'))
    e.focus();
   else

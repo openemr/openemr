@@ -23,6 +23,7 @@ if($v_major > 4) $js_location = $GLOBALS['assets_static_relative'];
 	
 	if(is_file($include_root . '/forms/' . $frmdir .'/js/' . $frmdir . '.js')) { 
 		echo '<script type="text/javascript" src="'.$GLOBALS['webroot'].'/interface/forms/cases/js/cases.js"></script>';
+		echo '<script type="text/javascript" src="'.$GLOBALS['webroot'].'/interface/coverage/js/coverage.js"></script>';
 	}
 ?>
 

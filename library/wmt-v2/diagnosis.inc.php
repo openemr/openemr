@@ -151,7 +151,7 @@ if(count($diag) > 0) {
 		echo "		<td";
 		echo $suppress_class ? ' class="'.$suppress_class.'"' : '';
 		echo "><input name='dg_code_$cnt' id='dg_code_$cnt' class='dg_code_field wmtFullInput' type='text' value='".htmlspecialchars($prev['diagnosis'],ENT_QUOTES)."' onClick='".$diag_onclick."' ";
-		echo "title='Click to select or clear a diagnosis' /></td>\n";
+		echo "title='Click to select or clear a diagnosis' style='width:100px;' /></td>\n";
 		echo "		<td"; 
 		echo "><input name='dg_begdt_$cnt' id='dg_begdt_$cnt' class='wmtFullInput dInput' type='text' value='".htmlspecialchars($prev['begdate'],ENT_QUOTES)."' /></td>\n";
 		echo "		<td";

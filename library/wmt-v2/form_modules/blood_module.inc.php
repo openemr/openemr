@@ -17,10 +17,10 @@ foreach($local_fields as $tmp) {
 	<table width="100%" border="0" cellspacing="0" cellpadding="0">
 		<tr>
 			<td>Blood Type:</td>
-			<td colspan="2"><select name="<?php echo $field_prefix; ?>pat_blood_type" id="<?php echo $field_prefix; ?>pat_blood_type" class="wmtInput" style="width: 45px;">
+			<td colspan="2"><select name="<?php echo $field_prefix; ?>pat_blood_type" id="<?php echo $field_prefix; ?>pat_blood_type" class="wmtInput" style="width: 60px;">
 				<?php ListSel($dt{$field_prefix.'pat_blood_type'},'Blood_Types'); ?>
 			</select>
-			&nbsp;&nbsp;<select name="<?php echo $field_prefix; ?>pat_rh_factor" id="<?php echo $field_prefix; ?>pat_rh_factor" class="wmtInput" style="width: 65px;">
+			&nbsp;&nbsp;<select name="<?php echo $field_prefix; ?>pat_rh_factor" id="<?php echo $field_prefix; ?>pat_rh_factor" class="wmtInput" style="width: 90px;">
 				<?php ListSel($dt{$field_prefix.'pat_rh_factor'},'RH_Factor'); ?>
 			</select></td>
 			<td>Last Cholesterol Check:</td>
