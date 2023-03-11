@@ -272,7 +272,7 @@ if(!empty($rto_id)) {
 
 		// This invokes the find-addressbook popup.
 		function open_ldf_form(pid, lformname, rto_id, form_id, form_title) {
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/forms/rto1/ldf_form.php" ?>'+'?pid='+pid+'&formname='+lformname+'&visitid='+rto_id+'&id='+form_id+'&submod=popup';
+			var url = '<?php echo $GLOBALS['webroot']."/interface/forms/rto1/ldf_form.php" ?>'+'?pid='+pid+'&formname='+lformname+'&visitid='+rto_id+'&id='+form_id+'&submod=popup';
 		  	let title = form_title;
 		  	dlgopen(url, 'ldf_form', 900, 500, '', title);
 		}

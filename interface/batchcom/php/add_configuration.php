@@ -511,7 +511,7 @@ $test_mode_List = array(
 		function select_time(id = '') {
 			var timeData = $("#time_trigger_data").text();
 
-			var url = '<?php echo $GLOBALS['webroot']."/library/OemrAD/interface/batchcom/select_time.php?"; ?>&id='+id+'&data_set='+encodeURI(timeData);
+			var url = '<?php echo $GLOBALS['webroot']."/interface/batchcom/php/select_time.php?"; ?>&id='+id+'&data_set='+encodeURI(timeData);
 		  	let title = '<?php echo xlt('Time'); ?>';
 		  	dlgopen(url, 'timeSelection', 900, 400, '', title);
 		}

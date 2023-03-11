@@ -83,9 +83,7 @@ function isValidData($item) {
 }
 
 function getInfoIcon($data) {
-	//$img_url = $GLOBALS['webroot']."/library/OemrAD/assets/img/info_icon.png";
 	$title_msg = implode("\n", $data);
-	//return "<img src=\"".$img_url."\" title='".$title_msg."' class='infoIcon' />";
 	return "<i class=\"fa fa-info-circle\" aria-hidden=\"true\" title='".$title_msg."'></i>";
 }
 

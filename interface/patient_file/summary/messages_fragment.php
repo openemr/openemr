@@ -391,7 +391,7 @@ if (!AclMain::aclCheckCore('patients', 'notes', '', array ('write', 'addonly')))
 
 	  				<div class="mt-1">
 	  					<?php echo htmlspecialchars(xl('Displaying the following number of most recent messages:'), ENT_NOQUOTES) ?><b><span id="postal_letter_count">0</span></b><br>
-						<a href='<?php echo $GLOBALS['webroot']; ?>/library/OemrAD/interface/patient_file/summary/messages_full.php?active_tab=postal_letter&form_active=1' onclick='top.restoreSession()'>
+						<a href='<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/messages_full.php?active_tab=postal_letter&form_active=1' onclick='top.restoreSession()'>
 						<?php echo htmlspecialchars(xl("Click here to view all Postal Letters"),ENT_NOQUOTES) ?>
 						</a>
 	  				</div>

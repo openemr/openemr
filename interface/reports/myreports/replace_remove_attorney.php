@@ -513,7 +513,7 @@ if($form_act_val != "") {
 		$('input[name="form_act"]').val(type);
 
 		if(type == "Cancel") {
-			window.location = "<?php echo $GLOBALS['webroot']; ?>/library/OemrAD/interface/reports/myreports/replace_remove_attorney.php";
+			window.location = "<?php echo $GLOBALS['webroot']; ?>/interface/reports/myreports/replace_remove_attorney.php";
 			return false;
 		}
 
