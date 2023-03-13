@@ -213,6 +213,17 @@ if (is_dir($mainPATH)) {
                     $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
                     array_push($revisions, $temp_date);
                     $supported_file = 1;
+                } elseif (preg_match("/SnomedCT_Argentina-EditionRelease_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
+                    // Hard code the version SNOMED feed to be International:SpanishLang. Argentinian format.
+                    // Contains the Snapshot, Delta and Full folders with the Argentina extension files already unified
+                    // with the Spanish and International files
+                    //
+                    $version = "International:SpanishLang";
+                    $rf2 = true;
+                    $date_release = substr($matches[1], 0, 4) . "-" . substr($matches[1], 4, -2) . "-" . substr($matches[1], 6);
+                    $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
+                    array_push($revisions, $temp_date);
+                    $supported_file = 1;
                 } else {
                     // nothing
                 }
