@@ -50,7 +50,7 @@ if (!empty($_POST['execute_report_id'])) {
         // For AMC:
         //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
         //   need to send a manual data entry option (number of labs)
-        $array_date['dateBegin'] = $_POST['date_begin'];
+        $array_date['dateBegin'] = $_POST['date_begin'] ?? null;
         $array_date['dateTarget'] = $target_date;
         $options = array('labs_manual' => $_POST['labs'] ?? 0);
     } else {
@@ -58,7 +58,18 @@ if (!empty($_POST['execute_report_id'])) {
         $array_date = $target_date;
     }
 
-    test_rules_clinic_batch_method($provider, $rule_filter, $array_date, "report", $plan_filter, $organize_method, $options, $pat_prov_rel, '', $_POST['execute_report_id']);
+    test_rules_clinic_batch_method(
+        $provider,
+        $rule_filter,
+        $array_date,
+        "report",
+        $plan_filter,
+        $organize_method,
+        $options,
+        $pat_prov_rel,
+        '',
+        $_POST['execute_report_id']
+    );
 } else {
     echo "ERROR";
 }
