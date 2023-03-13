@@ -60,7 +60,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
 
     public function next(): void
     {
-        $this->position++;
+        ++$this->position;
     }
 
     public function valid(): bool
