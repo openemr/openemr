@@ -546,7 +546,9 @@ class OemrUI
             // We display if we remember we're showing it, but we don't intentionally hide it (no else here to hide)
             // Because the hideaway is probably shown by default for a reason like in the billing manager
             if (shouldDisplay) {
-                document.querySelector('.hideaway').classList.remove('d-none');
+                if (document.querySelector('.hideaway')) {
+                    document.querySelector('.hideaway').classList.remove('d-none');
+                }    
                 if (document.getElementById(showActionClass) && document.getElementById(hideActionClass)) {
                     elementIcon.classList.remove(showActionClass);
                     elementIcon.classList.add(hideActionClass);
