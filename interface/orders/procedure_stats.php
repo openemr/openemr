@@ -76,7 +76,12 @@ $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " 
   "ORDER BY group_id, seq, title");
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
-    if ($fid == 'fname' || $fid == 'mname' || $fid == 'lname') {
+    if (
+        $fid == 'fname'
+        || $fid == 'mname'
+        || $fid == 'lname'
+        || $fid == 'additional_addresses'
+    ) {
         continue;
     }
 
