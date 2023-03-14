@@ -1275,8 +1275,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             if ($institutional) {
                                                 //$revenue_code   = trim($bline['revenue_code']);
                                             }
-                                            $modifier   = trim($bline['mod'] ?? null);
-                                            $units = intval(trim($bline['units'] ?? null));
+                                            $modifier   = trim($bline['mod'] ?? '');
+                                            $units = intval(trim($bline['units'] ?? ''));
                                             if (!$units) {
                                                 $units = 1; // units may be negative.
                                             }
@@ -1291,7 +1291,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 trim($bline['ndcqty']);
                                             }
                                             $justify    = $bline['justify'] ?? null;
-                                            $notecodes  = trim($bline['notecodes'] ?? null);
+                                            $notecodes  = trim($bline['notecodes'] ?? '');
                                             $provider_id = (int) ($bline['provid'] ?? null);
                                         }
 

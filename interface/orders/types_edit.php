@@ -405,7 +405,7 @@ function recursiveDelete($typeid)
                                         <select name="form_procedure_type_name" id="form_procedure_type_name" class='form-control'>
                                             <?php foreach ($procedure_order_type as $ordered_types) { ?>
                                                 <option value="<?php echo attr($ordered_types['option_id']); ?>"
-                                                    <?php echo $ordered_types['option_id'] == $row['procedure_type_name'] ? " selected" : ""; ?>>
+                                                    <?php echo ($ordered_types['option_id'] == ($row['procedure_type_name'] ?? null)) ? " selected" : ""; ?>>
                                                     <?php echo text(xl_list_label($ordered_types['title'])); ?>
                                                 </option>
                                             <?php } ?>

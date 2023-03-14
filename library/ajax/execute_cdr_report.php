@@ -50,7 +50,7 @@ if (!empty($_POST['execute_report_id'])) {
         // For AMC:
         //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
         //   need to send a manual data entry option (number of labs)
-        $array_date['dateBegin'] = $_POST['date_begin'];
+        $array_date['dateBegin'] = $_POST['date_begin'] ?? null;
         $array_date['dateTarget'] = $target_date;
         $options = array('labs_manual' => $_POST['labs'] ?? 0);
     } else {

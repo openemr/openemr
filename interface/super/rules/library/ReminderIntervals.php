@@ -28,7 +28,7 @@ class ReminderIntervals
      */
     function addDetail($detail)
     {
-        $details = $this->detailMap[ $detail->intervalType->code ];
+        $details = $this->detailMap[$detail->intervalType->code] ?? null;
         if (is_null($details)) {
             $details = array();
         }

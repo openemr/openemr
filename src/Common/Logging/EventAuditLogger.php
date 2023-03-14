@@ -649,7 +649,7 @@ MSG;
             }
         }
 
-        if (empty($GLOBALS["audit_events_${event}"])) {
+        if (empty($GLOBALS["audit_events_{$event}"])) {
             if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
                 return;
             }

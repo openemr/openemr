@@ -1488,7 +1488,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $amain[$alast]['res'][0]['facility'] .= $performingOrganization . $commentdelim;
             }
         } else {
-            return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
+            return rhl7LogMsg(xl('Segment name') . " '{$a[0]}' " . xl('is misplaced or unknown'));
         }
     }
 
