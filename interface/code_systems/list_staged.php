@@ -205,7 +205,7 @@ if (is_dir($mainPATH)) {
                     array_push($revisions, $temp_date);
                     $supported_file = 1;
                 } elseif (preg_match("/SnomedCT_SpanishRelease-es_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
-                    // Hard code the version SNOMED feed to be International:Spanishlang
+                    // Hard code the version SNOMED feed to be International:SpanishLang
                     //
                     $version = "International:Spanishlang";
                     $rf2 = true;
