@@ -44,7 +44,7 @@ $item_count = 1;
 $oldfield_update_count = array();
 $in_correct_json_count = array();
 
-$msgresult = sqlStatement("SELECT * from message_log ml where ml.raw_data != '' order by id desc limit 100", array());
+$msgresult = sqlStatement("SELECT * from message_log ml where ml.raw_data != '' order by id desc", array());
 while ($msgrow = sqlFetchArray($msgresult)) {
 	$isMsgUpdated = false;
 	$isInCorrectJsonUpdated = false;
