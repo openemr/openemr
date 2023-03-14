@@ -207,7 +207,7 @@ if (is_dir($mainPATH)) {
                 } elseif (preg_match("/SnomedCT_SpanishRelease-es_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
                     // Hard code the version SNOMED feed to be International:SpanishLang
                     //
-                    $version = "International:Spanishlang";
+                    $version = "International:SpanishLang";
                     $rf2 = true;
                     $date_release = substr($matches[1], 0, 4) . "-" . substr($matches[1], 4, -2) . "-" . substr($matches[1], 6);
                     $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
