@@ -46,6 +46,7 @@ class Attachment {
     public static function getEncounterFormDataForSelection($opts = array()) {
         $pid = isset($opts['pid']) ? $opts['pid'] : "";
         $formid = isset($opts['formid']) ? $opts['formid'] : array();
+        $encounterid = isset($opts['encounterid']) ? $opts['encounterid'] : array();
 
         $whereStr = array();
 
@@ -55,6 +56,10 @@ class Attachment {
 
         if(!empty($formid)) {
             $whereStr[] = "forms.id IN ('" . implode("','", $formid) ."')";
+        }
+
+        if(!empty($encounterid)) {
+            $whereStr[] = "forms.encounter IN ('" . implode("','", $encounterid) ."')";
         }
         
         if(!empty($whereStr)) {
@@ -759,7 +764,9 @@ class Attachment {
 
     // Prepare message attachment data.
     public static function prepareMessageAttachment($items) {
-        global $webserver_root;
+        global $webserver_root, $encpc_count;
+
+        if(!isset($encpc_count)) $encpc_count = 0;
 
         // Reparepare data for old message attachment data.
         $items = self::prepareOldMessageAttachmentData($items);
@@ -912,6 +919,10 @@ class Attachment {
 
     // Prepare message attachment data.
     public static function prepareOldMessageAttachmentData($items) {
+        global $encpc_count;
+
+        if(!isset($encpc_count)) $encpc_count = 0;
+
         $preparedItems = array();
         $typeList = array(
             "selectedEncounterList" => "encounter_forms",
@@ -927,6 +938,27 @@ class Attachment {
             if (isset($typeList[$iType])) {
                 // Get new type
                 $nType = $typeList[$iType];
+
+                $iItem1 = $iItem;
+
+                //Prepare new data.
+                foreach ($iItem1 as $dataKey1 => $dataItem1) {
+                    $encounter1 = isset($dataItem1['value']) ? $dataItem1['value'] : "";
+                    
+                    if(!isset($dataItem['parentId'])) {
+                        $encData1 = self::getEncounterFormDataForSelection(array('encounterid' => array($encounter1)));
+                        $encData1 = isset($encData1['items']) ? $encData1['items'] : array();
+                        reset($encData1);
+                        $pId = key($encData1);
+                        $encData1 = (!empty($pId) && isset($encData1[$pId])) ? $encData1[$pId] : array();
+
+                        if(!empty($pId) && !empty($dataKey1) && $dataKey1 !== $pId) {
+                            $iItem[$dataKey1]['parentId'] = $pId;
+                            if(!isset($iItem[$pId])) $iItem[$pId] = array('value' => $encData1['encounter']);
+                            $encpc_count++;
+                        }
+                    }
+                }
                 
                 if($iType == "selectedEncounterList") {
                     // Prepare Encounter & Form Data

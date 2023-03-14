@@ -11,9 +11,6 @@ require_once("$srcdir/OemrAD/oemrad.globals.php");
 
 use OpenEMR\OemrAd\MessagesLib;
 
-print_r(MessagesLib::getPhoneNumbers('5554445656'));
-exit();
-
 function isCommandLineInterface(){
     return (php_sapi_name() === 'cli');
 }
@@ -70,10 +67,6 @@ function handlePhoneNumber($item = array()) {
 		}
 
 	}
-
-	// echo '<pre>';
-	// print_r($preparedData);
-	// echo '</pre>';
 }
 
 $patientData = getPData();
