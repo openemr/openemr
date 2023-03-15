@@ -31,118 +31,132 @@ function wh_log($log_msg) {
 	global $log_file_data;
     // if you don't add `FILE_APPEND`, the file will be erased each time you add a log
     file_put_contents($log_file_data, $log_msg . "\n", FILE_APPEND);
-} 
+}
 
 
 $fh = fopen($log_file_data, 'w' );
 fclose($fh);
 
 $encpc_count = 0;
-$msg_update_count = array();
-$attachment_update_count = array();
+$msg_update_count = 0;
+$attachment_update_count = 0;
 $item_count = 1;
-$oldfield_update_count = array();
-$in_correct_json_count = array();
+$oldfield_update_count = 0;
+$in_correct_json_count = 0;
 
-$msgresult = sqlStatement("SELECT * from message_log ml where ml.raw_data != '' order by id desc", array());
-while ($msgrow = sqlFetchArray($msgresult)) {
-	$isMsgUpdated = false;
-	$isInCorrectJsonUpdated = false;
-	$isAttachmentUpdated = false;
-	$isOldFieldRemoved = false;
+$perPage = 5000;
+$rcount = sqlQuery("SELECT count(id) as total from message_log ml where ml.raw_data != '' order by id desc");
+$totalPages = ceil($rcount['total'] / $perPage);
 
-	$msg_id = $msgrow['id'];
+for ($pi = 1; $pi <= $totalPages; $pi++) {
+	$startAt = $perPage * ($pi - 1);
+	$msgresult = sqlStatement("SELECT ml.id, ml.raw_data from message_log ml where ml.raw_data != '' order by id desc LIMIT $startAt, $perPage", array());
 
-	if($msgrow['raw_data'] !== "" && (!isJson($msgrow['raw_data']) || $msgrow['raw_data'] == "0")) {
-		$msg_raw_data = '';
-		$isInCorrectJsonUpdated = true;
-		$in_correct_json_count[] = $msg_id;
-	}
+	while ($msgrow = sqlFetchArray($msgresult)) {
+		$isMsgUpdated = false;
+		$isInCorrectJsonUpdated = false;
+		$isAttachmentUpdated = false;
+		$isOldFieldRemoved = false;
 
-	if($isInCorrectJsonUpdated === false) {
-		$msg_raw_data = json_decode($msgrow['raw_data'], true);
-		$msg_template = isset($msg_raw_data['message']) ? $msg_raw_data['message'] : '';
-		$msg_doclist = isset($msg_raw_data['baseDocList']) ? $msg_raw_data['baseDocList'] : array();
+		$msg_id = $msgrow['id'];
 
-		$unusedfieldupdate = false;
-		$fieldList = array('files_length', 'notes', 'documentFiles', 'encounters', 'encounters1', 'encounterIns', 'docsList', 'prevData');
-		$msg_raw_data1 = $msg_raw_data;
+		// echo $item_count . "\n";
+		// $item_count++;
+		// continue;
 
-		foreach ($msg_raw_data1 as $mrfield => $mrfieldValue) {
-			if(in_array($mrfield, $fieldList)) {
-				unset($msg_raw_data[$mrfield]);
-				$unusedfieldupdate = true;
-			}
+		if($msgrow['raw_data'] !== "" && (!isJson($msgrow['raw_data']) || $msgrow['raw_data'] == "0")) {
+			$msg_raw_data = '';
+			$isInCorrectJsonUpdated = true;
+			$in_correct_json_count++;
 		}
 
-		if($unusedfieldupdate === true) {
-			$oldfield_update_count[] = $msg_id;
-			$isOldFieldRemoved = true;
-		}
+		if($isInCorrectJsonUpdated === false) {
+			$msg_raw_data = json_decode($msgrow['raw_data'], true);
+			$msg_template = isset($msg_raw_data['message']) ? $msg_raw_data['message'] : '';
+			$msg_doclist = isset($msg_raw_data['baseDocList']) ? $msg_raw_data['baseDocList'] : array();
 
+			$unusedfieldupdate = false;
+			$fieldList = array('files_length', 'notes', 'documentFiles', 'encounters', 'encounters1', 'encounterIns', 'docsList', 'prevData');
+			$msg_raw_data1 = $msg_raw_data;
 
-		if(!empty($msg_template) && isHTML($msg_template)) {
-			$msg_raw_data['message'] = '';
-			$msg_update_count[] = $msg_id;
-			//$isMsgUpdated = true;
-		}
-
-		if(!empty($msg_doclist)) {
-			$msg_doclist = json_decode($msg_doclist, true);
-			// Reparepare data for old message attachment data.
-	        $preparedData = @Attachment::prepareOldMessageAttachmentData($msg_doclist);
-			//$preparedData = Attachment::prepareMessageAttachment($msg_doclist);
-
-			foreach ($preparedData as $pdk => $pdI) {
-				if(empty($pdI)) {
-					unset($preparedData[$pdk]);
+			foreach ($msg_raw_data1 as $mrfield => $mrfieldValue) {
+				if(in_array($mrfield, $fieldList)) {
+					unset($msg_raw_data[$mrfield]);
+					$unusedfieldupdate = true;
 				}
 			}
 
-			if(!empty($preparedData)) {
-				$msg_raw_data['attachments'] = $preparedData;
-				unset($msg_raw_data['baseDocList']);
-				$attachment_update_count[] = $msg_id;
-				$isAttachmentUpdated = true;
+			if($unusedfieldupdate === true) {
+				$oldfield_update_count++;
+				$isOldFieldRemoved = true;
 			}
+
+
+			if(!empty($msg_template) && isHTML($msg_template)) {
+				$msg_raw_data['message'] = '';
+				$msg_update_count++;
+				$isMsgUpdated = true;
+			}
+
+			if(!empty($msg_doclist)) {
+				$msg_doclist = json_decode($msg_doclist, true);
+				// Reparepare data for old message attachment data.
+		        $preparedData = @Attachment::prepareOldMessageAttachmentData($msg_doclist);
+				//$preparedData = Attachment::prepareMessageAttachment($msg_doclist);
+
+				foreach ($preparedData as $pdk => $pdI) {
+					if(empty($pdI)) {
+						unset($preparedData[$pdk]);
+					}
+				}
+
+				if(!empty($preparedData)) {
+					$msg_raw_data['attachments'] = $preparedData;
+					unset($msg_raw_data['baseDocList']);
+					$attachment_update_count++;
+					$isAttachmentUpdated = true;
+				}
+			}
+		}
+
+		if($isAttachmentUpdated === true || $isMsgUpdated === true || $isOldFieldRemoved === true || $isInCorrectJsonUpdated === true) {
+
+			if(!empty($msg_id)) {
+	            //sqlStatementNoLog("UPDATE `message_log` SET `raw_data` = ? WHERE id = ?", array(is_array($msg_raw_data) ? json_encode($msg_raw_data) : '', $msg_id));
+	        }
+
+			ob_start();
+			echo "\n\n**************** ".$item_count." ****************\n";
+			echo "MsgID = " . $msgrow['id'] . "\n";
+
+			if($isAttachmentUpdated === true) echo "isAttachmentUpdated = " . $isAttachmentUpdated . "\n";
+			if($isMsgUpdated === true) echo "isMsgUpdated = " . $isMsgUpdated . "\n";
+			if($isOldFieldRemoved === true) echo "isOldFieldRemoved = " . $isOldFieldRemoved . "\n";
+			if($isInCorrectJsonUpdated === true) echo "isInCorrectJsonUpdated = " . $isInCorrectJsonUpdated . "\n";
+
+
+			print_r(json_encode($msg_raw_data));
+
+			$item_count++;
+
+			$sc_output = ob_get_clean();
+
+			echo $sc_output;
+			//write log into msg file
+			wh_log($sc_output);
 		}
 	}
 
-	if($isAttachmentUpdated === true || $isMsgUpdated === true || $isOldFieldRemoved === true || $isInCorrectJsonUpdated === true) {
-
-		if(!empty($msg_id)) {
-            //sqlStatementNoLog("UPDATE `message_log` SET `raw_data` = ? WHERE id = ?", array(is_array($msg_raw_data) ? json_encode($msg_raw_data) : '', $msg_id));
-        }
-
-		ob_start();
-		echo "\n\n**************** ".$item_count." ****************\n";
-		echo "MsgID = " . $msgrow['id'] . "\n";
-
-		if($isAttachmentUpdated === true) echo "isAttachmentUpdated = " . $isAttachmentUpdated . "\n";
-		if($isMsgUpdated === true) echo "isMsgUpdated = " . $isMsgUpdated . "\n";
-		if($isOldFieldRemoved === true) echo "isOldFieldRemoved = " . $isOldFieldRemoved . "\n";
-		if($isInCorrectJsonUpdated === true) echo "isInCorrectJsonUpdated = " . $isInCorrectJsonUpdated . "\n";
-
-
-		print_r(json_encode($msg_raw_data));
-
-		$item_count++;
-
-		$sc_output = ob_get_clean();
-
-		echo $sc_output;
-		//write log into msg file
-		wh_log($sc_output);
-	}
+	unset($msgresult);
 }
 
 ob_start();
 echo "\n\n";
 echo "encpc_count = " . $encpc_count . "\n";
-echo "msg_update_count = " . count($msg_update_count) . "\n";
-echo "attachment_update_count = " . count($attachment_update_count) . "\n";
-echo "oldfield_update_count = " . count($oldfield_update_count) . "\n";
-echo "in_correct_json_count = " . count($in_correct_json_count) . "\n";
+echo "msg_update_count = " . $msg_update_count . "\n";
+echo "attachment_update_count = " . $attachment_update_count . "\n";
+echo "oldfield_update_count = " . $oldfield_update_count . "\n";
+echo "in_correct_json_count = " . $in_correct_json_count . "\n";
 $sc_output2 = ob_get_clean();
 
 echo $sc_output2;
