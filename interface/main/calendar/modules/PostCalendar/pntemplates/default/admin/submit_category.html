@@ -27,10 +27,11 @@
     <title>[-$_EDIT_PC_CONFIG_CATDETAILS|text-]</title>
 </head>
 <body>
-[-$AdminMenu-]
+
 <form name="cats" action="[-$action-]" method="post" enctype="application/x-www-form-urlencoded">
 <!-- GATHER NEW DATA START -->
-	<table class="table table-bordered" cellpadding="5" cellspacing="0">
+<div class="table d-none">
+	<table class="table-bordered" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
 					<table class='table table-bordered w-100'>
@@ -197,195 +198,250 @@
             	</td>
             </tr>
 	</table>
-<table class="table table-bordered" cellpadding="5" cellspacing="0">
-	<!--START REPEATING SECTION -->
-		[-foreach item=cat from=$all_categories-]
-			<tr>
-				<td>
-					<table class='table table-bordered w-100'>
-						<tr>
-							<td colspan='5'>
-                <table class='table table-borderless w-100'>
-                  <tr bgcolor="[-$cat.color-]">
-                    <td class="text-left">
-                      &nbsp;
-                    </td>
-                    <th class="text-center">[-$_PC_REP_CAT_TITLE_S|text-] [-$cat.id|text-]</th>
-                    <td class="text-right">
-                      [-if $cat.id > 4 && $cat.id != 8 && $cat.id != 11 && $cat.id != 6 && $cat.id != 7-]
-                      <!-- allow non-required categories to be deleted -->
-                      <input type="checkbox" name="del[]" value="[-$cat.id|attr-]"/>
-                      [-$_PC_CAT_DELETE|text-]
-                      [-/if-]
-                      &nbsp;
-                    </td>
-                  </tr>
-                </table>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<table class='table'>
-            						<tr>
-            							<td class="align-top text-left">
-            								<input type="hidden" name="id[]" value="[-$cat.id|attr-]"/>
-            								[-$_PC_CAT_NAME|text-]:<br />
-            								&nbsp;<input type="text" class="form-control" name="name[]" value="[-$cat.name|attr-]" size="20"/><br />
-            								[-$_PC_CAT_TYPE|text-]:<br />
-            								&nbsp;<select name="[-$InputCatType|attr-][]" class="form-control">
-               									[-foreach item=repeat from=$cat_type-]
-                    								<option value="[-$repeat.value|attr-]" [-if $cat.value_cat_type == $repeat.value-]selected [-/if-]>
-                    									[-$repeat.name|text-]
-                    								</option>
-                								[-/foreach-]
-                								</select>
-            							</td>
-                          [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
-                          <td class="align-top text-left">[-$_PC_CAT_NAME_XL|text-]:<br />
-                            <span class="text-success">[-$cat.nameTranslate|text-]</span>
-                          </td>
-                          [-/if-]
-            							<td class="align-top text-left">
-											[-$_PC_CAT_CONSTANT_ID|text-]:<br />
-											&nbsp;<input type="text" class="form-control" name="constantid[]" value="[-$cat.constantid|attr-]" size="20"/><br />
-                							[-$_PC_CAT_COLOR|text-]:<br />
-                							&nbsp;<input type="color" name="color[]" id='color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]' value="[-$cat.color|attr-]" size="10"/>
+</div>
+
+<div class="d-flex">
+        <div class="col-lg-auto bg-light vh-100">
+            <nav class="nav flex-column" id="category_list" role="tablist" aria-orientation="vertical">
+                <a href="#" class="nav-link">Clear Cache</a>
+                <div class="dropdown-divider"></div>
+                [-foreach item=cat from=$all_categories-]
+                <a href="#[-$cat.constantid|attr-]_panel" id="[-$cat.constantid|attr-]_tab" data-toggle="pill" role="tab" aria-controls="[-$cat.constantid|attr-]" class="nav-link">[-$cat.name|text-]</a>
+                [-/foreach-]
+            </nav>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    [-$AdminMenu-]
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="tab-content" id="category_details">
+                        [-foreach item=cat from=$all_categories-]
+                            <div class="tab-pane" id="[-$cat.constantid|attr-]_panel" role="tabpanel" aria-labelledby="[-$cat.constantid|attr-]_tab"
+                            <input type="hidden" name="id[]" value="[-$cat.id|attr-]">
+                            <div class="row">
+                                <div class="col-12 text-center" style="background-color: [-$cat.color-]">
+                                    [-$_PC_REP_CAT_TITLE_S|text-] [-$cat.id|text-]
+                                    [-if $cat.id > 4 && $cat.id != 8 && $cat.id != 11 && $cat.id != 6 && $cat.id != 7-]
+                                        <!-- allow non-required categories to be deleted -->
+                                        <input type="checkbox" name="del[]" value="[-$cat.id|attr-]"/>
+                                    [-$_PC_CAT_DELETE|text-]
+                                    [-/if-]
+                                </div>
+                                <div class="col-3 form-group">
+                                    <label for="name">[-$_PC_CAT_NAME|text-]</label>
+                                    <input type="text" class="form-control" name="name[]" value="[-$cat.name|attr-]" size="20">
+                                </div>
+                                <div class="col-3 form-group">
+                                    <label for="constantid[]">[-$_PC_CAT_CONSTANT_ID|text-]</label>
+                                    <input type="text" class="form-control" name="constantid[]" value="[-$cat.constantid|attr-]" size="20">
+                                </div>
+                                <div class="col-3 form-group">
+                                    <label for="[-$InputCatType|attr-]">[-$_PC_CAT_TYPE|text-]</label>
+                                    <select name="[-$InputCatType|attr-][]" class="form-control">
+                                    [-foreach item=repeat from=$cat_type-]
+                                        <option value="[-$repeat.value|attr-]" [-if $cat.value_cat_type == $repeat.value-]selected [-/if-]>
+                                            [-$repeat.name|text-]
+                                        </option>
+                                    [-/foreach-]
+                                    </select>
+                                </div>
+                                <div class="col-3 form-group">
+                                    <label for="[-$InputACO|attr-]">[-$_ACO|text-]</label>
+                                    <select name="[-$InputACO|attr-][]" class="form-control">
+                                    [-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
+                                        <optgroup label="[-$acoGroupKey|attr-]" >
+                                        [-foreach item=aco  from=$acoGroup-]
+                                            <option value="[-$aco.value|attr-]" [-if $cat.aco == $aco.value-]selected [-/if-]>
+                                                [-$aco.name|text-]
+                                            </option>
+                                        [-/foreach-]
+                                        </optgroup>
+                                    [-/foreach-]
+                                    </select>
+                                </div>
+                                <div class="col-6 form-group">
+                                    <label for="desc[]">[-$_PC_CAT_DESC|text-]</label>
+                                    <textarea class="form-control" name="desc[]" rows="6" cols="20">[-$cat.desc|text-]</textarea>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-row">
+                                        <label for="color[]" class="col-3 col-form-label">[-$_PC_CAT_COLOR|text-]</label>
+                                        <div class="col">
+                                            <input type="color" class="" name="color[]" id='color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]' value="[-$cat.color|attr-]" size="10">
                                             [<a href="javascript:void(0);" onClick="pick('pick','color[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]');return false;" NAME="pick" ID="pick">[-$_PC_COLOR_PICK_TITLE|text-]</a>]
-            							</td>
-            							<td class="align-top text-left">
-                							[-$_PC_CAT_DESC|text-]:<br />
-                							&nbsp;<textarea class="form-control" name="desc[]" rows="3" cols="20">[-$cat.desc|text-]</textarea>
-            							</td>
-                          [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
-                          <td class="align-top text-left">[-$_PC_CAT_DESC_XL|text-]:<br />
-                            <span class="text-success">[-$cat.descTranslate|text-]</span>
-                          </td>
-                          [-/if-]
-            							<td class="align-top text-left">
-            								[-$ALL_DAY_CAT_TITLE|text-]<br />
-            								[-$ALL_DAY_CAT_YES|text-]
-            								<input type="radio" name="[-$InputAllDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueAllDay|attr-]" [-if $cat.end_all_day == 1-]checked[-/if-]/>
-            								<br />
-            								&nbsp;[-$ALL_DAY_CAT_NO|text-]<input type="radio" name="[-$InputAllDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueAllDayNo|attr-]" [-if $cat.end_all_day == 0-]checked[-/if-]/>
-            							</td>
-                					<td class="align-top text-left">
-            								[-$_PC_CAT_DUR|text-]:<br />
-                							&nbsp;	[-$DurationHourTitle|text-]
-                							<input type="text" class="form-control" name="[-$InputDurationHour|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_durationh|attr-]" size="4" />
-                							<br />
-                							&nbsp;	[-$DurationMinTitle|text-]
-                							<input type="text" class="form-control" name="[-$InputDurationMin|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_durationm|attr-]" size="4" />
-                					</td>
-                					<td class="align-top text-left">
-                							[-$_PC_ACTIVE|text-]:<br />
-                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="1" data='[-$cat.active|attr-]' [-if $cat.active == 1-]checked[-/if-]/>  [-$ActiveTitleYes|text-]<br />
-                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="0" data='[-$cat.active|attr-]' [-if $cat.active == 0-]checked[-/if-]/>  [-$ActiveTitleNo|text-]<br />
-                					</td>
-                					<td class="align-top text-left">
-                							[-$_PC_SEQ|text-]:<br />
-                							<input type="text" class="form-control" name="sequence[]" value="[-$cat.sequence|attr-]" size="4" />
-                					</td>
-      										<td class="align-top text-left">
-      											[-$_ACO|text-]:<br />
-      											&nbsp;<select name="[-$InputACO|attr-][]" class="form-control">
-                     									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
-      													<optgroup label="[-$acoGroupKey|attr-]" >
-      													[-foreach item=aco  from=$acoGroup-]
-      														<option value="[-$aco.value|attr-]" [-if $cat.aco == $aco.value-]selected [-/if-]>
-      															[-$aco.name|text-]
-      														</option>
-      													[-/foreach-]
-      													</optgroup>
-                      								[-/foreach-]
-      											</select>
-      										</td>
-            						</tr>
-            					</table>
-            				</td>
-            			</tr>
-						<tr>
-							<td>
-            					<table class='table w-100'>
-            						<tr>
-                						<td colspan="4" class="align-top text-left">
-                							[-$RepeatingHeader|text-]
-                						</td>
-                					</tr>
-            						<tr>
-                						<td colspan="4"class="align-middle text-left">
-                							<input type="radio" name="[-$InputNoRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueNoRepeat|attr-]" [-if $cat.event_repeat == 0-]checked[-/if-]/>
-                							[-$NoRepeatTitle|text-]<br />
-                							<input type="radio" name="[-$InputRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueRepeat|attr-]" [-if $cat.event_repeat == 1-]checked[-/if-] />
-                							[-$RepeatTitle|text-]
-                							<input type="text" class="form-control" name="[-$InputRepeatFreq|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_repeat_freq|attr-]" size="4" />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="sequence[]" class="col-3 col-form-label">[-$_PC_SEQ|text-]</label>
+                                        <div class="col">
+                                            <input type="text" class="form-control" name="sequence[]" value="[-$cat.sequence|attr-]" size="4">
+                                        </div>
+                                    </div>
+                                    <div class="form-row mt-1">
+                                        <label for="[-$InputDurationHour|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="col-3 col-form-label">[-$_PC_CAT_DUR|text-]</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="input-group mb-3">
+                                                    <input type="text" class="form-control" name="[-$InputDurationHour|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_durationh|attr-]" size="4">
+                                                    <div class="input-group-append">
+                                                    <span class="input-group-text">hours</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="input-group mb-3">
+                                                    <input type="text" class="form-control" name="[-$InputDurationMin|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_durationm|attr-]" size="4">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">minutes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" >
+                                        <label class="custom-control-label" for="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]">[-$_PC_ACTIVE|text-]</label>
+                                    </div>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="[-$InputAllDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" data='[-$cat.active|attr-]' [-if $cat.active == 1-]checked[-/if-] [-if $cat.active == 0-]checked[-/if-]>
+                                        <label class="custom-control-label" for="[-$InputAllDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]">[-$ALL_DAY_CAT_TITLE|text-]</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <h5>[-$RepeatingHeader|text-]</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-2">
+                                    <div class="form-row form-check">
+                                        <input type="radio" class="form-check-input" id="[-$InputNoRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" name="[-$InputNoRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueNoRepeat|attr-]" [-if $cat.event_repeat == 0-]checked[-/if-]>
+                                        <label for="[-$InputNoRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-check-label">[-$NoRepeatTitle|text-]</label>
+                                    </div>
+                                    <div class="form-row form-check">
+                                        <input type="radio" class="form-check-input" id="[-$InputRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueRepeat|attr-]" name="[-$InputRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueRepeat|attr-]" [-if $cat.event_repeat == 1-]checked[-/if-]>
+                                        <label for="[-$InputRepeat|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueRepeat|attr-]" class="form-check-label">Day</label>
+                                    </div>
+                                    <div class="form-row form-check">
+                                        <input type="radio" class="form-check-input" id="[-$InputRepeatOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueRepeatOn|attr-]" name="[-$InputRepeatOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueRepeatOn|attr-]"[-if $cat.event_repeat == 2-]checked[-/if-]>
+                                        <label for="[-$InputRepeatOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueRepeatOn|attr-]" class="form-check-label">On</label>
+                                    </div>
+                                </div>
+                                <div class="col-10">
+                                    <div class="form-inline">
+                                        <label class="col-form-label pr-2" for="">[-"every"|text-]</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="[-$InputRepeatFreq|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_repeat_freq|attr-]" size="4" />
+                                            <div class="input-group-append">
+                                                <select name="[-$InputRepeatFreqType|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
+                                                    [-foreach item=repeat from=$repeat_freq_type-]
+                                                    <option value="[-$repeat.value|attr-]" [-if $cat.event_repeat_freq_type == $repeat.value-]selected[-/if-]>
+                                                        [-$repeat.name|text-]
+                                                    </option>
+                                                    [-/foreach-]
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <span class="px-3 font-weight-bold">[-'or'|text-]</span>
+                                        <label class="col-form-label px-2" for="">[-"on"|text-]</label>
+                                        <div class="input-group">
+                                            <select name="[-$InputRepeatOnNum|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
+                                                [-foreach item=repeat from=$repeat_on_num-]
+                                                    <option value="[-$repeat.value|attr-]" [-if $cat.event_repeat_on_num == $repeat.value-]selected[-/if-]>
+                                                        [-$repeat.name|text-]
+                                                    </option>
+                                                [-/foreach-]
+                                            </select>
+                                            <div class="input-group-append">
+                                                <select name="[-$InputRepeatOnDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
+                                                    [-foreach item=repeat from=$repeat_on_day-]
+                                                        <option value="[-$repeat.value|attr-]" [-if $cat.event_repeat_on_day == $repeat.value-]selected [-/if-]>
+                                                            [-$repeat.name|text-]
+                                                        </option>
+                                                    [-/foreach-]
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <label for="" class="col-form-label px-2">[-"of every"|text-]</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="[-$InputRepeatOnFreq|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_repeat_on_freq|attr-]" size="4" />
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">[-$MonthsTitle|text-]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-3 d-flex">
+                                        <div>
+                                            <div class="form-check pl-0">
+                                                <input type="radio" id="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueNoEnd|attr-]" name="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueNoEnd|attr-]"  [-if $cat.end_date_flag == 0-] checked[-/if-] />
+                                                <label for="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueNoEnd|attr-]">[-"no end date"|text-]</label>
+                                            </div>
+                                            <div class="form-check pl-0">
+                                                <input type="radio" id="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueEnd|attr-]" name="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueEnd|attr-]"  [-if $cat.end_date_flag == 1-] checked[-/if-] />
+                                                <label for="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]_[-$ValueEnd|attr-]">[-"end date"|text-]</label>
+                                            </div>
+                                        </div>
+                                        <div class="ml-5">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" name="[-$InputEndDateFreq|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.end_date_freq|attr-]" size="4" />
+                                                <div class="input-group-append">
+                                                    <select name="[-$InputEndDateFreqType|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
+                                                        [-foreach item=repeat from=$repeat_freq_type-]
+                                                            <option value="[-$repeat.value|attr-]" [-if $cat.end_date_type == $repeat.value-]selected [-/if-]>
+                                                                [-$repeat.name|text-]
+                                                            </option>
+                                                        [-/foreach-]
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    [-$FormSubmit-]
+                                </div>
+                            </div>
 
-                							<select name="[-$InputRepeatFreqType|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
-                								[-foreach item=repeat from=$repeat_freq_type-]
-                    								<option value="[-$repeat.value|attr-]" [-if $cat.event_repeat_freq_type == $repeat.value-]selected[-/if-]>
-                    									[-$repeat.name|text-]
-                    								</option>
-                								[-/foreach-]
-                							</select>
-               								<br />
-	                						<input type="radio" name="[-$InputRepeatOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueRepeatOn|attr-]"[-if $cat.event_repeat == 2-]checked[-/if-] />
-	                						 [-$RepeatOnTitle|text-]:<br />
-                                			<select name="[-$InputRepeatOnNum|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
-                                				[-foreach item=repeat from=$repeat_on_num-]
-                    								<option value="[-$repeat.value|attr-]" [-if $cat.event_repeat_on_num == $repeat.value-]selected[-/if-]>
-                    									[-$repeat.name|text-]
-                    								</option>
-                    							[-/foreach-]
-                							</select>
-                							<select name="[-$InputRepeatOnDay|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
-               									[-foreach item=repeat from=$repeat_on_day-]
-                    								<option value="[-$repeat.value|attr-]" [-if $cat.event_repeat_on_day == $repeat.value-]selected [-/if-]>
-                    									[-$repeat.name|text-]
-                    								</option>
-                								[-/foreach-]
-                							</select>
-                							&nbsp;[-$OfTheMonthTitle|text-]&nbsp;
-                							<input type="text" class="form-control" name="[-$InputRepeatOnFreq|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_repeat_on_freq|attr-]" size="4" />
-                							[-$MonthsTitle|text-]
-											<br />
-											</td>
-											<td >
-											<!--End Date Start-->
-											<table class='table w-100'>
-												<tr>
-													<td>
-														[-$NoEndDateTitle|text-]
-                										<input type="radio" name="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueNoEnd|attr-]"  [-if $cat.end_date_flag == 0-] checked[-/if-] />
-                										<br />
-														[-$EndDateTitle|text-]
-                										<input type="radio" name="[-$InputEndOn|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$ValueEnd|attr-]"  [-if $cat.end_date_flag == 1-] checked[-/if-] />
-                										<br />
+                                <tr>
+                                    <td>
+                                        <table class='table'>
+                                            <tr>
+                                    [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
+                                    <td class="align-top text-left">[-$_PC_CAT_NAME_XL|text-]:<br />
+                                    <span class="text-success">[-$cat.nameTranslate|text-]</span>
+                                    </td>
+                                    [-/if-]
+                                    [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
+                                    <td class="align-top text-left">[-$_PC_CAT_DESC_XL|text-]:<br />
+                                    <span class="text-success">[-$cat.descTranslate|text-]</span>
+                                    </td>
+                                    [-/if-]
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tr>
+                            </div>
+                        [-/foreach-]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
 
-                										<input type="text" class="form-control" name="[-$InputEndDateFreq|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.end_date_freq|attr-]" size="4" />
-                										<select name="[-$InputEndDateFreqType|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" class="form-control">
-                											[-foreach item=repeat from=$repeat_freq_type-]
-                    											<option value="[-$repeat.value|attr-]" [-if $cat.end_date_type == $repeat.value-]selected [-/if-]>
-                    												[-$repeat.name|text-]
-                    											</option>
-                											[-/foreach-]
-                										</select>
-                									</td>
-                								</tr>
+<div class="container">
+<!--START REPEATING SECTION -->
 
-                							</table>
-                					 		<!-- /End Date End -->
-               							 </td>
-           							 </tr>
-                       </table>
-            				</td>
-            			</tr>
-            			<tr><td class="align-bottom">[-$FormSubmit-]</td></tr>
-            		</table>
-            	</td>
-            </tr>
- 		<!-- /REPEATING ROWS -->
-		[-/foreach-]
-	</table>
-
+</table>
+</div>
 <input type="hidden" name="pc_html_or_text" value="text" selected />
 [-*$EventHTMLorText*-]
 
