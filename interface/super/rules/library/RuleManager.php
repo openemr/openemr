@@ -390,13 +390,13 @@ class RuleManager
     {
         $criterion = array();
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
-            $guid = $row['guid'];
+            $guid = $row['guid'] ?? null;
             $method = $row['method'];
-            $methodDetail = $row['method_detail'];
+            $methodDetail = $row['method_detail'] ?? null;
             $value = $row['value'];
             $inclusion = $row['include_flag'] == 1;
             $optional = $row['required_flag'] == 1;
-            $groupId =  $row['group_id'];
+            $groupId =  $row['group_id'] ?? null;
 
 
             $criteria = $factory->build(

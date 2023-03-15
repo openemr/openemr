@@ -42,7 +42,7 @@ function implode_funcs($glue, array $pieces, array $funcs)
  */
 function _get($var, $default = '')
 {
-    $val = $_GET[$var];
+    $val = $_GET[$var] ?? null;
     return isset($val) && $val != '' ? $val : $default;
 }
 

@@ -165,12 +165,12 @@ class Gacl {
                         file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
                     ) {
                         // with client side certificate/key
-                        $this->db->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                        $this->db->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                        $this->db->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                        $this->db->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+                        $this->db->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+                        $this->db->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
                     } else {
                         // without client side certificate/key
-                        $this->db->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                        $this->db->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
                     }
                     $this->db->clientFlags = MYSQLI_CLIENT_SSL;
             	}

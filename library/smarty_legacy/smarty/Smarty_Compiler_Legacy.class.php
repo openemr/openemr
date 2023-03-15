@@ -77,6 +77,13 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     var $_strip_depth           =   0;
     var $_additional_newline    =   "\n";
 
+    var $_dvar_math_regexp;
+    var $_dvar_math_var_regexp;
+    var $_obj_restricted_param_regexp;
+    var $_obj_single_param_regexp;
+    var $_param_regexp;
+    var $_plugins_code;
+
     /**#@-*/
     /**
      * The class constructor.

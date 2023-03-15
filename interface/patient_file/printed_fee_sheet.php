@@ -438,7 +438,7 @@ foreach ($pid_list as $pid) {
             $html .= "</td>
 </tr>
 <tr>
-<td colspan='3' valign='top' class='fshead' style='height:${lheight}pt'>";
+<td colspan='3' valign='top' class='fshead' style='height:{$lheight}pt'>";
             $html .= xlt('Provider');
             $html .= ": ";
 
@@ -472,7 +472,7 @@ foreach ($pid_list as $pid) {
             $html .= "</td>
 </tr>
 <tr>
-<td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
+<td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
 
             if (empty($GLOBALS['ippf_specific'])) {
                 $html .= xlt('Insurance') . ":";
@@ -512,25 +512,25 @@ foreach ($pid_list as $pid) {
             $html .= "</td>
 </tr>
 <tr>
-<td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
+<td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
             $html .= xlt('Prior Visit');
             $html .= ":<br />
 </td>
 </tr>
 <tr>
-<td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
+<td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
             $html .= xlt('Today\'s Charges');
             $html .= ":<br />
 </td>
 </tr>
 <tr>
-<td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
+<td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
             $html .= xlt('Today\'s Balance');
             $html .= ":<br />
 </td>
 </tr>
 <tr>
-<td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
+<td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
             $html .= xlt('Notes');
             $html .= ":<br />
 </td>

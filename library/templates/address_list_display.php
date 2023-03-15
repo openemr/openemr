@@ -18,7 +18,7 @@ use OpenEMR\Services\ContactService;
 $table_id = uniqid("table_text_addresses_");
 
 $contactService = new ContactService();
-$addresses = $contactService->getContactsForPatient($_SESSION['pid']) ?? [];
+$addresses = $contactService->getContactsForPatient($_SESSION['pid'] ?? null) ?? [];
 
 $list_address_types = generate_list_map("address-types");
 $list_address_uses = generate_list_map("address-uses");

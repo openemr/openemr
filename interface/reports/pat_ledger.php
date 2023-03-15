@@ -684,19 +684,19 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             <div class="table-responsive">
                 <table class="border-0 table" width="98%" cellspacing="0" cellpadding="0">
                     <tr>
-                        <td class="title"><?php echo text($facility['name']); ?></td>
+                        <td class="title"><?php echo text($facility['name'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo text($facility['street']); ?></td>
+                        <td class="title"><?php echo text($facility['street'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo text($facility['city']) . ", " . text($facility['state']) . " " . text($facility['postal_code']); ?></td>
+                        <td class="title"><?php echo text($facility['city'] ?? '') . ", " . text($facility['state'] ?? '') . " " . text($facility['postal_code'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo xlt('Phone') . ': ' . text($facility['phone']); ?></td>
+                        <td class="title"><?php echo xlt('Phone') . ': ' . text($facility['phone'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo xlt('Tax Id') . ': ' . text($facility['federal_ein']); ?></td>
+                        <td class="title"><?php echo xlt('Tax Id') . ': ' . text($facility['federal_ein'] ?? ''); ?></td>
                     </tr>
                     <tr><td>&nbsp;</td></tr>
                     <tr>

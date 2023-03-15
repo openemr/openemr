@@ -388,7 +388,7 @@ if ($erx_upload_complete == 1) {
         'label' => $id,
         'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
         'btnLabel' => 'Edit',
-        'btnLink' => "return load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
+        'btnLink' => "return load_location(\"{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
         'linkMethod' => 'javascript',
         'auth' => true,
         'list' => $rxList,

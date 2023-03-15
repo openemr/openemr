@@ -1703,7 +1703,7 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
         // Use the chosen plan if set
         if (!empty($type)) {
-            if ($goPlan["${type}_flag"] == 1) {
+            if ($goPlan["{$type}_flag"] == 1) {
                 // active, so use the plan
                 $newReturnArray[] = $goPlan;
             }
@@ -1869,7 +1869,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
         // Use the chosen rule if set
         if (!empty($type)) {
-            if ($goRule["${type}_flag"] == 1) {
+            if ($goRule["{$type}_flag"] == 1) {
                 // active, so use the rule
                 $newReturnArray[] = $goRule;
             }

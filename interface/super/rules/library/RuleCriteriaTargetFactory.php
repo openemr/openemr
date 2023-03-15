@@ -29,8 +29,8 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory
     {
         // get interval
         $result = sqlQuery(self::SQL_RULE_INTERVAL, array($ruleId));
-        $criteria->interval = $result['interval'] ? $result['interval'] : 1;
-        $criteria->intervalType = $result['value'] ? TimeUnit::from($result['value']) : TimeUnit::from(TimeUnit::Month);
+        $criteria->interval = $result['interval'] ?? 1;
+        $criteria->intervalType = isset($result['value']) ? TimeUnit::from($result['value']) : TimeUnit::from(TimeUnit::Month);
     }
 
     /**
