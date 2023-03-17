@@ -21,7 +21,23 @@ if($pid == null){
     exit;
 }
 $insurance = EligibilityData::getInsuranceData($pid);
+
+if(isset($_POST['checkElig'])) { //check if form was submitted
+
+    $pr=$_POST['responsibility'];
+    //$pid is found on the parent page that is including this php file
+    $formatedPr = ValueMapping::MapPayerResponsibility($pr);
+    EligibilityData::RemoveEligibilityCheck($pid,$formatedPr);
+    $requestObjects = EligibilityObjectCreator::BuildObject($pid,$pr,null,null,null);
+    EligibilityObjectCreator::SaveToDatabase($requestObjects,$pid );
+    $request = $requestObjects[0];  
+}
+
 ?>
+
+
+
+
 
 <div class="row">
     <div class="col">
@@ -42,7 +58,8 @@ $insurance = EligibilityData::getInsuranceData($pid);
             <div id="<?php echo(ucfirst($row['payer_responsibility']));?>" class="tab-pane <?php echo($classActive);?>">
                 <div class="row">
                     <div class="col-2">
-                        <form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+                    
+                        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <input type="hidden" id="responsibility" name="responsibility" value="<?php echo(ucfirst($row['payer_responsibility']));?>">
                             <button type="submit" name="checkElig" class="btn btn-primary"><?php echo xlt("Check"); ?></button>
                         </form>
@@ -234,18 +251,5 @@ $insurance = EligibilityData::getInsuranceData($pid);
 </div>
 </div>
 
-<?php 
-if(isset($_POST['checkElig'])) { //check if form was submitted
 
-    $pr=$_POST['responsibility'];
-    //$pid is found on the parent page that is including this php file
-    $formatedPr = ValueMapping::MapPayerResponsibility($pr);
-    EligibilityData::RemoveEligibilityCheck($pid,$formatedPr);
-    $requestObjects = EligibilityObjectCreator::BuildObject($pid,$pr,null,null,null);
-    EligibilityObjectCreator::SaveToDatabase($requestObjects,$pid );
-    $request = $requestObjects[0];  
-}
-
-
-?>
 

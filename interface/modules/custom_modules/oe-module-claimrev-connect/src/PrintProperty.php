@@ -19,10 +19,10 @@ class PrintProperty
             echo("<div class='row'>");
                 echo("<div class='col'>");
                     echo("<strong>");
-                        echo xlt($title);
+                        echo text($title);
                     echo("</strong>");
                 echo("</div>");
-                echo("<div class='col' style='" . $style  . "' >");
+                echo("<div class='col' style='" . attr($style)  . "' >");
                     if($ending == "%")
                     {
                         $propertyValue = $propertyValue * 100;

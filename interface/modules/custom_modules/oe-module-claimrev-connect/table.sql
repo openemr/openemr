@@ -3,14 +3,14 @@ CREATE TABLE IF NOT EXISTS `mod_claimrev_eligibility`(
     `id` INT(11)  PRIMARY KEY AUTO_INCREMENT NOT NULL
     ,`pid` bigint(20)
     ,`payer_responsibility` varchar(2)
-    ,`request_json` TEXT NULL
-    ,`response_json` TEXT NULL
-	,`eligibility_json` TEXT NULL
-	,`individual_json` TEXT NULL
-    ,`response_message` varchar(1500)
+    ,`request_json` TEXT
+    ,`response_json` TEXT
+	,`eligibility_json` TEXT
+	,`individual_json` TEXT
+    ,`response_message` TEXT
     ,`status` varchar(25)
-    ,`last_checked` datetime DEFAULT NULL
-    ,`create_date` datetime DEFAULT NULL
+    ,`last_checked` datetime DEFAULT
+    ,`create_date` datetime DEFAULT
     ,`raw271` MEDIUMTEXT
 );
 
