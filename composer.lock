@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16f34f918efe5b34c48c608a1ff5f8dc",
+    "content-hash": "7a6dba79819b655212a7394ec74e33a2",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1479,16 +1479,16 @@
         },
         {
             "name": "knplabs/knp-snappy",
-            "version": "v1.4.1",
+            "version": "v1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/snappy.git",
-                "reference": "5126fb5b335ec929a226314d40cd8dad497c3d67"
+                "reference": "b66f79334421c26d9c244427963fa2d92980b5d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/5126fb5b335ec929a226314d40cd8dad497c3d67",
-                "reference": "5126fb5b335ec929a226314d40cd8dad497c3d67",
+                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/b66f79334421c26d9c244427963fa2d92980b5d3",
+                "reference": "b66f79334421c26d9c244427963fa2d92980b5d3",
                 "shasum": ""
             },
             "require": {
@@ -1547,9 +1547,9 @@
             ],
             "support": {
                 "issues": "https://github.com/KnpLabs/snappy/issues",
-                "source": "https://github.com/KnpLabs/snappy/tree/v1.4.1"
+                "source": "https://github.com/KnpLabs/snappy/tree/v1.4.2"
             },
-            "time": "2022-01-07T13:03:38+00:00"
+            "time": "2023-03-17T14:47:54+00:00"
         },
         {
             "name": "laminas/laminas-code",

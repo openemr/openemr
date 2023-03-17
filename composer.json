@@ -23,7 +23,7 @@
         "guzzlehttp/guzzle": "7.5.0",
         "html2text/html2text": "4.3.1",
         "kamermans/guzzle-oauth2-subscriber": "1.0.12",
-        "knplabs/knp-snappy": "1.4.1",
+        "knplabs/knp-snappy": "1.4.2",
         "laminas/laminas-config": "3.8.0",
         "laminas/laminas-db": "2.17.0",
         "laminas/laminas-eventmanager": "3.10.0",
