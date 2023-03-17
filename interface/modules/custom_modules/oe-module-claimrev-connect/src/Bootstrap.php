@@ -169,6 +169,10 @@ class Bootstrap
     }
     public function renderEligibilitySection(pRenderEvent $event)
     {
+        //using this magic thing again, for some reason I can't move up to the templates directory!!!
+        $path = __DIR__;
+        $path = str_replace("src","templates",$path);
+        
         $pid = $event->getPid();
         ?>
         <section>
@@ -200,7 +204,7 @@ class Bootstrap
         );
         ?>
         
-        <div> <?php include("Eligibility.php");?> </div>
+        <div> <?php require( $path ."/eligibility.php");?> </div>
     </section>
     <?php
     }

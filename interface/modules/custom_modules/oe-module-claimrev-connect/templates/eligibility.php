@@ -1,4 +1,14 @@
 <?php 
+/**
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityInquiryRequest;
 use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
@@ -6,6 +16,10 @@ use OpenEMR\Modules\ClaimRevConnector\EligibilityObjectCreator;
 use OpenEMR\Modules\ClaimRevConnector\ValueMapping;
 
 
+if($pid == null){
+    echo xlt("Error retrieving patient.");
+    exit;
+}
 $insurance = EligibilityData::getInsuranceData($pid);
 ?>
 

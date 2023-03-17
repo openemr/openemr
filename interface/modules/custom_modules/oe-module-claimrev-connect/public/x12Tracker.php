@@ -1,22 +1,23 @@
 <?php
-    namespace OpenEMR\Modules\ClaimRevConnector;
+/**
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+    require_once "../../../../globals.php"; 
     $tab="x12";
-    require_once "../../../../globals.php";
+    use OpenEMR\Modules\ClaimRevConnector\X12TrackerPage;
 
-    use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
-    use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
 
-    class X12TrackerPage
-    {
-        public static function SearchX12Tracker($postData)
-        {
-            $startDate = $_POST['startDate']; 
-            $endDate = $_POST['endDate']; 
+    $datas = [];
+    if(isset($_POST['SubmitButton'])) { //check if form was submitted
 
-            $sql = "SELECT * FROM x12_remote_tracker where created_at BETWEEN ? AND ?";
-            $files = sqlStatementNoLog($sql,array($startDate,$endDate));
-            return $files;
-        }
+        $datas = X12TrackerPage::SearchX12Tracker($_POST);     
     }
 ?>
 
@@ -24,33 +25,36 @@
     <head>
         <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
-    <title>ClaimRev Connect - X12 Tracker</title>
+    <title><?php echo xlt("ClaimRev Connect - X12 Tracker"); ?></title>
     <body>
         <div class="row">
             <div class="col">
-                <?php include '../templates/navbar.php'; ?>
+                <?php require '../templates/navbar.php'; ?>
             </div>
         </div>
         <div class="row">
             <div class="col">
-                This tab helps give visibility to files that are in the x12 Tracker table.
+                <p>
+                    <?php echo xlt("This tab helps give visibility to files that are in the x12 Tracker table."); ?>    
+                </p>
+                            
             </div>       
         </div>
         <div class="row">
             <div class="col">
-                <form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+                <form method="post" action="x12Tracker.php">
                     <div class="card">  
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
-                                    <label for="startDate">Created Date Start</label>
-                                    <input type="date" class="form-control"  id="startDate" name="startDate"  value="<?php echo isset($_POST['startDate']) ? $_POST['startDate'] : '' ?>" placeholder="yyyy-mm-dd"/>
+                                    <label for="startDate"><?php echo xlt("Created Date Start");?></label>
+                                    <input type="date" class="form-control"  id="startDate" name="startDate"  value="<?php echo isset($_POST['startDate']) ? attr($_POST['startDate']) : '' ?>" placeholder="yyyy-mm-dd"/>
                                 </div>
                             </div>                    
                             <div class="col">
                                 <div class="form-group">
                                     <label for="endDate">Created Date End</label>
-                                    <input type="date" class="form-control"  id="endDate" name="endDate"  value="<?php echo isset($_POST['endDate']) ? $_POST['endDate'] : '' ?>" placeholder="yyyy-mm-dd"/>
+                                    <input type="date" class="form-control"  id="endDate" name="endDate"  value="<?php echo isset($_POST['endDate']) ? attr($_POST['endDate']) : '' ?>" placeholder="yyyy-mm-dd"/>
                                 </div>
                             </div>
                             <div class="col">
@@ -62,7 +66,7 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <button type="submit" name="SubmitButton" class="btn btn-primary">Submit</button>
+                                <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit"); ?></button>
                             </div>
                             <div class="col-10">
                             
@@ -70,19 +74,20 @@
                         </div>        
                     </div> 
                 </form>
-                <?php
-                    $datas = null;
-                    if(isset($_POST['SubmitButton'])) { //check if form was submitted
 
-                        $datas = X12TrackerPage::SearchX12Tracker($_POST);     
-                    }
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">                
+                <?php                    
                     if($datas != null) { ?>
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="col">Filename</th>
-                                <th scope="col">Messages</th>
-                                <th scope="col">Status</th>                              
+                                <th scope="col"><?php echo xlt("Filename"); ?></th>
+                                <th scope="col"><?php echo xlt("Messages"); ?></th>
+                                <th scope="col"><?php echo xlt("Status"); ?></th>                              
                             </tr>
                         </thead>
                         <tbody>
@@ -92,30 +97,24 @@
                         ?>  
                             <tr>
                                 <td>
-                                    <?php echo($data["x12_filename"]); ?>
+                                    <?php echo text($data["x12_filename"]); ?>
                                 </td>
                                 <td>
-                                    <?php echo($data["status"]); ?>
+                                    <?php echo text($data["status"]); ?>
                                 </td>
                                 <td>
-                                    <?php echo($data["messages"]); ?>
+                                    <?php echo text($data["messages"]); ?>
                                 </td>
                             </tr>
                         <?php } ?>
                         </tbody>
-
-
-
-
-
-
-
+                    </table>
                     <?php } ?>
             </div>
         </div>
         <div class="row">
             <div class="col">
-                <a href="index.php">Back to index</a>
+                <a href="index.php"><?php echo xlt("Back to index"); ?></a>
             </div>
         </div>
 
