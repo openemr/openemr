@@ -12,14 +12,14 @@ namespace OpenEMR\Modules\ClaimRevConnector;
 
 class PrintProperty 
 {
-    public static function DisplayProperty($title, $propertyValue, $style="" ,$qualifier = "", $ending = "")
+    public static function DisplayProperty($title, $propertyValue,$qualifier = "", $ending = "", $style="")
     {
         if($propertyValue != '')
         {
             echo("<div class='row'>");
                 echo("<div class='col'>");
                     echo("<strong>");
-                        echo($title);
+                        echo xlt($title);
                     echo("</strong>");
                 echo("</div>");
                 echo("<div class='col' style='" . $style  . "' >");
@@ -27,7 +27,7 @@ class PrintProperty
                     {
                         $propertyValue = $propertyValue * 100;
                     } 
-                    echo($qualifier . $propertyValue . $ending); 
+                    echo text($qualifier . $propertyValue . $ending); 
                  echo("</div>");
             echo("</div>");
         }
@@ -43,6 +43,34 @@ class PrintProperty
         }
 
     }
+
+    public static function PrintValidation($title,$validations):boolean
+    {
+        if($validations != null)
+        {
+            echo("<div class='row'>");
+                echo("<div class='col'>");
+                    echo("<div class='card'>");
+                        echo("<div class='card-body'>");
+                            echo("<h6>");
+                                echo xlt($title);
+                            echo("</h6>");                                
+                            foreach( $validations as $validation )
+                            {                                
+                                PrintProperty::DisplayProperty("Is Valid Request",$validation->validRequestIndicator);
+                                PrintProperty::DisplayProperty("Reject Reason",$validation->rejectReasonCode);
+                                PrintProperty::DisplayProperty("Follow-up Action",$validation->followUpActionCode);
+                            }
+
+                        echo("</div>");
+
+
+                    echo("</div>");
+
+                echo("</div>");
+            echo("</div>");
+        }  
+    }   
 }
 
 ?>

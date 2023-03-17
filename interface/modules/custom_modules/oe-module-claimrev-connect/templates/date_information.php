@@ -16,7 +16,7 @@ if($benefit->dates != null && $benefit->dates )
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    <h6>Dates</h6>
+                    <h6> <?php echo xlt("Dates"); ?></h6>
                     <div class="row">
                         <div class="col">
                             <ul>
@@ -27,10 +27,10 @@ if($benefit->dates != null && $benefit->dates )
                                     ?>
                                             <div class="row">
                                                 <div class="col">
-                                                    <?php echo($dtp->dateDescription) ?>
+                                                    <?php echo text($dtp->dateDescription) ?>
                                                 </div>
                                                 <div class="col">                                                
-                                                    Start: <?php echo(substr($dtp->startDate,0,10));  ?> End:  <?php echo(substr($dtp->endDate,0,10)); ?>
+                                                    Start: <?php echo text(substr($dtp->startDate,0,10));  ?> End:  <?php echo text(substr($dtp->endDate,0,10)); ?>
                                                 </div>
                                             </div>
 

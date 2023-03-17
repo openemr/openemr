@@ -25,10 +25,11 @@ if($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos 
                 ?>
                             <dl class="row">
                                 <dt class="col">
-                                    Codes
+                                    <?php echo xlt("Codes"); ?>
+                                    
                                 </dt>
                                 <dd class="col">
-                                    <?php echo($ba->codeListQualifier);?> <?php echo($ba->industryCode);?> <?php echo($ba->categoryCode); ?>                                                
+                                    <?php echo text($ba->codeListQualifier);?> <?php echo text($ba->industryCode);?> <?php echo text($ba->categoryCode); ?>                                                
                                 </dd>
                             <dl>
                 <?php
@@ -41,7 +42,7 @@ if($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos 
                                 Message
                             </dt>
                             <dd class="col">
-                                <?php echo($ba->messageText);?>                                              
+                                <?php echo text($ba->messageText);?>                                              
                             </dd>
                         <dl>
                 <?php

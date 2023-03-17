@@ -195,7 +195,7 @@
                                         <?php echo xlt("Control #"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->payerControlNumber); ?> 
+                                        <?php echo text($data->payerControlNumber); ?> 
                                     </div>
                                 </div>
                             </td>
@@ -213,7 +213,7 @@
                                         <?php echo xlt("NPI"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->providerNpi); ?> 
+                                        <?php echo text($data->providerNpi); ?> 
                                     </div>
                                 </div>
                             </td>
@@ -223,7 +223,7 @@
                                         <?php echo xlt("Name"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->pLastName); ?>, <?php echo($data->pFirstName); ?>
+                                        <?php echo text($data->pLastName); ?>, <?php echo text($data->pFirstName); ?>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -231,7 +231,7 @@
                                         <?php echo xlt("DOB"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo (substr($data->birthDate,0,10) ); ?>  
+                                    <?php echo text(substr($data->birthDate,0,10) ); ?>  
                                     </div>
                                 </div>
                                 <div class="row">
@@ -239,7 +239,7 @@
                                         <?php echo xlt("Gender"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->patientGender); ?> 
+                                        <?php echo text($data->patientGender); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
@@ -247,7 +247,7 @@
                                         <?php echo xlt("Member #"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->memberNumber); ?> 
+                                        <?php echo text($data->memberNumber); ?> 
                                     </div>
                                 </div>
                             </td>
@@ -257,7 +257,7 @@
                                         <?php echo xlt("Trace #"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->traceNumber); ?>
+                                        <?php echo text($data->traceNumber); ?>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -265,7 +265,7 @@
                                         <?php echo xlt("Control #"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->payerControlNumber); ?> 
+                                        <?php echo text($data->payerControlNumber); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
@@ -273,7 +273,7 @@
                                         <?php echo xlt("Billed Amt"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo($data->billedAmount); ?> 
+                                        <?php echo text($data->billedAmount); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
@@ -281,7 +281,7 @@
                                         <?php echo xlt("Payed Amt"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo($data->payerPaidAmount); ?> 
+                                        <?php echo text($data->payerPaidAmount); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
@@ -289,7 +289,7 @@
                                         <?php echo xlt("Service Date"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo(substr($data->serviceDate,0,10) ); ?> / <?php echo(substr($data->serviceDateEnd,0,10) ); ?> 
+                                        <?php echo text(substr($data->serviceDate,0,10) ); ?> / <?php echo text(substr($data->serviceDateEnd,0,10) ); ?> 
                                     </div>
                                 </div>
                             </td>                            
@@ -305,7 +305,7 @@
                                     foreach($data->errors as $err)
                                     { 
                                 ?>
-                                        <li><?php echo($err->errorMessage); ?></li>
+                                        <li><?php echo text($err->errorMessage); ?></li>
                                 <?php 
                                     } 
                                 ?>

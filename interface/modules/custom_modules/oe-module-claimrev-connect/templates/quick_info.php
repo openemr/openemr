@@ -14,11 +14,11 @@ use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
     {
         if($eligibilityData->status == "Active Coverage")
         {
-            PrintProperty::DisplayProperty("Coverage Status:",$eligibilityData->status,"color:green");
+            PrintProperty::DisplayProperty("Coverage Status:",$eligibilityData->status,"","","color:green");
         }
         else
         {
-            PrintProperty::DisplayProperty("Coverage Status:",$eligibilityData->status,"color:red");
+            PrintProperty::DisplayProperty("Coverage Status:",$eligibilityData->status,"","","color:red");
         }
        
     }

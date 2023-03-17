@@ -13,7 +13,7 @@ if($benefit->messages != null && $benefit->messages )
 ?>
     <div class="row">
         <div class="col">
-            Messages
+            <?php echo xlt("Messages");?>            
         </div>
         <div class="col">
 <?php
@@ -22,7 +22,7 @@ if($benefit->messages != null && $benefit->messages )
 ?>
                 <div class="row">
                     <div class="col">
-                        <?php echo($message); ?>
+                        <?php echo text($message); ?>
                     </div>
                 </div>
 <?php

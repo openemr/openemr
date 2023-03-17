@@ -28,7 +28,7 @@ $insurance = EligibilityData::getInsuranceData($pid);
     <ul class="nav nav-tabs mb-2">
         <?php  $classActive = "active"; $first="true"; foreach ($insurance as $row) { ?>
             <li class="nav-item" role="presentation">
-                <a id="claimrev-ins-<?php echo(ucfirst($row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo(ucfirst($row['payer_responsibility']));?>"> <?php echo(ucfirst($row['payer_responsibility']));?>  </a>
+                <a id="claimrev-ins-<?php echo(ucfirst($row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo(ucfirst($row['payer_responsibility']));?>"> <?php echo xlt(ucfirst($row['payer_responsibility']));?>  </a>
             </li>
         <?php $first = "false"; $classActive=""; } ?>
         
@@ -44,7 +44,7 @@ $insurance = EligibilityData::getInsuranceData($pid);
                     <div class="col-2">
                         <form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
                             <input type="hidden" id="responsibility" name="responsibility" value="<?php echo(ucfirst($row['payer_responsibility']));?>">
-                            <button type="submit" name="checkElig" class="btn btn-primary">Check</button>
+                            <button type="submit" name="checkElig" class="btn btn-primary"><?php echo xlt("Check"); ?></button>
                         </form>
                     </div>
                     <div class="col">
@@ -53,13 +53,13 @@ $insurance = EligibilityData::getInsuranceData($pid);
                         { ?>
                         <div class="row">
                             <div class="col">
-                                Status: <?php echo($check["status"]);?>
+                                <?php echo xlt("Status"); ?>: <?php echo text($check["status"]);?>
                             </div>
                             <div class="col">
-                                (Last Update: <?php echo($check["last_update"]);?>)
+                                (<?php echo xlt("Last Update"); ?>: <?php echo text($check["last_update"]);?>)
                             </div>
                             <div class="col">
-                                Message: <?php echo($check["response_message"]);?>
+                                <?php echo xlt("Message"); ?>: <?php echo text($check["response_message"]);?>
                             </div>
                                      
                         </div>
@@ -86,7 +86,7 @@ $insurance = EligibilityData::getInsuranceData($pid);
                         { 
                             if($check["eligibility_json"] == null)
                             { 
-                                echo("No Results");
+                                echo xlt("No Results");
                             }
                             else
                             {
@@ -134,19 +134,19 @@ $insurance = EligibilityData::getInsuranceData($pid);
                                 <ul class="nav nav-tabs mb-2">
                                 <?php  $classActive = "active"; $first="true"; ?>
                                 <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick"> Quick Info  </a>
+                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick"> <?php echo xlt("Quick Info "); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-deductibles"> Deductibles  </a>
+                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-deductibles"> <?php echo xlt("Deductibles"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-benefits"> Benefits  </a>
+                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-benefits"><?php echo xlt("Benefits"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-medicare"> Medicare </a>
+                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-medicare"><?php echo xlt("Medicare"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations"> Validations  </a>
+                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations"> <?php echo xlt("Validations"); ?></a>
                                     </li>                                 
                                     <?php $first = "false"; $classActive="";  ?>                                
                                 </ul>

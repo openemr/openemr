@@ -1,4 +1,5 @@
-<?php/**
+<?php
+/**
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -13,17 +14,16 @@
         <h5 class="card-title">Subscriber/Patient Information</h5>
         <div class="row"> 
             <div class="col">
-                <strong>Name</strong>
+                <strong><?php echo xlt("Name"); ?></strong>
             </div>
             <div class="col">
-            <?php echo($subscriberPatient->firstName) ?> <?php echo($subscriberPatient->middleName) ?> <?php echo($subscriberPatient->lastOrganizationName) ?> <?php echo($subscriberPatient->suffix) ?>
+                <?php echo text($subscriberPatient->firstName) ?> <?php echo text($subscriberPatient->middleName) ?> <?php echo text($subscriberPatient->lastOrganizationName) ?> <?php echo text($subscriberPatient->suffix) ?>
             </div>
             <div class="col">
-                <strong>Member ID</strong>
-                
+                <strong><?php echo xlt("Member ID"); ?></strong>
             </div>
             <div class="col">
-                <?php echo($subscriberPatient->identifier) ?>
+                <?php echo text($subscriberPatient->identifier) ?>
             </div>
         </div>
     </div>

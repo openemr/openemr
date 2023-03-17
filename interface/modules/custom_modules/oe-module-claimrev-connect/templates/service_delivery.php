@@ -15,51 +15,54 @@ if($benefit->serviceDeliveries != null && $benefit->serviceDeliveries )
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    <h6>Services Delivery</h6>
+                    <h6><?php echo xlt("Services Delivery");?></h6>
                     <ul>
-                        <?php
+<?php
                             foreach($benefit->serviceDeliveries as $serviceDelivery)
                             {
                                 if($serviceDelivery->benefitQuantity != "")
                                 {
-                        ?>
+?>
                                     <li>
-                                <?php  if($serviceDelivery->quantityQualifier != '')
+<?php  
+                                        if($serviceDelivery->quantityQualifier != '')
                                         {
-                                ?>
-                                            <span> <?php echo($serviceDelivery->benefitQuantity); ?></span>  <span><?php  echo($serviceDelivery->quantityQualifierDesc);  ?></span>
-                                <?php  }
+?>
+                                            <span> <?php echo text($serviceDelivery->benefitQuantity); ?></span> <span><?php echo text($serviceDelivery->quantityQualifierDesc);  ?></span>
+<?php  
+                                        }
                                         if($serviceDelivery->sampleSelectionModulus != '')
                                         {
-                                ?>
-                                            <?php echo($serviceDelivery->sampleSelectionModulus); ?>
-                                            <span> <?php echo($serviceDelivery->quantityQualifierDesc); ?></span> per <span><?php  echo($serviceDelivery->measurementCodeDesc);  ?></span>
-                                <?php   }
-                                         echo($serviceDelivery->periodCount); ?> <?php echo($serviceDelivery->timePeriodDesc); 
+?>
+                                            <?php echo text($serviceDelivery->sampleSelectionModulus); ?>
+                                            <span> <?php echo text($serviceDelivery->quantityQualifierDesc); ?></span> per <span><?php  echo text($serviceDelivery->measurementCodeDesc);  ?></span>
+<?php   
+                                        }
+                                        echo text($serviceDelivery->periodCount); ?> <?php echo text($serviceDelivery->timePeriodDesc); 
                                         if($serviceDelivery->frequencyCode != '')
                                         {
                                             if($serviceDelivery->FrequencyCodeDesc != '')
                                             {
-                                ?>
-                                                <span> <?php echo($serviceDelivery->FrequencyCodeDesc); ?></span> <span><?php  echo($serviceDelivery->patternTimeCodeDesc); ?> </span>
-                                <?php       }                                           
+?>
+                                                <span> <?php echo text($serviceDelivery->FrequencyCodeDesc); ?></span> <span><?php echo text($serviceDelivery->patternTimeCodeDesc); ?> </span>
+<?php       
+                                            }                                           
                                         }                                  
-                                ?>
-                                        
+?>      
                                     </li>
-                            <?php
+<?php
                                 }
                             
-                        ?>
+?>
                                
-                        <?php
+<?php
                             }
-                        ?>
+?>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-    <?php
+<?php
 }
 ?>

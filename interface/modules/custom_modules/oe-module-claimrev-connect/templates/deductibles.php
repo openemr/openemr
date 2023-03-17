@@ -52,14 +52,14 @@
 ?>
         <table class="table">
             <thead>
-                <th scope="col">Service Type</th>
-                <th scope="col">Coverage Level</th>   
-                <th scope="col">Insurance Type</th>
-                <th scope="col">In Plan Network</th>  
-                <th scope="col">Annual Amt</th>    
-                <th scope="col">Episode Amt</th>  
-                <th scope="col">Remaining Amt</th>  
-                <th scope="col">Plan Name</th>  
+                <th scope="col"><?php echo xlt("Service Type"); ?></th>
+                <th scope="col"><?php echo xlt("Coverage Level"); ?></th>   
+                <th scope="col"><?php echo xlt("Insurance Type"); ?></th>
+                <th scope="col"><?php echo xlt("In Plan Network"); ?></th>  
+                <th scope="col"><?php echo xlt("Annual Amt"); ?></th>    
+                <th scope="col"><?php echo xlt("Episode Amt"); ?></th>  
+                <th scope="col"><?php echo xlt("Remaining Amt"); ?></th>  
+                <th scope="col"><?php echo xlt("Plan Name"); ?></th>  
             </thead>
             <tbody>
                 <?php
@@ -67,14 +67,14 @@
                     {
                 ?>
                         <tr>
-                            <td> <?php echo($deductible->serviceTypeDescription) ?> (<?php echo($deductible->serviceTypeCode) ?>)</td>
-                            <td> <?php echo($deductible->coverageLevelDescription) ?> (<?php echo($deductible->coverageLevelCode) ?>)</td>
-                            <td> <?php echo($deductible->insuranceTypeDescription) ?> (<?php echo($deductible->insuranceTypeCode) ?>)</td>
-                            <td> <?php echo($deductible->inPlanNetwork) ?></td>
-                            <td> <?php echo($deductible->annualAmount) ?></td>
-                            <td> <?php echo($deductible->episodeAmount) ?></td>
-                            <td> <?php echo($deductible->remainingAmount) ?></td>
-                            <td> <?php echo($deductible->planName) ?></td>
+                            <td> <?php echo text($deductible->serviceTypeDescription) ?> (<?php echo text($deductible->serviceTypeCode) ?>)</td>
+                            <td> <?php echo text($deductible->coverageLevelDescription) ?> (<?php echo text($deductible->coverageLevelCode) ?>)</td>
+                            <td> <?php echo text($deductible->insuranceTypeDescription) ?> (<?php echo text($deductible->insuranceTypeCode) ?>)</td>
+                            <td> <?php echo text($deductible->inPlanNetwork) ?></td>
+                            <td> <?php echo text($deductible->annualAmount) ?></td>
+                            <td> <?php echo text($deductible->episodeAmount) ?></td>
+                            <td> <?php echo text($deductible->remainingAmount) ?></td>
+                            <td> <?php echo text($deductible->planName) ?></td>
                         </tr>
                 <?php
                     }

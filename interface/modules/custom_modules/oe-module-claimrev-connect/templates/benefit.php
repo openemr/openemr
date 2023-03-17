@@ -8,34 +8,8 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 $benefitPatResponse = ["B","C","G","J","Y"];
-function displayProperty($title, $propertyValue, $qualifier = "", $ending = "")
-{
-    if($propertyValue != '')
-    {
-?>
-    <div class="row">
-        <div class="col">
-                <strong> <?php echo($title); ?> </strong>
-                
-            </div>
-        <div class="col">
-            <div>                
-                <?php
-                    if($ending == "%")
-                    {
-                        $propertyValue = $propertyValue * 100;
-                    } 
-                    echo($qualifier . $propertyValue . $ending); 
-                ?>
-            </div>
-        </div>
-    </div>
-
-<?php
-
-    }
-}
 
 
 foreach( $benefits as $benefit )
@@ -43,11 +17,11 @@ foreach( $benefits as $benefit )
 ?>
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">Benefit - <?php echo($benefit->benefitInformationDesc); ?> </h5>
+        <h5 class="card-title"> <?php echo xlt("Benefit"); ?> - <?php echo text($benefit->benefitInformationDesc); ?> </h5>
         
         <div class="row"> 
             <div class="col">
-                <strong>Service Type</strong>                
+                <strong> <?php echo xlt("Service Type");?></strong>                
             </div>
             <div class="col">
                 <ul>
@@ -55,7 +29,7 @@ foreach( $benefits as $benefit )
                         foreach($benefit->serviceTypes as $st)
                         {
 ?>
-                        <li><?php echo($st->serviceTypeDesc) ?></li>
+                        <li><?php echo text($st->serviceTypeDesc) ?></li>
 <?php 
                         }
 ?>
@@ -64,29 +38,29 @@ foreach( $benefits as $benefit )
             
         </div>
 <?php 
-            displayProperty("Coverage Level", $benefit->coverageLevel);
-            displayProperty("Insurance Type", $benefit->insuranceTypeCodeDesc);
-            displayProperty("Coverage Description", $benefit->planCoverageDescription);
-            displayProperty("Time Period", $benefit->timePeriodQualifierDesc);
+            PrintProperty::DisplayProperty("Coverage Level", $benefit->coverageLevel);
+            PrintProperty::DisplayProperty("Insurance Type", $benefit->insuranceTypeCodeDesc);
+            PrintProperty::DisplayProperty("Coverage Description", $benefit->planCoverageDescription);
+            PrintProperty::DisplayProperty("Time Period", $benefit->timePeriodQualifierDesc);
             if(in_array($benefit->benefitInformation,$benefitPatResponse))
             {
-                displayProperty("Patient Responsibility", $benefit->benefitAmount, "$");
+                PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitAmount, "$");
             }
             else
             {
-                displayProperty("Amount", $benefit->benefitAmount, "$");
+                PrintProperty::DisplayProperty("Amount", $benefit->benefitAmount, "$");
             }
             if($benefit->benefitInformation == 'A')
             {
-                displayProperty("Patient Responsibility", $benefit->benefitPercent, "","%");
+                PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitPercent, "","%");
             }
             else
             {
-                displayProperty("Benefit Percent", $benefit->benefitPercent, "","%");
+                PrintProperty::DisplayProperty("Benefit Percent", $benefit->benefitPercent, "","%");
             }
-            displayProperty("Benefit Quantity", $benefit->benefitQuantity, "", " - " . $benefit->quantityQualifierDesc );
-            displayProperty("Authorization/Certification Indicator", $benefit->certificationIndicator);
-            displayProperty("In Plan Network", $benefit->inPlanNetworkIndicator);
+            PrintProperty::DisplayProperty("Benefit Quantity", $benefit->benefitQuantity, "", " - " . $benefit->quantityQualifierDesc );
+            PrintProperty::DisplayProperty("Authorization/Certification Indicator", $benefit->certificationIndicator);
+            PrintProperty::DisplayProperty("In Plan Network", $benefit->inPlanNetworkIndicator);
             include 'service_delivery.php';
             include 'procedure_info.php';
             include 'date_information.php';

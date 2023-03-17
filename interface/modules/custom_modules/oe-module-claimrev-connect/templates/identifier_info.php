@@ -27,13 +27,13 @@ if($benefit->identifiers != null && $benefit->identifiers )
                                     ?>
                                             <div class="row">
                                                 <div class="col">
-                                                    <?php echo($ident->referenceQualifierDesc) ?>
+                                                    <?php echo text($ident->referenceQualifierDesc) ?>
                                                 </div>
                                                 <div class="col">                                                
-                                                    <?php echo($ident->referenceValue) ?>
+                                                    <?php echo text($ident->referenceValue) ?>
                                                 </div>
                                                 <div class="col">                                                
-                                                    <?php echo($ident->referenceDesc) ?>
+                                                    <?php echo text($ident->referenceDesc) ?>
                                                 </div>
                                             </div>
 
