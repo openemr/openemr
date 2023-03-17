@@ -20,3 +20,4 @@ function start_X12_SFTP()
 
 }
 
+?>

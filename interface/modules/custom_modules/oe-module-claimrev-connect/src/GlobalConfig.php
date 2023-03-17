@@ -223,3 +223,4 @@ class GlobalConfig
         return $settings;
     }
 }
+?>

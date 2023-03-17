@@ -42,3 +42,4 @@ function start_X12_Claimrev_get_reports()
         ReportDownload::getWaitingFiles(); 
     }
 }
+?>
