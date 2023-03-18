@@ -15,7 +15,6 @@ use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityObjectCreator;
 use OpenEMR\Modules\ClaimRevConnector\ValueMapping;
 
-
 if($pid == null){
     echo xlt("Error retrieving patient.");
     exit;
@@ -59,7 +58,7 @@ if(isset($_POST['checkElig'])) { //check if form was submitted
                 <div class="row">
                     <div class="col-2">
                     
-                        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                        <form method="post" action="/interface/patient_file/summary/demographics.php">
                             <input type="hidden" id="responsibility" name="responsibility" value="<?php echo(ucfirst($row['payer_responsibility']));?>">
                             <button type="submit" name="checkElig" class="btn btn-primary"><?php echo xlt("Check"); ?></button>
                         </form>
