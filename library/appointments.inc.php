@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Ian Jardine <https://github.com/epsdky>
  * @copyright Copyright (c) 2011 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2023 Ian Jardine <https://github.com/epsdky>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -433,6 +435,54 @@ function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null)
     }
 
     return $nextXAppts;
+}
+
+function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1') {
+
+    $currentDate = date("Y-m-d");
+    $totalAppts = [];
+    $res2 = sqlStatement("SELECT MIN(pc_eventDate) as minDate " .
+        "FROM openemr_postcalendar_events " .
+        "WHERE pc_pid = ? " .
+        "AND pc_eventDate < ? ;", array($pid2, $currentDate));
+    $row2 = sqlFetchArray($res2);
+
+    if ($row2['minDate']) {
+
+        $periodOf = '26';
+        $limitRight = date("Y-m-d", strtotime("$currentDate -1 day"));
+        $limitLeft = date("Y-m-d", strtotime("$limitRight -$periodOf weeks"));
+        $apptRangeLeft = $row2['minDate'];
+        $count2 = 0;
+
+        while (($limitRight >= $apptRangeLeft) && ($count2 < $pastApptsNumber)) {
+
+            $appts2 = fetchAppointments($limitLeft, $limitRight, $pid2);
+            $totalAppts = array_merge($appts2, $totalAppts);
+            $limitRight = date("Y-m-d", strtotime("$limitLeft -1 day"));
+            $limitLeft = date("Y-m-d", strtotime("$limitRight -$periodOf weeks"));
+            $count2 = count($totalAppts);
+
+        }
+        if($orderOfAppts == '1') {
+
+            $eventDate  = array_column($totalAppts, 'pc_eventDate');
+            $eventTime  = array_column($totalAppts, 'pc_startTime');
+            array_multisort($eventDate, SORT_ASC, $eventTime, SORT_ASC, $totalAppts);
+            $totalAppts = array_slice($totalAppts, -$pastApptsNumber, $pastApptsNumber);
+
+        } else if ($orderOfAppts == '2') {
+
+            $eventDate  = array_column($totalAppts, 'pc_eventDate');
+            $eventTime  = array_column($totalAppts, 'pc_startTime');
+            array_multisort($eventDate, SORT_DESC, $eventTime, SORT_ASC, $totalAppts);
+            $totalAppts = array_slice($totalAppts, 0, $pastApptsNumber);
+
+        }
+
+    }
+    return $totalAppts;
+
 }
 
 // get the event slot size in seconds
