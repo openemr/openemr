@@ -61,7 +61,7 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities )
 ?>
                     <dl class="row">
                         <dt class="col">
-                            Address
+                            <?php echo xlt("Address"); ?>                                
                         </dt>
                         <dd class="col">
                             <div class="row">

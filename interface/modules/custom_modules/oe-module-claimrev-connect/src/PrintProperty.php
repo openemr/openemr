@@ -44,7 +44,7 @@ class PrintProperty
 
     }
 
-    public static function PrintValidation($title,$validations):boolean
+    public static function PrintValidation($title,$validations)
     {
         if($validations != null)
         {

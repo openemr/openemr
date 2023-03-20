@@ -35,7 +35,7 @@ if($benefit->serviceDeliveries != null && $benefit->serviceDeliveries )
                                         {
 ?>
                                             <?php echo text($serviceDelivery->sampleSelectionModulus); ?>
-                                            <span> <?php echo text($serviceDelivery->quantityQualifierDesc); ?></span> per <span><?php  echo text($serviceDelivery->measurementCodeDesc);  ?></span>
+                                            <span> <?php echo text($serviceDelivery->quantityQualifierDesc); ?></span> <?php echo xlt("per") ?> <span><?php  echo text($serviceDelivery->measurementCodeDesc);  ?></span>
 <?php   
                                         }
                                         echo text($serviceDelivery->periodCount); ?> <?php echo text($serviceDelivery->timePeriodDesc); 

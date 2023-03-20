@@ -16,13 +16,13 @@ if($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos 
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    <h6>Eligibility or Benefit Additional Information</h6>
-                <?php
+                    <h6><?php echo xlt("Eligibility or Benefit Additional Information"); ?></h6>
+<?php
                     foreach($benefit->benefitAdditionalInfos as $ba)
                     {
                         if($ba->codeListQualifier != "")
                         {
-                ?>
+?>
                             <dl class="row">
                                 <dt class="col">
                                     <?php echo xlt("Codes"); ?>
@@ -32,25 +32,25 @@ if($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos 
                                     <?php echo text($ba->codeListQualifier);?> <?php echo text($ba->industryCode);?> <?php echo text($ba->categoryCode); ?>                                                
                                 </dd>
                             <dl>
-                <?php
+<?php
                         }
                         if($ba->messageText != "")
                         {
-                ?>
+?>
                             <dl class="row">
                             <dt class="col">
-                                Message
+                                <?php echo xlt("Message"); ?>                                
                             </dt>
                             <dd class="col">
                                 <?php echo text($ba->messageText);?>                                              
                             </dd>
                         <dl>
-                <?php
+<?php
                         }
                     }
 
 
-                ?>
+?>
                 </div>
             </div>
         </div>

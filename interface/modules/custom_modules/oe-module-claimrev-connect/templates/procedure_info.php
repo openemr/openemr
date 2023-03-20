@@ -17,10 +17,10 @@ if($benefit->procedureInfo != null )
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    <h6>Procedure Information</h6>
+                    <h6><?php echo xlt("Procedure Information"); ?></h6>
                     <div class="row">
                         <div class="col">
-                            <?php echo($procedureInfo->serviceIdQualifier); ?> : <?php echo($procedureInfo->procedureCode); ?>
+                            <?php echo text($procedureInfo->serviceIdQualifier); ?> : <?php echo text($procedureInfo->procedureCode); ?>
                         </div>
                         <div class="col">
                             <ol>

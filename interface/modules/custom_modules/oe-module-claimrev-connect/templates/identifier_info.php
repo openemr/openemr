@@ -16,7 +16,7 @@ if($benefit->identifiers != null && $benefit->identifiers )
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    <h6>Identifiers</h6>
+                    <h6><?php echo xlt("Identifiers"); ?></h6>
                     <div class="row">
                         <div class="col">
                             <ul>

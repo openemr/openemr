@@ -21,7 +21,7 @@ if($receiver != null)
 ?>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Receiver Information</h5>
+            <h5 class="card-title"><?php echo xlt("Receiver Information"); ?></h5>
             <div class="row"> 
                 <div class="col">
                     <?php echo xlt($companyProviderCaption); ?>                        

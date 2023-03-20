@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS `mod_claimrev_eligibility`(
 	,`individual_json` TEXT
     ,`response_message` TEXT
     ,`status` varchar(25)
-    ,`last_checked` datetime DEFAULT
-    ,`create_date` datetime DEFAULT
+    ,`last_checked` datetime
+    ,`create_date` datetime
     ,`raw271` MEDIUMTEXT
 );
 
