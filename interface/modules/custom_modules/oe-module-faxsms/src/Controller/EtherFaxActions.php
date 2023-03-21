@@ -15,8 +15,6 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use DateTime;
 use Document;
 use Exception;
-use http\Exception\RuntimeException;
-use JetBrains\PhpStorm\NoReturn;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
@@ -350,6 +348,7 @@ class EtherFaxActions extends AppDispatch
             $direction = 'inbound';
             foreach ($faxStore as $faxDetails) {
                 $id = $faxDetails->JobId;
+                $record_id = $faxDetails->RecordId;
                 $ReceivedOn = $faxDetails->ReceivedOn;
                 $faxDate = strtotime($ReceivedOn . ' UTC');
                 $to = $faxDetails->CalledNumber;
@@ -387,16 +386,17 @@ class EtherFaxActions extends AppDispatch
                         $details['gender'] = $field->Text == "selected" && ($field->Name == "Patient Gender - Male") ? 'Male' : $details['gender'];
                         $details['gender'] = $field->Text == "selected" && ($field->Name == "Patient Gender - Female") ? 'Female' : $details['gender'];
                     }
-                    $form .= "</tbody></table></div></td></tr>\n";
+                    $form .= "</tbody>\n</table>\n</div>\n</td>\n</tr>\n";
                 }
-                $downloadLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <span class='fa fa-file-pdf'></span></a>";
-                $viewLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <span class='fa fa-file-pdf'></span></a>";
+                $messageLink = "<a role='button' href='javaScript:' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(($pid ?? 0)) . ")\"> <i class='fa fa-paper-plane'></i></a>";
+                $downloadLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download'></i></a>";
+                $viewLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf'></i></a>";
                 $details_esc = json_encode($details);
-                $forwardLink = "<a role='button' href='javaScript:' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <span class='fa fa-forward'></span>";
+                $forwardLink = "<a role='button' href='javaScript:' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward'></i></a>";
                 $detailLink = '';
                 if ($showFlag) {
                     $showFlag = text($showFlag) . ' ' . xlt("Items");
-                    $detailLink = "$showFlag<a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")'></a>";
+                    $detailLink = "<a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")'></a>$showFlag";
                 }
 
                 $faxFormattedDate = date('M j, Y g:i:sa T', $faxDate);
@@ -406,7 +406,8 @@ class EtherFaxActions extends AppDispatch
                         "</td><td>" . text($from) . "</td><td>" . text($to) .
                         "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($docLen) .
-                        "</td><td class='text-center'>" . $detailLink .
+                        "</td><td class='text-left'>" . $detailLink .
+                        "</td><td class='text-center'>" . $messageLink .
                         "</td><td class='text-center'>" . $forwardLink .
                         "</td><td class='text-center'>" . $downloadLink .
                         "</td><td class='text-center'>" . $viewLink .
@@ -429,15 +430,14 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
+     * Endpoint for fax view setup.
      * @return string
      */
     public function viewFax(): string
     {
+        $formatted_document = null;
         $docid = $this->getRequest('docid');
-        $docuri = $this->getRequest('docuri');
-        $doc = '';
         $isDownload = $this->getRequest('download');
-        $uri = $docuri;
         $isDownload = $isDownload == 'true' ? 1 : 0;
 
         if ($this->authenticate() !== 1) {
@@ -446,12 +446,12 @@ class EtherFaxActions extends AppDispatch
 
         $faxStoreDir = $this->baseDir;
 
-        if (!file_exists($faxStoreDir) && !mkdir($faxStoreDir, 0777, true) && !is_dir($faxStoreDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $faxStoreDir));
-        }
-
         try {
-            $apiResponse = $this->fetchFaxFromQueue($docid);
+            if (is_numeric($docid)) {
+                $apiResponse = $this->fetchFaxFromQueue(null, $docid);
+            } else {
+                $apiResponse = $this->fetchFaxFromQueue($docid);
+            }
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $r = "Error: Retrieving Fax:\n" . $message;
@@ -464,35 +464,41 @@ class EtherFaxActions extends AppDispatch
         if ($c_header == 'application/pdf') {
             $ext = 'pdf';
             $type = 'Fax';
-            $doc = 'data:application/pdf;base64, ' . rawurlencode(((string)$faxImage));
+            $formatted_document = 'data:application/pdf;base64, ' . $faxImage;
         } elseif ($c_header == 'image/tiff' || $c_header == 'image/tif') {
             $ext = 'tiff';
             $type = 'Fax';
-            $doc = 'data:image/tiff;base64, ' . rawurlencode((string)$faxImage);
+            $formatted_document = 'data:image/tiff;base64, ' . $faxImage;
         } else {
             $ext = 'txt';
             $type = 'Text';
-            $doc = "data:text/plain, " . text((string)$faxImage);
+            $formatted_document = "data:text/plain, " . $faxImage;
         }
-
-        $fname = "${faxStoreDir}/${type}_${docid}.${ext}";
-        file_put_contents($fname, $raw);
+        // Set up to download file.
         if ($isDownload) {
-            $this->setSession('where', $fname);
+            if (!file_exists($faxStoreDir) && !mkdir($faxStoreDir, 0777, true) && !is_dir($faxStoreDir)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $faxStoreDir));
+            }
+            $file_name = "${faxStoreDir}/${type}_${docid}.${ext}";
+            file_put_contents($file_name, $raw);
+            $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
-            return $fname;
+            return json_encode($file_name);
         }
-
-        return $doc;
+        // base64 formatted for view in iframe.
+        return json_encode(['base64' => $faxImage, 'mime' => $c_header]);
     }
 
     /**
      * @param $content
      * @return void
      */
-    #[NoReturn] public function disposeDoc($content = ''): void
+    public function disposeDoc($content = ''): void
     {
-        $where = $this->getSession('where');
+        $where = $this->getRequest('file_path', null);
+        if (empty($where)) {
+            $where = $this->getSession('where');
+        }
         if (file_exists($where)) {
             ob_clean();
             header("Cache-Control: public");
@@ -589,9 +595,10 @@ class EtherFaxActions extends AppDispatch
     public function fetchFaxQueue($start, $end): array
     {
         $rows = [];
-        $res = sqlStatement("SELECT `details_json` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
+        $res = sqlStatement("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
         while ($row = sqlFetchArray($res)) {
             $detail = json_decode($row['details_json']);
+            $detail->RecordId = $row['id'];
             $rows[] = $detail;
         }
 
@@ -600,8 +607,13 @@ class EtherFaxActions extends AppDispatch
 
     public function fetchFaxFromQueue($jobId, $id = null)
     {
-        $row = sqlQuery("SELECT `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]);
+        if (!empty($jobId)) {
+            $row = sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]);
+        } else {
+            $row = sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? LIMIT 1", [$id]);
+        }
         $detail = json_decode($row['details_json']);
+        $detail->RecordId = $row['id'];
 
         return $detail;
     }

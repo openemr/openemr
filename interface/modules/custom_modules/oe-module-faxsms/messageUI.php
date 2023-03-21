@@ -77,13 +77,21 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
         };
 
         const docInfo = function (e, ppath) {
-            top.restoreSession();
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
             let msg = <?php echo xlj('Your Account Portal') ?>;
             dlgopen(ppath, '_blank', 1240, 900, true, msg)
         };
 
         const popNotify = function (e, ppath) {
-            top.restoreSession();
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
             let msg = <?php echo xlj('Are you sure you wish to send all scheduled reminders now.') ?>;
             if (e === 'live') {
                 let yn = confirm(msg);
@@ -96,7 +104,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
         };
 
         const doSetup = function (e) {
-            top.restoreSession();
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
             e.preventDefault();
             let msg = <?php echo xlj('Credentials and SMS Notifications') ?>;
             dlgopen('', 'setup', 'modal-md', 700, '', msg, {
@@ -119,7 +131,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
 
         const forwardFax = function (e, docid = '', filePath = '', details = []) {
             let btnClose = <?php echo xlj("Cancel"); ?>;
-            let title = <?php echo xlj("Forward Fax to email, new recipient or both."); ?>;
+            let title = <?php echo xlj("Forward Fax to Email, Fax recipient or both."); ?>;
             let url = top.webroot_url +
                 '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&mode=forward&isDocuments=0&docid=' +
                 encodeURIComponent(docid);
@@ -163,11 +175,25 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 view[i] = binary.charCodeAt(i);
             }
             const blob = new Blob([view], {type: _contentType});
-            const url = URL.createObjectURL(blob);
-            window.open(url, "_blank");
+            const dataUrl = URL.createObjectURL(blob);
+            let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ?
+                document.documentElement.clientWidth : screen.width;
+            let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ?
+                document.documentElement.clientHeight : screen.height;
+            height = screen.height ? screen.height * 0.95 : height;
+            let left = (width / 4);
+            let top = '10';
+            let win = window.open(
+                '', '',
+                'toolbar=0, location=0, directories=0, status=0, menubar=0,' +
+                ' scrollbars=0, resizable=0, copyhistory=0, ' +
+                'width=' + width / 1.75 + ', height=' + height +
+                ', top=' + top + ', left=' + left
+            );
+            win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
         }
 
-        function viewDocument(e = '', docuri) {
+        function viewDocument(e = '', dataUrl) {
             if (e !== '') {
                 e.preventDefault();
                 e.stopPropagation();
@@ -186,18 +212,22 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 'width=' + width / 1.75 + ', height=' + height +
                 ', top=' + top + ', left=' + left
             );
-            win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + docuri + "'><\/iframe>");
+            win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
         }
 
         function getDocument(e, docuri, docid, downFlag) {
-            //top.restoreSession();
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
             if (e !== '') {
                 e.preventDefault();
             }
             if (docuri === null) {
                 docuri = '';
             }
-            if (downFlag === 'true') {
+            if (downFlag == 'true') {
                 let yn = confirm(
                     xl("After downloading a fax it is marked as received and no longer available.") + "\n\n" +
                     xl("Do you want to continue with download?")
@@ -214,20 +244,29 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 'docid': docid,
                 'pid': pid,
                 'download': downFlag
-            }).done(function (data) {
+            }).done(function (json) {
                 $("#brand").removeClass('fa fa-spinner fa-spin');
+                try {
+                    data = JSON.parse(json);
+                } catch {
+                    data = json;
+                }
                 if (downFlag == 'true') {
-                    location.href = "disposeDoc?type=fax";
+                    location.href = "disposeDoc?type=fax&file_path=" + encodeURIComponent(data);
                     setTimeout(retrieveMsgs, 3000);
                     return false;
                 }
-                viewDocument('', data);
+                showDocument(data.base64, data.mime);
             });
         }
 
         // SMS status
         function retrieveMsgs(e = '', req = '') {
-            top.restoreSession();
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
             if (e !== '') {
                 e.preventDefault();
                 e.stopPropagation();
@@ -274,7 +313,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
 
         // Our Call Logs.
         function getLogs() {
-            top.restoreSession();
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
             let actionUrl = 'getCallLogs';
             let id = pid;
             let datefrom = $('#fromdate').val();
@@ -305,7 +348,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
         }
 
         function getNotificationLog() {
-            top.restoreSession();
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
             let actionUrl = 'getNotificationLog';
             let id = pid;
             let datefrom = $('#fromdate').val() + " 00:00:01";
@@ -363,6 +410,16 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             return false;
         }
 
+        function notifyUser(e, faxId, recordId, pid=0) {
+            e.preventDefault();
+            let btnClose = <?php echo xlj("Exit"); ?>;
+            let title = <?php echo xlj("Message"); ?>;
+            let url = top.webroot_url +
+                '/interface/main/messages/messages.php?showall=no&task=addnew&form_active=1&gptype=9&attach=' +
+                encodeURIComponent(recordId) + "&jobId=" + encodeURIComponent(faxId) + "&pid=" + encodeURIComponent(pid);
+            dlgopen(url, 'attach_fax', 'modal-mlg', 800, '', '', {buttons: [{text: btnClose, close: true, style: 'primary'}]});
+            return false;
+        }
         // drop bucket
         const queueMsg = '' + <?php echo xlj('Fax Queue. Drop files or Click here for Fax Contact form.') ?>;
         Dropzone.autoDiscover = false;
@@ -480,9 +537,10 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Pages") ?></th>
                                             <th><?php echo xlt("Length") ?></th>
-                                            <th><?php echo xlt("Extracted Data") ?>
-                                                <a role='button' href='javaScript:' class='btn btn-link fa fa-eye ml-2' onclick="toggleDetail('collapse')"></a>
+                                            <th><a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a>
+                                                <?php echo xlt("Extracted") ?>
                                             </th>
+                                            <th><?php echo xlt("Message") ?></th>
                                             <th><?php echo xlt("Forward") ?></th>
                                             <th><?php echo xlt("Download") ?></th>
                                             <th><?php echo xlt("View") ?></th>
